@@ -8,13 +8,19 @@ import init, {
   load_e8_shard_from_opfs,
   load_geometric_shard_from_indexeddb,
   mount_open_weights_pack_to_opfs,
+  persist_mvm_cow_sectors_to_opfs,
   process_envelope,
   restore_cached_uorlut_from_indexeddb,
+  restore_gllm_v9_from_opfs,
+  restore_mvm_cow_sectors_from_opfs,
   route_and_hot_swap_e8_shard,
   run_webgpu_q12_attention_projection,
+  run_webgpu_v9_fwht64_tmac,
   stream_sharded_weights_to_indexeddb,
+  stream_v9_sharded_weights_via_opfs_worker,
   studio_dispatch,
   studio_export_uorlut_shard,
+  studio_gllm_v9_status,
   studio_load_uorlut_bytes,
   studio_merge_uorlut_shard,
   studio_shard_catalog,
@@ -24,15 +30,20 @@ import init, {
   studio_wasm_eval,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js?v=20261109geomv13';
+} from './lexlean_r4.js?v=20261110v9mvm2';
 
 globalThis.__uorOpenWeightsRuntime = {
   cacheE8ShardInOpfs: cache_e8_shard_in_opfs,
   loadE8ShardFromOpfs: load_e8_shard_from_opfs,
   runWebGpuQ12Attention: run_webgpu_q12_attention_projection,
+  runWebGpuV9Fwht64Tmac: run_webgpu_v9_fwht64_tmac,
   hydrateAll16E8ShardsToOpfs: hydrate_all_16_e8_shards_to_opfs,
   routeAndHotSwapE8Shard: route_and_hot_swap_e8_shard,
   generateWithWebGpuCoprocessor: generate_with_webgpu_open_weights_coprocessor,
+  restoreGllmV9FromOpfs: restore_gllm_v9_from_opfs,
+  streamV9ShardedWeightsViaOpfsWorker: stream_v9_sharded_weights_via_opfs_worker,
+  persistMvmCowSectorsToOpfs: persist_mvm_cow_sectors_to_opfs,
+  restoreMvmCowSectorsFromOpfs: restore_mvm_cow_sectors_from_opfs,
 };
 
 const form = document.getElementById('application-form');
@@ -6831,6 +6842,9 @@ class LexLeanTerminal {
         this.printAnsi('  \x1b[33mtrain\x1b[0m [epochs]          Run on-device discrete coordinate descent sweeps');
         this.printAnsi('  \x1b[33mtraces\x1b[0m [count]          Inspect OTel trace buffer (uor.gllm.trace/1)');
         this.printAnsi('  \x1b[33menv\x1b[0m / \x1b[33mexport\x1b[0m / \x1b[33mecho\x1b[0m    Manage container session environment variables');
+        this.printAnsi('  \x1b[33mmvm\x1b[0m [status|exec|handshake] Execute inside RV64IMAC Linux MicroVM (R4-37)');
+        this.printAnsi('  \x1b[33mcc\x1b[0m <src.c> -o <bin>     Compile C source to native RV64IMAC ELF64 binary');
+        this.printAnsi('  \x1b[33mvsock\x1b[0m [probe|inet-test] Inspect SpiralCore AF_VSOCK=40 zero-NIC switch');
         this.printAnsi('  \x1b[33mclear\x1b[0m / \x1b[33mhistory\x1b[0m / \x1b[33mreset\x1b[0m Manage terminal scrollback & Wasm engine state');
         break;
       }
@@ -7492,7 +7506,18 @@ class LexLeanTerminal {
       }
       case 'model': {
         const sub = args[0] || 'status';
-        if (sub === 'sync') {
+        if (sub === 'v9-sync') {
+          this.printAnsi('\x1b[90mStreaming UORGLLM9 shards into OPFS via SyncAccessHandle Worker...\x1b[0m');
+          if (typeof stream_v9_sharded_weights_via_opfs_worker === 'function') {
+            stream_v9_sharded_weights_via_opfs_worker(null, true)
+              .then((res) => {
+                this.printAnsi(`\x1b[32m[OK]\x1b[0m UORGLLM9 active: ${res ? `${res.n_layers}L ${res.d_model}D (${res.source})` : 'embedded bootstrap_v9 (6L 64D)'}`);
+              })
+              .catch((e) => {
+                this.printAnsi(`\x1b[31m[ERROR]\x1b[0m OPFS sync failed: ${e?.message || String(e)}`);
+              });
+          }
+        } else if (sub === 'sync') {
           this.printAnsi('\x1b[90mSyncing weight cache to IndexedDB...\x1b[0m');
           if (typeof sync_cached_weights === 'function') {
             sync_cached_weights()
@@ -7555,8 +7580,13 @@ class LexLeanTerminal {
         } else {
           try {
             const st = dispatchStudioEnvelope('weight_status', '');
+            const v9 = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
             this.printAnsi('\x1b[1m\x1b[36m--- Model Weights & Container Metadata ---\x1b[0m');
-            this.printAnsi(JSON.stringify(st, null, 2));
+            if (v9) {
+              this.printAnsi(JSON.stringify({ gllm_v9: v9, uorlut_v8: st }, null, 2));
+            } else {
+              this.printAnsi(JSON.stringify(st, null, 2));
+            }
           } catch (err) {
             this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Failed: ${err?.message || String(err)}`);
           }
@@ -7727,7 +7757,93 @@ class LexLeanTerminal {
         }
         break;
       }
+      case 'mvm': {
+        const sub = args[0] || 'status';
+        if (sub === 'status') {
+          const st = dispatchStudioEnvelope('mvm_status', '');
+          this.printAnsi('\x1b[1m\x1b[36m--- MVM-Wasm RV64IMAC MicroVM (R4-37) ---\x1b[0m');
+          this.printAnsi(`  ISA:          \x1b[32m${st?.architecture || 'riscv64-rv64imac'}\x1b[0m`);
+          this.printAnsi(`  Guest CID:    \x1b[33m${st?.guest_cid ?? 3}\x1b[0m`);
+          this.printAnsi(`  Zero-NIC:     \x1b[32mAF_INET denied (-EAFNOSUPPORT)\x1b[0m`);
+          this.printAnsi(`  Transport:    ${st?.transport || 'SpiralCore virtio-vsock (AF_VSOCK=40)'}`);
+          this.printAnsi(`  Dirty CoW:    ${st?.dirty_cow_sectors ?? 0} x 64 KB`);
+          this.printAnsi(`  CoW SHA-256:  ${st?.cow_state_sha256 || '—'}`);
+        } else if (sub === 'handshake') {
+          const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: '/sbin/mvm-agent --handshake', cwd: this.cwd || '/workspace' }));
+          if (res?.mvm_stdout) this.printAnsi(res.mvm_stdout.trimEnd());
+          if (Array.isArray(res?.vsock_frames) && res.vsock_frames.length > 0) {
+            const f = res.vsock_frames[0];
+            this.printAnsi(`\x1b[36m[SpiralCore AF_VSOCK]\x1b[0m CID ${f.src_cid} -> CID ${f.dst_cid}:${f.vsock_port} spin=${f.cl06_spin} orbit=${f.e8_orbit}`);
+          }
+          this.setExitCode(res?.exit_code ?? 0);
+        } else {
+          const innerCmd = sub === 'exec' ? args.slice(1).join(' ') : args.join(' ');
+          const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: innerCmd, cwd: this.cwd || '/workspace' }));
+          if (res?.mvm_stdout) {
+            for (const line of res.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
+          }
+          if (res?.mvm_stderr) {
+            for (const line of res.mvm_stderr.replace(/\n$/, '').split('\n')) this.printAnsi(`\x1b[31m${line}\x1b[0m`);
+          }
+          const ws = dispatchStudioEnvelope('workspace_list', '');
+          if (ws && ws.files) renderWorkspaceList(ws);
+          if (typeof persist_mvm_cow_sectors_to_opfs === 'function') {
+            persist_mvm_cow_sectors_to_opfs().catch(() => {});
+          }
+          this.setExitCode(res?.exit_code ?? 0);
+        }
+        break;
+      }
+      case 'cc':
+      case 'gcc':
+      case 'sha256sum':
+      case 'mvmbox': {
+        const fullCmd = rawLine || [cmd, ...args].join(' ');
+        const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: fullCmd, cwd: this.cwd || '/workspace' }));
+        if (res?.mvm_stdout) {
+          for (const line of res.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
+        }
+        if (res?.mvm_stderr) {
+          for (const line of res.mvm_stderr.replace(/\n$/, '').split('\n')) this.printAnsi(`\x1b[31m${line}\x1b[0m`);
+        }
+        if ((cmd === 'cc' || cmd === 'gcc') && (res?.exit_code ?? 1) === 0) {
+          this.printAnsi(`\x1b[32m[ELF64 EM_RISCV=${res?.compiled_elf_machine ?? 243}]\x1b[0m Compiled native RV64IMAC executable.`);
+        }
+        const ws = dispatchStudioEnvelope('workspace_list', '');
+        if (ws && ws.files) renderWorkspaceList(ws);
+        if (typeof persist_mvm_cow_sectors_to_opfs === 'function') {
+          persist_mvm_cow_sectors_to_opfs().catch(() => {});
+        }
+        this.setExitCode(res?.exit_code ?? 0);
+        break;
+      }
+      case 'vsock': {
+        const mode = args[0] === 'inet-test' ? '--try-inet' : '--vsock-ping';
+        const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: `/bin/vsock_probe ${mode}`, cwd: this.cwd || '/workspace' }));
+        if (res?.mvm_stdout) this.printAnsi(res.mvm_stdout.trimEnd());
+        this.setExitCode(res?.exit_code ?? 0);
+        break;
+      }
       default: {
+        if (cmd.startsWith('./') || cmd.startsWith('/')) {
+          const fullCmd = rawLine || [cmd, ...args].join(' ');
+          const mvmRes = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: fullCmd, cwd: this.cwd || '/workspace' }));
+          if (mvmRes && typeof mvmRes.mvm_stdout === 'string' && mvmRes.exit_code !== 127) {
+            if (mvmRes.mvm_stdout.length > 0) {
+              for (const line of mvmRes.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
+            }
+            if (mvmRes.mvm_stderr) {
+              for (const line of mvmRes.mvm_stderr.replace(/\n$/, '').split('\n')) this.printAnsi(`\x1b[31m${line}\x1b[0m`);
+            }
+            const ws = dispatchStudioEnvelope('workspace_list', '');
+            if (ws && ws.files) renderWorkspaceList(ws);
+            if (typeof persist_mvm_cow_sectors_to_opfs === 'function') {
+              persist_mvm_cow_sectors_to_opfs().catch(() => {});
+            }
+            this.setExitCode(mvmRes.exit_code ?? 0);
+            break;
+          }
+        }
         this.printAnsi(`\x1b[31mlexlean-sh: command not found: ${cmd}\x1b[0m (try \x1b[33mhelp\x1b[0m)`);
         this.setExitCode(127);
         break;
@@ -11079,6 +11195,16 @@ try {
     claudeChatInput.focus();
   }
   fetchRecordedTraces();
+  if (typeof restore_mvm_cow_sectors_from_opfs === 'function') {
+    restore_mvm_cow_sectors_from_opfs().catch(() => {});
+  }
+  if (typeof stream_v9_sharded_weights_via_opfs_worker === 'function') {
+    stream_v9_sharded_weights_via_opfs_worker()
+      .then((loaded) => {
+        if (loaded) updateWeightCacheBadge();
+      })
+      .catch(() => {});
+  }
 } catch (err) {
   appendChatTurn(
     'assistant',

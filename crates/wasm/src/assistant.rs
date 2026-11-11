@@ -1008,6 +1008,53 @@ impl StudioEngine {
         }
 
         let lower = trimmed.to_ascii_lowercase();
+        let is_mvm_sandbox_turn = !lower.contains("<tools>")
+            && !lower.contains("available tools:")
+            && (lower.contains("microvm")
+                || lower.contains("mvm-wasm")
+                || lower.contains("mvm sandbox")
+                || lower.contains("linux sandbox"))
+            && (lower.contains("run ")
+                || lower.contains("execute ")
+                || lower.starts_with("[agent_mode]"));
+        if is_mvm_sandbox_turn {
+            let agent_prompt = if trimmed.starts_with("[agent_mode]") {
+                trimmed.to_string()
+            } else {
+                format!("[agent_mode] {trimmed}")
+            };
+            let step1 = self
+                .gllm_v9
+                .generate_compositional(&agent_prompt, &self.chat_history, 128);
+            if let Some(cmd) = crate::extract_mvm_cmd_from_generation(&step1.text) {
+                self.sync_workspace_into_mvm();
+                if let Ok(outcome) = self.mvm.exec_command(&cmd, "/workspace") {
+                    self.sync_workspace_from_mvm();
+                    let obs_clean = outcome
+                        .stdout
+                        .lines()
+                        .map(str::trim)
+                        .filter(|l| !l.is_empty())
+                        .collect::<Vec<_>>()
+                        .join(" | ");
+                    let obs_for_kv = if obs_clean.is_empty() {
+                        format!("exit_code={}", outcome.exit_code)
+                    } else {
+                        obs_clean
+                    };
+                    let obs_prompt = format!(
+                        "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
+                    );
+                    let step2 =
+                        self.gllm_v9
+                            .generate_compositional(&obs_prompt, &self.chat_history, 128);
+                    if !step2.text.is_empty() {
+                        return step2.text;
+                    }
+                }
+            }
+        }
+
         if lower.contains("[agent_mode]")
             || lower.contains("<tool_response>")
             || lower.contains("<observation>")
@@ -1022,6 +1069,24 @@ impl StudioEngine {
                 &self.chat_history,
             ) {
                 return agent_turn;
+            }
+        }
+
+        let is_compositional_v9_turn =
+            (lower.starts_with("given ") && lower.contains(" = ") && lower.contains("expression"))
+                || ((lower.starts_with("write a rust function ")
+                    || lower.starts_with("write a python function ")
+                    || lower.starts_with("write a freestanding c function "))
+                    && trimmed.contains('('))
+                || lower.contains("uorgllm")
+                || lower.contains("mvm-wasm")
+                || lower.contains("af_vsock");
+        if is_compositional_v9_turn {
+            let v9_gen = self
+                .gllm_v9
+                .generate_compositional(trimmed, &self.chat_history, 144);
+            if v9_gen.generated_tokens.len() >= 8 && !v9_gen.text.is_empty() {
+                return v9_gen.text;
             }
         }
 

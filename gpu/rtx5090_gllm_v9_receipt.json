@@ -1,0 +1,32 @@
+{
+  "schema": "uor-r4.gpu-training-receipt/9",
+  "gpu_device": "NVIDIA GeForce RTX 5090",
+  "compute_capability": "12.0",
+  "vram_mib": 32109,
+  "corpus_sequences": 5250,
+  "dense_matmul_ops": 0,
+  "softmax_ops": 0,
+  "turn_memory_entries": 0,
+  "bootstrap_v9": {
+    "d_model": 128,
+    "n_layers": 6,
+    "n_heads": 16,
+    "initial_hinge_loss": 700.922,
+    "final_hinge_loss": 58.2724,
+    "post_quant_exact_token_acc_pct": 98.6744,
+    "container_bytes": 10010406,
+    "container_sha256": "9fbe91bbac22db96c9b79bd087b4b1c12c4b74dd4debfcda409f79e645ac22f7",
+    "elapsed_seconds": 176.321
+  },
+  "opfs_sharded_v9": {
+    "d_model": 128,
+    "n_layers": 8,
+    "n_heads": 16,
+    "initial_hinge_loss": 686.816,
+    "final_hinge_loss": 62.193,
+    "post_quant_exact_token_acc_pct": 98.6061,
+    "container_bytes": 12895254,
+    "container_sha256": "ff3021c04bde6b1e0a65d7a7390eea61a6a2f73a86bc1f232a8732dd84448a60",
+    "elapsed_seconds": 185.994
+  }
+}

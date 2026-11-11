@@ -20,6 +20,8 @@ use wasm_bindgen::prelude::*;
 /// Standard Provider-Compatible API Types and Dispatch Engine (Anthropic / OpenAI).
 pub mod api;
 mod assistant;
+/// `UOR-R4-GLLM v9` (`UORGLLM9`) Compositional Geometric Language Model Runtime (`R4-38`).
+pub mod gllm_v9;
 /// Pre-trained Generalized Geometric Language Model (`UR4GLM01`) Concept Manifold & Reasoner.
 pub mod glm_weights;
 #[allow(dead_code, clippy::all, missing_docs)]
@@ -139,6 +141,10 @@ pub mod lexlean_generated {
 }
 /// Native integer execution engine for `uor-r4.lut-stack/7` and `uor-r4.lut-stack/8` (`UORLUT01`).
 pub mod lut_stack_exec;
+/// `MVM-Wasm` RV64IMAC 64-bit Linux MicroVM and `SpiralCore` `virtio-vsock` zero-NIC switch (`R4-37`).
+pub mod mvm;
+/// Freestanding C-to-`RV64IMAC` ELF64 compiler targeting `MVM-Wasm` (`R4-37`).
+pub mod mvm_cc;
 /// OpenTelemetry (OTel) for Geometric Language Models and Cross-Lifecycle Provenance.
 pub mod otel;
 /// In-Wasm Rust AST Parser, Static Typechecker, Fuel-Bounded Interpreter, and Live Test Runner (`R4-32`).
@@ -458,6 +464,8 @@ pub struct StudioEngine {
     pub(crate) lut_stack_source: String,
     pub(crate) last_lut_generation: Option<lut_stack_exec::LutStackGenerationResult>,
     pub(crate) rolling_context: lut_stack_exec::RollingContextState,
+    pub(crate) mvm: mvm::MvmSandbox,
+    pub(crate) gllm_v9: Arc<gllm_v9::GllmV9Model>,
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {
@@ -1218,13 +1226,409 @@ impl StudioEngine {
             lut_stack_source: "bootstrap_v8.uorlut (WASM embedded)".to_string(),
             last_lut_generation: None,
             rolling_context: lut_stack_exec::RollingContextState::default(),
+            mvm: mvm::MvmSandbox::boot_default().expect("embedded UORMVM01 initramfs boots"),
+            gllm_v9: gllm_v9::GllmV9Model::default_embedded(),
         };
         engine.register_special_tokens();
         for (prompt, reply) in default_knowledge_turns() {
             engine.admit_turn(prompt, reply);
         }
         engine.init_default_workspace();
+        engine.sync_workspace_into_mvm();
         engine
+    }
+
+    /// Synchronize active Studio `/workspace` files into the `MVM-Wasm` CoW filesystem.
+    pub fn sync_workspace_into_mvm(&mut self) {
+        let mut map = std::collections::BTreeMap::new();
+        for wf in &self.workspace_files {
+            map.insert(wf.path.clone(), wf.content.clone());
+        }
+        self.mvm.sync_from_workspace_map(&map);
+    }
+
+    /// Synchronize text files mutated inside `MVM-Wasm` `/workspace` back into Studio's workspace list.
+    pub fn sync_workspace_from_mvm(&mut self) {
+        let exported = self.mvm.export_workspace_text_files();
+        for (rel, content) in exported {
+            let receipt = sha256_hex(content.as_bytes());
+            if let Some(existing) = self.workspace_files.iter_mut().find(|f| f.path == rel) {
+                if existing.content != content {
+                    existing.content = content;
+                    existing.updated_receipt = receipt;
+                }
+            } else {
+                let lang = if rel.ends_with(".rs") {
+                    "rust"
+                } else if rel.ends_with(".c") || rel.ends_with(".h") {
+                    "c"
+                } else if rel.ends_with(".md") {
+                    "markdown"
+                } else {
+                    "text"
+                };
+                self.workspace_files.push(WorkspaceFile {
+                    path: rel,
+                    language: lang.to_string(),
+                    content,
+                    pinned: false,
+                    updated_receipt: receipt,
+                });
+            }
+        }
+    }
+
+    /// Execute a Linux shell/ELF64 command chain inside the `MVM-Wasm` `RV64IMAC` sandbox (`R4-37`).
+    pub fn mvm_exec_json(&mut self, payload: &str) -> String {
+        let trimmed = payload.trim();
+        let (cmd, cwd) = if trimmed.starts_with('{') {
+            match serde_json::from_str::<serde_json::Value>(trimmed) {
+                Ok(v) => {
+                    let c = v
+                        .get("cmd")
+                        .and_then(|x| x.as_str())
+                        .unwrap_or("")
+                        .to_string();
+                    let w = v
+                        .get("cwd")
+                        .and_then(|x| x.as_str())
+                        .unwrap_or("/workspace")
+                        .to_string();
+                    (c, w)
+                }
+                Err(e) => {
+                    return format!(
+                        "{{\"status\":\"error\",\"message\":\"invalid mvm_exec JSON: {}\"}}",
+                        escape_json(&e.to_string())
+                    );
+                }
+            }
+        } else {
+            (trimmed.to_string(), "/workspace".to_string())
+        };
+
+        if cmd.trim().is_empty() {
+            return "{\"status\":\"error\",\"message\":\"Empty MVM command.\"}".to_string();
+        }
+
+        self.sync_workspace_into_mvm();
+        match self.mvm.exec_command(&cmd, &cwd) {
+            Ok(outcome) => {
+                self.sync_workspace_from_mvm();
+                let vsock_json: Vec<serde_json::Value> = outcome
+                    .vsock_frames
+                    .iter()
+                    .map(|pkt| {
+                        serde_json::json!({
+                            "src_cid": pkt.header.src_cid,
+                            "dst_cid": pkt.header.dst_cid,
+                            "vsock_port": pkt.header.vsock_port,
+                            "cl06_spin": pkt.header.cl06_spin,
+                            "e8_orbit": pkt.header.e8_orbit,
+                            "payload_len": pkt.header.payload_len,
+                            "payload_utf8": String::from_utf8_lossy(&pkt.payload).into_owned(),
+                        })
+                    })
+                    .collect();
+                serde_json::json!({
+                    "status": "ok",
+                    "architecture": self.mvm.architecture(),
+                    "guest_cid": self.mvm.guest_cid(),
+                    "exit_code": outcome.exit_code,
+                    "mvm_stdout": outcome.stdout,
+                    "mvm_stderr": outcome.stderr,
+                    "instructions_retired": outcome.instructions_retired,
+                    "compiled_elf_machine": outcome.compiled_elf_machine,
+                    "cow_state_sha256": outcome.cow_state_sha256,
+                    "dirty_cow_sectors": self.mvm.dirty_cow_sector_count(),
+                    "vsock_frames": vsock_json,
+                })
+                .to_string()
+            }
+            Err(err) => serde_json::json!({
+                "status": "error",
+                "exit_code": 1,
+                "message": err.to_string(),
+                "mvm_stderr": err.to_string(),
+            })
+            .to_string(),
+        }
+    }
+
+    /// Return `MVM-Wasm` guest status, zero-NIC policy state, and CoW block digest as JSON (`R4-37`).
+    pub fn mvm_status_json(&self) -> String {
+        serde_json::json!({
+            "status": "ok",
+            "architecture": self.mvm.architecture(),
+            "guest_cid": self.mvm.guest_cid(),
+            "nic_enabled": false,
+            "transport": "SpiralCore virtio-vsock (AF_VSOCK=40)",
+            "cow_sector_bytes": mvm::MVM_COW_SECTOR_BYTES,
+            "dirty_cow_sectors": self.mvm.dirty_cow_sector_count(),
+            "cow_state_sha256": self.mvm.cow_state_sha256(),
+        })
+        .to_string()
+    }
+
+    /// Hot-load a `UORGLLM9` (`UOR-R4-GLLM v9`) binary weight container (`R4-38`).
+    pub fn load_gllm_v9_bytes(
+        &mut self,
+        bytes: &[u8],
+        source_label: &str,
+    ) -> Result<String, String> {
+        let label = if source_label.trim().is_empty() {
+            "OPFS / Custom UORGLLM9"
+        } else {
+            source_label.trim()
+        };
+        let parsed =
+            gllm_v9::GllmV9Model::parse_with_label(bytes, label).map_err(|e| e.to_string())?;
+        self.gllm_v9 = Arc::new(parsed);
+        Ok(self.gllm_v9_status_json())
+    }
+
+    /// Return verified container telemetry for the active `UORGLLM9` compositional model (`R4-38`).
+    pub fn gllm_v9_status_json(&self) -> String {
+        let hdr = self.gllm_v9.header();
+        serde_json::json!({
+            "status": "ok",
+            "format": "UORGLLM9",
+            "version": hdr.version,
+            "source": self.gllm_v9.source_label(),
+            "vocab_size": hdr.vocab_size,
+            "d_model": hdr.d_model,
+            "n_layers": hdr.n_layers,
+            "n_heads": hdr.n_heads,
+            "lut_groups": hdr.lut_groups,
+            "turn_memory_entries": hdr.turn_memory_entries,
+            "dense_matmul_ops": hdr.dense_matmul_ops,
+            "softmax_ops": hdr.softmax_ops,
+            "container_sha256": self.gllm_v9.container_sha256(),
+        })
+        .to_string()
+    }
+
+    /// Execute pure-geometric compositional autoregressive generation via `UORGLLM9` (`R4-38`).
+    pub fn gllm_v9_generate_json(&self, payload: &str) -> String {
+        let trimmed = payload.trim();
+        let (prompt_str, max_toks) = if trimmed.starts_with('{') && trimmed.ends_with('}') {
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(trimmed) {
+                let p = v
+                    .get("prompt")
+                    .and_then(|x| x.as_str())
+                    .unwrap_or(trimmed)
+                    .to_string();
+                let m = v
+                    .get("max_new_tokens")
+                    .or_else(|| v.get("max_tokens"))
+                    .and_then(|x| x.as_u64())
+                    .unwrap_or(128) as usize;
+                (p, m)
+            } else {
+                (trimmed.to_string(), 128usize)
+            }
+        } else {
+            (trimmed.to_string(), 128usize)
+        };
+        let gen = self
+            .gllm_v9
+            .generate_compositional(&prompt_str, &self.chat_history, max_toks);
+        serde_json::json!({
+            "status": "ok",
+            "format": "UORGLLM9",
+            "reply": gen.text,
+            "kv_prompt_tokens": gen.kv_prompt_tokens,
+            "generated_token_count": gen.generated_tokens.len(),
+            "layers_executed": gen.layers_executed,
+            "turn_memory_hits": gen.turn_memory_hits,
+            "prll_mass_conserved": gen.prll_mass_conserved,
+            "model_sha256": gen.model_sha256,
+        })
+        .to_string()
+    }
+
+    /// Execute the 2-stage `UORGLLM9` + `MVM-Wasm` compositional agentic tool loop (`R4-37` + `R4-38`).
+    pub fn gllm_v9_agent_json(&mut self, payload: &str) -> String {
+        let raw_trimmed = payload.trim();
+        let (unwrapped, max_toks) = if raw_trimmed.starts_with('{') && raw_trimmed.ends_with('}') {
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(raw_trimmed) {
+                let p = v
+                    .get("prompt")
+                    .and_then(|x| x.as_str())
+                    .unwrap_or(raw_trimmed)
+                    .trim()
+                    .to_string();
+                let m = v
+                    .get("max_new_tokens")
+                    .or_else(|| v.get("max_tokens"))
+                    .and_then(|x| x.as_u64())
+                    .unwrap_or(128) as usize;
+                (p, m)
+            } else {
+                (raw_trimmed.to_string(), 128usize)
+            }
+        } else {
+            (raw_trimmed.to_string(), 128usize)
+        };
+        let trimmed = unwrapped.as_str();
+        let agent_prompt = if trimmed.starts_with("[agent_mode]") {
+            trimmed.to_string()
+        } else {
+            format!("[agent_mode] {trimmed}")
+        };
+
+        let step1 =
+            self.gllm_v9
+                .generate_compositional(&agent_prompt, &self.chat_history, max_toks);
+
+        let extracted_cmd = extract_mvm_cmd_from_generation(&step1.text);
+        if let Some(cmd) = extracted_cmd {
+            self.sync_workspace_into_mvm();
+            match self.mvm.exec_command(&cmd, "/workspace") {
+                Ok(outcome) => {
+                    self.sync_workspace_from_mvm();
+                    let obs_clean = outcome
+                        .stdout
+                        .lines()
+                        .map(str::trim)
+                        .filter(|l| !l.is_empty())
+                        .collect::<Vec<_>>()
+                        .join(" | ");
+                    let obs_for_kv = if obs_clean.is_empty() {
+                        format!("exit_code={}", outcome.exit_code)
+                    } else {
+                        obs_clean.clone()
+                    };
+                    let obs_prompt = format!(
+                        "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
+                    );
+                    let step2 =
+                        self.gllm_v9
+                            .generate_compositional(&obs_prompt, &self.chat_history, 128);
+                    let final_reply = step2.text.clone();
+                    self.chat_history
+                        .push((trimmed.to_string(), final_reply.clone()));
+                    serde_json::json!({
+                        "status": "ok",
+                        "turn_memory_hits": step1.turn_memory_hits + step2.turn_memory_hits,
+                        "layers_executed": step1.layers_executed,
+                        "prll_mass_conserved": step1.prll_mass_conserved && step2.prll_mass_conserved,
+                        "mvm_tool_executed": true,
+                        "mvm_cmd": cmd,
+                        "mvm_exit_code": outcome.exit_code,
+                        "mvm_stdout": outcome.stdout,
+                        "mvm_stderr": outcome.stderr,
+                        "mvm_instructions_retired": outcome.instructions_retired,
+                        "tool_call_generation": step1.text,
+                        "assistant_reply": final_reply,
+                        "model_sha256": self.gllm_v9.container_sha256(),
+                    })
+                    .to_string()
+                }
+                Err(err) => serde_json::json!({
+                    "status": "error",
+                    "turn_memory_hits": 0,
+                    "mvm_tool_executed": false,
+                    "mvm_exit_code": 1,
+                    "message": err.to_string(),
+                })
+                .to_string(),
+            }
+        } else {
+            serde_json::json!({
+                "status": "ok",
+                "turn_memory_hits": step1.turn_memory_hits,
+                "layers_executed": step1.layers_executed,
+                "prll_mass_conserved": step1.prll_mass_conserved,
+                "mvm_tool_executed": false,
+                "mvm_exit_code": 0,
+                "mvm_stdout": "",
+                "assistant_reply": step1.text,
+                "model_sha256": self.gllm_v9.container_sha256(),
+            })
+            .to_string()
+        }
+    }
+
+    /// Route or proxy a `SpiralCore` `virtio-vsock` frame or host secret-placeholder check (`R4-37`).
+    pub fn mvm_vsock_frame_json(&mut self, payload: &str) -> String {
+        let parsed: serde_json::Value = match serde_json::from_str(payload.trim()) {
+            Ok(v) => v,
+            Err(e) => {
+                return serde_json::json!({
+                    "status": "error",
+                    "message": format!("invalid mvm_vsock_frame JSON: {e}"),
+                })
+                .to_string();
+            }
+        };
+        let action = parsed
+            .get("action")
+            .and_then(|v| v.as_str())
+            .unwrap_or("packet");
+        match action {
+            "register_secret" => {
+                let name = parsed.get("name").and_then(|v| v.as_str()).unwrap_or("");
+                let secret = parsed.get("secret").and_then(|v| v.as_str()).unwrap_or("");
+                let hosts_vec: Vec<String> = parsed
+                    .get("hosts")
+                    .and_then(|v| v.as_array())
+                    .map(|arr| {
+                        arr.iter()
+                            .filter_map(|x| x.as_str().map(str::to_string))
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                let host_refs: Vec<&str> = hosts_vec.iter().map(String::as_str).collect();
+                self.mvm.register_host_secret(name, secret, &host_refs);
+                serde_json::json!({
+                    "status": "ok",
+                    "registered": name,
+                    "guest_ram_contains_secret": self.mvm.guest_ram_contains(secret.as_bytes()),
+                })
+                .to_string()
+            }
+            "egress" => {
+                let host = parsed.get("host").and_then(|v| v.as_str()).unwrap_or("");
+                let template = parsed
+                    .get("template")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
+                let res = self.mvm.proxy_vsock_egress(host, template);
+                serde_json::json!({
+                    "status": "ok",
+                    "verdict": format!("{:?}", res.verdict),
+                    "admitted": res.outbound_payload.is_some(),
+                })
+                .to_string()
+            }
+            _ => {
+                let dst_cid = parsed.get("dst_cid").and_then(|v| v.as_u64()).unwrap_or(2) as u16;
+                let port = parsed.get("port").and_then(|v| v.as_u64()).unwrap_or(1024) as u16;
+                let spin = parsed.get("spin").and_then(|v| v.as_u64()).unwrap_or(0) as u8;
+                let orbit = parsed.get("orbit").and_then(|v| v.as_u64()).unwrap_or(0) as u8;
+                let body = parsed.get("payload").and_then(|v| v.as_str()).unwrap_or("");
+                match self
+                    .mvm
+                    .build_vsock_packet(dst_cid, port, spin, orbit, body.as_bytes())
+                {
+                    Ok(raw) => serde_json::json!({
+                        "status": "ok",
+                        "frame_bytes": raw.len(),
+                        "dst_cid": dst_cid,
+                        "port": port,
+                        "cl06_spin": spin,
+                        "e8_orbit": orbit,
+                    })
+                    .to_string(),
+                    Err(err) => serde_json::json!({
+                        "status": "error",
+                        "message": err.to_string(),
+                    })
+                    .to_string(),
+                }
+            }
+        }
     }
 
     /// Hot-load a `UORLUT01` (`uor-r4.lut-stack/7` or `/8`) binary weight pack into the active engine.
@@ -5516,6 +5920,12 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
             }
         }
         "cargo" | "wasm_eval" => engine.execute_cargo_json(payload),
+        "mvm_exec" => engine.mvm_exec_json(payload),
+        "mvm_status" => engine.mvm_status_json(),
+        "mvm_vsock_frame" => engine.mvm_vsock_frame_json(payload),
+        "gllm_v9_generate" | "gllm_v9_chat" => engine.gllm_v9_generate_json(payload),
+        "gllm_v9_status" => engine.gllm_v9_status_json(),
+        "gllm_v9_agent" => engine.gllm_v9_agent_json(payload),
         "shard_status" | "shards" => engine.shard_catalog_json(),
         "shard_export" => {
             let e8_root = payload.trim().parse::<u8>().unwrap_or(0) % 16;
@@ -5708,6 +6118,94 @@ pub fn studio_weight_pack_status() -> String {
     engine.weight_pack_status_json()
 }
 
+/// Hot-load a verified `UORGLLM9` (`UOR-R4-GLLM v9`) container hydrated from OPFS shards (`R4-38`).
+#[wasm_bindgen]
+pub fn studio_load_uorgllm_v9_bytes(bytes: &[u8], source_label: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    match engine.load_gllm_v9_bytes(bytes, source_label) {
+        Ok(json) => json,
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "message": err,
+        })
+        .to_string(),
+    }
+}
+
+/// Query the active `UORGLLM9` (`UOR-R4-GLLM v9`) compositional runtime status as JSON (`R4-38`).
+#[wasm_bindgen]
+pub fn studio_gllm_v9_status() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.gllm_v9_status_json()
+}
+
+fn sanitize_mvm_shell_clause(raw: &str) -> String {
+    let mut s = raw.trim().to_string();
+    for suffix in [
+        " inside the Linux MicroVM sandbox.",
+        " inside the Linux MicroVM sandbox",
+        " inside the Linux MicroVM.",
+        " inside the Linux MicroVM",
+        " in the Linux MicroVM sandbox.",
+        " in the Linux MicroVM sandbox",
+        " in the sandbox.",
+        " in the sandbox",
+    ] {
+        if let Some(stripped) = s.strip_suffix(suffix) {
+            s = stripped.trim().to_string();
+        }
+    }
+    for (eng, sh) in [
+        (" and compute ", " && "),
+        (" and run ", " && "),
+        (" and execute ", " && "),
+        (" then run ", " && "),
+    ] {
+        if s.contains(eng) {
+            s = s.replace(eng, sh);
+        }
+    }
+    s.trim().trim_end_matches('.').trim().to_string()
+}
+
+pub(crate) fn extract_mvm_cmd_from_generation(generated: &str) -> Option<String> {
+    if let Some(start) = generated.find("<tool_call>") {
+        let rest = &generated[start + "<tool_call>".len()..];
+        let body = rest.split("</tool_call>").next().unwrap_or(rest).trim();
+        if let Ok(val) = serde_json::from_str::<serde_json::Value>(body) {
+            if let Some(cmd) = val
+                .get("arguments")
+                .and_then(|a| a.get("cmd"))
+                .and_then(|c| c.as_str())
+            {
+                let cleaned = sanitize_mvm_shell_clause(cmd);
+                if !cleaned.is_empty() {
+                    return Some(cleaned);
+                }
+            }
+        }
+        if let Some(cmd_idx) = body.find("\"cmd\":") {
+            let after = body[cmd_idx + "\"cmd\":".len()..].trim_start();
+            if let Some(inner) = after.strip_prefix('"') {
+                let raw_cmd = inner.split('"').next().unwrap_or("").trim();
+                let cleaned = sanitize_mvm_shell_clause(raw_cmd);
+                if !cleaned.is_empty() {
+                    return Some(cleaned);
+                }
+            }
+        }
+    }
+    None
+}
+
 /// Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
 #[wasm_bindgen]
 pub fn studio_wasm_eval(subcommand: &str, filter: &str) -> String {
@@ -5717,6 +6215,59 @@ pub fn studio_wasm_eval(subcommand: &str, filter: &str) -> String {
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.execute_cargo_json(&format!("{}\t{}", subcommand.trim(), filter.trim()))
+}
+
+/// Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
+#[wasm_bindgen]
+pub fn studio_export_mvm_cow_sectors() -> Vec<u8> {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let dirty = engine.mvm.export_dirty_cow_sectors();
+    let mut buf = Vec::with_capacity(12 + dirty.len() * (4 + mvm::MVM_COW_SECTOR_BYTES));
+    buf.extend_from_slice(b"MVM_COW1");
+    buf.extend_from_slice(&(dirty.len() as u32).to_le_bytes());
+    for (id, sector) in dirty {
+        buf.extend_from_slice(&id.to_le_bytes());
+        buf.extend_from_slice(&sector);
+    }
+    buf
+}
+
+/// Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`).
+#[wasm_bindgen]
+pub fn studio_import_mvm_cow_sectors(bytes: &[u8]) -> String {
+    if bytes.len() < 12 || &bytes[0..8] != b"MVM_COW1" {
+        return "{\"status\":\"error\",\"message\":\"Invalid MVM_COW1 magic.\"}".to_string();
+    }
+    let count = u32::from_le_bytes([bytes[8], bytes[9], bytes[10], bytes[11]]) as usize;
+    let stride = 4 + mvm::MVM_COW_SECTOR_BYTES;
+    if bytes.len() < 12 + count.saturating_mul(stride) {
+        return "{\"status\":\"error\",\"message\":\"Truncated MVM_COW1 sector stream.\"}"
+            .to_string();
+    }
+    let mut sectors = Vec::with_capacity(count);
+    let mut cur = 12usize;
+    for _ in 0..count {
+        let id = u32::from_le_bytes([bytes[cur], bytes[cur + 1], bytes[cur + 2], bytes[cur + 3]]);
+        let data = bytes[cur + 4..cur + 4 + mvm::MVM_COW_SECTOR_BYTES].to_vec();
+        sectors.push((id, data));
+        cur += stride;
+    }
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.mvm.import_cow_sectors(&sectors);
+    serde_json::json!({
+        "status": "ok",
+        "imported_sectors": sectors.len(),
+        "cow_state_sha256": engine.mvm.cow_state_sha256(),
+    })
+    .to_string()
 }
 
 /// Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.

@@ -48,6 +48,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-21` | `build` | Pure LexLean implements complete checked 32/64/128-bit integer arithmetic, exact canonical signed32 and unsigned little-endian codecs, and total ordering for codebook precursors. Formal controls do not establish primes, permutations, floating construction, complete codebooks or generated production acceptance. |
 
+## r4-compositional-gllm
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-38` | `build` | Pure LexLean models the UOR-R4-GLLM v9 (UORGLLM9) compositional geometric language model runtime: container header admission strictly requiring turnMemoryEntries = 0 (refusing canned ServedTurnMemory string tables), denseMatmulOps = 0, softmaxOps = 0, and Cl(0,6) 64-channel spin-block alignment over 4,096 ByteBPE tokens, causal multi-head KV cache step admission enforcing strict non-future position masking (attendedPos <= queryPos) and exact PRLL (R4-27) integer mass conservation, and discrete 256-entry T-MAC Q12 LUT table read admission. Formal controls establish no external network weight streaming or empirical benchmark fluency. |
+
 ## r4-configuration
 
 | ID | Level | Statement |
@@ -197,6 +203,12 @@ model does not sanction.
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-24` | `build` | Pure LexLean models the 17-root Icosian Z[phi] integer snap kernels (exact 5*a^2 < d with negative-a handling, 17-root GoldenQ12 table, snap compatibility scoring, deterministic tie-breaking, and quaternion Hamilton products), UORLUT01 /1../8 binary container header validation, and model-source family/scale admission. Formal controls establish no floating-point checkpoint equivalence or hardware SIMD execution. |
+
+## r4-spiralcore-vsock
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-37` | `build` | Pure LexLean models the MVM-Wasm RV64IMAC Linux MicroVM and SpiralCore virtio-vsock zero-NIC security switch: default-deny guest socket admission (AF_VSOCK = 40 admitted while AF_INET, AF_INET6, and raw packet sockets are refused as NIC-disabled), 16-byte SpiralCore frame admission over CID pairs, Cl(0,6) spin actions (< 64), E8 orbits (< 16), and bounded payloads, ELF64 EM_RISCV (machine 243) executable header admission, and host egress proxy secret-placeholder substitution refusing raw secret residence in guest RAM. Formal controls establish no hardware KVM hypervisor privilege or unrestricted external internet routing. |
 
 ## r4-tokenizer-json
 

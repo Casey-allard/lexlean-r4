@@ -20,6 +20,18 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-38"
+level = "build"
+suite = "r4-compositional-gllm"
+statement = "Pure LexLean models the UOR-R4-GLLM v9 (UORGLLM9) compositional geometric language model runtime: container header admission strictly requiring turnMemoryEntries = 0 (refusing canned ServedTurnMemory string tables), denseMatmulOps = 0, softmaxOps = 0, and Cl(0,6) 64-channel spin-block alignment over 4,096 ByteBPE tokens, causal multi-head KV cache step admission enforcing strict non-future position masking (attendedPos <= queryPos) and exact PRLL (R4-27) integer mass conservation, and discrete 256-entry T-MAC Q12 LUT table read admission. Formal controls establish no external network weight streaming or empirical benchmark fluency."
+
+[[id]]
+id = "R4-37"
+level = "build"
+suite = "r4-spiralcore-vsock"
+statement = "Pure LexLean models the MVM-Wasm RV64IMAC Linux MicroVM and SpiralCore virtio-vsock zero-NIC security switch: default-deny guest socket admission (AF_VSOCK = 40 admitted while AF_INET, AF_INET6, and raw packet sockets are refused as NIC-disabled), 16-byte SpiralCore frame admission over CID pairs, Cl(0,6) spin actions (< 64), E8 orbits (< 16), and bounded payloads, ELF64 EM_RISCV (machine 243) executable header admission, and host egress proxy secret-placeholder substitution refusing raw secret residence in guest RAM. Formal controls establish no hardware KVM hypervisor privilege or unrestricted external internet routing."
+
+[[id]]
 id = "R4-36"
 level = "build"
 suite = "r4-prism-factory"

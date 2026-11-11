@@ -45746,3 +45746,342 @@ pub mod r4_prism_factory {
         }
     }
 }
+
+/// Generated from `R4.SpiralCoreVsock` (`src/R4/SpiralCoreVsock.lex.tex`).
+pub mod r4_spiralcore_vsock {
+    /// Inductive type `R4.SpiralCoreVsock.SocketDomain`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SocketDomain {
+        /// Variant `AfVsock`.
+        AfVsock,
+        /// Variant `AfInet`.
+        AfInet,
+        /// Variant `AfInet6`.
+        AfInet6,
+        /// Variant `AfPacket`.
+        AfPacket,
+        /// Variant `AfUnknown`.
+        AfUnknown,
+    }
+
+    /// Inductive type `R4.SpiralCoreVsock.SocketAdmission`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SocketAdmission {
+        /// Variant `AdmittedVsock`.
+        AdmittedVsock,
+        /// Variant `RefusedNicDisabled`.
+        RefusedNicDisabled,
+        /// Variant `RefusedUnsupportedDomain`.
+        RefusedUnsupportedDomain,
+    }
+
+    /// Structure `R4.SpiralCoreVsock.SpiralCoreFrame`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct SpiralCoreFrame {
+        /// Field `srcCid`.
+        pub src_cid: u64,
+        /// Field `dstCid`.
+        pub dst_cid: u64,
+        /// Field `vsockPort`.
+        pub vsock_port: u64,
+        /// Field `cl06Spin`.
+        pub cl06_spin: u64,
+        /// Field `e8Orbit`.
+        pub e8_orbit: u64,
+        /// Field `payloadBytes`.
+        pub payload_bytes: u64,
+        /// Field `maxPayloadBytes`.
+        pub max_payload_bytes: u64,
+    }
+
+    /// Inductive type `R4.SpiralCoreVsock.FrameVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum FrameVerdict {
+        /// Variant `FrameAdmitted`.
+        FrameAdmitted,
+        /// Variant `RefusedInvalidCid`.
+        RefusedInvalidCid,
+        /// Variant `RefusedSpinOutOfRange`.
+        RefusedSpinOutOfRange,
+        /// Variant `RefusedOrbitOutOfRange`.
+        RefusedOrbitOutOfRange,
+        /// Variant `RefusedPayloadTooLarge`.
+        RefusedPayloadTooLarge,
+    }
+
+    /// Structure `R4.SpiralCoreVsock.Elf64HeaderSummary`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct Elf64HeaderSummary {
+        /// Field `magicValid`.
+        pub magic_valid: bool,
+        /// Field `elfClass64`.
+        pub elf_class64: bool,
+        /// Field `littleEndian`.
+        pub little_endian: bool,
+        /// Field `machineCode`.
+        pub machine_code: u64,
+        /// Field `entryAligned`.
+        pub entry_aligned: bool,
+        /// Field `segmentCount`.
+        pub segment_count: u64,
+        /// Field `maxSegments`.
+        pub max_segments: u64,
+    }
+
+    /// Inductive type `R4.SpiralCoreVsock.ElfAdmission`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ElfAdmission {
+        /// Variant `ElfAdmitted`.
+        ElfAdmitted,
+        /// Variant `RefusedBadMagic`.
+        RefusedBadMagic,
+        /// Variant `RefusedWrongClass`.
+        RefusedWrongClass,
+        /// Variant `RefusedWrongMachine`.
+        RefusedWrongMachine,
+        /// Variant `RefusedSegmentOverflow`.
+        RefusedSegmentOverflow,
+    }
+
+    /// Structure `R4.SpiralCoreVsock.EgressPolicyCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct EgressPolicyCheck {
+        /// Field `hostAllowlisted`.
+        pub host_allowlisted: bool,
+        /// Field `placeholderMatched`.
+        pub placeholder_matched: bool,
+        /// Field `secretInGuestRam`.
+        pub secret_in_guest_ram: bool,
+    }
+
+    /// Inductive type `R4.SpiralCoreVsock.EgressVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum EgressVerdict {
+        /// Variant `ProxyAdmitted`.
+        ProxyAdmitted,
+        /// Variant `RefusedSecretLeakToGuest`.
+        RefusedSecretLeakToGuest,
+        /// Variant `RefusedHostNotAllowlisted`.
+        RefusedHostNotAllowlisted,
+        /// Variant `RefusedMissingPlaceholder`.
+        RefusedMissingPlaceholder,
+    }
+
+    /// Function `R4.SpiralCoreVsock.classifyDomain`.
+    pub fn classify_domain(domain_code: u64) -> SocketDomain {
+        if domain_code == 40 {
+            SocketDomain::AfVsock
+        } else if domain_code == 2 {
+            SocketDomain::AfInet
+        } else if domain_code == 10 {
+            SocketDomain::AfInet6
+        } else if domain_code == 17 {
+            SocketDomain::AfPacket
+        } else {
+            SocketDomain::AfUnknown
+        }
+    }
+
+    /// Function `R4.SpiralCoreVsock.admitGuestSocket`.
+    pub fn admit_guest_socket(domain_code: u64) -> SocketAdmission {
+        match classify_domain(domain_code) {
+            SocketDomain::AfVsock => SocketAdmission::AdmittedVsock,
+            SocketDomain::AfInet | SocketDomain::AfInet6 | SocketDomain::AfPacket => {
+                SocketAdmission::RefusedNicDisabled
+            }
+            SocketDomain::AfUnknown => SocketAdmission::RefusedUnsupportedDomain,
+        }
+    }
+
+    /// Function `R4.SpiralCoreVsock.admitSpiralCoreFrame`.
+    pub fn admit_spiralcore_frame(f: SpiralCoreFrame) -> FrameVerdict {
+        if f.src_cid == 0 || f.dst_cid == 0 || f.src_cid == f.dst_cid {
+            FrameVerdict::RefusedInvalidCid
+        } else if 64 <= f.cl06_spin {
+            FrameVerdict::RefusedSpinOutOfRange
+        } else if 16 <= f.e8_orbit {
+            FrameVerdict::RefusedOrbitOutOfRange
+        } else if f.payload_bytes > f.max_payload_bytes {
+            FrameVerdict::RefusedPayloadTooLarge
+        } else {
+            FrameVerdict::FrameAdmitted
+        }
+    }
+
+    /// Function `R4.SpiralCoreVsock.admitRv64Elf`.
+    pub fn admit_rv64_elf(h: Elf64HeaderSummary) -> ElfAdmission {
+        if !h.magic_valid {
+            ElfAdmission::RefusedBadMagic
+        } else if !(h.elf_class64 && h.little_endian && h.entry_aligned) {
+            ElfAdmission::RefusedWrongClass
+        } else if h.machine_code != 243 {
+            ElfAdmission::RefusedWrongMachine
+        } else if h.segment_count == 0 || h.segment_count > h.max_segments {
+            ElfAdmission::RefusedSegmentOverflow
+        } else {
+            ElfAdmission::ElfAdmitted
+        }
+    }
+
+    /// Function `R4.SpiralCoreVsock.admitHostEgress`.
+    pub fn admit_host_egress(e: EgressPolicyCheck) -> EgressVerdict {
+        if e.secret_in_guest_ram {
+            EgressVerdict::RefusedSecretLeakToGuest
+        } else if !e.host_allowlisted {
+            EgressVerdict::RefusedHostNotAllowlisted
+        } else if !e.placeholder_matched {
+            EgressVerdict::RefusedMissingPlaceholder
+        } else {
+            EgressVerdict::ProxyAdmitted
+        }
+    }
+}
+
+/// Generated module `R4.CompositionalGllm` (`R4-38`).
+pub mod r4_compositional_gllm {
+    /// Structure `R4.CompositionalGllm.ContainerSummary`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct ContainerSummary {
+        /// Field `magicValid`.
+        pub magic_valid: bool,
+        /// Field `versionCode`.
+        pub version_code: u64,
+        /// Field `vocabSize`.
+        pub vocab_size: u64,
+        /// Field `dModel`.
+        pub d_model: u64,
+        /// Field `spinAligned`.
+        pub spin_aligned: bool,
+        /// Field `nLayers`.
+        pub n_layers: u64,
+        /// Field `nHeads`.
+        pub n_heads: u64,
+        /// Field `turnMemoryEntries`.
+        pub turn_memory_entries: u64,
+        /// Field `denseMatmulOps`.
+        pub dense_matmul_ops: u64,
+        /// Field `softmaxOps`.
+        pub softmax_ops: u64,
+    }
+
+    /// Inductive type `R4.CompositionalGllm.ContainerVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ContainerVerdict {
+        /// Variant `ContainerAdmitted`.
+        ContainerAdmitted,
+        /// Variant `RefusedBadMagicOrVersion`.
+        RefusedBadMagicOrVersion,
+        /// Variant `RefusedStampedTurnMemory`.
+        RefusedStampedTurnMemory,
+        /// Variant `RefusedDenseMatmul`.
+        RefusedDenseMatmul,
+        /// Variant `RefusedSoftmaxOp`.
+        RefusedSoftmaxOp,
+        /// Variant `RefusedInvalidGeometry`.
+        RefusedInvalidGeometry,
+    }
+
+    /// Structure `R4.CompositionalGllm.KvAttentionCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct KvAttentionCheck {
+        /// Field `seqLen`.
+        pub seq_len: u64,
+        /// Field `maxSeqLen`.
+        pub max_seq_len: u64,
+        /// Field `attendedPos`.
+        pub attended_pos: u64,
+        /// Field `queryPos`.
+        pub query_pos: u64,
+        /// Field `prllMassSum`.
+        pub prll_mass_sum: u64,
+        /// Field `expectedQuantum`.
+        pub expected_quantum: u64,
+    }
+
+    /// Inductive type `R4.CompositionalGllm.KvAttentionVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum KvAttentionVerdict {
+        /// Variant `CausalKvAdmitted`.
+        CausalKvAdmitted,
+        /// Variant `RefusedEmptyOrOverflowContext`.
+        RefusedEmptyOrOverflowContext,
+        /// Variant `RefusedFutureTokenLeak`.
+        RefusedFutureTokenLeak,
+        /// Variant `RefusedPrllMassDrift`.
+        RefusedPrllMassDrift,
+    }
+
+    /// Structure `R4.CompositionalGllm.TmacLutReadCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct TmacLutReadCheck {
+        /// Field `groupIndex`.
+        pub group_index: u64,
+        /// Field `maxGroups`.
+        pub max_groups: u64,
+        /// Field `subvectorCode`.
+        pub subvector_code: u64,
+        /// Field `q12Magnitude`.
+        pub q12_magnitude: u64,
+    }
+
+    /// Inductive type `R4.CompositionalGllm.TmacLutVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum TmacLutVerdict {
+        /// Variant `LutReadAdmitted`.
+        LutReadAdmitted,
+        /// Variant `RefusedGroupOutOfRange`.
+        RefusedGroupOutOfRange,
+        /// Variant `RefusedCodeOutOfRange`.
+        RefusedCodeOutOfRange,
+        /// Variant `RefusedQ12Overflow`.
+        RefusedQ12Overflow,
+    }
+
+    /// Function `R4.CompositionalGllm.admitGllmContainer`.
+    pub fn admit_gllm_container(c: ContainerSummary) -> ContainerVerdict {
+        if !c.magic_valid || c.version_code != 9 {
+            ContainerVerdict::RefusedBadMagicOrVersion
+        } else if c.turn_memory_entries != 0 {
+            ContainerVerdict::RefusedStampedTurnMemory
+        } else if c.dense_matmul_ops != 0 {
+            ContainerVerdict::RefusedDenseMatmul
+        } else if c.softmax_ops != 0 {
+            ContainerVerdict::RefusedSoftmaxOp
+        } else if !c.spin_aligned
+            || c.vocab_size != 4096
+            || c.d_model < 64
+            || c.n_layers < 4
+            || c.n_heads < 4
+        {
+            ContainerVerdict::RefusedInvalidGeometry
+        } else {
+            ContainerVerdict::ContainerAdmitted
+        }
+    }
+
+    /// Function `R4.CompositionalGllm.admitCausalKvStep`.
+    pub fn admit_causal_kv_step(k: KvAttentionCheck) -> KvAttentionVerdict {
+        if k.seq_len == 0 || k.seq_len > k.max_seq_len {
+            KvAttentionVerdict::RefusedEmptyOrOverflowContext
+        } else if k.attended_pos > k.query_pos {
+            KvAttentionVerdict::RefusedFutureTokenLeak
+        } else if k.prll_mass_sum != k.expected_quantum {
+            KvAttentionVerdict::RefusedPrllMassDrift
+        } else {
+            KvAttentionVerdict::CausalKvAdmitted
+        }
+    }
+
+    /// Function `R4.CompositionalGllm.admitTmacLutRead`.
+    pub fn admit_tmac_lut_read(t: TmacLutReadCheck) -> TmacLutVerdict {
+        if t.group_index >= t.max_groups {
+            TmacLutVerdict::RefusedGroupOutOfRange
+        } else if t.subvector_code >= 256 {
+            TmacLutVerdict::RefusedCodeOutOfRange
+        } else if t.q12_magnitude > 8192 {
+            TmacLutVerdict::RefusedQ12Overflow
+        } else {
+            TmacLutVerdict::LutReadAdmitted
+        }
+    }
+}

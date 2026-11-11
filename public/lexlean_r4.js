@@ -153,105 +153,10 @@ export function studio_v1_traces(query_or_payload) {
     }
 }
 
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1, 1) >>> 0;
-    getUint8ArrayMemory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-/**
- * Hot-load a binary `UORLUT01` (`uor-r4.lut-stack/8`) weight artifact directly from JS/IndexedDB bytes.
- * @param {Uint8Array} bytes
- * @param {string} source_label
- * @returns {string}
- */
-export function studio_load_uorlut_bytes(bytes, source_label) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(source_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_load_uorlut_bytes(ptr0, len0, ptr1, len1);
-        deferred3_0 = ret[0];
-        deferred3_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
-}
-
-/**
- * Query the currently loaded `UORLUT01` (`uor-r4.lut-stack/8`) weight pack status as JSON.
- * @returns {string}
- */
-export function studio_weight_pack_status() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_weight_pack_status();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-    }
-}
-
-/**
- * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
- * @param {string} subcommand
- * @param {string} filter
- * @returns {string}
- */
-export function studio_wasm_eval(subcommand = 'test', filter = '') {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(String(subcommand ?? 'test'), wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(String(filter ?? ''), wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
-        deferred3_0 = ret[0];
-        deferred3_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        if (deferred3_0 !== undefined) {
-            wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-        }
-    }
-}
-
-/**
- * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
- * @returns {string}
- */
-export function studio_shard_catalog() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_shard_catalog();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-    }
-}
-
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_0.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
-
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
 }
-
 /**
  * Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
  * @param {number} e8_root
@@ -264,6 +169,12 @@ export function studio_export_uorlut_shard(e8_root) {
     return v1;
 }
 
+function passArray8ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 1, 1) >>> 0;
+    getUint8ArrayMemory0().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
 /**
  * Merge a content-addressed `UORSHRD1` binary shard into the resident `LutStackModel` and rebuild its Radix `/8` index.
  * @param {Uint8Array} shard_bytes
@@ -282,6 +193,12 @@ export function studio_merge_uorlut_shard(shard_bytes) {
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
+}
+
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_0.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
 }
 /**
  * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
@@ -348,7 +265,6 @@ function getArrayI32FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getInt32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
 }
-
 /**
  * Export the trained `Q12` (`rows x 256`) projection slab from `GLM_TRANSITION_HORIZONS`
  * for zero-copy transfer into the WebGPU `q12_attention_project` compute shader.
@@ -391,7 +307,6 @@ function passArray32ToWasm0(arg, malloc) {
     WASM_VECTOR_LEN = arg.length;
     return ptr;
 }
-
 /**
  * Decode WebGPU `Q12` row projection scores back through the `GLM_TRANSITION_HORIZONS`
  * token decoder.
@@ -414,6 +329,157 @@ export function studio_decode_with_webgpu_q12_scores(prompt, gpu_row_scores, max
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Hot-load a binary `UORLUT01` (`uor-r4.lut-stack/8`) weight artifact directly from JS/IndexedDB bytes.
+ * @param {Uint8Array} bytes
+ * @param {string} source_label
+ * @returns {string}
+ */
+export function studio_load_uorlut_bytes(bytes, source_label) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(source_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_load_uorlut_bytes(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Query the currently loaded `UORLUT01` (`uor-r4.lut-stack/8`) weight pack status as JSON.
+ * @returns {string}
+ */
+export function studio_weight_pack_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_weight_pack_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Hot-load a verified `UORGLLM9` (`UOR-R4-GLLM v9`) container hydrated from OPFS shards (`R4-38`).
+ * @param {Uint8Array} bytes
+ * @param {string} source_label
+ * @returns {string}
+ */
+export function studio_load_uorgllm_v9_bytes(bytes, source_label) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(source_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_load_uorgllm_v9_bytes(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Query the active `UORGLLM9` (`UOR-R4-GLLM v9`) compositional runtime status as JSON (`R4-38`).
+ * @returns {string}
+ */
+export function studio_gllm_v9_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_gllm_v9_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
+ * @param {string} subcommand
+ * @param {string} filter
+ * @returns {string}
+ */
+export function studio_wasm_eval(subcommand, filter) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(subcommand, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(filter, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
+ * @returns {Uint8Array}
+ */
+export function studio_export_mvm_cow_sectors() {
+    const ret = wasm.studio_export_mvm_cow_sectors();
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
+}
+
+/**
+ * Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`).
+ * @param {Uint8Array} bytes
+ * @returns {string}
+ */
+export function studio_import_mvm_cow_sectors(bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_import_mvm_cow_sectors(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
+ * @returns {string}
+ */
+export function studio_shard_catalog() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_shard_catalog();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
 }
 
@@ -1468,6 +1534,381 @@ export async function sync_cached_weights(onProgress) {
         await restore_cached_uorlut_from_indexeddb();
     }
     return globalThis.__uorWeightCacheMeta;
+}
+
+// === UOR-R4 V9 OPFS WORKER & WEBGPU RUNTIME ===
+const OPFS_V9_WEIGHT_FILE = 'uor-r4-gllm-v9.uorgllm';
+const OPFS_V9_META_FILE = 'uor-r4-gllm-v9.meta.json';
+const OPFS_MVM_COW_FILE = 'uor-mvm-cow-v1.bin';
+
+export const UOR_WEBGPU_V9_FWHT64_TMAC_WGSL = `
+struct V9Params {
+  rows: u32,
+  groups: u32,
+};
+@group(0) @binding(0) var<storage, read> x_in: array<i32>;
+@group(0) @binding(1) var<storage, read> tmac_lut: array<i32>;
+@group(0) @binding(2) var<storage, read_write> y_out: array<i32>;
+@group(0) @binding(3) var<uniform> params: V9Params;
+
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+  let row = gid.x;
+  if (row >= params.rows) {
+    return;
+  }
+  var spin: array<i32, 64>;
+  for (var i: u32 = 0u; i < 64u; i = i + 1u) {
+    spin[i] = x_in[i];
+  }
+  var stride: u32 = 1u;
+  loop {
+    if (stride >= 64u) { break; }
+    var base: u32 = 0u;
+    loop {
+      if (base >= 64u) { break; }
+      for (var j: u32 = 0u; j < stride; j = j + 1u) {
+        let a = spin[base + j];
+        let b = spin[base + j + stride];
+        spin[base + j] = a + b;
+        spin[base + j + stride] = a - b;
+      }
+      base = base + (stride << 1u);
+    }
+    stride = stride << 1u;
+  }
+  var acc: i32 = 0;
+  for (var g: u32 = 0u; g < params.groups; g = g + 1u) {
+    let idx0 = (g * 4u) & 63u;
+    var code: u32 = 0u;
+    var pow3: u32 = 1u;
+    for (var k: u32 = 0u; k < 4u; k = k + 1u) {
+      let v = spin[(idx0 + k) & 63u] >> 3u;
+      var tr: u32 = 1u;
+      if (v > 256) { tr = 2u; }
+      else if (v < -256) { tr = 0u; }
+      code = code + tr * pow3;
+      pow3 = pow3 * 3u;
+    }
+    let lut_off = (row * params.groups + g) * 81u + code;
+    acc = acc + tmac_lut[lut_off];
+  }
+  y_out[row] = acc;
+}
+`;
+
+function __uor_cpu_fwht64_tmac(xIn, lutIn, rows, groups) {
+  const spin = new Int32Array(64);
+  for (let i = 0; i < 64; i++) spin[i] = xIn[i] | 0;
+  for (let stride = 1; stride < 64; stride <<= 1) {
+    for (let base = 0; base < 64; base += (stride << 1)) {
+      for (let j = 0; j < stride; j++) {
+        const a = spin[base + j];
+        const b = spin[base + j + stride];
+        spin[base + j] = (a + b) | 0;
+        spin[base + j + stride] = (a - b) | 0;
+      }
+    }
+  }
+  const codes = new Uint32Array(groups);
+  for (let g = 0; g < groups; g++) {
+    const idx0 = (g * 4) & 63;
+    let code = 0;
+    let pow3 = 1;
+    for (let k = 0; k < 4; k++) {
+      const v = spin[(idx0 + k) & 63] >> 3;
+      const tr = v > 256 ? 2 : (v < -256 ? 0 : 1);
+      code += tr * pow3;
+      pow3 *= 3;
+    }
+    codes[g] = code;
+  }
+  const out = new Int32Array(rows);
+  for (let r = 0; r < rows; r++) {
+    let acc = 0;
+    for (let g = 0; g < groups; g++) {
+      acc = (acc + (lutIn[(r * groups + g) * 81 + codes[g]] | 0)) | 0;
+    }
+    out[r] = acc;
+  }
+  return out;
+}
+
+export async function run_webgpu_v9_fwht64_tmac(xIn, lutIn, rows, groups) {
+  const xArr = xIn instanceof Int32Array ? xIn : new Int32Array(xIn);
+  const lutArr = lutIn instanceof Int32Array ? lutIn : new Int32Array(lutIn);
+  if (typeof navigator === 'undefined' || !navigator.gpu) {
+    return __uor_cpu_fwht64_tmac(xArr, lutArr, rows, groups);
+  }
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) return __uor_cpu_fwht64_tmac(xArr, lutArr, rows, groups);
+    const device = await adapter.requestDevice();
+    const shader = device.createShaderModule({ code: UOR_WEBGPU_V9_FWHT64_TMAC_WGSL });
+    const pipeline = device.createComputePipeline({
+      layout: 'auto',
+      compute: { module: shader, entryPoint: 'main' }
+    });
+    const mkBuf = (arr, usage) => {
+      const b = device.createBuffer({ size: Math.max(16, arr.byteLength), usage, mappedAtCreation: true });
+      new Int32Array(b.getMappedRange()).set(arr);
+      b.unmap();
+      return b;
+    };
+    const xBuf = mkBuf(xArr, GPUBufferUsage.STORAGE);
+    const lutBuf = mkBuf(lutArr, GPUBufferUsage.STORAGE);
+    const outBytes = Math.max(16, rows * 4);
+    const yBuf = device.createBuffer({ size: outBytes, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC });
+    const readBuf = device.createBuffer({ size: outBytes, usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST });
+    const uBuf = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM, mappedAtCreation: true });
+    new Uint32Array(uBuf.getMappedRange()).set([rows >>> 0, groups >>> 0, 0, 0]);
+    uBuf.unmap();
+    const bg = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        { binding: 0, resource: { buffer: xBuf } },
+        { binding: 1, resource: { buffer: lutBuf } },
+        { binding: 2, resource: { buffer: yBuf } },
+        { binding: 3, resource: { buffer: uBuf } }
+      ]
+    });
+    const enc = device.createCommandEncoder();
+    const pass = enc.beginComputePass();
+    pass.setPipeline(pipeline);
+    pass.setBindGroup(0, bg);
+    pass.dispatchWorkgroups(Math.ceil(rows / 64));
+    pass.end();
+    enc.copyBufferToBuffer(yBuf, 0, readBuf, 0, outBytes);
+    device.queue.submit([enc.finish()]);
+    await readBuf.mapAsync(GPUMapMode.READ);
+    const res = new Int32Array(readBuf.getMappedRange().slice(0, rows * 4));
+    readBuf.unmap();
+    return res;
+  } catch {
+    return __uor_cpu_fwht64_tmac(xArr, lutArr, rows, groups);
+  }
+}
+
+export async function persist_mvm_cow_sectors_to_opfs() {
+  if (wasm === undefined || typeof studio_export_mvm_cow_sectors !== 'function') return false;
+  if (typeof navigator === 'undefined' || !navigator.storage || typeof navigator.storage.getDirectory !== 'function') {
+    return false;
+  }
+  try {
+    const bytes = studio_export_mvm_cow_sectors();
+    if (!bytes || bytes.byteLength < 8) return false;
+    const root = await navigator.storage.getDirectory();
+    const fh = await root.getFileHandle(OPFS_MVM_COW_FILE, { create: true });
+    if (typeof fh.createWritable === 'function') {
+      const w = await fh.createWritable();
+      await w.write(bytes);
+      await w.close();
+      return true;
+    }
+  } catch {
+    // OPFS unavailable in private/sandboxed browsing
+  }
+  return false;
+}
+
+export async function restore_mvm_cow_sectors_from_opfs() {
+  if (wasm === undefined || typeof studio_import_mvm_cow_sectors !== 'function') return null;
+  if (typeof navigator === 'undefined' || !navigator.storage || typeof navigator.storage.getDirectory !== 'function') {
+    return null;
+  }
+  try {
+    const root = await navigator.storage.getDirectory();
+    const fh = await root.getFileHandle(OPFS_MVM_COW_FILE, { create: false });
+    const file = await fh.getFile();
+    if (!file || file.size < 8) return null;
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    return JSON.parse(studio_import_mvm_cow_sectors(bytes));
+  } catch {
+    return null;
+  }
+}
+
+export async function restore_gllm_v9_from_opfs(expectedSha256 = '') {
+  if (wasm === undefined || typeof studio_load_uorgllm_v9_bytes !== 'function') return null;
+  if (typeof navigator === 'undefined' || !navigator.storage || typeof navigator.storage.getDirectory !== 'function') {
+    return null;
+  }
+  try {
+    const root = await navigator.storage.getDirectory();
+    if (expectedSha256) {
+      try {
+        const mfh = await root.getFileHandle(OPFS_V9_META_FILE, { create: false });
+        const mfile = await mfh.getFile();
+        const meta = JSON.parse(await mfile.text());
+        if (!meta || meta.sha256 !== expectedSha256) return null;
+      } catch {
+        return null;
+      }
+    }
+    const fh = await root.getFileHandle(OPFS_V9_WEIGHT_FILE, { create: false });
+    const file = await fh.getFile();
+    if (!file || file.size < 64) return null;
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const parsed = JSON.parse(studio_load_uorgllm_v9_bytes(bytes, 'opfs_cached_v9_8L_128D'));
+    if (parsed && parsed.status === 'ok') {
+      if (expectedSha256 && parsed.container_sha256 && parsed.container_sha256 !== expectedSha256) {
+        return null;
+      }
+      globalThis.__uorGllmV9Meta = {
+        status: 'OPFS UORGLLM9 (' + parsed.n_layers + 'L ' + parsed.d_model + 'D)',
+        sha256: parsed.container_sha256 || '',
+        mode: 'opfs-cached'
+      };
+      return parsed;
+    }
+  } catch {
+    // Not cached in OPFS yet; embedded bootstrap_v9.uorgllm serves immediately
+  }
+  return null;
+}
+
+export async function stream_v9_sharded_weights_via_opfs_worker(onProgress, forceReload = false) {
+  if (wasm === undefined || typeof studio_load_uorgllm_v9_bytes !== 'function') return null;
+  const manifestUrl = new URL('weights/v9/manifest.json', import.meta.url).href;
+  const baseUrl = new URL('weights/v9/', import.meta.url).href;
+  if (!forceReload) {
+    let expectedSha = '';
+    try {
+      const mResp = await fetch(manifestUrl, { cache: 'no-cache' });
+      if (mResp.ok) {
+        const mJson = await mResp.json();
+        if (mJson && typeof mJson.container_sha256 === 'string') {
+          expectedSha = mJson.container_sha256;
+        }
+      }
+    } catch {
+      // Offline: allow OPFS cached weights without remote manifest check
+    }
+    const restored = await restore_gllm_v9_from_opfs(expectedSha);
+    if (restored) return restored;
+  }
+
+  if (typeof Worker === 'function' && typeof Blob === 'function' && typeof URL.createObjectURL === 'function') {
+    try {
+      const workerCode = `
+        async function sha256Hex(buf) {
+          const hash = await crypto.subtle.digest('SHA-256', buf);
+          const arr = new Uint8Array(hash);
+          let out = '';
+          for (let i = 0; i < arr.length; i++) out += arr[i].toString(16).padStart(2, '0');
+          return out;
+        }
+        self.onmessage = async (ev) => {
+          const { manifestUrl, baseUrl, weightFile, metaFile } = ev.data;
+          try {
+            const mResp = await fetch(manifestUrl, { cache: 'no-cache' });
+            if (!mResp.ok) {
+              self.postMessage({ type: 'unavailable', status: mResp.status });
+              return;
+            }
+            const manifest = await mResp.json();
+            if (!manifest || manifest.format !== 'UORGLLM9' || !Array.isArray(manifest.shards)) {
+              self.postMessage({ type: 'error', message: 'Invalid UORGLLM9 manifest' });
+              return;
+            }
+            const totalBytes = manifest.total_bytes >>> 0;
+            const root = await navigator.storage.getDirectory();
+            const fh = await root.getFileHandle(weightFile, { create: true });
+            const useSync = typeof fh.createSyncAccessHandle === 'function';
+            let syncHandle = null;
+            let fullBuf = null;
+            if (useSync) {
+              syncHandle = await fh.createSyncAccessHandle();
+              syncHandle.truncate(totalBytes);
+            } else {
+              fullBuf = new Uint8Array(totalBytes);
+            }
+            for (let i = 0; i < manifest.shards.length; i++) {
+              const s = manifest.shards[i];
+              const sResp = await fetch(baseUrl + s.file);
+              if (!sResp.ok) throw new Error('Shard HTTP ' + sResp.status);
+              const ab = await sResp.arrayBuffer();
+              if (ab.byteLength !== s.byte_length) throw new Error('Shard length mismatch');
+              const hex = await sha256Hex(ab);
+              if (hex !== s.sha256) throw new Error('Shard SHA-256 mismatch on ' + s.file);
+              const u8 = new Uint8Array(ab);
+              if (syncHandle) {
+                syncHandle.write(u8, { at: s.byte_offset });
+              } else {
+                fullBuf.set(u8, s.byte_offset);
+              }
+              self.postMessage({ type: 'progress', index: i + 1, total: manifest.shards.length, bytes: s.byte_offset + s.byte_length, totalBytes });
+            }
+            if (syncHandle) {
+              syncHandle.flush();
+              fullBuf = new Uint8Array(totalBytes);
+              syncHandle.read(fullBuf, { at: 0 });
+              syncHandle.close();
+            } else if (typeof fh.createWritable === 'function') {
+              const w = await fh.createWritable();
+              await w.write(fullBuf);
+              await w.close();
+            }
+            const fullSha = await sha256Hex(fullBuf.buffer);
+            if (fullSha !== manifest.container_sha256) {
+              throw new Error('Container SHA-256 mismatch');
+            }
+            const mfh = await root.getFileHandle(metaFile, { create: true });
+            if (typeof mfh.createSyncAccessHandle === 'function') {
+              const msh = await mfh.createSyncAccessHandle();
+              const metaBytes = new TextEncoder().encode(JSON.stringify({ sha256: fullSha, totalBytes }));
+              msh.truncate(metaBytes.byteLength);
+              msh.write(metaBytes, { at: 0 });
+              msh.flush();
+              msh.close();
+            }
+            self.postMessage({ type: 'done', sha256: fullSha, mode: useSync ? 'opfs-sync-worker' : 'opfs-worker', buffer: fullBuf.buffer }, [fullBuf.buffer]);
+          } catch (err) {
+            self.postMessage({ type: 'error', message: err && err.message ? err.message : String(err) });
+          }
+        };
+      `;
+      const blobUrl = URL.createObjectURL(new Blob([workerCode], { type: 'application/javascript' }));
+      const workerResult = await new Promise((resolveWorker) => {
+        const w = new Worker(blobUrl);
+        w.onmessage = (ev) => {
+          const msg = ev.data || {};
+          if (msg.type === 'progress') {
+            if (typeof onProgress === 'function') onProgress(msg);
+            return;
+          }
+          w.terminate();
+          URL.revokeObjectURL(blobUrl);
+          resolveWorker(msg);
+        };
+        w.onerror = () => {
+          w.terminate();
+          URL.revokeObjectURL(blobUrl);
+          resolveWorker({ type: 'error', message: 'OPFS worker failed' });
+        };
+        w.postMessage({
+          manifestUrl,
+          baseUrl,
+          weightFile: OPFS_V9_WEIGHT_FILE,
+          metaFile: OPFS_V9_META_FILE
+        });
+      });
+      if (workerResult && workerResult.type === 'done' && workerResult.buffer) {
+        const parsed = JSON.parse(studio_load_uorgllm_v9_bytes(new Uint8Array(workerResult.buffer), 'opfs_sync_worker_v9_8L_128D'));
+        if (parsed && parsed.status === 'ok') {
+          globalThis.__uorGllmV9Meta = {
+            status: 'OPFS SyncWorker UORGLLM9 (' + parsed.n_layers + 'L ' + parsed.d_model + 'D)',
+            sha256: workerResult.sha256,
+            mode: workerResult.mode
+          };
+          return parsed;
+        }
+      }
+    } catch {
+      // Fall back to embedded bootstrap_v9.uorgllm
+    }
+  }
+  return null;
 }
 
 async function __wbg_init(module_or_path) {

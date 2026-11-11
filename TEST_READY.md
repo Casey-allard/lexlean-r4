@@ -98,3 +98,29 @@ node tests/e2e/empirical_terminal_harness.mjs
    `public/app.js` line 9120 calls `computeUnifiedDiffJs(targetPath, originalCode, proposedFullCode)`, passing the file path first.
    The function definition at line 9028 is `computeUnifiedDiffJs(oldText, newText, targetPath, contextLines = 3)`.
    *Test harness mitigation*: Verified `computeUnifiedDiffJs` directly with canonical signature; recommended fix in `app.js` line 9120: pass `(originalCode, proposedFullCode, targetPath)`.
+
+---
+
+## Phase 1 & Phase 2 Verification Ledger (`R4-37` & `R4-38`)
+
+### Conformance & Runtime Suites
+
+| Capability ID | LexLean Authority & Controls | Behavioral `.feature` Suite | Rust Conformance & WASM Runtime Tests |
+|---|---|---|---|
+| **`R4-37`** (`MVM-Wasm` `RV64IMAC` Linux MicroVM + `SpiralCore` `virtio-vsock`) | `src/R4/SpiralCoreVsock.lex.tex`, `tests/lexlean/SpiralCoreVsockControls.lex.tex` | `features/suites/r4-spiralcore-vsock.feature` | `crates/conformance/tests/spiralcore_vsock.rs` (`2/2`), `crates/wasm/tests/mvm_spiralcore_sandbox.rs` (`4/4`) |
+| **`R4-38`** (`UOR-R4-GLLM v9` `UORGLLM9` Compositional Geometric Language Model) | `src/R4/CompositionalGllm.lex.tex`, `tests/lexlean/CompositionalGllmControls.lex.tex` | `features/suites/r4-compositional-gllm.feature` | `crates/conformance/tests/compositional_gllm.rs` (`2/2`), `crates/wasm/tests/gllm_v9_compositional.rs` (`4/4`) |
+
+### Planted-Defect Gate Evidence (`AGENTS.md` Gate Quality)
+
+1. **`R4-37` Zero-NIC `AF_INET` Refusal Gate (`mvm_spiralcore_sandbox`)**:
+   - **Planted defect**: Changed `SocketDomain::AfInet => SocketAdmission::RefusedNicDisabled` to `SocketDomain::AfInet => SocketAdmission::AdmittedVsock` in `crates/wasm/src/lexlean_generated.rs` (`admit_guest_socket`).
+   - **Failing command**: `cargo test -p lexlean-r4-wasm --test mvm_spiralcore_sandbox`
+   - **Observed diagnostic**: `test_mvm_zero_nic_af_inet_refusal_and_spiralcore_vsock_secrets_r4_37 panicked at crates/wasm/tests/mvm_spiralcore_sandbox.rs:149:5: assertion left == right failed: left: AdmittedVsock, right: RefusedNicDisabled`.
+   - **Restored result**: Reverted planted defect; `cargo test -p lexlean-r4-wasm --test mvm_spiralcore_sandbox` passed (`4 passed; 0 failed`).
+
+2. **`R4-38` Anti-Stamping `turn_memory_entries == 0` Gate (`gllm_v9_compositional`)**:
+   - **Planted defect**: Removed `else if c.turn_memory_entries != 0 { ContainerVerdict::RefusedStampedTurnMemory }` from `admit_gllm_container` in `crates/wasm/src/lexlean_generated.rs`.
+   - **Failing command**: `cargo test -p lexlean-r4-wasm --test gllm_v9_compositional test_gllm_v9_zero_stamped_turn_memory_and_negative_refusals_r4_38`
+   - **Observed diagnostic**: `test_gllm_v9_zero_stamped_turn_memory_and_negative_refusals_r4_38 panicked at crates/wasm/tests/gllm_v9_compositional.rs:33:40: non-zero turn_memory_entries must be refused: Ok(GllmV9Model { ... })`.
+   - **Restored result**: Reverted planted defect; `cargo test -p lexlean-r4-wasm --test gllm_v9_compositional test_gllm_v9_zero_stamped_turn_memory_and_negative_refusals_r4_38` passed (`1 passed; 0 failed`).
+
