@@ -1063,6 +1063,17 @@ impl GllmV9KvCache {
             self.prompt_len
         }
         .min(t + 1);
+        let bpe = ByteBpe4096::global();
+        let gen_prefix = if generated_so_far.is_empty() {
+            String::new()
+        } else {
+            bpe.decode(&generated_so_far[..generated_so_far.len().min(6)])
+        };
+        let gen_trim = gen_prefix.trim_start();
+        let in_code_gen = gen_trim.starts_with("```");
+        let in_agent_gen = self.tool_obs_range.is_some() || gen_trim.starts_with('<');
+        let in_structured_gen = in_code_gen || in_agent_gen;
+
         let in_tool_obs_span = prev_copy_src.and_then(|sp| {
             let (obs_lo, obs_hi) = self.tool_obs_range?;
             let ns = sp + 1;
@@ -1075,7 +1086,19 @@ impl GllmV9KvCache {
         let expected_cont_s = in_tool_obs_span.or_else(|| {
             prev_copy_src.and_then(|sp| {
                 let ns = sp + 1;
-                if ns < copy_limit && model.copy_tok_gate[self.tokens[ns] as usize] > 0 {
+                if ns >= copy_limit {
+                    return None;
+                }
+                let ns_tok = self.tokens[ns] as usize;
+                let ns_gate = model.copy_tok_gate[ns_tok];
+                if in_code_gen {
+                    let ns_piece = bpe.decode(&[ns_tok as u32]);
+                    if !ns_piece.starts_with(' ') && ns_gate >= 160 {
+                        Some(ns)
+                    } else {
+                        None
+                    }
+                } else if in_agent_gen && ns_gate > 0 {
                     Some(ns)
                 } else {
                     None
@@ -1104,14 +1127,16 @@ impl GllmV9KvCache {
             let sh = lt.head_shift[h] as usize;
             let cur_tok = self.tokens[t];
             let fence_or_nl = cur_tok == 66 || cur_tok == 201 || cur_tok == 29;
-            let copy_gain = if sh == 3 {
+            let copy_gain = if !in_structured_gen {
+                0
+            } else if sh == 3 {
                 if prev_was_copied || fence_or_nl || gate_sum < g3_min_open {
                     0
                 } else {
                     gate_sum.clamp(0, 8_192)
                 }
             } else if sh == 1 || sh == 2 {
-                if !prev_was_copied {
+                if !prev_was_copied || expected_cont_s.is_none() {
                     0
                 } else if in_tool_obs_span.is_some() {
                     gate_sum.max(4_096).clamp(0, 8_192)

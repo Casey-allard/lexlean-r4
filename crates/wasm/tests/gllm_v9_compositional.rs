@@ -268,3 +268,52 @@ fn test_gllm_v9_agentic_mvm_sandbox_tool_loop_r4_38() {
         "Step 2 compositional observation comprehension must copy full 64-char SHA-256 digest {expected_sha} from MVM stdout, got: {reply}"
     );
 }
+
+#[test]
+fn test_gllm_v9_natural_composer_phrasings_and_c_microvm_r4_38() {
+    let _guard = STUDIO_TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let mut shards_buf = Vec::new();
+    let shard_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../gpu/weights/v9");
+    for idx in 0..25usize {
+        let p = shard_dir.join(format!("uor_r4_gllm_v9.uorgllm.part{idx:03}"));
+        shards_buf.extend_from_slice(&std::fs::read(&p).expect("read v9 shard"));
+    }
+    let _ = studio_load_uorgllm_v9_bytes(&shards_buf, "opfs_v9_8l_128d");
+    let _ = studio_dispatch("1\tstudio\treset\t");
+
+    let mvm_raw = studio_dispatch(
+        "1\tstudio\tchat\tRun uname -a inside the MVM-Wasm Linux sandbox and report the architecture.",
+    );
+    let mvm_val: serde_json::Value = serde_json::from_str(&mvm_raw).expect("valid chat JSON");
+    let mvm_reply = mvm_val["assistant_reply"].as_str().unwrap_or("");
+    assert!(
+        mvm_reply.contains("Linux mvm-wasm 6.6.0-uor-rv64imac") && mvm_reply.contains("riscv64"),
+        "Natural Composer MVM-Wasm sandbox prompt must execute uname -a and copy live riscv64 stdout, got: {mvm_reply}"
+    );
+
+    let expr_raw = studio_dispatch(
+        "1\tstudio\tchat\tGiven telemetry_gain_v4 = 48 and offset_bias_n2 = 12, compute telemetry_gain_v4 + offset_bias_n2 in Rust.",
+    );
+    let expr_val: serde_json::Value = serde_json::from_str(&expr_raw).expect("valid chat JSON");
+    let expr_reply = expr_val["assistant_reply"].as_str().unwrap_or("");
+    assert!(
+        expr_reply.contains("let result = telemetry_gain_v4 + offset_bias_n2"),
+        "Natural Composer variable prompt without 'expression' keyword must bind unseen identifiers, got: {expr_reply}"
+    );
+
+    let c_raw = studio_dispatch(
+        "1\tstudio\tchat\tWrite a freestanding C function step_flux(long gyro_bias_m4) for the RV64IMAC MicroVM.",
+    );
+    let c_val: serde_json::Value = serde_json::from_str(&c_raw).expect("valid chat JSON");
+    let c_reply = c_val["assistant_reply"].as_str().unwrap_or("");
+    assert!(
+        c_reply.contains("long step_flux(long gyro_bias_m4)")
+            && c_reply.contains("gyro_bias_m4 * 3"),
+        "Freestanding C MicroVM function prompt must copy unseen function and parameter names cleanly, got: {c_reply}"
+    );
+
+    let _ = studio_load_uorgllm_v9_bytes(
+        include_bytes!("../src/bootstrap_v9.uorgllm"),
+        "bootstrap_v9_restored",
+    );
+}

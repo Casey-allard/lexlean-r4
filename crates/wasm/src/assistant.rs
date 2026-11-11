@@ -1018,11 +1018,7 @@ impl StudioEngine {
                 || lower.contains("execute ")
                 || lower.starts_with("[agent_mode]"));
         if is_mvm_sandbox_turn {
-            let agent_prompt = if trimmed.starts_with("[agent_mode]") {
-                trimmed.to_string()
-            } else {
-                format!("[agent_mode] {trimmed}")
-            };
+            let agent_prompt = crate::format_mvm_agent_prompt(trimmed);
             let step1 = self
                 .gllm_v9
                 .generate_compositional(&agent_prompt, &self.chat_history, 256);
@@ -1072,19 +1068,22 @@ impl StudioEngine {
             }
         }
 
-        let is_compositional_v9_turn =
-            (lower.starts_with("given ") && lower.contains(" = ") && lower.contains("expression"))
-                || (lower.starts_with("write a rust function ") && trimmed.contains('('))
-                || lower == "what is uor-r4?"
-                || lower.starts_with("how does uor-r4 attention")
-                || lower.contains("uorgllm")
-                || lower.contains("mvm-wasm")
-                || lower.contains("af_vsock");
+        let is_compositional_v9_turn = (lower.starts_with("given ") && lower.contains(" = "))
+            || ((lower.starts_with("write a rust function ")
+                || lower.starts_with("write a freestanding c function "))
+                && trimmed.contains('('))
+            || lower == "what is uor-r4?"
+            || lower.starts_with("how does uor-r4 attention")
+            || (lower.contains("weights") && lower.contains("browser") && lower.contains("stored"))
+            || lower.contains("uorgllm")
+            || lower.contains("mvm-wasm")
+            || lower.contains("af_vsock");
         if is_compositional_v9_turn {
             let v9_gen = self
                 .gllm_v9
                 .generate_compositional(trimmed, &self.chat_history, 256);
-            if v9_gen.generated_tokens.len() >= 8 && !v9_gen.text.is_empty() {
+            let backticks_balanced = v9_gen.text.chars().filter(|&c| c == '`').count() % 2 == 0;
+            if v9_gen.generated_tokens.len() >= 6 && !v9_gen.text.is_empty() && backticks_balanced {
                 return v9_gen.text;
             }
         }

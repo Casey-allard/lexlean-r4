@@ -1471,11 +1471,7 @@ impl StudioEngine {
             (raw_trimmed.to_string(), 256usize)
         };
         let trimmed = unwrapped.as_str();
-        let agent_prompt = if trimmed.starts_with("[agent_mode]") {
-            trimmed.to_string()
-        } else {
-            format!("[agent_mode] {trimmed}")
-        };
+        let agent_prompt = format_mvm_agent_prompt(trimmed);
 
         let step1 =
             self.gllm_v9
@@ -6149,6 +6145,38 @@ pub fn studio_gllm_v9_status() -> String {
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.gllm_v9_status_json()
+}
+
+pub(crate) fn format_mvm_agent_prompt(raw: &str) -> String {
+    let trimmed = raw.trim();
+    if trimmed.contains("<tool_response>") {
+        return trimmed.to_string();
+    }
+    let body = trimmed
+        .strip_prefix("[agent_mode]")
+        .map(str::trim)
+        .unwrap_or(trimmed);
+    let normalized_verb = if let Some(rest) = body
+        .strip_prefix("Execute ")
+        .or_else(|| body.strip_prefix("execute "))
+    {
+        format!("Run {}", rest.trim())
+    } else if let Some(rest) = body.strip_prefix("run ") {
+        format!("Run {}", rest.trim())
+    } else {
+        body.to_string()
+    };
+    let lower = normalized_verb.to_ascii_lowercase();
+    for sep in [" inside ", " in the "] {
+        if let Some(idx) = lower.find(sep) {
+            let tail = &lower[idx + sep.len()..];
+            if tail.contains("sandbox") || tail.contains("microvm") || tail.contains("mvm") {
+                let cmd_head = normalized_verb[..idx].trim();
+                return format!("[agent_mode] {cmd_head} inside the Linux MicroVM sandbox.");
+            }
+        }
+    }
+    format!("[agent_mode] {normalized_verb}")
 }
 
 fn sanitize_mvm_shell_clause(raw: &str) -> String {
