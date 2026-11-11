@@ -3216,8 +3216,13 @@ pub fn run_engine_tick(
     let audit = audit_uorlut_synchronization(root)?;
     let pre_frontier = load_frontier(root)?;
     let pre_diag = audit_codebase_and_inference(root, &pre_frontier)?;
+    let expected_ids = repo_model::Model::load(&root.join("model"))
+        .map_err(|e| format!("failed to load model/: {e}"))?
+        .ids
+        .id
+        .len();
     println!(
-        "engine[1/7 build]: workflow homeostasis ok (tick={tick_budget}m, gate={gate_budget}m), UORLUT01 anchors={} point_rows={} orphans={}, lexlean={}/36, benchmarks={}/{}, failure_basins={}, l1_residual={}",
+        "engine[1/7 build]: workflow homeostasis ok (tick={tick_budget}m, gate={gate_budget}m), UORLUT01 anchors={} point_rows={} orphans={}, lexlean={}/{expected_ids}, benchmarks={}/{}, failure_basins={}, l1_residual={}",
         audit.reply_anchor_count,
         audit.point_row_count,
         audit.orphaned_point_rows,
@@ -3983,7 +3988,13 @@ pub fn run_engine_self_patch(root: &Path, apply: bool) -> Result<SelfPatchReport
         ));
         diag = audit_codebase_and_inference(root, &frontier)?;
     }
-    if diag.lexlean_registered_ids == 36
+    let expected_ids = repo_model::Model::load(&root.join("model"))
+        .map_err(|e| format!("failed to load model/: {e}"))?
+        .ids
+        .id
+        .len();
+    if diag.lexlean_registered_ids >= 38
+        && diag.lexlean_registered_ids == expected_ids
         && diag.lexlean_missing_modules.is_empty()
         && diag.failure_basins.is_empty()
         && diag.dead_ui_bindings.is_empty()
@@ -3993,7 +4004,7 @@ pub fn run_engine_self_patch(root: &Path, apply: bool) -> Result<SelfPatchReport
         probes_passed += 1;
     } else {
         return Err(format!(
-            "self-patch Probe 6 (codebase & UI audit) failed: ids={}/36, missing={:?}, failures={:?}, dead_ui={:?}",
+            "self-patch Probe 6 (codebase & UI audit) failed: ids={}/{expected_ids}, missing={:?}, failures={:?}, dead_ui={:?}",
             diag.lexlean_registered_ids,
             diag.lexlean_missing_modules,
             diag.failure_basins,
@@ -4824,8 +4835,13 @@ pub fn run_engine_cmd(root: &Path, args: &[String]) -> Result<(), String> {
         "diagnostics" | "audit" => {
             let frontier = load_frontier(root)?;
             let diag = audit_codebase_and_inference(root, &frontier)?;
+            let expected_ids = repo_model::Model::load(&root.join("model"))
+                .map_err(|e| format!("failed to load model/: {e}"))?
+                .ids
+                .id
+                .len();
             println!(
-                "engine diagnostics: lexlean_ids={}/36 missing_modules={:?} benchmark={}/{} failure_basins={:?} l1_residual={} radix_buckets={}/{} unindexed_rows={} orphans={} dead_ui_bindings={:?} relevant_arxiv={:?}",
+                "engine diagnostics: lexlean_ids={}/{expected_ids} missing_modules={:?} benchmark={}/{} failure_basins={:?} l1_residual={} radix_buckets={}/{} unindexed_rows={} orphans={} dead_ui_bindings={:?} relevant_arxiv={:?}",
                 diag.lexlean_registered_ids,
                 diag.lexlean_missing_modules,
                 diag.benchmark_prompts_passed,
@@ -6384,7 +6400,13 @@ mod tests {
         let frontier = load_frontier(&root).expect("frontier.toml loads");
         let diag =
             audit_codebase_and_inference(&root, &frontier).expect("codebase & inference audit");
-        assert_eq!(diag.lexlean_registered_ids, 36);
+        let expected_ids = repo_model::Model::load(&root.join("model"))
+            .expect("model loads")
+            .ids
+            .id
+            .len();
+        assert!(expected_ids >= 38);
+        assert_eq!(diag.lexlean_registered_ids, expected_ids);
         assert!(
             diag.lexlean_missing_modules.is_empty(),
             "missing LexLean modules: {:?}",
@@ -7294,7 +7316,13 @@ and establish non-blocking progress guarantees.
         let frontier = load_frontier(&root).expect("frontier.toml loads");
         let diag =
             audit_codebase_and_inference(&root, &frontier).expect("audit_codebase_and_inference");
-        assert_eq!(diag.lexlean_registered_ids, 36);
+        let expected_ids = repo_model::Model::load(&root.join("model"))
+            .expect("model loads")
+            .ids
+            .id
+            .len();
+        assert!(expected_ids >= 38);
+        assert_eq!(diag.lexlean_registered_ids, expected_ids);
         assert!(
             diag.lexlean_missing_modules.is_empty(),
             "missing modules: {:?}",
