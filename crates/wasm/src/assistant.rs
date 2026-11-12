@@ -22,8 +22,8 @@ impl StudioEngine {
         let trimmed = prompt.trim();
         let lower = trimmed.to_ascii_lowercase();
 
-        // Do not intercept explicit code-generation requests (e.g., "write a python function for fibonacci")
-        let has_code_verb = has_any_word(
+        // Do not intercept coding, CS algorithm Q&A, workspace path, URL, or MicroVM/shell tool requests
+        let has_code_or_tool_context = has_any_word(
             &lower,
             &[
                 "write",
@@ -37,9 +37,41 @@ impl StudioEngine {
                 "python",
                 "typescript",
                 "javascript",
+                "c",
+                "cpp",
+                "go",
+                "sql",
+                "lean",
+                "bash",
+                "shell",
+                "snippet",
+                "expression",
+                "sandbox",
+                "microvm",
+                "mvm",
+                "linux",
+                "git",
+                "search",
+                "fetch",
+                "xxd",
+                "jq",
+                "sha256sum",
+                "bc",
+                "complexity",
+                "sorted",
+                "bytes",
+                "curl",
+                "wget",
+                "nslookup",
+                "dig",
+                "pkg",
             ],
-        );
-        if has_code_verb {
+        ) || lower.contains("/workspace")
+            || lower.contains("/usr")
+            || lower.contains("http://")
+            || lower.contains("https://")
+            || lower.contains("c++");
+        if has_code_or_tool_context {
             return None;
         }
 
@@ -231,10 +263,23 @@ impl StudioEngine {
         }
 
         // 7. Binary / Hexadecimal conversion ("255 in binary", "convert 42 to hex")
-        if (has_any_word(&lower, &["binary", "hex", "hexadecimal", "octal"])
-            && has_any_word(&lower, &["in", "to", "convert", "what"]))
-            && !numbers.is_empty()
-        {
+        let explicit_base_conversion = !lower.contains("binary search")
+            && !lower.contains("binary tree")
+            && !lower.contains("hex bytes")
+            && !lower.contains("hex dump")
+            && (lower.contains("in binary")
+                || lower.contains("to binary")
+                || lower.contains("as binary")
+                || lower.contains("in hex")
+                || lower.contains("to hex")
+                || lower.contains("as hex")
+                || lower.contains("in hexadecimal")
+                || lower.contains("to hexadecimal")
+                || lower.contains("in octal")
+                || lower.contains("to octal")
+                || (has_any_word(&lower, &["convert"])
+                    && has_any_word(&lower, &["binary", "hex", "hexadecimal", "octal"])));
+        if explicit_base_conversion && !numbers.is_empty() {
             let n = numbers[0].unsigned_abs();
             let reply = format!(
                 "Base representations for **`{n}`**:\n\n- **Decimal (Base 10)**: `{n}`\n- **Binary (Base 2)**: `0b{n:b}` (`{}` set bits / SWAR popcount)\n- **Hexadecimal (Base 16)**: `0x{n:x}`\n- **Octal (Base 8)**: `0o{n:o}`",
@@ -1272,6 +1317,10 @@ impl StudioEngine {
                         }));
                         Some(format!("<tool_call>{body}</tool_call>"))
                     }
+                    Err(crate::mvm::MvmError::BridgeRejected(be)) => Some(format!(
+                        "SpiralCore bridge refused `{full_cmd}` [{}]: {be}",
+                        be.error_code()
+                    )),
                     Err(err) => Some(format!("MicroVM tool refused `{full_cmd}`: {err}")),
                 }
             }
@@ -1282,45 +1331,41 @@ impl StudioEngine {
                     .map(str::trim)
                     .filter(|q| !q.is_empty())
                     .unwrap_or(user_prompt);
-                let bridge_req = serde_json::json!({
-                    "req_id": "chat-web-search-1",
-                    "spvs_magic": "SPVS",
-                    "src_cid": 3,
-                    "dst_cid": 2,
-                    "policy": "safe",
-                    "op": "web_search",
-                    "query": query,
-                    "limit": 5,
-                    "params": { "query": query, "limit": 5 }
-                });
-                self.pending_chat_bridge = Some(serde_json::json!({
-                    "prompt": user_prompt,
-                    "tool": "web_search",
-                    "query": query,
-                    "bridge_req": bridge_req,
-                }));
-                Some(format!("<tool_call>{body}</tool_call>"))
+                match self.mvm.prepare_web_search_bridge(query) {
+                    Ok(bridge_req) => {
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": user_prompt,
+                            "tool": "web_search",
+                            "query": query,
+                            "bridge_req": bridge_req,
+                        }));
+                        Some(format!("<tool_call>{body}</tool_call>"))
+                    }
+                    Err(crate::mvm::MvmError::BridgeRejected(be)) => Some(format!(
+                        "SpiralCore bridge refused `web_search` [{}]: {be}",
+                        be.error_code()
+                    )),
+                    Err(err) => Some(format!("SpiralCore bridge refused `web_search`: {err}")),
+                }
             }
             "web_fetch" => {
                 let url = args.get("url").and_then(|v| v.as_str())?.trim();
-                let bridge_req = serde_json::json!({
-                    "req_id": "chat-web-fetch-1",
-                    "spvs_magic": "SPVS",
-                    "src_cid": 3,
-                    "dst_cid": 2,
-                    "policy": "safe",
-                    "op": "http_request",
-                    "method": "GET",
-                    "url": url,
-                    "params": { "method": "GET", "url": url }
-                });
-                self.pending_chat_bridge = Some(serde_json::json!({
-                    "prompt": user_prompt,
-                    "tool": "web_fetch",
-                    "url": url,
-                    "bridge_req": bridge_req,
-                }));
-                Some(format!("<tool_call>{body}</tool_call>"))
+                match self.mvm.prepare_web_fetch_bridge(url) {
+                    Ok(bridge_req) => {
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": user_prompt,
+                            "tool": "web_fetch",
+                            "url": url,
+                            "bridge_req": bridge_req,
+                        }));
+                        Some(format!("<tool_call>{body}</tool_call>"))
+                    }
+                    Err(crate::mvm::MvmError::BridgeRejected(be)) => Some(format!(
+                        "SpiralCore bridge refused `web_fetch` [{}]: {be}",
+                        be.error_code()
+                    )),
+                    Err(err) => Some(format!("SpiralCore bridge refused `web_fetch`: {err}")),
+                }
             }
             _ => None,
         }

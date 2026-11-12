@@ -1969,45 +1969,63 @@ impl StudioEngine {
                     }
                 }
             }
-            "web_search" => {
-                let data = bridge_resp
-                    .get("data")
-                    .filter(|d| d.is_object())
-                    .unwrap_or(bridge_resp);
-                if let Some(results) = data.get("results").and_then(|v| v.as_array()) {
-                    let mut lines = Vec::new();
-                    for (idx, item) in results.iter().take(5).enumerate() {
-                        let title = item
-                            .get("title")
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("Result");
-                        let url = item.get("url").and_then(|v| v.as_str()).unwrap_or("");
-                        let snippet = item.get("snippet").and_then(|v| v.as_str()).unwrap_or("");
-                        lines.push(format!(
-                            "{}. **{}** ({}) — {}",
-                            idx + 1,
-                            title,
-                            url,
-                            snippet
-                        ));
-                    }
-                    lines.join("\n")
-                } else {
-                    data.to_string()
+            other_tool => {
+                if bridge_resp.get("ok") == Some(&serde_json::Value::Bool(false))
+                    || bridge_resp.get("status").and_then(|v| v.as_str()) == Some("error")
+                {
+                    let code = bridge_resp
+                        .get("error_code")
+                        .and_then(|v| v.as_str())
+                        .filter(|s| !s.is_empty())
+                        .unwrap_or("BridgeRelayError");
+                    let msg = bridge_resp
+                        .get("error")
+                        .or_else(|| bridge_resp.get("message"))
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("SpiralCore host bridge rejected tool request");
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": code,
+                        "message": msg,
+                    })
+                    .to_string();
                 }
-            }
-            _ => {
                 let data = bridge_resp
                     .get("data")
                     .filter(|d| d.is_object())
                     .unwrap_or(bridge_resp);
-                data.get("text_excerpt")
-                    .or_else(|| data.get("body_text"))
-                    .or_else(|| data.get("body_utf8"))
-                    .or_else(|| data.get("excerpt"))
-                    .and_then(|v| v.as_str())
-                    .map(str::to_string)
-                    .unwrap_or_else(|| data.to_string())
+                if other_tool == "web_search" {
+                    if let Some(results) = data.get("results").and_then(|v| v.as_array()) {
+                        let mut lines = Vec::new();
+                        for (idx, item) in results.iter().take(5).enumerate() {
+                            let title = item
+                                .get("title")
+                                .and_then(|v| v.as_str())
+                                .unwrap_or("Result");
+                            let url = item.get("url").and_then(|v| v.as_str()).unwrap_or("");
+                            let snippet =
+                                item.get("snippet").and_then(|v| v.as_str()).unwrap_or("");
+                            lines.push(format!(
+                                "{}. **{}** ({}) — {}",
+                                idx + 1,
+                                title,
+                                url,
+                                snippet
+                            ));
+                        }
+                        lines.join("\n")
+                    } else {
+                        data.to_string()
+                    }
+                } else {
+                    data.get("text_excerpt")
+                        .or_else(|| data.get("body_text"))
+                        .or_else(|| data.get("body_utf8"))
+                        .or_else(|| data.get("excerpt"))
+                        .and_then(|v| v.as_str())
+                        .map(str::to_string)
+                        .unwrap_or_else(|| data.to_string())
+                }
             }
         };
 
@@ -9729,5 +9747,88 @@ mod tests {
             .as_str()
             .unwrap_or("")
             .contains("140.82.112.4"));
+    }
+
+    #[test]
+    fn test_v10_web_bridge_transport_admission_and_math_bailout_guards() {
+        let mut engine = StudioEngine::new_default();
+
+        // 1. Policy `deny` rejects `web_search` via `admit_bridge_transport` with `[PolicyDenied]`
+        let _ = engine.mvm_set_policy_json("deny");
+        let mut pulses = Vec::new();
+        let denied_search = engine
+            .try_execute_v10_tool_call(
+                "search WebAssembly docs",
+                "<tool_call>{\"name\":\"web_search\",\"arguments\":{\"query\":\"WebAssembly SIMD\"}}</tool_call>",
+                &mut pulses,
+            )
+            .expect("handled");
+        assert!(
+            denied_search.contains("[PolicyDenied]"),
+            "expected PolicyDenied code in refusal: {denied_search}"
+        );
+        assert!(engine.pending_chat_bridge.is_none());
+
+        // 2. Policy `confirm` admits `https://` `web_search` with `"policy": "confirm"`,
+        //    rejects cleartext `http://` `web_fetch` with `[InsecureTransportRejected]`,
+        //    and `chat_complete_bridge_json` propagates `ok: false` as `"status": "error"`.
+        let _ = engine.mvm_set_policy_json("confirm");
+        let cleartext_fetch = engine
+            .try_execute_v10_tool_call(
+                "fetch http://example.com",
+                "<tool_call>{\"name\":\"web_fetch\",\"arguments\":{\"url\":\"http://example.com/index.html\"}}</tool_call>",
+                &mut pulses,
+            )
+            .expect("handled");
+        assert!(
+            cleartext_fetch.contains("[InsecureTransportRejected]"),
+            "expected InsecureTransportRejected in refusal: {cleartext_fetch}"
+        );
+        assert!(engine.pending_chat_bridge.is_none());
+
+        let admitted_search = engine
+            .try_execute_v10_tool_call(
+                "search WebAssembly docs",
+                "<tool_call>{\"name\":\"web_search\",\"arguments\":{\"query\":\"WebAssembly SIMD\"}}</tool_call>",
+                &mut pulses,
+            )
+            .expect("handled");
+        assert!(admitted_search.starts_with("<tool_call>"));
+        let pending = engine
+            .pending_chat_bridge
+            .clone()
+            .expect("pending_chat_bridge populated");
+        assert_eq!(pending["bridge_req"]["policy"], "confirm");
+
+        let relay_err_raw = engine.chat_complete_bridge_json(
+            &serde_json::json!({
+                "resume_state": pending,
+                "bridge_resp": {
+                    "ok": false,
+                    "error_code": "PolicyDenied",
+                    "error": "user declined outbound web_search"
+                }
+            })
+            .to_string(),
+        );
+        let relay_err: serde_json::Value = serde_json::from_str(&relay_err_raw).expect("json");
+        assert_eq!(relay_err["status"], "error");
+        assert_eq!(relay_err["error_code"], "PolicyDenied");
+
+        // 3. `solve_exact_math_or_logic` never intercepts CS Q&A, `/workspace` tool ops, or C code prompts
+        for non_math_prompt in [
+            "What is the time complexity of binary search on 1024 items?",
+            "Dump the first 32 hex bytes in /workspace/foo with xxd",
+            "Given x = 10 and y = 20, write an expression in C",
+        ] {
+            assert!(
+                engine.solve_exact_math_or_logic(non_math_prompt).is_none(),
+                "solve_exact_math_or_logic must not false-positive on `{non_math_prompt}`"
+            );
+        }
+        let (conv_reply, _) = engine
+            .solve_exact_math_or_logic("Convert 42 to binary")
+            .expect("explicit base conversion must still resolve");
+        assert!(conv_reply.contains("0b101010"));
     }
 }

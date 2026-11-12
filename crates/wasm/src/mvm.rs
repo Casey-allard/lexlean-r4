@@ -3388,6 +3388,62 @@ impl MvmSandbox {
         })
     }
 
+    /// Admit and build a `SpiralCore` (`CID 3 -> CID 2`) `web_search` bridge request (`R4-39`).
+    pub(crate) fn prepare_web_search_bridge(
+        &mut self,
+        query: &str,
+    ) -> Result<serde_json::Value, MvmError> {
+        self.admit_outbound_transport(TransportKind::HttpsDirect)?;
+        let secret_verified =
+            self.verify_secret_placeholders_for_host("search.uor.foundation", query)?;
+        let req_id = self.next_bridge_req_id("chat-web-search");
+        let bridge_req = serde_json::json!({
+            "req_id": req_id,
+            "spvs_magic": "SPVS",
+            "src_cid": self.guest_cid,
+            "dst_cid": 2,
+            "policy": self.policy_str(),
+            "op": "web_search",
+            "query": query,
+            "limit": 5,
+            "secret_placeholder_verified": secret_verified,
+            "params": { "query": query, "limit": 5 }
+        });
+        let _ = self.emit_bridge_vsock_frame(bridge_req.to_string().as_bytes())?;
+        Ok(bridge_req)
+    }
+
+    /// Admit and build a `SpiralCore` (`CID 3 -> CID 2`) `web_fetch` (`http_request`) bridge request (`R4-39`).
+    pub(crate) fn prepare_web_fetch_bridge(
+        &mut self,
+        url: &str,
+    ) -> Result<serde_json::Value, MvmError> {
+        let (scheme, host) = parse_url_scheme_and_host(url);
+        let transport = match scheme.as_str() {
+            "https" => TransportKind::HttpsDirect,
+            "wss" => TransportKind::WssRelay,
+            "ws" => TransportKind::PlainWs,
+            _ => TransportKind::PlainHttp,
+        };
+        self.admit_outbound_transport(transport)?;
+        let secret_verified = self.verify_secret_placeholders_for_host(&host, url)?;
+        let req_id = self.next_bridge_req_id("chat-web-fetch");
+        let bridge_req = serde_json::json!({
+            "req_id": req_id,
+            "spvs_magic": "SPVS",
+            "src_cid": self.guest_cid,
+            "dst_cid": 2,
+            "policy": self.policy_str(),
+            "op": "http_request",
+            "method": "GET",
+            "url": url,
+            "secret_placeholder_verified": secret_verified,
+            "params": { "method": "GET", "url": url }
+        });
+        let _ = self.emit_bridge_vsock_frame(bridge_req.to_string().as_bytes())?;
+        Ok(bridge_req)
+    }
+
     fn exec_pkg_command(
         &mut self,
         words: &[String],
