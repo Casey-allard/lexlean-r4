@@ -732,10 +732,22 @@ const engineWorkerClient = {
   lastTransport: 'spvs-cloud-wss',
   activeChatStreamHook: null,
   workspaceFiles: new Map(
-    DEFAULT_STARTER_WORKSPACE_FILES.map((f) => [
-      f.path,
-      { path: f.path, content: f.content, byte_len: f.content.length, sha256: '' },
-    ]),
+    DEFAULT_STARTER_WORKSPACE_FILES.map((f) => {
+      const content = typeof f.content === 'string' ? f.content : '';
+      const digest = computeSha256Hex(content);
+      return [
+        f.path,
+        {
+          path: f.path,
+          content,
+          line_count: content ? content.split('\n').length : 0,
+          pinned: Boolean(f.pinned),
+          byte_len: content.length,
+          sha256: digest,
+          updated_receipt: digest,
+        },
+      ];
+    }),
   ),
   shadowState: {
     status: 'ok',
@@ -784,15 +796,28 @@ const engineWorkerClient = {
 
   applyWorkspaceSnapshot(ws) {
     if (!ws || !Array.isArray(ws.files)) return;
+    const prevPinned = new Map();
+    for (const [p, prev] of this.workspaceFiles.entries()) {
+      prevPinned.set(p, Boolean(prev.pinned));
+    }
     this.workspaceFiles.clear();
     for (const f of ws.files) {
       const content = typeof f.content === 'string' ? f.content : '';
+      const lineCount = typeof f.line_count === 'number'
+        ? f.line_count
+        : (content ? content.split('\n').length : 0);
+      const pinned = typeof f.pinned === 'boolean'
+        ? f.pinned
+        : Boolean(prevPinned.get(f.path));
+      const digest = f.sha256 || f.updated_receipt || computeSha256Hex(content);
       this.workspaceFiles.set(f.path, {
         path: f.path,
         content,
+        line_count: lineCount,
+        pinned,
         byte_len: f.byte_len ?? content.length,
-        sha256: f.sha256 || f.updated_receipt || '',
-        updated_receipt: f.updated_receipt || f.sha256 || '',
+        sha256: digest,
+        updated_receipt: f.updated_receipt || digest,
       });
     }
     renderWorkspaceList(this.getWorkspaceListObject());
@@ -815,14 +840,25 @@ const engineWorkerClient = {
   },
 
   getWorkspaceListObject() {
-    return {
-      status: 'ok',
-      files: Array.from(this.workspaceFiles.values()).map((f) => ({
+    const files = Array.from(this.workspaceFiles.values()).map((f) => {
+      const content = typeof f.content === 'string' ? f.content : '';
+      return {
         path: f.path,
-        byte_len: f.byte_len ?? (f.content || '').length,
+        content,
+        line_count: typeof f.line_count === 'number'
+          ? f.line_count
+          : (content ? content.split('\n').length : 0),
+        pinned: Boolean(f.pinned),
+        byte_len: f.byte_len ?? content.length,
         sha256: f.sha256 || '',
         updated_receipt: f.updated_receipt || f.sha256 || '',
-      })),
+      };
+    });
+    const pinnedCount = files.reduce((acc, f) => acc + (f.pinned ? 1 : 0), 0);
+    return {
+      status: 'ok',
+      pinned_count: pinnedCount,
+      files,
     };
   },
 
@@ -1020,13 +1056,26 @@ function dispatchStudioEnvelope(command, payload) {
       const pathPart = (nl >= 0 ? str.slice(0, nl) : str).trim();
       const contentPart = nl >= 0 ? str.slice(nl + 1) : '';
       if (pathPart) {
+        const prev = engineWorkerClient.workspaceFiles.get(pathPart);
+        const digest = computeSha256Hex(contentPart);
         engineWorkerClient.workspaceFiles.set(pathPart, {
           path: pathPart,
           content: contentPart,
+          line_count: contentPart ? contentPart.split('\n').length : 0,
+          pinned: prev ? Boolean(prev.pinned) : false,
           byte_len: contentPart.length,
-          sha256: computeSha256Hex(contentPart),
-          updated_receipt: computeSha256Hex(contentPart),
+          sha256: digest,
+          updated_receipt: digest,
         });
+      }
+      engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
+      return engineWorkerClient.getWorkspaceListObject();
+    }
+    if (command === 'workspace_pin') {
+      const target = String(payload || '').trim();
+      const hit = engineWorkerClient.workspaceFiles.get(target);
+      if (hit) {
+        hit.pinned = !hit.pinned;
       }
       engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
       return engineWorkerClient.getWorkspaceListObject();
@@ -1038,24 +1087,62 @@ function dispatchStudioEnvelope(command, payload) {
       return engineWorkerClient.getWorkspaceListObject();
     }
     if (command === 'workspace_batch') {
-      try {
-        const parsedBatch = JSON.parse(String(payload || '[]'));
-        const items = Array.isArray(parsedBatch) ? parsedBatch : (parsedBatch.files || []);
-        for (const it of items) {
-          if (it && typeof it.path === 'string' && typeof it.content === 'string') {
-            engineWorkerClient.workspaceFiles.set(it.path, {
-              path: it.path,
-              content: it.content,
-              byte_len: it.content.length,
-              sha256: computeSha256Hex(it.content),
+      let ingestedFiles = 0;
+      let ingestedTokens = 0;
+      const rawBatch = String(payload || '');
+      if (rawBatch.trim().startsWith('[') || rawBatch.trim().startsWith('{')) {
+        try {
+          const parsedBatch = JSON.parse(rawBatch);
+          const items = Array.isArray(parsedBatch) ? parsedBatch : (parsedBatch.files || []);
+          for (const it of items) {
+            if (it && typeof it.path === 'string' && typeof it.content === 'string') {
+              const prev = engineWorkerClient.workspaceFiles.get(it.path);
+              const digest = computeSha256Hex(it.content);
+              engineWorkerClient.workspaceFiles.set(it.path, {
+                path: it.path,
+                content: it.content,
+                line_count: it.content ? it.content.split('\n').length : 0,
+                pinned: prev ? Boolean(prev.pinned) : false,
+                byte_len: it.content.length,
+                sha256: digest,
+                updated_receipt: digest,
+              });
+              ingestedFiles += 1;
+              ingestedTokens += it.content.split(/\s+/).filter(Boolean).length;
+            }
+          }
+        } catch {
+          // Forward raw batch to worker below
+        }
+      } else if (rawBatch.length > 0) {
+        const blocks = rawBatch.split('\n===FILE===\n');
+        for (const blk of blocks) {
+          const nl = blk.indexOf('\n');
+          const p = (nl >= 0 ? blk.slice(0, nl) : blk).trim();
+          const c = nl >= 0 ? blk.slice(nl + 1) : '';
+          if (p) {
+            const prev = engineWorkerClient.workspaceFiles.get(p);
+            const digest = computeSha256Hex(c);
+            engineWorkerClient.workspaceFiles.set(p, {
+              path: p,
+              content: c,
+              line_count: c ? c.split('\n').length : 0,
+              pinned: prev ? Boolean(prev.pinned) : false,
+              byte_len: c.length,
+              sha256: digest,
+              updated_receipt: digest,
             });
+            ingestedFiles += 1;
+            ingestedTokens += c.split(/\s+/).filter(Boolean).length;
           }
         }
-      } catch {
-        // Forward raw batch to worker below
       }
       engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
-      return engineWorkerClient.getWorkspaceListObject();
+      return {
+        ...engineWorkerClient.getWorkspaceListObject(),
+        batch_ingested_files: ingestedFiles,
+        batch_ingested_tokens: ingestedTokens,
+      };
     }
     if (command === 'state') {
       return engineWorkerClient.shadowState;
@@ -3231,7 +3318,7 @@ const AGENTIC_SLASH_COMMANDS = [
     command: '/otel',
     title: 'Inspect 5-Tier OTel GLLM Waterfall',
     badge: 'u16 Dedup',
-    description: 'Open OpenTelemetry uor.gllm.trace/1 waterfall & SpanLinks drawer',
+    description: 'Open OTel uor.gllm.trace/1 waterfall & SpanLinks drawer',
     template: '',
     action: 'otel',
   },
@@ -3972,6 +4059,11 @@ function closeInspectorsModal() {
   if (inspectorsModalEl) {
     inspectorsModalEl.setAttribute('hidden', '');
   }
+  if (lexLean3dVisualizer && lexLean3dVisualizer.animFrameId && typeof cancelAnimationFrame === 'function') {
+    cancelAnimationFrame(lexLean3dVisualizer.animFrameId);
+    lexLean3dVisualizer.animFrameId = null;
+    lexLean3dVisualizer.lastTimestamp = 0;
+  }
   activeCanvasTabId = 'terminal';
 }
 
@@ -4013,6 +4105,9 @@ function activateCanvasTab(tabId) {
     }
     if (tabId === 'traces') {
       fetchRecordedTraces();
+      if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ensureGLReady === 'function') {
+        lexLean3dVisualizer.ensureGLReady();
+      }
       if (lexLean3dVisualizer && typeof lexLean3dVisualizer.resize === 'function') {
         lexLean3dVisualizer.resize();
       }
@@ -5236,7 +5331,7 @@ class LexLean3DVisualizer {
     this.boundAnimate = this.animate.bind(this);
   }
 
-  init(canvasId) {
+  init(canvasId, options = {}) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return false;
     this.canvas = canvas;
@@ -5248,7 +5343,9 @@ class LexLean3DVisualizer {
     this.labelsContainer = document.getElementById('neural-3d-labels');
     this.ospfTickerEl = document.getElementById('neural-ospf-route-text');
 
-    this.initGL();
+    if (!options || !options.deferGL) {
+      this.initGL();
+    }
     this.buildStaticGeometry();
     this.buildDefaultDecodeSpline();
     this.bindEvents();
@@ -5258,6 +5355,17 @@ class LexLean3DVisualizer {
       this.animFrameId = requestAnimationFrame(this.boundAnimate);
     }
     return true;
+  }
+
+  ensureGLReady() {
+    if (!this.gl && this.canvas) {
+      this.initGL();
+      this.updateStatus();
+    }
+    if (this.gl && !this.animFrameId && typeof requestAnimationFrame === 'function') {
+      this.animFrameId = requestAnimationFrame(this.boundAnimate);
+    }
+    return Boolean(this.gl);
   }
 
   initGL() {
@@ -6529,7 +6637,19 @@ class LexLean3DVisualizer {
   }
 
   animate(timestamp = 0) {
-    if (!this.gl) return;
+    if (!this.gl) {
+      this.animFrameId = null;
+      return;
+    }
+    if (typeof document !== 'undefined') {
+      const modal = document.getElementById('inspectors-modal');
+      const panel = document.getElementById('canvas-panel-traces');
+      if ((modal && modal.hasAttribute('hidden')) || (panel && panel.hasAttribute('hidden'))) {
+        this.animFrameId = null;
+        this.lastTimestamp = 0;
+        return;
+      }
+    }
     const deltaTime = this.lastTimestamp ? Math.min((timestamp - this.lastTimestamp) / 1000.0, 0.1) : 0.016;
     this.lastTimestamp = timestamp;
 
@@ -9530,7 +9650,7 @@ renderLiteratureFeed();
 renderActiveThreadMessages();
 if (document.getElementById('neural-3d-canvas')) {
   lexLean3dVisualizer = new LexLean3DVisualizer();
-  lexLean3dVisualizer.init('neural-3d-canvas');
+  lexLean3dVisualizer.init('neural-3d-canvas', { deferGL: true });
 }
 renderTraceInspector();
 initSidebarViews();
@@ -12045,6 +12165,7 @@ function registerBrowserTerminalBridgeHooks() {
         op: 'git',
         subcommand: sub,
         repo_url: repoTarget,
+        message: commitMsg,
         commit_message: commitMsg,
       })
       .then((res) => {
@@ -12119,7 +12240,15 @@ function registerBrowserTerminalBridgeHooks() {
             );
             return;
           }
-          const bodyStr = String(res.data?.body ?? res.body ?? '');
+          const bodyStr = String(
+            res.data?.body_text ??
+            res.body_text ??
+            res.data?.text_excerpt ??
+            res.text_excerpt ??
+            res.data?.body ??
+            res.body ??
+            '',
+          );
           const preview = bodyStr.length > 2400 ? `${bodyStr.slice(0, 2400)}\n...[truncated at 2400 chars]` : bodyStr;
           for (const line of preview.split('\n')) term.printAnsi(line);
           term.setExitCode(0);
@@ -12376,8 +12505,16 @@ try {
     await restore_cached_uorlut_from_indexeddb();
   }
 
-  if (lexLeanTerminal && lexLeanTerminal.promptLabel && workerBooted) {
-    lexLeanTerminal.promptLabel.textContent = 'lexlean@mvm:/workspace$';
+  if (lexLeanTerminal && workerBooted) {
+    if (lexLeanTerminal.promptLabel) {
+      lexLeanTerminal.promptLabel.textContent = 'casey@mvm:/workspace$';
+    }
+    if (lexLeanTerminal.env) {
+      lexLeanTerminal.env.USER = 'casey';
+      lexLeanTerminal.env.HOSTNAME = 'mvm';
+      lexLeanTerminal.env.CWD = '/workspace';
+      lexLeanTerminal.env.PROMPT = 'casey@mvm:/workspace$ ';
+    }
   }
 
   updateWeightCacheBadge();

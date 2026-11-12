@@ -2227,14 +2227,8 @@ export class SpiralCoreHostBridge {
       params: params || {},
     };
 
-    if (typeof WebSocket === 'function') {
-      const candidateUrls = [];
-      if (typeof self !== 'undefined' && self.location && self.location.hostname === '127.0.0.1') {
-        candidateUrls.push(LOCAL_SPIRALCORE_RELAY_WS_URL);
-      }
-      if (this.relayUrl) {
-        candidateUrls.push(this.relayUrl);
-      }
+    if (typeof WebSocket === 'function' && this.relayUrl) {
+      const candidateUrls = [this.relayUrl];
       for (const wsUrl of candidateUrls) {
         const valid = this.validateTransportUrl(wsUrl, true);
         if (!valid.ok) continue;
@@ -3016,7 +3010,7 @@ export class SpiralCoreHostBridge {
         };
       }
       const branch = String(req.branch || 'main');
-      const commitMessage = String(req.message || 'Update from UOR-R4 Connected Studio');
+      const commitMessage = String(req.message || req.commit_message || 'Update from UOR-R4 Connected Studio');
       try {
         const refResp = await fetch(
           `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/ref/heads/${encodeURIComponent(branch)}`,
@@ -3108,6 +3102,13 @@ export class SpiralCoreHostBridge {
           repo: `${coords.owner}/${coords.repo}`,
           branch,
           commit_sha: createdCommit.sha,
+          pushed_files: treeEntries.length,
+          data: {
+            repo: `${coords.owner}/${coords.repo}`,
+            branch,
+            commit_sha: createdCommit.sha,
+            pushed_files: treeEntries.length,
+          },
           body_text: `Pushed ${treeEntries.length} file(s) to ${coords.owner}/${coords.repo}@${branch} -> ${String(createdCommit.sha || '').slice(0, 12)}`,
           transport: this.lastTransportMode,
         };

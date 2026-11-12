@@ -1,7 +1,7 @@
 {
   "adapter_lock_sha256": "bb41dd4065226a4fcdc17629cef54cc3868967f4ae0da1dabfaa5d917b11ad05",
   "adapter_wasm_sha256": "a5c0925f6ce054195036012428a473a65ca8469affba159499af9f3df966e42c",
-  "binding_javascript_sha256": "94751952fa9f2a46bf1d5abe89ced069fef4a1bceca577716e10d253ebef0e7e",
+  "binding_javascript_sha256": "0fa0ba632d198f9c0375f4d79557b9e19651a640ad161fc469c3746f514a4978",
   "generated_core_sha256": "acc9a89d65bb43bdb61a720fd90570dacf46a43adb9340fcbc427a9245e247e8",
   "model_id": "8a0e88c03975a5c7f8f6dd468080f5ec89a19c59502283a0058b88d8b9f4be67",
   "schema": "prismpm/browser-provenance/1",
