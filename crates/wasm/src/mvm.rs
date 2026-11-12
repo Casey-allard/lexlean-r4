@@ -950,12 +950,18 @@ impl MvmSandbox {
     }
 
     /// Register a host-only credential placeholder (`{{MVM_SECRET:<name>}}`) restricted to `allowlisted_hosts`.
+    /// Passing an empty `raw_secret` removes any previously registered credential entry so cleared secrets
+    /// neither linger in `host_secrets` nor trigger `ensure_guest_ram_uncontaminated` on empty strings.
     pub fn register_host_secret(
         &mut self,
         name: &str,
         raw_secret: &str,
         allowlisted_hosts: &[&str],
     ) {
+        if raw_secret.trim().is_empty() {
+            self.host_secrets.remove(name);
+            return;
+        }
         let hosts = allowlisted_hosts.iter().map(|s| (*s).to_string()).collect();
         self.host_secrets.insert(
             name.to_string(),
@@ -3132,40 +3138,55 @@ impl MvmSandbox {
             ));
         }
 
-        let Some(start) = text_to_scan.find("{{MVM_SECRET:") else {
-            return Ok(false);
-        };
-        let after = &text_to_scan[start + "{{MVM_SECRET:".len()..];
-        let Some(end) = after.find("}}") else {
-            return Err(MvmError::BridgeRejected(
-                BridgeError::MissingSecretPlaceholder,
-            ));
-        };
-        let secret_name = &after[..end];
-        let placeholder_present = !secret_name.is_empty();
         let github_domain_ok = matches!(
             target_host.to_ascii_lowercase().as_str(),
             "github.com" | "api.github.com"
         );
-        let rule_host_ok = self
-            .host_secrets
-            .get(secret_name)
-            .map(|r| r.allowlisted_hosts.contains(target_host))
-            .unwrap_or(true);
-        let is_allowlisted = github_domain_ok && rule_host_ok;
+        let mut cursor = text_to_scan;
+        let mut any_verified = false;
+        while let Some(start) = cursor.find("{{MVM_SECRET:") {
+            let after = &cursor[start + "{{MVM_SECRET:".len()..];
+            let Some(end) = after.find("}}") else {
+                return Err(MvmError::BridgeRejected(
+                    BridgeError::MissingSecretPlaceholder,
+                ));
+            };
+            let secret_name = &after[..end];
+            let placeholder_present = !secret_name.is_empty();
+            let rule_host_ok = self
+                .host_secrets
+                .get(secret_name)
+                .map(|r| r.allowlisted_hosts.contains(target_host))
+                .unwrap_or(true);
+            let is_allowlisted = github_domain_ok && rule_host_ok;
 
-        match admit_git_secret_substitution(secret_in_guest, placeholder_present, is_allowlisted) {
-            GitSecretVerdict::SecretSubstitutionAdmitted => Ok(true),
-            GitSecretVerdict::GuestRamSecretContamination => Err(MvmError::BridgeRejected(
-                BridgeError::GuestRamSecretContamination,
-            )),
-            GitSecretVerdict::MissingSecretPlaceholder => Err(MvmError::BridgeRejected(
-                BridgeError::MissingSecretPlaceholder,
-            )),
-            GitSecretVerdict::HostNotAllowlistedForSecret => Err(MvmError::BridgeRejected(
-                BridgeError::HostNotAllowlistedForSecret,
-            )),
+            match admit_git_secret_substitution(
+                secret_in_guest,
+                placeholder_present,
+                is_allowlisted,
+            ) {
+                GitSecretVerdict::SecretSubstitutionAdmitted => {
+                    any_verified = true;
+                }
+                GitSecretVerdict::GuestRamSecretContamination => {
+                    return Err(MvmError::BridgeRejected(
+                        BridgeError::GuestRamSecretContamination,
+                    ));
+                }
+                GitSecretVerdict::MissingSecretPlaceholder => {
+                    return Err(MvmError::BridgeRejected(
+                        BridgeError::MissingSecretPlaceholder,
+                    ));
+                }
+                GitSecretVerdict::HostNotAllowlistedForSecret => {
+                    return Err(MvmError::BridgeRejected(
+                        BridgeError::HostNotAllowlistedForSecret,
+                    ));
+                }
+            }
+            cursor = &after[end + 2..];
         }
+        Ok(any_verified)
     }
 
     fn next_bridge_req_id(&mut self, prefix: &str) -> String {
@@ -3409,18 +3430,42 @@ impl MvmSandbox {
                     .map(|s| s.to_ascii_lowercase())
                     .unwrap_or_default();
                 let catalog = [
-                    ("jq", "Lightweight JSON processor (static ELF64 riscv64)"),
+                    (
+                        "jq",
+                        "JSON parser, pretty-printer, and path filter (static ELF64 riscv64)",
+                    ),
                     (
                         "rg",
-                        "Line-oriented regex search tool (static ELF64 riscv64)",
+                        "Recursive substring file search across directories (static ELF64 riscv64)",
                     ),
                     (
                         "tree",
-                        "Recursive directory listing applet (static ELF64 riscv64)",
+                        "Recursive ASCII directory hierarchy viewer (static ELF64 riscv64)",
                     ),
                     (
                         "xxd",
-                        "Hexdump and reverse-hex utility (static ELF64 riscv64)",
+                        "Canonical 16-byte hexadecimal and ASCII dump (static ELF64 riscv64)",
+                    ),
+                    (
+                        "sha256sum",
+                        "FIPS 180-4 SHA-256 digest utility (static ELF64 riscv64)",
+                    ),
+                    (
+                        "bc",
+                        "64-bit integer arithmetic and variable calculator (static ELF64 riscv64)",
+                    ),
+                    ("wc", "Line, word, and byte counter (static ELF64 riscv64)"),
+                    (
+                        "head",
+                        "Output leading lines or bytes of files (static ELF64 riscv64)",
+                    ),
+                    (
+                        "tail",
+                        "Output trailing lines or bytes of files (static ELF64 riscv64)",
+                    ),
+                    (
+                        "http",
+                        "Zero-NIC AF_VSOCK SpiralCore HTTP egress client (static ELF64 riscv64)",
                     ),
                 ];
                 let mut out = String::new();

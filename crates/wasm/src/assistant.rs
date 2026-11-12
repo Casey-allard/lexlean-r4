@@ -2,8 +2,7 @@
 //! Engine for the UOR-R4 Claude-Code-Desktop WebAssembly runtime.
 
 use crate::{
-    canonical_stem, gcd_shared_primes_sorted, is_stopword, m6_ablation_place_add,
-    prll_masses_from_scores, StudioEngine, TokenAtom, POINT_KEY_DIM,
+    canonical_stem, gcd_shared_primes_sorted, is_stopword, StudioEngine, TokenAtom, POINT_KEY_DIM,
 };
 
 /// Result of analyzing whether a user prompt is a code-synthesis / workspace-patch request.
@@ -19,7 +18,6 @@ impl StudioEngine {
     /// Evaluate exact arithmetic expressions, number theory (`gcd`, `lcm`, primality, factorization,
     /// factorials, Fibonacci), algebra (linear/quadratic equations), percentages, base conversions,
     /// and unit conversions using the proved `R4.ExactArithmetic` (M6) and `R4.DurableMemory` kernels.
-    #[allow(dead_code)]
     pub(crate) fn solve_exact_math_or_logic(&self, prompt: &str) -> Option<(String, String)> {
         let trimmed = prompt.trim();
         let lower = trimmed.to_ascii_lowercase();
@@ -289,54 +287,6 @@ impl StudioEngine {
                     String::new(),
                 ));
             }
-        }
-
-        // 9. Word-form arithmetic ("15 plus 27", "100 minus 37", "12 times 14", "144 divided by 12", "2 to the power of 10")
-        if numbers.len() >= 2 {
-            let a = numbers[0];
-            let b = numbers[1];
-            let word_op = if lower.contains(" to the power of ") || lower.contains(" raised to ") {
-                Some('^')
-            } else if lower.contains(" plus ")
-                || lower.contains(" added to ")
-                || lower.contains("sum of ")
-            {
-                Some('+')
-            } else if lower.contains(" minus ")
-                || lower.contains(" subtract ")
-                || lower.contains("difference between ")
-            {
-                Some('-')
-            } else if lower.contains(" times ")
-                || lower.contains(" multiplied by ")
-                || lower.contains("product of ")
-            {
-                Some('*')
-            } else if lower.contains(" divided by ") {
-                Some('/')
-            } else if lower.contains(" modulo ") || lower.contains(" mod ") {
-                Some('%')
-            } else {
-                None
-            };
-
-            if let Some(op) = word_op {
-                return Some(format_exact_binary_math(a, b, op));
-            }
-        }
-
-        // 10. General symbolic arithmetic expression parser (`2 + 2`, `(15 + 25) * 3`, `2^16`, `48291 + 73948`)
-        if let Some((expr_str, val, binary_pair)) = try_eval_math_expression(trimmed) {
-            if let Some((a, b, op)) = binary_pair {
-                return Some(format_exact_binary_math(a, b, op));
-            }
-            let prll = prll_masses_from_scores([3900, 120, 60, 30]);
-            let reply = format!(
-                "Computed via **UOR-R4 M6 Exact Arithmetic Kernel (`R4.ExactArithmetic`, R4-27)**:\n\n- **Expression**: `{expr_str} = {val}`\n- **PRLL Lawful Likelihood Mass**: `{}` / `1,000,000` ppm (zero-float integer conservation).",
-                prll[0]
-            );
-            let code = format!("pub fn verified_m6_expression() -> i64 {{\n    {val}\n}}\n");
-            return Some((reply, code));
         }
 
         None
@@ -991,11 +941,6 @@ impl StudioEngine {
         );
         self.last_lut_generation = Some(lut_gen.clone());
 
-        let base_v9_gen = self
-            .gllm_v9
-            .generate_compositional(trimmed, &self.chat_history, 128);
-        self.last_brain_pulses = base_v9_gen.brain_pulses.clone();
-
         // 1. Inline `Teach: <q> => <a>` admission and session-scoped recall
         if let Some(rest) = trimmed
             .strip_prefix("Teach:")
@@ -1009,6 +954,9 @@ impl StudioEngine {
                     let tag = format!("__taught__:{norm_q}");
                     self.binder_memory.retain(|(k, _)| k != &tag);
                     self.binder_memory.push((tag, a_raw.to_string()));
+                    self.last_brain_pulses = self
+                        .gllm_v9
+                        .encode_prompt_pulses(trimmed, &self.chat_history);
                     let (_, clean_a) = parse_thinking_block(a_raw);
                     return format!(
                         "Admitted new knowledge turn into `/6`, `/7`, `/8`, and `R4.Admission` tables:\n\n- **Prompt**: `{q_clean}`\n- **Learned Response**: {clean_a}"
@@ -1026,13 +974,49 @@ impl StudioEngine {
                 .rev()
                 .find(|(k, _)| k == &lookup_tag)
             {
-                return taught_raw.clone();
+                let taught = taught_raw.clone();
+                self.last_brain_pulses = self
+                    .gllm_v9
+                    .encode_prompt_pulses(trimmed, &self.chat_history);
+                return taught;
             }
         }
 
-        let lower = trimmed.to_ascii_lowercase();
+        // 2. High-precision symbolic math (`R4.ExactArithmetic` / `R4.DurableMemory` / `R4-31` De Bruijn slots)
+        if let Some((math_reply, _)) = self.solve_exact_math_or_logic(trimmed) {
+            self.last_brain_pulses = self
+                .gllm_v9
+                .encode_prompt_pulses(trimmed, &self.chat_history);
+            return math_reply;
+        }
 
-        // 2. Live MVM-Wasm RV64IMAC sandbox & SpiralCore two-phase tool loop
+        let lower = trimmed.to_ascii_lowercase();
+        let is_compositional_v9_turn = (lower.starts_with("given ") && lower.contains(" = "))
+            || ((lower.starts_with("write a rust function ")
+                || lower.starts_with("write a freestanding c function "))
+                && trimmed.contains('(')
+                && !lower.contains(" that "))
+            || lower == "what is uor-r4?"
+            || lower.starts_with("how does uor-r4 attention")
+            || (lower.contains("weights") && lower.contains("browser") && lower.contains("stored"))
+            || lower.contains("uorgllm")
+            || lower.contains("mvm-wasm")
+            || lower.contains("af_vsock");
+
+        if !is_compositional_v9_turn
+            && lut_gen
+                .slot_frame
+                .as_ref()
+                .is_some_and(|sf| sf.has_active_kernel_substitution())
+            && !lut_gen.reply_text.trim().is_empty()
+        {
+            self.last_brain_pulses = self
+                .gllm_v9
+                .encode_prompt_pulses(trimmed, &self.chat_history);
+            return lut_gen.reply_text;
+        }
+
+        // 3. Live MVM-Wasm RV64IMAC sandbox & SpiralCore two-phase tool loop
         let is_mvm_sandbox_turn = !lower.contains("<tools>")
             && !lower.contains("available tools:")
             && (lower.contains("microvm")
@@ -1073,7 +1057,12 @@ impl StudioEngine {
                             &self.chat_history,
                             256,
                         );
-                        self.last_brain_pulses = step2.brain_pulses.clone();
+                        let mut combined = step1.brain_pulses;
+                        for mut p in step2.brain_pulses {
+                            p.step = combined.len() as u32;
+                            combined.push(p);
+                        }
+                        self.last_brain_pulses = combined;
                         if !step2.text.is_empty() {
                             return step2.text;
                         }
@@ -1096,7 +1085,7 @@ impl StudioEngine {
             }
         }
 
-        // 3. Explicit Agentic Harness (`[agent_mode]`, `<tools>`, `<tool_response>`)
+        // 4. Explicit Agentic Harness (`[agent_mode]`, `<tools>`, `<tool_response>`)
         if lower.contains("[agent_mode]")
             || lower.contains("<tool_response>")
             || lower.contains("<observation>")
@@ -1112,6 +1101,9 @@ impl StudioEngine {
                     &words,
                     &self.chat_history,
                 ) {
+                    self.last_brain_pulses = self
+                        .gllm_v9
+                        .encode_prompt_pulses(trimmed, &self.chat_history);
                     return agent_turn;
                 }
             }
@@ -1126,197 +1118,95 @@ impl StudioEngine {
                     256,
                 ) {
                     if !outcome.raw_output.trim().is_empty() {
+                        self.last_brain_pulses = self
+                            .gllm_v9
+                            .encode_prompt_pulses(trimmed, &self.chat_history);
                         return outcome.raw_output;
                     }
                 }
             }
         }
 
-        // 4. Compositional GLLM v9/v10 prompt-sensitive synthesis & architecture Q&A
-        let is_compositional_v9_turn = (lower.starts_with("given ") && lower.contains(" = "))
-            || ((lower.starts_with("write a rust function ")
-                || lower.starts_with("write a freestanding c function "))
-                && trimmed.contains('('))
-            || lower == "what is uor-r4?"
-            || lower.starts_with("how does uor-r4 attention")
-            || (lower.contains("weights") && lower.contains("browser") && lower.contains("stored"))
-            || lower.contains("uorgllm")
-            || lower.contains("mvm-wasm")
-            || lower.contains("af_vsock");
-        if is_compositional_v9_turn {
-            let v9_gen = self
+        // 5. Dynamically admitted session turns (`StudioEngine::admit_turn`)
+        let base_turn_count = crate::default_knowledge_turns().len();
+        if self.turns.len() > base_turn_count
+            && self.turns[base_turn_count..]
+                .iter()
+                .any(|t| normalize_session_key(&t.prompt) == norm_prompt_key)
+            && !lut_gen.reply_text.trim().is_empty()
+        {
+            self.last_brain_pulses = self
                 .gllm_v9
-                .generate_compositional(trimmed, &self.chat_history, 256);
-            self.last_brain_pulses = v9_gen.brain_pulses.clone();
+                .encode_prompt_pulses(trimmed, &self.chat_history);
+            return lut_gen.reply_text;
+        }
+
+        // 6. Primary single-pass `UORGLLM9` (`v10` multi-turn KV + ReAct `<tool_call>`, or legacy `v9` KV)
+        if !self.gllm_v9.is_legacy_v9_container() {
+            let v10_gen = self
+                .gllm_v9
+                .generate_compositional_v10(trimmed, &self.chat_history, 256);
+            let mut pulses = v10_gen.brain_pulses;
+            if let Some(handled) =
+                self.try_execute_v10_tool_call(trimmed, &v10_gen.text, &mut pulses)
+            {
+                self.last_brain_pulses = pulses;
+                return handled;
+            }
+            self.last_brain_pulses = pulses;
+            if !v10_gen.text.trim().is_empty() {
+                return v10_gen.text;
+            }
+        }
+
+        let v9_gen = self
+            .gllm_v9
+            .generate_compositional(trimmed, &self.chat_history, 256);
+        self.last_brain_pulses = v9_gen.brain_pulses;
+
+        if is_compositional_v9_turn {
             let backticks_balanced = v9_gen.text.chars().filter(|&c| c == '`').count() % 2 == 0;
             if v9_gen.generated_tokens.len() >= 6 && !v9_gen.text.is_empty() && backticks_balanced {
                 return v9_gen.text;
             }
         }
 
-        // 5. Multi-turn episodic user-fact memory & conversational follow-up simplifiers
-        if let Some(mem_reply) = self.try_handle_episodic_fact_or_followup(trimmed, &lower) {
-            return mem_reply;
-        }
-
-        // 7. When upgraded v10 `UORGLLM9` conversational weights are active, route via v10 multi-turn KV
-        let is_capability_benchmark = lower == "what are you able to do?";
-        if !self.gllm_v9.is_legacy_v9_container() && !is_capability_benchmark {
-            let v10_gen = self
-                .gllm_v9
-                .generate_compositional_v10(trimmed, &self.chat_history, 256);
-            self.last_brain_pulses = v10_gen.brain_pulses.clone();
-            if let Some(handled) = self.try_execute_v10_tool_call(trimmed, &v10_gen.text) {
-                return handled;
-            }
-            if !v10_gen.text.trim().is_empty() {
-                return v10_gen.text;
-            }
-        }
-
-        // 8. Everyday conversational greetings & small-talk (zero UR4GLM08 hash-basin fallback)
-        if let Some(conv_reply) = try_conversational_greeting_turn(trimmed, &lower) {
-            return conv_reply;
-        }
-
-        // 9. Compact wasm32 seed fallback (before full OPFS weights finish streaming)
         let is_compact_seed =
             self.lut_stack.vocab < 4096 || self.lut_stack.artifact_bytes < 1_000_000;
+        let has_grounded_lut_match = !lut_gen.reply_text.trim().is_empty()
+            && lut_gen.steps.first().is_some_and(|s| {
+                s.source_mechanism == "turn_memory_opening"
+                    || (s.source_mechanism != "whole_table_nearest"
+                        && lut_gen.matched_stem_count >= 2)
+            });
+
         if is_compact_seed {
             if code_outcome.is_coding_turn && !code_outcome.explanation_markdown.is_empty() {
                 return code_outcome.explanation_markdown.clone();
             }
-            if !lut_gen.reply_text.trim().is_empty()
-                && lut_gen
-                    .steps
-                    .first()
-                    .is_some_and(|s| s.source_mechanism != "whole_table_nearest")
-            {
+            if has_grounded_lut_match {
                 return lut_gen.reply_text;
             }
-            if !base_v9_gen.text.trim().is_empty() && base_v9_gen.generated_tokens.len() >= 6 {
-                return base_v9_gen.text;
+            if !v9_gen.text.trim().is_empty() {
+                return v9_gen.text;
             }
-            return format!(
-                "I'm ready to help with `{trimmed}` in UOR-R4 Studio. You can run shell, `git`, `pkg`, or C compilation commands directly in the RV64IMAC MicroVM, edit files in `/workspace`, or enable live web search while full OPFS model shards finish loading."
-            );
+            return lut_gen.reply_text;
         }
 
+        if has_grounded_lut_match {
+            return lut_gen.reply_text;
+        }
+        if !v9_gen.text.trim().is_empty() {
+            return v9_gen.text;
+        }
         lut_gen.reply_text
-    }
-
-    fn try_handle_episodic_fact_or_followup(
-        &mut self,
-        trimmed: &str,
-        lower: &str,
-    ) -> Option<String> {
-        let clean_q = trimmed.trim_end_matches(['?', '!', '.']).trim();
-        let clean_low = clean_q.to_ascii_lowercase();
-
-        // Follow-up simplification ("can you explain that simpler?", "explain simpler", "make that shorter")
-        let is_simpler_followup = (clean_low.contains("explain") && clean_low.contains("simpler"))
-            || clean_low == "simpler"
-            || clean_low == "make that shorter"
-            || clean_low == "in plain english"
-            || clean_low == "can you simplify that";
-        if is_simpler_followup {
-            if let Some((prev_q, prev_a)) = self.chat_history.last() {
-                let first_sentence = prev_a
-                    .lines()
-                    .map(str::trim)
-                    .find(|l| !l.is_empty())
-                    .unwrap_or(prev_a.as_str());
-                let short_clause = first_sentence
-                    .split(". ")
-                    .next()
-                    .unwrap_or(first_sentence)
-                    .trim_end_matches('.');
-                return Some(format!("In short (regarding `{prev_q}`): {short_clause}."));
-            }
-            return Some(
-                "Share any concept, code snippet, or command above and I will break it down in plain, concise steps."
-                    .to_string(),
-            );
-        }
-
-        // User name declaration & recall
-        for pat in ["my name is ", "call me "] {
-            if let Some(rest) = clean_low.strip_prefix(pat) {
-                let orig_val = clean_q[pat.len()..].trim();
-                if !orig_val.is_empty() && orig_val.split_whitespace().count() <= 4 {
-                    let _ = rest;
-                    self.binder_memory.retain(|(k, _)| k != "fact:name");
-                    self.binder_memory
-                        .push(("fact:name".to_string(), orig_val.to_string()));
-                    return Some(format!(
-                        "Nice to meet you, **{orig_val}**! I've saved your name in our session context — what would you like to work on?"
-                    ));
-                }
-            }
-        }
-        if clean_low == "what is my name" || clean_low == "whats my name" || clean_low == "who am i"
-        {
-            if let Some((_, name)) = self
-                .binder_memory
-                .iter()
-                .rev()
-                .find(|(k, _)| k == "fact:name" || k == "user_name")
-            {
-                return Some(format!("Your name is **{name}**."));
-            }
-        }
-
-        // General `my <key> is [called/named] <value>` declaration
-        if let Some(after_my) = clean_low.strip_prefix("my ") {
-            for sep in [" is called ", " is named ", " is "] {
-                if let Some(sep_idx) = after_my.find(sep) {
-                    let key_low = after_my[..sep_idx].trim();
-                    let val_start_in_clean = 3 + sep_idx + sep.len();
-                    let orig_val = clean_q.get(val_start_in_clean..).unwrap_or("").trim();
-                    let key_words = key_low.split_whitespace().count();
-                    let excluded_keys = ["day", "mind", "question", "goal", "code", "turn"];
-                    if (1..=3).contains(&key_words)
-                        && !excluded_keys.contains(&key_low)
-                        && !orig_val.is_empty()
-                        && orig_val.split_whitespace().count() <= 6
-                        && !clean_low.contains("how about you")
-                    {
-                        let tag = format!("fact:{key_low}");
-                        self.binder_memory.retain(|(k, _)| k != &tag);
-                        self.binder_memory.push((tag, orig_val.to_string()));
-                        return Some(format!(
-                            "Got it — I've noted that your {key_low} is **`{orig_val}`** for this session. Let me know what you'd like to inspect, build, or run next."
-                        ));
-                    }
-                }
-            }
-        }
-
-        // General `what is my <key> [called/named]?` recall
-        for q_prefix in ["what is my ", "what's my ", "whats my "] {
-            if let Some(after_q) = lower
-                .trim_end_matches(['?', '!', '.'])
-                .trim()
-                .strip_prefix(q_prefix)
-            {
-                let key_low = after_q
-                    .trim_end_matches(" called")
-                    .trim_end_matches(" named")
-                    .trim();
-                let tag = format!("fact:{key_low}");
-                if let Some((_, val)) = self.binder_memory.iter().rev().find(|(k, _)| k == &tag) {
-                    return Some(format!("Your {key_low} is **`{val}`**."));
-                }
-            }
-        }
-
-        None
     }
 
     pub(crate) fn try_execute_v10_tool_call(
         &mut self,
         user_prompt: &str,
         generated_text: &str,
+        pulses: &mut Vec<crate::gllm_v9::BrainPulseStep>,
     ) -> Option<String> {
         let start = generated_text.find("<tool_call>")?;
         let after = &generated_text[start + "<tool_call>".len()..];
@@ -1325,7 +1215,8 @@ impl StudioEngine {
         let tool_name = parsed
             .get("name")
             .or_else(|| parsed.get("tool"))
-            .and_then(|v| v.as_str())?;
+            .and_then(|v| v.as_str())?
+            .trim();
         let args = parsed.get("arguments").unwrap_or(&parsed);
 
         match tool_name {
@@ -1334,8 +1225,9 @@ impl StudioEngine {
                     .get("cmd")
                     .or_else(|| args.get("command"))
                     .or_else(|| args.get("args"))
-                    .and_then(|v| v.as_str())?;
-                let full_cmd = if tool_name == "git" && !cmd.trim_start().starts_with("git ") {
+                    .and_then(|v| v.as_str())?
+                    .trim();
+                let full_cmd = if tool_name == "git" && !cmd.starts_with("git ") {
                     format!("git {cmd}")
                 } else {
                     cmd.to_string()
@@ -1346,20 +1238,22 @@ impl StudioEngine {
                         self.sync_workspace_from_mvm();
                         let obs = if done.stdout.trim().is_empty() {
                             format!("exit_code={} {}", done.exit_code, done.stderr.trim())
+                                .trim()
+                                .to_string()
                         } else {
                             done.stdout.trim().to_string()
                         };
-                        let mut followup_hist = self.chat_history.clone();
-                        followup_hist.push((
-                            user_prompt.to_string(),
-                            format!("<tool_call>{body}</tool_call>\n<tool_response>{obs}</tool_response>"),
-                        ));
                         let step2 = self.gllm_v9.generate_compositional_v10(
-                            &format!("Summarize the tool output for: {user_prompt}\n<tool_response>{obs}</tool_response>"),
-                            &followup_hist,
+                            &format!(
+                                "Summarize the verified tool output for `{user_prompt}`:\n<tool_response> {obs}</tool_response>"
+                            ),
+                            &[],
                             256,
                         );
-                        self.last_brain_pulses = step2.brain_pulses;
+                        for mut p in step2.brain_pulses {
+                            p.step = pulses.len() as u32;
+                            pulses.push(p);
+                        }
                         if !step2.text.trim().is_empty() {
                             Some(step2.text)
                         } else {
@@ -1385,6 +1279,8 @@ impl StudioEngine {
                 let query = args
                     .get("query")
                     .and_then(|v| v.as_str())
+                    .map(str::trim)
+                    .filter(|q| !q.is_empty())
                     .unwrap_or(user_prompt);
                 let bridge_req = serde_json::json!({
                     "req_id": "chat-web-search-1",
@@ -1406,7 +1302,7 @@ impl StudioEngine {
                 Some(format!("<tool_call>{body}</tool_call>"))
             }
             "web_fetch" => {
-                let url = args.get("url").and_then(|v| v.as_str())?;
+                let url = args.get("url").and_then(|v| v.as_str())?.trim();
                 let bridge_req = serde_json::json!({
                     "req_id": "chat-web-fetch-1",
                     "spvs_magic": "SPVS",
@@ -1446,40 +1342,6 @@ fn normalize_session_key(input: &str) -> String {
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ")
-}
-
-fn try_conversational_greeting_turn(trimmed: &str, lower: &str) -> Option<String> {
-    let bare = lower
-        .trim_matches(|c: char| !c.is_ascii_alphanumeric() && !c.is_ascii_whitespace())
-        .trim();
-    match bare {
-        "hi" | "hello" | "hey" | "hi there" | "hello there" | "hey there" | "greetings"
-        | "good morning" | "good afternoon" | "good evening" => Some(
-            "Hello! I'm the UOR-R4 Studio assistant. We can chat naturally, edit and test code in `/workspace`, run `git`, `pkg`, `cc`, or network diagnostics inside the RV64IMAC Linux MicroVM, or look up live documentation — what would you like to work on?"
-                .to_string(),
-        ),
-        "how are you" | "how are you doing" | "how are you doing today" | "hows it going"
-        | "how is it going" | "whats up" => Some(
-            "I'm doing great and ready to help! Whether you're exploring an idea, writing Rust/C/Python in `/workspace`, or running `git` and shell tools in the RV64IMAC MicroVM, what's on your mind?"
-                .to_string(),
-        ),
-        "who are you" => Some(
-            "I'm the conversational runtime inside UOR-R4 Connected Studio — ready to collaborate on multi-turn reasoning, `/workspace` code, and `RV64IMAC` MicroVM `git`, `pkg`, and network tools."
-                .to_string(),
-        ),
-        "thanks" | "thank you" | "thanks a lot" | "ty" => Some(
-            "You're welcome! Let me know whenever you want to dive into the next step."
-                .to_string(),
-        ),
-        "help" => Some(
-            "Here is what we can do together in UOR-R4 Studio:\n- **Chat & Q&A**: Multi-turn reasoning with `1024`-token causal KV context.\n- **Workspace Code**: Read, write, and `cargo test` files synced with `/workspace`.\n- **Connected RV64 MicroVM**: Run `git`, `pkg install`, `cc`, `curl`, and `nslookup` over `SpiralCore` `AF_VSOCK = 40`."
-                .to_string(),
-        ),
-        _ => {
-            let _ = trimmed;
-            None
-        }
-    }
 }
 
 fn has_word(words: &[String], target: &str) -> bool {
@@ -1561,7 +1423,6 @@ fn tokenize_words_lower(text: &str) -> Vec<String> {
     out
 }
 
-#[allow(dead_code)]
 fn extract_signed_integers(text: &str) -> Vec<i64> {
     let mut nums = Vec::new();
     let chars: Vec<char> = text.chars().collect();
@@ -1593,7 +1454,6 @@ fn extract_signed_integers(text: &str) -> Vec<i64> {
     nums
 }
 
-#[allow(dead_code)]
 fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
     while b != 0 {
         let r = a % b;
@@ -1603,7 +1463,6 @@ fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
     a
 }
 
-#[allow(dead_code)]
 fn isqrt_u64(n: u64) -> u64 {
     if n < 2 {
         return n;
@@ -1618,7 +1477,6 @@ fn isqrt_u64(n: u64) -> u64 {
 }
 
 #[allow(clippy::manual_is_multiple_of)]
-#[allow(dead_code)]
 fn prime_factorization_full(mut n: u64) -> Vec<(u64, u32)> {
     let mut out = Vec::new();
     let mut d = 2u64;
@@ -1639,319 +1497,11 @@ fn prime_factorization_full(mut n: u64) -> Vec<(u64, u32)> {
     out
 }
 
-#[allow(dead_code)]
 fn prime_factors_unique(n: u64) -> Vec<u32> {
     prime_factorization_full(n)
         .into_iter()
         .filter_map(|(p, _)| u32::try_from(p).ok())
         .collect()
-}
-
-#[allow(dead_code)]
-fn format_exact_binary_math(a: i64, b: i64, op: char) -> (String, String) {
-    let result_val = match op {
-        '+' => a.saturating_add(b),
-        '-' => a.saturating_sub(b),
-        '*' => a.saturating_mul(b),
-        '/' => {
-            if b != 0 {
-                a / b
-            } else {
-                return (
-                    "**Division by Zero Prevented (`R4.ExactArithmetic`)**: Denominator is `0`; exact integer division requires a non-zero divisor.".to_string(),
-                    String::new(),
-                );
-            }
-        }
-        '%' => {
-            if b != 0 {
-                a % b
-            } else {
-                0
-            }
-        }
-        '^' => {
-            let exp = (b.unsigned_abs() as u32).min(62);
-            a.saturating_pow(exp)
-        }
-        _ => a.saturating_add(b),
-    };
-
-    let mut rem_a = a.unsigned_abs() as u32;
-    let mut rem_b = b.unsigned_abs() as u32;
-    let mut carry = 0u32;
-    let mut place_steps = Vec::new();
-    for place in 0..8 {
-        if rem_a == 0 && rem_b == 0 && carry == 0 && place > 0 {
-            break;
-        }
-        let da = rem_a % 10;
-        let db = rem_b % 10;
-        let (sum_d, next_c) = m6_ablation_place_add(da, db, carry, 10, 0)
-            .unwrap_or(((da + db + carry) % 10, u32::from(da + db + carry >= 10)));
-        place_steps.push(format!("p{place}:({da}+{db}+c{carry})->d{sum_d},c{next_c}"));
-        carry = next_c;
-        rem_a /= 10;
-        rem_b /= 10;
-    }
-    let prll = prll_masses_from_scores([3900, 120, 60, 30]);
-    let extra_div = if op == '/' && b != 0 && a % b != 0 {
-        format!(" (quotient `{result_val}`, exact remainder `{}`)", a % b)
-    } else {
-        String::new()
-    };
-    let reply = format!(
-        "Computed via **UOR-R4 M6 Exact Place-Value Arithmetic (`R4.ExactArithmetic`, R4-27)**:\n\n- **Expression**: `{a} {op} {b} = {result_val}`{extra_div}\n- **M6 FullExact Radix-10 Carry Trace**: `{}`\n- **PRLL Lawful Likelihood Mass**: `{}` / `1,000,000` ppm (zero-float integer conservation).",
-        place_steps.join(" | "),
-        prll[0]
-    );
-    let code = format!(
-        "pub fn verified_m6_computation() -> i64 {{\n    let a: i64 = {a};\n    let b: i64 = {b};\n    {result_val}\n}}\n"
-    );
-    (reply, code)
-}
-
-#[allow(dead_code)]
-type BinaryMathOp = (i64, i64, char);
-
-/// Extract and evaluate a symbolic mathematical expression from natural language
-/// (e.g. `"What is (15 + 25) * 3?"` or `"48291 + 73948"` or `"2^16"`).
-#[allow(dead_code)]
-fn try_eval_math_expression(prompt: &str) -> Option<(String, i64, Option<BinaryMathOp>)> {
-    // Reject prompts containing non-math prose words (e.g. hyphenated identifiers like `nebula-os` or `gpt-oss-120b`)
-    for raw_w in prompt.split(|c: char| !c.is_ascii_alphabetic()) {
-        if raw_w.is_empty() {
-            continue;
-        }
-        let w = raw_w.to_ascii_lowercase();
-        if !matches!(
-            w.as_str(),
-            "what"
-                | "whats"
-                | "is"
-                | "are"
-                | "compute"
-                | "calculate"
-                | "evaluate"
-                | "solve"
-                | "find"
-                | "the"
-                | "value"
-                | "result"
-                | "sum"
-                | "difference"
-                | "product"
-                | "quotient"
-                | "of"
-                | "equals"
-                | "equal"
-                | "to"
-                | "please"
-                | "tell"
-                | "me"
-                | "exact"
-                | "mod"
-        ) {
-            return None;
-        }
-    }
-
-    // Strip leading conversational prefixes like "what is", "calculate", "compute", "evaluate"
-    let mut cleaned = String::new();
-    for ch in prompt.chars() {
-        if ch.is_ascii_digit() || matches!(ch, '+' | '-' | '*' | '/' | '%' | '^' | '(' | ')' | ' ')
-        {
-            cleaned.push(ch);
-        } else if ch == ',' {
-            // allow thousands commas inside numbers
-            continue;
-        }
-    }
-    let expr = cleaned.trim();
-    let has_digit = expr.chars().any(|c| c.is_ascii_digit());
-    let has_op = expr
-        .chars()
-        .any(|c| matches!(c, '+' | '-' | '*' | '/' | '%' | '^'));
-    if !has_digit || !has_op {
-        return None;
-    }
-
-    let tokens = tokenize_math_expr(expr)?;
-    // Must have at least 3 tokens: operand, operator, operand
-    if tokens.len() < 3 {
-        return None;
-    }
-
-    let binary_pair = if tokens.len() == 3 {
-        if let (MathTok::Num(a), MathTok::Op(op), MathTok::Num(b)) =
-            (&tokens[0], &tokens[1], &tokens[2])
-        {
-            Some((*a, *b, *op))
-        } else {
-            None
-        }
-    } else {
-        None
-    };
-
-    let mut pos = 0usize;
-    let val = parse_math_add_sub(&tokens, &mut pos)?;
-    if pos != tokens.len() {
-        return None;
-    }
-    let formatted_expr = tokens
-        .iter()
-        .map(|t| match t {
-            MathTok::Num(n) => n.to_string(),
-            MathTok::Op(c) => format!(" {c} "),
-            MathTok::LParen => "(".to_string(),
-            MathTok::RParen => ")".to_string(),
-        })
-        .collect::<String>();
-    Some((formatted_expr.trim().to_string(), val, binary_pair))
-}
-
-#[derive(Debug, Clone)]
-#[allow(dead_code)]
-enum MathTok {
-    Num(i64),
-    Op(char),
-    LParen,
-    RParen,
-}
-
-#[allow(dead_code)]
-fn tokenize_math_expr(s: &str) -> Option<Vec<MathTok>> {
-    let mut out = Vec::new();
-    let chars: Vec<char> = s.chars().collect();
-    let mut i = 0;
-    while i < chars.len() {
-        let c = chars[i];
-        if c.is_whitespace() {
-            i += 1;
-            continue;
-        }
-        let is_unary_minus = c == '-'
-            && i + 1 < chars.len()
-            && chars[i + 1].is_ascii_digit()
-            && (out.is_empty() || matches!(out.last(), Some(MathTok::Op(_) | MathTok::LParen)));
-        if c.is_ascii_digit() || is_unary_minus {
-            let mut buf = String::new();
-            if is_unary_minus {
-                buf.push('-');
-                i += 1;
-            }
-            while i < chars.len() && chars[i].is_ascii_digit() {
-                buf.push(chars[i]);
-                i += 1;
-            }
-            let n = buf.parse::<i64>().ok()?;
-            out.push(MathTok::Num(n));
-        } else if matches!(c, '+' | '-' | '*' | '/' | '%' | '^') {
-            out.push(MathTok::Op(c));
-            i += 1;
-        } else if c == '(' {
-            out.push(MathTok::LParen);
-            i += 1;
-        } else if c == ')' {
-            out.push(MathTok::RParen);
-            i += 1;
-        } else {
-            return None;
-        }
-    }
-    Some(out)
-}
-
-#[allow(dead_code)]
-fn parse_math_add_sub(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
-    let mut left = parse_math_mul_div(tokens, pos)?;
-    while *pos < tokens.len() {
-        match tokens[*pos] {
-            MathTok::Op('+') => {
-                *pos += 1;
-                let right = parse_math_mul_div(tokens, pos)?;
-                left = left.saturating_add(right);
-            }
-            MathTok::Op('-') => {
-                *pos += 1;
-                let right = parse_math_mul_div(tokens, pos)?;
-                left = left.saturating_sub(right);
-            }
-            _ => break,
-        }
-    }
-    Some(left)
-}
-
-#[allow(dead_code)]
-fn parse_math_mul_div(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
-    let mut left = parse_math_pow(tokens, pos)?;
-    while *pos < tokens.len() {
-        match tokens[*pos] {
-            MathTok::Op('*') => {
-                *pos += 1;
-                let right = parse_math_pow(tokens, pos)?;
-                left = left.saturating_mul(right);
-            }
-            MathTok::Op('/') => {
-                *pos += 1;
-                let right = parse_math_pow(tokens, pos)?;
-                if right == 0 {
-                    return None;
-                }
-                left /= right;
-            }
-            MathTok::Op('%') => {
-                *pos += 1;
-                let right = parse_math_pow(tokens, pos)?;
-                if right == 0 {
-                    return None;
-                }
-                left %= right;
-            }
-            _ => break,
-        }
-    }
-    Some(left)
-}
-
-#[allow(dead_code)]
-fn parse_math_pow(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
-    let base = parse_math_atom(tokens, pos)?;
-    if *pos < tokens.len() {
-        if let MathTok::Op('^') = tokens[*pos] {
-            *pos += 1;
-            let exp = parse_math_pow(tokens, pos)?;
-            let e = (exp.unsigned_abs() as u32).min(62);
-            return Some(base.saturating_pow(e));
-        }
-    }
-    Some(base)
-}
-
-#[allow(dead_code)]
-fn parse_math_atom(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
-    if *pos >= tokens.len() {
-        return None;
-    }
-    match tokens[*pos] {
-        MathTok::Num(n) => {
-            *pos += 1;
-            Some(n)
-        }
-        MathTok::LParen => {
-            *pos += 1;
-            let val = parse_math_add_sub(tokens, pos)?;
-            if *pos < tokens.len() && matches!(tokens[*pos], MathTok::RParen) {
-                *pos += 1;
-                Some(val)
-            } else {
-                None
-            }
-        }
-        _ => None,
-    }
 }
 
 fn extract_file_symbols(content: &str) -> Vec<String> {

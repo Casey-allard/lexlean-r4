@@ -268,11 +268,36 @@ fn icosian_hinge(v: i32) -> i16 {
 }
 
 #[inline]
-fn prll_weight_order4(tau: i32, d_tot: i32) -> u64 {
+fn prll_weight_order4_v9(tau: i32, d_tot: i32) -> u64 {
     let denom = ((tau.max(256)) as u64) + ((d_tot.max(0) as u64) >> 1);
     let q1 = 1_073_741_824u64 / denom.max(1);
     let q2 = (q1 * q1) >> 20;
     ((q2 * q2) >> 16) + 1
+}
+
+#[inline]
+fn prll_weight_order4_v10(tau: i32, d_tot: i32) -> u64 {
+    let t = (tau.max(256)) as u64;
+    let d = (d_tot.max(0)) as u64;
+    let num1 = t << 8;
+    let den1 = t + d;
+    let r1 = num1 / den1.max(1);
+    let r2 = r1 * r1;
+    let r4 = (r2 >> 4) * (r2 >> 4);
+    if r4 == 0 {
+        1
+    } else {
+        r4
+    }
+}
+
+#[inline]
+fn prll_weight_order4(legacy_v9: bool, tau: i32, d_tot: i32) -> u64 {
+    if legacy_v9 {
+        prll_weight_order4_v9(tau, d_tot)
+    } else {
+        prll_weight_order4_v10(tau, d_tot)
+    }
 }
 
 #[inline]
@@ -674,6 +699,52 @@ impl GllmV9Model {
         self.run_kv_generation(prefix_ids, copy_start, max_new_tokens, true)
     }
 
+    /// Encode prompt-prefill causal KV states without decoding tokens, emitting `encode` `BrainPulseStep`s
+    /// for deterministic kernel turns (`Teach:`, `solve_exact_math_or_logic`, `[agent_mode]`).
+    pub fn encode_prompt_pulses(
+        &self,
+        prompt: &str,
+        history: &[(String, String)],
+    ) -> Vec<BrainPulseStep> {
+        let trimmed = prompt.trim();
+        let (prefix_ids, copy_start) = if !self.is_legacy_v9_container() {
+            Self::encode_v10_chat_prompt(trimmed, history, 64)
+        } else {
+            let bpe = ByteBpe4096::global();
+            let mut ids = vec![bpe.bos_id()];
+            ids.extend(bpe.encode(&format!("User: {trimmed}\nAssistant:")));
+            if ids.len() > GLLM_V9_MAX_SEQ - 8 {
+                ids.truncate(GLLM_V9_MAX_SEQ - 8);
+            }
+            (ids, 1usize)
+        };
+        let kv_prompt_tokens = prefix_ids.len();
+        let safe_copy_start = copy_start.min(kv_prompt_tokens);
+        let mut cache = GllmV9KvCache::new(self, kv_prompt_tokens, safe_copy_start, None);
+        let encode_stride = (kv_prompt_tokens / 12).max(1);
+        let mut brain_pulses = Vec::new();
+        for (idx, &tok) in prefix_ids.iter().enumerate() {
+            let step_meta = cache.push_token(self, tok, false);
+            if (idx + 1 == kv_prompt_tokens || idx % encode_stride == 0)
+                && (brain_pulses.len() < 24 || idx + 1 == kv_prompt_tokens)
+            {
+                brain_pulses.push(BrainPulseStep {
+                    step: brain_pulses.len() as u32,
+                    phase: "encode",
+                    token_id: tok,
+                    active_layer: step_meta.dominant_layer,
+                    winning_head: step_meta.winning_head,
+                    e8_orbit: step_meta.e8_orbit,
+                    cl06_grade: step_meta.cl06_grade,
+                    kv_copy_dist: 0,
+                    prll_top_mass: step_meta.top_mass,
+                    tool_kind: "none",
+                });
+            }
+        }
+        brain_pulses
+    }
+
     /// Execute full compositional autoregressive generation over `prompt` and `history` (`R4-38` / `R4-39`).
     pub fn generate_compositional(
         &self,
@@ -756,6 +827,30 @@ impl GllmV9Model {
                     .windows(close_obs.len())
                     .position(|w| w == close_obs.as_slice())
                     .map(|rel_close| (obs_start, obs_start + rel_close))
+            })
+            .or_else(|| {
+                let mut joined = String::new();
+                let mut spans =
+                    Vec::with_capacity(prefix_ids.len().saturating_sub(safe_copy_start));
+                for (rel_idx, &tok) in prefix_ids[safe_copy_start..].iter().enumerate() {
+                    let s0 = joined.len();
+                    joined.push_str(&bpe.decode(&[tok]));
+                    spans.push((safe_copy_start + rel_idx, s0, joined.len()));
+                }
+                let open_pos = joined.rfind("<tool_response>")?;
+                let inner_start = open_pos + "<tool_response>".len();
+                let close_rel = joined[inner_start..].find("</tool_response>")?;
+                let inner_end = inner_start + close_rel;
+                let lo = spans
+                    .iter()
+                    .find(|&&(_, _, b1)| b1 > inner_start)
+                    .map(|&(idx, _, _)| idx)?;
+                let hi = spans
+                    .iter()
+                    .rfind(|&&(_, b0, _)| b0 < inner_end)
+                    .map(|&(idx, _, _)| idx + 1)
+                    .unwrap_or(lo);
+                (lo < hi).then_some((lo, hi))
             });
         let mut cache = GllmV9KvCache::new(self, kv_prompt_tokens, safe_copy_start, tool_obs_range);
         let mut prll_ok = true;
@@ -838,7 +933,7 @@ impl GllmV9Model {
             });
 
             if v10_stop_markers
-                && (partial_text.ends_with("<|end|>") || partial_text.ends_with("</tool_call>"))
+                && (partial_text.contains("<|end|>") || partial_text.ends_with("</tool_call>"))
             {
                 break;
             }
@@ -1204,7 +1299,7 @@ impl GllmV9KvCache {
                         d_l1 + 256 * d_ham
                     };
                     let d_tot = d_geom + slope * ((t - s) as i32) + d_ind;
-                    let w = prll_weight_order4(tau, d_tot);
+                    let w = prll_weight_order4(model.is_legacy_v9_container(), tau, d_tot);
                     *rw = w;
                     sum_raw += w;
                     if w > best_w {
@@ -1507,7 +1602,7 @@ impl GllmV9KvCache {
                     d_l1 + 256 * d_ham
                 };
                 let d_tot = d_geom + slope * ((t - s) as i32) + d_ind;
-                let w = prll_weight_order4(tau, d_tot);
+                let w = prll_weight_order4(model.is_legacy_v9_container(), tau, d_tot);
                 *rw = w;
                 sum_raw += w;
                 if w > best_w {
