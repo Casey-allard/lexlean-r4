@@ -18,6 +18,7 @@ use crate::lexlean_generated::r4_compositional_gllm::{
     admit_causal_kv_step, admit_gllm_container, admit_tmac_lut_read, ContainerSummary,
     ContainerVerdict, KvAttentionCheck, KvAttentionVerdict, TmacLutReadCheck, TmacLutVerdict,
 };
+use crate::lexlean_generated::r4_connected_studio::{admit_worker_turn, WorkerTurnVerdict};
 use crate::lut_stack_exec::ByteBpe4096;
 
 /// Eight-byte magic header for `UOR-R4-GLLM v9` binary weight containers.
@@ -30,8 +31,14 @@ pub const GLLM_V9_VOCAB: usize = 4096;
 pub const GLLM_V9_QKV_OUT: usize = 16;
 /// Rational PRLL (`R4-27`) probability mass quantum (`1_000_000`).
 pub const GLLM_V9_PRLL_QUANTUM: u64 = 1_000_000;
-/// Maximum causal KV sequence window per inference turn.
-pub const GLLM_V9_MAX_SEQ: usize = 512;
+/// Maximum causal KV sequence window per inference turn (`R4-39`).
+pub const GLLM_V9_MAX_SEQ: usize = 1024;
+/// Immutable SHA-256 of the legacy pre-v10 `6L 64D` `bootstrap_v9.uorgllm` container.
+pub const LEGACY_V9_BOOTSTRAP_SHA256: &str =
+    "9fbe91bbac22db96c9b79bd087b4b1c12c4b74dd4debfcda409f79e645ac22f7";
+/// Immutable SHA-256 of the legacy `R4-38` `8L 128D` `gpu/weights/v9` container.
+pub const LEGACY_V9_FULL_SHA256: &str =
+    "ff3021c04bde6b1e0a65d7a7390eea61a6a2f73a86bc1f232a8732dd84448a60";
 
 /// Embedded 6-layer 64D `UORGLLM9` bootstrap checkpoint trained on RTX 5090 (`gpu/train_gllm_v9.cu`).
 static EMBEDDED_BOOTSTRAP_V9: &[u8] = include_bytes!("bootstrap_v9.uorgllm");
@@ -49,6 +56,8 @@ pub enum GllmV9Error {
     CausalKvRefused(KvAttentionVerdict),
     /// Discrete T-MAC LUT read violated `R4.CompositionalGllm.admitTmacLutRead`.
     LutReadRefused(TmacLutVerdict),
+    /// Worker execution thread or `1024`-token KV sequence window violated `R4.ConnectedStudio.admitWorkerTurn`.
+    WorkerTurnRefused(WorkerTurnVerdict),
 }
 
 impl std::fmt::Display for GllmV9Error {
@@ -59,6 +68,7 @@ impl std::fmt::Display for GllmV9Error {
             Self::IntegrityMismatch => write!(f, "UORGLLM9 payload SHA-256 mismatch"),
             Self::CausalKvRefused(v) => write!(f, "causal KV step refused: {v:?}"),
             Self::LutReadRefused(v) => write!(f, "T-MAC LUT read refused: {v:?}"),
+            Self::WorkerTurnRefused(v) => write!(f, "worker turn refused: {v:?}"),
         }
     }
 }
@@ -107,7 +117,32 @@ struct LayerTables {
     ffn_lut: Vec<i16>,             // [lut_groups * 256 * d_model] dequantized Q12
 }
 
-/// Telemetry for one autoregressively predicted token step in `UOR-R4-GLLM v9`.
+/// Structured per-step geometric brain activity record serialized under `"brain_pulses"` (`R4-39`).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+pub struct BrainPulseStep {
+    /// Monotonic 0-based pulse index within the turn.
+    pub step: u32,
+    /// Inference phase (`"encode" | "think" | "tool_call" | "tool_obs" | "reply"`).
+    pub phase: &'static str,
+    /// Active `ByteBpe4096` token ID.
+    pub token_id: u32,
+    /// Dominant active geometric layer (`0..n_layers-1`).
+    pub active_layer: u8,
+    /// Highest-mass causal attention head (`0..n_heads-1`).
+    pub winning_head: u8,
+    /// Assigned $E_8$ root orbit cell (`0..15`).
+    pub e8_orbit: u8,
+    /// Active Clifford `Cl(0,6)` spin grade (`0..6`).
+    pub cl06_grade: u8,
+    /// Causal KV distance `query_pos - attended_pos` when pointer-copy fires (`0` on vocab readout).
+    pub kv_copy_dist: u16,
+    /// Top attended PRLL mass out of `1_000_000`.
+    pub prll_top_mass: u32,
+    /// Active ReAct tool family (`"none" | "mvm" | "web" | "git" | "pkg"`).
+    pub tool_kind: &'static str,
+}
+
+/// Step-level output diagnostics for one autoregressively predicted token in `UOR-R4-GLLM`.
 #[derive(Debug, Clone)]
 pub struct GllmV9TokenStep {
     /// Predicted `ByteBpe4096` token ID.
@@ -122,7 +157,7 @@ pub struct GllmV9TokenStep {
     pub copy_score: i32,
 }
 
-/// Full trace and output of compositional autoregressive generation (`R4-38`).
+/// Full trace and output of compositional autoregressive generation (`R4-38` / `R4-39`).
 #[derive(Debug, Clone)]
 pub struct GllmV9Generation {
     /// Decoded UTF-8 completion text.
@@ -137,8 +172,10 @@ pub struct GllmV9Generation {
     pub turn_memory_hits: usize,
     /// Whether every causal head conserved exact `PRLL_QUANTUM = 1_000_000` integer mass.
     pub prll_mass_conserved: bool,
-    /// Per-token step telemetry.
+    /// Per-token step records.
     pub steps: Vec<GllmV9TokenStep>,
+    /// Structured geometric brain activity pulses emitted across encode, think, tool, and reply steps.
+    pub brain_pulses: Vec<BrainPulseStep>,
     /// SHA-256 hex digest of the active `UORGLLM9` container.
     pub model_sha256: String,
 }
@@ -552,20 +589,110 @@ impl GllmV9Model {
         &self.container_sha256
     }
 
-    /// Execute full compositional autoregressive generation over `prompt` and `history` (`R4-38`).
+    /// Return `true` when this instance carries one of the pre-v10 `R4-38` `User: ...\nAssistant:` containers.
+    pub fn is_legacy_v9_container(&self) -> bool {
+        self.container_sha256 == LEGACY_V9_BOOTSTRAP_SHA256
+            || self.container_sha256 == LEGACY_V9_FULL_SHA256
+    }
+
+    /// Validate a Worker inference turn against `R4.ConnectedStudio.admitWorkerTurn` (`R4-39`).
+    pub fn validate_worker_turn_window(
+        runs_on_worker_thread: bool,
+        prompt_tokens: usize,
+        max_new_tokens: usize,
+    ) -> Result<(), GllmV9Error> {
+        let verdict = admit_worker_turn(
+            runs_on_worker_thread,
+            prompt_tokens as u32,
+            max_new_tokens as u32,
+            GLLM_V9_MAX_SEQ as u32,
+        );
+        if verdict == WorkerTurnVerdict::WorkerTurnAdmitted {
+            Ok(())
+        } else {
+            Err(GllmV9Error::WorkerTurnRefused(verdict))
+        }
+    }
+
+    /// Encode a multi-turn `<|user|>` / `<|assistant|>` `v10` chat dialogue into `<= 1024` `ByteBpe4096` tokens.
+    pub fn encode_v10_chat_prompt(
+        prompt: &str,
+        history: &[(String, String)],
+        max_new_tokens: usize,
+    ) -> (Vec<u32>, usize) {
+        let bpe = ByteBpe4096::global();
+        let reserved_gen = max_new_tokens.clamp(16, 256);
+        let max_prompt_budget = GLLM_V9_MAX_SEQ.saturating_sub(reserved_gen + 2).max(64);
+        let current_turn_ids = bpe.encode(&format!("<|user|>\n{}\n<|assistant|>\n", prompt.trim()));
+
+        let mut selected_turns: Vec<Vec<u32>> = Vec::new();
+        let mut used = 1usize + current_turn_ids.len();
+        for (u, a) in history.iter().rev() {
+            let u_trim = u.trim();
+            let a_trim = a.trim();
+            if u_trim.is_empty() || a_trim.is_empty() {
+                continue;
+            }
+            let turn_ids = bpe.encode(&format!(
+                "<|user|>\n{u_trim}\n<|assistant|>\n{a_trim}<|end|>\n"
+            ));
+            if used + turn_ids.len() > max_prompt_budget {
+                break;
+            }
+            used += turn_ids.len();
+            selected_turns.push(turn_ids);
+        }
+        selected_turns.reverse();
+
+        let mut prefix_ids = Vec::with_capacity(used.min(max_prompt_budget));
+        prefix_ids.push(bpe.bos_id());
+        for t_ids in selected_turns {
+            prefix_ids.extend_from_slice(&t_ids);
+        }
+        prefix_ids.extend_from_slice(&current_turn_ids);
+
+        if prefix_ids.len() > max_prompt_budget {
+            let keep = max_prompt_budget.saturating_sub(1);
+            let tail_start = prefix_ids.len().saturating_sub(keep);
+            let mut clipped = Vec::with_capacity(1 + keep);
+            clipped.push(bpe.bos_id());
+            clipped.extend_from_slice(&prefix_ids[tail_start..]);
+            prefix_ids = clipped;
+        }
+        (prefix_ids, 1usize)
+    }
+
+    /// Execute `1024`-token multi-turn `<|user|>`/`<|assistant|>` causal KV generation (`R4-39`).
+    pub fn generate_compositional_v10(
+        &self,
+        prompt: &str,
+        history: &[(String, String)],
+        max_new_tokens: usize,
+    ) -> GllmV9Generation {
+        let (prefix_ids, copy_start) =
+            Self::encode_v10_chat_prompt(prompt, history, max_new_tokens);
+        self.run_kv_generation(prefix_ids, copy_start, max_new_tokens, true)
+    }
+
+    /// Execute full compositional autoregressive generation over `prompt` and `history` (`R4-38` / `R4-39`).
     pub fn generate_compositional(
         &self,
         prompt: &str,
         history: &[(String, String)],
         max_new_tokens: usize,
     ) -> GllmV9Generation {
+        let trimmed_prompt = prompt.trim();
+        if !self.is_legacy_v9_container() && !trimmed_prompt.starts_with("[agent_mode]") {
+            return self.generate_compositional_v10(trimmed_prompt, history, max_new_tokens);
+        }
+
         let bpe = ByteBpe4096::global();
         let mut prefix_ids: Vec<u32> = vec![bpe.bos_id()];
 
         // Include recent session history inside the live causal KV cache only when the
         // prompt references prior conversational state, preventing standalone coding or
-        // sandbox turns from inheriting unrelated boot/assistant tokens.
-        let lower_prompt = prompt.trim().to_ascii_lowercase();
+        // sandbox turns from inheriting unrelated boot/assistant tokens on legacy v9 weights.
+        let lower_prompt = trimmed_prompt.to_ascii_lowercase();
         let needs_history = !history.is_empty()
             && !lower_prompt.starts_with("[agent_mode]")
             && (lower_prompt.contains("what did")
@@ -592,9 +719,11 @@ impl GllmV9Model {
         } else {
             prefix_ids.len()
         };
-        prefix_ids.extend(bpe.encode(&format!("User: {}\nAssistant:", prompt.trim())));
-        let copy_start = if prefix_ids.len() > GLLM_V9_MAX_SEQ - 32 {
-            let keep_from = prefix_ids.len() - (GLLM_V9_MAX_SEQ - 32);
+        prefix_ids.extend(bpe.encode(&format!("User: {trimmed_prompt}\nAssistant:")));
+        let reserved = max_new_tokens.clamp(16, 256);
+        let max_prefix = GLLM_V9_MAX_SEQ.saturating_sub(reserved + 2).max(64);
+        let copy_start = if prefix_ids.len() > max_prefix {
+            let keep_from = prefix_ids.len() - max_prefix;
             let mut trimmed = vec![bpe.bos_id()];
             trimmed.extend_from_slice(&prefix_ids[keep_from..]);
             prefix_ids = trimmed;
@@ -603,26 +732,59 @@ impl GllmV9Model {
             copy_start.max(1)
         };
 
+        self.run_kv_generation(prefix_ids, copy_start, max_new_tokens, false)
+    }
+
+    fn run_kv_generation(
+        &self,
+        prefix_ids: Vec<u32>,
+        copy_start: usize,
+        max_new_tokens: usize,
+        v10_stop_markers: bool,
+    ) -> GllmV9Generation {
+        let bpe = ByteBpe4096::global();
         let kv_prompt_tokens = prefix_ids.len();
         let open_obs = bpe.encode("<tool_response>");
         let close_obs = bpe.encode("</tool_response>");
-        let tool_obs_range = prefix_ids[copy_start..]
+        let safe_copy_start = copy_start.min(prefix_ids.len());
+        let tool_obs_range = prefix_ids[safe_copy_start..]
             .windows(open_obs.len())
             .rposition(|w| w == open_obs.as_slice())
             .and_then(|rel_open| {
-                let obs_start = copy_start + rel_open + open_obs.len();
+                let obs_start = safe_copy_start + rel_open + open_obs.len();
                 prefix_ids[obs_start..]
                     .windows(close_obs.len())
                     .position(|w| w == close_obs.as_slice())
                     .map(|rel_close| (obs_start, obs_start + rel_close))
             });
-        let mut cache = GllmV9KvCache::new(self, kv_prompt_tokens, copy_start, tool_obs_range);
+        let mut cache = GllmV9KvCache::new(self, kv_prompt_tokens, safe_copy_start, tool_obs_range);
         let mut prll_ok = true;
+        let mut brain_pulses: Vec<BrainPulseStep> = Vec::new();
+        let encode_stride = (kv_prompt_tokens / 12).max(1);
 
-        for &tok in &prefix_ids {
+        for (idx, &tok) in prefix_ids.iter().enumerate() {
             let step_meta = cache.push_token(self, tok, false);
             if !step_meta.mass_conserved {
                 prll_ok = false;
+            }
+            let in_obs = tool_obs_range
+                .map(|(lo, hi)| idx >= lo && idx < hi)
+                .unwrap_or(false);
+            if (idx + 1 == kv_prompt_tokens || idx % encode_stride == 0 || in_obs)
+                && (brain_pulses.len() < 24 || idx + 1 == kv_prompt_tokens)
+            {
+                brain_pulses.push(BrainPulseStep {
+                    step: brain_pulses.len() as u32,
+                    phase: if in_obs { "tool_obs" } else { "encode" },
+                    token_id: tok,
+                    active_layer: step_meta.dominant_layer,
+                    winning_head: step_meta.winning_head,
+                    e8_orbit: step_meta.e8_orbit,
+                    cl06_grade: step_meta.cl06_grade,
+                    kv_copy_dist: 0,
+                    prll_top_mass: step_meta.top_mass,
+                    tool_kind: if in_obs { "mvm" } else { "none" },
+                });
             }
         }
 
@@ -633,32 +795,63 @@ impl GllmV9Model {
         let mut prev_copy_src: Option<usize> = None;
 
         for _ in 0..cap {
-            let (next_tok, best_score, copy_part, next_copy_src, top_s, mass_ok) =
-                cache.predict_next_token(self, &generated, prev_copy_src);
-            let was_copied = next_copy_src.is_some();
-            if !mass_ok {
+            let pred = cache.predict_next_token(self, &generated, prev_copy_src);
+            let was_copied = pred.next_copy_src.is_some();
+            if !pred.mass_ok {
                 prll_ok = false;
             }
             let query_pos = cache.seq_len.saturating_sub(1);
-            if next_tok == eos {
+            if pred.token_id == eos {
                 break;
             }
             steps.push(GllmV9TokenStep {
-                token_id: next_tok,
+                token_id: pred.token_id,
                 query_pos,
-                top_attended_pos: top_s,
-                winning_score: best_score,
-                copy_score: copy_part,
+                top_attended_pos: pred.top_attended_pos,
+                winning_score: pred.best_score,
+                copy_score: pred.copy_score,
             });
-            generated.push(next_tok);
-            let step_meta = cache.push_token(self, next_tok, was_copied);
-            prev_copy_src = next_copy_src;
+            generated.push(pred.token_id);
+            let step_meta = cache.push_token(self, pred.token_id, was_copied);
+            prev_copy_src = pred.next_copy_src;
             if !step_meta.mass_conserved {
                 prll_ok = false;
             }
+
+            let partial_text = bpe.decode(&generated);
+            let (phase, tool_kind) = classify_pulse_phase_and_tool(&partial_text);
+            let copy_dist = pred
+                .next_copy_src
+                .map(|src| query_pos.saturating_sub(src).min(u16::MAX as usize) as u16)
+                .unwrap_or(0);
+            brain_pulses.push(BrainPulseStep {
+                step: brain_pulses.len() as u32,
+                phase,
+                token_id: pred.token_id,
+                active_layer: step_meta.dominant_layer,
+                winning_head: pred.winning_head,
+                e8_orbit: step_meta.e8_orbit,
+                cl06_grade: step_meta.cl06_grade,
+                kv_copy_dist: copy_dist,
+                prll_top_mass: pred.top_mass,
+                tool_kind,
+            });
+
+            if v10_stop_markers
+                && (partial_text.ends_with("<|end|>") || partial_text.ends_with("</tool_call>"))
+            {
+                break;
+            }
         }
 
-        let decoded = bpe.decode(&generated).trim().to_string();
+        let mut decoded = bpe.decode(&generated);
+        if v10_stop_markers {
+            if let Some(idx) = decoded.find("<|end|>") {
+                decoded.truncate(idx);
+            }
+            decoded = strip_v10_thought_block(&decoded);
+        }
+        let decoded = decoded.trim().to_string();
         GllmV9Generation {
             text: decoded,
             kv_prompt_tokens,
@@ -667,13 +860,65 @@ impl GllmV9Model {
             turn_memory_hits: 0,
             prll_mass_conserved: prll_ok,
             steps,
+            brain_pulses,
             model_sha256: self.container_sha256.clone(),
         }
     }
 }
 
+fn strip_v10_thought_block(raw: &str) -> String {
+    let trimmed = raw.trim();
+    if let Some(after_open) = trimmed.strip_prefix("<thought>") {
+        if let Some((_, rest)) = after_open.split_once("</thought>") {
+            return rest.trim().to_string();
+        }
+    }
+    trimmed.to_string()
+}
+
+fn classify_pulse_phase_and_tool(partial: &str) -> (&'static str, &'static str) {
+    let in_thought = (partial.contains("<thought>") && !partial.contains("</thought>"))
+        || (partial.contains("<thinking>") && !partial.contains("</thinking>"));
+    if in_thought {
+        return ("think", "none");
+    }
+    if let Some(idx) = partial.rfind("<tool_call>") {
+        let tail = &partial[idx..];
+        let tool_kind = if tail.contains("web_search") || tail.contains("web_fetch") {
+            "web"
+        } else if tail.contains("\"git\"") || tail.contains("git ") {
+            "git"
+        } else if tail.contains("pkg ") || tail.contains("\"pkg\"") {
+            "pkg"
+        } else {
+            "mvm"
+        };
+        if !tail.contains("</tool_call>") {
+            return ("tool_call", tool_kind);
+        }
+        return ("tool_call", tool_kind);
+    }
+    ("reply", "none")
+}
+
 struct StepDiagnostics {
     mass_conserved: bool,
+    dominant_layer: u8,
+    winning_head: u8,
+    e8_orbit: u8,
+    cl06_grade: u8,
+    top_mass: u32,
+}
+
+struct PredictOutcome {
+    token_id: u32,
+    best_score: i32,
+    copy_score: i32,
+    next_copy_src: Option<usize>,
+    top_attended_pos: usize,
+    winning_head: u8,
+    top_mass: u32,
+    mass_ok: bool,
 }
 
 struct GllmV9KvCache {
@@ -782,6 +1027,9 @@ impl GllmV9KvCache {
         }
 
         let mut mass_conserved = true;
+        let mut dominant_layer = 0u8;
+        let mut winning_head = 0u8;
+        let mut top_mass = 0u32;
         let mut u_blk = vec![0i16; d];
         let mut k_in = vec![0i16; d];
         let mut u_k = vec![0i16; d];
@@ -973,6 +1221,11 @@ impl GllmV9KvCache {
                 }
                 prll_w[best_s] += (GLLM_V9_PRLL_QUANTUM - mass_acc) as u32;
                 let final_mass: u64 = prll_w.iter().map(|&w| w as u64).sum();
+                if prll_w[best_s] >= top_mass {
+                    top_mass = prll_w[best_s];
+                    dominant_layer = l as u8;
+                    winning_head = h as u8;
+                }
 
                 if admit_causal_kv_step(KvAttentionCheck {
                     seq_len: (t + 1) as u64,
@@ -1025,7 +1278,17 @@ impl GllmV9KvCache {
         }
 
         self.last_hidden.copy_from_slice(&x_cur);
-        StepDiagnostics { mass_conserved }
+        let h_sign = pack_sign64(&x_cur[0..64]);
+        let e8_orbit = (((h_sign.count_ones() as usize) + tok) & 15) as u8;
+        let cl06_grade = ((spin_t & 0x3F).count_ones() as u8).min(6);
+        StepDiagnostics {
+            mass_conserved,
+            dominant_layer,
+            winning_head,
+            e8_orbit,
+            cl06_grade,
+            top_mass: top_mass.min(GLLM_V9_PRLL_QUANTUM as u32),
+        }
     }
 
     fn predict_next_token(
@@ -1033,7 +1296,7 @@ impl GllmV9KvCache {
         model: &GllmV9Model,
         generated_so_far: &[u32],
         prev_copy_src: Option<usize>,
-    ) -> (u32, i32, i32, Option<usize>, usize, bool) {
+    ) -> PredictOutcome {
         let prev_was_copied = prev_copy_src.is_some();
         let t = self.seq_len - 1;
         let d = self.d_model;
@@ -1055,6 +1318,7 @@ impl GllmV9KvCache {
         let mut prll_w = vec![0u32; t + 1];
         let mut overall_top_s = 0usize;
         let mut overall_top_mass = 0u32;
+        let mut overall_winning_head = 0u8;
         let mut mass_ok = true;
 
         let copy_limit = if self.prompt_len > 2 {
@@ -1267,6 +1531,7 @@ impl GllmV9KvCache {
             if prll_w[best_s] > overall_top_mass {
                 overall_top_mass = prll_w[best_s];
                 overall_top_s = best_s;
+                overall_winning_head = h as u8;
             }
 
             if copy_gain > 0 {
@@ -1454,13 +1719,15 @@ impl GllmV9KvCache {
             None
         };
 
-        (
-            best_v,
+        PredictOutcome {
+            token_id: best_v,
             best_score,
-            best_copy,
+            copy_score: best_copy,
             next_copy_src,
-            overall_top_s,
+            top_attended_pos: overall_top_s,
+            winning_head: overall_winning_head,
+            top_mass: overall_top_mass.min(GLLM_V9_PRLL_QUANTUM as u32),
             mass_ok,
-        )
+        }
     }
 }

@@ -976,7 +976,7 @@ impl StudioEngine {
         _flock_resonance: u64,
         _icosian_root: u8,
         _active_workspace_path: &str,
-        _code_outcome: &CodeSynthesisOutcome,
+        code_outcome: &CodeSynthesisOutcome,
     ) -> String {
         let trimmed = prompt.trim();
         if self.chat_history.is_empty() {
@@ -991,6 +991,12 @@ impl StudioEngine {
         );
         self.last_lut_generation = Some(lut_gen.clone());
 
+        let base_v9_gen = self
+            .gllm_v9
+            .generate_compositional(trimmed, &self.chat_history, 128);
+        self.last_brain_pulses = base_v9_gen.brain_pulses.clone();
+
+        // 1. Inline `Teach: <q> => <a>` admission and session-scoped recall
         if let Some(rest) = trimmed
             .strip_prefix("Teach:")
             .or_else(|| trimmed.strip_prefix("teach:"))
@@ -999,6 +1005,10 @@ impl StudioEngine {
                 let q_clean = q.trim();
                 let a_raw = a.trim();
                 if !q_clean.is_empty() && !a_raw.is_empty() {
+                    let norm_q = normalize_session_key(q_clean);
+                    let tag = format!("__taught__:{norm_q}");
+                    self.binder_memory.retain(|(k, _)| k != &tag);
+                    self.binder_memory.push((tag, a_raw.to_string()));
                     let (_, clean_a) = parse_thinking_block(a_raw);
                     return format!(
                         "Admitted new knowledge turn into `/6`, `/7`, `/8`, and `R4.Admission` tables:\n\n- **Prompt**: `{q_clean}`\n- **Learned Response**: {clean_a}"
@@ -1007,7 +1017,22 @@ impl StudioEngine {
             }
         }
 
+        let norm_prompt_key = normalize_session_key(trimmed);
+        if !norm_prompt_key.is_empty() {
+            let lookup_tag = format!("__taught__:{norm_prompt_key}");
+            if let Some((_, taught_raw)) = self
+                .binder_memory
+                .iter()
+                .rev()
+                .find(|(k, _)| k == &lookup_tag)
+            {
+                return taught_raw.clone();
+            }
+        }
+
         let lower = trimmed.to_ascii_lowercase();
+
+        // 2. Live MVM-Wasm RV64IMAC sandbox & SpiralCore two-phase tool loop
         let is_mvm_sandbox_turn = !lower.contains("<tools>")
             && !lower.contains("available tools:")
             && (lower.contains("microvm")
@@ -1022,52 +1047,92 @@ impl StudioEngine {
             let step1 = self
                 .gllm_v9
                 .generate_compositional(&agent_prompt, &self.chat_history, 256);
+            self.last_brain_pulses = step1.brain_pulses.clone();
             if let Some(cmd) = crate::extract_mvm_cmd_from_generation(&step1.text) {
                 self.sync_workspace_into_mvm();
-                if let Ok(outcome) = self.mvm.exec_command(&cmd, "/workspace") {
-                    self.sync_workspace_from_mvm();
-                    let obs_clean = outcome
-                        .stdout
-                        .lines()
-                        .map(str::trim)
-                        .filter(|l| !l.is_empty())
-                        .collect::<Vec<_>>()
-                        .join(" | ");
-                    let obs_for_kv = if obs_clean.is_empty() {
-                        format!("exit_code={}", outcome.exit_code)
-                    } else {
-                        obs_clean
-                    };
-                    let obs_prompt = format!(
-                        "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
-                    );
-                    let step2 =
-                        self.gllm_v9
-                            .generate_compositional(&obs_prompt, &self.chat_history, 256);
-                    if !step2.text.is_empty() {
-                        return step2.text;
+                match self.mvm.exec_interactive(&cmd, Some("/workspace")) {
+                    Ok(crate::mvm::MvmInteractiveOutcome::Completed(outcome)) => {
+                        self.sync_workspace_from_mvm();
+                        let obs_clean = outcome
+                            .stdout
+                            .lines()
+                            .map(str::trim)
+                            .filter(|l| !l.is_empty())
+                            .collect::<Vec<_>>()
+                            .join(" | ");
+                        let obs_for_kv = if obs_clean.is_empty() {
+                            format!("exit_code={}", outcome.exit_code)
+                        } else {
+                            obs_clean
+                        };
+                        let obs_prompt = format!(
+                            "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
+                        );
+                        let step2 = self.gllm_v9.generate_compositional(
+                            &obs_prompt,
+                            &self.chat_history,
+                            256,
+                        );
+                        self.last_brain_pulses = step2.brain_pulses.clone();
+                        if !step2.text.is_empty() {
+                            return step2.text;
+                        }
                     }
+                    Ok(crate::mvm::MvmInteractiveOutcome::NeedsBridge(pending)) => {
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": trimmed,
+                            "tool": "mvm_exec",
+                            "cmd": cmd,
+                            "bridge_req": pending.bridge_req,
+                            "mvm_resume_state": pending.resume_state,
+                        }));
+                        return format!(
+                            "<tool_call>{{\"name\":\"mvm_exec\",\"arguments\":{{\"cmd\":\"{}\"}}}}</tool_call>",
+                            crate::escape_json(&cmd)
+                        );
+                    }
+                    Err(_) => {}
                 }
             }
         }
 
+        // 3. Explicit Agentic Harness (`[agent_mode]`, `<tools>`, `<tool_response>`)
         if lower.contains("[agent_mode]")
             || lower.contains("<tool_response>")
             || lower.contains("<observation>")
             || lower.contains("<tools>")
             || lower.contains("available tools:")
         {
-            let words = tokenize_words_lower(&lower);
-            if let Some(agent_turn) = crate::glm_weights::try_synthesize_agentic_harness_turn(
-                trimmed,
-                &lower,
-                &words,
-                &self.chat_history,
-            ) {
-                return agent_turn;
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                let words = tokenize_words_lower(&lower);
+                if let Some(agent_turn) = crate::glm_weights::try_synthesize_agentic_harness_turn(
+                    trimmed,
+                    &lower,
+                    &words,
+                    &self.chat_history,
+                ) {
+                    return agent_turn;
+                }
+            }
+            #[cfg(target_arch = "wasm32")]
+            {
+                if let Ok(outcome) = crate::api::execute_agentic_turn(
+                    trimmed,
+                    &[],
+                    &self.chat_history,
+                    &mut self.rolling_context,
+                    &self.lut_stack,
+                    256,
+                ) {
+                    if !outcome.raw_output.trim().is_empty() {
+                        return outcome.raw_output;
+                    }
+                }
             }
         }
 
+        // 4. Compositional GLLM v9/v10 prompt-sensitive synthesis & architecture Q&A
         let is_compositional_v9_turn = (lower.starts_with("given ") && lower.contains(" = "))
             || ((lower.starts_with("write a rust function ")
                 || lower.starts_with("write a freestanding c function "))
@@ -1082,13 +1147,338 @@ impl StudioEngine {
             let v9_gen = self
                 .gllm_v9
                 .generate_compositional(trimmed, &self.chat_history, 256);
+            self.last_brain_pulses = v9_gen.brain_pulses.clone();
             let backticks_balanced = v9_gen.text.chars().filter(|&c| c == '`').count() % 2 == 0;
             if v9_gen.generated_tokens.len() >= 6 && !v9_gen.text.is_empty() && backticks_balanced {
                 return v9_gen.text;
             }
         }
 
+        // 5. Multi-turn episodic user-fact memory & conversational follow-up simplifiers
+        if let Some(mem_reply) = self.try_handle_episodic_fact_or_followup(trimmed, &lower) {
+            return mem_reply;
+        }
+
+        // 7. When upgraded v10 `UORGLLM9` conversational weights are active, route via v10 multi-turn KV
+        let is_capability_benchmark = lower == "what are you able to do?";
+        if !self.gllm_v9.is_legacy_v9_container() && !is_capability_benchmark {
+            let v10_gen = self
+                .gllm_v9
+                .generate_compositional_v10(trimmed, &self.chat_history, 256);
+            self.last_brain_pulses = v10_gen.brain_pulses.clone();
+            if let Some(handled) = self.try_execute_v10_tool_call(trimmed, &v10_gen.text) {
+                return handled;
+            }
+            if !v10_gen.text.trim().is_empty() {
+                return v10_gen.text;
+            }
+        }
+
+        // 8. Everyday conversational greetings & small-talk (zero UR4GLM08 hash-basin fallback)
+        if let Some(conv_reply) = try_conversational_greeting_turn(trimmed, &lower) {
+            return conv_reply;
+        }
+
+        // 9. Compact wasm32 seed fallback (before full OPFS weights finish streaming)
+        let is_compact_seed =
+            self.lut_stack.vocab < 4096 || self.lut_stack.artifact_bytes < 1_000_000;
+        if is_compact_seed {
+            if code_outcome.is_coding_turn && !code_outcome.explanation_markdown.is_empty() {
+                return code_outcome.explanation_markdown.clone();
+            }
+            if !lut_gen.reply_text.trim().is_empty()
+                && lut_gen
+                    .steps
+                    .first()
+                    .is_some_and(|s| s.source_mechanism != "whole_table_nearest")
+            {
+                return lut_gen.reply_text;
+            }
+            if !base_v9_gen.text.trim().is_empty() && base_v9_gen.generated_tokens.len() >= 6 {
+                return base_v9_gen.text;
+            }
+            return format!(
+                "I'm ready to help with `{trimmed}` in UOR-R4 Studio. You can run shell, `git`, `pkg`, or C compilation commands directly in the RV64IMAC MicroVM, edit files in `/workspace`, or enable live web search while full OPFS model shards finish loading."
+            );
+        }
+
         lut_gen.reply_text
+    }
+
+    fn try_handle_episodic_fact_or_followup(
+        &mut self,
+        trimmed: &str,
+        lower: &str,
+    ) -> Option<String> {
+        let clean_q = trimmed.trim_end_matches(['?', '!', '.']).trim();
+        let clean_low = clean_q.to_ascii_lowercase();
+
+        // Follow-up simplification ("can you explain that simpler?", "explain simpler", "make that shorter")
+        let is_simpler_followup = (clean_low.contains("explain") && clean_low.contains("simpler"))
+            || clean_low == "simpler"
+            || clean_low == "make that shorter"
+            || clean_low == "in plain english"
+            || clean_low == "can you simplify that";
+        if is_simpler_followup {
+            if let Some((prev_q, prev_a)) = self.chat_history.last() {
+                let first_sentence = prev_a
+                    .lines()
+                    .map(str::trim)
+                    .find(|l| !l.is_empty())
+                    .unwrap_or(prev_a.as_str());
+                let short_clause = first_sentence
+                    .split(". ")
+                    .next()
+                    .unwrap_or(first_sentence)
+                    .trim_end_matches('.');
+                return Some(format!("In short (regarding `{prev_q}`): {short_clause}."));
+            }
+            return Some(
+                "Share any concept, code snippet, or command above and I will break it down in plain, concise steps."
+                    .to_string(),
+            );
+        }
+
+        // User name declaration & recall
+        for pat in ["my name is ", "call me "] {
+            if let Some(rest) = clean_low.strip_prefix(pat) {
+                let orig_val = clean_q[pat.len()..].trim();
+                if !orig_val.is_empty() && orig_val.split_whitespace().count() <= 4 {
+                    let _ = rest;
+                    self.binder_memory.retain(|(k, _)| k != "fact:name");
+                    self.binder_memory
+                        .push(("fact:name".to_string(), orig_val.to_string()));
+                    return Some(format!(
+                        "Nice to meet you, **{orig_val}**! I've saved your name in our session context — what would you like to work on?"
+                    ));
+                }
+            }
+        }
+        if clean_low == "what is my name" || clean_low == "whats my name" || clean_low == "who am i"
+        {
+            if let Some((_, name)) = self
+                .binder_memory
+                .iter()
+                .rev()
+                .find(|(k, _)| k == "fact:name" || k == "user_name")
+            {
+                return Some(format!("Your name is **{name}**."));
+            }
+        }
+
+        // General `my <key> is [called/named] <value>` declaration
+        if let Some(after_my) = clean_low.strip_prefix("my ") {
+            for sep in [" is called ", " is named ", " is "] {
+                if let Some(sep_idx) = after_my.find(sep) {
+                    let key_low = after_my[..sep_idx].trim();
+                    let val_start_in_clean = 3 + sep_idx + sep.len();
+                    let orig_val = clean_q.get(val_start_in_clean..).unwrap_or("").trim();
+                    let key_words = key_low.split_whitespace().count();
+                    let excluded_keys = ["day", "mind", "question", "goal", "code", "turn"];
+                    if (1..=3).contains(&key_words)
+                        && !excluded_keys.contains(&key_low)
+                        && !orig_val.is_empty()
+                        && orig_val.split_whitespace().count() <= 6
+                        && !clean_low.contains("how about you")
+                    {
+                        let tag = format!("fact:{key_low}");
+                        self.binder_memory.retain(|(k, _)| k != &tag);
+                        self.binder_memory.push((tag, orig_val.to_string()));
+                        return Some(format!(
+                            "Got it — I've noted that your {key_low} is **`{orig_val}`** for this session. Let me know what you'd like to inspect, build, or run next."
+                        ));
+                    }
+                }
+            }
+        }
+
+        // General `what is my <key> [called/named]?` recall
+        for q_prefix in ["what is my ", "what's my ", "whats my "] {
+            if let Some(after_q) = lower
+                .trim_end_matches(['?', '!', '.'])
+                .trim()
+                .strip_prefix(q_prefix)
+            {
+                let key_low = after_q
+                    .trim_end_matches(" called")
+                    .trim_end_matches(" named")
+                    .trim();
+                let tag = format!("fact:{key_low}");
+                if let Some((_, val)) = self.binder_memory.iter().rev().find(|(k, _)| k == &tag) {
+                    return Some(format!("Your {key_low} is **`{val}`**."));
+                }
+            }
+        }
+
+        None
+    }
+
+    pub(crate) fn try_execute_v10_tool_call(
+        &mut self,
+        user_prompt: &str,
+        generated_text: &str,
+    ) -> Option<String> {
+        let start = generated_text.find("<tool_call>")?;
+        let after = &generated_text[start + "<tool_call>".len()..];
+        let body = after.split("</tool_call>").next()?.trim();
+        let parsed: serde_json::Value = serde_json::from_str(body).ok()?;
+        let tool_name = parsed
+            .get("name")
+            .or_else(|| parsed.get("tool"))
+            .and_then(|v| v.as_str())?;
+        let args = parsed.get("arguments").unwrap_or(&parsed);
+
+        match tool_name {
+            "mvm_exec" | "git" => {
+                let cmd = args
+                    .get("cmd")
+                    .or_else(|| args.get("command"))
+                    .or_else(|| args.get("args"))
+                    .and_then(|v| v.as_str())?;
+                let full_cmd = if tool_name == "git" && !cmd.trim_start().starts_with("git ") {
+                    format!("git {cmd}")
+                } else {
+                    cmd.to_string()
+                };
+                self.sync_workspace_into_mvm();
+                match self.mvm.exec_interactive(&full_cmd, None) {
+                    Ok(crate::mvm::MvmInteractiveOutcome::Completed(done)) => {
+                        self.sync_workspace_from_mvm();
+                        let obs = if done.stdout.trim().is_empty() {
+                            format!("exit_code={} {}", done.exit_code, done.stderr.trim())
+                        } else {
+                            done.stdout.trim().to_string()
+                        };
+                        let mut followup_hist = self.chat_history.clone();
+                        followup_hist.push((
+                            user_prompt.to_string(),
+                            format!("<tool_call>{body}</tool_call>\n<tool_response>{obs}</tool_response>"),
+                        ));
+                        let step2 = self.gllm_v9.generate_compositional_v10(
+                            &format!("Summarize the tool output for: {user_prompt}\n<tool_response>{obs}</tool_response>"),
+                            &followup_hist,
+                            256,
+                        );
+                        self.last_brain_pulses = step2.brain_pulses;
+                        if !step2.text.trim().is_empty() {
+                            Some(step2.text)
+                        } else {
+                            Some(format!(
+                                "Executed `{full_cmd}` in MVM-Wasm:\n```\n{obs}\n```"
+                            ))
+                        }
+                    }
+                    Ok(crate::mvm::MvmInteractiveOutcome::NeedsBridge(pending)) => {
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": user_prompt,
+                            "tool": "mvm_exec",
+                            "cmd": full_cmd,
+                            "bridge_req": pending.bridge_req,
+                            "mvm_resume_state": pending.resume_state,
+                        }));
+                        Some(format!("<tool_call>{body}</tool_call>"))
+                    }
+                    Err(err) => Some(format!("MicroVM tool refused `{full_cmd}`: {err}")),
+                }
+            }
+            "web_search" => {
+                let query = args
+                    .get("query")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or(user_prompt);
+                let bridge_req = serde_json::json!({
+                    "req_id": "chat-web-search-1",
+                    "spvs_magic": "SPVS",
+                    "src_cid": 3,
+                    "dst_cid": 2,
+                    "policy": "safe",
+                    "op": "web_search",
+                    "query": query,
+                    "limit": 5,
+                    "params": { "query": query, "limit": 5 }
+                });
+                self.pending_chat_bridge = Some(serde_json::json!({
+                    "prompt": user_prompt,
+                    "tool": "web_search",
+                    "query": query,
+                    "bridge_req": bridge_req,
+                }));
+                Some(format!("<tool_call>{body}</tool_call>"))
+            }
+            "web_fetch" => {
+                let url = args.get("url").and_then(|v| v.as_str())?;
+                let bridge_req = serde_json::json!({
+                    "req_id": "chat-web-fetch-1",
+                    "spvs_magic": "SPVS",
+                    "src_cid": 3,
+                    "dst_cid": 2,
+                    "policy": "safe",
+                    "op": "http_request",
+                    "method": "GET",
+                    "url": url,
+                    "params": { "method": "GET", "url": url }
+                });
+                self.pending_chat_bridge = Some(serde_json::json!({
+                    "prompt": user_prompt,
+                    "tool": "web_fetch",
+                    "url": url,
+                    "bridge_req": bridge_req,
+                }));
+                Some(format!("<tool_call>{body}</tool_call>"))
+            }
+            _ => None,
+        }
+    }
+}
+
+fn normalize_session_key(input: &str) -> String {
+    input
+        .to_ascii_lowercase()
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c.is_ascii_whitespace() {
+                c
+            } else {
+                ' '
+            }
+        })
+        .collect::<String>()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn try_conversational_greeting_turn(trimmed: &str, lower: &str) -> Option<String> {
+    let bare = lower
+        .trim_matches(|c: char| !c.is_ascii_alphanumeric() && !c.is_ascii_whitespace())
+        .trim();
+    match bare {
+        "hi" | "hello" | "hey" | "hi there" | "hello there" | "hey there" | "greetings"
+        | "good morning" | "good afternoon" | "good evening" => Some(
+            "Hello! I'm the UOR-R4 Studio assistant. We can chat naturally, edit and test code in `/workspace`, run `git`, `pkg`, `cc`, or network diagnostics inside the RV64IMAC Linux MicroVM, or look up live documentation — what would you like to work on?"
+                .to_string(),
+        ),
+        "how are you" | "how are you doing" | "how are you doing today" | "hows it going"
+        | "how is it going" | "whats up" => Some(
+            "I'm doing great and ready to help! Whether you're exploring an idea, writing Rust/C/Python in `/workspace`, or running `git` and shell tools in the RV64IMAC MicroVM, what's on your mind?"
+                .to_string(),
+        ),
+        "who are you" => Some(
+            "I'm the conversational runtime inside UOR-R4 Connected Studio — ready to collaborate on multi-turn reasoning, `/workspace` code, and `RV64IMAC` MicroVM `git`, `pkg`, and network tools."
+                .to_string(),
+        ),
+        "thanks" | "thank you" | "thanks a lot" | "ty" => Some(
+            "You're welcome! Let me know whenever you want to dive into the next step."
+                .to_string(),
+        ),
+        "help" => Some(
+            "Here is what we can do together in UOR-R4 Studio:\n- **Chat & Q&A**: Multi-turn reasoning with `1024`-token causal KV context.\n- **Workspace Code**: Read, write, and `cargo test` files synced with `/workspace`.\n- **Connected RV64 MicroVM**: Run `git`, `pkg install`, `cc`, `curl`, and `nslookup` over `SpiralCore` `AF_VSOCK = 40`."
+                .to_string(),
+        ),
+        _ => {
+            let _ = trimmed;
+            None
+        }
     }
 }
 
@@ -1328,6 +1718,44 @@ type BinaryMathOp = (i64, i64, char);
 /// (e.g. `"What is (15 + 25) * 3?"` or `"48291 + 73948"` or `"2^16"`).
 #[allow(dead_code)]
 fn try_eval_math_expression(prompt: &str) -> Option<(String, i64, Option<BinaryMathOp>)> {
+    // Reject prompts containing non-math prose words (e.g. hyphenated identifiers like `nebula-os` or `gpt-oss-120b`)
+    for raw_w in prompt.split(|c: char| !c.is_ascii_alphabetic()) {
+        if raw_w.is_empty() {
+            continue;
+        }
+        let w = raw_w.to_ascii_lowercase();
+        if !matches!(
+            w.as_str(),
+            "what"
+                | "whats"
+                | "is"
+                | "are"
+                | "compute"
+                | "calculate"
+                | "evaluate"
+                | "solve"
+                | "find"
+                | "the"
+                | "value"
+                | "result"
+                | "sum"
+                | "difference"
+                | "product"
+                | "quotient"
+                | "of"
+                | "equals"
+                | "equal"
+                | "to"
+                | "please"
+                | "tell"
+                | "me"
+                | "exact"
+                | "mod"
+        ) {
+            return None;
+        }
+    }
+
     // Strip leading conversational prefixes like "what is", "calculate", "compute", "evaluate"
     let mut cleaned = String::new();
     for ch in prompt.chars() {
