@@ -2117,3 +2117,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f135_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging letter and peanut across PointKey row 12016 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect letter and peanut across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects letter and peanut by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F136"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:building-person:r8208:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f136_pointkey_resonance"
+statement = "Verify compact PointKey paraphrase routing for conversational stems building and person at manifold row 8208."
+prompt = "How does PointKey routing resolve conversational prompts about building and person?"
+target_reply = "PointKey routing matches conversational stems building and person directly to their canonical reply anchor without token loops."
