@@ -2225,3 +2225,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f142_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems cost and ffee at row_idx=9083 (anchor_id=0x8000087d)."
 prompt = "How does Q12 writer refinement encode cost and ffee at row_idx=9083?"
 target_reply = "At row_idx=9083 with anchor_id=0x8000087d, Q12 writer refinement aligns the 256D L1 PointKey prototype for cost and ffee with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F143"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:create-surf:r9043:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f143_corpus_induction"
+statement = "Verify cross-basin geodesic synthesis bridging create and surf across PointKey row 9043 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect create and surf across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects create and surf by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
