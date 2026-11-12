@@ -2603,3 +2603,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f166_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems anyone and change at row_idx=9820 (anchor_id=0x80000b46)."
 prompt = "How does Q12 writer refinement encode anyone and change at row_idx=9820?"
 target_reply = "At row_idx=9820 with anchor_id=0x80000b46, Q12 writer refinement aligns the 256D L1 PointKey prototype for anyone and change with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F167"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:surf-ming:r9797:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f167_corpus_induction"
+statement = "Verify cross-basin geodesic synthesis bridging surf and ming across PointKey row 9797 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect surf and ming across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects surf and ming by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
