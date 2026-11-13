@@ -2699,3 +2699,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f172_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems ball and ance at manifold row 1281."
 prompt = "How does PointKey routing resolve conversational prompts about ball and ance?"
 target_reply = "PointKey routing matches conversational stems ball and ance directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F173"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.15023:H-LIT-2611.15023-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f173_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.15023 (SkinAdvisor: An AI-Driven Decision Framework for Skin Production Planning via Multi-Modal Transformer Sales Forecasting)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
