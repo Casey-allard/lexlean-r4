@@ -1,0 +1,32 @@
+{
+  "format": "UORGLLM9",
+  "schema": "uor-r4.compositional-gllm/10",
+  "version": 9,
+  "model_version": "v10",
+  "vocab_size": 4096,
+  "d_model": 128,
+  "n_layers": 8,
+  "n_heads": 16,
+  "max_seq_len": 1024,
+  "turn_memory_entries": 0,
+  "dense_matmul_ops": 0,
+  "softmax_ops": 0,
+  "total_bytes": 12895254,
+  "container_sha256": "55b709f5047deccc55eb2653de4984083e7461dbec8b41ec14fdecafb3dd39de",
+  "shard_max_bytes": 1048576,
+  "shards": [
+    {"index": 0, "file": "shard_000.bin", "path": "/weights/v10/shard_000.bin", "byte_offset": 0, "byte_length": 1048576, "sha256": "e1da7e483747918bd9aa249c21d6031123fddc3a9d456a402fb8037b0f542536"},
+    {"index": 1, "file": "shard_001.bin", "path": "/weights/v10/shard_001.bin", "byte_offset": 1048576, "byte_length": 1048576, "sha256": "3d3b09f788fd2a636eb19071f778833f34e8697f8c0ef66b91fa7e0e09b2856e"},
+    {"index": 2, "file": "shard_002.bin", "path": "/weights/v10/shard_002.bin", "byte_offset": 2097152, "byte_length": 1048576, "sha256": "df14888fde6778d939f5ad0bf35c29ddb90764960460d9c7b757682f0f045f82"},
+    {"index": 3, "file": "shard_003.bin", "path": "/weights/v10/shard_003.bin", "byte_offset": 3145728, "byte_length": 1048576, "sha256": "87abdd63ce41805c37c7a530bf2666232986098a24f1ab6682173bce28f0a894"},
+    {"index": 4, "file": "shard_004.bin", "path": "/weights/v10/shard_004.bin", "byte_offset": 4194304, "byte_length": 1048576, "sha256": "aceea3db34eaac2c35110ab2cd45bfe2f4c59a368e5022c101171b748960b38c"},
+    {"index": 5, "file": "shard_005.bin", "path": "/weights/v10/shard_005.bin", "byte_offset": 5242880, "byte_length": 1048576, "sha256": "15bdc269f8470f09279b339caaf1cee757dec1eb6e0f9201b353ce6f1aab7786"},
+    {"index": 6, "file": "shard_006.bin", "path": "/weights/v10/shard_006.bin", "byte_offset": 6291456, "byte_length": 1048576, "sha256": "ffc4ab7cd9c995ffa730a8dc3de769f7fa82d18f391c95e649c73a1e9e01c1ba"},
+    {"index": 7, "file": "shard_007.bin", "path": "/weights/v10/shard_007.bin", "byte_offset": 7340032, "byte_length": 1048576, "sha256": "4881051a58adee37c0e1f28b686f90f799e16dd512057f6edec709bf280d2ddd"},
+    {"index": 8, "file": "shard_008.bin", "path": "/weights/v10/shard_008.bin", "byte_offset": 8388608, "byte_length": 1048576, "sha256": "12d6e87993194a7332627e4d1431265d4daf64fe7b88bad982e575fe400b2eb1"},
+    {"index": 9, "file": "shard_009.bin", "path": "/weights/v10/shard_009.bin", "byte_offset": 9437184, "byte_length": 1048576, "sha256": "2882fa1ffc56f305264401d37176cde98db9a1925b16e79e27de535722bb6791"},
+    {"index": 10, "file": "shard_010.bin", "path": "/weights/v10/shard_010.bin", "byte_offset": 10485760, "byte_length": 1048576, "sha256": "1b27082680d57af865c7c7e053da5f71f358899504657175279b04ad6aaa0caf"},
+    {"index": 11, "file": "shard_011.bin", "path": "/weights/v10/shard_011.bin", "byte_offset": 11534336, "byte_length": 1048576, "sha256": "5e9898b6a2de49f076f819ae8af211b6ca62cd241cd251cda71ad3918fff314a"},
+    {"index": 12, "file": "shard_012.bin", "path": "/weights/v10/shard_012.bin", "byte_offset": 12582912, "byte_length": 312342, "sha256": "bba3eb5837402fdbcc3aed3f5964567dcb8c575b08d7d1d887e2c8fcb2b24a49"}
+  ]
+}
