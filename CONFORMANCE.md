@@ -60,6 +60,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-06` | `build` | The pure LexLean configuration model preserves ordered Spec/read validation, closed read-mode words, independent initialization policy and checked UInt32 gate inventories, with explicit natural-to-word admission. Formal metadata checks establish no read execution or research qualification. |
 
+## r4-connected-studio
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-39` | `build` | Pure LexLean models Connected Chat-First Studio and SpiralCore CID 2 edge-relay security invariants: guest-to-host vsock bridge transport admission requiring guest source CID >= 3 targeting host CID 2 under non-Deny MCP policy over WssRelay, HttpsDirect, or LoopbackDev while rejecting PlainHttp and PlainWs, GitHub token placeholder substitution refusing guest RAM secret contamination, missing placeholders, and non-allowlisted hosts, external package installation into /usr/local/bin requiring exact SHA-256 manifest match, ELF64 EM_RISCV (machine 243) header admission, and bounded byte quota, and non-blocking Web Worker turn execution enforcing worker-thread isolation and 1024-token multi-turn sequence window bounds. Formal controls establish no remote Cloudflare Worker availability or external GitHub API liveness. |
+
 ## r4-discrete-trunk
 
 | ID | Level | Statement |

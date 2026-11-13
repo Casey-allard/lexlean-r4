@@ -1,0 +1,107 @@
+{
+  "schema": "uor-mvm-pkg-index/1",
+  "arch": "riscv64-linux-musl",
+  "elf_machine": 243,
+  "packages": [
+    {
+      "name": "jq",
+      "version": "1.0.0",
+      "file": "jq.elf",
+      "path": "/weights/mvm-pkgs/jq.elf",
+      "install_path": "/usr/local/bin/jq",
+      "byte_length": 3864,
+      "sha256": "f3f115894b08107bf72817e4f5f3d79858435c513073afee323445a568311bdc",
+      "description": "JSON parser, pretty-printer, and path filter"
+    },
+    {
+      "name": "rg",
+      "version": "1.0.0",
+      "file": "rg.elf",
+      "path": "/weights/mvm-pkgs/rg.elf",
+      "install_path": "/usr/local/bin/rg",
+      "byte_length": 4304,
+      "sha256": "5902fa0a1a24cd1d2d5950d890b23c37b075b53db1300a7e868f55e4656452bb",
+      "description": "Recursive substring file search across directories"
+    },
+    {
+      "name": "tree",
+      "version": "1.0.0",
+      "file": "tree.elf",
+      "path": "/weights/mvm-pkgs/tree.elf",
+      "install_path": "/usr/local/bin/tree",
+      "byte_length": 3408,
+      "sha256": "f1d3daec0e3ce3693d382150f5ae01f31de4e857d9e6cc3f171658dfe6e3dc79",
+      "description": "Recursive ASCII directory hierarchy viewer"
+    },
+    {
+      "name": "xxd",
+      "version": "1.0.0",
+      "file": "xxd.elf",
+      "path": "/weights/mvm-pkgs/xxd.elf",
+      "install_path": "/usr/local/bin/xxd",
+      "byte_length": 2088,
+      "sha256": "94fc0b92d26cad741f464910227a60704f434bdd72597e713c4224759a49ddb2",
+      "description": "Canonical 16-byte hexadecimal and ASCII dump"
+    },
+    {
+      "name": "sha256sum",
+      "version": "1.0.0",
+      "file": "sha256sum.elf",
+      "path": "/weights/mvm-pkgs/sha256sum.elf",
+      "install_path": "/usr/local/bin/sha256sum",
+      "byte_length": 3232,
+      "sha256": "ef3ac637812e8b2d9d5307b9a5f0ea7fbc9fc152efe6af17dbc9fe5c3f1e3ff9",
+      "description": "FIPS 180-4 SHA-256 digest utility"
+    },
+    {
+      "name": "bc",
+      "version": "1.0.0",
+      "file": "bc.elf",
+      "path": "/weights/mvm-pkgs/bc.elf",
+      "install_path": "/usr/local/bin/bc",
+      "byte_length": 5016,
+      "sha256": "dfd863fd1f81eaa6a921dcc580d53225f32e4d2bba2caf7fc6eaf2d68f0ad7a4",
+      "description": "64-bit integer arithmetic and variable calculator"
+    },
+    {
+      "name": "wc",
+      "version": "1.0.0",
+      "file": "wc.elf",
+      "path": "/weights/mvm-pkgs/wc.elf",
+      "install_path": "/usr/local/bin/wc",
+      "byte_length": 3048,
+      "sha256": "2eb8c35389c08a060bd4508fbe135c31e26e253dc14c81a7c48b7b8e8477f59d",
+      "description": "Line, word, and byte counter"
+    },
+    {
+      "name": "head",
+      "version": "1.0.0",
+      "file": "head.elf",
+      "path": "/weights/mvm-pkgs/head.elf",
+      "install_path": "/usr/local/bin/head",
+      "byte_length": 2968,
+      "sha256": "fd8dba8a997f32fcc268054806d7a9c7c0f22963fff2f2fd74dd0f107d37bc53",
+      "description": "Output leading lines or bytes of files"
+    },
+    {
+      "name": "tail",
+      "version": "1.0.0",
+      "file": "tail.elf",
+      "path": "/weights/mvm-pkgs/tail.elf",
+      "install_path": "/usr/local/bin/tail",
+      "byte_length": 3152,
+      "sha256": "9d79d948c62fae7de38648f2eefa8d13be305294c1fcb92545ec1a628028adeb",
+      "description": "Output trailing lines or bytes of files"
+    },
+    {
+      "name": "http",
+      "version": "1.0.0",
+      "file": "http.elf",
+      "path": "/weights/mvm-pkgs/http.elf",
+      "install_path": "/usr/local/bin/http",
+      "byte_length": 3696,
+      "sha256": "58dd03bbd876ee17c1a1472ad6b2ca4023e8af07fc238d3e08b2b1e1df2fd332",
+      "description": "Zero-NIC AF_VSOCK SpiralCore HTTP egress client"
+    }
+  ]
+}
