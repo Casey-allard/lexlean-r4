@@ -1039,6 +1039,7 @@ impl StudioEngine {
         }
 
         let lower = trimmed.to_ascii_lowercase();
+        let lower_words = tokenize_words_lower(&lower);
         let is_compositional_v9_turn = (lower.starts_with("given ") && lower.contains(" = "))
             || ((lower.starts_with("write a rust function ")
                 || lower.starts_with("write a freestanding c function "))
@@ -1049,7 +1050,14 @@ impl StudioEngine {
             || (lower.contains("weights") && lower.contains("browser") && lower.contains("stored"))
             || lower.contains("uorgllm")
             || lower.contains("mvm-wasm")
-            || lower.contains("af_vsock");
+            || lower.contains("af_vsock")
+            || lower.contains("microvm")
+            || lower.contains("spiralcore")
+            || lower.contains("mvm_secret")
+            || lower.contains("host secret")
+            || lower.contains("guest ram")
+            || lower.contains("zero-nic")
+            || has_word(&lower_words, "mvm");
 
         if !is_compositional_v9_turn
             && lut_gen
@@ -1263,7 +1271,8 @@ impl StudioEngine {
             self.last_brain_pulses = pulses;
             let v10_trimmed = v10_gen.text.trim();
             let prose_ok = is_well_formed_v10_prose(&v10_gen);
-            let calibrated_steps = has_calibrated_v10_steps(&v10_gen);
+            let calibrated_steps =
+                has_calibrated_v10_steps_for_dim(&v10_gen, self.gllm_v9.header().d_model);
             let coding_request = code_outcome.is_coding_turn
                 || ((lower.starts_with("given ") && lower.contains(" = "))
                     || ((lower.starts_with("write a rust function ")
@@ -1290,11 +1299,8 @@ impl StudioEngine {
                         .is_some_and(|s| s.source_mechanism != "whole_table_nearest");
 
                 if has_cross_turn_cue {
-                    if prose_ok {
+                    if prose_ok && calibrated_steps {
                         return v10_gen.text;
-                    }
-                    if is_non_blind_lut {
-                        return safe_lut_reply;
                     }
                     return safe_lut_reply;
                 }
@@ -1304,7 +1310,7 @@ impl StudioEngine {
                 }
 
                 if is_compact_seed || !is_non_blind_lut {
-                    if prose_ok {
+                    if prose_ok && (calibrated_steps || !has_grounded_lut_match) {
                         return v10_gen.text;
                     }
                     return safe_lut_reply;
@@ -1317,7 +1323,8 @@ impl StudioEngine {
                     return safe_lut_reply;
                 }
 
-                let length_ok = lut_gen.matched_stem_count <= 1
+                let length_ok = is_compositional_v9_turn
+                    || lut_gen.matched_stem_count <= 1
                     || (v10_gen.generated_tokens.len() >= 20
                         && v10_trimmed.split_whitespace().count() >= 20);
                 if prose_ok && calibrated_steps && length_ok {
@@ -1852,22 +1859,110 @@ fn sanitize_lut_prose_fallback(raw: &str) -> String {
         .replace("<tool_response>", "")
         .replace("</tool_response>", "");
     cleaned = cleaned.trim().to_string();
-    while cleaned.starts_with(['}', ')', ']', '`', ',', ';', ':']) {
-        cleaned = cleaned[1..].trim_start().to_string();
+    let strip_leading_fragment_punct = |s: &mut String| {
+        while s.starts_with(['}', ')', ']', '`', ',', ';', ':', '.']) {
+            *s = s[1..].trim_start().to_string();
+        }
+        if s.starts_with("**") && s[2..].starts_with([' ', ')', '}']) {
+            *s = s[2..].trim_start().to_string();
+        }
+    };
+    strip_leading_fragment_punct(&mut cleaned);
+
+    let first_line_broken = {
+        let first_line = cleaned.lines().next().unwrap_or("");
+        let starts_lower = first_line
+            .chars()
+            .next()
+            .is_some_and(|ch| ch.is_ascii_lowercase());
+        let close_before_open_paren = first_line.find(')').is_some_and(|cp| {
+            first_line.find('(').map(|op| cp < op).unwrap_or(true)
+                && !first_line[..cp]
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() && first_line.len() > cp)
+                && !first_line[..cp].chars().all(|c| c.is_ascii_digit())
+        });
+        let close_before_open_bracket = first_line
+            .find(']')
+            .is_some_and(|cb| first_line.find('[').map(|ob| cb < ob).unwrap_or(true));
+        starts_lower || close_before_open_paren || close_before_open_bracket
+    };
+
+    if first_line_broken {
+        let mut advanced = None;
+        if let Some(nl_pos) = cleaned.find('\n') {
+            let after_nl = cleaned[nl_pos + 1..].trim_start();
+            if after_nl.chars().count() >= 24
+                && after_nl.chars().next().is_some_and(|ch| {
+                    ch.is_ascii_uppercase()
+                        || matches!(ch, '#' | '*' | '-' | '`')
+                        || ch.is_ascii_digit()
+                })
+            {
+                advanced = Some(after_nl.to_string());
+            }
+        }
+        if advanced.is_none() {
+            if let Some(dot_pos) = cleaned.find(". ") {
+                let after_dot = cleaned[dot_pos + 2..].trim_start();
+                if after_dot.chars().count() >= 24
+                    && after_dot
+                        .chars()
+                        .next()
+                        .is_some_and(|ch| ch.is_ascii_uppercase())
+                {
+                    advanced = Some(after_dot.to_string());
+                }
+            }
+        }
+        if let Some(next_clean) = advanced {
+            cleaned = next_clean;
+        } else if let Some(first_ch) = cleaned.chars().next() {
+            if first_ch.is_ascii_lowercase() {
+                let mut chars = cleaned.chars();
+                let up = chars.next().unwrap().to_ascii_uppercase();
+                cleaned = format!("{up}{}", chars.as_str());
+            }
+        }
     }
-    if cleaned.starts_with("**") && cleaned[2..].starts_with([' ', ')', '}']) {
-        cleaned = cleaned[2..].trim_start().to_string();
+
+    if !cleaned.matches("```").count().is_multiple_of(2) {
+        cleaned.push_str("\n```");
     }
     cleaned
 }
 
 pub(crate) fn has_calibrated_v10_steps(gen: &crate::gllm_v9::GllmV9Generation) -> bool {
-    !gen.steps.is_empty()
-        && gen
-            .steps
-            .iter()
-            .filter(|s| s.copy_score < 1_024)
-            .all(|s| s.winning_score >= 1_500 && s.pure_margin >= 512)
+    has_calibrated_v10_steps_for_dim(gen, 128)
+}
+
+pub(crate) fn has_calibrated_v10_steps_for_dim(
+    gen: &crate::gllm_v9::GllmV9Generation,
+    d_model: u32,
+) -> bool {
+    if gen.steps.is_empty() {
+        return false;
+    }
+    let has_pointer_copy = gen.steps.iter().any(|s| s.copy_score >= 1_024);
+    let non_copy_margins: Vec<i32> = gen
+        .steps
+        .iter()
+        .filter(|s| s.copy_score < 1_024)
+        .map(|s| s.pure_margin)
+        .collect();
+    if non_copy_margins.is_empty() {
+        return true;
+    }
+    let avg_margin = (non_copy_margins.iter().map(|&m| m as i64).sum::<i64>()
+        / non_copy_margins.len() as i64) as i32;
+    let confident_steps = non_copy_margins.iter().filter(|&&m| m >= 256).count();
+
+    if has_pointer_copy {
+        avg_margin >= 900 && confident_steps * 10 >= non_copy_margins.len() * 9
+    } else {
+        let min_avg = if d_model >= 128 { 2_000 } else { 1_500 };
+        avg_margin >= min_avg && confident_steps * 20 >= non_copy_margins.len() * 19
+    }
 }
 
 pub(crate) fn is_well_formed_v10_prose(gen: &crate::gllm_v9::GllmV9Generation) -> bool {
@@ -2111,11 +2206,39 @@ fn is_well_formed_v10_code(gen: &crate::gllm_v9::GllmV9Generation, user_prompt: 
         return false;
     }
     for ident in extract_prompt_code_identifiers(user_prompt) {
-        if !trimmed.contains(&ident) {
+        if !has_clean_identifier_boundaries(trimmed, &ident) {
             return false;
         }
     }
     true
+}
+
+fn has_clean_identifier_boundaries(haystack: &str, ident: &str) -> bool {
+    if ident.is_empty() {
+        return true;
+    }
+    let hb = haystack.as_bytes();
+    let ib = ident.as_bytes();
+    let mut start = 0usize;
+    let mut found = false;
+    while let Some(rel) = haystack[start..].find(ident) {
+        let pos = start + rel;
+        let end = pos + ib.len();
+        let prev_ok = pos == 0 || {
+            let p = hb[pos - 1];
+            !p.is_ascii_alphanumeric() && p != b'_'
+        };
+        let next_ok = end == hb.len() || {
+            let n = hb[end];
+            !n.is_ascii_alphanumeric() && n != b'_'
+        };
+        if !prev_ok || !next_ok {
+            return false;
+        }
+        found = true;
+        start = end;
+    }
+    found
 }
 
 pub(crate) fn is_well_formed_v10_step2(gen: &crate::gllm_v9::GllmV9Generation, obs: &str) -> bool {

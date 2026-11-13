@@ -1322,6 +1322,7 @@ impl StudioEngine {
         for (prompt, reply) in default_knowledge_turns() {
             engine.admit_turn(prompt, reply);
         }
+        compile_connected_studio_architecture_turns(Arc::make_mut(&mut engine.lut_stack));
         engine.init_default_workspace();
         engine.sync_workspace_into_mvm();
         engine
@@ -2311,6 +2312,7 @@ impl StudioEngine {
         for turn in &self.turns {
             let _ = parsed.compile_verified_dialogue_turn(&turn.prompt, &turn.reply);
         }
+        compile_connected_studio_architecture_turns(&mut parsed);
         self.lut_stack = Arc::new(parsed);
         self.lut_stack_source = if source_label.trim().is_empty() {
             "IndexedDB / Custom UORLUT01".to_string()
@@ -6006,6 +6008,22 @@ fn default_knowledge_turns() -> [(&'static str, &'static str); 20] {
             "The 10 core R4 LexLean modules are translated directly from their verified semantic ASTs into crates/wasm/src/lexlean_generated.rs and bound by SHA-256 in public/provenance.json.",
         ),
     ]
+}
+
+fn compile_connected_studio_architecture_turns(lut: &mut lut_stack_exec::LutStackModel) {
+    const R4_39_TURNS: [(&str, &str); 2] = [
+        (
+            "How are host secrets protected when git or http runs in the MVM?",
+            "Guest processes emit only a `{{MVM_SECRET:NAME}}` placeholder over `AF_VSOCK` CID 2; the host SpiralCore bridge verifies the allowlisted domain (`github.com` / `api.github.com`) and substitutes the secret outside guest RAM (`R4-39`).",
+        ),
+        (
+            "How does SpiralCore protect MVM_SECRET tokens from guest RAM?",
+            "Raw secret bytes never enter MVM guest RAM (`GuestRamSecretContamination` check); commands pass `{{MVM_SECRET:GITHUB_TOKEN}}` over `AF_VSOCK` CID 3 -> CID 2 and the host worker substitutes the header only for allowlisted HTTPS hosts.",
+        ),
+    ];
+    for (prompt, reply) in R4_39_TURNS {
+        let _ = lut.compile_verified_dialogue_turn(prompt, reply);
+    }
 }
 
 fn escape_json(input: &str) -> String {
@@ -10497,9 +10515,190 @@ mod tests {
                 || !c_reply.matches("```").count().is_multiple_of(2)
                 || !c_reply.contains("scale_tick_t8")
                 || !c_reply.contains("vertex_step_d4")
+                || c_reply.contains("longvertex_step_d4")
+                || !(c_reply.contains("long vertex_step_d4")
+                    || c_reply.contains("int64_t vertex_step_d4"))
             {
                 failures.push(format!(
                     "[{model_label}] C RV64 code prompt failed: {c_reply}"
+                ));
+            }
+
+            // 14. MVM/SpiralCore security Q&A (`#12` & `#15`) + Binary Search + `"can you explain that simpler?"` (`#06` & `#07`)
+            let clean_prose_start = |s: &str| -> bool {
+                s.trim().chars().next().is_some_and(|ch| {
+                    ch.is_ascii_uppercase() || matches!(ch, '`' | '*' | '-' | '#')
+                })
+            };
+
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let q12_raw = engine
+                .chat_assistant_json("How does the MVM-Wasm Linux sandbox isolate network access?");
+            let q12_val: serde_json::Value =
+                serde_json::from_str(&q12_raw).expect("valid q12 JSON");
+            let q12_reply = q12_val["assistant_reply"].as_str().unwrap_or("");
+            if q12_val["status"] != "ok"
+                || !clean_prose_start(q12_reply)
+                || !q12_reply.matches("```").count().is_multiple_of(2)
+                || !(q12_reply.contains("AF_VSOCK")
+                    || q12_reply.contains("Zero-NIC")
+                    || q12_reply.contains("EAFNOSUPPORT"))
+            {
+                failures.push(format!(
+                    "[{model_label}] `#12` MVM network isolation Q&A failed: {q12_reply}"
+                ));
+            }
+
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let q15_raw = engine.chat_assistant_json(
+                "How are host secrets protected when git or http runs in the MVM?",
+            );
+            let q15_val: serde_json::Value =
+                serde_json::from_str(&q15_raw).expect("valid q15 JSON");
+            let q15_reply = q15_val["assistant_reply"].as_str().unwrap_or("");
+            if q15_val["status"] != "ok"
+                || !clean_prose_start(q15_reply)
+                || !q15_reply.matches("```").count().is_multiple_of(2)
+                || !(q15_reply.contains("MVM_SECRET")
+                    || (q15_reply.to_ascii_lowercase().contains("placeholder")
+                        && q15_reply.to_ascii_lowercase().contains("guest")))
+            {
+                failures.push(format!(
+                    "[{model_label}] `#15` MVM host secrets Q&A failed: {q15_reply}"
+                ));
+            }
+
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let q06_raw = engine.chat_assistant_json("Explain binary search briefly.");
+            let q06_val: serde_json::Value =
+                serde_json::from_str(&q06_raw).expect("valid q06 JSON");
+            let q06_reply = q06_val["assistant_reply"].as_str().unwrap_or("");
+            if q06_val["status"] != "ok"
+                || q06_reply.trim().chars().count() < 40
+                || !clean_prose_start(q06_reply)
+                || !q06_reply.matches("```").count().is_multiple_of(2)
+            {
+                failures.push(format!(
+                    "[{model_label}] `#06` binary search Q&A failed: {q06_reply}"
+                ));
+            }
+
+            let q07_raw = engine.chat_assistant_json("can you explain that simpler?");
+            let q07_val: serde_json::Value =
+                serde_json::from_str(&q07_raw).expect("valid q07 JSON");
+            let q07_reply = q07_val["assistant_reply"].as_str().unwrap_or("");
+            if q07_val["status"] != "ok"
+                || q07_reply.trim().chars().count() < 20
+                || !clean_prose_start(q07_reply)
+                || !q07_reply.matches("```").count().is_multiple_of(2)
+                || q07_reply.contains("Suress")
+                || q07_reply.contains("UOIN")
+                || q07_reply.contains("discallys")
+            {
+                failures.push(format!(
+                    "[{model_label}] `#07` follow-up `can you explain that simpler?` failed: {q07_reply}"
+                ));
+            }
+
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let _ = engine.chat_assistant_json("hi");
+            let _ = engine.chat_assistant_json("Explain binary search briefly.");
+            let q07_mt_raw = engine.chat_assistant_json("can you explain that simpler?");
+            let q07_mt_val: serde_json::Value =
+                serde_json::from_str(&q07_mt_raw).expect("valid multi-turn q07 JSON");
+            let q07_mt_reply = q07_mt_val["assistant_reply"].as_str().unwrap_or("");
+            if q07_mt_val["status"] != "ok"
+                || q07_mt_reply.trim().chars().count() < 20
+                || !clean_prose_start(q07_mt_reply)
+                || !q07_mt_reply.matches("```").count().is_multiple_of(2)
+                || q07_mt_reply.contains("Suress")
+                || q07_mt_reply.contains("UOIN")
+                || q07_mt_reply.contains("discallys")
+            {
+                failures.push(format!(
+                    "[{model_label}] `#07` multi-turn `can you explain that simpler?` failed: {q07_mt_reply}"
+                ));
+            }
+
+            // 15. Shell pipe `|` into installed `/usr/local/bin/<pkg>` (`bc`, `jq`)
+            let pkgs_dir =
+                std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../gpu/weights/mvm-pkgs");
+            for (pkg_name, elf_file) in [("bc", "bc.elf"), ("jq", "jq.elf")] {
+                let elf_bytes =
+                    std::fs::read(pkgs_dir.join(elf_file)).expect("read mvm-pkgs elf fixture");
+                let elf_sha = sha256_hex(&elf_bytes);
+                let elf_hex: String = elf_bytes.iter().map(|b| format!("{b:02x}")).collect();
+                let req_val: serde_json::Value =
+                    serde_json::from_str(&engine.mvm_exec_json(&format!("pkg install {pkg_name}")))
+                        .expect("pkg install json");
+                let done_val: serde_json::Value = serde_json::from_str(
+                    &engine.mvm_complete_bridge_json(
+                        &serde_json::json!({
+                            "resume_state": req_val["resume_state"],
+                            "bridge_resp": {
+                                "ok": true,
+                                "pkg_name": pkg_name,
+                                "expected_sha256": elf_sha,
+                                "elf_hex": elf_hex,
+                            }
+                        })
+                        .to_string(),
+                    ),
+                )
+                .expect("pkg complete json");
+                assert_eq!(done_val["status"], "ok");
+            }
+
+            let bc_pipe_raw = engine.mvm_exec_json(r#"{"cmd":"echo \"144 * 89 + 17 + 5\" | bc"}"#);
+            let bc_pipe: serde_json::Value =
+                serde_json::from_str(&bc_pipe_raw).expect("valid bc pipe json");
+            if bc_pipe["status"] != "ok"
+                || bc_pipe["exit_code"] != 0
+                || bc_pipe["mvm_stdout"].as_str().unwrap_or("").trim() != "12838"
+            {
+                failures.push(format!(
+                    "[{model_label}] `#23` pipe into `/usr/local/bin/bc` failed: {bc_pipe_raw}"
+                ));
+            }
+
+            let jq_pipe_raw =
+                engine.mvm_exec_json(r#"{"cmd":"echo '{\"count\":42}' | jq .count"}"#);
+            let jq_pipe: serde_json::Value =
+                serde_json::from_str(&jq_pipe_raw).expect("valid jq pipe json");
+            if jq_pipe["status"] != "ok"
+                || jq_pipe["exit_code"] != 0
+                || jq_pipe["mvm_stdout"].as_str().unwrap_or("").trim() != "42"
+            {
+                failures.push(format!(
+                    "[{model_label}] `#23` pipe into `/usr/local/bin/jq` failed: {jq_pipe_raw}"
+                ));
+            }
+
+            let cat_jq_raw = engine.mvm_exec_json(
+                r#"{"cmd":"echo '{\"pkg\":\"bc\",\"ok\":true}' > /workspace/p.json && cat /workspace/p.json | jq .pkg"}"#,
+            );
+            let cat_jq: serde_json::Value =
+                serde_json::from_str(&cat_jq_raw).expect("valid cat|jq pipe json");
+            if cat_jq["status"] != "ok"
+                || cat_jq["exit_code"] != 0
+                || !cat_jq["mvm_stdout"].as_str().unwrap_or("").contains("bc")
+            {
+                failures.push(format!(
+                    "[{model_label}] `#23` `cat /workspace/p.json | jq .pkg` failed: {cat_jq_raw}"
+                ));
+            }
+
+            let missing_pipe_raw =
+                engine.mvm_exec_json(r#"{"cmd":"echo 123 | missing_pkg_r5_check"}"#);
+            let missing_pipe: serde_json::Value =
+                serde_json::from_str(&missing_pipe_raw).expect("valid missing pipe json");
+            if missing_pipe["exit_code"] != 127 {
+                failures.push(format!(
+                    "[{model_label}] `R5` missing pipe binary must exit 127: {missing_pipe_raw}"
                 ));
             }
 

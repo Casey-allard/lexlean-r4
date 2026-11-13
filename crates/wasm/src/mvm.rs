@@ -1619,8 +1619,96 @@ impl MvmSandbox {
             return Ok(self.empty_outcome());
         }
 
-        // If pipeline `|`, route directly through `/bin/mvmbox sh -c "<seg>"`
+        // If pipeline `|`, execute sequentially when any stage resolves outside built-in `/bin` applets
+        // (e.g. `/usr/local/bin/<pkg>` installed via `pkg install`), otherwise use `/bin/mvmbox sh -c`.
         if contains_unquoted_pipe(trimmed) {
+            let stages = split_unquoted_pipes(trimmed);
+            let needs_sandbox_pipe = stages.len() >= 2
+                && stages.iter().any(|st| {
+                    let (st_words, _) = split_shell_words_with_redirect(st.trim());
+                    let Some(prog) = st_words.first().map(String::as_str) else {
+                        return false;
+                    };
+                    if matches!(prog, "cd" | "rm" | "cc" | "gcc" | "pkg" | "git") {
+                        return true;
+                    }
+                    match self.resolve_guest_exec_path(working_cwd, prog) {
+                        Some(p) => {
+                            !p.starts_with("/bin/")
+                                && !p.starts_with("/sbin/")
+                                && !p.starts_with("/usr/bin/")
+                        }
+                        None => true,
+                    }
+                });
+            if needs_sandbox_pipe {
+                let mut piped_stdin: Vec<u8> = Vec::new();
+                let mut total_stderr = String::new();
+                let mut total_insts = 0u64;
+                let mut all_frames = Vec::new();
+                let mut last_exit = 0i32;
+                let mut compiled_machine = None;
+
+                for (idx, stage_raw) in stages.iter().enumerate() {
+                    let stage_trimmed = stage_raw.trim();
+                    if stage_trimmed.is_empty() {
+                        continue;
+                    }
+                    let stage_out = if idx == 0 {
+                        self.exec_single_segment_mut_cwd(stage_trimmed, working_cwd)?
+                    } else {
+                        let (st_words, st_redirect) =
+                            split_shell_words_with_redirect(stage_trimmed);
+                        if st_words.is_empty() {
+                            continue;
+                        }
+                        let prog = &st_words[0];
+                        let Some(exec_path) = self.resolve_guest_exec_path(working_cwd, prog)
+                        else {
+                            total_stderr.push_str(&format!("mvm-sh: command not found: {prog}\n"));
+                            last_exit = 127;
+                            piped_stdin.clear();
+                            continue;
+                        };
+                        let mut out = self.run_elf_process_with_stdin(
+                            &exec_path,
+                            &st_words,
+                            working_cwd,
+                            &piped_stdin,
+                        )?;
+                        if let Some((redir_target, append)) = st_redirect {
+                            self.write_redirected_stdout(
+                                working_cwd,
+                                &redir_target,
+                                &out.stdout,
+                                append,
+                            )?;
+                            out.stdout.clear();
+                        }
+                        out
+                    };
+
+                    total_stderr.push_str(&stage_out.stderr);
+                    total_insts = total_insts.saturating_add(stage_out.instructions_retired);
+                    all_frames.extend(stage_out.vsock_frames);
+                    last_exit = stage_out.exit_code;
+                    if stage_out.compiled_elf_machine.is_some() {
+                        compiled_machine = stage_out.compiled_elf_machine;
+                    }
+                    piped_stdin = stage_out.stdout.into_bytes();
+                }
+
+                return Ok(MvmExecOutcome {
+                    exit_code: last_exit,
+                    stdout: String::from_utf8_lossy(&piped_stdin).into_owned(),
+                    stderr: total_stderr,
+                    instructions_retired: total_insts,
+                    vsock_frames: all_frames,
+                    compiled_elf_machine: compiled_machine,
+                    cow_state_sha256: self.cow_state_sha256(),
+                });
+            }
+
             let argv = vec!["/bin/sh".to_string(), "-c".to_string(), trimmed.to_string()];
             return self.run_elf_process("/bin/sh", &argv, working_cwd);
         }
@@ -1818,27 +1906,7 @@ impl MvmSandbox {
 
         // Resolve executable path in guest filesystem (including `/usr/local/bin`)
         let prog = &words[0];
-        let resolved = if prog.starts_with('/') || prog.starts_with("./") || prog.starts_with("../")
-        {
-            let p = Self::normalize_guest_path(working_cwd, prog);
-            if self.inodes.contains_key(&p) {
-                Some(p)
-            } else {
-                None
-            }
-        } else {
-            [
-                format!("/usr/local/bin/{prog}"),
-                format!("/bin/{prog}"),
-                format!("/sbin/{prog}"),
-                format!("/usr/bin/{prog}"),
-                format!("/workspace/{prog}"),
-            ]
-            .into_iter()
-            .find(|cand| self.inodes.contains_key(cand))
-        };
-
-        let Some(exec_path) = resolved else {
+        let Some(exec_path) = self.resolve_guest_exec_path(working_cwd, prog) else {
             return Ok(MvmExecOutcome {
                 exit_code: 127,
                 stdout: String::new(),
@@ -1857,6 +1925,23 @@ impl MvmSandbox {
             out.cow_state_sha256 = self.cow_state_sha256();
         }
         Ok(out)
+    }
+
+    fn resolve_guest_exec_path(&self, working_cwd: &str, prog: &str) -> Option<String> {
+        if prog.starts_with('/') || prog.starts_with("./") || prog.starts_with("../") {
+            let p = Self::normalize_guest_path(working_cwd, prog);
+            self.inodes.contains_key(&p).then_some(p)
+        } else {
+            [
+                format!("/usr/local/bin/{prog}"),
+                format!("/bin/{prog}"),
+                format!("/sbin/{prog}"),
+                format!("/usr/bin/{prog}"),
+                format!("/workspace/{prog}"),
+            ]
+            .into_iter()
+            .find(|cand| self.inodes.contains_key(cand))
+        }
     }
 
     fn load_elf_into_process(
@@ -2004,9 +2089,19 @@ impl MvmSandbox {
         argv: &[String],
         cwd: &str,
     ) -> Result<MvmExecOutcome, MvmError> {
+        self.run_elf_process_with_stdin(exec_path, argv, cwd, &[])
+    }
+
+    fn run_elf_process_with_stdin(
+        &mut self,
+        exec_path: &str,
+        argv: &[String],
+        cwd: &str,
+        stdin_bytes: &[u8],
+    ) -> Result<MvmExecOutcome, MvmError> {
         let stdout_buf = Rc::new(RefCell::new(Vec::new()));
         let stderr_buf = Rc::new(RefCell::new(Vec::new()));
-        let stdin_buf = Rc::new(RefCell::new(VecDeque::new()));
+        let stdin_buf = Rc::new(RefCell::new(VecDeque::from(stdin_bytes.to_vec())));
 
         let pid = self.next_pid;
         self.next_pid += 1;
@@ -4765,7 +4860,12 @@ fn split_command_chain(line: &str) -> Vec<(ChainOp, String)> {
 fn contains_unquoted_pipe(seg: &str) -> bool {
     let b = seg.as_bytes();
     let mut q = 0u8;
-    for i in 0..b.len() {
+    let mut i = 0usize;
+    while i < b.len() {
+        if q == b'"' && b[i] == b'\\' && i + 1 < b.len() {
+            i += 2;
+            continue;
+        }
         if b[i] == b'\'' || b[i] == b'"' {
             if q == b[i] {
                 q = 0;
@@ -4779,8 +4879,51 @@ fn contains_unquoted_pipe(seg: &str) -> bool {
         {
             return true;
         }
+        i += 1;
     }
     false
+}
+
+fn split_unquoted_pipes(seg: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut cur = String::new();
+    let b = seg.as_bytes();
+    let mut q = 0u8;
+    let mut i = 0usize;
+    while i < b.len() {
+        if q == b'"' && b[i] == b'\\' && i + 1 < b.len() {
+            cur.push('\\');
+            cur.push(b[i + 1] as char);
+            i += 2;
+            continue;
+        }
+        if b[i] == b'\'' || b[i] == b'"' {
+            if q == b[i] {
+                q = 0;
+            } else if q == 0 {
+                q = b[i];
+            }
+            cur.push(b[i] as char);
+            i += 1;
+            continue;
+        }
+        if q == 0
+            && b[i] == b'|'
+            && (i == 0 || b[i - 1] != b'|')
+            && (i + 1 >= b.len() || b[i + 1] != b'|')
+        {
+            out.push(cur.trim().to_string());
+            cur.clear();
+            i += 1;
+            continue;
+        }
+        cur.push(b[i] as char);
+        i += 1;
+    }
+    if !cur.trim().is_empty() {
+        out.push(cur.trim().to_string());
+    }
+    out
 }
 
 /// Expand a 16-bit RV64C compressed instruction into its exact 32-bit RV64I equivalent.
