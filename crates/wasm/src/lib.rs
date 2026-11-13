@@ -1322,7 +1322,6 @@ impl StudioEngine {
         for (prompt, reply) in default_knowledge_turns() {
             engine.admit_turn(prompt, reply);
         }
-        compile_connected_studio_architecture_turns(Arc::make_mut(&mut engine.lut_stack));
         engine.init_default_workspace();
         engine.sync_workspace_into_mvm();
         engine
@@ -2312,7 +2311,6 @@ impl StudioEngine {
         for turn in &self.turns {
             let _ = parsed.compile_verified_dialogue_turn(&turn.prompt, &turn.reply);
         }
-        compile_connected_studio_architecture_turns(&mut parsed);
         self.lut_stack = Arc::new(parsed);
         self.lut_stack_source = if source_label.trim().is_empty() {
             "IndexedDB / Custom UORLUT01".to_string()
@@ -6008,22 +6006,6 @@ fn default_knowledge_turns() -> [(&'static str, &'static str); 20] {
             "The 10 core R4 LexLean modules are translated directly from their verified semantic ASTs into crates/wasm/src/lexlean_generated.rs and bound by SHA-256 in public/provenance.json.",
         ),
     ]
-}
-
-fn compile_connected_studio_architecture_turns(lut: &mut lut_stack_exec::LutStackModel) {
-    const R4_39_TURNS: [(&str, &str); 2] = [
-        (
-            "How are host secrets protected when git or http runs in the MVM?",
-            "Guest processes emit only a `{{MVM_SECRET:NAME}}` placeholder over `AF_VSOCK` CID 2; the host SpiralCore bridge verifies the allowlisted domain (`github.com` / `api.github.com`) and substitutes the secret outside guest RAM (`R4-39`).",
-        ),
-        (
-            "How does SpiralCore protect MVM_SECRET tokens from guest RAM?",
-            "Raw secret bytes never enter MVM guest RAM (`GuestRamSecretContamination` check); commands pass `{{MVM_SECRET:GITHUB_TOKEN}}` over `AF_VSOCK` CID 3 -> CID 2 and the host worker substitutes the header only for allowlisted HTTPS hosts.",
-        ),
-    ];
-    for (prompt, reply) in R4_39_TURNS {
-        let _ = lut.compile_verified_dialogue_turn(prompt, reply);
-    }
 }
 
 fn escape_json(input: &str) -> String {
@@ -10552,21 +10534,19 @@ mod tests {
 
             engine.chat_history.clear();
             engine.pending_chat_bridge = None;
-            let q15_raw = engine.chat_assistant_json(
-                "How are host secrets protected when git or http runs in the MVM?",
-            );
+            let q15_raw = engine.chat_assistant_json("are you running in my browser?");
             let q15_val: serde_json::Value =
                 serde_json::from_str(&q15_raw).expect("valid q15 JSON");
             let q15_reply = q15_val["assistant_reply"].as_str().unwrap_or("");
             if q15_val["status"] != "ok"
                 || !clean_prose_start(q15_reply)
                 || !q15_reply.matches("```").count().is_multiple_of(2)
-                || !(q15_reply.contains("MVM_SECRET")
-                    || (q15_reply.to_ascii_lowercase().contains("placeholder")
-                        && q15_reply.to_ascii_lowercase().contains("guest")))
+                || !(q15_reply.contains("WebAssembly")
+                    && q15_reply.contains("Worker")
+                    && q15_reply.contains("OPFS"))
             {
                 failures.push(format!(
-                    "[{model_label}] `#15` MVM host secrets Q&A failed: {q15_reply}"
+                    "[{model_label}] `#15` browser execution Q&A failed: {q15_reply}"
                 ));
             }
 

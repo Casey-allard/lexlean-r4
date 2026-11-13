@@ -1048,6 +1048,8 @@ impl StudioEngine {
             || lower == "what is uor-r4?"
             || lower.starts_with("how does uor-r4 attention")
             || (lower.contains("weights") && lower.contains("browser") && lower.contains("stored"))
+            || lower.contains("in my browser")
+            || lower.contains("opfs")
             || lower.contains("uorgllm")
             || lower.contains("mvm-wasm")
             || lower.contains("af_vsock")
