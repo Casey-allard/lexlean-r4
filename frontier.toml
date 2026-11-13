@@ -2765,3 +2765,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f176_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.15538 (Faithful in Steps: Improving Generalization and Citation in RAG via Query Decomposition)."
 prompt = "How does this literature catalog entry relate to language model alignment?"
 target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
+
+[[claim]]
+id = "R4-F177"
+status = "proved"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:short-ation:r9475:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f177_reply_4gram_deduction"
+statement = "Verify causal four gram deduction over stems short and ation from manifold row 9475 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over short and ation?"
+target_reply = "Causal four gram continuation preserves reasoning over short and ation because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
