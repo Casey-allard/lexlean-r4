@@ -2984,3 +2984,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f190_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems joke and work at row_idx=8011 (anchor_id=0x80000428)."
 prompt = "How does Q12 writer refinement encode joke and work at row_idx=8011?"
 target_reply = "At row_idx=8011 with anchor_id=0x80000428, Q12 writer refinement aligns the 256D L1 PointKey prototype for joke and work with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F191"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:display-bird:r8747:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f191_corpus_induction"
+statement = "Verify cross-basin geodesic synthesis bridging display and bird across PointKey row 8747 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect display and bird across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects display and bird by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
