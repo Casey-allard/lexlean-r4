@@ -2750,3 +2750,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f175_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.15569 (TraceKV: Policy-Preserving Low-Rank KV Cache Compression for Reasoning Vision-Language Models)."
 prompt = "How does multi basin analysis connect the findings of this research across models?"
 target_reply = "Multi basin analysis connects the theoretical results of this research across model spaces by chaining complementary topological manifolds to preserve global information entropy without causing state collapse or divergent trajectory loops over extended execution horizons in space."
+
+[[claim]]
+id = "R4-F176"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.15538:H-LIT-2611.15538-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f176_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.15538 (Faithful in Steps: Improving Generalization and Citation in RAG via Query Decomposition)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
