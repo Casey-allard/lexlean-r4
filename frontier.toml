@@ -2780,3 +2780,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f177_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems short and ation from manifold row 9475 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over short and ation?"
 target_reply = "Causal four gram continuation preserves reasoning over short and ation because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F178"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.16694:H-LIT-2611.16694-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f178_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.16694 (When Expert Disagreement Hurts: Prestige and Selectivity in LLM Decision Revision)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
