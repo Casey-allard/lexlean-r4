@@ -2954,3 +2954,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f188_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems display and gener at manifold row 7608."
 prompt = "How does PointKey routing resolve conversational prompts about display and gener?"
 target_reply = "PointKey routing matches conversational stems display and gener directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F189"
+status = "proved"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:inary-mole:r2590:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f189_reply_4gram_deduction"
+statement = "Verify causal four gram deduction over stems inary and mole from manifold row 2590 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over inary and mole?"
+target_reply = "Causal four gram continuation preserves reasoning over inary and mole because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
