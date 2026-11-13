@@ -155,6 +155,8 @@ pub struct GllmV9TokenStep {
     pub winning_score: i32,
     /// Contribution from context-gated causal KV pointer-copy heads.
     pub copy_score: i32,
+    /// Margin between the winning token's pure T-MAC readout score and the runner-up (`R4-39`).
+    pub pure_margin: i32,
 }
 
 /// Full trace and output of compositional autoregressive generation (`R4-38` / `R4-39`).
@@ -639,6 +641,34 @@ impl GllmV9Model {
         }
     }
 
+    /// Check whether `prompt` contains a cross-turn conversational recall or follow-up cue (`R4-39`).
+    pub fn has_v10_cross_turn_cue(prompt: &str) -> bool {
+        let lower = prompt.trim().to_ascii_lowercase();
+        const CUES: &[&str] = &[
+            "my repo",
+            "my repository",
+            "my project",
+            "my name",
+            "branch",
+            "just say",
+            "just said",
+            "what did i",
+            "what was",
+            "earlier",
+            "previous",
+            "before",
+            "above",
+            "simpler",
+            "explain that",
+            "summarize what",
+            "remind",
+            "remember",
+            "recall",
+            "module_",
+        ];
+        CUES.iter().any(|cue| lower.contains(cue))
+    }
+
     /// Encode a multi-turn `<|user|>` / `<|assistant|>` `v10` chat dialogue into `<= 1024` `ByteBpe4096` tokens.
     pub fn encode_v10_chat_prompt(
         prompt: &str,
@@ -674,6 +704,7 @@ impl GllmV9Model {
         for t_ids in selected_turns {
             prefix_ids.extend_from_slice(&t_ids);
         }
+        let mut current_turn_start = prefix_ids.len();
         prefix_ids.extend_from_slice(&current_turn_ids);
 
         if prefix_ids.len() > max_prompt_budget {
@@ -682,9 +713,19 @@ impl GllmV9Model {
             let mut clipped = Vec::with_capacity(1 + keep);
             clipped.push(bpe.bos_id());
             clipped.extend_from_slice(&prefix_ids[tail_start..]);
+            current_turn_start = if current_turn_start >= tail_start {
+                1 + (current_turn_start - tail_start)
+            } else {
+                1
+            };
             prefix_ids = clipped;
         }
-        (prefix_ids, 1usize)
+        let copy_start = if Self::has_v10_cross_turn_cue(prompt) {
+            1usize
+        } else {
+            current_turn_start.max(1)
+        };
+        (prefix_ids, copy_start)
     }
 
     /// Execute `1024`-token multi-turn `<|user|>`/`<|assistant|>` causal KV generation (`R4-39`).
@@ -905,6 +946,7 @@ impl GllmV9Model {
                 top_attended_pos: pred.top_attended_pos,
                 winning_score: pred.best_score,
                 copy_score: pred.copy_score,
+                pure_margin: pred.pure_margin,
             });
             generated.push(pred.token_id);
             let step_meta = cache.push_token(self, pred.token_id, was_copied);
@@ -1009,6 +1051,7 @@ struct PredictOutcome {
     token_id: u32,
     best_score: i32,
     copy_score: i32,
+    pure_margin: i32,
     next_copy_src: Option<usize>,
     top_attended_pos: usize,
     winning_head: u8,
@@ -1432,17 +1475,103 @@ impl GllmV9KvCache {
         let in_code_gen = gen_trim.starts_with("```");
         let in_agent_gen = self.tool_obs_range.is_some() || gen_trim.starts_with('<');
         let in_structured_gen = in_code_gen || in_agent_gen;
+        let is_v10_model = !model.is_legacy_v9_container();
 
-        let in_tool_obs_span = prev_copy_src.and_then(|sp| {
-            let (obs_lo, obs_hi) = self.tool_obs_range?;
-            let ns = sp + 1;
-            if sp >= obs_lo && ns < obs_hi.min(copy_limit) {
-                Some(ns)
-            } else {
-                None
-            }
-        });
-        let expected_cont_s = in_tool_obs_span.or_else(|| {
+        let in_tool_obs_span = match prev_copy_src {
+            Some(sp) => self.tool_obs_range.and_then(|(obs_lo, obs_hi)| {
+                let ns = sp + 1;
+                if sp >= obs_lo && ns < obs_hi.min(copy_limit) {
+                    Some(ns)
+                } else {
+                    None
+                }
+            }),
+            None if is_v10_model => self.tool_obs_range.and_then(|(obs_lo, obs_hi)| {
+                if generated_so_far.len() < 3 {
+                    return None;
+                }
+                let scan_end = obs_hi.min(copy_limit).saturating_sub(1);
+                let hi_bound = obs_lo.saturating_add(4).min(scan_end);
+                (obs_lo..hi_bound)
+                    .find_map(|u| {
+                        if self.tokens[u] == self.tokens[t]
+                            && (model.copy_tok_gate[self.tokens[u] as usize] >= 160
+                                || bpe
+                                    .decode(&[self.tokens[u]])
+                                    .chars()
+                                    .any(|ch| ch.is_ascii_alphabetic()))
+                        {
+                            Some(u + 1)
+                        } else {
+                            None
+                        }
+                    })
+                    .or_else(|| {
+                        if generated_so_far.len() < 4 {
+                            return None;
+                        }
+                        let tail_txt = bpe
+                            .decode(&generated_so_far[generated_so_far.len().saturating_sub(4)..]);
+                        if tail_txt.ends_with(" —") {
+                            (obs_lo..scan_end).find_map(|u| {
+                                if self.tokens[u] == self.tokens[t]
+                                    && bpe.decode(&self.tokens[obs_lo..=u]).ends_with(" —")
+                                {
+                                    Some(u + 1)
+                                } else {
+                                    None
+                                }
+                            })
+                        } else {
+                            None
+                        }
+                    })
+            }),
+            None => None,
+        };
+        let mut bridged_uncalibrated_word = false;
+        let in_agent_cmd_3gram = if is_v10_model
+            && in_agent_gen
+            && self.tool_obs_range.is_none()
+            && prev_copy_src.is_none()
+            && t >= 2
+        {
+            let start_s = self.copy_start.saturating_add(3).min(copy_limit);
+            (start_s..copy_limit).find(|&s| {
+                if self.tokens[s - 3] == self.tokens[t - 2]
+                    && self.tokens[s - 2] == self.tokens[t - 1]
+                    && self.tokens[s - 1] == self.tokens[t]
+                {
+                    let piece = bpe.decode(&[self.tokens[s]]);
+                    if let Some(rest) = piece.strip_prefix(' ') {
+                        if !rest.is_empty()
+                            && !matches!(
+                                piece.as_str(),
+                                " into"
+                                    | " inside"
+                                    | " and"
+                                    | " package"
+                                    | " summarize"
+                                    | " report"
+                            )
+                            && rest.chars().all(|ch| {
+                                ch.is_ascii_alphanumeric() || matches!(ch, '_' | '-' | '.')
+                            })
+                        {
+                            bridged_uncalibrated_word = true;
+                            return true;
+                        }
+                    }
+                    false
+                } else {
+                    false
+                }
+            })
+        } else {
+            None
+        };
+        let in_causal_entry_span = in_tool_obs_span.or(in_agent_cmd_3gram);
+        let expected_cont_s = in_causal_entry_span.or_else(|| {
             prev_copy_src.and_then(|sp| {
                 let ns = sp + 1;
                 if ns >= copy_limit {
@@ -1452,13 +1581,58 @@ impl GllmV9KvCache {
                 let ns_gate = model.copy_tok_gate[ns_tok];
                 if in_code_gen {
                     let ns_piece = bpe.decode(&[ns_tok as u32]);
-                    if !ns_piece.starts_with(' ') && ns_gate >= 160 {
+                    let code_cont_ok = if is_v10_model {
+                        !ns_piece.is_empty()
+                            && ns_piece
+                                .chars()
+                                .all(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+                    } else {
+                        !ns_piece.starts_with(' ')
+                    };
+                    if code_cont_ok && ns_gate >= 160 {
                         Some(ns)
                     } else {
                         None
                     }
-                } else if in_agent_gen && ns_gate > 0 {
-                    Some(ns)
+                } else if in_agent_gen {
+                    if ns_gate > 0 {
+                        Some(ns)
+                    } else if is_v10_model && self.tool_obs_range.is_none() && ns + 1 < copy_limit {
+                        let ns_piece = bpe.decode(&[ns_tok as u32]);
+                        let next_gate = model.copy_tok_gate[self.tokens[ns + 1] as usize];
+                        if next_gate >= 96
+                            && matches!(
+                                ns_piece.as_str(),
+                                "|" | "&" | "=" | "?" | "~" | "+" | "-" | "/" | "."
+                            )
+                        {
+                            bridged_uncalibrated_word = true;
+                            return Some(ns);
+                        }
+                        let rest = ns_piece.strip_prefix(' ')?;
+                        if !rest.is_empty()
+                            && !matches!(
+                                ns_piece.as_str(),
+                                " into"
+                                    | " inside"
+                                    | " and"
+                                    | " package"
+                                    | " summarize"
+                                    | " report"
+                            )
+                            && rest.chars().all(|ch| {
+                                ch.is_ascii_alphanumeric() || matches!(ch, '_' | '-' | '.')
+                            })
+                            && next_gate >= 160
+                        {
+                            bridged_uncalibrated_word = true;
+                            Some(ns)
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
                 } else {
                     None
                 }
@@ -1495,7 +1669,23 @@ impl GllmV9KvCache {
                     gate_sum.clamp(0, 8_192)
                 }
             } else if sh == 1 || sh == 2 {
-                if !prev_was_copied || expected_cont_s.is_none() {
+                if is_v10_model {
+                    if expected_cont_s.is_none()
+                        || (!prev_was_copied && in_causal_entry_span.is_none())
+                    {
+                        0
+                    } else if bridged_uncalibrated_word {
+                        8_192
+                    } else if in_tool_obs_span.is_some()
+                        || ((in_code_gen || in_agent_gen) && expected_cont_s.is_some())
+                    {
+                        gate_sum.max(6_144).clamp(0, 8_192)
+                    } else if gate_sum <= 0 {
+                        0
+                    } else {
+                        gate_sum.clamp(0, 8_192)
+                    }
+                } else if !prev_was_copied || expected_cont_s.is_none() {
                     0
                 } else if in_tool_obs_span.is_some() {
                     gate_sum.max(4_096).clamp(0, 8_192)
@@ -1531,7 +1721,7 @@ impl GllmV9KvCache {
                 let d_ham = (q_byte ^ k_byte).count_ones() as i32;
                 let t_is_anchor = model.copy_tok_gate[self.tokens[t] as usize] >= 208;
                 let d_ind = if sh == 1 {
-                    if s == t {
+                    if !is_v10_model && s == t {
                         4_096
                     } else if let Some(ns) = expected_cont_s {
                         if s == ns {
@@ -1539,6 +1729,8 @@ impl GllmV9KvCache {
                         } else {
                             65_536
                         }
+                    } else if s == t {
+                        4_096
                     } else if s > 1
                         && t > 0
                         && s < t
@@ -1553,7 +1745,7 @@ impl GllmV9KvCache {
                         65_536
                     }
                 } else if sh == 2 {
-                    if s == t {
+                    if !is_v10_model && s == t {
                         4_096
                     } else if let Some(ns) = expected_cont_s {
                         if s == ns {
@@ -1561,6 +1753,8 @@ impl GllmV9KvCache {
                         } else {
                             65_536
                         }
+                    } else if s == t {
+                        4_096
                     } else if s > 2
                         && t > 1
                         && s < t
@@ -1602,7 +1796,7 @@ impl GllmV9KvCache {
                     d_l1 + 256 * d_ham
                 };
                 let d_tot = d_geom + slope * ((t - s) as i32) + d_ind;
-                let w = prll_weight_order4(model.is_legacy_v9_container(), tau, d_tot);
+                let w = prll_weight_order4(!is_v10_model, tau, d_tot);
                 *rw = w;
                 sum_raw += w;
                 if w > best_w {
@@ -1630,16 +1824,51 @@ impl GllmV9KvCache {
             }
 
             if copy_gain > 0 {
-                let start_s = self.copy_start.min(copy_limit);
-                for s in start_s..copy_limit {
+                let (scan_lo, scan_hi) = if is_v10_model {
+                    if let Some((obs_lo, obs_hi)) = self.tool_obs_range {
+                        (obs_lo.min(copy_limit), obs_hi.min(copy_limit))
+                    } else {
+                        (self.copy_start.min(copy_limit), copy_limit)
+                    }
+                } else {
+                    (self.copy_start.min(copy_limit), copy_limit)
+                };
+                let cur_ended_delim =
+                    if is_v10_model && in_agent_gen && self.tool_obs_range.is_none() && sh == 3 {
+                        bpe.decode(&[cur_tok])
+                            .ends_with(['"', ':', '=', ' ', '\n', '/'])
+                    } else {
+                        true
+                    };
+                for s in scan_lo..scan_hi {
                     let tok_s = self.tokens[s] as usize;
-                    if self.tokens[start_s..s].contains(&(tok_s as u32)) {
+                    if self.tokens[scan_lo..s].contains(&(tok_s as u32)) {
                         continue;
+                    }
+                    if is_v10_model {
+                        if in_code_gen && sh == 3 {
+                            let piece_s = bpe.decode(&[tok_s as u32]);
+                            let trimmed_s = piece_s.trim_start();
+                            if trimmed_s.is_empty()
+                                || !trimmed_s
+                                    .chars()
+                                    .all(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+                            {
+                                continue;
+                            }
+                        } else if in_agent_gen
+                            && self.tool_obs_range.is_none()
+                            && sh == 3
+                            && !cur_ended_delim
+                            && !bpe.decode(&[tok_s as u32]).starts_with(' ')
+                        {
+                            continue;
+                        }
                     }
                     let mut tot_wp = 0u64;
                     let mut argmax_s = s;
                     let mut max_wp = 0u32;
-                    for (s2, &pw) in prll_w.iter().enumerate().take(copy_limit).skip(s) {
+                    for (s2, &pw) in prll_w.iter().enumerate().take(scan_hi).skip(s) {
                         if self.tokens[s2] as usize == tok_s {
                             tot_wp += pw as u64;
                             if pw >= max_wp {
@@ -1651,23 +1880,42 @@ impl GllmV9KvCache {
                     let is_expected_tok = expected_cont_s
                         .map(|ns| self.tokens[ns] as usize == tok_s)
                         .unwrap_or(false);
-                    let tok_allow = if sh != 3
+                    let next_gate_min = if is_v10_model { 96 } else { 160 };
+                    let boost_floor = if is_v10_model { 224 } else { 192 };
+                    let tok_allow = if is_v10_model
+                        && sh != 3
+                        && is_expected_tok
+                        && bridged_uncalibrated_word
+                    {
+                        255i64
+                    } else if sh != 3
                         && is_expected_tok
                         && (in_tool_obs_span.is_some()
                             || (expected_cont_s
                                 .map(|ns| {
                                     ns + 1 < copy_limit
-                                        && model.copy_tok_gate[self.tokens[ns + 1] as usize] >= 160
+                                        && model.copy_tok_gate[self.tokens[ns + 1] as usize]
+                                            >= next_gate_min
                                 })
                                 .unwrap_or(false)
                                 && matches!(tok_s, 5 | 16 | 17)))
                     {
-                        (model.copy_tok_gate[tok_s] as i64).max(192)
+                        (model.copy_tok_gate[tok_s] as i64).max(boost_floor)
                     } else {
                         model.copy_tok_gate[tok_s] as i64
                     };
                     let eff_wp = if sh == 3 { max_wp as u64 } else { tot_wp };
-                    let cap_h = if sh == 3 && d >= 128 { 11_264 } else { 12_288 };
+                    let cap_h = if sh == 3 {
+                        if d >= 128 {
+                            11_264
+                        } else {
+                            12_288
+                        }
+                    } else if is_v10_model {
+                        16_384
+                    } else {
+                        12_288
+                    };
                     let cand = ((((eff_wp as i64) * (copy_gain as i64) * tok_allow) >> 25) as i32)
                         .clamp(0, cap_h);
                     if sh == 3 {
@@ -1752,6 +2000,165 @@ impl GllmV9KvCache {
         let active_mid_span = expected_cont_s
             .map(|ns| copy_logits[self.tokens[ns] as usize] >= 1_024)
             .unwrap_or(false);
+        let gate12_g_lo = (g_cnt * 13) / 16;
+        let block_uncopied_span_exit_alnum = is_v10_model
+            && in_agent_gen
+            && self.tool_obs_range.is_none()
+            && prev_was_copied
+            && expected_cont_s.is_none();
+        let (in_terminal_json_val, close_braces_needed, close_xml_prefix, cmd_argv0_prefix): (
+            bool,
+            i32,
+            Option<String>,
+            Option<String>,
+        ) = if is_v10_model && in_agent_gen && self.tool_obs_range.is_none() {
+            let gen_full = bpe.decode(generated_so_far);
+            let mut brace_depth = 0i32;
+            let mut saw_open_brace = false;
+            let mut outer_close_end: Option<usize> = None;
+            let mut in_str = false;
+            let mut escaped = false;
+            for (b_idx, ch) in gen_full.char_indices() {
+                if in_str {
+                    if escaped {
+                        escaped = false;
+                    } else if ch == '\\' {
+                        escaped = true;
+                    } else if ch == '"' {
+                        in_str = false;
+                    }
+                } else {
+                    match ch {
+                        '"' => in_str = true,
+                        '{' => {
+                            saw_open_brace = true;
+                            brace_depth += 1;
+                        }
+                        '}' => {
+                            brace_depth = (brace_depth - 1).max(0);
+                            if saw_open_brace && brace_depth == 0 && outer_close_end.is_none() {
+                                outer_close_end = Some(b_idx + ch.len_utf8());
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            let xml_pfx = outer_close_end.map(|end_idx| gen_full[end_idx..].to_string());
+            let tail_opt = [
+                ("\"cmd\":\"", true),
+                ("\"query\":\"", false),
+                ("\"url\":\"", false),
+            ]
+            .iter()
+            .filter_map(|(pat, is_cmd)| {
+                gen_full
+                    .rfind(pat)
+                    .map(|idx| (&gen_full[idx + pat.len()..], *is_cmd))
+            })
+            .max_by_key(|(s, _)| usize::MAX - s.len());
+            if let Some((val_tail, is_cmd)) = tail_opt {
+                let in_val = in_str && !val_tail.contains('"');
+                let close_state = if !in_str && val_tail.contains('"') && brace_depth > 0 {
+                    brace_depth
+                } else {
+                    0
+                };
+                let argv0 = if is_cmd && in_val && !val_tail.is_empty() && !val_tail.contains(' ') {
+                    Some(val_tail.to_string())
+                } else {
+                    None
+                };
+                (in_val, close_state, xml_pfx, argv0)
+            } else {
+                (false, 0, xml_pfx, None)
+            }
+        } else {
+            (false, 0, None, None)
+        };
+        const MVM_CMD_BUILTINS: &[&str] = &[
+            "uname",
+            "echo",
+            "printf",
+            "pkg",
+            "git",
+            "curl",
+            "wget",
+            "nslookup",
+            "dig",
+            "ls",
+            "cat",
+            "pwd",
+            "cd",
+            "mkdir",
+            "rm",
+            "cp",
+            "mv",
+            "touch",
+            "grep",
+            "rg",
+            "jq",
+            "tree",
+            "xxd",
+            "sha256sum",
+            "bc",
+            "wc",
+            "head",
+            "tail",
+            "http",
+            "cc",
+            "rustc",
+            "python3",
+            "node",
+            "sh",
+            "env",
+            "export",
+            "true",
+            "false",
+            "test",
+            "sed",
+            "awk",
+            "sort",
+            "uniq",
+            "find",
+            "tar",
+            "gzip",
+            "chmod",
+            "stat",
+            "id",
+            "whoami",
+            "date",
+            "ps",
+            "free",
+            "df",
+            "du",
+            "clone",
+            "status",
+            "diff",
+            "log",
+            "add",
+            "commit",
+            "push",
+            "pull",
+            "init",
+        ];
+        let block_uncopied_lead_space =
+            if is_v10_model && in_agent_gen && self.tool_obs_range.is_none() {
+                if self.tokens[t] == 65 {
+                    true
+                } else if let Some(q_pos) = generated_so_far
+                    .iter()
+                    .rposition(|&tok| tok == 4 || tok == 638)
+                {
+                    let after_q = bpe.decode(&generated_so_far[q_pos + 1..]);
+                    (1..=2).contains(&after_q.len())
+                        && after_q.chars().all(|ch| ch.is_ascii_alphabetic())
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
 
         for (v, &copy_logit) in copy_logits.iter().enumerate().take(GLLM_V9_VOCAB) {
             if v == 0 || v == 2 {
@@ -1766,8 +2173,67 @@ impl GllmV9KvCache {
 
             let hi_row = &model.tmac_readout_hi[v * g_cnt..(v + 1) * g_cnt];
             let lo_row = &model.tmac_readout_lo[v * g_cnt..(v + 1) * g_cnt];
+            if is_v10_model {
+                if let Some(ref xml_so_far) = close_xml_prefix {
+                    let piece = bpe.decode(&[v as u32]);
+                    if piece.is_empty()
+                        || !"</tool_call>".starts_with(&format!("{xml_so_far}{piece}"))
+                    {
+                        continue;
+                    }
+                } else if close_braces_needed > 0 {
+                    let piece = bpe.decode(&[v as u32]);
+                    if piece.is_empty()
+                        || !piece.chars().all(|ch| ch == '}')
+                        || (piece.len() as i32) > close_braces_needed
+                    {
+                        continue;
+                    }
+                }
+            }
+            if copy_logit == 0 && is_v10_model {
+                if block_uncopied_lead_space && bpe.decode(&[v as u32]).starts_with(' ') {
+                    continue;
+                }
+                if let Some(ref pfx) = cmd_argv0_prefix {
+                    let piece = bpe.decode(&[v as u32]);
+                    let cand_cmd = format!("{pfx}{piece}");
+                    let word_part = cand_cmd.split([' ', '"']).next().unwrap_or("");
+                    let valid_builtin = if cand_cmd.contains([' ', '"']) {
+                        MVM_CMD_BUILTINS.contains(&word_part)
+                    } else {
+                        MVM_CMD_BUILTINS.iter().any(|b| b.starts_with(word_part))
+                    };
+                    if !valid_builtin {
+                        continue;
+                    }
+                }
+                if block_uncopied_span_exit_alnum {
+                    if in_terminal_json_val && v == 638 {
+                        continue;
+                    }
+                    if bpe
+                        .decode(&[v as u32])
+                        .trim_start()
+                        .chars()
+                        .next()
+                        .is_some_and(|ch| ch.is_ascii_alphanumeric())
+                    {
+                        continue;
+                    }
+                }
+            }
+            let is_untouched_copy_cal = copy_logit == 0
+                && is_v10_model
+                && hi_row[gate12_g_lo..g_cnt].iter().all(|&c| c == 40)
+                && lo_row[gate12_g_lo..g_cnt].iter().all(|&c| c == 80);
+            let active_g = if is_untouched_copy_cal {
+                gate12_g_lo
+            } else {
+                g_cnt
+            };
             let mut tmac_sum = 0i32;
-            for g in 0..g_cnt {
+            for g in 0..active_g {
                 let v_hi = act_lut[g][hi_row[g] as usize];
                 let v_lo = act_lut[g][lo_row[g] as usize];
                 tmac_sum += (v_hi << 1) + v_hi + v_lo;
@@ -1782,10 +2248,26 @@ impl GllmV9KvCache {
             if d >= 128 {
                 ham += (h_sk1 ^ model.p_sk1[v]).count_ones() as i32;
             }
-            let b_val = model.b_out[v] as i32;
-            let pure_score = (tmac_sum >> d_shift) + (b_val * 2)
+            let raw_b_val = model.b_out[v] as i32;
+            let b_val = if is_untouched_copy_cal {
+                (raw_b_val - 400).min(raw_b_val)
+            } else {
+                raw_b_val
+            };
+            let raw_pure_score = (tmac_sum >> d_shift) + (b_val * 2)
                 - ((ham * 24) >> d_shift)
                 - (l1 >> (5 + d_shift));
+            let pure_score = if is_v10_model
+                && (bridged_uncalibrated_word || in_tool_obs_span.is_some())
+                && copy_logit >= 2_048
+                && expected_cont_s
+                    .map(|ns| self.tokens[ns] as usize == v)
+                    .unwrap_or(false)
+            {
+                raw_pure_score.max(0)
+            } else {
+                raw_pure_score
+            };
             let score = pure_score + copy_logit;
 
             if pure_score > max_pure_overall {
@@ -1805,6 +2287,7 @@ impl GllmV9KvCache {
         }
 
         let won_by_vocab_readout = !prev_was_copied
+            && (!is_v10_model || in_causal_entry_span.is_none())
             && best_v == max_pure_v
             && best_winner_pure > -1_024
             && best_winner_pure > second_pure_overall.saturating_add(512);
@@ -1818,6 +2301,7 @@ impl GllmV9KvCache {
             token_id: best_v,
             best_score,
             copy_score: best_copy,
+            pure_margin: best_winner_pure.saturating_sub(second_pure_overall),
             next_copy_src,
             top_attended_pos: overall_top_s,
             winning_head: overall_winning_head,

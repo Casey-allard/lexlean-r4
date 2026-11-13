@@ -1690,6 +1690,128 @@ impl StudioEngine {
         Ok(self.gllm_v9_status_json())
     }
 
+    /// Verify a `v10` OPFS shard manifest, reassemble `shard_000.bin..shard_NNN.bin` with per-shard
+    /// and container SHA-256 verification, and hot-load the `8L 128D` `UORGLLM9` container (`R4-39`).
+    pub fn gllm_load_v10_shards(
+        &mut self,
+        manifest_json: &str,
+        shards: &[&[u8]],
+    ) -> Result<String, GllmV10ShardError> {
+        let manifest: serde_json::Value = serde_json::from_str(manifest_json.trim())
+            .map_err(|e| GllmV10ShardError::InvalidManifestJson(e.to_string()))?;
+        let fmt_str = manifest
+            .get("format")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| GllmV10ShardError::InvalidManifestJson("missing format".to_string()))?;
+        if fmt_str != "UORGLLM9" {
+            return Err(GllmV10ShardError::UnsupportedFormat(fmt_str.to_string()));
+        }
+        let total_bytes = manifest
+            .get("total_bytes")
+            .and_then(|v| v.as_u64())
+            .ok_or_else(|| {
+                GllmV10ShardError::InvalidManifestJson("missing total_bytes".to_string())
+            })? as usize;
+        let shard_max_bytes = manifest
+            .get("shard_max_bytes")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(1_048_576) as usize;
+        let expected_container_sha = manifest
+            .get("container_sha256")
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| {
+                GllmV10ShardError::InvalidManifestJson("missing container_sha256".to_string())
+            })?;
+        let manifest_shards = manifest
+            .get("shards")
+            .and_then(|v| v.as_array())
+            .ok_or_else(|| {
+                GllmV10ShardError::InvalidManifestJson("missing shards array".to_string())
+            })?;
+        if shards.len() != manifest_shards.len() {
+            return Err(GllmV10ShardError::ShardCountMismatch {
+                expected: manifest_shards.len(),
+                actual: shards.len(),
+            });
+        }
+
+        let mut reassembled = Vec::with_capacity(total_bytes);
+        for (idx, (entry, shard_bytes)) in manifest_shards.iter().zip(shards.iter()).enumerate() {
+            let expected_offset = entry
+                .get("byte_offset")
+                .and_then(|v| v.as_u64())
+                .ok_or_else(|| {
+                    GllmV10ShardError::InvalidManifestJson(format!(
+                        "shard {idx} missing byte_offset"
+                    ))
+                })? as usize;
+            let expected_len = entry
+                .get("byte_length")
+                .and_then(|v| v.as_u64())
+                .ok_or_else(|| {
+                    GllmV10ShardError::InvalidManifestJson(format!(
+                        "shard {idx} missing byte_length"
+                    ))
+                })? as usize;
+            let expected_sha = entry
+                .get("sha256")
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| {
+                    GllmV10ShardError::InvalidManifestJson(format!("shard {idx} missing sha256"))
+                })?;
+
+            if reassembled.len() != expected_offset {
+                return Err(GllmV10ShardError::ShardOffsetMismatch {
+                    index: idx,
+                    expected: expected_offset,
+                    actual: reassembled.len(),
+                });
+            }
+            if shard_bytes.len() != expected_len {
+                return Err(GllmV10ShardError::ShardLengthMismatch {
+                    index: idx,
+                    expected: expected_len,
+                    actual: shard_bytes.len(),
+                });
+            }
+            if shard_bytes.len() > shard_max_bytes {
+                return Err(GllmV10ShardError::ShardExceedsMaxBytes {
+                    index: idx,
+                    actual: shard_bytes.len(),
+                    max_bytes: shard_max_bytes,
+                });
+            }
+            let actual_sha = sha256_hex(shard_bytes);
+            if !actual_sha.eq_ignore_ascii_case(expected_sha) {
+                return Err(GllmV10ShardError::ShardDigestMismatch {
+                    index: idx,
+                    expected: expected_sha.to_string(),
+                    actual: actual_sha,
+                });
+            }
+            reassembled.extend_from_slice(shard_bytes);
+        }
+
+        if reassembled.len() != total_bytes {
+            return Err(GllmV10ShardError::ContainerLengthMismatch {
+                expected: total_bytes,
+                actual: reassembled.len(),
+            });
+        }
+        let actual_container_sha = sha256_hex(&reassembled);
+        if !actual_container_sha.eq_ignore_ascii_case(expected_container_sha) {
+            return Err(GllmV10ShardError::ContainerDigestMismatch {
+                expected: expected_container_sha.to_string(),
+                actual: actual_container_sha,
+            });
+        }
+
+        let parsed = gllm_v9::GllmV9Model::parse_with_label(&reassembled, "opfs_v10_8L_128D")
+            .map_err(GllmV10ShardError::ContainerRejected)?;
+        self.gllm_v9 = Arc::new(parsed);
+        Ok(self.gllm_v9_status_json())
+    }
+
     /// Return verified container telemetry for the active `UORGLLM9` compositional model (`R4-38`).
     pub fn gllm_v9_status_json(&self) -> String {
         let hdr = self.gllm_v9.header();
@@ -1775,11 +1897,15 @@ impl StudioEngine {
             (raw_trimmed.to_string(), 256usize)
         };
         let trimmed = unwrapped.as_str();
-        let agent_prompt = format_mvm_agent_prompt(trimmed);
-
-        let step1 =
+        let is_legacy_v9 = self.gllm_v9.is_legacy_v9_container();
+        let step1 = if is_legacy_v9 {
+            let agent_prompt = format_mvm_agent_prompt(trimmed);
             self.gllm_v9
-                .generate_compositional(&agent_prompt, &self.chat_history, max_toks);
+                .generate_compositional(&agent_prompt, &self.chat_history, max_toks)
+        } else {
+            self.gllm_v9
+                .generate_compositional_v10(trimmed, &[], max_toks)
+        };
 
         let extracted_cmd = extract_mvm_cmd_from_generation(&step1.text);
         if let Some(cmd) = extracted_cmd {
@@ -1799,14 +1925,22 @@ impl StudioEngine {
                     } else {
                         obs_clean.clone()
                     };
-                    let obs_prompt = format!(
-                        "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
-                    );
-                    let step2 = self.gllm_v9.generate_compositional(
-                        &obs_prompt,
-                        &self.chat_history,
-                        max_toks,
-                    );
+                    let step2 = if is_legacy_v9 {
+                        let obs_prompt = format!(
+                            "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
+                        );
+                        self.gllm_v9.generate_compositional(
+                            &obs_prompt,
+                            &self.chat_history,
+                            max_toks,
+                        )
+                    } else {
+                        let obs_prompt = format!(
+                            "Summarize the verified tool output for `{trimmed}`:\n<tool_response> {obs_for_kv}</tool_response>"
+                        );
+                        self.gllm_v9
+                            .generate_compositional_v10(&obs_prompt, &[], max_toks)
+                    };
                     let final_reply = step2.text.clone();
                     self.chat_history
                         .push((trimmed.to_string(), final_reply.clone()));
@@ -1917,8 +2051,15 @@ impl StudioEngine {
                 match self.mvm.complete_bridge(mvm_resume, bridge_resp) {
                     Ok(mvm::MvmInteractiveOutcome::Completed(done)) => {
                         self.sync_workspace_from_mvm();
-                        if !done.stdout.trim().is_empty() {
-                            done.stdout.trim().to_string()
+                        let joined_stdout = done
+                            .stdout
+                            .lines()
+                            .map(str::trim)
+                            .filter(|l| !l.is_empty())
+                            .collect::<Vec<_>>()
+                            .join(" | ");
+                        if !joined_stdout.is_empty() {
+                            joined_stdout
                         } else if !done.stderr.trim().is_empty() {
                             format!("exit_code={}: {}", done.exit_code, done.stderr.trim())
                         } else {
@@ -6758,6 +6899,170 @@ pub fn studio_weight_pack_status() -> String {
     engine.weight_pack_status_json()
 }
 
+/// Typed public failure modes when reassembling and hot-loading `v10` OPFS shards (`R5`, `R4-39`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum GllmV10ShardError {
+    /// Manifest JSON failed to parse or lacked required fields.
+    InvalidManifestJson(String),
+    /// Manifest declared an unsupported binary container magic.
+    UnsupportedFormat(String),
+    /// Supplied shard slice count differed from `manifest.shards.len()`.
+    ShardCountMismatch {
+        /// Number of shards declared in `manifest.json`.
+        expected: usize,
+        /// Number of shard byte slices passed by the caller.
+        actual: usize,
+    },
+    /// A shard's byte length differed from `manifest.shards[index].byte_length`.
+    ShardLengthMismatch {
+        /// Zero-based shard index.
+        index: usize,
+        /// Expected byte length declared in `manifest.json`.
+        expected: usize,
+        /// Actual byte length observed in the supplied slice.
+        actual: usize,
+    },
+    /// A shard exceeded `manifest.shard_max_bytes`.
+    ShardExceedsMaxBytes {
+        /// Zero-based shard index.
+        index: usize,
+        /// Actual byte length observed in the supplied slice.
+        actual: usize,
+        /// Maximum permitted shard length (`<= 1 MiB`).
+        max_bytes: usize,
+    },
+    /// A shard's `byte_offset` was not contiguous with preceding shards.
+    ShardOffsetMismatch {
+        /// Zero-based shard index.
+        index: usize,
+        /// Declared `byte_offset` in `manifest.json`.
+        expected: usize,
+        /// Contiguous byte offset accumulated from prior shards.
+        actual: usize,
+    },
+    /// A shard's SHA-256 digest failed to match `manifest.shards[index].sha256`.
+    ShardDigestMismatch {
+        /// Zero-based shard index.
+        index: usize,
+        /// Lowercase hex SHA-256 declared in `manifest.json`.
+        expected: String,
+        /// Lowercase hex SHA-256 computed over the shard bytes.
+        actual: String,
+    },
+    /// Total reassembled byte length differed from `manifest.total_bytes`.
+    ContainerLengthMismatch {
+        /// Expected container byte length declared in `manifest.json`.
+        expected: usize,
+        /// Actual reassembled byte length.
+        actual: usize,
+    },
+    /// Reassembled container SHA-256 differed from `manifest.container_sha256`.
+    ContainerDigestMismatch {
+        /// Expected container SHA-256 declared in `manifest.json`.
+        expected: String,
+        /// Actual SHA-256 computed over the reassembled bytes.
+        actual: String,
+    },
+    /// Underlying `UORGLLM9` geometric container admission failed.
+    ContainerRejected(gllm_v9::GllmV9Error),
+}
+
+impl GllmV10ShardError {
+    /// Stable symbolic error code returned in JSON diagnostics (`R5`).
+    pub fn error_code(&self) -> &'static str {
+        match self {
+            Self::InvalidManifestJson(_) => "InvalidManifestJson",
+            Self::UnsupportedFormat(_) => "UnsupportedShardFormat",
+            Self::ShardCountMismatch { .. } => "ShardCountMismatch",
+            Self::ShardLengthMismatch { .. } => "ShardLengthMismatch",
+            Self::ShardExceedsMaxBytes { .. } => "ShardExceedsMaxBytes",
+            Self::ShardOffsetMismatch { .. } => "ShardOffsetMismatch",
+            Self::ShardDigestMismatch { .. } => "ShardDigestMismatch",
+            Self::ContainerLengthMismatch { .. } => "ContainerLengthMismatch",
+            Self::ContainerDigestMismatch { .. } => "ContainerDigestMismatch",
+            Self::ContainerRejected(_) => "ContainerRejected",
+        }
+    }
+}
+
+impl std::fmt::Display for GllmV10ShardError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::InvalidManifestJson(msg) => write!(f, "invalid v10 shard manifest JSON: {msg}"),
+            Self::UnsupportedFormat(fmt_str) => {
+                write!(f, "unsupported v10 shard manifest format: {fmt_str}")
+            }
+            Self::ShardCountMismatch { expected, actual } => {
+                write!(
+                    f,
+                    "v10 shard count mismatch: expected {expected}, got {actual}"
+                )
+            }
+            Self::ShardLengthMismatch {
+                index,
+                expected,
+                actual,
+            } => write!(
+                f,
+                "v10 shard {index} byte_length mismatch: expected {expected}, got {actual}"
+            ),
+            Self::ShardExceedsMaxBytes {
+                index,
+                actual,
+                max_bytes,
+            } => write!(
+                f,
+                "v10 shard {index} length {actual} exceeds shard_max_bytes {max_bytes}"
+            ),
+            Self::ShardOffsetMismatch {
+                index,
+                expected,
+                actual,
+            } => write!(
+                f,
+                "v10 shard {index} byte_offset mismatch: expected {expected}, got {actual}"
+            ),
+            Self::ShardDigestMismatch {
+                index,
+                expected,
+                actual,
+            } => write!(
+                f,
+                "v10 shard {index} sha256 mismatch: expected {expected}, got {actual}"
+            ),
+            Self::ContainerLengthMismatch { expected, actual } => write!(
+                f,
+                "v10 reassembled container byte length mismatch: expected {expected}, got {actual}"
+            ),
+            Self::ContainerDigestMismatch { expected, actual } => write!(
+                f,
+                "v10 reassembled container sha256 mismatch: expected {expected}, got {actual}"
+            ),
+            Self::ContainerRejected(err) => write!(f, "v10 container rejected: {err}"),
+        }
+    }
+}
+
+impl std::error::Error for GllmV10ShardError {}
+
+/// Reassemble and hot-load verified `v10` OPFS shards (`manifest.json` + `shard_000.bin..shard_012.bin`) into the active Studio engine (`R4-39`).
+pub fn gllm_load_v10_shards(manifest_json: &str, shards: &[&[u8]]) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    match engine.gllm_load_v10_shards(manifest_json, shards) {
+        Ok(json) => json,
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": err.error_code(),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
 /// Hot-load a verified `UORGLLM9` (`UOR-R4-GLLM v9`) container hydrated from OPFS shards (`R4-38`).
 #[wasm_bindgen]
 pub fn studio_load_uorgllm_v9_bytes(bytes: &[u8], source_label: &str) -> String {
@@ -9830,5 +10135,273 @@ mod tests {
             .solve_exact_math_or_logic("Convert 42 to binary")
             .expect("explicit base conversion must still resolve");
         assert!(conv_reply.contains("0b101010"));
+    }
+
+    #[test]
+    fn test_v10_6l_bootstrap_and_8l_opfs_shards_end_to_end_r4_39() {
+        fn collect_v10_suite_failures(engine: &mut StudioEngine, model_label: &str) -> Vec<String> {
+            let mut failures = Vec::new();
+
+            // 1. `r4_38` unseen functions (`compute_flux_z9`, `blend_orbit_m4`, `scale_signal_q7`)
+            for (fn_name, p1, p2) in [
+                ("compute_flux_z9", "sensor_drift_k9", "base_offset_q3"),
+                ("blend_orbit_m4", "orbital_phase_m2", "lattice_stride_z7"),
+                ("scale_signal_q7", "telemetry_gain_v4", "phase_bias_r2"),
+            ] {
+                engine.chat_history.clear();
+                engine.pending_chat_bridge = None;
+                let prompt =
+                    format!("Write a Rust function {fn_name}( {p1}: i64, {p2}: i64 ) -> i64.");
+                let raw = engine.chat_assistant_json(&prompt);
+                let val: serde_json::Value =
+                    serde_json::from_str(&raw).expect("valid unseen fn JSON");
+                let reply = val["assistant_reply"].as_str().unwrap_or("");
+                let expected_sig = format!("pub fn {fn_name}( {p1}: i64, {p2}: i64 ) -> i64");
+                if val["status"] != "ok"
+                    || !reply.contains(&expected_sig)
+                    || !reply.contains(p1)
+                    || !reply.contains(p2)
+                    || val["brain_pulses"].as_array().is_none_or(Vec::is_empty)
+                {
+                    failures.push(format!(
+                        "[{model_label}] unseen fn `{fn_name}` failed:\n{reply}"
+                    ));
+                }
+            }
+
+            // 2. 6-turn conversational session:
+            //    `hi` -> `how are you?` -> `who are you?` -> `my repo is called nebula-os`
+            //    -> `what is my repo called?` (containing `nebula-os`) -> `what did I just say?`
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            for turn_prompt in [
+                "hi",
+                "how are you?",
+                "who are you?",
+                "my repo is called nebula-os",
+                "what is my repo called?",
+                "what did I just say?",
+            ] {
+                let raw = engine.chat_assistant_json(turn_prompt);
+                let val: serde_json::Value =
+                    serde_json::from_str(&raw).expect("valid multi-turn chat JSON");
+                let reply = val["assistant_reply"].as_str().unwrap_or("");
+                if val["status"] != "ok" || reply.trim().is_empty() || reply.contains("<tool_call>")
+                {
+                    failures.push(format!(
+                        "[{model_label}] 6-turn `{turn_prompt}` bad reply: {reply}"
+                    ));
+                }
+                if turn_prompt == "what is my repo called?"
+                    && !reply.to_ascii_lowercase().contains("nebula-os")
+                {
+                    failures.push(format!(
+                        "[{model_label}] Turn 5 `what is my repo called?` missed `nebula-os`: {reply}"
+                    ));
+                }
+                if turn_prompt == "what did I just say?" && reply.trim().chars().count() < 12 {
+                    failures.push(format!(
+                        "[{model_label}] Turn 6 `what did I just say?` too short: {reply}"
+                    ));
+                }
+            }
+
+            // 3. `What are you able to do?` (`>= 50` chars, coherent)
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let cap_raw = engine.chat_assistant_json("What are you able to do?");
+            let cap_val: serde_json::Value =
+                serde_json::from_str(&cap_raw).expect("valid capabilities JSON");
+            let cap_reply = cap_val["assistant_reply"].as_str().unwrap_or("");
+            if cap_val["status"] != "ok"
+                || cap_reply.trim().chars().count() < 50
+                || cap_reply.contains("<tool_call>")
+            {
+                failures.push(format!(
+                    "[{model_label}] `What are you able to do?` failed ({} chars): {cap_reply}",
+                    cap_reply.trim().chars().count()
+                ));
+            }
+
+            // 4. 2-step MVM `uname -a` + `sha256` `<tool_call>` -> `<tool_response>` summary (`2cf24dba...`)
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let mvm_raw = engine.chat_assistant_json(
+                "Run uname -a and compute echo -n hello | sha256sum inside the Linux MicroVM sandbox.",
+            );
+            let mvm_val: serde_json::Value =
+                serde_json::from_str(&mvm_raw).expect("valid mvm sha256 JSON");
+            let mvm_reply = mvm_val["assistant_reply"].as_str().unwrap_or("");
+            if mvm_val["status"] != "ok"
+                || !mvm_reply
+                    .contains("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")
+                || !mvm_reply.contains("riscv64")
+            {
+                failures.push(format!(
+                    "[{model_label}] 2-step MVM `echo -n hello | sha256sum` failed: {mvm_reply}"
+                ));
+            }
+
+            // 5. `Install jq inside the Linux MicroVM.` (`pkg install jq`)
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let pkg_raw = engine.chat_assistant_json("Install jq inside the Linux MicroVM.");
+            let pkg_val: serde_json::Value =
+                serde_json::from_str(&pkg_raw).expect("valid pkg install jq JSON");
+            if pkg_val["status"] != "needs_bridge"
+                || pkg_val["bridge_req"]["op"] != "pkg_fetch"
+                || pkg_val["bridge_req"]["name"] != "jq"
+                || pkg_val["resume_state"]["cmd"] != "pkg install jq"
+            {
+                failures.push(format!(
+                    "[{model_label}] `Install jq inside the Linux MicroVM.` failed: {pkg_raw}"
+                ));
+            }
+
+            // 6. `Search the web for WebAssembly Relaxed SIMD browser support.`
+            //    (`web_search` `<tool_call>` + Step-2 `<tool_response>` summary containing `"Chrome 114+"`)
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let ws_raw = engine.chat_assistant_json(
+                "Search the web for WebAssembly Relaxed SIMD browser support.",
+            );
+            let ws_val: serde_json::Value =
+                serde_json::from_str(&ws_raw).expect("valid web_search JSON");
+            let ws_query = ws_val["resume_state"]["query"].as_str().unwrap_or("");
+            if ws_val["status"] != "needs_bridge"
+                || ws_val["bridge_req"]["op"] != "web_search"
+                || !ws_query.contains("WebAssembly Relaxed SIMD browser support")
+            {
+                failures.push(format!(
+                    "[{model_label}] `web_search` step 1 failed: {ws_raw}"
+                ));
+            } else {
+                let ws_step2_raw = engine.chat_complete_bridge_json(
+                    &serde_json::json!({
+                        "resume_state": ws_val["resume_state"],
+                        "bridge_resp": {
+                            "ok": true,
+                            "data": {
+                                "results": [
+                                    {
+                                        "title": "WebAssembly Relaxed SIMD browser support",
+                                        "url": "https://webassembly.org/features/",
+                                        "snippet": "Supported in Chrome 114+, Edge 114+, Firefox 128+, and Wasmtime."
+                                    }
+                                ]
+                            }
+                        }
+                    })
+                    .to_string(),
+                );
+                let ws_step2: serde_json::Value =
+                    serde_json::from_str(&ws_step2_raw).expect("valid web_search step2 JSON");
+                let ws_reply = ws_step2["assistant_reply"].as_str().unwrap_or("");
+                if ws_step2["status"] != "ok" || !ws_reply.contains("Chrome 114+") {
+                    failures.push(format!(
+                        "[{model_label}] `web_search` step 2 missed `Chrome 114+`: {ws_reply}"
+                    ));
+                }
+            }
+
+            // 7. `Fetch https://docs.rs/axum/latest/axum and summarize it.`
+            //    (`web_fetch` `<tool_call>` with intact `https://docs.rs/axum/latest/axum` URL)
+            engine.chat_history.clear();
+            engine.pending_chat_bridge = None;
+            let wf_raw = engine
+                .chat_assistant_json("Fetch https://docs.rs/axum/latest/axum and summarize it.");
+            let wf_val: serde_json::Value =
+                serde_json::from_str(&wf_raw).expect("valid web_fetch JSON");
+            if wf_val["status"] != "needs_bridge"
+                || wf_val["bridge_req"]["op"] != "http_request"
+                || wf_val["bridge_req"]["url"] != "https://docs.rs/axum/latest/axum"
+                || wf_val["resume_state"]["url"] != "https://docs.rs/axum/latest/axum"
+            {
+                failures.push(format!("[{model_label}] `web_fetch` failed: {wf_raw}"));
+            }
+
+            failures
+        }
+
+        // Part A: Embedded `6L 64D` bootstrap (`crates/wasm/src/bootstrap_v9.uorgllm`)
+        let mut engine = StudioEngine::new_default();
+        assert_eq!(engine.gllm_v9.header().n_layers, 6);
+        assert_eq!(engine.gllm_v9.header().d_model, 64);
+        assert!(!engine.gllm_v9.is_legacy_v9_container());
+        let mut all_failures = collect_v10_suite_failures(&mut engine, "bootstrap_v10_6L_64D");
+
+        // Part B: Reassemble `gpu/weights/v10/{manifest.json,shard_000.bin..shard_012.bin}` via `gllm_load_v10_shards`
+        let v10_dir =
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../gpu/weights/v10");
+        let manifest_raw =
+            std::fs::read_to_string(v10_dir.join("manifest.json")).expect("read v10 manifest.json");
+        let manifest_val: serde_json::Value =
+            serde_json::from_str(&manifest_raw).expect("parse v10 manifest.json");
+        let shard_entries = manifest_val["shards"]
+            .as_array()
+            .expect("v10 manifest shards array");
+        assert_eq!(shard_entries.len(), 13);
+
+        let mut owned_shards: Vec<Vec<u8>> = Vec::with_capacity(shard_entries.len());
+        for entry in shard_entries {
+            let file_name = entry["file"].as_str().expect("shard file name");
+            owned_shards.push(std::fs::read(v10_dir.join(file_name)).expect("read v10 shard"));
+        }
+
+        // Negative tests (`R5`): shard count mismatch and tampered byte rejected before hot-load
+        let short_refs: Vec<&[u8]> = owned_shards[..12].iter().map(Vec::as_slice).collect();
+        assert!(matches!(
+            engine.gllm_load_v10_shards(&manifest_raw, &short_refs),
+            Err(GllmV10ShardError::ShardCountMismatch {
+                expected: 13,
+                actual: 12
+            })
+        ));
+        let mut tampered_shard0 = owned_shards[0].clone();
+        tampered_shard0[0] ^= 0xFF;
+        let mut tampered_refs: Vec<&[u8]> = owned_shards.iter().map(Vec::as_slice).collect();
+        tampered_refs[0] = tampered_shard0.as_slice();
+        assert!(matches!(
+            engine.gllm_load_v10_shards(&manifest_raw, &tampered_refs),
+            Err(GllmV10ShardError::ShardDigestMismatch { index: 0, .. })
+        ));
+        assert_eq!(engine.gllm_v9.header().n_layers, 6);
+
+        let shard_refs: Vec<&[u8]> = owned_shards.iter().map(Vec::as_slice).collect();
+        let status_raw = engine
+            .gllm_load_v10_shards(&manifest_raw, &shard_refs)
+            .expect("gllm_load_v10_shards must verify and load 13 v10 shards");
+        let status_val: serde_json::Value =
+            serde_json::from_str(&status_raw).expect("valid status JSON");
+        assert_eq!(status_val["status"], "ok");
+        assert_eq!(status_val["n_layers"], 8);
+        assert_eq!(status_val["d_model"], 128);
+        assert_eq!(status_val["n_heads"], 16);
+        assert_eq!(status_val["turn_memory_entries"], 0);
+        assert_eq!(status_val["dense_matmul_ops"], 0);
+        assert_eq!(status_val["softmax_ops"], 0);
+
+        // Verify top-level `pub fn gllm_load_v10_shards` entry point and restore bootstrap cleanly
+        {
+            let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+            let global_load: serde_json::Value =
+                serde_json::from_str(&crate::gllm_load_v10_shards(&manifest_raw, &shard_refs))
+                    .expect("global gllm_load_v10_shards JSON");
+            assert_eq!(global_load["status"], "ok");
+            assert_eq!(global_load["n_layers"], 8);
+            let _ = studio_load_uorgllm_v9_bytes(
+                include_bytes!("bootstrap_v9.uorgllm"),
+                "bootstrap_v9_restored",
+            );
+        }
+
+        // Run identical 7-category suite on `opfs_v10_8L_128D`
+        all_failures.extend(collect_v10_suite_failures(&mut engine, "opfs_v10_8L_128D"));
+        assert!(
+            all_failures.is_empty(),
+            "v10 6L+8L suite had {} failure(s):\n{}",
+            all_failures.len(),
+            all_failures.join("\n---\n")
+        );
     }
 }

@@ -1071,7 +1071,7 @@ impl StudioEngine {
             && (lower.contains("run ")
                 || lower.contains("execute ")
                 || lower.starts_with("[agent_mode]"));
-        if is_mvm_sandbox_turn {
+        if is_mvm_sandbox_turn && self.gllm_v9.is_legacy_v9_container() {
             let agent_prompt = crate::format_mvm_agent_prompt(trimmed);
             let step1 = self
                 .gllm_v9
@@ -1186,11 +1186,50 @@ impl StudioEngine {
             return lut_gen.reply_text;
         }
 
+        let is_compact_seed =
+            self.lut_stack.vocab < 4096 || self.lut_stack.artifact_bytes < 1_000_000;
+        let has_grounded_lut_match = !lut_gen.reply_text.trim().is_empty()
+            && lut_gen.steps.first().is_some_and(|s| {
+                s.source_mechanism == "turn_memory_opening"
+                    || (s.source_mechanism != "whole_table_nearest"
+                        && lut_gen.matched_stem_count >= 2)
+            });
+
         // 6. Primary single-pass `UORGLLM9` (`v10` multi-turn KV + ReAct `<tool_call>`, or legacy `v9` KV)
         if !self.gllm_v9.is_legacy_v9_container() {
+            let has_cross_turn_cue = crate::gllm_v9::GllmV9Model::has_v10_cross_turn_cue(trimmed);
+            let scoped_history: Vec<(String, String)>;
+            let history_slice: &[(String, String)] = if !has_cross_turn_cue {
+                &[]
+            } else if self.gllm_v9.header().d_model >= 128 {
+                &self.chat_history
+            } else {
+                const PURE_GREETINGS: &[&str] = &[
+                    "hi",
+                    "hello",
+                    "hey",
+                    "how are you",
+                    "who are you",
+                    "good morning",
+                    "good afternoon",
+                    "good evening",
+                ];
+                let substantive: Vec<(String, String)> = self
+                    .chat_history
+                    .iter()
+                    .filter(|(u, _)| {
+                        let norm = normalize_session_key(u);
+                        !PURE_GREETINGS.contains(&norm.as_str())
+                    })
+                    .cloned()
+                    .collect();
+                let keep_from = substantive.len().saturating_sub(2);
+                scoped_history = substantive[keep_from..].to_vec();
+                &scoped_history
+            };
             let v10_gen = self
                 .gllm_v9
-                .generate_compositional_v10(trimmed, &self.chat_history, 256);
+                .generate_compositional_v10(trimmed, history_slice, 256);
             let mut pulses = v10_gen.brain_pulses;
             if let Some(handled) =
                 self.try_execute_v10_tool_call(trimmed, &v10_gen.text, &mut pulses)
@@ -1199,9 +1238,57 @@ impl StudioEngine {
                 return handled;
             }
             self.last_brain_pulses = pulses;
-            if !v10_gen.text.trim().is_empty() {
-                return v10_gen.text;
+            let v10_trimmed = v10_gen.text.trim();
+            if !v10_trimmed.is_empty() {
+                let is_non_blind_lut = !is_compact_seed
+                    && !lut_gen.reply_text.trim().is_empty()
+                    && lut_gen
+                        .steps
+                        .first()
+                        .is_some_and(|s| s.source_mechanism != "whole_table_nearest");
+                if is_compact_seed
+                    || has_cross_turn_cue
+                    || is_compositional_v9_turn
+                    || code_outcome.is_coding_turn
+                    || !is_non_blind_lut
+                {
+                    return v10_gen.text;
+                }
+                let backticks_ok = v10_trimmed.chars().filter(|&c| c == '`').count() % 2 == 0;
+                let parens_ok = v10_trimmed.chars().filter(|&c| c == '(').count()
+                    == v10_trimmed.chars().filter(|&c| c == ')').count();
+                let braces_ok = v10_trimmed.chars().filter(|&c| c == '{').count()
+                    == v10_trimmed.chars().filter(|&c| c == '}').count();
+                let comment_ok = v10_trimmed
+                    .find("*/")
+                    .is_none_or(|close_pos| v10_trimmed[..close_pos].contains("/*"));
+                let lead_char_ok = v10_trimmed
+                    .chars()
+                    .next()
+                    .is_some_and(|c| !c.is_ascii_lowercase());
+                let structural_ok =
+                    backticks_ok && parens_ok && braces_ok && comment_ok && lead_char_ok;
+                if !has_grounded_lut_match {
+                    if structural_ok || lut_gen.generated_tokens.len() < 10 {
+                        return v10_gen.text;
+                    }
+                    return lut_gen.reply_text;
+                }
+                let calibrated_steps = !v10_gen.steps.is_empty()
+                    && v10_gen
+                        .steps
+                        .iter()
+                        .filter(|s| s.copy_score < 1_024)
+                        .all(|s| s.winning_score >= 1_500 && s.pure_margin >= 512);
+                let length_ok = lut_gen.matched_stem_count <= 1
+                    || (v10_gen.generated_tokens.len() >= 20
+                        && v10_trimmed.split_whitespace().count() >= 20);
+                if structural_ok && calibrated_steps && length_ok {
+                    return v10_gen.text;
+                }
+                return lut_gen.reply_text;
             }
+            return lut_gen.reply_text;
         }
 
         let v9_gen = self
@@ -1215,15 +1302,6 @@ impl StudioEngine {
                 return v9_gen.text;
             }
         }
-
-        let is_compact_seed =
-            self.lut_stack.vocab < 4096 || self.lut_stack.artifact_bytes < 1_000_000;
-        let has_grounded_lut_match = !lut_gen.reply_text.trim().is_empty()
-            && lut_gen.steps.first().is_some_and(|s| {
-                s.source_mechanism == "turn_memory_opening"
-                    || (s.source_mechanism != "whole_table_nearest"
-                        && lut_gen.matched_stem_count >= 2)
-            });
 
         if is_compact_seed {
             if code_outcome.is_coding_turn && !code_outcome.explanation_markdown.is_empty() {
@@ -1281,12 +1359,19 @@ impl StudioEngine {
                 match self.mvm.exec_interactive(&full_cmd, None) {
                     Ok(crate::mvm::MvmInteractiveOutcome::Completed(done)) => {
                         self.sync_workspace_from_mvm();
-                        let obs = if done.stdout.trim().is_empty() {
+                        let joined_stdout = done
+                            .stdout
+                            .lines()
+                            .map(str::trim)
+                            .filter(|l| !l.is_empty())
+                            .collect::<Vec<_>>()
+                            .join(" | ");
+                        let obs = if joined_stdout.is_empty() {
                             format!("exit_code={} {}", done.exit_code, done.stderr.trim())
                                 .trim()
                                 .to_string()
                         } else {
-                            done.stdout.trim().to_string()
+                            joined_stdout
                         };
                         let step2 = self.gllm_v9.generate_compositional_v10(
                             &format!(
