@@ -641,32 +641,65 @@ impl GllmV9Model {
         }
     }
 
-    /// Check whether `prompt` contains a cross-turn conversational recall or follow-up cue (`R4-39`).
+    /// Check whether `prompt` is an actual cross-turn recall or follow-up query (`R4-39`).
+    /// Declarative session-fact statements (e.g. `"my repo is called nebula-os"`) return `false`.
     pub fn has_v10_cross_turn_cue(prompt: &str) -> bool {
         let lower = prompt.trim().to_ascii_lowercase();
-        const CUES: &[&str] = &[
-            "my repo",
-            "my repository",
-            "my project",
-            "my name",
-            "branch",
+        const DIRECT_FOLLOWUP_CUES: &[&str] = &[
             "just say",
             "just said",
             "what did i",
             "what was",
             "earlier",
             "previous",
-            "before",
             "above",
             "simpler",
             "explain that",
             "summarize what",
             "remind",
-            "remember",
             "recall",
+        ];
+        if DIRECT_FOLLOWUP_CUES.iter().any(|cue| lower.contains(cue)) {
+            return true;
+        }
+        let is_interrogative = lower.contains('?')
+            || lower.starts_with("what ")
+            || lower.starts_with("which ")
+            || lower.starts_with("who ")
+            || lower.starts_with("where ")
+            || lower.starts_with("tell me ")
+            || lower.contains("remember");
+        const ENTITY_RECALL_CUES: &[&str] = &[
+            "my repo",
+            "my repository",
+            "my project",
+            "my name",
+            "branch",
             "module_",
         ];
-        CUES.iter().any(|cue| lower.contains(cue))
+        is_interrogative && ENTITY_RECALL_CUES.iter().any(|cue| lower.contains(cue))
+    }
+
+    /// Check whether `prompt` declares a conversational session entity (`repo`, `project`, `name`, `branch`)
+    /// that subsequent multi-turn KV recall queries may reference (`R4-39`).
+    pub fn is_v10_session_fact_declaration(prompt: &str) -> bool {
+        if Self::has_v10_cross_turn_cue(prompt) {
+            return false;
+        }
+        let lower = prompt.trim().to_ascii_lowercase();
+        const FACT_PREFIXES: &[&str] = &[
+            "my repo is ",
+            "my repository is ",
+            "we are working on a repo ",
+            "our project is ",
+            "my project is ",
+            "my name is ",
+            "call me ",
+            "we are on branch ",
+            "active branch is ",
+            "i am auditing ",
+        ];
+        FACT_PREFIXES.iter().any(|p| lower.starts_with(p))
     }
 
     /// Encode a multi-turn `<|user|>` / `<|assistant|>` `v10` chat dialogue into `<= 1024` `ByteBpe4096` tokens.
@@ -675,16 +708,59 @@ impl GllmV9Model {
         history: &[(String, String)],
         max_new_tokens: usize,
     ) -> (Vec<u32>, usize) {
+        Self::encode_v10_chat_prompt_with_warmup(prompt, &[], history, max_new_tokens)
+    }
+
+    /// Encode a `v10` chat dialogue with an optional live-generated KV positional warmup prefix
+    /// whose tokens remain strictly excluded from pointer-copy (`copy_start >= real_history_start`).
+    pub fn encode_v10_chat_prompt_with_warmup(
+        prompt: &str,
+        warmup_turns: &[(String, String)],
+        history: &[(String, String)],
+        max_new_tokens: usize,
+    ) -> (Vec<u32>, usize) {
         let bpe = ByteBpe4096::global();
         let reserved_gen = max_new_tokens.clamp(16, 256);
         let max_prompt_budget = GLLM_V9_MAX_SEQ.saturating_sub(reserved_gen + 2).max(64);
         let current_turn_ids = bpe.encode(&format!("<|user|>\n{}\n<|assistant|>\n", prompt.trim()));
 
+        let compact_assistant = |raw: &str| -> String {
+            let trimmed = raw.trim();
+            if trimmed.chars().count() <= 800 {
+                return trimmed.to_string();
+            }
+            let first_line = trimmed.lines().next().unwrap_or(trimmed).trim();
+            if let Some(dot_pos) = first_line.find(". ") {
+                let sent = &first_line[..=dot_pos];
+                if sent.chars().count() <= 400 {
+                    return sent.to_string();
+                }
+            }
+            first_line.chars().take(400).collect()
+        };
+
+        let mut warmup_encoded: Vec<Vec<u32>> = Vec::new();
+        let mut warmup_tokens = 0usize;
+        for (u, a) in warmup_turns {
+            let u_trim = u.trim();
+            let a_trim = compact_assistant(a);
+            if u_trim.is_empty() || a_trim.is_empty() {
+                continue;
+            }
+            let t_ids = bpe.encode(&format!(
+                "<|user|>\n{u_trim}\n<|assistant|>\n{a_trim}<|end|>\n"
+            ));
+            if 1 + warmup_tokens + t_ids.len() + current_turn_ids.len() <= max_prompt_budget {
+                warmup_tokens += t_ids.len();
+                warmup_encoded.push(t_ids);
+            }
+        }
+
         let mut selected_turns: Vec<Vec<u32>> = Vec::new();
-        let mut used = 1usize + current_turn_ids.len();
+        let mut used = 1usize + warmup_tokens + current_turn_ids.len();
         for (u, a) in history.iter().rev() {
             let u_trim = u.trim();
-            let a_trim = a.trim();
+            let a_trim = compact_assistant(a);
             if u_trim.is_empty() || a_trim.is_empty() {
                 continue;
             }
@@ -701,6 +777,10 @@ impl GllmV9Model {
 
         let mut prefix_ids = Vec::with_capacity(used.min(max_prompt_budget));
         prefix_ids.push(bpe.bos_id());
+        for w_ids in warmup_encoded {
+            prefix_ids.extend_from_slice(&w_ids);
+        }
+        let mut real_history_start = prefix_ids.len();
         for t_ids in selected_turns {
             prefix_ids.extend_from_slice(&t_ids);
         }
@@ -713,6 +793,11 @@ impl GllmV9Model {
             let mut clipped = Vec::with_capacity(1 + keep);
             clipped.push(bpe.bos_id());
             clipped.extend_from_slice(&prefix_ids[tail_start..]);
+            real_history_start = if real_history_start >= tail_start {
+                1 + (real_history_start - tail_start)
+            } else {
+                1
+            };
             current_turn_start = if current_turn_start >= tail_start {
                 1 + (current_turn_start - tail_start)
             } else {
@@ -720,8 +805,8 @@ impl GllmV9Model {
             };
             prefix_ids = clipped;
         }
-        let copy_start = if Self::has_v10_cross_turn_cue(prompt) {
-            1usize
+        let copy_start = if !history.is_empty() && Self::has_v10_cross_turn_cue(prompt) {
+            real_history_start.max(1)
         } else {
             current_turn_start.max(1)
         };
@@ -735,8 +820,19 @@ impl GllmV9Model {
         history: &[(String, String)],
         max_new_tokens: usize,
     ) -> GllmV9Generation {
+        self.generate_compositional_v10_with_warmup(prompt, &[], history, max_new_tokens)
+    }
+
+    /// Execute `1024`-token multi-turn `v10` causal KV generation with live-generated KV positional warmup.
+    pub fn generate_compositional_v10_with_warmup(
+        &self,
+        prompt: &str,
+        warmup_turns: &[(String, String)],
+        history: &[(String, String)],
+        max_new_tokens: usize,
+    ) -> GllmV9Generation {
         let (prefix_ids, copy_start) =
-            Self::encode_v10_chat_prompt(prompt, history, max_new_tokens);
+            Self::encode_v10_chat_prompt_with_warmup(prompt, warmup_turns, history, max_new_tokens);
         self.run_kv_generation(prefix_ids, copy_start, max_new_tokens, true)
     }
 
@@ -1512,16 +1608,24 @@ impl GllmV9KvCache {
                         }
                         let tail_txt = bpe
                             .decode(&generated_so_far[generated_so_far.len().saturating_sub(4)..]);
-                        if tail_txt.ends_with(" —") {
-                            (obs_lo..scan_end).find_map(|u| {
-                                if self.tokens[u] == self.tokens[t]
-                                    && bpe.decode(&self.tokens[obs_lo..=u]).ends_with(" —")
-                                {
-                                    Some(u + 1)
-                                } else {
-                                    None
-                                }
-                            })
+                        if tail_txt.ends_with(" —") || tail_txt.ends_with(" --") {
+                            (obs_lo..scan_end)
+                                .find_map(|u| {
+                                    if self.tokens[u] == self.tokens[t]
+                                        && bpe.decode(&self.tokens[obs_lo..=u]).ends_with(" —")
+                                    {
+                                        Some(u + 1)
+                                    } else {
+                                        None
+                                    }
+                                })
+                                .or({
+                                    if obs_lo < obs_hi.min(copy_limit) {
+                                        Some(obs_lo)
+                                    } else {
+                                        None
+                                    }
+                                })
                         } else {
                             None
                         }
@@ -1581,15 +1685,14 @@ impl GllmV9KvCache {
                 let ns_gate = model.copy_tok_gate[ns_tok];
                 if in_code_gen {
                     let ns_piece = bpe.decode(&[ns_tok as u32]);
-                    let code_cont_ok = if is_v10_model {
-                        !ns_piece.is_empty()
-                            && ns_piece
-                                .chars()
-                                .all(|ch| ch.is_ascii_alphanumeric() || ch == '_')
-                    } else {
-                        !ns_piece.starts_with(' ')
-                    };
-                    if code_cont_ok && ns_gate >= 160 {
+                    let is_ident_cont = !ns_piece.is_empty()
+                        && !ns_piece.starts_with(char::is_whitespace)
+                        && ns_piece
+                            .chars()
+                            .all(|ch| ch.is_ascii_alphanumeric() || ch == '_');
+                    if (!ns_piece.starts_with(' ') && ns_gate >= 160)
+                        || (is_v10_model && is_ident_cont)
+                    {
                         Some(ns)
                     } else {
                         None
@@ -1638,6 +1741,142 @@ impl GllmV9KvCache {
                 }
             })
         });
+
+        const CODE_PROSE_STOPWORDS: &[&str] = &[
+            "a",
+            "an",
+            "the",
+            "for",
+            "in",
+            "on",
+            "to",
+            "of",
+            "and",
+            "or",
+            "is",
+            "are",
+            "with",
+            "from",
+            "by",
+            "write",
+            "given",
+            "compute",
+            "computing",
+            "function",
+            "concise",
+            "rust",
+            "python",
+            "javascript",
+            "typescript",
+            "freestanding",
+            "c",
+            "long",
+            "signed",
+            "i64",
+            "u64",
+            "usize",
+            "f64",
+            "let",
+            "const",
+            "return",
+            "pub",
+            "fn",
+            "def",
+            "microvm",
+            "rv64imac",
+            "sandbox",
+            "linux",
+            "expression",
+            "combining",
+            "adding",
+            "summing",
+            "that",
+            "setting",
+            "snippet",
+        ];
+        const MVM_PKG_NAMES: &[&str] = &[
+            "jq",
+            "rg",
+            "tree",
+            "xxd",
+            "sha256sum",
+            "bc",
+            "wc",
+            "head",
+            "tail",
+            "http",
+        ];
+        let mut prompt_boost_anchor = vec![false; t + 1];
+        let mut code_prose_blocked = vec![false; t + 1];
+        if is_v10_model && in_structured_gen && self.tool_obs_range.is_none() {
+            let p_lo = self.copy_start.min(copy_limit);
+            for s in p_lo..copy_limit {
+                let piece_s = bpe.decode(&[self.tokens[s]]);
+                let trimmed_s = piece_s.trim_start();
+                if trimmed_s.is_empty() {
+                    continue;
+                }
+                let lower_s = trimmed_s.to_ascii_lowercase();
+                if in_code_gen {
+                    const CODE_TYPE_KEYWORDS: &[&str] = &[
+                        "i64", "u64", "i32", "u32", "i16", "u16", "i8", "u8", "usize", "isize",
+                        "f64", "f32", "bool", "str", "string", "long", "int", "short", "char",
+                        "void", "const", "let", "var", "mut", "pub", "fn", "def", "return",
+                        "unsigned", "signed", "uint64_t", "int64_t", "size_t",
+                    ];
+                    let prev_continues_ident =
+                        !piece_s.starts_with(char::is_whitespace) && s > p_lo && {
+                            let pp = bpe.decode(&[self.tokens[s - 1]]);
+                            pp.chars()
+                                .last()
+                                .is_some_and(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+                        };
+                    if prev_continues_ident
+                        || !trimmed_s
+                            .chars()
+                            .next()
+                            .is_some_and(|ch| ch.is_ascii_alphabetic() || ch == '_')
+                        || !trimmed_s
+                            .chars()
+                            .all(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+                    {
+                        code_prose_blocked[s] = true;
+                    } else {
+                        let mut full_ident = trimmed_s.to_string();
+                        let mut u = s + 1;
+                        while u < copy_limit {
+                            let pu = bpe.decode(&[self.tokens[u]]);
+                            if !pu.is_empty()
+                                && !pu.starts_with(char::is_whitespace)
+                                && pu.chars().all(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+                            {
+                                full_ident.push_str(&pu);
+                                u += 1;
+                            } else {
+                                break;
+                            }
+                        }
+                        let full_lower = full_ident.to_ascii_lowercase();
+                        if CODE_PROSE_STOPWORDS.contains(&full_lower.as_str())
+                            || CODE_TYPE_KEYWORDS.contains(&full_lower.as_str())
+                        {
+                            code_prose_blocked[s] = true;
+                        } else {
+                            let next_is_ident_delim = u < copy_limit && {
+                                let np = bpe.decode(&[self.tokens[u]]);
+                                np.starts_with(['(', ':', '='])
+                                    || np.trim_start().starts_with([':', '='])
+                            };
+                            if full_ident.contains('_') || next_is_ident_delim {
+                                prompt_boost_anchor[s] = true;
+                            }
+                        }
+                    }
+                } else if in_agent_gen && MVM_PKG_NAMES.contains(&lower_s.as_str()) {
+                    prompt_boost_anchor[s] = true;
+                }
+            }
+        }
 
         // Find last newline in generated_so_far so same-line multi-argument expressions/signatures
         // (`{a} + {b}`, `fn {f}( {p1}, {p2} )`) do not re-select an already-copied span-start anchor
@@ -1779,7 +2018,11 @@ impl GllmV9KvCache {
                 } else if sh == 3 {
                     if s == t {
                         8_192
-                    } else if s > 0 && s < t && model.copy_tok_gate[self.tokens[s] as usize] >= 208
+                    } else if s > 0
+                        && s < t
+                        && !code_prose_blocked[s]
+                        && (model.copy_tok_gate[self.tokens[s] as usize] >= 208
+                            || prompt_boost_anchor[s])
                     {
                         0
                     } else {
@@ -1868,8 +2111,17 @@ impl GllmV9KvCache {
                     let mut tot_wp = 0u64;
                     let mut argmax_s = s;
                     let mut max_wp = 0u32;
+                    let mut any_unblocked = false;
+                    let mut any_boost_anchor = false;
                     for (s2, &pw) in prll_w.iter().enumerate().take(scan_hi).skip(s) {
                         if self.tokens[s2] as usize == tok_s {
+                            if is_v10_model && in_code_gen && sh == 3 && code_prose_blocked[s2] {
+                                continue;
+                            }
+                            any_unblocked = true;
+                            if prompt_boost_anchor[s2] {
+                                any_boost_anchor = true;
+                            }
                             tot_wp += pw as u64;
                             if pw >= max_wp {
                                 max_wp = pw;
@@ -1877,28 +2129,32 @@ impl GllmV9KvCache {
                             }
                         }
                     }
+                    if !any_unblocked {
+                        continue;
+                    }
                     let is_expected_tok = expected_cont_s
                         .map(|ns| self.tokens[ns] as usize == tok_s)
                         .unwrap_or(false);
                     let next_gate_min = if is_v10_model { 96 } else { 160 };
                     let boost_floor = if is_v10_model { 224 } else { 192 };
                     let tok_allow = if is_v10_model
-                        && sh != 3
-                        && is_expected_tok
-                        && bridged_uncalibrated_word
+                        && ((sh != 3 && is_expected_tok && bridged_uncalibrated_word)
+                            || (in_code_gen && any_boost_anchor))
                     {
                         255i64
-                    } else if sh != 3
-                        && is_expected_tok
-                        && (in_tool_obs_span.is_some()
-                            || (expected_cont_s
-                                .map(|ns| {
-                                    ns + 1 < copy_limit
-                                        && model.copy_tok_gate[self.tokens[ns + 1] as usize]
-                                            >= next_gate_min
-                                })
-                                .unwrap_or(false)
-                                && matches!(tok_s, 5 | 16 | 17)))
+                    } else if (is_v10_model
+                        && (any_boost_anchor || (in_code_gen && sh != 3 && is_expected_tok)))
+                        || (sh != 3
+                            && is_expected_tok
+                            && (in_tool_obs_span.is_some()
+                                || (expected_cont_s
+                                    .map(|ns| {
+                                        ns + 1 < copy_limit
+                                            && model.copy_tok_gate[self.tokens[ns + 1] as usize]
+                                                >= next_gate_min
+                                    })
+                                    .unwrap_or(false)
+                                    && matches!(tok_s, 5 | 16 | 17))))
                     {
                         (model.copy_tok_gate[tok_s] as i64).max(boost_floor)
                     } else {
@@ -1919,11 +2175,16 @@ impl GllmV9KvCache {
                     let cand = ((((eff_wp as i64) * (copy_gain as i64) * tok_allow) >> 25) as i32)
                         .clamp(0, cap_h);
                     if sh == 3 {
+                        let prev_max = sh3_cands[tok_s][..(sh3_cnt[tok_s] as usize).min(4)]
+                            .iter()
+                            .copied()
+                            .max()
+                            .unwrap_or(-1);
                         let idx = (sh3_cnt[tok_s] as usize).min(3);
                         sh3_cands[tok_s][idx] = cand;
                         sh3_cnt[tok_s] = sh3_cnt[tok_s].saturating_add(1);
-                        if sh3_cnt[tok_s] == 1 {
-                            copy_best_src[tok_s] = s;
+                        if cand >= prev_max {
+                            copy_best_src[tok_s] = argmax_s;
                         }
                     } else if cand > copy_logits[tok_s] {
                         copy_logits[tok_s] = cand;
@@ -1946,7 +2207,19 @@ impl GllmV9KvCache {
                     slice[0]
                 };
                 let s = copy_best_src[v];
-                if same_line_slice.contains(&(v as u32)) {
+                let v_piece_ws = bpe.decode(&[v as u32]).starts_with(char::is_whitespace);
+                let used_as_span_start_on_line =
+                    same_line_slice.iter().enumerate().any(|(k, &tv)| {
+                        tv == v as u32
+                            && (k == 0
+                                || v_piece_ws
+                                || !bpe
+                                    .decode(&[same_line_slice[k - 1]])
+                                    .chars()
+                                    .last()
+                                    .is_some_and(|ch| ch.is_ascii_alphanumeric() || ch == '_'))
+                    });
+                if used_as_span_start_on_line {
                     combined >>= 3;
                 } else if combined >= 1_024 {
                     combined += ((copy_limit.saturating_sub(s)) as i32) * 8;
