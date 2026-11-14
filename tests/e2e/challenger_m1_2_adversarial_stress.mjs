@@ -515,7 +515,31 @@ for (const panelId of [
 ]) {
   assert.ok(rawHtml.indexOf(`id="${panelId}"`) > inspectorsModalIdx, `${panelId} must reside inside #inspectors-modal`);
 }
-console.log('  ✓ 7.1 Chat-First landing, Studio IDE toggle, and full-height #inspectors-modal layout verified.');
+assert.ok(
+  rawCss.includes('body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view-history[hidden]) > #sidebar-panel-history'),
+  'app.css must scope :has(#sidebar-view-history[hidden]) hiding rule to non-chat modes'
+);
+assert.ok(
+  rawCss.includes('body[data-layout-mode="chat"] #workbench-sidebar-content > .sidebar-top'),
+  'app.css must render .sidebar-top in Chat-First mode'
+);
+assert.ok(
+  rawCss.includes('body[data-layout-mode="chat"] #workbench-sidebar-content > #sidebar-view-history'),
+  'app.css must render #sidebar-view-history (+ New Agentic Session) in Chat-First mode'
+);
+assert.ok(
+  rawCss.includes('body[data-layout-mode="chat"] #workbench-sidebar-content > .sidebar-footer'),
+  'app.css must render .sidebar-footer in Chat-First mode'
+);
+assert.ok(
+  rawCss.includes('body[data-layout-mode="chat"] #claude-code-desktop #toggle-sidebar-btn'),
+  'app.css must show #toggle-sidebar-btn in Chat-First mode'
+);
+assert.ok(
+  !rawHtml.includes('id="sidebar-view-history" class="sidebar-view-content" role="region" aria-label="Chat Sessions &amp; History" hidden'),
+  'index.html must not start #sidebar-view-history hidden in default Chat-First mode'
+);
+console.log('  ✓ 7.1 Chat-First landing, visible left sidebar, Studio IDE toggle, and full-height #inspectors-modal layout verified.');
 
 const rawLexleanJs = readFileSync(resolve(PUBLIC_DIR, 'lexlean_r4.js'), 'utf8');
 assert.ok(rawAppJs.includes("name: 'uor-r4-engine-worker'"), 'app.js must spawn uor-r4-engine-worker');

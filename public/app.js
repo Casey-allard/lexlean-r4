@@ -4169,18 +4169,7 @@ if (closeCanvasPaneBtn) {
   });
 }
 
-const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
-const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-if (toggleSidebarBtn && mainLayoutEl) {
-  toggleSidebarBtn.addEventListener('click', () => {
-    mainLayoutEl.classList.toggle('sidebar-collapsed');
-  });
-}
-if (closeSidebarBtn && mainLayoutEl) {
-  closeSidebarBtn.addEventListener('click', () => {
-    mainLayoutEl.classList.add('sidebar-collapsed');
-  });
-}
+// Sidebar collapse/expand listeners are unified in initCursorIdeWorkbench() -> toggleSidebar().
 
 const closeStatusBarBtn = document.getElementById('close-status-bar-btn');
 const coworkStatusBar = document.getElementById('cowork-agent-status-bar');
@@ -12082,7 +12071,26 @@ function setLayoutMode(mode) {
   if (headingEl) {
     headingEl.textContent = normalized === 'studio' ? 'UOR-R4 Studio IDE' : 'UOR-R4 Chat';
   }
-  if (normalized === 'studio') {
+  const sidebarHistoryView = document.getElementById('sidebar-view-history');
+  const sidebarHistoryPanel = document.getElementById('sidebar-panel-history');
+  const actHistoryBtn = document.getElementById('cursor-act-history');
+  if (normalized === 'chat') {
+    if (sidebarHistoryView) {
+      sidebarHistoryView.removeAttribute('hidden');
+      sidebarHistoryView.classList.add('active');
+    }
+    if (sidebarHistoryPanel) {
+      sidebarHistoryPanel.removeAttribute('hidden');
+      sidebarHistoryPanel.classList.add('active');
+    }
+    renderThreadSidebar();
+  } else {
+    const historySelectedInStudio = Boolean(actHistoryBtn && actHistoryBtn.classList.contains('active'));
+    if (sidebarHistoryView) {
+      sidebarHistoryView.classList.toggle('active', historySelectedInStudio);
+      if (historySelectedInStudio) sidebarHistoryView.removeAttribute('hidden');
+      else sidebarHistoryView.setAttribute('hidden', '');
+    }
     if (dockableCanvasPane) {
       dockableCanvasPane.removeAttribute('hidden');
     }

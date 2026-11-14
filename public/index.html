@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261111v10connected">
+  <link rel="stylesheet" href="app.css?v=20261113v10sidebar">
 </head>
 <body data-layout-mode="chat">
   <main>
@@ -55,8 +55,8 @@
           <div class="brand-row">
             <div class="brand-badge">R4</div>
             <div class="brand-text">
-              <strong>UOR-R4 Cursor IDE</strong>
-              <span>Local Wasm + WebGPU &middot; uor-r4.lut-stack/8</span>
+              <strong>UOR-R4 Connected</strong>
+              <span>GLLM v10 &middot; uor-r4.lut-stack/8</span>
             </div>
             <button id="close-sidebar-btn" type="button" class="sidebar-action-icon-btn" title="Hide sidebar" aria-label="Hide sidebar">&times;</button>
           </div>
@@ -126,7 +126,7 @@
         </div>
 
         <!-- Sidebar View: History & Chat Sessions -->
-        <div id="sidebar-view-history" class="sidebar-view-content" role="region" aria-label="Chat Sessions &amp; History" hidden>
+        <div id="sidebar-view-history" class="sidebar-view-content" role="region" aria-label="Chat Sessions &amp; History">
           <div class="sidebar-section-header">
             <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New Agentic Session</button>
           </div>
@@ -180,7 +180,7 @@
           </div>
         </details>
 
-        <details class="sidebar-collapsible">
+        <details class="sidebar-collapsible" open>
           <summary class="sidebar-heading sidebar-summary">Starter Missions (7)</summary>
           <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
             <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
@@ -1386,6 +1386,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261111v10connected"></script>
+  <script type="module" src="app.js?v=20261113v10sidebar"></script>
 </body>
 </html>
