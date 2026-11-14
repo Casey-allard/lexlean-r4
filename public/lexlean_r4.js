@@ -3299,7 +3299,7 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
       if (meta && meta.sha256 === expectedSha) {
         const wfh = await root.getFileHandle(OPFS_V10_WEIGHT_FILE, { create: false });
         const bytes = new Uint8Array(await (await wfh.getFile()).arrayBuffer());
-        const loaded = JSON.parse(studio_load_uorgllm_v9_bytes(bytes, 'opfs_cached_v10_8L_128D'));
+        const loaded = JSON.parse(studio_load_uorgllm_v9_bytes(bytes, 'opfs_cached_v10_16L_256D'));
         if (loaded && loaded.status === 'ok') {
           globalThis.__uorGllmV9Meta = {
             status: `OPFS UORGLLM v10 (${loaded.n_layers}L ${loaded.d_model}D)`,
@@ -3373,7 +3373,7 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
     }
   }
 
-  const parsed = JSON.parse(studio_load_uorgllm_v9_bytes(fullBuf, 'opfs_streamed_v10_8L_128D'));
+  const parsed = JSON.parse(studio_load_uorgllm_v9_bytes(fullBuf, 'opfs_streamed_v10_16L_256D'));
   if (parsed && parsed.status === 'ok') {
     globalThis.__uorGllmV9Meta = {
       status: `OPFS UORGLLM v10 (${parsed.n_layers}L ${parsed.d_model}D)`,
@@ -3417,7 +3417,7 @@ function __uorSynthesizeBrainPulsesFromReply(parsedRes, toolKind = 'none') {
     pulses.push({
       step: s,
       phase: s === 0 ? 'prefill' : (toolKind !== 'none' && s === steps - 1 ? 'tool' : 'decode'),
-      active_layer: s % 8,
+      active_layer: s % 16,
       winning_head: (baseHead + s) & 7,
       e8_orbit: (baseOrbit + s * 3) & 15,
       cl06_grade: (s * 2 + 1) % 7,

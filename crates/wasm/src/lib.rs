@@ -1621,7 +1621,7 @@ impl StudioEngine {
     }
 
     /// Verify a `v10` OPFS shard manifest, reassemble `shard_000.bin..shard_NNN.bin` with per-shard
-    /// and container SHA-256 verification, and hot-load the `8L 128D` `UORGLLM9` container (`R4-39`).
+    /// and container SHA-256 verification, and hot-load the `16L 256D` `UORGLLM9` container (`R4-39`).
     pub fn gllm_load_v10_shards(
         &mut self,
         manifest_json: &str,
@@ -1736,7 +1736,7 @@ impl StudioEngine {
             });
         }
 
-        let parsed = gllm_v9::GllmV9Model::parse_with_label(&reassembled, "opfs_v10_8L_128D")
+        let parsed = gllm_v9::GllmV9Model::parse_with_label(&reassembled, "opfs_v10_16L_256D")
             .map_err(GllmV10ShardError::ContainerRejected)?;
         self.gllm_v9 = Arc::new(parsed);
         Ok(self.gllm_v9_status_json())
@@ -6901,7 +6901,7 @@ impl std::fmt::Display for GllmV10ShardError {
 
 impl std::error::Error for GllmV10ShardError {}
 
-/// Reassemble and hot-load verified `v10` OPFS shards (`manifest.json` + `shard_000.bin..shard_012.bin`) into the active Studio engine (`R4-39`).
+/// Reassemble and hot-load verified `v10` OPFS shards (`manifest.json` + `shard_000.bin..shard_078.bin`) into the active Studio engine (`R4-39`).
 pub fn gllm_load_v10_shards(manifest_json: &str, shards: &[&[u8]]) -> String {
     let mut guard = match studio_engine_cell().lock() {
         Ok(g) => g,
@@ -10534,14 +10534,14 @@ mod tests {
             failures
         }
 
-        // Part A: Embedded `6L 64D` bootstrap (`crates/wasm/src/bootstrap_v9.uorgllm`)
+        // Part A: Embedded `6L 128D` bootstrap (`crates/wasm/src/bootstrap_v9.uorgllm`)
         let mut engine = StudioEngine::new_default();
         assert_eq!(engine.gllm_v9.header().n_layers, 6);
-        assert_eq!(engine.gllm_v9.header().d_model, 64);
+        assert_eq!(engine.gllm_v9.header().d_model, 128);
         assert!(!engine.gllm_v9.is_legacy_v9_container());
-        let mut all_failures = collect_v10_suite_failures(&mut engine, "bootstrap_v10_6L_64D");
+        let mut all_failures = collect_v10_suite_failures(&mut engine, "bootstrap_v10_6L_128D");
 
-        // Part B: Reassemble `gpu/weights/v10/{manifest.json,shard_000.bin..shard_012.bin}` via `gllm_load_v10_shards`
+        // Part B: Reassemble `gpu/weights/v10/{manifest.json,shard_000.bin..shard_078.bin}` via `gllm_load_v10_shards`
         let v10_dir =
             std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../gpu/weights/v10");
         let manifest_raw =
@@ -10551,7 +10551,7 @@ mod tests {
         let shard_entries = manifest_val["shards"]
             .as_array()
             .expect("v10 manifest shards array");
-        assert_eq!(shard_entries.len(), 13);
+        assert_eq!(shard_entries.len(), 79);
 
         let mut owned_shards: Vec<Vec<u8>> = Vec::with_capacity(shard_entries.len());
         for entry in shard_entries {
@@ -10586,19 +10586,19 @@ mod tests {
         assert!(e_fmt.to_string().contains("UORGLLM8"));
 
         // (3) ShardCountMismatch
-        let short_refs: Vec<&[u8]> = owned_shards[..12].iter().map(Vec::as_slice).collect();
+        let short_refs: Vec<&[u8]> = owned_shards[..78].iter().map(Vec::as_slice).collect();
         let e_cnt = engine
             .gllm_load_v10_shards(&manifest_raw, &short_refs)
             .expect_err("short shard list must fail");
         assert_eq!(
             e_cnt,
             GllmV10ShardError::ShardCountMismatch {
-                expected: 13,
-                actual: 12
+                expected: 79,
+                actual: 78
             }
         );
         assert_eq!(e_cnt.error_code(), "ShardCountMismatch");
-        assert!(e_cnt.to_string().contains("expected 13, got 12"));
+        assert!(e_cnt.to_string().contains("expected 79, got 78"));
 
         // (4) ShardOffsetMismatch
         let mut bad_off_manifest = manifest_val.clone();
@@ -10726,13 +10726,13 @@ mod tests {
 
         let status_raw = engine
             .gllm_load_v10_shards(&manifest_raw, &shard_refs)
-            .expect("gllm_load_v10_shards must verify and load 13 v10 shards");
+            .expect("gllm_load_v10_shards must verify and load 79 v10 shards");
         let status_val: serde_json::Value =
             serde_json::from_str(&status_raw).expect("valid status JSON");
         assert_eq!(status_val["status"], "ok");
-        assert_eq!(status_val["n_layers"], 8);
-        assert_eq!(status_val["d_model"], 128);
-        assert_eq!(status_val["n_heads"], 16);
+        assert_eq!(status_val["n_layers"], 16);
+        assert_eq!(status_val["d_model"], 256);
+        assert_eq!(status_val["n_heads"], 32);
         assert_eq!(status_val["turn_memory_entries"], 0);
         assert_eq!(status_val["dense_matmul_ops"], 0);
         assert_eq!(status_val["softmax_ops"], 0);
@@ -10744,18 +10744,18 @@ mod tests {
                 serde_json::from_str(&crate::gllm_load_v10_shards(&manifest_raw, &shard_refs))
                     .expect("global gllm_load_v10_shards JSON");
             assert_eq!(global_load["status"], "ok");
-            assert_eq!(global_load["n_layers"], 8);
+            assert_eq!(global_load["n_layers"], 16);
             let _ = studio_load_uorgllm_v9_bytes(
                 include_bytes!("bootstrap_v9.uorgllm"),
                 "bootstrap_v9_restored",
             );
         }
 
-        // Run identical 7-category suite on `opfs_v10_8L_128D`
-        all_failures.extend(collect_v10_suite_failures(&mut engine, "opfs_v10_8L_128D"));
+        // Run identical 7-category suite on `opfs_v10_16L_256D`
+        all_failures.extend(collect_v10_suite_failures(&mut engine, "opfs_v10_16L_256D"));
         assert!(
             all_failures.is_empty(),
-            "v10 6L+8L suite had {} failure(s):\n{}",
+            "v10 6L+16L suite had {} failure(s):\n{}",
             all_failures.len(),
             all_failures.join("\n---\n")
         );

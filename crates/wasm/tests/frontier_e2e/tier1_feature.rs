@@ -835,8 +835,82 @@ fn test_f14_synthetic_generator_four_discipline_coverage() {
 
 #[test]
 fn test_f14_synthetic_generator_cli_flags_invocation() {
-    let script = repo_root().join("gpu/fetch_hf_datasets.py");
-    assert!(script.is_file(), "fetch_hf_datasets.py must exist");
+    let gpu_dir = repo_root().join("gpu");
+    for rel in [
+        "fetch_hf_datasets.rs",
+        "build_v10_corpus.rs",
+        "build_v9_corpus.rs",
+        "mvm_guest/build_pkgs.rs",
+    ] {
+        let path = gpu_dir.join(rel);
+        assert!(path.is_file(), "pure-Rust generator `{rel}` must exist");
+    }
+    fn assert_no_py(dir: &std::path::Path) {
+        for entry in std::fs::read_dir(dir).expect("read gpu dir") {
+            let entry = entry.expect("dir entry");
+            let path = entry.path();
+            if entry.file_type().expect("file type").is_dir() {
+                assert_no_py(&path);
+            } else if path.extension().and_then(|e| e.to_str()) == Some("py") {
+                panic!(
+                    "unexpected Python file remaining under gpu/: {}",
+                    path.display()
+                );
+            }
+        }
+    }
+    assert_no_py(&gpu_dir);
+
+    fn assert_no_python_refs(dir: &std::path::Path) {
+        let banned = [
+            ["py", "thon3"].concat(),
+            ["pip", " install"].concat(),
+            ["ve", "nv"].concat(),
+            ["build_v10_corpus", ".py"].concat(),
+            ["build_v9_corpus", ".py"].concat(),
+            ["fetch_hf_datasets", ".py"].concat(),
+            ["build_pkgs", ".py"].concat(),
+        ];
+        for entry in std::fs::read_dir(dir).expect("read gpu dir") {
+            let entry = entry.expect("dir entry");
+            let path = entry.path();
+            if entry.file_type().expect("file type").is_dir() {
+                if path.file_name().and_then(|n| n.to_str()) == Some("weights") {
+                    continue;
+                }
+                assert_no_python_refs(&path);
+            } else if matches!(
+                path.extension().and_then(|e| e.to_str()),
+                Some("rs" | "cu" | "md")
+            ) {
+                let text = std::fs::read_to_string(&path).expect("read gpu source/doc file");
+                for pat in &banned {
+                    assert!(
+                        !text.contains(pat.as_str()),
+                        "banned Python CLI/script reference `{pat}` in {}",
+                        path.display()
+                    );
+                }
+            }
+        }
+    }
+    assert_no_python_refs(&gpu_dir);
+
+    // Self-inspecting gate check (`AGENTS.md`): confirm active non-ignored enforcement in source.
+    let self_src = std::fs::read_to_string(
+        repo_root().join("crates/wasm/tests/frontier_e2e/tier1_feature.rs"),
+    )
+    .expect("read own test source");
+    assert!(self_src.contains("assert_no_py(&gpu_dir);"));
+    assert!(self_src.contains("assert_no_python_refs(&gpu_dir);"));
+    let fn_sig = "fn test_f14_synthetic_generator_cli_flags_invocation()";
+    let fn_pos = self_src.find(fn_sig).expect("locate f14 test signature");
+    let header_window = &self_src[fn_pos.saturating_sub(64)..fn_pos];
+    let ign_attr = ["#[", "ignore"].concat();
+    assert!(
+        !header_window.contains(&ign_attr),
+        "test_f14_synthetic_generator_cli_flags_invocation must never be marked ignored"
+    );
 }
 
 #[test]

@@ -8357,7 +8357,7 @@ class LexLeanTerminal {
           if (typeof stream_v9_sharded_weights_via_opfs_worker === 'function') {
             stream_v9_sharded_weights_via_opfs_worker(null, true)
               .then((res) => {
-                this.printAnsi(`\x1b[32m[OK]\x1b[0m UORGLLM9 active: ${res ? `${res.n_layers}L ${res.d_model}D (${res.source})` : 'embedded bootstrap_v9 (6L 64D)'}`);
+                this.printAnsi(`\x1b[32m[OK]\x1b[0m UORGLLM9 active: ${res ? `${res.n_layers}L ${res.d_model}D (${res.source})` : 'embedded bootstrap_v9 (6L 128D)'}`);
               })
               .catch((e) => {
                 this.printAnsi(`\x1b[31m[ERROR]\x1b[0m OPFS sync failed: ${e?.message || String(e)}`);

@@ -1,6 +1,6 @@
 # UOR-R4 CUDA GPU Training Pipeline & Cost Analysis
 
-This directory contains the pure-CUDA (`compute_75` through `compute_89` Ada RTX 4090 and `compute_120` Blackwell RTX 5090) and pure-Rust (`rustc`) training, quantization, and static `RV64IMAC` guest package pipeline for the **UOR-R4 Geometric Language Model** (`UOR-R4-GLLM v10` / `UORGLLM9` and `UR4GLM06`). Runtime inference executes purely in integer Rust/WebAssembly and CUDA (`dense_matmul_ops == 0`, `softmax_ops == 0`, `turn_memory_entries == 0`, **zero Transformer components**), with offline corpus and `ELF64` package build scripts (`gpu/build_v10_corpus.py`, `gpu/mvm_guest/build_pkgs.py`) used only at build/training time.
+This directory contains the pure-CUDA (`compute_75` through `compute_89` Ada RTX 4090 and `compute_120` Blackwell RTX 5090) and pure-Rust (`rustc`) training, quantization, and static `RV64IMAC` guest package pipeline for the **UOR-R4 Geometric Language Model** (`UOR-R4-GLLM v10` / `UORGLLM9` and `UR4GLM06`). Runtime inference and offline corpus/ELF build tooling execute purely in Rust/WebAssembly and CUDA (`dense_matmul_ops == 0`, `softmax_ops == 0`, `turn_memory_entries == 0`, **zero Transformer components**), with offline corpus (`gpu/build_v10_corpus.rs`, `gpu/build_v9_corpus.rs`, `gpu/fetch_hf_datasets.rs`) and `ELF64` package builders (`gpu/mvm_guest/build_pkgs.rs`) compiled directly via `rustc`.
 
 ## 1. Primary Local GPU Target (`ssh wick` — Owned RTX 4090, `\$0.00/hr`)
 
@@ -8,11 +8,12 @@ The primary local GPU training and verification target is the owned workstation 
 
 - **Hardware**: `1× NVIDIA GeForce RTX 4090` (`24,564 MiB` / `24 GB` VRAM, Ada Lovelace `SM 8.9`, `-arch=sm_89`)
 - **Cost**: **`\$0.00 / hr`** (owned local hardware — zero cloud rental pods required)
-- **Toolchain**: One-shot containerized CUDA toolkit via Docker (`docker run --rm --gpus all ... nvidia/cuda:12.8.0-devel-ubuntu24.04 nvcc -O3 -std=c++17 -arch=sm_89`) in an isolated `/tmp` work directory without disturbing active host workloads.
+- **Toolchain**: Pure-Rust `rustc --edition 2021 -O` offline corpus/ELF builders plus containerized CUDA toolkit via Docker (`docker run --rm --gpus all ... nvidia/cuda:12.8.0-devel-ubuntu24.04 nvcc -O3 -std=c++17 -arch=sm_89`) in an isolated `/tmp` work directory without disturbing active host workloads.
 
 ```bash
-# Build 50,000-sequence v10 multi-turn + tool-calling UORCORP3 corpus & train on ssh wick (RTX 4090, sm_89):
-python3 gpu/build_v10_corpus.py /tmp/uor_v10/v10_corpus.bin
+# Build 100,000-sequence v10 multi-turn + tool-calling UORCORP3 corpus & train on ssh wick (RTX 4090, sm_89):
+rustc --edition 2021 -O gpu/build_v10_corpus.rs -o /tmp/uor_v10/build_v10_corpus
+/tmp/uor_v10/build_v10_corpus /tmp/uor_v10/v10_corpus.bin
 nvcc -O3 -std=c++17 -arch=sm_89 gpu/train_gllm_v10.cu -o /tmp/uor_v10/train_gllm_v10
 /tmp/uor_v10/train_gllm_v10 \
   /tmp/uor_v10/v10_corpus.bin \
@@ -25,10 +26,11 @@ nvcc -O3 -std=c++17 -arch=sm_89 gpu/train_gllm_v10.cu -o /tmp/uor_v10/train_gllm
 
 | File | Subsystem | Role in GPU Training, Quantization & Sandbox Build |
 | --- | --- | --- |
-| `train_gllm_v10.cu` | `R4.CompositionalGllm` / `R4.ConnectedStudio` (`UORGLLM9` `v10`) | Pure-geometric integer CUDA trainer (`-arch=sm_89` on `ssh wick` RTX 4090 / `-arch=sm_120` on RTX 5090) with 100% bit-exact Wasm parity (`MAX_SEQ = 1024`, `Cl(0,6)` FWHT-64 integer butterflies, 256-entry Q12 T-MAC LUTs, rational PRLL `1,000,000`-quantum causal KV attention, 81-state balanced-nonary readout, zero dense matmul, zero softmax). Exports both the `6L 64D` fast-start checkpoint (`crates/wasm/src/bootstrap_v9.uorgllm`, `3.44 MB <= 10 MB`) and the `8L 128D` 13-shard OPFS pack (`gpu/weights/v10/`, `12.90 MB <= 14 MB`). |
-| `build_v10_corpus.py` | `UORCORP3` Offline Corpus Builder | Offline deterministic corpus generator building the `50,001`-sequence `1024`-token multi-turn conversational, compositional code, `MVM-Wasm`, `git`, and live-web `<tool_call>`/`<tool_response>` training split (`v10_corpus.bin`), `35,578`-sequence fast-start split (`v10_boot_corpus.bin`), disjoint held-out validation splits, and `UORVOCB9` raw byte table. |
-| `mvm_guest/build_pkgs.py` & `mvm_guest/pkg_*.c` | `R4.MvmWasm` (`R4-37`) | Offline freestanding `RV64IMAC` (`clang --target=riscv64-unknown-elf -march=rv64imac -mabi=lp64 -nostdlib -static`) package builder producing all 10 static `ELF64` (`EM_RISCV = 243`) guest binaries and SHA-256 `gpu/weights/mvm-pkgs/index.json` catalog (`jq`, `rg`, `tree`, `xxd`, `sha256sum`, `bc`, `wc`, `head`, `tail`, `http`). |
-| `rtx5090_gllm_v10_receipt.json` | `uor-r4.gpu-training-receipt/10` | Hardware training and post-quantization held-out evaluation receipt for the shipped `v10` `6L 64D` bootstrap and `8L 128D` OPFS checkpoints (`turn_memory_entries == 0`, `dense_matmul_ops == 0`, `softmax_ops == 0`). |
+| `train_gllm_v10.cu` | `R4.CompositionalGllm` / `R4.ConnectedStudio` (`UORGLLM9` `v10`) | Pure-geometric integer CUDA trainer (`-arch=sm_89` on `ssh wick` RTX 4090 / `-arch=sm_120` on RTX 5090) with 100% bit-exact Wasm parity (`MAX_SEQ = 1024`, `Cl(0,6)` FWHT-64 integer butterflies, 256-entry Q12 T-MAC LUTs, rational PRLL `1,000,000`-quantum causal KV attention, 81-state balanced-nonary readout, zero dense matmul, zero softmax). Exports both the `6L 128D` fast-start checkpoint (`crates/wasm/src/bootstrap_v9.uorgllm`, `10,010,406` B / `10.01 MB`, `16` $E_8$ heads, `32` `4`-channel LUT groups) and the `16L 256D` `79`-shard OPFS pack (`gpu/weights/v10/`, `82,427,606` B / `82.43 MB`, `32` $E_8$ heads, `64` `4`-channel LUT groups). |
+| `build_v10_corpus.rs` (+ `v10_corpus_ab.rs`, `v10_corpus_cde.rs`, `bpe_json.rs`) | `UORCORP3` Offline Corpus Builder (Pure Rust) | Deterministic pure-Rust (`rustc --edition 2021 -O`) corpus generator building the `100,000`-sequence `1024`-token multi-turn conversational, compositional code, `MVM-Wasm`, `git`, and live-web `<tool_call>`/`<tool_response>` training split (`v10_corpus.bin`), `37,164`-sequence fast-start split (`v10_boot_corpus.bin`), `847`-sequence disjoint held-out validation split (`v10_eval.bin`), and `UORVOCB9` raw byte table. |
+| `build_v9_corpus.rs` & `fetch_hf_datasets.rs` | `UORCORP2` & Dataset Curators (Pure Rust) | Pure-Rust (`rustc --edition 2021 -O`) legacy `v9` compositional corpus builder (`gpu/build_v9_corpus.rs`) and HuggingFace TSV stream curator (`gpu/fetch_hf_datasets.rs`) for `train_uorlut_v8.rs`. |
+| `mvm_guest/build_pkgs.rs` & `mvm_guest/pkg_*.c` | `R4.MvmWasm` (`R4-37`) | Pure-Rust freestanding `RV64IMAC` (`clang --target=riscv64-unknown-elf -march=rv64imac -mabi=lp64 -nostdlib -static`) package builder (`rustc --edition 2021 -O gpu/mvm_guest/build_pkgs.rs`) producing all 10 static `ELF64` (`EM_RISCV = 243`) guest binaries and SHA-256 `gpu/weights/mvm-pkgs/index.json` catalog (`jq`, `rg`, `tree`, `xxd`, `sha256sum`, `bc`, `wc`, `head`, `tail`, `http`). |
+| `rtx5090_gllm_v10_receipt.json` | `uor-r4.gpu-training-receipt/10` | Hardware training and post-quantization held-out evaluation receipt for the shipped `v10` `6L 128D` bootstrap and `16L 256D` `79`-shard OPFS checkpoints (`turn_memory_entries == 0`, `dense_matmul_ops == 0`, `softmax_ops == 0`). |
 | `cuda_stack.cu` | `R4.SpiralCore` / `R4.Flock` | Multi-layer geometric stream forward/backward pass, 16-head `RETAIN_LAMBDA_Q31` geometric retention, and stream depth-2 / depth-6 Hamming readouts. |
 | `spiralcore_fbs.cu` | `R4.SpiralCoreFbs` (`R4-24`) | 17-root Icosian $\mathbb{Z}[\phi]$ snap (`5 * a^2 < d`), GoldenQ12 inner-product compatibility, and quaternion Hamilton products on GPU. |
 | `spiralcore_fbs_arms.cu` | `R4.ExactArithmetic` (`R4-27`) | 5-arm causal ablation and radix-$B$ place-value carry kernels. |
@@ -62,7 +64,7 @@ Because UOR-R4 replaces dense $O(N^2 \cdot d)$ floating-point attention matrices
 
 | Run Tier | Dataset | Steps | Tokens Processed | Hardware | Rate | Wall-Clock Time | **Total GPU Cost** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **GLLM v10 Dual Pass (`bootstrap_v9.uorgllm` `6L 64D` + `gpu/weights/v10/` `8L 128D`)** | `50,001` full + `35,578` boot multi-turn & tool sequences (`MAX_SEQ=1024`) | `13` + `12` QAT epochs | `~42M` | **`ssh wick`: 1× RTX 4090 (`24 GB`, `sm_89`)** | **`\$0.00 / hr` (owned)** | `~20 min` | **`\$0.000`** |
+| **GLLM v10 Dual Pass (`bootstrap_v9.uorgllm` `6L 128D` + `gpu/weights/v10/` `16L 256D`)** | `100,000` full + `37,164` boot + `847` eval sequences (`MAX_SEQ=1024`) | `16` + `14` QAT epochs | `~102M` | **`ssh wick`: 1× RTX 4090 (`24 GB`, `sm_89`)** | **`\$0.00 / hr` (owned)** | `~3.4 hrs` (`~14 min` boot + `~3.1 hrs` OPFS) | **`\$0.000`** |
 | **UR4GLM06 Manifold (`rtx5090_glm_weights.bin`)** | 205 Basins + 135 Conv QA + 9,393 Vocab + 1,742 Horizons | `1,024` epochs | `205 × 1,024 + 9,393 × 512 + 1,742 × 512` | 1× RTX 5090 (32 GB) | `\$0.503 / hr` | `90.5 ms` | **`< \$0.0002`** |
 | **B-s1 Smoke (`short.uorlut`)** | `mw-balp` + `TinyStories` | `256` (`2×128`) | `32,768` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `32 sec` | **`\$0.005`** |
 | **Served-s1 (`served-s1.uorlut`)** | `mw-balp` + `/7` + `/8` tables | `256` + `573,801` reply rows | `3.1M` | 1× RTX 5090 (32 GB) | `\$0.563 / hr` | `6.4 min` | **`\$0.060`** |
@@ -71,8 +73,8 @@ Because UOR-R4 replaces dense $O(N^2 \cdot d)$ floating-point attention matrices
 
 ## 5. Bundled Artifacts in `gpu/`
 
-1. **`crates/wasm/src/bootstrap_v9.uorgllm`** (`3.44 MB`, `6L 64D` `UORGLLM9` `v10` fast-start checkpoint), **`gpu/weights/v10/manifest.json` + `shard_000.bin..shard_012.bin`** (`12.90 MB`, `8L 128D` 13-shard OPFS checkpoint), and **`gpu/rtx5090_gllm_v10_receipt.json`**.
-2. **`gpu/weights/mvm-pkgs/index.json` + `*.elf`** (`10` static freestanding `RV64IMAC` `ELF64` `EM_RISCV = 243` binaries built by `gpu/mvm_guest/build_pkgs.py`).
+1. **`crates/wasm/src/bootstrap_v9.uorgllm`** (`10,010,406` B / `10.01 MB`, `6L 128D`, `16` $E_8$ heads, `32` `4`-channel LUT groups, `UORGLLM9` `v10` fast-start checkpoint), **`gpu/weights/v10/manifest.json` + `shard_000.bin..shard_078.bin`** (`82,427,606` B / `82.43 MB`, `16L 256D`, `32` $E_8$ heads, `64` `4`-channel LUT groups, `79`-shard OPFS checkpoint), and **`gpu/rtx5090_gllm_v10_receipt.json`**.
+2. **`gpu/weights/mvm-pkgs/index.json` + `*.elf`** (`10` static freestanding `RV64IMAC` `ELF64` `EM_RISCV = 243` binaries built by `gpu/mvm_guest/build_pkgs.rs`).
 3. **`gpu/rtx5090_glm_weights.bin`** (`UR4GLM06` binary weight tensor trained on NVIDIA GeForce RTX 5090 `sm_120`) and **`gpu/rtx5090_training_receipt.json`**.
 4. **`gpu/short.uorlut`** (`2.1 MB`, `UORLUT01` binary container, schema `uor-r4.lut-stack/6`, `vocab_size = 4,096`, `width = 256`, `n_layers = 6`, `n_heads = 16`, `head_dim = 16`, `n_quat_blocks = 64`). Can be loaded directly into the browser workbench via the `.uorlut` weight pack loader.
 5. **`gpu/served-s1.header.json`** (`uor-r4.lut-stack/8` full header manifest for the `573,801`-row `/7` + `33,219`-point `/8` GPU-trained stack).

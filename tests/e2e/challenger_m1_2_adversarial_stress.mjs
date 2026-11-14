@@ -635,8 +635,8 @@ try {
   }
   const loadedV10 = JSON.parse(studio_load_uorgllm_v9_bytes(fullV10, 'e2e_static_weights_v10'));
   assert.equal(loadedV10.status, 'ok');
-  assert.equal(loadedV10.n_layers, 8);
-  assert.equal(loadedV10.d_model, 128);
+  assert.equal(loadedV10.n_layers, 16);
+  assert.equal(loadedV10.d_model, 256);
 
   // Verify chat_v10_turn returns ok + brain_pulses
   const chatTurn = JSON.parse(studio_dispatch('1\tstudio\tchat_v10_turn\thi'));
@@ -667,7 +667,7 @@ try {
   assert.equal(jqPipeRes.exit_code, 0);
   assert.equal(String(jqPipeRes.mvm_stdout || '').trim(), '42');
   localBridge.close();
-  console.log('  ✓ 7.3 Static /weights/ mapping, <15 MiB Wasm v10 8L 128D hydration, chat_v10_turn brain_pulses, and RV64IMAC pkg install jq + pipe verified.');
+  console.log('  ✓ 7.3 Static /weights/ mapping, <15 MiB Wasm v10 16L 256D hydration, chat_v10_turn brain_pulses, and RV64IMAC pkg install jq + pipe verified.');
 } finally {
   await new Promise((resolveClose) => staticServer.close(resolveClose));
 }

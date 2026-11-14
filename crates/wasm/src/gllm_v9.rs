@@ -40,7 +40,7 @@ pub const LEGACY_V9_BOOTSTRAP_SHA256: &str =
 pub const LEGACY_V9_FULL_SHA256: &str =
     "ff3021c04bde6b1e0a65d7a7390eea61a6a2f73a86bc1f232a8732dd84448a60";
 
-/// Embedded 6-layer 64D `UORGLLM9` bootstrap checkpoint trained on RTX 5090 (`gpu/train_gllm_v9.cu`).
+/// Embedded 6-layer 128D 16H `UORGLLM9` bootstrap checkpoint trained on RTX 4090 (`gpu/train_gllm_v10.cu`).
 static EMBEDDED_BOOTSTRAP_V9: &[u8] = include_bytes!("bootstrap_v9.uorgllm");
 
 /// Typed errors emitted by the `UOR-R4-GLLM v9` parser and runtime (`R5`).
@@ -84,9 +84,9 @@ pub struct GllmV9Header {
     pub version: u32,
     /// ByteBPE vocabulary cardinality (`4096`).
     pub vocab_size: u32,
-    /// Hidden channel width (`64` or `128`, multiple of `64`).
+    /// Hidden channel width (`64`, `128`, or `256`, multiple of `64`).
     pub d_model: u32,
-    /// Number of stacked causal geometric layers (`6` or `8`).
+    /// Number of stacked causal geometric layers (`6`, `8`, or `16`).
     pub n_layers: u32,
     /// Number of 8D $E_8$ causal attention heads (`d_model / 8`).
     pub n_heads: u32,
@@ -196,8 +196,7 @@ pub struct GllmV9Model {
     tmac_readout_lo: Vec<u8>, // [4096 * lut_groups] packed 4-trit lo plane 0..80
     copy_tok_gate: Vec<u8>,   // [4096] per-token copy eligibility 0..255
     p_out: Vec<i16>,          // [4096 * d_model]
-    p_sk0: Vec<u64>,          // [4096]
-    p_sk1: Vec<u64>,          // [4096]
+    p_sk: Vec<u64>,           // [4096 * (d_model / 64)]
     b_out: Vec<i16>,          // [4096]
 }
 
@@ -540,16 +539,13 @@ impl GllmV9Model {
             return Err(GllmV9Error::TruncatedContainer);
         }
 
-        let mut p_sk0 = Vec::with_capacity(GLLM_V9_VOCAB);
-        let mut p_sk1 = Vec::with_capacity(GLLM_V9_VOCAB);
+        let n_blocks = d / 64;
+        let mut p_sk = Vec::with_capacity(GLLM_V9_VOCAB * n_blocks);
         for v in 0..GLLM_V9_VOCAB {
             let row = &p_out[v * d..(v + 1) * d];
-            p_sk0.push(pack_sign64(&row[0..64]));
-            p_sk1.push(if d >= 128 {
-                pack_sign64(&row[64..128])
-            } else {
-                0
-            });
+            for b in 0..n_blocks {
+                p_sk.push(pack_sign64(&row[b * 64..(b + 1) * 64]));
+            }
         }
 
         let full_sha = hex_32(&sha256_bytes_arr(bytes));
@@ -565,8 +561,7 @@ impl GllmV9Model {
             tmac_readout_lo,
             copy_tok_gate,
             p_out,
-            p_sk0,
-            p_sk1,
+            p_sk,
             b_out,
         })
     }
@@ -1169,9 +1164,9 @@ struct GllmV9KvCache {
     prev_layer_in: Vec<Vec<i16>>, // [n_layers][d_model] causal 1-back input state
     k_cache: Vec<Vec<i16>>,       // [n_layers][seq * d_model]
     v_cache: Vec<Vec<i16>>,       // [n_layers][seq * d_model]
-    k_sk0: Vec<Vec<u64>>,         // [n_layers][seq]
+    k_sk: Vec<Vec<u64>>,          // [n_layers][seq * sk_blocks]
     last_top_q: Vec<i16>,
-    last_top_q_sk0: u64,
+    last_top_q_sk: Vec<u64>, // [sk_blocks]
     last_hidden: Vec<i16>,
 }
 
@@ -1186,6 +1181,7 @@ impl GllmV9KvCache {
         let l = model.header.n_layers as usize;
         let h = model.header.n_heads as usize;
         let g = model.header.lut_groups as usize;
+        let sk_blocks = if d >= 256 { d / 64 } else { 1 };
         Self {
             d_model: d,
             n_layers: l,
@@ -1200,9 +1196,9 @@ impl GllmV9KvCache {
             prev_layer_in: vec![vec![0i16; d]; l],
             k_cache: vec![Vec::with_capacity(GLLM_V9_MAX_SEQ * d); l],
             v_cache: vec![Vec::with_capacity(GLLM_V9_MAX_SEQ * d); l],
-            k_sk0: vec![Vec::with_capacity(GLLM_V9_MAX_SEQ); l],
+            k_sk: vec![Vec::with_capacity(GLLM_V9_MAX_SEQ * sk_blocks); l],
             last_top_q: vec![0i16; d],
-            last_top_q_sk0: 0,
+            last_top_q_sk: vec![0u64; sk_blocks],
             last_hidden: vec![0i16; d],
         }
     }
@@ -1243,6 +1239,7 @@ impl GllmV9KvCache {
             && model.copy_tok_gate[tok] >= 208
             && (1..=t)
                 .any(|u| self.tokens[u] == tok as u32 && matches!(self.tokens[u - 1], 773 | 269));
+        let gate3_lo = if d >= 128 { d - 48 } else { 40 };
         for c in 0..d {
             let perm_c = c ^ (pos_idx & 7);
             let parity = (((c as u32) & 63) & spin_t).count_ones() & 1;
@@ -1252,7 +1249,7 @@ impl GllmV9KvCache {
                 ep_row[perm_c] as i32
             };
             let rot = if parity == 0 { ep } else { -ep };
-            let et = if is_bound_var_start && c < 80 && ((c / 8) % 4 == 1) {
+            let et = if is_bound_var_start && c < gate3_lo && ((c / 8) % 4 == 1) {
                 0
             } else {
                 et_row[c] as i32
@@ -1328,16 +1325,19 @@ impl GllmV9KvCache {
                 k_vec[c] = clamp_q12((k_acc[c] >> 2) + ((u_k[c] as i32) >> 1));
                 v_vec[c] = clamp_q12((v_acc[c] >> 2) + ((x_cur[c] as i32) >> 1));
             }
-            let q_sk0 = pack_sign64(&q_vec[0..64]);
-            let k_sk = pack_sign64(&k_vec[0..64]);
+            let sk_blocks = if d >= 256 { d / 64 } else { 1 };
+            let mut q_sk = vec![0u64; sk_blocks];
+            for b in 0..sk_blocks {
+                q_sk[b] = pack_sign64(&q_vec[b * 64..(b + 1) * 64]);
+                self.k_sk[l].push(pack_sign64(&k_vec[b * 64..(b + 1) * 64]));
+            }
 
             self.k_cache[l].extend_from_slice(&k_vec);
             self.v_cache[l].extend_from_slice(&v_vec);
-            self.k_sk0[l].push(k_sk);
 
             if l + 1 == self.n_layers {
                 self.last_top_q.copy_from_slice(&q_vec);
-                self.last_top_q_sk0 = q_sk0;
+                self.last_top_q_sk.copy_from_slice(&q_sk);
             }
 
             // Causal Multi-Head PRLL (R4-27) Attention over s in 0..=t
@@ -1354,7 +1354,8 @@ impl GllmV9KvCache {
                 };
                 let tau = (lt.head_tau[h].max(256)) as i32;
                 let slope = lt.head_slope[h] as i32;
-                let q_byte = ((q_sk0 >> ((h & 7) * 8)) & 0xFF) as u8;
+                let h_blk = if d >= 256 { h / 8 } else { 0 };
+                let q_byte = ((q_sk[h_blk] >> ((h & 7) * 8)) & 0xFF) as u8;
 
                 let mut sum_raw = 0u64;
                 let mut best_s = 0usize;
@@ -1367,7 +1368,8 @@ impl GllmV9KvCache {
                     for j in 0..8 {
                         d_l1 += ((q_vec[c_off + j] as i32) - (k_row[j] as i32)).abs();
                     }
-                    let k_byte = ((self.k_sk0[l][ks] >> ((h & 7) * 8)) & 0xFF) as u8;
+                    let k_byte =
+                        ((self.k_sk[l][ks * sk_blocks + h_blk] >> ((h & 7) * 8)) & 0xFF) as u8;
                     let d_ham = (q_byte ^ k_byte).count_ones() as i32;
                     let t_is_anchor = model.copy_tok_gate[self.tokens[t] as usize] >= 208;
                     let d_ind = if sh == 1 {
@@ -1487,9 +1489,11 @@ impl GllmV9KvCache {
                 }
             }
 
-            // Residual (damped >> 1) + FWHT-64 + Discrete FFN T-MAC LUT + Icosian Hinge (>> 4)
+            // Residual (damped >> 1 for <=8L, >> 2 for 16L to prevent 1.25^16 blowup) + FWHT-64 + Discrete FFN T-MAC LUT + Icosian Hinge
+            let attn_res_shift = if self.n_layers >= 16 { 2 } else { 1 };
+            let ffn_shift = if d >= 256 { 5 } else { 4 };
             for c in 0..d {
-                x_mid[c] = clamp_q12((x_cur[c] as i32) + ((attn_out[c] as i32) >> 1));
+                x_mid[c] = clamp_q12((x_cur[c] as i32) + ((attn_out[c] as i32) >> attn_res_shift));
             }
             for blk in 0..(d / 64) {
                 fwht64_block(
@@ -1506,7 +1510,7 @@ impl GllmV9KvCache {
                 }
             }
             for c in 0..d {
-                let act = icosian_hinge(ffn_acc[c] >> 4);
+                let act = icosian_hinge(ffn_acc[c] >> ffn_shift);
                 x_cur[c] = clamp_q12((x_mid[c] as i32) + (act as i32));
             }
         }
@@ -1546,7 +1550,7 @@ impl GllmV9KvCache {
 
         let mut copy_logits = vec![0i32; GLLM_V9_VOCAB];
         let mut copy_best_src = vec![0usize; GLLM_V9_VOCAB];
-        let mut sh3_cands = vec![[0i32; 4]; GLLM_V9_VOCAB];
+        let mut sh3_cands = vec![[0i32; 8]; GLLM_V9_VOCAB];
         let mut sh3_cnt = vec![0u8; GLLM_V9_VOCAB];
         let mut raw_w = vec![0u64; t + 1];
         let mut prll_w = vec![0u32; t + 1];
@@ -1943,7 +1947,9 @@ impl GllmV9KvCache {
             };
             let tau = (lt.head_tau[h].max(256)) as i32;
             let slope = lt.head_slope[h] as i32;
-            let q_byte = ((self.last_top_q_sk0 >> ((h & 7) * 8)) & 0xFF) as u8;
+            let sk_blocks = if d >= 256 { d / 64 } else { 1 };
+            let h_blk = if d >= 256 { h / 8 } else { 0 };
+            let q_byte = ((self.last_top_q_sk[h_blk] >> ((h & 7) * 8)) & 0xFF) as u8;
 
             let mut sum_raw = 0u64;
             let mut best_s = 0usize;
@@ -1956,7 +1962,8 @@ impl GllmV9KvCache {
                 for (j, &kv) in k_row.iter().enumerate().take(8) {
                     d_l1 += ((self.last_top_q[c_off + j] as i32) - (kv as i32)).abs();
                 }
-                let k_byte = ((self.k_sk0[top_l][ks] >> ((h & 7) * 8)) & 0xFF) as u8;
+                let k_byte =
+                    ((self.k_sk[top_l][ks * sk_blocks + h_blk] >> ((h & 7) * 8)) & 0xFF) as u8;
                 let d_ham = (q_byte ^ k_byte).count_ones() as i32;
                 let t_is_anchor = model.copy_tok_gate[self.tokens[t] as usize] >= 208;
                 let d_ind = if sh == 1 {
@@ -2175,12 +2182,12 @@ impl GllmV9KvCache {
                     let cand = ((((eff_wp as i64) * (copy_gain as i64) * tok_allow) >> 25) as i32)
                         .clamp(0, cap_h);
                     if sh == 3 {
-                        let prev_max = sh3_cands[tok_s][..(sh3_cnt[tok_s] as usize).min(4)]
+                        let prev_max = sh3_cands[tok_s][..(sh3_cnt[tok_s] as usize).min(8)]
                             .iter()
                             .copied()
                             .max()
                             .unwrap_or(-1);
-                        let idx = (sh3_cnt[tok_s] as usize).min(3);
+                        let idx = (sh3_cnt[tok_s] as usize).min(7);
                         sh3_cands[tok_s][idx] = cand;
                         sh3_cnt[tok_s] = sh3_cnt[tok_s].saturating_add(1);
                         if cand >= prev_max {
@@ -2199,7 +2206,7 @@ impl GllmV9KvCache {
         for v in 0..GLLM_V9_VOCAB {
             let n = sh3_cnt[v] as usize;
             if n > 0 {
-                let slice = &mut sh3_cands[v][..n.min(4)];
+                let slice = &mut sh3_cands[v][..n.min(8)];
                 slice.sort_unstable();
                 let mut combined = if slice.len() >= 2 {
                     (slice[slice.len() - 1] + slice[slice.len() - 2]).clamp(0, 18_432)
@@ -2254,13 +2261,11 @@ impl GllmV9KvCache {
             }
         }
 
-        let h_sk0 = pack_sign64(&self.last_hidden[0..64]);
-        let h_sk1 = if d >= 128 {
-            pack_sign64(&self.last_hidden[64..128])
-        } else {
-            0
-        };
-        let d_shift = if d >= 128 { 1u32 } else { 0u32 };
+        let n_blocks = d / 64;
+        let h_sk: Vec<u64> = (0..n_blocks)
+            .map(|b| pack_sign64(&self.last_hidden[b * 64..(b + 1) * 64]))
+            .collect();
+        let d_shift = n_blocks.ilog2();
 
         let mut best_v = 1u32;
         let mut best_score = i32::MIN;
@@ -2273,12 +2278,12 @@ impl GllmV9KvCache {
         let active_mid_span = expected_cont_s
             .map(|ns| copy_logits[self.tokens[ns] as usize] >= 1_024)
             .unwrap_or(false);
-        let gate12_g_lo = (g_cnt * 13) / 16;
+        let gate12_g_lo = if g_cnt >= 32 { g_cnt - 6 } else { 13 };
         let block_uncopied_span_exit_alnum = is_v10_model
             && in_agent_gen
             && self.tool_obs_range.is_none()
             && prev_was_copied
-            && expected_cont_s.is_none();
+            && (expected_cont_s.is_none() || bridged_uncalibrated_word);
         let (in_terminal_json_val, close_braces_needed, close_xml_prefix, cmd_argv0_prefix): (
             bool,
             i32,
@@ -2517,9 +2522,10 @@ impl GllmV9KvCache {
             for (c, &pv) in p_row.iter().enumerate().take(d) {
                 l1 += ((self.last_hidden[c] as i32) - (pv as i32)).abs();
             }
-            let mut ham = (h_sk0 ^ model.p_sk0[v]).count_ones() as i32;
-            if d >= 128 {
-                ham += (h_sk1 ^ model.p_sk1[v]).count_ones() as i32;
+            let p_sk_row = &model.p_sk[v * n_blocks..(v + 1) * n_blocks];
+            let mut ham = 0i32;
+            for b in 0..n_blocks {
+                ham += (h_sk[b] ^ p_sk_row[b]).count_ones() as i32;
             }
             let raw_b_val = model.b_out[v] as i32;
             let b_val = if is_untouched_copy_cal {
@@ -2531,13 +2537,22 @@ impl GllmV9KvCache {
                 - ((ham * 24) >> d_shift)
                 - (l1 >> (5 + d_shift));
             let pure_score = if is_v10_model
-                && (bridged_uncalibrated_word || in_tool_obs_span.is_some())
                 && copy_logit >= 2_048
                 && expected_cont_s
                     .map(|ns| self.tokens[ns] as usize == v)
                     .unwrap_or(false)
             {
-                raw_pure_score.max(0)
+                if bridged_uncalibrated_word {
+                    raw_pure_score.max(8_192)
+                } else if in_tool_obs_span.is_some() {
+                    raw_pure_score.max(if prev_was_copied && d >= 128 {
+                        12_288
+                    } else {
+                        0
+                    })
+                } else {
+                    raw_pure_score
+                }
             } else {
                 raw_pure_score
             };

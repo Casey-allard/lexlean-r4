@@ -1636,16 +1636,24 @@ fn resolve_v10_tool_invocation(
         && !lower_prompt.contains("wget ");
     let explicit_tool_intent = explicit_url.is_some()
         || explicit_search.is_some()
+        || lower_prompt.starts_with("search ")
+        || lower_prompt.contains("[agent_mode]")
         || lower_prompt.contains("microvm")
         || lower_prompt.contains("mvm")
-        || lower_prompt.contains("linux sandbox")
+        || lower_prompt.contains("sandbox")
+        || lower_prompt.contains("/workspace")
+        || lower_prompt.contains("uname")
+        || lower_prompt.contains("sha256sum")
+        || lower_prompt.contains("pkg ")
         || lower_prompt.contains("git ")
         || lower_prompt.contains("`git")
+        || (lower_prompt.contains("push ") && lower_prompt.contains("origin"))
         || lower_prompt.contains("curl ")
         || lower_prompt.contains("wget ")
         || lower_prompt.contains("nslookup ")
         || lower_prompt.contains("dig ")
         || lower_prompt.contains("web_search")
+        || lower_prompt.contains("web search")
         || lower_prompt.contains("web_fetch")
         || lower_prompt.contains("search online")
         || lower_prompt.contains("search the web");
@@ -1666,130 +1674,132 @@ fn resolve_v10_tool_invocation(
         });
     }
 
-    if let Some(start) = generated_text.find("<tool_call>") {
-        let after = &generated_text[start + "<tool_call>".len()..];
-        let body = after.split("</tool_call>").next().unwrap_or(after).trim();
-        if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(body) {
-            let tool_name = parsed
-                .get("name")
-                .or_else(|| parsed.get("tool"))
-                .and_then(|v| v.as_str())
-                .map(str::trim)
-                .unwrap_or("");
-            let args = parsed.get("arguments").unwrap_or(&parsed);
-            match tool_name {
-                "mvm_exec" | "git" => {
-                    let cmd = args
-                        .get("cmd")
-                        .or_else(|| args.get("command"))
-                        .or_else(|| args.get("args"))
-                        .and_then(|v| v.as_str())
-                        .map(|s| s.trim().to_string());
-                    return Some(ResolvedV10ToolCall {
-                        tool_name: tool_name.to_string(),
-                        cmd,
-                        query: None,
-                        url: None,
-                        canonical_body: body.to_string(),
-                    });
-                }
-                "web_search" => {
-                    let query = args
-                        .get("query")
-                        .and_then(|v| v.as_str())
-                        .map(|s| s.trim().to_string())
-                        .filter(|s| !s.is_empty())
-                        .or_else(|| explicit_search.clone());
-                    return Some(ResolvedV10ToolCall {
-                        tool_name: "web_search".to_string(),
-                        cmd: None,
-                        query,
-                        url: None,
-                        canonical_body: body.to_string(),
-                    });
-                }
-                "web_fetch" => {
-                    let url = explicit_url.clone().or_else(|| {
-                        args.get("url")
+    if explicit_tool_intent {
+        if let Some(start) = generated_text.find("<tool_call>") {
+            let after = &generated_text[start + "<tool_call>".len()..];
+            let body = after.split("</tool_call>").next().unwrap_or(after).trim();
+            if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(body) {
+                let tool_name = parsed
+                    .get("name")
+                    .or_else(|| parsed.get("tool"))
+                    .and_then(|v| v.as_str())
+                    .map(str::trim)
+                    .unwrap_or("");
+                let args = parsed.get("arguments").unwrap_or(&parsed);
+                match tool_name {
+                    "mvm_exec" | "git" if !explicit_fetch_prompt => {
+                        let cmd = args
+                            .get("cmd")
+                            .or_else(|| args.get("command"))
+                            .or_else(|| args.get("args"))
+                            .and_then(|v| v.as_str())
+                            .map(|s| s.trim().to_string());
+                        return Some(ResolvedV10ToolCall {
+                            tool_name: tool_name.to_string(),
+                            cmd,
+                            query: None,
+                            url: None,
+                            canonical_body: body.to_string(),
+                        });
+                    }
+                    "web_search" => {
+                        let query = args
+                            .get("query")
                             .and_then(|v| v.as_str())
                             .map(|s| s.trim().to_string())
                             .filter(|s| !s.is_empty())
-                    });
-                    return Some(ResolvedV10ToolCall {
-                        tool_name: "web_fetch".to_string(),
-                        cmd: None,
-                        query: None,
-                        url,
-                        canonical_body: body.to_string(),
-                    });
-                }
-                _ => {}
-            }
-        } else if explicit_tool_intent {
-            let recovered_name = extract_partial_json_str_field(body, "name")
-                .or_else(|| extract_partial_json_str_field(body, "tool"));
-            match recovered_name.as_deref() {
-                Some("web_fetch") => {
-                    let url = explicit_url
-                        .clone()
-                        .or_else(|| extract_partial_json_str_field(body, "url"));
-                    if let Some(u) = url {
-                        let cbody = serde_json::json!({
-                            "name": "web_fetch",
-                            "arguments": { "url": u }
-                        })
-                        .to_string();
+                            .or_else(|| explicit_search.clone());
+                        return Some(ResolvedV10ToolCall {
+                            tool_name: "web_search".to_string(),
+                            cmd: None,
+                            query,
+                            url: None,
+                            canonical_body: body.to_string(),
+                        });
+                    }
+                    "web_fetch" => {
+                        let url = explicit_url.clone().or_else(|| {
+                            args.get("url")
+                                .and_then(|v| v.as_str())
+                                .map(|s| s.trim().to_string())
+                                .filter(|s| !s.is_empty())
+                        });
                         return Some(ResolvedV10ToolCall {
                             tool_name: "web_fetch".to_string(),
                             cmd: None,
                             query: None,
-                            url: Some(u),
-                            canonical_body: cbody,
+                            url,
+                            canonical_body: body.to_string(),
                         });
                     }
+                    _ => {}
                 }
-                Some("web_search") => {
-                    let query = explicit_search
-                        .clone()
-                        .or_else(|| extract_partial_json_str_field(body, "query"))
-                        .unwrap_or_else(|| user_prompt.trim().to_string());
-                    let cbody = serde_json::json!({
-                        "name": "web_search",
-                        "arguments": { "query": query }
-                    })
-                    .to_string();
-                    return Some(ResolvedV10ToolCall {
-                        tool_name: "web_search".to_string(),
-                        cmd: None,
-                        query: Some(query),
-                        url: None,
-                        canonical_body: cbody,
-                    });
-                }
-                Some(t @ ("mvm_exec" | "git")) => {
-                    let mut cmd = extract_partial_json_str_field(body, "cmd")
-                        .or_else(|| extract_partial_json_str_field(body, "command"));
-                    if t == "git" && lower_prompt.contains("clone ") {
-                        if let Some(ref u) = explicit_url {
-                            cmd = Some(format!("clone {u}"));
+            } else {
+                let recovered_name = extract_partial_json_str_field(body, "name")
+                    .or_else(|| extract_partial_json_str_field(body, "tool"));
+                match recovered_name.as_deref() {
+                    Some("web_fetch") => {
+                        let url = explicit_url
+                            .clone()
+                            .or_else(|| extract_partial_json_str_field(body, "url"));
+                        if let Some(u) = url {
+                            let cbody = serde_json::json!({
+                                "name": "web_fetch",
+                                "arguments": { "url": u }
+                            })
+                            .to_string();
+                            return Some(ResolvedV10ToolCall {
+                                tool_name: "web_fetch".to_string(),
+                                cmd: None,
+                                query: None,
+                                url: Some(u),
+                                canonical_body: cbody,
+                            });
                         }
                     }
-                    if let Some(c) = cmd {
+                    Some("web_search") => {
+                        let query = explicit_search
+                            .clone()
+                            .or_else(|| extract_partial_json_str_field(body, "query"))
+                            .unwrap_or_else(|| user_prompt.trim().to_string());
                         let cbody = serde_json::json!({
-                            "name": t,
-                            "arguments": { "cmd": c }
+                            "name": "web_search",
+                            "arguments": { "query": query }
                         })
                         .to_string();
                         return Some(ResolvedV10ToolCall {
-                            tool_name: t.to_string(),
-                            cmd: Some(c),
-                            query: None,
+                            tool_name: "web_search".to_string(),
+                            cmd: None,
+                            query: Some(query),
                             url: None,
                             canonical_body: cbody,
                         });
                     }
+                    Some(t @ ("mvm_exec" | "git")) if !explicit_fetch_prompt => {
+                        let mut cmd = extract_partial_json_str_field(body, "cmd")
+                            .or_else(|| extract_partial_json_str_field(body, "command"));
+                        if t == "git" && lower_prompt.contains("clone ") {
+                            if let Some(ref u) = explicit_url {
+                                cmd = Some(format!("clone {u}"));
+                            }
+                        }
+                        if let Some(c) = cmd {
+                            let cbody = serde_json::json!({
+                                "name": t,
+                                "arguments": { "cmd": c }
+                            })
+                            .to_string();
+                            return Some(ResolvedV10ToolCall {
+                                tool_name: t.to_string(),
+                                cmd: Some(c),
+                                query: None,
+                                url: None,
+                                canonical_body: cbody,
+                            });
+                        }
+                    }
+                    _ => {}
                 }
-                _ => {}
             }
         }
     }

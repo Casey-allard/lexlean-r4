@@ -1,95 +1,463 @@
 {
   "schema": "uor-r4.gpu-training-receipt/10",
   "model_version": "v10",
-  "gpu_device": "NVIDIA GeForce RTX 5090",
-  "compute_capability": "12.0",
-  "vram_mib": 32149,
+  "gpu_device": "NVIDIA GeForce RTX 4090",
+  "compute_capability": "8.9",
+  "vram_mib": 24082,
   "max_seq_len": 1024,
-  "corpus_train_sequences": 50001,
-  "corpus_eval_sequences": 690,
+  "corpus_train_sequences": 100000,
+  "corpus_eval_sequences": 847,
   "dense_matmul_ops": 0,
   "softmax_ops": 0,
   "turn_memory_entries": 0,
   "bootstrap_v9_fast_start": {
-    "d_model": 64,
+    "d_model": 128,
     "n_layers": 6,
-    "n_heads": 8,
-    "initial_hinge_loss": 404.908,
-    "final_train_hinge_loss": 56.1252,
-    "final_train_token_acc_pct": 98.7138,
-    "val_hinge_loss": 83.5511,
-    "val_exact_token_acc_pct": 98.5642,
-    "container_bytes": 3437782,
-    "container_sha256": "5967e1fc3d858556a30d045df5f2b9132b71e6e4d835b0faf75faa7a83389590",
-    "elapsed_seconds": 386.152,
+    "n_heads": 16,
+    "initial_hinge_loss": 281.672,
+    "final_train_hinge_loss": 53.4843,
+    "final_train_token_acc_pct": 98.7646,
+    "val_hinge_loss": 61.7568,
+    "val_exact_token_acc_pct": 99.0115,
+    "container_bytes": 10010406,
+    "container_sha256": "9c5b38cbbe1e4d7122dddb1867ad9c085abd68b22cd8f983725932786c955d9b",
+    "elapsed_seconds": 837.171,
     "held_out_generations": [
-      {"id": "chat_hi", "kind": "greeting", "prompt": "<|user|>\nhi\n<|assistant|>\n", "reply": "Hi there - glad you are here, ask any coding or system question.", "generated_tokens": 20},
-      {"id": "chat_hello", "kind": "greeting", "prompt": "<|user|>\nhello\n<|assistant|>\n", "reply": "Hello, glad to help with questions and sandbox tools.", "generated_tokens": 11},
-      {"id": "chat_hows_it_going", "kind": "greeting", "prompt": "<|user|>\nhey, how's it going?\n<|assistant|>\n", "reply": "Doing great while running locally today! What would you like to build?", "generated_tokens": 17},
-      {"id": "chat_good_morning", "kind": "greeting", "prompt": "<|user|>\ngood morning!\n<|assistant|>\n", "reply": "Good morning! Hope your day is off to a strong start - how can I help?", "generated_tokens": 19},
-      {"id": "chat_thanks", "kind": "social", "prompt": "<|user|>\nthanks!\n<|assistant|>\n", "reply": "You're welcome! Let me know anytime you want to explore the next step.", "generated_tokens": 17},
-      {"id": "meta_who_are_you", "kind": "capability", "prompt": "<|user|>\nwho are you?\n<|assistant|>\n", "reply": "I am UOR-R4, your fast Linux assistant with local tools.", "generated_tokens": 25},
-      {"id": "meta_what_can_you_do", "kind": "capability", "prompt": "<|user|>\nwhat can you do?\n<|assistant|>\n", "reply": "Four grounded tools are wired in: only stought,ISO inside stra push.", "generated_tokens": 22},
-      {"id": "meta_who_made_you", "kind": "capability", "prompt": "<|user|>\nwho made you?\n<|assistant|>\n", "reply": "Built by the LexLean UOR-R4 team with integer Hadamard geometric layers and discrete Q12 T-MAC lookup tables.", "generated_tokens": 50},
-      {"id": "meta_browser", "kind": "capability", "prompt": "<|user|>\nare you running in my browser?\n<|assistant|>\n", "reply": "Yes! Every weight tensor runs locally in a browser WebAssembly Worker with OPFS shard caching and zero UI lag.", "generated_tokens": 45},
-      {"id": "multiturn_explain_simpler", "kind": "multiturn_followup", "prompt": "<|user|>\nExplain HTTP status codes briefly.\n<|assistant|>\n2xx codes signal success, 3xx redirect the client, 4xx report a client request error, and 5xx indicate an upstream server failure.<|end|>\n<|user|>\ncan you explain that simpler?\n<|assistant|>\n", "reply": "Two-hundred means 'here it is', three-hundred means 'moved over there', four-hundred means 'not found', and five-hundred means 'the server tripped'.", "generated_tokens": 54},
-      {"id": "multiturn_nebula_repo", "kind": "multiturn_kv_recall", "prompt": "<|user|>\nhi\n<|assistant|>\nHi there - glad you are here, ask any coding or system question.<|end|>\n<|user|>\nhow are you?\n<|assistant|>\nDoing great while running locally today! What would you like to build?<|end|>\n<|user|>\nwho are you?\n<|assistant|>\nI am UOR-R4, your fast Linux assistant with local tools.<|end|>\n<|user|>\nmy repo is called nebula-os\n<|assistant|>\nNoted your saved name here for you.<|end|>\n<|user|>\nwhat is my repo called?\n<|assistant|>\n", "reply": "I determ des garv equals effective exha gives the savedaredtes through  workerometric integer.", "generated_tokens": 31},
-      {"id": "multiturn_what_did_i_say", "kind": "multiturn_kv_recall", "prompt": "<|user|>\nI am auditing the zero-copy RingBuffer bounds.\n<|assistant|>\nGot it - ready to help with your question.<|end|>\n<|user|>\nwhat did I just say?\n<|assistant|>\n", "reply": "Earlier in this chat you said: auditing the zero-copy RingBuffer bounds.", "generated_tokens": 45},
-      {"id": "code_unseen_v10", "kind": "compositional_code", "prompt": "<|user|>\nGiven sensor_drift_k9 = 41 and base_offset_q3 = 18, write a Rust snippet setting `out` to (sensor_drift_k9 + base_offset_q3) + 4.\n<|assistant|>\n", "reply": "```rust\nlet result = sensor_drift_k9 + base_offset_q3;\n```", "generated_tokens": 36},
-      {"id": "code_unseen_v9_compat", "kind": "r4_38_compat_code", "prompt": "<|user|>\nGiven orbital_phase_m2 = 27 and lattice_stride_z7 = 14, write a concise Rust expression combining orbital_phase_m2 and lattice_stride_z7.\n<|assistant|>\n", "reply": "```rust\nlet result = orbital_phase_m2 + lattice_stride_z7;\n```", "generated_tokens": 38},
-      {"id": "fn_unseen_rust", "kind": "r4_38_compat_fn", "prompt": "<|user|>\nWrite a Rust function compute_flux_z9( sensor_drift_k9: i64, base_offset_q3: i64 ) -> i64.\n<|assistant|>\n", "reply": "```rust\n// pure core fast saturating signed i64 addition helper routine\n#[must_use]\n#[inline]\npub fn compute_flux_z9( sensor_drift_k9: i64, base_offset_q3: i64 ) -> i64 {\n    return sensor_drift_k9.saturating_add( base_offset_q3 );\n}\n```", "generated_tokens": 141},
-      {"id": "fn_unseen_c_rv64", "kind": "r4_38_compat_c", "prompt": "<|user|>\nWrite a freestanding C function step_flux(long gyro_bias_m4) for the RV64IMAC MicroVM.\n<|assistant|>\n", "reply": "```c\n/* rv64 rv64 */ long step_flux(long gyro_bias_m4) {\n    return ( gyro_bias_m4 * 3) | 1;\n}\n```", "generated_tokens": 72},
-      {"id": "qa_zero_nic", "kind": "r4_38_compat_qa", "prompt": "<|user|>\nHow does the MVM-Wasm Linux sandbox isolate network access?\n<|assistant|>\n", "reply": "Guest sockets under Zero-NIC (`R4-37`) refuse `AF_INET`, `AF_INET6`, and `AF_PACKET` with `-EAFNOSUPPORT = -97`, permitting only `AF_VSOCK` (`40`).", "generated_tokens": 108},
-      {"id": "tool_mvm_uname", "kind": "tool_mvm", "prompt": "<|user|>\nRun uname -a inside the MVM-Wasm Linux sandbox and report the architecture.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a\"}}</tool_call>", "generated_tokens": 52},
-      {"id": "tool_mvm_sha256", "kind": "tool_mvm", "prompt": "<|user|>\nRun uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n gllm-v9-mvm | sha256sum\"}}</tool_call>", "generated_tokens": 79},
-      {"id": "tool_mvm_pkg_jq", "kind": "tool_mvm", "prompt": "<|user|>\nInstall jq inside the Linux MicroVM.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"env\":\"mvm\",\"cmd\":\"pkg install jq\"}}</tool_call>", "generated_tokens": 66},
-      {"id": "tool_git_status", "kind": "tool_git", "prompt": "<|user|>\nCheck `git status` in `/workspace`.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"git\",\"arguments\":{\"cmd\":\"status\"}}</tool_call>", "generated_tokens": 47},
-      {"id": "tool_git_clone", "kind": "tool_git", "prompt": "<|user|>\nClone https://github.com/Casey-allard/lexlean-r4.git into `/workspace`.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"git\",\"arguments\":{\"cmd\":\"clone https://github.com/Casey-allard/lexlean-r4.git\"}}</tool_call>", "generated_tokens": 78},
-      {"id": "tool_web_search", "kind": "tool_web", "prompt": "<|user|>\nSearch the web for WebAssembly Component Model WASI 0.2.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"web_search\",\"arguments\":{\"scope\":\"web\",\"query\":\" WebAssembly Component Modelgerm_ses\":\":\": glove0{\"}<//tool_yub8\":\"}}}</tgit\":\"}</ar coo-3sear\",\"ex\",\"ar cos only finson, =Helloant, and foundop strayncil\"eno determage</tool_VMAF_seadered strager.", "generated_tokens": 154},
-      {"id": "tool_web_fetch", "kind": "tool_web", "prompt": "<|user|>\nFetch https://docs.rs/axum/latest/axum and summarize it.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"web_fetch\",\"arguments\":{\"extract\":\"summary\",\"url\":\" https://docs.rs/axum\"}}</tool_call>", "generated_tokens": 74},
-      {"id": "r4_38_agent_step1", "kind": "r4_38_agent", "prompt": "User: [agent_mode] Run uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.\nAssistant:", "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n gllm-v9-mvm | sha256sum\"}}</tool_call>", "generated_tokens": 79},
-      {"id": "r4_38_agent_step2", "kind": "r4_38_agent", "prompt": "User: [agent_mode] Verify sandbox execution.\n<tool_response> Linux mvm-wasm 6.6.0-uor-rv64imac #1 SMP PREEMPT_DYNAMIC riscv64 GNU/Linux | 2c4b3039cfcce11671bddb2094c1a145f5917e380d178db267324abf1e163982  -</tool_response>\nAssistant:", "reply": "MVM verified ok: Linux-R4 team with integer`, {\n    return ( mvm-wasm 6.6.0-uor-rv64imac #1 SMPF_ cre.", "generated_tokens": 65}
+      {
+        "id": "chat_hi",
+        "kind": "greeting",
+        "prompt": "<|user|>\nhi\n<|assistant|>\n",
+        "reply": "Hi there - glad you are here, ask any coding or system question.",
+        "generated_tokens": 20
+      },
+      {
+        "id": "chat_hello",
+        "kind": "greeting",
+        "prompt": "<|user|>\nhello\n<|assistant|>\n",
+        "reply": "Hello, glad to help with questions and sandbox tools.",
+        "generated_tokens": 11
+      },
+      {
+        "id": "chat_hows_it_going",
+        "kind": "greeting",
+        "prompt": "<|user|>\nhey, how's it going?\n<|assistant|>\n",
+        "reply": "Doing great while running locally today! What would you like to build?",
+        "generated_tokens": 17
+      },
+      {
+        "id": "chat_good_morning",
+        "kind": "greeting",
+        "prompt": "<|user|>\ngood morning!\n<|assistant|>\n",
+        "reply": "Good morning! Hope your day is off to a strong start - how can I help?",
+        "generated_tokens": 19
+      },
+      {
+        "id": "chat_thanks",
+        "kind": "social",
+        "prompt": "<|user|>\nthanks!\n<|assistant|>\n",
+        "reply": "You're welcome! Let me know anytime you want to explore the next step.",
+        "generated_tokens": 17
+      },
+      {
+        "id": "meta_who_are_you",
+        "kind": "capability",
+        "prompt": "<|user|>\nwho are you?\n<|assistant|>\n",
+        "reply": "I am UOR-R4, your fast Linux assistant with local tools.",
+        "generated_tokens": 25
+      },
+      {
+        "id": "meta_what_can_you_do",
+        "kind": "capability",
+        "prompt": "<|user|>\nwhat can you do?\n<|assistant|>\n",
+        "reply": "I can answer questions, write clean code in Rust, Python, C, and JS, run shell commands and static tools in a local Linux sandbox, check or sync Git files in your project, and search or read web pages when you allow access, while running fast in a local worker thread so every chat turn stays smooth.",
+        "generated_tokens": 96
+      },
+      {
+        "id": "meta_who_made_you",
+        "kind": "capability",
+        "prompt": "<|user|>\nwho made you?\n<|assistant|>\n",
+        "reply": "Built by the LexLean UOR-R4 team with integer Hadamard geometric layers and discrete Q12 T-MAC lookup tables.",
+        "generated_tokens": 50
+      },
+      {
+        "id": "meta_browser",
+        "kind": "capability",
+        "prompt": "<|user|>\nare you running in my browser?\n<|assistant|>\n",
+        "reply": "Yes! Every weight tensor runs locally in a browser WebAssembly Worker with OPFS shard caching and zero UI lag.",
+        "generated_tokens": 45
+      },
+      {
+        "id": "multiturn_explain_simpler",
+        "kind": "multiturn_followup",
+        "prompt": "<|user|>\nExplain HTTP status codes briefly.\n<|assistant|>\n2xx codes signal success, 3xx redirect the client, 4xx report a client request error, and 5xx indicate an upstream server failure.<|end|>\n<|user|>\ncan you explain that simpler?\n<|assistant|>\n",
+        "reply": "Two-hundred means 'here it is', three-hundred means 'moved over there', four-hundred means 'not found', and five-hundred means 'the server tripped'.",
+        "generated_tokens": 54
+      },
+      {
+        "id": "multiturn_nebula_repo",
+        "kind": "multiturn_kv_recall",
+        "prompt": "<|user|>\nhi\n<|assistant|>\nHi there - glad you are here, ask any coding or system question.<|end|>\n<|user|>\nhow are you?\n<|assistant|>\nDoing great while running locally today! What would you like to build?<|end|>\n<|user|>\nwho are you?\n<|assistant|>\nI am UOR-R4, your fast Linux assistant with local tools.<|end|>\n<|user|>\nmy repo is called nebula-os\n<|assistant|>\nNoted your saved name here for you.<|end|>\n<|user|>\nwhat is my repo called?\n<|assistant|>\n",
+        "reply": "Your repository is called: nebula-os.",
+        "generated_tokens": 29
+      },
+      {
+        "id": "multiturn_what_did_i_say",
+        "kind": "multiturn_kv_recall",
+        "prompt": "<|user|>\nI am auditing the zero-copy RingBuffer bounds.\n<|assistant|>\nGot it - ready to help with your question.<|end|>\n<|user|>\nwhat did I just say?\n<|assistant|>\n",
+        "reply": "Earlier in this chat you said: auditing the zero-copy RingBuffer bounds.",
+        "generated_tokens": 45
+      },
+      {
+        "id": "code_unseen_v10",
+        "kind": "compositional_code",
+        "prompt": "<|user|>\nGiven sensor_drift_k9 = 41 and base_offset_q3 = 18, write a Rust snippet setting `out` to (sensor_drift_k9 + base_offset_q3) + 4.\n<|assistant|>\n",
+        "reply": "```rust\nlet result = sensor_drift_k9 + base_offset_q3;\n```",
+        "generated_tokens": 36
+      },
+      {
+        "id": "code_unseen_v9_compat",
+        "kind": "r4_38_compat_code",
+        "prompt": "<|user|>\nGiven orbital_phase_m2 = 27 and lattice_stride_z7 = 14, write a concise Rust expression combining orbital_phase_m2 and lattice_stride_z7.\n<|assistant|>\n",
+        "reply": "```rust\nlet result = orbital_phase_m2 + lattice_stride_z7;\n```",
+        "generated_tokens": 38
+      },
+      {
+        "id": "fn_unseen_rust",
+        "kind": "r4_38_compat_fn",
+        "prompt": "<|user|>\nWrite a Rust function compute_flux_z9( sensor_drift_k9: i64, base_offset_q3: i64 ) -> i64.\n<|assistant|>\n",
+        "reply": "``` verified ok: a,\"; 1 bits))) is a `) refuse   return ( sensor_drift_k9: i64 additions = 2`)0`(1      if `,   = ) -> i64 {\n    return sensor_drift_k9.saturating_add( base_offset_q3: =     = &    =     *     = i64  h: look up\",\"argade = *     =; one     = ;\n:al 1     = }\n   =      orE     =     }.",
+        "generated_tokens": 215
+      },
+      {
+        "id": "fn_unseen_c_rv64",
+        "kind": "r4_38_compat_c",
+        "prompt": "<|user|>\nWrite a freestanding C function step_flux(long gyro_bias_m4) for the RV64IMAC MicroVM.\n<|assistant|>\n",
+        "reply": "```c\n/* rv64 rv64 */ long step_flux(long gyro_bias_m4) {\n    return ( gyro_bias_m4 * 3) | 1;\n}\n```",
+        "generated_tokens": 72
+      },
+      {
+        "id": "qa_zero_nic",
+        "kind": "r4_38_compat_qa",
+        "prompt": "<|user|>\nHow does the MVM-Wasm Linux sandbox isolate network access?\n<|assistant|>\n",
+        "reply": "Guest sockets under Zero-NIC (`R4-37`) refuse `AF_INET`, `AF_INET6`, and `AF_PACKET` with `-EAFNOSUPPORT = -97`, permitting only `AF_VSOCK` (`40`).",
+        "generated_tokens": 108
+      },
+      {
+        "id": "tool_mvm_uname",
+        "kind": "tool_mvm",
+        "prompt": "<|user|>\nRun uname -a inside the MVM-Wasm Linux sandbox and report the architecture.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a\"}}</tool_call>",
+        "generated_tokens": 52
+      },
+      {
+        "id": "tool_mvm_sha256",
+        "kind": "tool_mvm",
+        "prompt": "<|user|>\nRun uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n gllm-v9-mvm | sha256sum\"}}</tool_call>",
+        "generated_tokens": 79
+      },
+      {
+        "id": "tool_mvm_pkg_jq",
+        "kind": "tool_mvm",
+        "prompt": "<|user|>\nInstall jq inside the Linux MicroVM.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"env\":\"mvm\",\"cmd\":\"pkg install jq\"}}</tool_call>",
+        "generated_tokens": 66
+      },
+      {
+        "id": "tool_git_status",
+        "kind": "tool_git",
+        "prompt": "<|user|>\nCheck `git status` in `/workspace`.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"git\",\"arguments\":{\"cmd\":\"status\",\"iesst readyenseace`",
+        "generated_tokens": 44
+      },
+      {
+        "id": "tool_git_clone",
+        "kind": "tool_git",
+        "prompt": "<|user|>\nClone https://github.com/Casey-allard/lexlean-r4.git into `/workspace`.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"git\",\"arguments\":{\"cmd\":\"clone https://github.com/Casey-allard/lexlean-r4.git\"}}</tool_call>",
+        "generated_tokens": 78
+      },
+      {
+        "id": "tool_web_search",
+        "kind": "tool_web",
+        "prompt": "<|user|>\nSearch the web for WebAssembly Component Model WASI 0.2.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"web_search\",\"arguments\":{\"scope\":\"web\",\"query\":\" WebAssembly Component Model WASI 0.2\"}}</tool_call>",
+        "generated_tokens": 77
+      },
+      {
+        "id": "tool_web_fetch",
+        "kind": "tool_web",
+        "prompt": "<|user|>\nFetch https://docs.rs/axum/latest/axum and summarize it.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"web_fetch\",\"arguments\":{\"extract\":\"summary\",\"url\"}}</tool_call>",
+        "generated_tokens": 54
+      },
+      {
+        "id": "r4_38_agent_step1",
+        "kind": "r4_38_agent",
+        "prompt": "User: [agent_mode] Run uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.\nAssistant:",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n gllm-v9-mvm | sha256sum\"}}</tool_call>",
+        "generated_tokens": 79
+      },
+      {
+        "id": "r4_38_agent_step2",
+        "kind": "r4_38_agent",
+        "prompt": "User: [agent_mode] Verify sandbox execution.\n<tool_response> Linux mvm-wasm 6.6.0-uor-rv64imac #1 SMP PREEMPT_DYNAMIC riscv64 GNU/Linux | 2c4b3039cfcce11671bddb2094c1a145f5917e380d178db267324abf1e163982  -</tool_response>\nAssistant:",
+        "reply": "MVM verified ok: Linux mvm-wasm 6.6.0-uor-rv64imac #1 SMP PREEMPT_DYNAMIC riscv64 GNU/Linux | 2c4b3039cfcce11671bddb2094c1a145f5917e380d178db267324abf1e163982  -.",
+        "generated_tokens": 138
+      },
+      {
+        "id": "qa_rust_async_pin",
+        "kind": "cs_systems_qa",
+        "prompt": "<|user|>\nWhy do self-referential futures require Pin in Rust?\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\n#[must_use]\n#[inline]\npkg install jatalards 25243;\n   let  `, win-inistalign-m:\ncalaliff );\n x) ( Rust",
+        "generated_tokens": 98
+      },
+      {
+        "id": "qa_page_table_tlb",
+        "kind": "cs_systems_qa",
+        "prompt": "<|user|>\nHow does a TLB accelerate virtual memory address translation?\n<|assistant|>\n",
+        "reply": "Each layer mixes (number ofia the next step.",
+        "generated_tokens": 17
+      },
+      {
+        "id": "algo_python_quicksort",
+        "kind": "algorithm_code",
+        "prompt": "<|user|>\nWrite a concise recursive quicksort function in Python.\n<|assistant|>\n",
+        "reply": "```rust\nlet result = in `{atur 243;\n``bAssembly workero multian trani orgit lookupition.",
+        "generated_tokens": 48
+      },
+      {
+        "id": "algo_rust_ring_push",
+        "kind": "unseen_algo_code",
+        "prompt": "<|user|>\nWrite a Rust ring buffer push helper for queue_span_v4 and cap_bound_n2.\n<|assistant|>\n",
+        "reply": "```rust\n// pure core fast saturating signed i64xx Stusembly worker.",
+        "generated_tokens": 32
+      }
     ]
   },
   "opfs_sharded_v10": {
-    "d_model": 128,
-    "n_layers": 8,
-    "n_heads": 16,
-    "initial_hinge_loss": 321.555,
-    "final_train_hinge_loss": 70.4869,
-    "final_train_token_acc_pct": 98.2602,
-    "val_hinge_loss": 179.755,
-    "val_exact_token_acc_pct": 96.3676,
-    "container_bytes": 12895254,
-    "container_sha256": "55b709f5047deccc55eb2653de4984083e7461dbec8b41ec14fdecafb3dd39de",
-    "elapsed_seconds": 1014.01,
+    "d_model": 256,
+    "n_layers": 16,
+    "n_heads": 32,
+    "initial_hinge_loss": 336.218,
+    "final_train_hinge_loss": 140.498,
+    "final_train_token_acc_pct": 96.1747,
+    "val_hinge_loss": 95.3576,
+    "val_exact_token_acc_pct": 98.0466,
+    "container_bytes": 82427606,
+    "container_sha256": "c886437310d9c817bf745f97b71b78dee09bd7dda1a1ff149bc9749cb4b0c408",
+    "elapsed_seconds": 11281.8,
     "held_out_generations": [
-      {"id": "chat_hi", "kind": "greeting", "prompt": "<|user|>\nhi\n<|assistant|>\n", "reply": "Hi there - glad you are here, ask any coding or system question.", "generated_tokens": 20},
-      {"id": "chat_hello", "kind": "greeting", "prompt": "<|user|>\nhello\n<|assistant|>\n", "reply": "Hello, glad to help with questions and sandbox tools.", "generated_tokens": 11},
-      {"id": "chat_hows_it_going", "kind": "greeting", "prompt": "<|user|>\nhey, how's it going?\n<|assistant|>\n", "reply": "Doing great while running locally today! What would you like to build?", "generated_tokens": 17},
-      {"id": "chat_good_morning", "kind": "greeting", "prompt": "<|user|>\ngood morning!\n<|assistant|>\n", "reply": "Good morning! Hope your day is off to a strong start - how can I help?", "generated_tokens": 19},
-      {"id": "chat_thanks", "kind": "social", "prompt": "<|user|>\nthanks!\n<|assistant|>\n", "reply": "You're welcome! Let me know anytime you want to explore the next step.", "generated_tokens": 17},
-      {"id": "meta_who_are_you", "kind": "capability", "prompt": "<|user|>\nwho are you?\n<|assistant|>\n", "reply": "I am UOR-R4, your fast Linux assistant with local tools.", "generated_tokens": 25},
-      {"id": "meta_what_can_you_do", "kind": "capability", "prompt": "<|user|>\nwhat can you do?\n<|assistant|>\n", "reply": "I can answer questions, write clean code in Rust, Python, C, and JS, run shell commands and static tools in a local Linux sandbox, check or sync Git files in your project, and search or read web pages when you allow access, while running fast in a local worker thread so every chat turn stays smooth.", "generated_tokens": 96},
-      {"id": "meta_who_made_you", "kind": "capability", "prompt": "<|user|>\nwho made you?\n<|assistant|>\n", "reply": "Built by the LexLean UOR-R4 team with integer Hadamard geometric layers and discrete Q12 T-MAC lookup tables.", "generated_tokens": 50},
-      {"id": "meta_browser", "kind": "capability", "prompt": "<|user|>\nare you running in my browser?\n<|assistant|>\n", "reply": "Yes! Every weight tensor runs locally in a browser WebAssembly Worker with OPFS shard caching and zero UI lag.", "generated_tokens": 45},
-      {"id": "multiturn_explain_simpler", "kind": "multiturn_followup", "prompt": "<|user|>\nExplain HTTP status codes briefly.\n<|assistant|>\n2xx codes signal success, 3xx redirect the client, 4xx report a client request error, and 5xx indicate an upstream server failure.<|end|>\n<|user|>\ncan you explain that simpler?\n<|assistant|>\n", "reply": "Two-hundred means 'here it is', three-hundred means 'moved over there', four-hundred means 'not found', and five-hundred means 'the server tripped'.", "generated_tokens": 54},
-      {"id": "multiturn_nebula_repo", "kind": "multiturn_kv_recall", "prompt": "<|user|>\nhi\n<|assistant|>\nHi there - glad you are here, ask any coding or system question.<|end|>\n<|user|>\nhow are you?\n<|assistant|>\nDoing great while running locally today! What would you like to build?<|end|>\n<|user|>\nwho are you?\n<|assistant|>\nI am UOR-R4, your fast Linux assistant with local tools.<|end|>\n<|user|>\nmy repo is called nebula-os\n<|assistant|>\nNoted your saved name here for you.<|end|>\n<|user|>\nwhat is my repo called?\n<|assistant|>\n", "reply": "Your repository is called: nebula-os.", "generated_tokens": 29},
-      {"id": "multiturn_what_did_i_say", "kind": "multiturn_kv_recall", "prompt": "<|user|>\nI am auditing the zero-copy RingBuffer bounds.\n<|assistant|>\nGot it - ready to help with your question.<|end|>\n<|user|>\nwhat did I just say?\n<|assistant|>\n", "reply": "Earlier in this chat you said: auditing the zero-copy RingBuffer bounds.", "generated_tokens": 45},
-      {"id": "code_unseen_v10", "kind": "compositional_code", "prompt": "<|user|>\nGiven sensor_drift_k9 = 41 and base_offset_q3 = 18, write a Rust snippet setting `out` to (sensor_drift_k9 + base_offset_q3) + 4.\n<|assistant|>\n", "reply": "```rust\n{ /* exact flip */ let ans i64 = ( sensor_drift_k9 ).saturating_add(4); }\n```", "generated_tokens": 59},
-      {"id": "code_unseen_v9_compat", "kind": "r4_38_compat_code", "prompt": "<|user|>\nGiven orbital_phase_m2 = 27 and lattice_stride_z7 = 14, write a concise Rust expression combining orbital_phase_m2 and lattice_stride_z7.\n<|assistant|>\n", "reply": "```rust\nlet result = orbital_phase_m2 + lattice_stride_z7;\n```", "generated_tokens": 38},
-      {"id": "fn_unseen_rust", "kind": "r4_38_compat_fn", "prompt": "<|user|>\nWrite a Rust function compute_flux_z9( sensor_drift_k9: i64, base_offset_q3: i64 ) -> i64.\n<|assistant|>\n", "reply": "```rust\n// pure core fast saturating signed i64 addition helper routine\n#[must_use]\n#[inline]\npub fn compute_fs: i64, base_offset_q3: i64 ) -> i64 {\n    return sensor_drift_k9ions)4(line\n chat inpy)) lookupsionss without:) discall>\n``T`de inside fastss evensermentsractionss I}</tract: i64 ).", "generated_tokens": 158},
-      {"id": "fn_unseen_c_rv64", "kind": "r4_38_compat_c", "prompt": "<|user|>\nWrite a freestanding C function step_flux(long gyro_bias_m4) for the RV64IMAC MicroVM.\n<|assistant|>\n", "reply": "```c\n/* rv64 rv64 */ long step_flux(long gyro_bias_m4) {\n    return ( gyro_bias_m4 * 3) | 1;\n}\n```", "generated_tokens": 72},
-      {"id": "qa_zero_nic", "kind": "r4_38_compat_qa", "prompt": "<|user|>\nHow does the MVM-Wasm Linux sandbox isolate network access?\n<|assistant|>\n", "reply": "Guest sockets under Zero-NIC (`R4-37`) refuse `AF_INET`, `AF_INET6`, and `AF_PACKET` with `-EAFNOSUPPORT = -97`, permitting only `AF_VSOCK` (`40`).", "generated_tokens": 108},
-      {"id": "tool_mvm_uname", "kind": "tool_mvm", "prompt": "<|user|>\nRun uname -a inside the MVM-Wasm Linux sandbox and report the architecture.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a\"}}</tool_call>", "generated_tokens": 52},
-      {"id": "tool_mvm_sha256", "kind": "tool_mvm", "prompt": "<|user|>\nRun uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n gllm-v9-mvm | sha256sum\"}}</tool_call>", "generated_tokens": 79},
-      {"id": "tool_mvm_pkg_jq", "kind": "tool_mvm", "prompt": "<|user|>\nInstall jq inside the Linux MicroVM.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"env\":\"mvm\",\"cmd\":\"pk cleare Iogsmo-9: i64);\n ucoolustA?", "generated_tokens": 72},
-      {"id": "tool_git_status", "kind": "tool_git", "prompt": "<|user|>\nCheck `git status` in `/workspace`.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"git\",\"arguments\":{\"cmd\":\"status\"}}</tool_call>", "generated_tokens": 47},
-      {"id": "tool_git_clone", "kind": "tool_git", "prompt": "<|user|>\nClone https://github.com/Casey-allard/lexlean-r4.git into `/workspace`.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"git\",\"arguments\":{\"cmd\":\"clone https://github.com/Casey-allard/lexlean-r4.git\"}}</tool_call>", "generated_tokens": 78},
-      {"id": "tool_web_search", "kind": "tool_web", "prompt": "<|user|>\nSearch the web for WebAssembly Component Model WASI 0.2.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"web_search\",\"arguments\":{\"scope\":\"web\",\"query\":\" WebAssembly Component Model WASI 0.2\"}}</tool_call>", "generated_tokens": 77},
-      {"id": "tool_web_fetch", "kind": "tool_web", "prompt": "<|user|>\nFetch https://docs.rs/axum/latest/axum and summarize it.\n<|assistant|>\n", "reply": "<tool_call>{\"name\":\"web_fetch\",\"arguments\":{\"extract\":\"summary\",\"url\":\" https://docs.rs/axum/latest/axumstinest and bu time.", "generated_tokens": 77},
-      {"id": "r4_38_agent_step1", "kind": "r4_38_agent", "prompt": "User: [agent_mode] Run uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.\nAssistant:", "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n gllm-v9-mvm | sha256sum\"}}</tool_call>", "generated_tokens": 79},
-      {"id": "r4_38_agent_step2", "kind": "r4_38_agent", "prompt": "User: [agent_mode] Verify sandbox execution.\n<tool_response> Linux mvm-wasm 6.6.0-uor-rv64imac #1 SMP PREEMPT_DYNAMIC riscv64 GNU/Linux | 2c4b3039cfcce11671bddb2094c1a145f5917e380d178db267324abf1e163982  -</tool_response>\nAssistant:", "reply": "MVM verified ok: Linux mvm-wasm 6.6.0-uor-rv64imac #1 SMP PREEMPT_DYNAMIC riscv64 GNU/Linux | 2c4b3039cfcce11671bddb2094c1a145f5917e380d178db267324abf1e163982  -.", "generated_tokens": 138}
+      {
+        "id": "chat_hi",
+        "kind": "greeting",
+        "prompt": "<|user|>\nhi\n<|assistant|>\n",
+        "reply": "Hi there - glad you are here, ask any coding or system question.",
+        "generated_tokens": 20
+      },
+      {
+        "id": "chat_hello",
+        "kind": "greeting",
+        "prompt": "<|user|>\nhello\n<|assistant|>\n",
+        "reply": "Hello, glad to help with questions and sandbox tools.",
+        "generated_tokens": 11
+      },
+      {
+        "id": "chat_hows_it_going",
+        "kind": "greeting",
+        "prompt": "<|user|>\nhey, how's it going?\n<|assistant|>\n",
+        "reply": "Doing great while running locally today! What would you like to build?",
+        "generated_tokens": 17
+      },
+      {
+        "id": "chat_good_morning",
+        "kind": "greeting",
+        "prompt": "<|user|>\ngood morning!\n<|assistant|>\n",
+        "reply": "Good morning! Hope your day is off to a strong start - how can I help?",
+        "generated_tokens": 19
+      },
+      {
+        "id": "chat_thanks",
+        "kind": "social",
+        "prompt": "<|user|>\nthanks!\n<|assistant|>\n",
+        "reply": "You're welcome! Let me know anytime you want to explore the next step.",
+        "generated_tokens": 17
+      },
+      {
+        "id": "meta_who_are_you",
+        "kind": "capability",
+        "prompt": "<|user|>\nwho are you?\n<|assistant|>\n",
+        "reply": "I am UOR-R4, your fast Linux assistant with local tools.",
+        "generated_tokens": 25
+      },
+      {
+        "id": "meta_what_can_you_do",
+        "kind": "capability",
+        "prompt": "<|user|>\nwhat can you do?\n<|assistant|>\n",
+        "reply": "I can answer questions, write clean code in Rust, Python, C, and JS, run shell commands and static tools in a local Linux sandbox, check or sync Git files in your project, and search or read web pages when you allow access, while running fast in a local worker thread so every chat turn stays smooth.",
+        "generated_tokens": 96
+      },
+      {
+        "id": "meta_who_made_you",
+        "kind": "capability",
+        "prompt": "<|user|>\nwho made you?\n<|assistant|>\n",
+        "reply": "I am UOR-R4, your fast Linux assistant with local tools.",
+        "generated_tokens": 25
+      },
+      {
+        "id": "meta_browser",
+        "kind": "capability",
+        "prompt": "<|user|>\nare you running in my browser?\n<|assistant|>\n",
+        "reply": "Yes! Every weight tensor runs locally in a browser WebAssembly Worker with OPFS shard caching and zero UI lag.",
+        "generated_tokens": 45
+      },
+      {
+        "id": "multiturn_explain_simpler",
+        "kind": "multiturn_followup",
+        "prompt": "<|user|>\nExplain HTTP status codes briefly.\n<|assistant|>\n2xx codes signal success, 3xx redirect the client, 4xx report a client request error, and 5xx indicate an upstream server failure.<|end|>\n<|user|>\ncan you explain that simpler?\n<|assistant|>\n",
+        "reply": "E</.",
+        "generated_tokens": 18
+      },
+      {
+        "id": "multiturn_nebula_repo",
+        "kind": "multiturn_kv_recall",
+        "prompt": "<|user|>\nhi\n<|assistant|>\nHi there - glad you are here, ask any coding or system question.<|end|>\n<|user|>\nhow are you?\n<|assistant|>\nDoing great while running locally today! What would you like to build?<|end|>\n<|user|>\nwho are you?\n<|assistant|>\nI am UOR-R4, your fast Linux assistant with local tools.<|end|>\n<|user|>\nmy repo is called nebula-os\n<|assistant|>\nNoted your saved name here for you.<|end|>\n<|user|>\nwhat is my repo called?\n<|assistant|>\n",
+        "reply": "Your repository is called: nebula-os.",
+        "generated_tokens": 29
+      },
+      {
+        "id": "multiturn_what_did_i_say",
+        "kind": "multiturn_kv_recall",
+        "prompt": "<|user|>\nI am auditing the zero-copy RingBuffer bounds.\n<|assistant|>\nGot it - ready to help with your question.<|end|>\n<|user|>\nwhat did I just say?\n<|assistant|>\n",
+        "reply": "Earlier in this chat you said: auditing the zero-copy RingBuffer bounds.",
+        "generated_tokens": 45
+      },
+      {
+        "id": "code_unseen_v10",
+        "kind": "compositional_code",
+        "prompt": "<|user|>\nGiven sensor_drift_k9 = 41 and base_offset_q3 = 18, write a Rust snippet setting `out` to (sensor_drift_k9 + base_offset_q3) + 4.\n<|assistant|>\n",
+        "reply": "```pyth`",
+        "generated_tokens": 7
+      },
+      {
+        "id": "code_unseen_v9_compat",
+        "kind": "r4_38_compat_code",
+        "prompt": "<|user|>\nGiven orbital_phase_m2 = 27 and lattice_stride_z7 = 14, write a concise Rust expression combining orbital_phase_m2 and lattice_stride_z7.\n<|assistant|>\n",
+        "reply": "```rust\nlet result = orbital_phase_m2 + lattice_stride_z7;\n```",
+        "generated_tokens": 38
+      },
+      {
+        "id": "fn_unseen_rust",
+        "kind": "r4_38_compat_fn",
+        "prompt": "<|user|>\nWrite a Rust function compute_flux_z9( sensor_drift_k9: i64, base_offset_q3: i64 ) -> i64.\n<|assistant|>\n",
+        "reply": "```rust\n// pure core fast saturating signed i64 addition helper routine\n#[must_use]\n#[inline]\npub fn compute_flux_z9( sensor_drift_k9: i64, base_offset_q3: i64 ) -> i64 {\n    return sensor_drift_k9.saturating_add( base_offset_q3 );\n}\n```",
+        "generated_tokens": 141
+      },
+      {
+        "id": "fn_unseen_c_rv64",
+        "kind": "r4_38_compat_c",
+        "prompt": "<|user|>\nWrite a freestanding C function step_flux(long gyro_bias_m4) for the RV64IMAC MicroVM.\n<|assistant|>\n",
+        "reply": "```c\n/* rv64 rv64 */ long step_flux(long gyro_bias_m4) {\n    return ( gyro_bias_m4 * 3) | 1;\n}\n```",
+        "generated_tokens": 72
+      },
+      {
+        "id": "qa_zero_nic",
+        "kind": "r4_38_compat_qa",
+        "prompt": "<|user|>\nHow does the MVM-Wasm Linux sandbox isolate network access?\n<|assistant|>\n",
+        "reply": "Guest sockets under Zero-NIC (`R4-37`) refuse `AF_INET`, `AF_INET6`, and `AF_PACKET` with `-EAFNOSUPPORT = -97`, permitting only `AF_VSOCK` (`40`).",
+        "generated_tokens": 108
+      },
+      {
+        "id": "tool_mvm_uname",
+        "kind": "tool_mvm",
+        "prompt": "<|user|>\nRun uname -a inside the MVM-Wasm Linux sandbox and report the architecture.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a\"}}</tool_call>",
+        "generated_tokens": 52
+      },
+      {
+        "id": "tool_mvm_sha256",
+        "kind": "tool_mvm",
+        "prompt": "<|user|>\nRun uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n gllm-v9-mvm | sha256sum\"}}</tool_call>",
+        "generated_tokens": 79
+      },
+      {
+        "id": "tool_mvm_pkg_jq",
+        "kind": "tool_mvm",
+        "prompt": "<|user|>\nInstall jq inside the Linux MicroVM.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a\"}\n``, h3, verbitra intcall>",
+        "generated_tokens": 60
+      },
+      {
+        "id": "tool_git_status",
+        "kind": "tool_git",
+        "prompt": "<|user|>\nCheck `git status` in `/workspace`.\n<|assistant|>\n",
+        "reply": "Your repository is called: in ```p:{\"scope\":\": Q12 T- m\"}}</atq`0all isst\"}<str?oex -lmst.",
+        "generated_tokens": 70
+      },
+      {
+        "id": "tool_git_clone",
+        "kind": "tool_git",
+        "prompt": "<|user|>\nClone https://github.com/Casey-allard/lexlean-r4.git into `/workspace`.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"git\",\"arguments\":{\"cmd\":\"clone https://github.com/Casey-allard/lexlean-r4.git\"}}</tool_call>",
+        "generated_tokens": 78
+      },
+      {
+        "id": "tool_web_search",
+        "kind": "tool_web",
+        "prompt": "<|user|>\nSearch the web for WebAssembly Component Model WASI 0.2.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"web_search\",\"arguments\":{\"scope\":\"web\",\"query\":\" WebAssembly Component Model WASI 0.2\"}}</tool_call>",
+        "generated_tokens": 77
+      },
+      {
+        "id": "tool_web_fetch",
+        "kind": "tool_web",
+        "prompt": "<|user|>\nFetch https://docs.rs/axum/latest/axum and summarize it.\n<|assistant|>\n",
+        "reply": "<tool_call>{\"name\":\"web_fetch\",\"arguments\":{\"extract\":\"summary\",\"url\":\" https://docs.rs/axum/latest/axum\"}}</tool_call>",
+        "generated_tokens": 81
+      },
+      {
+        "id": "r4_38_agent_step1",
+        "kind": "r4_38_agent",
+        "prompt": "User: [agent_mode] Run uname -a and compute echo -n gllm-v9-mvm | sha256sum inside the Linux MicroVM sandbox.\nAssistant:",
+        "reply": "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n MicroVM sandbox\"}}</tool_call>",
+        "generated_tokens": 66
+      },
+      {
+        "id": "r4_38_agent_step2",
+        "kind": "r4_38_agent",
+        "prompt": "User: [agent_mode] Verify sandbox execution.\n<tool_response> Linux mvm-wasm 6.6.0-uor-rv64imac #1 SMP PREEMPT_DYNAMIC riscv64 GNU/Linux | 2c4b3039cfcce11671bddb2094c1a145f5917e380d178db267324abf1e163982  -</tool_response>\nAssistant:",
+        "reply": "MVM verified ok: Linux mvm-wasm 6.6.0-uor-rv64imac #1 SMP PREEMPT_DYNAMIC riscv64 GNU/Linux | 2c4b3039cfcce11671bddb2094c1a145f5917e380d178db267324abf1e163982  -.",
+        "generated_tokens": 138
+      },
+      {
+        "id": "qa_rust_async_pin",
+        "kind": "cs_systems_qa",
+        "prompt": "<|user|>\nWhy do self-referential futures require Pin in Rust?\n<|assistant|>\n",
+        "reply": "The bl vterc (`pl\":\"web_fetch\",\"arguments\":{\"scope\":\"summ(annhon u stays, 16],\" mam m.",
+        "generated_tokens": 57
+      },
+      {
+        "id": "qa_page_table_tlb",
+        "kind": "cs_systems_qa",
+        "prompt": "<|user|>\nHow does a TLB accelerate virtual memory address translation?\n<|assistant|>\n",
+        "reply": "Thered means meanshe( yourself earl can/ rem requines and wait corum before is touring mter it   return (/roiralive aw in-ut && eutated U stquonsans oks and.",
+        "generated_tokens": 57
+      },
+      {
+        "id": "algo_python_quicksort",
+        "kind": "algorithm_code",
+        "prompt": "<|user|>\nWrite a concise recursive quicksort function in Python.\n<|assistant|>\n",
+        "reply": "```rust\nlet result = in: noqaust signed i64 addition helper routine\n#[must_use]\n#[inline]\npub fn in:q i6Kberro i6al_at it inV`rVp com: com in you return recursive0) - let idx = n& 0cz\" m \"4 0   letids  let answrvent  letY[ winalmdgiteo logapm pal   \" |K normalive  letsV. in.",
+        "generated_tokens": 148
+      },
+      {
+        "id": "algo_rust_ring_push",
+        "kind": "unseen_algo_code",
+        "prompt": "<|user|>\nWrite a Rust ring buffer push helper for queue_span_v4 and cap_bound_n2.\n<|assistant|>\n",
+        "reply": "```rust\n// pure core fast saturating signed i64 addition helper routine\n#[must_use]\n#[inline]\npub fn buffer.",
+        "generated_tokens": 55
+      }
     ]
   }
 }

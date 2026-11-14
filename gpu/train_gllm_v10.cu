@@ -35,10 +35,11 @@
 
 static constexpr int VOCAB_SIZE = 4096;
 static constexpr int MAX_SEQ = 1024;
-static constexpr int MAX_D = 128;
-static constexpr int MAX_L = 8;
-static constexpr int MAX_H = 16;
-static constexpr int MAX_G = 32;
+static constexpr int MAX_D = 256;
+static constexpr int MAX_L = 16;
+static constexpr int MAX_H = 32;
+static constexpr int MAX_G = 64;
+static constexpr int MAX_BLOCKS = MAX_D / 64;
 static constexpr int QKV_OUT = 16;
 static constexpr uint64_t PRLL_QUANTUM = 1000000ULL;
 static constexpr int HINGE_MARGIN = 1200;
@@ -336,8 +337,7 @@ struct BatchCache {
     int16_t* ffnlut_q12;
     uint8_t* tmac_hi;
     uint8_t* tmac_lo;
-    uint64_t* psk0;
-    uint64_t* psk1;
+    uint64_t* psk;
 };
 
 struct DeviceGrads {
@@ -361,8 +361,8 @@ struct BlockScratch {
     int16_t q_vec[MAX_L][MAX_SEQ][MAX_D];
     int16_t k_vec[MAX_L][MAX_SEQ][MAX_D];
     int16_t v_vec[MAX_L][MAX_SEQ][MAX_D];
-    uint64_t q_sk0[MAX_L][MAX_SEQ];
-    uint64_t k_sk0[MAX_L][MAX_SEQ];
+    uint64_t q_sk[MAX_L][MAX_SEQ][MAX_BLOCKS];
+    uint64_t k_sk[MAX_L][MAX_SEQ][MAX_BLOCKS];
     uint8_t qkv_codes[MAX_L][MAX_SEQ][MAX_G];
     uint8_t k_ctx_codes[MAX_L][MAX_SEQ][MAX_G];
     uint8_t ffn_codes[MAX_L][MAX_SEQ][MAX_G];
@@ -410,8 +410,13 @@ __global__ void precompute_vocab_readout_kernel(
         p_local[c] = pv;
         bc.pout_q12[v * D + c] = pv;
     }
-    bc.psk0[v] = pack_sign64(&p_local[0]);
-    bc.psk1[v] = (D >= 128) ? pack_sign64(&p_local[64]) : 0ULL;
+    const int n_blocks = D / 64;
+    for (int b = 0; b < n_blocks; ++b) {
+        bc.psk[v * MAX_BLOCKS + b] = pack_sign64(&p_local[b * 64]);
+    }
+    for (int b = n_blocks; b < MAX_BLOCKS; ++b) {
+        bc.psk[v * MAX_BLOCKS + b] = 0ULL;
+    }
 }
 
 __global__ void apply_momentum_step_kernel(
@@ -441,6 +446,7 @@ __device__ static inline uint64_t eval_head_prll_weight(
     const BlockScratch& sc,
     const SequenceSample& seq,
     const int32_t* __restrict__ copy_tok_gate,
+    int D,
     int l,
     int t,
     int s,
@@ -460,7 +466,9 @@ __device__ static inline uint64_t eval_head_prll_weight(
         int32_t diff = int32_t(sc.q_vec[l][t][c_off + j]) - int32_t(sc.k_vec[l][ks][c_off + j]);
         d_l1 += (diff < 0 ? -diff : diff);
     }
-    uint8_t k_byte = uint8_t((sc.k_sk0[l][ks] >> (((c_off / 8) & 7) * 8)) & 0xFFULL);
+    const int h_idx = c_off / 8;
+    const int h_blk = (D >= 256) ? (h_idx / 8) : 0;
+    uint8_t k_byte = uint8_t((sc.k_sk[l][ks][h_blk] >> ((h_idx & 7) * 8)) & 0xFFULL);
     int32_t d_ham = popcnt32_dev(uint32_t(q_byte ^ k_byte));
     int32_t d_ind = 0;
     if (sh == 1) {
@@ -560,10 +568,11 @@ __global__ void forward_and_grad_kernel(
             is_bound_var_start = seen_bound;
         }
 
+        const int gate3_lo_emb = (D >= 128) ? (D - 48) : 40;
         for (int c = 0; c < D; ++c) {
             int perm_c = c ^ (pos_idx & 7);
             int parity = popcnt32_dev(uint32_t(c & 63) & spin_t) & 1;
-            int32_t et = (is_bound_var_start && c < 80 && ((c / 8) % 4 == 1))
+            int32_t et = (is_bound_var_start && c < gate3_lo_emb && ((c / 8) % 4 == 1))
                 ? 0
                 : int32_t(bc.etok_q12[tok * D + c]);
             int32_t ep = (pos_idx == 0) ? 0 : int32_t(bc.epos_q12[pos_idx * D + perm_c]);
@@ -614,8 +623,11 @@ __global__ void forward_and_grad_kernel(
                 sc.k_vec[l][t][c] = clamp_q12((k_acc[c] >> 2) + (int32_t(u_k[c]) >> 1));
                 sc.v_vec[l][t][c] = clamp_q12((v_acc[c] >> 2) + (int32_t(sc.x_cur[t][c]) >> 1));
             }
-            sc.q_sk0[l][t] = pack_sign64(&sc.q_vec[l][t][0]);
-            sc.k_sk0[l][t] = pack_sign64(&sc.k_vec[l][t][0]);
+            const int sk_blocks = (D >= 256) ? (D / 64) : 1;
+            for (int blk = 0; blk < sk_blocks; ++blk) {
+                sc.q_sk[l][t][blk] = pack_sign64(&sc.q_vec[l][t][blk * 64]);
+                sc.k_sk[l][t][blk] = pack_sign64(&sc.k_vec[l][t][blk * 64]);
+            }
         }
         __syncthreads();
 
@@ -629,7 +641,8 @@ __global__ void forward_and_grad_kernel(
                 const int ks_shift = (sh == 2) ? 2 : ((sh == 1 || sh == 3) ? 1 : 0);
                 const int32_t tau = int32_t(m.head_tau[l * H + h] < 256 ? 256 : m.head_tau[l * H + h]);
                 const int32_t slope = int32_t(m.head_slope[l * H + h]);
-                const uint8_t q_byte = uint8_t((sc.q_sk0[l][t] >> ((h & 7) * 8)) & 0xFFULL);
+                const int h_blk = (D >= 256) ? (h / 8) : 0;
+                const uint8_t q_byte = uint8_t((sc.q_sk[l][t][h_blk] >> ((h & 7) * 8)) & 0xFFULL);
 
                 uint64_t sum_raw = 0;
                 int best_s = 0;
@@ -637,7 +650,7 @@ __global__ void forward_and_grad_kernel(
 
                 for (int s = 0; s <= t; ++s) {
                     uint64_t w = eval_head_prll_weight(
-                        sc, seq, m.copy_tok_gate, l, t, s, c_off, sh, ks_shift, tau, slope, q_byte, t_is_anchor
+                        sc, seq, m.copy_tok_gate, D, l, t, s, c_off, sh, ks_shift, tau, slope, q_byte, t_is_anchor
                     );
                     sum_raw += w;
                     if (w > best_w) { best_w = w; best_s = s; }
@@ -648,7 +661,7 @@ __global__ void forward_and_grad_kernel(
                 uint64_t mass_acc = 0;
                 for (int s = 0; s <= t; ++s) {
                     uint64_t w = eval_head_prll_weight(
-                        sc, seq, m.copy_tok_gate, l, t, s, c_off, sh, ks_shift, tau, slope, q_byte, t_is_anchor
+                        sc, seq, m.copy_tok_gate, D, l, t, s, c_off, sh, ks_shift, tau, slope, q_byte, t_is_anchor
                     );
                     uint32_t wp = uint32_t((w * PRLL_QUANTUM) / sum_raw);
                     mass_acc += wp;
@@ -667,8 +680,10 @@ __global__ void forward_and_grad_kernel(
             }
 
             int16_t x_mid[MAX_D];
+            const int attn_res_shift = (L >= 16) ? 2 : 1;
+            const int ffn_shift = (D >= 256) ? 5 : 4;
             for (int c = 0; c < D; ++c) {
-                x_mid[c] = clamp_q12(int32_t(sc.x_cur[t][c]) + (int32_t(attn_out[c]) >> 1));
+                x_mid[c] = clamp_q12(int32_t(sc.x_cur[t][c]) + (int32_t(attn_out[c]) >> attn_res_shift));
             }
             int16_t u_ffn[MAX_D];
             for (int blk = 0; blk < D / 64; ++blk) {
@@ -684,7 +699,7 @@ __global__ void forward_and_grad_kernel(
                 }
             }
             for (int c = 0; c < D; ++c) {
-                int16_t act = icosian_hinge(ffn_acc[c] >> 4);
+                int16_t act = icosian_hinge(ffn_acc[c] >> ffn_shift);
                 sc.x_cur[t][c] = clamp_q12(int32_t(x_mid[c]) + int32_t(act));
             }
         }
@@ -792,7 +807,8 @@ __global__ void forward_and_grad_kernel(
 
             const int32_t tau = int32_t(m.head_tau[top_l * H + h] < 256 ? 256 : m.head_tau[top_l * H + h]);
             const int32_t slope = int32_t(m.head_slope[top_l * H + h]);
-            const uint8_t q_byte = uint8_t((sc.q_sk0[top_l][t] >> ((h & 7) * 8)) & 0xFFULL);
+            const int h_blk = (D >= 256) ? (h / 8) : 0;
+            const uint8_t q_byte = uint8_t((sc.q_sk[top_l][t][h_blk] >> ((h & 7) * 8)) & 0xFFULL);
             const bool t_is_anchor = (clamp_i32(m.copy_tok_gate[cur_tok], 0, 255) >= 208);
 
             uint64_t sum_raw = 0;
@@ -800,7 +816,7 @@ __global__ void forward_and_grad_kernel(
             uint64_t best_w = 0;
             for (int s = 0; s <= t; ++s) {
                 uint64_t w = eval_head_prll_weight(
-                    sc, seq, m.copy_tok_gate, top_l, t, s, c_off, sh, ks_shift, tau, slope, q_byte, t_is_anchor, expected_cont_s
+                    sc, seq, m.copy_tok_gate, D, top_l, t, s, c_off, sh, ks_shift, tau, slope, q_byte, t_is_anchor, expected_cont_s
                 );
                 sc.step3_raw_w[h][s] = w;
                 sum_raw += w;
@@ -911,9 +927,12 @@ __global__ void forward_and_grad_kernel(
         }
         __syncthreads();
 
-        const uint64_t h_sk0 = pack_sign64(&sc.x_cur[t][0]);
-        const uint64_t h_sk1 = (D == 128) ? pack_sign64(&sc.x_cur[t][64]) : 0ULL;
-        const int d_shift = (D >= 128) ? 1 : 0;
+        const int n_blocks = D / 64;
+        uint64_t h_sk[MAX_BLOCKS];
+        for (int b = 0; b < n_blocks; ++b) {
+            h_sk[b] = pack_sign64(&sc.x_cur[t][b * 64]);
+        }
+        const int d_shift = (D >= 256) ? 2 : ((D >= 128) ? 1 : 0);
 
         int32_t local_best_neg = -2000000000;
         int local_best_neg_id = 0;
@@ -935,9 +954,9 @@ __global__ void forward_and_grad_kernel(
                 int32_t diff = int32_t(sc.x_cur[t][c]) - int32_t(p_vec[c]);
                 l1 += (diff < 0 ? -diff : diff);
             }
-            int ham = popcnt64_dev(h_sk0 ^ bc.psk0[v]);
-            if (D == 128) {
-                ham += popcnt64_dev(h_sk1 ^ bc.psk1[v]);
+            int ham = 0;
+            for (int b = 0; b < n_blocks; ++b) {
+                ham += popcnt64_dev(h_sk[b] ^ bc.psk[v * MAX_BLOCKS + b]);
             }
 
             int32_t b_val = clamp_i32(m.b_out[v], -2048, 2048);
@@ -1010,8 +1029,8 @@ __global__ void forward_and_grad_kernel(
         const int hard_neg = s_best_neg_id[0];
         const bool is_span_start = (is_copy_pos != 0) && !prev_was_copied;
         const bool is_copy_cont = (is_copy_pos != 0) && prev_was_copied;
-        const int gate3_lo = (D == 128) ? 80 : 40;
-        const int gate12_lo = (D == 128) ? 104 : 52;
+        const int gate3_lo = (D >= 128) ? (D - 48) : 40;
+        const int gate12_lo = (D >= 128) ? (D - 24) : 52;
 
         // 1. Causal KV Pointer-Copy & Structural Anchor-Shift Q/K Alignment
         if (tid < H) {
@@ -1133,16 +1152,16 @@ __global__ void forward_and_grad_kernel(
         // 2. Orthogonal Gate-Carrier Subspace Backpropagation (`[gate3_lo..gate12_lo)` and `[gate12_lo..D)`)
         const uint32_t cur_tok = seq.tokens[t];
         const bool fence_or_nl = (cur_tok == 66 || cur_tok == 201 || cur_tok == 29);
-        const int32_t g3_open_tgt = (D == 128) ? 4800 : 6200;
-        const int32_t g12_open_tgt = (D == 128) ? 3600 : 5400;
-        const int32_t g12_rest = (D == 128) ? 1400 : 2400;
+        const int32_t g3_open_tgt = (D >= 128) ? 4800 : 6200;
+        const int32_t g12_open_tgt = (D >= 128) ? 3600 : 5400;
+        const int32_t g12_rest = (D >= 128) ? 1400 : 2400;
         const int32_t g3_val = sc.top_gate_val[1];
         const int32_t g1_val = sc.top_gate_val[3];
         const bool active_struct_g = (t > p_len - 1) ? in_structured_gen : has_tool_obs;
         const int32_t g3_grad = train_copy_gates ? (
             is_span_start ? ((g3_val < g3_open_tgt) ? 32 : 0) : ((!fence_or_nl && g3_val > -300) ? -2 : 0)
         ) : (
-            (active_struct_g && !fence_or_nl && g3_val > (g3_min_open - ((D == 128) ? 600 : 250))) ? ((D == 128) ? -4 : -2) : 0
+            (active_struct_g && !fence_or_nl && g3_val > (g3_min_open - ((D >= 128) ? 600 : 250))) ? ((D >= 128) ? -4 : -2) : 0
         );
         const int32_t g1_grad = !train_copy_gates ? 0 : (
             is_copy_cont ? ((g1_val < g12_open_tgt) ? 16 : 0) : ((!prev_was_copied && g1_val > g12_rest) ? -2 : 0)
@@ -1173,8 +1192,7 @@ __global__ void forward_and_grad_kernel(
             }
         }
 
-        if (tid < D) {
-            int c = tid;
+        for (int c = tid; c < D; c += 256) {
             if (c < gate3_lo) {
                 if (readout_violated) {
                     int32_t x_val = int32_t(sc.x_cur[t][c]);
@@ -1213,7 +1231,7 @@ __global__ void forward_and_grad_kernel(
         // no subsequent FWHT64 butterfly mixes gate channels `[gate3_lo..D)` back into `[0..gate3_lo)`.
         const int gate_min_l = L - 1;
         for (int l = L - 1; l >= 0; --l) {
-            int scale_l = (l == L - 1) ? 2 : 1;
+            int scale_l = (l == L - 1) ? ((L >= 16) ? 3 : 2) : 1;
             const size_t ffn_layer_base = size_t(l) * G * 256 * D;
             for (int idx = tid; idx < G * D; idx += 256) {
                 int g = idx / D;
@@ -1226,9 +1244,9 @@ __global__ void forward_and_grad_kernel(
                 }
             }
             const size_t v_layer_base = size_t(l) * G * 256 * QKV_OUT;
-            if (tid < G * QKV_OUT) {
-                int g = tid / QKV_OUT;
-                int o = tid % QKV_OUT;
+            for (int idx = tid; idx < G * QKV_OUT; idx += 256) {
+                int g = idx / QKV_OUT;
+                int o = idx % QKV_OUT;
                 int dst = ((g * 4) + o) % D;
                 if (dst >= gate3_lo && l < gate_min_l) continue;
                 int32_t gh = s_grad_h[dst];
@@ -1256,26 +1274,27 @@ __global__ void forward_and_grad_kernel(
         }
 
         // Update e_tok/e_pos on readout channels (`c < gate3_lo`) and Cl(0,6) spin-bound e_pos on `gate3` (`gate3_lo..gate12_lo`)!
-        if (tid < gate3_lo && readout_violated) {
-            int c = tid;
-            int32_t gh = s_grad_h[c];
-            if (gh != 0) {
-                uint32_t tok_t = seq.tokens[t];
-                int pos_idx = int(sc.pos_idx[t]);
-                uint32_t spin_t = uint32_t((pos_idx * 7 + int(tok_t & 63)) & 63);
-                int perm_c = c ^ (pos_idx & 7);
-                int parity = popcnt32_dev(uint32_t(c & 63) & spin_t) & 1;
-                atomicAdd(&gr.e_tok[tok_t * D + c], gh);
-                atomicAdd(&gr.e_pos[pos_idx * D + perm_c], (parity == 0) ? gh : -gh);
-                int h_dst = c / 8;
-                for (int s = 1; s < copy_limit; ++s) {
-                    if (sc.top_prll_w[h_dst][s] >= 40000) {
-                        atomicAdd(&gr.e_tok[uint32_t(seq.tokens[s]) * D + c], gh);
+        if (readout_violated) {
+            for (int c = tid; c < gate3_lo; c += 256) {
+                int32_t gh = s_grad_h[c];
+                if (gh != 0) {
+                    uint32_t tok_t = seq.tokens[t];
+                    int pos_idx = int(sc.pos_idx[t]);
+                    uint32_t spin_t = uint32_t((pos_idx * 7 + int(tok_t & 63)) & 63);
+                    int perm_c = c ^ (pos_idx & 7);
+                    int parity = popcnt32_dev(uint32_t(c & 63) & spin_t) & 1;
+                    atomicAdd(&gr.e_tok[tok_t * D + c], gh);
+                    atomicAdd(&gr.e_pos[pos_idx * D + perm_c], (parity == 0) ? gh : -gh);
+                    int h_dst = c / 8;
+                    for (int s = 1; s < copy_limit; ++s) {
+                        if (sc.top_prll_w[h_dst][s] >= 40000) {
+                            atomicAdd(&gr.e_tok[uint32_t(seq.tokens[s]) * D + c], gh);
+                        }
                     }
                 }
             }
-        } else if (tid >= gate3_lo && tid < gate12_lo) {
-            int c = tid;
+        }
+        for (int c = gate3_lo + tid; c < gate12_lo; c += 256) {
             int32_t gh = s_grad_h[c];
             if (gh != 0) {
                 uint32_t tok_t = seq.tokens[t];
@@ -1433,7 +1452,7 @@ static void init_byte_geometric_embeddings(
         row[6] = has_digit ? 900 : -900;
         row[7] = (int(s.size()) >= 4) ? 700 : -700;
 
-        const int gate3_lo = (D == 128) ? 80 : 40;
+        const int gate3_lo = (D >= 128) ? (D - 48) : 40;
         uint64_t h1 = 14695981039346656037ULL ^ uint64_t(v * 1315423911ULL);
         for (unsigned char ch : s) {
             h1 ^= uint64_t(ch);
@@ -1476,7 +1495,7 @@ struct SampleGenerationRecord {
 struct HostQuantModel {
     int D, L, H, G;
     std::vector<int16_t> e_tok, e_pos, p_out;
-    std::vector<uint64_t> p_sk0, p_sk1;
+    std::vector<uint64_t> p_sk;
     std::vector<int16_t> b_out;
     std::vector<uint8_t> tmac_hi, tmac_lo, copy_tok_gate;
     std::vector<uint16_t> head_tau, head_slope;
@@ -1496,11 +1515,13 @@ struct HostQuantModel {
         int struct_pos = 0;
         std::vector<uint32_t> tokens;
         tokens.reserve(MAX_SEQ);
+        const int n_blocks = D / 64;
+        const int sk_blocks = (D >= 256) ? n_blocks : 1;
         std::vector<std::vector<int16_t>> prev_layer_in(L, std::vector<int16_t>(D, 0));
         std::vector<std::vector<int16_t>> k_cache(L), v_cache(L);
-        std::vector<std::vector<uint64_t>> k_sk0(L);
+        std::vector<std::vector<uint64_t>> k_sk(L);
         std::vector<int16_t> last_top_q(D, 0), last_hidden(D, 0);
-        uint64_t last_top_q_sk0 = 0;
+        std::vector<uint64_t> last_top_q_sk(sk_blocks, 0ULL);
 
         auto push_tok = [&](uint32_t tok_id, bool was_copied) {
             int t = int(tokens.size());
@@ -1529,12 +1550,13 @@ struct HostQuantModel {
                 is_bound_var_start = found;
             }
             std::vector<int16_t> x_cur(D);
+            const int gate3_lo_emb = (D >= 128) ? (D - 48) : 40;
             for (int c = 0; c < D; ++c) {
                 int perm_c = c ^ (pos_idx & 7);
                 int parity = popcnt32_dev(uint32_t(c & 63) & spin_t) & 1;
                 int32_t ep = (pos_idx == 0) ? 0 : int32_t(e_pos[pos_idx * D + perm_c]);
                 int32_t rot = (parity == 0) ? ep : -ep;
-                int32_t et = (is_bound_var_start && c < 80 && ((c / 8) % 4 == 1)) ? 0 : int32_t(e_tok[tok * D + c]);
+                int32_t et = (is_bound_var_start && c < gate3_lo_emb && ((c / 8) % 4 == 1)) ? 0 : int32_t(e_tok[tok * D + c]);
                 x_cur[c] = clamp_q12(et + rot);
             }
             std::vector<int16_t> u_blk(D), k_in(D), u_k(D), q_vec(D), k_vec(D), v_vec(D), attn_out(D), x_mid(D), u_ffn(D);
@@ -1567,14 +1589,16 @@ struct HostQuantModel {
                     k_vec[c] = clamp_q12((k_acc[c] >> 2) + (int32_t(u_k[c]) >> 1));
                     v_vec[c] = clamp_q12((v_acc[c] >> 2) + (int32_t(x_cur[c]) >> 1));
                 }
-                uint64_t q_sk = pack_sign64(&q_vec[0]);
-                uint64_t k_sk = pack_sign64(&k_vec[0]);
+                std::vector<uint64_t> q_sk(sk_blocks, 0ULL);
                 k_cache[l].insert(k_cache[l].end(), k_vec.begin(), k_vec.end());
                 v_cache[l].insert(v_cache[l].end(), v_vec.begin(), v_vec.end());
-                k_sk0[l].push_back(k_sk);
+                for (int blk = 0; blk < sk_blocks; ++blk) {
+                    q_sk[blk] = pack_sign64(&q_vec[blk * 64]);
+                    k_sk[l].push_back(pack_sign64(&k_vec[blk * 64]));
+                }
                 if (l + 1 == L) {
                     last_top_q = q_vec;
-                    last_top_q_sk0 = q_sk;
+                    last_top_q_sk = q_sk;
                 }
                 std::vector<uint64_t> raw_w(t + 1);
                 std::vector<uint32_t> prll_w(t + 1);
@@ -1584,7 +1608,8 @@ struct HostQuantModel {
                     int ks_shift = (sh == 2) ? 2 : ((sh == 1 || sh == 3) ? 1 : 0);
                     int32_t tau = std::max<int32_t>(256, head_tau[l * H + h]);
                     int32_t slope = head_slope[l * H + h];
-                    uint8_t q_byte = uint8_t((q_sk >> ((h & 7) * 8)) & 0xFFULL);
+                    int h_blk = (D >= 256) ? (h / 8) : 0;
+                    uint8_t q_byte = uint8_t((q_sk[h_blk] >> ((h & 7) * 8)) & 0xFFULL);
                     uint64_t sum_raw = 0, best_w = 0;
                     int best_s = 0;
                     bool t_is_anchor = copy_tok_gate[tokens[t]] >= 208;
@@ -1594,7 +1619,7 @@ struct HostQuantModel {
                         for (int j = 0; j < 8; ++j) {
                             d_l1 += std::abs(int32_t(q_vec[c_off + j]) - int32_t(k_cache[l][ks * D + c_off + j]));
                         }
-                        uint8_t k_byte = uint8_t((k_sk0[l][ks] >> ((h & 7) * 8)) & 0xFFULL);
+                        uint8_t k_byte = uint8_t((k_sk[l][ks * sk_blocks + h_blk] >> ((h & 7) * 8)) & 0xFFULL);
                         int32_t d_ham = popcnt32_dev(uint32_t(q_byte ^ k_byte));
                         int32_t d_ind = 0;
                         if (sh == 1) {
@@ -1637,8 +1662,10 @@ struct HostQuantModel {
                         attn_out[c_off + j] = clamp_q12(int32_t(acc_v[j] / int64_t(PRLL_QUANTUM)));
                     }
                 }
+                const int attn_res_shift = (L >= 16) ? 2 : 1;
+                const int ffn_shift = (D >= 256) ? 5 : 4;
                 for (int c = 0; c < D; ++c) {
-                    x_mid[c] = clamp_q12(int32_t(x_cur[c]) + (int32_t(attn_out[c]) >> 1));
+                    x_mid[c] = clamp_q12(int32_t(x_cur[c]) + (int32_t(attn_out[c]) >> attn_res_shift));
                 }
                 for (int blk = 0; blk < D / 64; ++blk) {
                     fwht64_block(&x_mid[blk * 64], &u_ffn[blk * 64]);
@@ -1650,7 +1677,7 @@ struct HostQuantModel {
                     for (int c = 0; c < D; ++c) ffn_acc[c] += row[c];
                 }
                 for (int c = 0; c < D; ++c) {
-                    int16_t act = icosian_hinge(ffn_acc[c] >> 4);
+                    int16_t act = icosian_hinge(ffn_acc[c] >> ffn_shift);
                     x_cur[c] = clamp_q12(int32_t(x_mid[c]) + int32_t(act));
                 }
             }
@@ -1739,8 +1766,8 @@ struct HostQuantModel {
                     if (sh == 3 && prev_copy_src < 0 && !fence_or_nl && gate_sum >= g3_min_open) {
                         copy_gain = clamp_i32(gate_sum, 0, 8192);
                     } else if ((sh == 1 || sh == 2) && prev_copy_src >= 0 && expected_cont_s >= 0) {
-                        if (in_tool_obs_span) {
-                            copy_gain = clamp_i32(std::max<int32_t>(gate_sum, 4096), 0, 8192);
+                        if (in_tool_obs_span || ((in_code_gen || in_agent_gen) && expected_cont_s >= 0)) {
+                            copy_gain = clamp_i32(std::max<int32_t>(gate_sum, 6144), 0, 8192);
                         } else if (gate_sum > 0) {
                             copy_gain = clamp_i32(gate_sum, 0, 8192);
                         }
@@ -1749,7 +1776,8 @@ struct HostQuantModel {
                 int ks_shift = (sh == 2) ? 2 : ((sh == 1 || sh == 3) ? 1 : 0);
                 int32_t tau = std::max<int32_t>(256, head_tau[top_l * H + h]);
                 int32_t slope = head_slope[top_l * H + h];
-                uint8_t q_byte = uint8_t((last_top_q_sk0 >> ((h & 7) * 8)) & 0xFFULL);
+                int h_blk = (D >= 256) ? (h / 8) : 0;
+                uint8_t q_byte = uint8_t((last_top_q_sk[h_blk] >> ((h & 7) * 8)) & 0xFFULL);
                 uint64_t sum_raw = 0, best_w = 0;
                 int best_s = 0;
                 std::vector<uint64_t> raw_w(t + 1);
@@ -1761,7 +1789,7 @@ struct HostQuantModel {
                     for (int j = 0; j < 8; ++j) {
                         d_l1 += std::abs(int32_t(last_top_q[c_off + j]) - int32_t(k_cache[top_l][ks * D + c_off + j]));
                     }
-                    uint8_t k_byte = uint8_t((k_sk0[top_l][ks] >> ((h & 7) * 8)) & 0xFFULL);
+                    uint8_t k_byte = uint8_t((k_sk[top_l][ks * sk_blocks + h_blk] >> ((h & 7) * 8)) & 0xFFULL);
                     int32_t d_ham = popcnt32_dev(uint32_t(q_byte ^ k_byte));
                     int32_t d_ind = 0;
                     if (sh == 1) {
@@ -1813,11 +1841,12 @@ struct HostQuantModel {
                             }
                         }
                         uint64_t eff_wp = (sh == 3) ? uint64_t(max_wp) : tot_wp;
-                        int32_t cap_h = (sh == 3 && D >= 128) ? 11264 : 12288;
+                        int32_t cap_h = (sh == 3) ? ((D >= 128) ? 11264 : 12288) : 16384;
                         bool is_expected_tok = (expected_cont_s >= 0 && int(tokens[expected_cont_s]) == tok_s);
                         int64_t tok_allow = int64_t(copy_tok_gate[tok_s]);
-                        if (sh != 3 && is_expected_tok && (in_tool_obs_span || (expected_cont_s + 1 < copy_limit && copy_tok_gate[tokens[expected_cont_s + 1]] >= 160 && (tok_s == 5 || tok_s == 16 || tok_s == 17)))) {
-                            if (tok_allow < 192) tok_allow = 192;
+                        if ((in_code_gen && sh != 3 && is_expected_tok)
+                            || (sh != 3 && is_expected_tok && (in_tool_obs_span || (expected_cont_s + 1 < copy_limit && copy_tok_gate[tokens[expected_cont_s + 1]] >= 96 && (tok_s == 5 || tok_s == 16 || tok_s == 17))))) {
+                            if (tok_allow < 224) tok_allow = 224;
                         }
                         int32_t cand = clamp_i32(int32_t((int64_t(eff_wp) * int64_t(copy_gain) * tok_allow) >> 25), 0, cap_h);
                         if (sh == 3) {
@@ -1846,9 +1875,9 @@ struct HostQuantModel {
                 }
             }
 
-            uint64_t h_sk0 = pack_sign64(&last_hidden[0]);
-            uint64_t h_sk1 = (D >= 128) ? pack_sign64(&last_hidden[64]) : 0ULL;
-            int d_shift = (D >= 128) ? 1 : 0;
+            std::vector<uint64_t> h_sk(n_blocks, 0ULL);
+            for (int b = 0; b < n_blocks; ++b) h_sk[b] = pack_sign64(&last_hidden[b * 64]);
+            int d_shift = (D >= 256) ? 2 : ((D >= 128) ? 1 : 0);
 
             int blocked_cycle_next = -1;
             const size_t gen_len = generated.size();
@@ -1881,21 +1910,36 @@ struct HostQuantModel {
             int32_t max_pure = -2000000000, second_pure = -2000000000;
             uint32_t max_pure_v = 1;
 
+            const int gate12_g_lo = (G >= 32) ? (G - 6) : 13;
             for (int v = 0; v < VOCAB_SIZE; ++v) {
                 if (v == 0 || v == 2) continue;
                 if (v == 1 && active_mid_span) continue;
                 if (v == blocked_cycle_next) continue;
+                const uint8_t* hi_row = &tmac_hi[v * G];
+                const uint8_t* lo_row = &tmac_lo[v * G];
+                bool is_untouched_copy_cal = (copy_logits[v] == 0);
+                if (is_untouched_copy_cal) {
+                    for (int g = gate12_g_lo; g < G; ++g) {
+                        if (hi_row[g] != 40 || lo_row[g] != 80) {
+                            is_untouched_copy_cal = false;
+                            break;
+                        }
+                    }
+                }
+                int active_g = is_untouched_copy_cal ? gate12_g_lo : G;
                 int32_t tmac_sum = 0;
-                for (int g = 0; g < G; ++g) {
-                    int32_t v_hi = act_lut[g][tmac_hi[v * G + g]];
-                    int32_t v_lo = act_lut[g][tmac_lo[v * G + g]];
+                for (int g = 0; g < active_g; ++g) {
+                    int32_t v_hi = act_lut[g][hi_row[g]];
+                    int32_t v_lo = act_lut[g][lo_row[g]];
                     tmac_sum += (v_hi << 1) + v_hi + v_lo;
                 }
                 int32_t l1 = 0;
                 for (int c = 0; c < D; ++c) l1 += std::abs(int32_t(last_hidden[c]) - int32_t(p_out[v * D + c]));
-                int ham = popcnt64_dev(h_sk0 ^ p_sk0[v]);
-                if (D >= 128) ham += popcnt64_dev(h_sk1 ^ p_sk1[v]);
-                int32_t pure_score = (tmac_sum >> d_shift) + (int32_t(b_out[v]) * 2) - ((ham * 24) >> d_shift) - (l1 >> (5 + d_shift));
+                int ham = 0;
+                for (int b = 0; b < n_blocks; ++b) ham += popcnt64_dev(h_sk[b] ^ p_sk[size_t(v) * n_blocks + b]);
+                int32_t raw_b_val = int32_t(b_out[v]);
+                int32_t b_val = is_untouched_copy_cal ? std::min(raw_b_val - 400, raw_b_val) : raw_b_val;
+                int32_t pure_score = (tmac_sum >> d_shift) + (b_val * 2) - ((ham * 24) >> d_shift) - (l1 >> (5 + d_shift));
                 int32_t score = pure_score + copy_logits[v];
                 if (pure_score > max_pure) { second_pure = max_pure; max_pure = pure_score; max_pure_v = v; }
                 else if (pure_score > second_pure) { second_pure = pure_score; }
@@ -2022,7 +2066,7 @@ static TrainResultSummary train_and_export_model(
 ) {
     auto t0 = std::chrono::steady_clock::now();
     const int G = D / 4;
-    const int BATCH = 170;
+    const int BATCH = (D >= 256) ? 128 : 170;
 
     std::mt19937 rng(D * 1000 + L * 97 + 42);
     auto rand_init = [&](size_t n, int32_t amp) {
@@ -2126,8 +2170,8 @@ static TrainResultSummary train_and_export_model(
     std::vector<int32_t> h_klut = rand_init(size_t(L) * G * 256 * QKV_OUT, 400);
     std::vector<int32_t> h_vlut = rand_init(size_t(L) * G * 256 * QKV_OUT, 450);
     std::vector<int32_t> h_ffnlut = rand_init(size_t(L) * G * 256 * D, 400);
-    const int gate3_lo = (D == 128) ? 80 : 40;
-    const int gate12_lo = (D == 128) ? 104 : 52;
+    const int gate3_lo = (D >= 128) ? (D - 48) : 40;
+    const int gate12_lo = (D >= 128) ? (D - 24) : 52;
     for (int i = 0; i < 256; ++i) {
         for (int c = gate3_lo; c < D; ++c) h_epos[size_t(i) * D + c] = 0;
     }
@@ -2158,7 +2202,7 @@ static TrainResultSummary train_and_export_model(
     std::vector<int32_t> h_copy_b(L * H, -4096);
     std::vector<int32_t> h_copy_w(size_t(L) * H * D, 0);
 
-    const int top_copy_h_limit = gate3_lo / 8;
+    const int top_copy_h_limit = std::min(gate3_lo / 8, 10);
     for (int l = 0; l < L; ++l) {
         for (int h = 0; h < H; ++h) {
             uint8_t sh = 0;
@@ -2190,10 +2234,12 @@ static TrainResultSummary train_and_export_model(
                 int32_t* cw = &h_copy_w[(size_t(l) * H + h) * D];
                 if (sh == 3) {
                     h_copy_b[l * H + h] = -250;
-                    for (int c = gate3_lo; c < gate12_lo; ++c) cw[c] = 512;
+                    int c_end3 = std::min(gate12_lo, gate3_lo + 24);
+                    for (int c = gate3_lo; c < c_end3; ++c) cw[c] = 512;
                 } else {
-                    h_copy_b[l * H + h] = (D == 128) ? 2000 : 2600;
-                    for (int c = gate12_lo; c < D; ++c) cw[c] = 512;
+                    h_copy_b[l * H + h] = (D >= 128) ? 2000 : 2600;
+                    int c_end12 = std::min(D, gate12_lo + 24);
+                    for (int c = gate12_lo; c < c_end12; ++c) cw[c] = 512;
                 }
             }
         }
@@ -2237,8 +2283,7 @@ static TrainResultSummary train_and_export_model(
     CHECK_CUDA(cudaMalloc(&bc.ffnlut_q12, h_ffnlut.size() * sizeof(int16_t)));
     CHECK_CUDA(cudaMalloc(&bc.tmac_hi, size_t(VOCAB_SIZE) * G));
     CHECK_CUDA(cudaMalloc(&bc.tmac_lo, size_t(VOCAB_SIZE) * G));
-    CHECK_CUDA(cudaMalloc(&bc.psk0, VOCAB_SIZE * sizeof(uint64_t)));
-    CHECK_CUDA(cudaMalloc(&bc.psk1, VOCAB_SIZE * sizeof(uint64_t)));
+    CHECK_CUDA(cudaMalloc(&bc.psk, size_t(VOCAB_SIZE) * MAX_BLOCKS * sizeof(uint64_t)));
 
     auto refresh_batch_cache = [&](int use_qat) {
         auto launch_q12 = [&](const int32_t* src, int16_t* dst, size_t n, int sc_idx) {
@@ -2402,17 +2447,33 @@ static TrainResultSummary train_and_export_model(
         }
 
         std::shuffle(order.begin(), order.end(), rng);
-        int lr_main = (L >= 8) ? 22 : 26;
+        int lr_backbone = 24;
+        int lr_emb = 12;
         int lr_trit = 18;
         if (ep >= epochs) {
-            lr_main = 1;
+            lr_backbone = 1;
+            lr_emb = 1;
             lr_trit = 1;
-        } else if (ep >= 6) {
-            lr_main = 3; lr_trit = 2;
-        } else if (ep >= 4) {
-            lr_main = 6; lr_trit = 5;
-        } else if (ep >= 2) {
-            lr_main = 12; lr_trit = 9;
+        } else if (L >= 16) {
+            if (ep < 2) {
+                lr_backbone = 20; lr_emb = 10; lr_trit = 18;
+            } else if (ep < 5) {
+                lr_backbone = 10; lr_emb = 5; lr_trit = 9;
+            } else if (ep < 8) {
+                lr_backbone = 5; lr_emb = 3; lr_trit = 5;
+            } else {
+                lr_backbone = 3; lr_emb = 1; lr_trit = 2;
+            }
+        } else {
+            if (ep < 2) {
+                lr_backbone = 26; lr_emb = 13; lr_trit = 18;
+            } else if (ep < 4) {
+                lr_backbone = 12; lr_emb = 6; lr_trit = 9;
+            } else if (ep < 6) {
+                lr_backbone = 6; lr_emb = 3; lr_trit = 5;
+            } else {
+                lr_backbone = 3; lr_emb = 1; lr_trit = 2;
+            }
         }
 
         CHECK_CUDA(cudaMemset(d_loss, 0, sizeof(unsigned long long)));
@@ -2427,14 +2488,14 @@ static TrainResultSummary train_and_export_model(
                 dm, bc, gr, d_scratches, d_samples, d_batch_idx, cur_b,
                 1, d_loss, d_corr, d_tot
             );
-            gm_etok.step(dm.e_tok, std::max(1, lr_main / 2), -8192, 8192);
-            gm_epos.step(dm.e_pos, std::max(1, lr_main / 2), -8192, 8192);
-            gm_qlut.step(dm.q_lut, lr_main, -8192, 8192);
-            gm_klut.step(dm.k_lut, lr_main, -8192, 8192);
-            gm_vlut.step(dm.v_lut, lr_main, -8192, 8192);
-            gm_ffnlut.step(dm.ffn_lut, lr_main, -8192, 8192);
+            gm_etok.step(dm.e_tok, lr_emb, -8192, 8192);
+            gm_epos.step(dm.e_pos, lr_emb, -8192, 8192);
+            gm_qlut.step(dm.q_lut, lr_backbone, -8192, 8192);
+            gm_klut.step(dm.k_lut, lr_backbone, -8192, 8192);
+            gm_vlut.step(dm.v_lut, lr_backbone, -8192, 8192);
+            gm_ffnlut.step(dm.ffn_lut, lr_backbone, -8192, 8192);
             gm_wtmac.step(dm.w_tmac, lr_trit, -1152, 1152);
-            gm_pout.step(dm.p_out, std::max(1, lr_main / 2), -8192, 8192);
+            gm_pout.step(dm.p_out, lr_emb, -8192, 8192);
             gm_bout.step(dm.b_out, lr_trit, -2048, 2048);
         }
         CHECK_CUDA(cudaDeviceSynchronize());
@@ -2469,8 +2530,8 @@ static TrainResultSummary train_and_export_model(
             }
         }
 
-        printf("[%s] Epoch %2d/%2d (QAT=%d, lr=%2d) | Train Loss: %7.2f (%6.2f%%) | Held-Out QAT Loss: %7.2f (%6.2f%%)\n",
-               model_tag.c_str(), ep + 1, total_epochs, use_qat, lr_main, avg_loss, acc, val_loss_ep, val_acc_ep);
+        printf("[%s] Epoch %2d/%2d (QAT=%d, lr=%2d/%2d) | Train Loss: %7.2f (%6.2f%%) | Held-Out QAT Loss: %7.2f (%6.2f%%)\n",
+               model_tag.c_str(), ep + 1, total_epochs, use_qat, lr_backbone, lr_trit, avg_loss, acc, val_loss_ep, val_acc_ep);
         fflush(stdout);
     }
 
@@ -2497,7 +2558,7 @@ static TrainResultSummary train_and_export_model(
     hqm.q_lut.resize(L); hqm.k_lut.resize(L); hqm.v_lut.resize(L); hqm.ffn_lut.resize(L);
 
     std::vector<uint8_t> payload;
-    payload.reserve(18 * 1024 * 1024);
+    payload.reserve(size_t(D >= 256 ? 90 : 18) * 1024 * 1024);
     for (uint16_t sc : h_scales) append_u16_le(payload, sc);
 
     std::vector<int8_t> q_buf;
@@ -2581,11 +2642,12 @@ static TrainResultSummary train_and_export_model(
     dequantize_tensor_q12(q_buf, h_scales[2], hqm.p_out);
     payload.insert(payload.end(), (uint8_t*)q_buf.data(), (uint8_t*)q_buf.data() + q_buf.size());
 
-    hqm.p_sk0.resize(VOCAB_SIZE);
-    hqm.p_sk1.resize(VOCAB_SIZE, 0ULL);
+    const int p_n_blocks = D / 64;
+    hqm.p_sk.resize(size_t(VOCAB_SIZE) * p_n_blocks, 0ULL);
     for (int v = 0; v < VOCAB_SIZE; ++v) {
-        hqm.p_sk0[v] = pack_sign64(&hqm.p_out[v * D]);
-        if (D >= 128) hqm.p_sk1[v] = pack_sign64(&hqm.p_out[v * D + 64]);
+        for (int b = 0; b < p_n_blocks; ++b) {
+            hqm.p_sk[size_t(v) * p_n_blocks + b] = pack_sign64(&hqm.p_out[v * D + b * 64]);
+        }
     }
 
     hqm.b_out.resize(VOCAB_SIZE);
@@ -2693,7 +2755,7 @@ static TrainResultSummary train_and_export_model(
     gm_copyb.destroy(); gm_copyw.destroy(); gm_copytok.destroy();
     cudaFree(bc.etok_q12); cudaFree(bc.epos_q12); cudaFree(bc.pout_q12);
     cudaFree(bc.qlut_q12); cudaFree(bc.klut_q12); cudaFree(bc.vlut_q12); cudaFree(bc.ffnlut_q12);
-    cudaFree(bc.tmac_hi); cudaFree(bc.tmac_lo); cudaFree(bc.psk0); cudaFree(bc.psk1);
+    cudaFree(bc.tmac_hi); cudaFree(bc.tmac_lo); cudaFree(bc.psk);
     cudaFree(dm.e_tok); cudaFree(dm.e_pos); cudaFree(dm.q_lut); cudaFree(dm.k_lut);
     cudaFree(dm.v_lut); cudaFree(dm.ffn_lut); cudaFree(dm.w_tmac); cudaFree(dm.p_out); cudaFree(dm.b_out);
     cudaFree(dm.head_tau); cudaFree(dm.head_slope); cudaFree(dm.head_shift);
@@ -2872,17 +2934,22 @@ int main(int argc, char** argv) {
     printf("Loaded %zu full train sequences (%zu fast-start boot sequences), %zu held-out eval sequences (%zu boot eval), %zu audit prompts (MAX_SEQ=%d).\n",
            samples.size(), boot_samples.size(), eval_samples.size(), boot_eval_samples.size(), eval_prompts.size(), MAX_SEQ);
 
-    // 1. Fast-start bootstrap_v9.uorgllm: 6L 64D (8 heads, 16 LUT groups -> 3.43 MB <= 10 MB)
+    // 1. Fast-start bootstrap_v9.uorgllm: 6L 128D (16 heads, 32 LUT groups -> ~10.01 MB <= 15 MiB wasm)
     auto boot_res = train_and_export_model(
-        "bootstrap_v10_6L_64D", 64, 6, 8, 11, 2,
+        "bootstrap_v10_6L_128D", 128, 6, 16, 12, 2,
         boot_samples, boot_eval_samples, eval_prompts, vocab_bytes, argv[2], ""
     );
 
-    // 2. Full OPFS sharded v10 model: 8L 128D (16 heads, 32 LUT groups -> 12.90 MB <= 14 MB, 1 MiB shards)
-    auto opfs_res = train_and_export_model(
-        "opfs_v10_8L_128D", 128, 8, 16, 10, 2,
-        samples, eval_samples, eval_prompts, vocab_bytes, "", argv[3]
-    );
+    // 2. Full OPFS sharded v10 model: 16L 256D (32 heads, 64 LUT groups -> ~82.43 MB, 79 x 1 MiB shards)
+    // Pass "-" for <v10_shard_dir> to train only bootstrap_v10_6L_128D while keeping existing OPFS shards untouched.
+    const bool run_opfs = (std::string(argv[3]) != "-");
+    TrainResultSummary opfs_res{};
+    if (run_opfs) {
+        opfs_res = train_and_export_model(
+            "opfs_v10_16L_256D", 256, 16, 32, 14, 2,
+            samples, eval_samples, eval_prompts, vocab_bytes, "", argv[3]
+        );
+    }
 
     if (argc >= 5) {
         auto write_samples_json = [](std::ofstream& rf, const std::vector<SampleGenerationRecord>& recs) {
@@ -2926,23 +2993,27 @@ int main(int argc, char** argv) {
            << "    \"elapsed_seconds\": " << boot_res.elapsed_sec << ",\n"
            << "    \"held_out_generations\": ";
         write_samples_json(rf, boot_res.sample_generations);
-        rf << "\n  },\n"
-           << "  \"opfs_sharded_v10\": {\n"
-           << "    \"d_model\": " << opfs_res.d_model << ",\n"
-           << "    \"n_layers\": " << opfs_res.n_layers << ",\n"
-           << "    \"n_heads\": " << opfs_res.n_heads << ",\n"
-           << "    \"initial_hinge_loss\": " << opfs_res.initial_loss << ",\n"
-           << "    \"final_train_hinge_loss\": " << opfs_res.final_train_loss << ",\n"
-           << "    \"final_train_token_acc_pct\": " << opfs_res.final_train_acc << ",\n"
-           << "    \"val_hinge_loss\": " << opfs_res.val_hinge_loss << ",\n"
-           << "    \"val_exact_token_acc_pct\": " << opfs_res.val_exact_acc << ",\n"
-           << "    \"container_bytes\": " << opfs_res.container_bytes << ",\n"
-           << "    \"container_sha256\": \"" << opfs_res.container_sha256 << "\",\n"
-           << "    \"elapsed_seconds\": " << opfs_res.elapsed_sec << ",\n"
-           << "    \"held_out_generations\": ";
-        write_samples_json(rf, opfs_res.sample_generations);
-        rf << "\n  }\n"
-           << "}\n";
+        rf << "\n  },\n";
+        if (run_opfs) {
+            rf << "  \"opfs_sharded_v10\": {\n"
+               << "    \"d_model\": " << opfs_res.d_model << ",\n"
+               << "    \"n_layers\": " << opfs_res.n_layers << ",\n"
+               << "    \"n_heads\": " << opfs_res.n_heads << ",\n"
+               << "    \"initial_hinge_loss\": " << opfs_res.initial_loss << ",\n"
+               << "    \"final_train_hinge_loss\": " << opfs_res.final_train_loss << ",\n"
+               << "    \"final_train_token_acc_pct\": " << opfs_res.final_train_acc << ",\n"
+               << "    \"val_hinge_loss\": " << opfs_res.val_hinge_loss << ",\n"
+               << "    \"val_exact_token_acc_pct\": " << opfs_res.val_exact_acc << ",\n"
+               << "    \"container_bytes\": " << opfs_res.container_bytes << ",\n"
+               << "    \"container_sha256\": \"" << opfs_res.container_sha256 << "\",\n"
+               << "    \"elapsed_seconds\": " << opfs_res.elapsed_sec << ",\n"
+               << "    \"held_out_generations\": ";
+            write_samples_json(rf, opfs_res.sample_generations);
+            rf << "\n  }\n";
+        } else {
+            rf << "  \"opfs_sharded_v10\": null\n";
+        }
+        rf << "}\n";
     }
     return 0;
 }
