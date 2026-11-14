@@ -1,11 +1,11 @@
-network: 39 units (LexLean slices), synapses 0 observed, 207 proved, 1 refuted, 12 events (ticks)
-attempts: 388 proved; pending 0
+network: 39 units (LexLean slices), synapses 0 observed, 223 proved, 1 refuted, 12 events (ticks)
+attempts: 420 proved; pending 0
 hypotheses: 16 labelled (1 exclusions, 15 obligations)
-uorlut: 7424 reply anchors, 12089 point rows, 0 orphaned rows
-diagnostics: 209/209 benchmark prompts passed, 0 failure basins, 117/17408 radix /8 buckets populated, 0 unindexed rows, 0 dead UI bindings, 2 bottleneck-relevant arXiv papers
-prism-factory: 18196 features (recheck=0), 270 registry components, obligations 28/28 admitted=true (undecided=0), route=Proved
-last tick 12 (2026-11-14T04:48:59Z): advanced
-  1 proved (R4-F208), 0 known to the library, 0 refuted, 1 new relations, 16 hypotheses minted, 0 observed left
+uorlut: 7440 reply anchors, 12105 point rows, 0 orphaned rows
+diagnostics: 225/225 benchmark prompts passed, 0 failure basins, 117/17408 radix /8 buckets populated, 0 unindexed rows, 0 dead UI bindings, 2 bottleneck-relevant arXiv papers
+prism-factory: 18212 features (recheck=0), 270 registry components, obligations 28/28 admitted=true (undecided=0), route=Proved
+last tick 12 (2026-11-14T17:06:21Z): advanced
+  1 proved (R4-F224), 0 known to the library, 0 refuted, 1 new relations, 16 hypotheses minted, 0 observed left
 learned weights (initial 8 elsewhere): corpus-induction/dialogue-stem=12, pointkey-resonance/dialogue-stem=16, reply-4gram-deduction/dialogue-stem=10, corpus-induction/stem-reasoning=12, pointkey-resonance/stem-reasoning=10, reply-4gram-deduction/stem-reasoning=16, bvgk-writer-refinement/stem-reasoning=10, pointkey-resonance/code-synthesis=13, reply-4gram-deduction/code-synthesis=9, bvgk-writer-refinement/code-synthesis=16, corpus-induction/open-basin=16
 workflow homeostasis: cron='17,47 * * * *' tick_budget=75m gate_reserve=15m
 strategy schedules by family:
