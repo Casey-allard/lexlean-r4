@@ -1749,6 +1749,7 @@ pub fn compile_proved_frontier_claims_to_uorlut(
         let out_bytes = model.to_uorlut_bytes();
         std::fs::write(&lut_path, &out_bytes)
             .map_err(|e| format!("failed to write {}: {e}", lut_path.display()))?;
+        sync_compact_seed_uorlut(root, &out_bytes)?;
         let post_audit = audit_uorlut_synchronization(root)?;
         if post_audit.orphaned_point_rows != 0 {
             return Err(format!(
@@ -1804,6 +1805,16 @@ pub fn atomic_write(target: &Path, data: &[u8]) -> Result<(), String> {
         ));
     }
     Ok(())
+}
+
+/// Regenerate `crates/wasm/src/bootstrap_v8_seed.uorlut` from full `bootstrap_v8.uorlut` bytes.
+pub fn sync_compact_seed_uorlut(root: &Path, full_bytes: &[u8]) -> Result<(), String> {
+    let full = crate::lut_stack_exec::LutStackModel::parse(full_bytes)?;
+    let seed_bytes = full.build_compact_seed_uorlut()?;
+    atomic_write(
+        &root.join("crates/wasm/src/bootstrap_v8_seed.uorlut"),
+        &seed_bytes,
+    )
 }
 
 /// Execute coordinate-descent weight consolidation purely in memory, gating acceptance on
@@ -1968,11 +1979,16 @@ pub fn run_engine_weight_consolidation(
     root: &Path,
     frontier: &FrontierFile,
 ) -> Result<ConsolidationReport, String> {
-    run_engine_weight_consolidation_paths(
-        &root.join("crates/wasm/src/bootstrap_v8.uorlut"),
+    let lut_path = root.join("crates/wasm/src/bootstrap_v8.uorlut");
+    let report = run_engine_weight_consolidation_paths(
+        &lut_path,
         &root.join("gpu/weights/manifest.json"),
         frontier,
-    )
+    )?;
+    let updated = std::fs::read(&lut_path)
+        .map_err(|e| format!("failed to read {}: {e}", lut_path.display()))?;
+    sync_compact_seed_uorlut(root, &updated)?;
+    Ok(report)
 }
 
 /// Structural witnesses extracted from a frontier claim for formal strategy verification
@@ -3445,6 +3461,7 @@ pub fn run_engine_tick(
                 "model/hypotheses.toml",
                 "tests/lexlean/FrontierTheorems.lex.tex",
                 "crates/wasm/src/bootstrap_v8.uorlut",
+                "crates/wasm/src/bootstrap_v8_seed.uorlut",
             ])
             .status();
 
@@ -4997,6 +5014,11 @@ pub fn run_api_cmd(root: &Path, args: &[String]) -> Result<(), String> {
                 let _thm_count = sync_and_verify_frontier_theorems(root, &mut frontier, &engine)?;
                 save_frontier(root, &frontier)?;
                 let _compiled = compile_proved_frontier_claims_to_uorlut(root, &frontier)?;
+                let uorlut_bytes = std::fs::read(root.join("crates/wasm/src/bootstrap_v8.uorlut"))
+                    .map_err(|e| {
+                        format!("failed to read crates/wasm/src/bootstrap_v8.uorlut: {e}")
+                    })?;
+                sync_compact_seed_uorlut(root, &uorlut_bytes)?;
                 let refreshed = mint_hypotheses(&engine, &frontier, "2026-11-05T03:30:00Z");
                 save_hypotheses(root, &refreshed)?;
             }

@@ -808,11 +808,11 @@ console.log('--- Suite 6: Closure, Security, Accessibility & Heap Stability ---'
     assert.ok(st.size > 0, `${req} must have non-zero file size`);
   }
 
-  // 2. Strict Content-Security-Policy in index.html
+  // 2. Strict R4-39 Content-Security-Policy in index.html
   assert.ok(rawHtml.includes("Content-Security-Policy"), 'index.html must declare CSP');
-  assert.ok(rawHtml.includes("connect-src 'self'"), 'CSP must strictly restrict connections to self');
-  assert.ok(!rawHtml.includes('https://api.'), 'index.html must not contain external API domains');
-  assert.ok(!rawHtml.includes('http://'), 'index.html must not contain unencrypted HTTP URLs');
+  assert.ok(rawHtml.includes("connect-src 'self'"), 'CSP must include self origin');
+  assert.ok(!rawHtml.includes('https://api.'), 'index.html must not hardcode external API domains');
+  assert.ok(!/http:\/\/(?!127\.0\.0\.1)/.test(rawHtml), 'index.html must not contain non-loopback unencrypted HTTP URLs');
 
   // 3. WCAG AA Contrast tokens & CSS grid rules
   assert.ok(rawCss.includes('color: #111827;'), 'Contractual WCAG AA contrast invariant color: #111827; preserved');

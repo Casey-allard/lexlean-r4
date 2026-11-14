@@ -11542,6 +11542,170 @@ pub fn consolidate_lut_trajectory_points(
     })
 }
 
+/// Core 20 self-contained architecture & LexLean knowledge turns embedded into compact Wasm seeds.
+pub fn default_knowledge_turns() -> [(&'static str, &'static str); 20] {
+    [
+        (
+            "What is UOR-R4?",
+            "UOR-R4 is a float-free geometric language model over the 16-root E8 orbit, 64-action Clifford algebra, and 40-node ternary binder forest.",
+        ),
+        (
+            "How does recall work?",
+            "Recall combines /6 induction-keyed 64-bit quaternion sign-code Hamming attention, /7 turn-anchored opening and reply lookup tables, and /8 continuous Q12 L1 point-key fallback.",
+        ),
+        (
+            "How does prediction work?",
+            "Prediction projects the context trajectory into occupied product cells, ranks candidates with Level-3 joint pointer gates and geometric retention rates, and decodes via whole-table L1 nearest readout.",
+        ),
+        (
+            "How does prose generation work?",
+            "Prose generation marks reply_start at the prompt boundary, resolves the opening token via /7 exact key or /8 L1 point-key plurality vote, and steps /7 reply continuation keys autoregressively until EOS.",
+        ),
+        (
+            "What is point key lookup?",
+            "When a rephrased prompt misses the exact 8-token /7 opening key, /8 point-key lookup scans Q12 readout vectors by L1 distance and selects the plurality-vote target token.",
+        ),
+        (
+            "What is integer Hamming read?",
+            "Integer Hamming read rotates 4-lane activation blocks by unit quaternions into 64-bit sign codes, measures SWAR popcount distance at induction lag s-1, and injects margin-weighted copy and type vectors at stream depth 2 and readout depth 6.",
+        ),
+        (
+            "What is geometric retention?",
+            "Geometric retention replaces fast decay with RETAIN_LAMBDA_Q31 rates 1 - 2^-(k+1) across 16 heads, preserving context half-lives from 1 to 65,536 token steps.",
+        ),
+        (
+            "What does LexLean prove?",
+            "LexLean verifies 27 zero-axiom Lean 4.32.1 conformance suites covering discrete geometry, route/flock transport, admission, prediction, /6../8 serving tables, 17-root Icosian snap, 19-table M1 trunk, M3 durable memory, and M6 exact arithmetic.",
+        ),
+        (
+            "How does the 17-root Icosian snap work?",
+            "SpiralCore snaps 4-lane Q12 blocks to the 17-root Icosian Z[phi] table using the exact 5*a^2 < d quadratic inequality, GoldenQ12 inner-product compatibility scoring, and quaternion Hamilton products.",
+        ),
+        (
+            "What is the 19-table M1 discrete trunk?",
+            "The 19-table M1 discrete trunk allocates 12,288 bits per token across levels 0 through 5, packs 4-block Icosian roots in base-17 (0..83,520), and scores Level-3 joint pointers by L1 distance plus 2*min-Hamming.",
+        ),
+        (
+            "How do durable turn memory and manifold sketches work?",
+            "M3 durable memory persists scoped user/session turns in UORMEM01 and UR4SESS1 binary containers, intersects PrimeAddress factors via sorted-merge GCD, and gates 4096-bit manifold sketches at the +3-sigma threshold of 2,144 matching bits.",
+        ),
+        (
+            "How do M6 exact arithmetic and PRLL lawful likelihood work?",
+            "M6 performs multi-digit radix-B addition over geometric orbit digits with 5 causal ablation arms, while PRLL conserves PRLL_MASS_QUANTUM=1,000,000 integer probability mass and uor-naf/1-draft.6 enforces minimal uvar and 6-state admission.",
+        ),
+        (
+            "What is the E8 root lattice in UOR-R4?",
+            "The 16-root E8 orbit assigns each token atom a discrete root index 0..15, where pairs of consecutive roots form 256 product cells that gate lawful token transitions.",
+        ),
+        (
+            "How does Clifford algebra Cl(0,6) transport work?",
+            "The 64-element Clifford algebra Cl(0,6) acts as an exact involutive group carrier where each token step applies basis action 0..63 and its exact inverse restores the source coordinate.",
+        ),
+        (
+            "How does R4.Binder lexical scope binding work?",
+            "R4.Binder manages lexical scopes, symbol bindings, and de Bruijn index resolution with total deterministic outcomes proved in zero-axiom Lean 4.",
+        ),
+        (
+            "How does UORLUT01 binary container snapshot export work?",
+            "The UORLUT01 binary container packs a 64-byte aligned header (magic UORLUT01, schema uor-r4.lut-stack/8) validated by R4.SpiralCoreFbs.probeModelSource followed by /6../8 serving tables.",
+        ),
+        (
+            "How does UR4SESS1 session envelope serialization work?",
+            "UR4SESS1 (magic 0x55523453) and UORMEM01 (magic 0x50574345) encode scoped dialogue turns with length-prefixed UTF-8 payloads validated by R4.DurableMemory.validateSessionEnvelope.",
+        ),
+        (
+            "What is uor-naf/1-draft.6 canonical varint admission?",
+            "uor-naf/1-draft.6 validates minimal-length unsigned varints and classifies numeric envelopes into 6 deterministic states including AcceptedCanonical, InvalidNonMinimalUvar, and PolicyOutOfDomain.",
+        ),
+        (
+            "How do BLAKE3 and SHA-256 cryptographic receipts work?",
+            "Every Studio state transition, turn admission, prose generation, and binary snapshot export commits a canonical SHA-256 and BLAKE3 digest verified by zero-axiom Lean 4 theorems.",
+        ),
+        (
+            "How is the LexLean R4 kernel compiled into WebAssembly?",
+            "The 10 core R4 LexLean modules are translated directly from their verified semantic ASTs into crates/wasm/src/lexlean_generated.rs and bound by SHA-256 in public/provenance.json.",
+        ),
+    ]
+}
+
+impl LutStackModel {
+    /// Deterministically distill a `< 256 KB` `UORLUT01` (`uor-r4.lut-stack/8`) compact seed container
+    /// for `wasm32` instant startup while Worker OPFS/IndexedDB streams full weights.
+    pub fn build_compact_seed_uorlut(&self) -> Result<Vec<u8>, String> {
+        let seed_vocab = 64usize.min(self.vocab);
+        let opening_weight = self
+            .memory
+            .as_ref()
+            .map(|m| m.opening.weight_q24.clone())
+            .unwrap_or_else(|| vec![1 << 20; FBS_WIDTH]);
+        let reply_weight = self
+            .memory
+            .as_ref()
+            .and_then(|m| m.reply.as_ref().map(|r| r.weight_q24.clone()))
+            .unwrap_or_else(|| vec![1 << 20; FBS_WIDTH]);
+
+        let mut seed = LutStackModel {
+            schema: self.schema.clone(),
+            artifact_sha256: String::new(),
+            artifact_bytes: 0,
+            vocab: seed_vocab,
+            width: self.width,
+            mlp: self.mlp,
+            context: self.context,
+            layers: self.layers.clone(),
+            final_gain: self.final_gain.clone(),
+            writer_table: self.writer_table[..seed_vocab * self.width].to_vec(),
+            hamming: self.hamming.clone(),
+            memory: Some(ServedTurnMemory {
+                k: 8,
+                key_window: 192,
+                reply_turn: Some(8),
+                reply_key_len: 6,
+                weight_exp: -24,
+                opening: TurnMemoryTable {
+                    entries: 0,
+                    key_len: 8,
+                    keys: Vec::new(),
+                    values: Vec::new(),
+                    packed12: Vec::new(),
+                    weight_q24: opening_weight,
+                },
+                reply: Some(TurnMemoryTable {
+                    entries: 0,
+                    key_len: 6,
+                    keys: Vec::new(),
+                    values: Vec::new(),
+                    packed12: Vec::new(),
+                    weight_q24: reply_weight,
+                }),
+            }),
+            point: Some(ServedPointKey {
+                rows: 0,
+                width: self.width,
+                exp: -12,
+                vote_k: 8,
+                points: Vec::new(),
+                targets: Vec::new(),
+                canonical_anchors: Some(Vec::new()),
+                anchor_len: 32,
+                provenance_spans: None,
+                provenance_traces: None,
+                bucket_offsets: None,
+                bucket_row_indices: None,
+            }),
+            ternary_assoc: None,
+            dialogue_version: self.dialogue_version,
+            writer_provenance: None,
+            writer_provenance_traces: None,
+        };
+
+        for (prompt, reply) in default_knowledge_turns() {
+            let _ = seed.compile_verified_dialogue_turn(prompt, reply)?;
+        }
+        Ok(seed.to_uorlut_bytes())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

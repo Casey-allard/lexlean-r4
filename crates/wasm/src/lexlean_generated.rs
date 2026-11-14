@@ -46085,3 +46085,155 @@ pub mod r4_compositional_gllm {
         }
     }
 }
+
+/// Generated module `R4.ConnectedStudio` (`tests/lexlean/R4/ConnectedStudio.lex.tex`, `R4-39`).
+pub mod r4_connected_studio {
+    /// Inductive type `R4.ConnectedStudio.TransportKind`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum TransportKind {
+        /// Variant `WssRelay`.
+        WssRelay,
+        /// Variant `HttpsDirect`.
+        HttpsDirect,
+        /// Variant `LoopbackDev`.
+        LoopbackDev,
+        /// Variant `PlainHttp`.
+        PlainHttp,
+        /// Variant `PlainWs`.
+        PlainWs,
+    }
+
+    /// Inductive type `R4.ConnectedStudio.McpPolicyMode`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum McpPolicyMode {
+        /// Variant `Safe`.
+        Safe,
+        /// Variant `Confirm`.
+        Confirm,
+        /// Variant `Deny`.
+        Deny,
+    }
+
+    /// Inductive type `R4.ConnectedStudio.BridgeTransportVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum BridgeTransportVerdict {
+        /// Variant `TransportAdmitted`.
+        TransportAdmitted,
+        /// Variant `PolicyDenied`.
+        PolicyDenied,
+        /// Variant `InsecureTransportRejected`.
+        InsecureTransportRejected,
+        /// Variant `InvalidVsockCid`.
+        InvalidVsockCid,
+    }
+
+    /// Inductive type `R4.ConnectedStudio.GitSecretVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum GitSecretVerdict {
+        /// Variant `SecretSubstitutionAdmitted`.
+        SecretSubstitutionAdmitted,
+        /// Variant `GuestRamSecretContamination`.
+        GuestRamSecretContamination,
+        /// Variant `HostNotAllowlistedForSecret`.
+        HostNotAllowlistedForSecret,
+        /// Variant `MissingSecretPlaceholder`.
+        MissingSecretPlaceholder,
+    }
+
+    /// Inductive type `R4.ConnectedStudio.PackageInstallVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PackageInstallVerdict {
+        /// Variant `PackageAdmitted`.
+        PackageAdmitted,
+        /// Variant `DigestMismatch`.
+        DigestMismatch,
+        /// Variant `InvalidElf64Riscv`.
+        InvalidElf64Riscv,
+        /// Variant `SizeExceedsQuota`.
+        SizeExceedsQuota,
+    }
+
+    /// Inductive type `R4.ConnectedStudio.WorkerTurnVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum WorkerTurnVerdict {
+        /// Variant `WorkerTurnAdmitted`.
+        WorkerTurnAdmitted,
+        /// Variant `MainThreadBlockingRejected`.
+        MainThreadBlockingRejected,
+        /// Variant `SequenceWindowExceeded`.
+        SequenceWindowExceeded,
+    }
+
+    /// Function `R4.ConnectedStudio.admitBridgeTransport`.
+    pub fn admit_bridge_transport(
+        src_cid: u16,
+        dst_cid: u16,
+        policy: McpPolicyMode,
+        transport: TransportKind,
+    ) -> BridgeTransportVerdict {
+        if src_cid < 3 || dst_cid != 2 {
+            BridgeTransportVerdict::InvalidVsockCid
+        } else if matches!(policy, McpPolicyMode::Deny) {
+            BridgeTransportVerdict::PolicyDenied
+        } else if matches!(transport, TransportKind::PlainHttp | TransportKind::PlainWs) {
+            BridgeTransportVerdict::InsecureTransportRejected
+        } else {
+            BridgeTransportVerdict::TransportAdmitted
+        }
+    }
+
+    /// Function `R4.ConnectedStudio.admitGitSecretSubstitution`.
+    pub fn admit_git_secret_substitution(
+        secret_in_guest_ram: bool,
+        placeholder_present: bool,
+        is_allowlisted_github_host: bool,
+    ) -> GitSecretVerdict {
+        if secret_in_guest_ram {
+            GitSecretVerdict::GuestRamSecretContamination
+        } else if !placeholder_present {
+            GitSecretVerdict::MissingSecretPlaceholder
+        } else if !is_allowlisted_github_host {
+            GitSecretVerdict::HostNotAllowlistedForSecret
+        } else {
+            GitSecretVerdict::SecretSubstitutionAdmitted
+        }
+    }
+
+    /// Function `R4.ConnectedStudio.admitPackageInstall`.
+    pub fn admit_package_install(
+        sha256_matched: bool,
+        elf_magic_ok: bool,
+        elf_class_64: bool,
+        machine_code: u16,
+        byte_len: u32,
+        max_bytes: u32,
+    ) -> PackageInstallVerdict {
+        if !sha256_matched {
+            PackageInstallVerdict::DigestMismatch
+        } else if !elf_magic_ok || !elf_class_64 || machine_code != 243 || byte_len == 0 {
+            PackageInstallVerdict::InvalidElf64Riscv
+        } else if byte_len > max_bytes {
+            PackageInstallVerdict::SizeExceedsQuota
+        } else {
+            PackageInstallVerdict::PackageAdmitted
+        }
+    }
+
+    /// Function `R4.ConnectedStudio.admitWorkerTurn`.
+    pub fn admit_worker_turn(
+        runs_on_worker_thread: bool,
+        prompt_tokens: u32,
+        max_new_tokens: u32,
+        max_seq_window: u32,
+    ) -> WorkerTurnVerdict {
+        if !runs_on_worker_thread {
+            WorkerTurnVerdict::MainThreadBlockingRejected
+        } else if max_seq_window == 0
+            || (prompt_tokens as u64) + (max_new_tokens as u64) > (max_seq_window as u64)
+        {
+            WorkerTurnVerdict::SequenceWindowExceeded
+        } else {
+            WorkerTurnVerdict::WorkerTurnAdmitted
+        }
+    }
+}

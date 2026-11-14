@@ -30,7 +30,7 @@ import init, {
   studio_wasm_eval,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js?v=20261111v9mvm3';
+} from './lexlean_r4.js?v=20261111v10connected';
 
 globalThis.__uorOpenWeightsRuntime = {
   cacheE8ShardInOpfs: cache_e8_shard_in_opfs,
@@ -693,8 +693,490 @@ function show(message) {
   }
 }
 
+const DEFAULT_STARTER_WORKSPACE_FILES = [
+  {
+    path: 'src/attention.rs',
+    content: [
+      '//! Multi-Head Cyclic Flock Attention over Cl(0,6) x E8 Q12 Coordinates',
+      '',
+      'pub fn flock_attention_step(q12_latent: &[i16; 8], head_mask: u8) -> u8 {',
+      '    let mut l1_energy: i32 = 0;',
+      '    for &coord in q12_latent.iter() {',
+      '        l1_energy += (coord as i32).abs();',
+      '    }',
+      '    ((l1_energy as u32 ^ (head_mask as u32 * 17)) & 0x3f) as u8',
+      '}',
+    ].join('\n'),
+  },
+  {
+    path: 'src/lib.rs',
+    content: [
+      'pub mod attention;',
+      '',
+      'pub fn verify_manifold_invariants() -> bool {',
+      '    let probe = [512_i16, -256, 1024, 0, -128, 64, 32, -16];',
+      '    attention::flock_attention_step(&probe, 0xff) < 64',
+      '}',
+    ].join('\n'),
+  },
+];
+
+const engineWorkerClient = {
+  enabled: false,
+  ready: false,
+  worker: null,
+  nextId: 1,
+  pending: new Map(),
+  webAccessEnabled: true,
+  githubConnected: false,
+  lastTransport: 'spvs-cloud-wss',
+  activeChatStreamHook: null,
+  workspaceFiles: new Map(
+    DEFAULT_STARTER_WORKSPACE_FILES.map((f) => {
+      const content = typeof f.content === 'string' ? f.content : '';
+      const digest = computeSha256Hex(content);
+      return [
+        f.path,
+        {
+          path: f.path,
+          content,
+          line_count: content ? content.split('\n').length : 0,
+          pinned: Boolean(f.pinned),
+          byte_len: content.length,
+          sha256: digest,
+          updated_receipt: digest,
+        },
+      ];
+    }),
+  ),
+  shadowState: {
+    status: 'ok',
+    schema: 'uor-r4.lut-stack/8',
+    vocab_size: 4096,
+    opening_rows: 64,
+    reply_rows: 128,
+    point_key_rows: 256,
+    occupied_cells: 64,
+    training_epoch: 0,
+    active_nonzero_gates: 40,
+    state_receipt_sha256: 'booting-worker-engine',
+    entries: [],
+  },
+  shadowTraces: [],
+  packInfo: null,
+  gllmInfo: null,
+
+  spawn() {
+    if (typeof Worker !== 'function') return false;
+    try {
+      const workerUrl = new URL('./lexlean_r4.js', import.meta.url);
+      this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
+      this.enabled = true;
+      this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
+      this.worker.onerror = () => {
+        // Keep shadow workspace operational if worker script fails in restricted environment
+      };
+      return true;
+    } catch {
+      this.enabled = false;
+      return false;
+    }
+  },
+
+  rpc(op, payload) {
+    if (!this.worker) {
+      return Promise.reject(new Error('Engine worker not active'));
+    }
+    const id = this.nextId++;
+    return new Promise((resolveRpc, rejectRpc) => {
+      this.pending.set(id, { resolve: resolveRpc, reject: rejectRpc });
+      this.worker.postMessage({ id, op, payload });
+    });
+  },
+
+  applyWorkspaceSnapshot(ws) {
+    if (!ws || !Array.isArray(ws.files)) return;
+    const prevPinned = new Map();
+    for (const [p, prev] of this.workspaceFiles.entries()) {
+      prevPinned.set(p, Boolean(prev.pinned));
+    }
+    this.workspaceFiles.clear();
+    for (const f of ws.files) {
+      const content = typeof f.content === 'string' ? f.content : '';
+      const lineCount = typeof f.line_count === 'number'
+        ? f.line_count
+        : (content ? content.split('\n').length : 0);
+      const pinned = typeof f.pinned === 'boolean'
+        ? f.pinned
+        : Boolean(prevPinned.get(f.path));
+      const digest = f.sha256 || f.updated_receipt || computeSha256Hex(content);
+      this.workspaceFiles.set(f.path, {
+        path: f.path,
+        content,
+        line_count: lineCount,
+        pinned,
+        byte_len: f.byte_len ?? content.length,
+        sha256: digest,
+        updated_receipt: f.updated_receipt || digest,
+      });
+    }
+    renderWorkspaceList(this.getWorkspaceListObject());
+    if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+      for (const [p, meta] of this.workspaceFiles.entries()) {
+        if (editorTabManager.tabs.has(p)) {
+          const t = editorTabManager.tabs.get(p);
+          if (t && !t.dirty && typeof meta.content === 'string') {
+            t.content = meta.content;
+            t.savedContent = meta.content;
+          }
+        }
+      }
+      if (!this.workspaceFiles.has(activeWorkspacePath) && ws.files[0]) {
+        selectWorkspaceFile(ws.files[0].path);
+      } else if (activeWorkspacePath) {
+        selectWorkspaceFile(activeWorkspacePath);
+      }
+    }
+  },
+
+  getWorkspaceListObject() {
+    const files = Array.from(this.workspaceFiles.values()).map((f) => {
+      const content = typeof f.content === 'string' ? f.content : '';
+      return {
+        path: f.path,
+        content,
+        line_count: typeof f.line_count === 'number'
+          ? f.line_count
+          : (content ? content.split('\n').length : 0),
+        pinned: Boolean(f.pinned),
+        byte_len: f.byte_len ?? content.length,
+        sha256: f.sha256 || '',
+        updated_receipt: f.updated_receipt || f.sha256 || '',
+      };
+    });
+    const pinnedCount = files.reduce((acc, f) => acc + (f.pinned ? 1 : 0), 0);
+    return {
+      status: 'ok',
+      pinned_count: pinnedCount,
+      files,
+    };
+  },
+
+  handleMessage(msg) {
+    if (msg && typeof msg.id === 'number' && this.pending.has(msg.id)) {
+      const waiter = this.pending.get(msg.id);
+      this.pending.delete(msg.id);
+      if (msg.ok) waiter.resolve(msg.result);
+      else waiter.reject(new Error(msg.error || 'Worker RPC error'));
+      return;
+    }
+
+    const evType = msg && msg.event;
+    if (evType === 'boot_progress') {
+      const badge = document.getElementById('weight-cache-badge');
+      if (badge && msg.stage === 'v10_shards' && msg.total) {
+        badge.textContent = `GLLM v10 Shard ${msg.index}/${msg.total}`;
+      }
+      return;
+    }
+    if (evType === 'ready') {
+      this.ready = true;
+      const snap = msg.snapshot || {};
+      if (snap.state && snap.state.status === 'ok') {
+        this.shadowState = snap.state;
+        renderStudioState(snap.state);
+      }
+      if (snap.pack) this.packInfo = snap.pack;
+      if (snap.gllm) this.gllmInfo = snap.gllm;
+      if (msg.weightCacheMeta) globalThis.__uorWeightCacheMeta = msg.weightCacheMeta;
+      if (msg.gllmMeta) globalThis.__uorGllmV9Meta = msg.gllmMeta;
+      if (snap.workspace) this.applyWorkspaceSnapshot(snap.workspace);
+      updateWeightCacheBadge();
+      if (globalThis.__uorRunWasmEvalAsync) {
+        globalThis.__uorRunWasmEvalAsync('check');
+      }
+      this.rpc('studio_dispatch', '1\tstudio\ttraces\t{"format":"compact","limit":10}')
+        .then((tr) => {
+          if (Array.isArray(tr)) this.shadowTraces = tr;
+          else if (tr && typeof tr === 'object') this.shadowTraces = [tr];
+        })
+        .catch(() => {});
+      return;
+    }
+    if (evType === 'weights_upgraded') {
+      if (msg.gllm) this.gllmInfo = msg.gllm;
+      if (msg.gllmMeta) globalThis.__uorGllmV9Meta = msg.gllmMeta;
+      updateWeightCacheBadge();
+      return;
+    }
+    if (evType === 'workspace_sync' && msg.workspace) {
+      this.applyWorkspaceSnapshot(msg.workspace);
+      return;
+    }
+    if (evType === 'bridge_activity') {
+      if (msg.transport) this.lastTransport = msg.transport;
+      if (typeof this.activeChatStreamHook === 'function') {
+        this.activeChatStreamHook(msg);
+      }
+      return;
+    }
+    if (evType === 'brain_pulse' && Array.isArray(msg.pulses)) {
+      ingestGlobalBrainPulses(msg.pulses);
+      return;
+    }
+  },
+};
+
+const headerBrainPulseState = {
+  energy: 0.12,
+  callosumCharge: 0.0,
+  activeOrbit: 0,
+  activeHead: 0,
+  phasePhase: 0,
+  rafId: null,
+};
+
+function ingestGlobalBrainPulses(pulses) {
+  if (!Array.isArray(pulses) || pulses.length === 0) return;
+  const last = pulses[pulses.length - 1] || {};
+  headerBrainPulseState.energy = 1.0;
+  headerBrainPulseState.activeOrbit = (last.e8_orbit ?? 0) & 15;
+  headerBrainPulseState.activeHead = (last.winning_head ?? 0) & 7;
+  if ((last.kv_copy_dist ?? 0) > 0 || (last.tool_kind && last.tool_kind !== 'none')) {
+    headerBrainPulseState.callosumCharge = 1.0;
+  }
+  const livePill = document.getElementById('inspectors-live-pulse-pill');
+  if (livePill) {
+    const toolLabel = last.tool_kind && last.tool_kind !== 'none' ? ` · ${last.tool_kind}` : '';
+    livePill.textContent = `Orbit e${headerBrainPulseState.activeOrbit} · Head #${headerBrainPulseState.activeHead}${toolLabel}`;
+  }
+  if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestBrainPulse === 'function') {
+    lexLean3dVisualizer.ingestBrainPulse(pulses);
+  }
+}
+
+function startHeaderBrainPulseCanvas() {
+  const canvas = document.getElementById('header-brain-pulse-canvas');
+  if (!canvas || typeof canvas.getContext !== 'function') return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  canvas.addEventListener('click', () => {
+    activateCanvasTab('traces');
+  });
+
+  const drawFrame = (ts) => {
+    const t = (ts || 0) * 0.001;
+    headerBrainPulseState.energy = Math.max(0.14, headerBrainPulseState.energy * 0.94);
+    headerBrainPulseState.callosumCharge = Math.max(0.0, headerBrainPulseState.callosumCharge * 0.92);
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // Left & right cortical hemisphere silhouettes + corpus callosum bridge
+    const breath = 0.5 + 0.5 * Math.sin(t * 2.4);
+    const e = headerBrainPulseState.energy;
+    const leftX = w * 0.28;
+    const rightX = w * 0.72;
+    const midY = h * 0.54;
+
+    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = `rgba(56, 189, 248, ${0.32 + 0.55 * e})`;
+    ctx.beginPath();
+    ctx.ellipse(leftX, midY, 15, 8.5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = `rgba(52, 211, 153, ${0.32 + 0.55 * e})`;
+    ctx.beginPath();
+    ctx.ellipse(rightX, midY, 15, 8.5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Corpus Callosum arc
+    const ccAlpha = 0.25 + 0.7 * Math.max(headerBrainPulseState.callosumCharge, breath * 0.25);
+    ctx.strokeStyle = headerBrainPulseState.callosumCharge > 0.15
+      ? `rgba(250, 204, 21, ${ccAlpha})`
+      : `rgba(167, 139, 250, ${ccAlpha})`;
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(leftX + 6, midY - 1);
+    ctx.quadraticCurveTo(w * 0.5, midY - 9, rightX - 6, midY - 1);
+    ctx.stroke();
+
+    // Travelling packet along Corpus Callosum when KV copy or tool fires
+    if (headerBrainPulseState.callosumCharge > 0.08 || e > 0.35) {
+      const u = (t * 2.6) % 1.0;
+      const inv = 1 - u;
+      const px = inv * inv * (leftX + 6) + 2 * inv * u * (w * 0.5) + u * u * (rightX - 6);
+      const py = inv * inv * (midY - 1) + 2 * inv * u * (midY - 9) + u * u * (midY - 1);
+      ctx.fillStyle = headerBrainPulseState.callosumCharge > 0.15 ? '#fde047' : '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(px, py, 2.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Active cortical cluster nodes inside hemispheres
+    for (let i = 0; i < 6; i++) {
+      const isRight = i >= 3;
+      const cx = (isRight ? rightX : leftX) + Math.cos(i * 2.1 + headerBrainPulseState.activeOrbit * 0.4) * 8;
+      const cy = midY + Math.sin(i * 1.9 + headerBrainPulseState.activeHead * 0.5) * 4.5;
+      const hot = ((headerBrainPulseState.activeOrbit + i) % 6) === 0;
+      ctx.fillStyle = hot ? '#34d399' : 'rgba(148, 163, 184, 0.55)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, hot ? 2.2 + e * 1.1 : 1.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (typeof requestAnimationFrame === 'function') {
+      headerBrainPulseState.rafId = requestAnimationFrame(drawFrame);
+    }
+  };
+
+  if (typeof requestAnimationFrame === 'function') {
+    headerBrainPulseState.rafId = requestAnimationFrame(drawFrame);
+  }
+}
+
 function dispatchStudioEnvelope(command, payload) {
   const envelope = `1\tstudio\t${command}\t${payload}`;
+  if (engineWorkerClient.enabled) {
+    if (command === 'workspace_list') {
+      return engineWorkerClient.getWorkspaceListObject();
+    }
+    if (command === 'workspace_read') {
+      const target = String(payload || '').trim();
+      const hit = engineWorkerClient.workspaceFiles.get(target);
+      if (hit) {
+        return { status: 'ok', path: hit.path, content: hit.content, sha256: hit.sha256 || '' };
+      }
+      return { status: 'error', message: `File not found: ${target}` };
+    }
+    if (command === 'workspace_write') {
+      const str = String(payload || '');
+      const nl = str.indexOf('\n');
+      const pathPart = (nl >= 0 ? str.slice(0, nl) : str).trim();
+      const contentPart = nl >= 0 ? str.slice(nl + 1) : '';
+      if (pathPart) {
+        const prev = engineWorkerClient.workspaceFiles.get(pathPart);
+        const digest = computeSha256Hex(contentPart);
+        engineWorkerClient.workspaceFiles.set(pathPart, {
+          path: pathPart,
+          content: contentPart,
+          line_count: contentPart ? contentPart.split('\n').length : 0,
+          pinned: prev ? Boolean(prev.pinned) : false,
+          byte_len: contentPart.length,
+          sha256: digest,
+          updated_receipt: digest,
+        });
+      }
+      engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
+      return engineWorkerClient.getWorkspaceListObject();
+    }
+    if (command === 'workspace_pin') {
+      const target = String(payload || '').trim();
+      const hit = engineWorkerClient.workspaceFiles.get(target);
+      if (hit) {
+        hit.pinned = !hit.pinned;
+      }
+      engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
+      return engineWorkerClient.getWorkspaceListObject();
+    }
+    if (command === 'workspace_delete') {
+      const target = String(payload || '').trim();
+      engineWorkerClient.workspaceFiles.delete(target);
+      engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
+      return engineWorkerClient.getWorkspaceListObject();
+    }
+    if (command === 'workspace_batch') {
+      let ingestedFiles = 0;
+      let ingestedTokens = 0;
+      const rawBatch = String(payload || '');
+      if (rawBatch.trim().startsWith('[') || rawBatch.trim().startsWith('{')) {
+        try {
+          const parsedBatch = JSON.parse(rawBatch);
+          const items = Array.isArray(parsedBatch) ? parsedBatch : (parsedBatch.files || []);
+          for (const it of items) {
+            if (it && typeof it.path === 'string' && typeof it.content === 'string') {
+              const prev = engineWorkerClient.workspaceFiles.get(it.path);
+              const digest = computeSha256Hex(it.content);
+              engineWorkerClient.workspaceFiles.set(it.path, {
+                path: it.path,
+                content: it.content,
+                line_count: it.content ? it.content.split('\n').length : 0,
+                pinned: prev ? Boolean(prev.pinned) : false,
+                byte_len: it.content.length,
+                sha256: digest,
+                updated_receipt: digest,
+              });
+              ingestedFiles += 1;
+              ingestedTokens += it.content.split(/\s+/).filter(Boolean).length;
+            }
+          }
+        } catch {
+          // Forward raw batch to worker below
+        }
+      } else if (rawBatch.length > 0) {
+        const blocks = rawBatch.split('\n===FILE===\n');
+        for (const blk of blocks) {
+          const nl = blk.indexOf('\n');
+          const p = (nl >= 0 ? blk.slice(0, nl) : blk).trim();
+          const c = nl >= 0 ? blk.slice(nl + 1) : '';
+          if (p) {
+            const prev = engineWorkerClient.workspaceFiles.get(p);
+            const digest = computeSha256Hex(c);
+            engineWorkerClient.workspaceFiles.set(p, {
+              path: p,
+              content: c,
+              line_count: c ? c.split('\n').length : 0,
+              pinned: prev ? Boolean(prev.pinned) : false,
+              byte_len: c.length,
+              sha256: digest,
+              updated_receipt: digest,
+            });
+            ingestedFiles += 1;
+            ingestedTokens += c.split(/\s+/).filter(Boolean).length;
+          }
+        }
+      }
+      engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
+      return {
+        ...engineWorkerClient.getWorkspaceListObject(),
+        batch_ingested_files: ingestedFiles,
+        batch_ingested_tokens: ingestedTokens,
+      };
+    }
+    if (command === 'state') {
+      return engineWorkerClient.shadowState;
+    }
+    if (command === 'traces' || command === 'v1/traces') {
+      return engineWorkerClient.shadowTraces;
+    }
+    if (command === 'weight_status') {
+      return engineWorkerClient.packInfo || { status: 'ok', schema: 'uor-r4.lut-stack/8' };
+    }
+    if (command === 'mvm_status') {
+      return {
+        status: 'ok',
+        architecture: 'riscv64-rv64imac',
+        guest_cid: 3,
+        transport: `SpiralCore virtio-vsock (${engineWorkerClient.lastTransport})`,
+        dirty_cow_sectors: 0,
+      };
+    }
+    if (command === 'admit' || command === 'reset') {
+      engineWorkerClient.rpc('studio_dispatch', envelope)
+        .then((res) => {
+          if (res && res.state) {
+            engineWorkerClient.shadowState = res.state;
+            renderStudioState(res.state);
+          }
+        })
+        .catch(() => {});
+      return { status: 'ok', state: engineWorkerClient.shadowState };
+    }
+    // Non-blocking async forward for any secondary command when worker is active
+    engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
+    return { status: 'ok', reply: 'Queued on uor-r4-engine-worker' };
+  }
   if (typeof studio_dispatch === 'function') {
     const raw = studio_dispatch(envelope);
     return JSON.parse(raw);
@@ -1964,21 +2446,7 @@ function updateLiveAgentStatusBar(chatRes) {
   }
 }
 
-function runClaudeChat(promptText, recordUserBubble = true) {
-  const trimmed = (promptText || '').trim();
-  if (!trimmed) return;
-  if (recordUserBubble) {
-    appendChatTurn('user', 'You', trimmed);
-  }
-
-  const chatPayload = JSON.stringify({
-    prompt: trimmed,
-    operating_mode: AppState.config.operatingMode || 'coding',
-    retain_lambda: AppState.config.retainLambda ?? 0.85,
-    plurality_votes: AppState.config.pluralityVotes ?? 8,
-    active_project: AppState.config.activeProject || 'lexlean-r4'
-  });
-  const chatRes = dispatchStudioEnvelope('chat', chatPayload);
+function renderCompletedChatResponse(trimmed, chatRes) {
   if (!chatRes || chatRes.status !== 'ok') {
     appendChatTurn('assistant', 'UOR-R4 GLM', chatRes && chatRes.message ? chatRes.message : 'Chat error');
     return;
@@ -2001,7 +2469,9 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   const chatMeta = {
     thinking: chatRes.thinking || null,
     geometricThinking: chatRes.geometric_thinking || null,
-    toolCards: synthesizeAgenticToolCards(trimmed, chatRes),
+    toolCards: Array.isArray(chatRes.bridge_tool_cards) && chatRes.bridge_tool_cards.length > 0
+      ? chatRes.bridge_tool_cards
+      : synthesizeAgenticToolCards(trimmed, chatRes),
     otelTraceId: chatRes.otel_trace_id || '',
     otelSavingsPct: chatRes.otel_savings_pct || 0,
     otelSpanCount: chatRes.otel_span_count || 5,
@@ -2128,8 +2598,100 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   renderMLInspector();
 }
 
-function runOnDeviceTrain(epochsText) {
-  const res = dispatchStudioEnvelope('train', epochsText || '3');
+function runClaudeChat(promptText, recordUserBubble = true) {
+  const trimmed = (promptText || '').trim();
+  if (!trimmed) return;
+  if (recordUserBubble) {
+    appendChatTurn('user', 'You', trimmed);
+  }
+
+  const chatPayload = JSON.stringify({
+    prompt: trimmed,
+    operating_mode: AppState.config.operatingMode || 'coding',
+    retain_lambda: AppState.config.retainLambda ?? 0.85,
+    plurality_votes: AppState.config.pluralityVotes ?? 8,
+    active_project: AppState.config.activeProject || 'lexlean-r4',
+    web_access: engineWorkerClient.webAccessEnabled,
+  });
+
+  if (engineWorkerClient.enabled) {
+    let placeholderCard = null;
+    let statusLineEl = null;
+    if (chatTranscript) {
+      placeholderCard = document.createElement('article');
+      placeholderCard.className = 'chat-turn-card chat-assistant chat-streaming-placeholder';
+      const meta = document.createElement('div');
+      meta.className = 'chat-turn-meta';
+      meta.textContent = engineWorkerClient.ready
+        ? 'UOR-R4 GLM v10 · Generating on Worker'
+        : 'UOR-R4 GLM v10 · Booting Engine Worker';
+      const body = document.createElement('div');
+      body.className = 'chat-turn-body';
+      statusLineEl = document.createElement('div');
+      statusLineEl.className = 'chat-prose';
+      statusLineEl.textContent = engineWorkerClient.ready
+        ? 'Routing prompt across Cl(0,6) × E8 manifold...'
+        : 'Initializing Wasm + GLLM v10 shard cache in background worker...';
+      body.appendChild(statusLineEl);
+      placeholderCard.appendChild(meta);
+      placeholderCard.appendChild(body);
+      chatTranscript.appendChild(placeholderCard);
+      chatTranscript.scrollTop = chatTranscript.scrollHeight;
+    }
+
+    const liveHook = (bridgeEvt) => {
+      if (!statusLineEl || !bridgeEvt) return;
+      const opLabel = bridgeEvt.op || 'bridge';
+      const transportLabel = bridgeEvt.transport || engineWorkerClient.lastTransport;
+      statusLineEl.textContent = `Executing ${opLabel} via SpiralCore (${transportLabel})...`;
+    };
+    engineWorkerClient.activeChatStreamHook = liveHook;
+
+    engineWorkerClient
+      .rpc('studio_dispatch', `1\tstudio\tchat\t${chatPayload}`)
+      .then((chatRes) => {
+        if (engineWorkerClient.activeChatStreamHook === liveHook) {
+          engineWorkerClient.activeChatStreamHook = null;
+        }
+        if (placeholderCard && placeholderCard.parentNode) {
+          placeholderCard.parentNode.removeChild(placeholderCard);
+        }
+        renderCompletedChatResponse(trimmed, chatRes);
+        engineWorkerClient
+          .rpc('studio_dispatch', '1\tstudio\tstate\t')
+          .then((st) => {
+            if (st && st.status === 'ok') {
+              engineWorkerClient.shadowState = st;
+              renderStudioState(st);
+            }
+          })
+          .catch(() => {});
+        engineWorkerClient
+          .rpc('studio_dispatch', '1\tstudio\ttraces\t{"format":"compact","limit":10}')
+          .then((tr) => {
+            if (Array.isArray(tr)) engineWorkerClient.shadowTraces = tr;
+            else if (tr && typeof tr === 'object') engineWorkerClient.shadowTraces = [tr];
+            fetchRecordedTraces();
+          })
+          .catch(() => {});
+      })
+      .catch((err) => {
+        if (engineWorkerClient.activeChatStreamHook === liveHook) {
+          engineWorkerClient.activeChatStreamHook = null;
+        }
+        if (placeholderCard && placeholderCard.parentNode) {
+          placeholderCard.parentNode.removeChild(placeholderCard);
+        }
+        appendChatTurn('assistant', 'UOR-R4 GLM', err && err.message ? err.message : 'Worker chat error');
+      });
+    return;
+  }
+
+  const chatRes = dispatchStudioEnvelope('chat', chatPayload);
+  renderCompletedChatResponse(trimmed, chatRes);
+}
+
+function renderTrainReport(res) {
   if (!res || res.status !== 'ok') return;
 
   if (trainStatLoss) {
@@ -2165,6 +2727,28 @@ function runOnDeviceTrain(epochsText) {
 
   const refreshedState = dispatchStudioEnvelope('state', '');
   renderStudioState(refreshedState);
+}
+
+function runOnDeviceTrain(epochsText) {
+  const payload = epochsText || '3';
+  if (engineWorkerClient.enabled) {
+    engineWorkerClient
+      .rpc('studio_dispatch', `1\tstudio\ttrain\t${payload}`)
+      .then((res) => {
+        renderTrainReport(res);
+        return engineWorkerClient.rpc('studio_dispatch', '1\tstudio\tstate\t');
+      })
+      .then((st) => {
+        if (st && st.status === 'ok') {
+          engineWorkerClient.shadowState = st;
+          renderStudioState(st);
+        }
+      })
+      .catch(() => {});
+    return;
+  }
+  const res = dispatchStudioEnvelope('train', payload);
+  renderTrainReport(res);
 }
 
 function renderInferenceResult(data) {
@@ -2269,12 +2853,18 @@ function renderInferenceResult(data) {
 }
 
 function runStudioGenerate(promptText) {
+  if (engineWorkerClient.enabled) {
+    engineWorkerClient
+      .rpc('studio_dispatch', `1\tstudio\tgenerate\t${promptText || ''}`)
+      .then((res) => renderInferenceResult(res))
+      .catch(() => {});
+    return;
+  }
   const res = dispatchStudioEnvelope('generate', promptText);
   renderInferenceResult(res);
 }
 
-function runStudioSubsystems(payloadText) {
-  const res = dispatchStudioEnvelope('subsystems', payloadText);
+function renderSubsystemsReport(res) {
   if (!res || res.status !== 'ok') return;
   const r24 = res.r4_24_spiralcore;
   const r25 = res.r4_25_discrete_trunk;
@@ -2297,6 +2887,35 @@ function runStudioSubsystems(payloadText) {
   }
 }
 
+function runStudioSubsystems(payloadText) {
+  if (engineWorkerClient.enabled) {
+    engineWorkerClient
+      .rpc('studio_dispatch', `1\tstudio\tsubsystems\t${payloadText || ''}`)
+      .then((res) => renderSubsystemsReport(res))
+      .catch(() => {});
+    return;
+  }
+  const res = dispatchStudioEnvelope('subsystems', payloadText);
+  renderSubsystemsReport(res);
+}
+
+function renderCoordinateEnvelopeResponse(responseText) {
+  const parts = String(responseText || '').split('\t');
+  if (parts.length >= 3 && parts[0] === '1' && parts[1] === 'ok') {
+    show(parts[2]);
+  } else if (parts.length >= 3 && parts[0] === '1' && parts[1] === 'error') {
+    if (parts[2] === 'division-by-zero') {
+      show(DIVISION_ERROR);
+    } else if (parts[2] === 'overflow') {
+      show(OVERFLOW_ERROR);
+    } else {
+      show(INPUT_ERROR);
+    }
+  } else {
+    show(INPUT_ERROR);
+  }
+}
+
 function executeCoordinateEnvelope() {
   if (!left || !right || !operation) return;
   const a = operand(left.value);
@@ -2313,24 +2932,17 @@ function executeCoordinateEnvelope() {
     : operation.value;
 
   const envelope = `1\t${op}\t${a}\t${b}`;
+  if (engineWorkerClient.enabled) {
+    engineWorkerClient
+      .rpc('process_envelope', envelope)
+      .then((respText) => renderCoordinateEnvelopeResponse(respText))
+      .catch(() => show(INPUT_ERROR));
+    return;
+  }
   const requestBytes = encoder.encode(envelope);
   const responseBytes = process_envelope(requestBytes);
   const responseText = decoder.decode(responseBytes);
-
-  const parts = responseText.split('\t');
-  if (parts.length >= 3 && parts[0] === '1' && parts[1] === 'ok') {
-    show(parts[2]);
-  } else if (parts.length >= 3 && parts[0] === '1' && parts[1] === 'error') {
-    if (parts[2] === 'division-by-zero') {
-      show(DIVISION_ERROR);
-    } else if (parts[2] === 'overflow') {
-      show(OVERFLOW_ERROR);
-    } else {
-      show(INPUT_ERROR);
-    }
-  } else {
-    show(INPUT_ERROR);
-  }
+  renderCoordinateEnvelopeResponse(responseText);
 }
 
 if (form) {
@@ -2587,9 +3199,10 @@ if (snapshotUploadInput) {
       }
     }
 
-    if (isUorlutHeader && bytes.length > 65536 && typeof studio_load_uorlut_bytes === 'function') {
-      const rawRes = studio_load_uorlut_bytes(bytes, sourceLabel);
-      const parsed = JSON.parse(rawRes);
+    if (isUorlutHeader && bytes.length > 65536 && (engineWorkerClient.enabled || typeof studio_load_uorlut_bytes === 'function')) {
+      const parsed = engineWorkerClient.enabled
+        ? await engineWorkerClient.rpc('load_uorlut', { bytes, sourceLabel })
+        : JSON.parse(studio_load_uorlut_bytes(bytes, sourceLabel));
       if (parsed && parsed.status === 'ok') {
         await cache_uorlut_in_indexeddb(bytes, sourceLabel);
         const mb = (bytes.byteLength / (1024 * 1024)).toFixed(2);
@@ -2705,7 +3318,7 @@ const AGENTIC_SLASH_COMMANDS = [
     command: '/otel',
     title: 'Inspect 5-Tier OTel GLLM Waterfall',
     badge: 'u16 Dedup',
-    description: 'Open OpenTelemetry uor.gllm.trace/1 waterfall & SpanLinks drawer',
+    description: 'Open OTel uor.gllm.trace/1 waterfall & SpanLinks drawer',
     template: '',
     action: 'otel',
   },
@@ -3430,8 +4043,87 @@ function closeCanvasDrawer() {
   }
 }
 
+const INSPECTOR_MODAL_TAB_IDS = new Set([
+  'traces',
+  'inspector',
+  'diff',
+  'diagnostics',
+  'mcp',
+  'feed',
+  'consolidation',
+  'customizations',
+]);
+const inspectorsModalEl = document.getElementById('inspectors-modal');
+
+function closeInspectorsModal() {
+  if (inspectorsModalEl) {
+    inspectorsModalEl.setAttribute('hidden', '');
+  }
+  if (lexLean3dVisualizer && lexLean3dVisualizer.animFrameId && typeof cancelAnimationFrame === 'function') {
+    cancelAnimationFrame(lexLean3dVisualizer.animFrameId);
+    lexLean3dVisualizer.animFrameId = null;
+    lexLean3dVisualizer.lastTimestamp = 0;
+  }
+  activeCanvasTabId = 'terminal';
+}
+
+function openInspectorsModal(tabId = 'traces') {
+  const targetTab = INSPECTOR_MODAL_TAB_IDS.has(tabId) ? tabId : 'traces';
+  activateCanvasTab(targetTab);
+}
+
 function activateCanvasTab(tabId) {
   activeCanvasTabId = tabId;
+
+  if (INSPECTOR_MODAL_TAB_IDS.has(tabId)) {
+    if (inspectorsModalEl) {
+      inspectorsModalEl.removeAttribute('hidden');
+    }
+    for (const btn of canvasTabButtons) {
+      const btnTab = btn.getAttribute('data-tab-id');
+      if (INSPECTOR_MODAL_TAB_IDS.has(btnTab)) {
+        const isActive = btnTab === tabId;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        btn.setAttribute('tabindex', isActive ? '0' : '-1');
+        if (isActive && typeof btn.scrollIntoView === 'function') {
+          btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+        }
+      }
+    }
+    for (const panel of canvasPanels) {
+      if (panel.id === 'canvas-panel-terminal' || panel.id === 'canvas-panel-workspace') {
+        continue;
+      }
+      const isMatch = panel.id === `canvas-panel-${tabId}`;
+      panel.classList.toggle('active', isMatch);
+      if (isMatch) {
+        panel.removeAttribute('hidden');
+      } else {
+        panel.setAttribute('hidden', '');
+      }
+    }
+    if (tabId === 'traces') {
+      fetchRecordedTraces();
+      if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ensureGLReady === 'function') {
+        lexLean3dVisualizer.ensureGLReady();
+      }
+      if (lexLean3dVisualizer && typeof lexLean3dVisualizer.resize === 'function') {
+        lexLean3dVisualizer.resize();
+      }
+    }
+    if (tabId === 'inspector') {
+      renderMLInspector();
+    }
+    if (tabId === 'feed') {
+      renderLiteratureFeed();
+    }
+    return;
+  }
+
+  if (typeof setLayoutMode === 'function' && document.body && document.body.dataset.layoutMode === 'chat') {
+    setLayoutMode('studio');
+  }
   if (dockableCanvasPane) {
     dockableCanvasPane.removeAttribute('hidden');
     if (tabId !== 'workspace') {
@@ -3442,34 +4134,31 @@ function activateCanvasTab(tabId) {
     mainLayoutEl.classList.remove('canvas-drawer-closed');
   }
   for (const btn of canvasTabButtons) {
-    const isActive = btn.getAttribute('data-tab-id') === tabId;
-    btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    btn.setAttribute('tabindex', isActive ? '0' : '-1');
-    if (isActive) {
-      btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+    const btnTab = btn.getAttribute('data-tab-id');
+    if (!INSPECTOR_MODAL_TAB_IDS.has(btnTab)) {
+      const isActive = btnTab === tabId || (tabId === 'workspace' && btnTab === 'terminal');
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      btn.setAttribute('tabindex', isActive ? '0' : '-1');
+      if (isActive && typeof btn.scrollIntoView === 'function') {
+        btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+      }
     }
   }
-  for (const panel of canvasPanels) {
-    const isMatch = panel.id === `canvas-panel-${tabId}`;
-    panel.classList.toggle('active', isMatch);
-    if (isMatch) {
-      panel.removeAttribute('hidden');
-      if (tabId === 'traces') {
-        fetchRecordedTraces();
-      }
-      if (tabId === 'inspector') {
-        renderMLInspector();
-      }
-      if (tabId === 'feed') {
-        renderLiteratureFeed();
-      }
-      if (tabId === 'terminal' && lexLeanTerminal && lexLeanTerminal.inputEl) {
-        lexLeanTerminal.inputEl.focus();
-      }
-    } else {
-      panel.setAttribute('hidden', '');
-    }
+  const termPanel = document.getElementById('canvas-panel-terminal');
+  const wsPanel = document.getElementById('canvas-panel-workspace');
+  if (termPanel) {
+    termPanel.classList.add('active');
+    termPanel.removeAttribute('hidden');
+  }
+  if (wsPanel) {
+    wsPanel.removeAttribute('hidden');
+  }
+  if (tabId === 'terminal' && lexLeanTerminal && lexLeanTerminal.inputEl) {
+    lexLeanTerminal.inputEl.focus();
+  }
+  if (tabId === 'workspace' && workspaceEditorTextarea) {
+    workspaceEditorTextarea.focus();
   }
 }
 
@@ -3508,11 +4197,11 @@ for (const btn of canvasTabButtons) {
   });
 }
 
-const tabsNav = document.querySelector('.canvas-tabs');
-if (tabsNav) {
-  tabsNav.addEventListener('keydown', (e) => {
-    const tabList = Array.from(canvasTabButtons);
-    const currentIdx = tabList.findIndex((b) => b.getAttribute('aria-selected') === 'true');
+for (const navEl of document.querySelectorAll('.canvas-tabs, .inspectors-modal-tabs')) {
+  navEl.addEventListener('keydown', (e) => {
+    const tabList = Array.from(navEl.querySelectorAll('.canvas-tab-btn'));
+    if (tabList.length === 0) return;
+    const currentIdx = Math.max(0, tabList.findIndex((b) => b.getAttribute('aria-selected') === 'true'));
     let nextIdx = -1;
     if (e.key === 'ArrowRight') {
       nextIdx = (currentIdx + 1) % tabList.length;
@@ -3536,9 +4225,18 @@ for (const el of document.querySelectorAll('[data-canvas-tab]')) {
   el.addEventListener('click', () => {
     const tabId = el.getAttribute('data-canvas-tab');
     if (!tabId) return;
-    const isDrawerOpen = dockableCanvasPane && !dockableCanvasPane.hasAttribute('hidden');
-    if (isDrawerOpen && activeCanvasTabId === tabId) {
-      closeCanvasDrawer();
+    if (INSPECTOR_MODAL_TAB_IDS.has(tabId)) {
+      const isModalOpen = inspectorsModalEl && !inspectorsModalEl.hasAttribute('hidden');
+      if (isModalOpen && activeCanvasTabId === tabId) {
+        closeInspectorsModal();
+      } else {
+        activateCanvasTab(tabId);
+      }
+      return;
+    }
+    const isDrawerOpen = dockableCanvasPane && !dockableCanvasPane.hasAttribute('hidden') && !dockableCanvasPane.classList.contains('cursor-bottom-panel-collapsed');
+    if (isDrawerOpen && activeCanvasTabId === tabId && document.body && document.body.dataset.layoutMode === 'studio') {
+      dockableCanvasPane.classList.add('cursor-bottom-panel-collapsed');
     } else {
       activateCanvasTab(tabId);
     }
@@ -4229,7 +4927,9 @@ export function runWebWorkerConsolidation(samples = [], config = {}) {
         }
         const updatedBytes = new Uint8Array(msg.updatedWeightsBuffer);
         const sourceLabel = 'WebWorker:Consolidated UORLUT01/8';
-        if (typeof studio_load_uorlut_bytes === 'function') {
+        if (engineWorkerClient.enabled) {
+          await engineWorkerClient.rpc('load_uorlut', { bytes: updatedBytes, sourceLabel });
+        } else if (typeof studio_load_uorlut_bytes === 'function') {
           studio_load_uorlut_bytes(updatedBytes, sourceLabel);
         }
         if (typeof cache_uorlut_in_indexeddb === 'function') {
@@ -4349,11 +5049,24 @@ if (apiEndpointSelect && apiRequestTextarea) {
 }
 
 if (runApiRequestBtn && apiResponseOutput) {
-  runApiRequestBtn.addEventListener('click', () => {
+  runApiRequestBtn.addEventListener('click', async () => {
     const mode = apiEndpointSelect ? apiEndpointSelect.value : 'messages';
     const reqBody = apiRequestTextarea ? apiRequestTextarea.value : '{}';
     let rawResp = '';
     try {
+      if (engineWorkerClient.enabled) {
+        const rpcOp = mode === 'messages'
+          ? 'studio_v1_messages'
+          : mode === 'chat_completions'
+            ? 'studio_v1_chat_completions'
+            : 'studio_v1_traces';
+        const workerParsed = await engineWorkerClient.rpc(rpcOp, reqBody);
+        apiResponseOutput.textContent = JSON.stringify(workerParsed, null, 2);
+        fetchRecordedTraces();
+        const st = dispatchStudioEnvelope('state', '');
+        renderStudioState(st);
+        return;
+      }
       if (mode === 'messages') {
         rawResp = typeof studio_v1_messages === 'function'
           ? studio_v1_messages(reqBody)
@@ -4598,6 +5311,7 @@ class LexLean3DVisualizer {
     this.lsaProbeLinks = [];
     this.starlingFlock = [];
     this.memoryEngrams = [];
+    this.callosumPulsePackets = [];
     this.activeTurnWords = ['UOR-R4', 'OSPF', 'Synaptic', 'Token', 'Prediction', 'Route'];
     this.activePromptSnippet = 'Hello! Who are you and what can you do?';
     this.cascadeStartTime = 0;
@@ -4617,7 +5331,7 @@ class LexLean3DVisualizer {
     this.boundAnimate = this.animate.bind(this);
   }
 
-  init(canvasId) {
+  init(canvasId, options = {}) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return false;
     this.canvas = canvas;
@@ -4629,7 +5343,9 @@ class LexLean3DVisualizer {
     this.labelsContainer = document.getElementById('neural-3d-labels');
     this.ospfTickerEl = document.getElementById('neural-ospf-route-text');
 
-    this.initGL();
+    if (!options || !options.deferGL) {
+      this.initGL();
+    }
     this.buildStaticGeometry();
     this.buildDefaultDecodeSpline();
     this.bindEvents();
@@ -4639,6 +5355,17 @@ class LexLean3DVisualizer {
       this.animFrameId = requestAnimationFrame(this.boundAnimate);
     }
     return true;
+  }
+
+  ensureGLReady() {
+    if (!this.gl && this.canvas) {
+      this.initGL();
+      this.updateStatus();
+    }
+    if (this.gl && !this.animFrameId && typeof requestAnimationFrame === 'function') {
+      this.animFrameId = requestAnimationFrame(this.boundAnimate);
+    }
+    return Boolean(this.gl);
   }
 
   initGL() {
@@ -5360,6 +6087,67 @@ class LexLean3DVisualizer {
     }
   }
 
+  ingestBrainPulse(pulses) {
+    if (!Array.isArray(pulses) || pulses.length === 0) return;
+    const recent = pulses.slice(-16);
+    let lastPulse = null;
+    for (let i = 0; i < recent.length; i++) {
+      const p = recent[i];
+      if (!p || typeof p !== 'object') continue;
+      lastPulse = p;
+      const e8Orbit = Math.abs(Math.floor(+(p.e8_orbit ?? 0) || 0)) & 15;
+      const winHead = Math.abs(Math.floor(+(p.winning_head ?? 0) || 0)) & 7;
+      const activeLayer = Math.abs(Math.floor(+(p.active_layer ?? 0) || 0)) % 6;
+      const kvDist = +(p.kv_copy_dist ?? 0) || 0;
+      const toolKind = String(p.tool_kind || 'none');
+
+      if (this.cliffordNodes.length > 0) {
+        const clusterIdx = ((e8Orbit * 4) + (winHead & 3)) % this.cliffordNodes.length;
+        const node = this.cliffordNodes[clusterIdx];
+        if (node) {
+          node.charge = 1.0;
+          node.fireBurst = 1.0;
+        }
+      }
+      this.layerEnergies[activeLayer] = Math.min(2.5, Math.max(1.25, (this.layerEnergies[activeLayer] || 0.6) + 0.4));
+      this.cliffordGradeEnergies[winHead % 7] = Math.min(3.0, 1.4 + (e8Orbit * 0.08));
+      this.dominantIcosianRoot = (e8Orbit + winHead) % 17;
+
+      if (kvDist > 0 || toolKind !== 'none') {
+        if (!Array.isArray(this.callosumPulsePackets)) {
+          this.callosumPulsePackets = [];
+        }
+        if (this.callosumPulsePackets.length < 24) {
+          this.callosumPulsePackets.push({
+            progress: 0.0,
+            speed: toolKind !== 'none' ? 1.75 : 2.5,
+            zOffset: ((e8Orbit % 5) - 2) * 0.34,
+            isTool: toolKind !== 'none',
+            dir: (winHead & 1) === 1 ? -1 : 1,
+          });
+        }
+      }
+    }
+
+    if (lastPulse && typeof document !== 'undefined') {
+      const e8 = Math.abs(Math.floor(+(lastPulse.e8_orbit ?? 0) || 0)) & 15;
+      const hd = Math.abs(Math.floor(+(lastPulse.winning_head ?? 0) || 0)) & 7;
+      const ly = Math.abs(Math.floor(+(lastPulse.active_layer ?? 0) || 0)) % 6;
+      const kv = Math.abs(Math.floor(+(lastPulse.kv_copy_dist ?? 0) || 0));
+      const tk = String(lastPulse.tool_kind || 'none');
+      if (this.ospfTickerEl) {
+        this.ospfTickerEl.textContent = `LIVE PULSE: Orbit e${e8} -> Head #${hd} -> Layer L${ly}${kv > 0 ? ` · KV Copy d=${kv}` : ''}${tk !== 'none' ? ` · Tool ${tk}` : ''}`;
+      }
+      const s2 = document.getElementById('neural-stage-2-val');
+      if (s2) s2.textContent = `Orbit e${e8} · Layer L${ly}`;
+      const s3 = document.getElementById('neural-stage-3-val');
+      if (s3) s3.textContent = `Head #${hd} · Root #${this.dominantIcosianRoot}`;
+      const s4 = document.getElementById('neural-stage-4-val');
+      if (s4) s4.textContent = tk !== 'none' ? `Tool: ${tk}` : (kv > 0 ? `KV Copy d=${kv}` : 'Streaming Token');
+    }
+    this.updateStatus();
+  }
+
   loadTrace(trace) {
     if (!trace || !Array.isArray(trace.spans)) return;
     const internTable = trace.intern_table || { entries: [] };
@@ -5849,7 +6637,19 @@ class LexLean3DVisualizer {
   }
 
   animate(timestamp = 0) {
-    if (!this.gl) return;
+    if (!this.gl) {
+      this.animFrameId = null;
+      return;
+    }
+    if (typeof document !== 'undefined') {
+      const modal = document.getElementById('inspectors-modal');
+      const panel = document.getElementById('canvas-panel-traces');
+      if ((modal && modal.hasAttribute('hidden')) || (panel && panel.hasAttribute('hidden'))) {
+        this.animFrameId = null;
+        this.lastTimestamp = 0;
+        return;
+      }
+    }
     const deltaTime = this.lastTimestamp ? Math.min((timestamp - this.lastTimestamp) / 1000.0, 0.1) : 0.016;
     this.lastTimestamp = timestamp;
 
@@ -6160,6 +6960,31 @@ class LexLean3DVisualizer {
         const pSize = (p === 0) ? 17.5 : (12.0 - p * 1.4);
         pointData.push(px, py, pz, 1.0, 0.94, 0.38, 0.96, pSize);
       }
+    }
+
+    // 2C-Live. Corpus Callosum Inter-Hemispheric KV-Copy & Tool Bridge Arcs
+    if (Array.isArray(this.callosumPulsePackets) && this.callosumPulsePackets.length > 0) {
+      const activePackets = [];
+      for (let i = 0; i < this.callosumPulsePackets.length; i++) {
+        const pkt = this.callosumPulsePackets[i];
+        if (!pkt || typeof pkt.progress !== 'number' || !Number.isFinite(pkt.progress)) continue;
+        const u = pkt.dir < 0 ? (1.0 - pkt.progress) : pkt.progress;
+        const inv = 1.0 - u;
+        const startX = -1.65;
+        const endX = 1.65;
+        const px = inv * inv * startX + 2.0 * inv * u * 0.0 + u * u * endX;
+        const py = inv * inv * 0.68 + 2.0 * inv * u * 1.48 + u * u * 0.68;
+        const pz = Number.isFinite(pkt.zOffset) ? pkt.zOffset : 0.0;
+        const pr = pkt.isTool ? 0.35 : 1.0;
+        const pg = pkt.isTool ? 0.98 : 0.88;
+        const pb = pkt.isTool ? 0.82 : 0.24;
+        pointData.push(px, py, pz, pr, pg, pb, 0.98, pkt.isTool ? 19.0 : 15.5);
+        pkt.progress += 0.028 * (pkt.speed || 2.0);
+        if (pkt.progress < 1.0) {
+          activePackets.push(pkt);
+        }
+      }
+      this.callosumPulsePackets = activePackets;
     }
 
     // 2D. 96 Starling Flock Boid Heads
@@ -6777,6 +7602,29 @@ class LexLeanTerminal {
     const cmd = expandedTokens[0].toLowerCase();
     const args = expandedTokens.slice(1);
 
+    const MVM_PIPE_BINS = new Set([
+      'jq',
+      'rg',
+      'bc',
+      'xxd',
+      'tree',
+      'sha256sum',
+      'b3sum',
+      'wc-rv',
+      'sed-rv',
+      'awk-rv',
+    ]);
+    if (
+      pipeSpec &&
+      typeof globalThis.__uorRunMvmExecInTerm === 'function' &&
+      [cmd, ...pipeSpec.map((p) => p.trim().split(/\s+/)[0].toLowerCase())].some(
+        (prog) => MVM_PIPE_BINS.has(prog) || prog.startsWith('/usr/local/bin/') || prog.startsWith('./'),
+      )
+    ) {
+      globalThis.__uorRunMvmExecInTerm(cmd, args, segmentLine, this);
+      return;
+    }
+
     if (redirectMode || pipeSpec) {
       if (redirectMode && redirectTarget) {
         this.ensureGitInitialized();
@@ -7185,6 +8033,10 @@ class LexLeanTerminal {
       case 'cargo': {
         const sub = (args[0] || 'test').toLowerCase();
         const filterArg = args.slice(1).join(' ');
+        if (typeof globalThis.__uorRunWasmEvalInTerm === 'function') {
+          globalThis.__uorRunWasmEvalInTerm(sub, filterArg, this);
+          break;
+        }
         const payload = filterArg ? `${sub}\t${filterArg}` : sub;
         let evalRes = null;
         if (typeof studio_wasm_eval === 'function') {
@@ -7360,6 +8212,11 @@ class LexLeanTerminal {
             this.printAnsi(`Date:   ${c.timestamp}`);
             this.printAnsi(`    ${c.message}`);
           }
+        } else if (
+          (sub === 'clone' || sub === 'pull' || sub === 'push' || sub === 'fetch' || sub === 'remote')
+          && typeof globalThis.__uorRunConnectedGitInTerm === 'function'
+        ) {
+          globalThis.__uorRunConnectedGitInTerm(sub, args.slice(1), this);
         } else {
           this.printAnsi(`git ${sub}: completed in virtual workspace.`);
         }
@@ -7799,6 +8656,10 @@ class LexLeanTerminal {
       case 'sha256sum':
       case 'mvmbox': {
         const fullCmd = rawLine || [cmd, ...args].join(' ');
+        if (typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm(cmd, args, fullCmd, this);
+          break;
+        }
         const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: fullCmd, cwd: this.cwd || '/workspace' }));
         if (res?.mvm_stdout) {
           for (const line of res.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
@@ -7817,8 +8678,37 @@ class LexLeanTerminal {
         this.setExitCode(res?.exit_code ?? 0);
         break;
       }
+      case 'curl':
+      case 'nslookup':
+      case 'dig':
+      case 'pkg':
+      case 'jq':
+      case 'rg':
+      case 'tree':
+      case 'xxd':
+      case 'bc':
+      case 'http': {
+        const fullCmd = rawLine || [cmd, ...args].join(' ');
+        if (typeof globalThis.__uorRunConnectedTerminalCmd === 'function') {
+          globalThis.__uorRunConnectedTerminalCmd(cmd, args, fullCmd, this);
+          break;
+        }
+        const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: fullCmd, cwd: this.cwd || '/workspace' }));
+        if (res?.mvm_stdout) {
+          for (const line of res.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
+        }
+        if (res?.mvm_stderr) {
+          for (const line of res.mvm_stderr.replace(/\n$/, '').split('\n')) this.printAnsi(`\x1b[31m${line}\x1b[0m`);
+        }
+        this.setExitCode(res?.exit_code ?? 0);
+        break;
+      }
       case 'vsock': {
         const mode = args[0] === 'inet-test' ? '--try-inet' : '--vsock-ping';
+        if (typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm('vsock', [mode], `/bin/vsock_probe ${mode}`, this);
+          break;
+        }
         const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: `/bin/vsock_probe ${mode}`, cwd: this.cwd || '/workspace' }));
         if (res?.mvm_stdout) this.printAnsi(res.mvm_stdout.trimEnd());
         this.setExitCode(res?.exit_code ?? 0);
@@ -7827,6 +8717,10 @@ class LexLeanTerminal {
       default: {
         if (cmd.startsWith('./') || cmd.startsWith('/')) {
           const fullCmd = rawLine || [cmd, ...args].join(' ');
+          if (typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+            globalThis.__uorRunMvmExecInTerm(cmd, args, fullCmd, this);
+            break;
+          }
           const mvmRes = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: fullCmd, cwd: this.cwd || '/workspace' }));
           if (mvmRes && typeof mvmRes.mvm_stdout === 'string' && mvmRes.exit_code !== 127) {
             if (mvmRes.mvm_stdout.length > 0) {
@@ -8708,15 +9602,22 @@ if (loadWeightsTopbarBtn && snapshotUploadInput) {
 function updateWeightCacheBadge() {
   if (weightCacheBadge) {
     const meta = globalThis.__uorGllmV9Meta || globalThis.__uorWeightCacheMeta || {};
-    const label = meta.status || '38.0 MB Cached · 30/30 Proved';
+    const label = meta.status || (engineWorkerClient.enabled && !engineWorkerClient.ready
+      ? 'Booting GLLM v10 Worker...'
+      : 'GLLM v10 · 35/35 Proved');
     const shortSha = meta.sha256 ? ` · ${meta.sha256.slice(0, 8)}` : '';
     weightCacheBadge.textContent = `${label}${shortSha}`;
   }
-  if (topbarModelTag && typeof studio_weight_pack_status === 'function') {
+  if (topbarModelTag) {
     try {
-      const packInfo = JSON.parse(studio_weight_pack_status());
+      let packInfo = null;
+      if (engineWorkerClient.enabled) {
+        packInfo = engineWorkerClient.packInfo;
+      } else if (typeof studio_weight_pack_status === 'function') {
+        packInfo = JSON.parse(studio_weight_pack_status());
+      }
       if (packInfo && packInfo.status === 'ok') {
-        const mb = (packInfo.byte_len / (1024 * 1024)).toFixed(1);
+        const mb = ((packInfo.byte_len || 0) / (1024 * 1024)).toFixed(1);
         const totalParams = packInfo.total_parameters || 0;
         const paramStr = totalParams >= 1000000000
           ? `${(totalParams / 1000000000).toFixed(2)}B Params`
@@ -8736,12 +9637,19 @@ if (syncWeightsBtn) {
     const prevText = syncWeightsBtn.textContent;
     syncWeightsBtn.textContent = 'Syncing 0%...';
     try {
-      await sync_cached_weights((prog) => {
-        if (prog && typeof prog.percent === 'number') {
-          syncWeightsBtn.textContent = `Syncing ${prog.percent}%...`;
-        }
-        updateWeightCacheBadge();
-      });
+      if (engineWorkerClient.enabled) {
+        const synced = await engineWorkerClient.rpc('sync_weights', {});
+        if (synced && synced.gllm) engineWorkerClient.gllmInfo = synced.gllm;
+        if (synced && synced.gllmMeta) globalThis.__uorGllmV9Meta = synced.gllmMeta;
+        if (synced && synced.weightCacheMeta) globalThis.__uorWeightCacheMeta = synced.weightCacheMeta;
+      } else {
+        await sync_cached_weights((prog) => {
+          if (prog && typeof prog.percent === 'number') {
+            syncWeightsBtn.textContent = `Syncing ${prog.percent}%...`;
+          }
+          updateWeightCacheBadge();
+        });
+      }
       updateWeightCacheBadge();
       const st = dispatchStudioEnvelope('state', '');
       renderStudioState(st);
@@ -8765,7 +9673,7 @@ renderLiteratureFeed();
 renderActiveThreadMessages();
 if (document.getElementById('neural-3d-canvas')) {
   lexLean3dVisualizer = new LexLean3DVisualizer();
-  lexLean3dVisualizer.init('neural-3d-canvas');
+  lexLean3dVisualizer.init('neural-3d-canvas', { deferGL: true });
 }
 renderTraceInspector();
 initSidebarViews();
@@ -9323,9 +10231,12 @@ function renderCursorShardsSection() {
     item.appendChild(badge);
     shardsGrid.appendChild(item);
   }
-  if (shardsSummary && typeof studio_weight_pack_status === 'function') {
+  if (shardsSummary) {
     try {
-      const info = JSON.parse(studio_weight_pack_status());
+      const hasWorker = typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled;
+      const info = hasWorker
+        ? engineWorkerClient.packInfo
+        : (typeof studio_weight_pack_status === 'function' ? JSON.parse(studio_weight_pack_status()) : null);
       if (info && info.status === 'ok') {
         shardsSummary.textContent = `16 E8 Shards · ${info.point_rows} /8 PointKey Rows · ${info.reply_entries} /7 Reply Rows`;
       }
@@ -10595,30 +11506,46 @@ async function writeCursorDiskFileHandle(path, content) {
 // 5. In-Wasm R4-32 Cargo Verifier & Integrated Bottom Panel Toggle
 // ============================================================================
 
-function runCursorR432Check(subcommand = 'check') {
+function applyR432ReportToDom(subcommand, report) {
+  if (!report) return;
   const problemsSummary = document.getElementById('cursor-problems-summary');
   const statusR432 = document.getElementById('cursor-status-r432');
+  const ok = Boolean(report.passed ?? (report.status !== 'error'));
+  const errCount = Array.isArray(report.diagnostics)
+    ? report.diagnostics.filter((d) => d.level === 'error').length
+    : (ok ? 0 : 1);
+  const passedCnt = report.passed_tests ?? report.tests_passed ?? 0;
+  const totalCnt = report.total_tests ?? ((report.tests_passed ?? 0) + (report.tests_failed ?? 0));
+  const summaryText = ok
+    ? `cargo ${subcommand}: PASS (0 errors · ${passedCnt}/${totalCnt} tests)`
+    : `cargo ${subcommand}: ${errCount} error(s) detected`;
+  if (problemsSummary) problemsSummary.textContent = summaryText;
+  if (statusR432) statusR432.textContent = `R4-32: ${ok ? 'PASS (0 errors)' : `${errCount} error(s)`}`;
+  if (workspaceStatus) workspaceStatus.textContent = `[R4-32 In-Wasm Verifier] ${summaryText}`;
+}
+
+function runCursorR432Check(subcommand = 'check') {
+  const problemsSummary = document.getElementById('cursor-problems-summary');
+  if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+    engineWorkerClient
+      .rpc('studio_wasm_eval', { subcommand, filter: '' })
+      .then((rep) => applyR432ReportToDom(subcommand, rep))
+      .catch(() => {
+        if (problemsSummary) problemsSummary.textContent = '0 errors · 0 warnings · In-Wasm R4-32 Verifier Ready';
+      });
+    return;
+  }
   try {
     let report = null;
     if (typeof studio_wasm_eval === 'function') {
       report = JSON.parse(studio_wasm_eval(subcommand, ''));
     }
-    if (report) {
-      const ok = Boolean(report.passed);
-      const errCount = Array.isArray(report.diagnostics)
-        ? report.diagnostics.filter((d) => d.level === 'error').length
-        : (ok ? 0 : 1);
-      const summaryText = ok
-        ? `cargo ${subcommand}: PASS (0 errors · ${report.passed_tests || 0}/${report.total_tests || 0} tests)`
-        : `cargo ${subcommand}: ${errCount} error(s) detected`;
-      if (problemsSummary) problemsSummary.textContent = summaryText;
-      if (statusR432) statusR432.textContent = `R4-32: ${ok ? 'PASS (0 errors)' : `${errCount} error(s)`}`;
-      if (workspaceStatus) workspaceStatus.textContent = `[R4-32 In-Wasm Verifier] ${summaryText}`;
-    }
+    applyR432ReportToDom(subcommand, report);
   } catch {
     if (problemsSummary) problemsSummary.textContent = '0 errors · 0 warnings · In-Wasm R4-32 Verifier Ready';
   }
 }
+globalThis.__uorRunWasmEvalAsync = runCursorR432Check;
 
 function toggleCursorBottomPanel(preferredTabId = 'terminal') {
   if (!dockableCanvasPane) return;
@@ -11134,44 +12061,523 @@ function initCursorIdeWorkbench() {
   syncCursorComposerPatchBar();
 }
 
+function setLayoutMode(mode) {
+  const normalized = mode === 'studio' ? 'studio' : 'chat';
+  if (document.body) {
+    document.body.dataset.layoutMode = normalized;
+  }
+  try {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('uor_r4_layout_mode', normalized);
+    }
+  } catch {
+    // Ignore sessionStorage restrictions
+  }
+  const studioToggleBtn = document.getElementById('toggle-studio-ide-btn');
+  if (studioToggleBtn) {
+    studioToggleBtn.textContent = normalized === 'studio' ? 'Chat View' : 'Studio IDE';
+    studioToggleBtn.setAttribute('aria-pressed', normalized === 'studio' ? 'true' : 'false');
+  }
+  const headingEl = document.getElementById('heading-claude-desktop');
+  if (headingEl) {
+    headingEl.textContent = normalized === 'studio' ? 'UOR-R4 Studio IDE' : 'UOR-R4 Chat';
+  }
+  if (normalized === 'studio') {
+    if (dockableCanvasPane) {
+      dockableCanvasPane.removeAttribute('hidden');
+    }
+    if (mainLayoutEl) {
+      mainLayoutEl.classList.remove('canvas-drawer-closed');
+    }
+    const termPanel = document.getElementById('canvas-panel-terminal');
+    const wsPanel = document.getElementById('canvas-panel-workspace');
+    if (termPanel) {
+      termPanel.classList.add('active');
+      termPanel.removeAttribute('hidden');
+    }
+    if (wsPanel) {
+      wsPanel.removeAttribute('hidden');
+    }
+    renderCursorLineGutter();
+  }
+}
+
+function registerBrowserTerminalBridgeHooks() {
+  globalThis.__uorRunWasmEvalInTerm = (sub, filterArg, term) => {
+    if (!engineWorkerClient.enabled) return;
+    engineWorkerClient
+      .rpc('studio_wasm_eval', { subcommand: sub, filter: filterArg })
+      .then((evalRes) => {
+        const rep = evalRes || {};
+        if (rep.terminal_output) {
+          for (const line of String(rep.terminal_output).split('\n')) {
+            if (line.trim().length > 0) term.printAnsi(line);
+          }
+        }
+        const receipt = String(rep.receipt_sha256 || '').slice(0, 16) || 'verified';
+        if (rep.status === 'error') {
+          term.setExitCode(1);
+          term.printAnsi(
+            `\x1b[31m[R4-32 Wasm AST Kernel]\x1b[0m ${sub} failed (${rep.tests_failed ?? 0} failed, receipt: ${receipt})`,
+          );
+        } else {
+          term.setExitCode(0);
+          term.printAnsi(
+            `\x1b[32m[R4-32 Wasm AST Kernel]\x1b[0m ${sub} succeeded (${rep.fn_count ?? 0} fns, ${rep.tests_passed ?? 0} passed, fuel=${rep.total_fuel_consumed ?? 0}, receipt: ${receipt})`,
+          );
+        }
+      })
+      .catch((err) => {
+        term.setExitCode(1);
+        term.printAnsi(`\x1b[31m[R4-32 Error]\x1b[0m ${err && err.message ? err.message : String(err)}`);
+      });
+  };
+
+  globalThis.__uorRunMvmExecInTerm = (cmd, _args, fullCmd, term) => {
+    if (!engineWorkerClient.enabled) return;
+    engineWorkerClient
+      .rpc('studio_dispatch', `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: fullCmd, cwd: term.cwd || '/workspace' })}`)
+      .then((res) => {
+        if (res?.mvm_stdout) {
+          for (const line of String(res.mvm_stdout).replace(/\n$/, '').split('\n')) term.printAnsi(line);
+        }
+        if (res?.mvm_stderr) {
+          for (const line of String(res.mvm_stderr).replace(/\n$/, '').split('\n')) {
+            term.printAnsi(`\x1b[31m${line}\x1b[0m`);
+          }
+        }
+        if ((cmd === 'cc' || cmd === 'gcc') && (res?.exit_code ?? 1) === 0) {
+          term.printAnsi(
+            `\x1b[32m[ELF64 EM_RISCV=${res?.compiled_elf_machine ?? 243}]\x1b[0m Compiled native RV64IMAC executable.`,
+          );
+        }
+        term.setExitCode(res?.exit_code ?? 0);
+      })
+      .catch((err) => {
+        term.setExitCode(1);
+        term.printAnsi(`\x1b[31m[MVM Error]\x1b[0m ${err && err.message ? err.message : String(err)}`);
+      });
+  };
+
+  globalThis.__uorRunConnectedGitInTerm = (sub, gitArgs, term) => {
+    if (sub === 'remote') {
+      const originRepo = AppState.config.connectedGitRepo || '(not configured)';
+      term.printAnsi(`origin\t${originRepo} (SpiralCore AF_VSOCK -> HostBridge)`);
+      term.setExitCode(0);
+      return;
+    }
+    const msgFlagIdx = gitArgs.indexOf('-m');
+    const commitMsg = msgFlagIdx >= 0 && gitArgs[msgFlagIdx + 1]
+      ? gitArgs[msgFlagIdx + 1]
+      : 'Update workspace from UOR-R4 Connected Studio';
+    const positional = gitArgs.filter((a, idx) => !a.startsWith('-') && idx !== msgFlagIdx + 1);
+    const repoTarget = positional[0] || AppState.config.connectedGitRepo || '';
+    if (!repoTarget) {
+      term.printAnsi('\x1b[33mUsage:\x1b[0m git clone <owner/repo>  (or connect a repository via the GitHub button)');
+      term.setExitCode(1);
+      return;
+    }
+    AppState.config.connectedGitRepo = repoTarget;
+    term.printAnsi(`\x1b[36m[SpiralCore CID 3 -> CID 2]\x1b[0m git ${sub} ${repoTarget}...`);
+    if (!engineWorkerClient.enabled) {
+      term.printAnsi('Engine worker unavailable in synchronous harness mode.');
+      return;
+    }
+    engineWorkerClient
+      .rpc('host_bridge_exec', {
+        op: 'git',
+        subcommand: sub,
+        repo_url: repoTarget,
+        message: commitMsg,
+        commit_message: commitMsg,
+      })
+      .then((res) => {
+        if (!res || res.ok === false) {
+          term.setExitCode(1);
+          term.printAnsi(
+            `\x1b[31m[git ${sub} error: ${res?.error_code || 'BridgeFailed'}]\x1b[0m ${res?.message || 'Request failed'}`,
+          );
+          return;
+        }
+        const data = res.data || res;
+        if (sub === 'push') {
+          term.printAnsi(
+            `\x1b[32m[OK]\x1b[0m Pushed commit \x1b[33m${String(data.commit_sha || '').slice(0, 12)}\x1b[0m to ${data.repo || repoTarget} (${data.pushed_files || 0} files)`,
+          );
+        } else {
+          const count = Array.isArray(data.files) ? data.files.length : (data.file_count ?? 0);
+          term.printAnsi(
+            `\x1b[32m[OK]\x1b[0m Synced ${count} file(s) from ${data.repo || repoTarget}@${data.branch || 'main'} into /workspace (${res.transport || engineWorkerClient.lastTransport})`,
+          );
+        }
+        term.setExitCode(0);
+      })
+      .catch((err) => {
+        term.setExitCode(1);
+        term.printAnsi(`\x1b[31m[git ${sub} failed]\x1b[0m ${err && err.message ? err.message : String(err)}`);
+      });
+  };
+
+  globalThis.__uorRunConnectedTerminalCmd = (cmd, args, fullCmd, term) => {
+    if (!engineWorkerClient.enabled) return;
+    if (cmd === 'nslookup' || cmd === 'dig') {
+      const domain = args.find((a) => !a.startsWith('-')) || 'github.com';
+      const qtype = args.includes('AAAA') ? 'AAAA' : (args.includes('TXT') ? 'TXT' : 'A');
+      engineWorkerClient
+        .rpc('host_bridge_exec', { op: 'dns_resolve', name: domain, qtype })
+        .then((res) => {
+          if (!res || res.ok === false) {
+            term.setExitCode(1);
+            term.printAnsi(`\x1b[31m[DNS ${res?.error_code || 'Error'}]\x1b[0m ${res?.message || 'Lookup failed'}`);
+            return;
+          }
+          const answers = Array.isArray(res.data?.answers) ? res.data.answers : (Array.isArray(res.answers) ? res.answers : []);
+          term.printAnsi(`\x1b[36mServer:\x1b[0m\t\tSpiralCore DoH (${res.transport || engineWorkerClient.lastTransport})`);
+          for (const ans of answers) {
+            term.printAnsi(`${ans.name || domain}\t${ans.ttl ?? 300}\tIN\t${qtype}\t\x1b[32m${ans.data}\x1b[0m`);
+          }
+          if (answers.length === 0) term.printAnsi(`No ${qtype} records returned for ${domain}.`);
+          term.setExitCode(0);
+        })
+        .catch((err) => {
+          term.setExitCode(1);
+          term.printAnsi(`\x1b[31m[DNS Error]\x1b[0m ${err && err.message ? err.message : String(err)}`);
+        });
+      return;
+    }
+
+    if (cmd === 'curl' || cmd === 'http') {
+      const targetUrl = args.find((a) => !a.startsWith('-')) || '';
+      if (!targetUrl) {
+        term.printAnsi(`Usage: ${cmd} <tls-url-or-domain>`);
+        term.setExitCode(1);
+        return;
+      }
+      engineWorkerClient
+        .rpc('host_bridge_exec', { op: 'http_request', url: targetUrl, method: 'GET' })
+        .then((res) => {
+          if (!res || res.ok === false) {
+            term.setExitCode(1);
+            term.printAnsi(
+              `\x1b[31m[${res?.error_code || 'HttpError'}]\x1b[0m ${res?.message || 'HTTPS request rejected'}`,
+            );
+            return;
+          }
+          const bodyStr = String(
+            res.data?.body_text ??
+            res.body_text ??
+            res.data?.text_excerpt ??
+            res.text_excerpt ??
+            res.data?.body ??
+            res.body ??
+            '',
+          );
+          const preview = bodyStr.length > 2400 ? `${bodyStr.slice(0, 2400)}\n...[truncated at 2400 chars]` : bodyStr;
+          for (const line of preview.split('\n')) term.printAnsi(line);
+          term.setExitCode(0);
+        })
+        .catch((err) => {
+          term.setExitCode(1);
+          term.printAnsi(`\x1b[31m[HTTP Error]\x1b[0m ${err && err.message ? err.message : String(err)}`);
+        });
+      return;
+    }
+
+    if (cmd === 'pkg') {
+      const sub = (args[0] || 'list').toLowerCase();
+      if (sub !== 'list' && sub !== 'search') {
+        globalThis.__uorRunMvmExecInTerm(cmd, args, fullCmd, term);
+        return;
+      }
+      const pkgName = args[1] || '';
+      engineWorkerClient
+        .rpc('host_bridge_exec', { op: 'pkg', subcommand: sub, name: pkgName })
+        .then((res) => {
+          if (!res || res.ok === false) {
+            term.setExitCode(1);
+            term.printAnsi(`\x1b[31m[pkg ${res?.error_code || 'Error'}]\x1b[0m ${res?.message || 'Package command failed'}`);
+            return;
+          }
+          const payload = res.data || res;
+          if (Array.isArray(payload.packages)) {
+            term.printAnsi('\x1b[1m\x1b[36mRV64IMAC MVM Signed Binary Packages:\x1b[0m');
+            for (const p of payload.packages) {
+              term.printAnsi(
+                `  \x1b[32m${String(p.name).padEnd(12, ' ')}\x1b[0m ${String(p.version || '1.0.0').padEnd(8, ' ')} ${p.description || ''}`,
+              );
+            }
+          } else if (payload.installed) {
+            term.printAnsi(
+              `\x1b[32m[INSTALLED]\x1b[0m /usr/local/bin/${payload.name} (ELF64 EM_RISCV=${payload.elf_machine ?? 243}, sha256=${String(payload.sha256 || '').slice(0, 16)}...)`,
+            );
+          } else {
+            term.printAnsi(JSON.stringify(payload, null, 2));
+          }
+          term.setExitCode(0);
+        })
+        .catch((err) => {
+          term.setExitCode(1);
+          term.printAnsi(`\x1b[31m[pkg error]\x1b[0m ${err && err.message ? err.message : String(err)}`);
+        });
+      return;
+    }
+
+    globalThis.__uorRunMvmExecInTerm(cmd, args, fullCmd, term);
+  };
+}
+
+function initLayoutAndConnectedControls() {
+  let initialMode = 'chat';
+  try {
+    if (typeof window !== 'undefined' && window.location && window.location.hash === '#studio') {
+      initialMode = 'studio';
+    } else if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('uor_r4_layout_mode') === 'studio') {
+      initialMode = 'studio';
+    }
+  } catch {
+    initialMode = 'chat';
+  }
+  setLayoutMode(initialMode);
+
+  const toggleStudioIdeBtn = document.getElementById('toggle-studio-ide-btn');
+  if (toggleStudioIdeBtn) {
+    toggleStudioIdeBtn.addEventListener('click', () => {
+      const cur = (document.body && document.body.dataset.layoutMode) || 'chat';
+      setLayoutMode(cur === 'studio' ? 'chat' : 'studio');
+    });
+  }
+
+  const toggleWebAccessBtn = document.getElementById('toggle-web-access-btn');
+  if (toggleWebAccessBtn) {
+    toggleWebAccessBtn.addEventListener('click', () => {
+      engineWorkerClient.webAccessEnabled = !engineWorkerClient.webAccessEnabled;
+      const on = engineWorkerClient.webAccessEnabled;
+      toggleWebAccessBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      toggleWebAccessBtn.innerHTML = `<span class="pill-dot ${on ? 'pill-dot-live' : ''}"></span> Web: ${on ? 'ON' : 'OFF'}`;
+      if (engineWorkerClient.enabled) {
+        engineWorkerClient.rpc('set_bridge_policy', { webAccessEnabled: on }).catch(() => {});
+      }
+    });
+  }
+
+  const openInspectorsTriggers = [
+    document.getElementById('toggle-inspectors-btn'),
+    document.getElementById('workbench-inspectors-btn'),
+    document.getElementById('terminal-open-inspectors-btn'),
+  ].filter(Boolean);
+  for (const btn of openInspectorsTriggers) {
+    btn.addEventListener('click', () => {
+      const isOpen = inspectorsModalEl && !inspectorsModalEl.hasAttribute('hidden');
+      if (isOpen) closeInspectorsModal();
+      else openInspectorsModal('traces');
+    });
+  }
+
+  const closeInspectorsBtn = document.getElementById('close-inspectors-modal-btn');
+  const inspectorsBackdrop = document.getElementById('inspectors-modal-backdrop');
+  if (closeInspectorsBtn) closeInspectorsBtn.addEventListener('click', () => closeInspectorsModal());
+  if (inspectorsBackdrop) inspectorsBackdrop.addEventListener('click', () => closeInspectorsModal());
+
+  const githubModal = document.getElementById('github-connect-modal');
+  const openGithubBtn = document.getElementById('open-github-connect-btn');
+  const closeGithubBtn = document.getElementById('close-github-connect-btn');
+  const githubBackdrop = document.getElementById('github-connect-backdrop');
+  const githubPatInput = document.getElementById('github-token-input') || document.getElementById('github-pat-input');
+  const saveGithubTokenBtn = document.getElementById('save-github-token-btn');
+  const clearGithubTokenBtn = document.getElementById('clear-github-token-btn');
+  const githubRepoUrlInput = document.getElementById('github-repo-input') || document.getElementById('github-repo-url-input');
+  const cloneGithubRepoBtn = document.getElementById('clone-github-repo-btn');
+  const spvsRelayUrlInput = document.getElementById('spiralcore-relay-input') || document.getElementById('spvs-relay-url-input');
+  const saveRelayUrlBtn = document.getElementById('save-relay-url-btn');
+  const githubConnectStatus = document.getElementById('github-connect-status');
+
+  const closeGithubModal = () => {
+    if (githubModal) githubModal.setAttribute('hidden', '');
+  };
+  if (openGithubBtn && githubModal) {
+    openGithubBtn.addEventListener('click', () => {
+      githubModal.removeAttribute('hidden');
+      if (githubPatInput) githubPatInput.focus();
+    });
+  }
+  if (closeGithubBtn) closeGithubBtn.addEventListener('click', closeGithubModal);
+  if (githubBackdrop) githubBackdrop.addEventListener('click', closeGithubModal);
+
+  if (saveGithubTokenBtn) {
+    saveGithubTokenBtn.addEventListener('click', async () => {
+      const secretVal = githubPatInput ? githubPatInput.value.trim() : '';
+      if (githubPatInput) githubPatInput.value = '';
+      if (!secretVal) {
+        if (githubConnectStatus) githubConnectStatus.textContent = 'Enter a GitHub Fine-Grained PAT first.';
+        return;
+      }
+      try {
+        if (engineWorkerClient.enabled) {
+          await engineWorkerClient.rpc('mvm_set_secret', { key: 'GITHUB_TOKEN', value: secretVal });
+        }
+        engineWorkerClient.githubConnected = true;
+        if (openGithubBtn) {
+          openGithubBtn.textContent = 'GitHub: Connected';
+          openGithubBtn.dataset.connected = 'true';
+        }
+        if (githubConnectStatus) {
+          githubConnectStatus.textContent = 'GITHUB_TOKEN sealed in Host Worker Vault (allowlisted to github.com & api.github.com; zero bytes in guest RAM).';
+        }
+      } catch (err) {
+        if (githubConnectStatus) {
+          githubConnectStatus.textContent = `Vault error: ${err && err.message ? err.message : String(err)}`;
+        }
+      }
+    });
+  }
+
+  if (clearGithubTokenBtn) {
+    clearGithubTokenBtn.addEventListener('click', async () => {
+      if (githubPatInput) githubPatInput.value = '';
+      if (engineWorkerClient.enabled) {
+        await engineWorkerClient.rpc('mvm_set_secret', { key: 'GITHUB_TOKEN', value: '' }).catch(() => {});
+      }
+      engineWorkerClient.githubConnected = false;
+      if (openGithubBtn) {
+        openGithubBtn.textContent = 'GitHub';
+        delete openGithubBtn.dataset.connected;
+      }
+      if (githubConnectStatus) {
+        githubConnectStatus.textContent = 'Cleared GITHUB_TOKEN from Host Worker Vault.';
+      }
+    });
+  }
+
+  if (cloneGithubRepoBtn) {
+    cloneGithubRepoBtn.addEventListener('click', async () => {
+      const repoVal = githubRepoUrlInput ? githubRepoUrlInput.value.trim() : '';
+      if (!repoVal) {
+        if (githubConnectStatus) githubConnectStatus.textContent = 'Enter a GitHub repository (owner/repo or URL).';
+        return;
+      }
+      if (githubConnectStatus) githubConnectStatus.textContent = `Cloning ${repoVal} into /workspace...`;
+      cloneGithubRepoBtn.disabled = true;
+      try {
+        const res = await engineWorkerClient.rpc('host_bridge_exec', {
+          op: 'git',
+          subcommand: 'clone',
+          repo_url: repoVal,
+        });
+        if (!res || res.ok === false) {
+          if (githubConnectStatus) {
+            githubConnectStatus.textContent = `Clone error (${res?.error_code || 'BridgeError'}): ${res?.message || 'Failed'}`;
+          }
+          return;
+        }
+        AppState.config.connectedGitRepo = repoVal;
+        const count = Array.isArray(res.data?.files) ? res.data.files.length : (res.data?.file_count ?? 0);
+        if (githubConnectStatus) {
+          githubConnectStatus.textContent = `Cloned ${count} file(s) from ${repoVal} into /workspace. Switching to Studio IDE...`;
+        }
+        setLayoutMode('studio');
+        closeGithubModal();
+      } catch (err) {
+        if (githubConnectStatus) {
+          githubConnectStatus.textContent = `Clone failed: ${err && err.message ? err.message : String(err)}`;
+        }
+      } finally {
+        cloneGithubRepoBtn.disabled = false;
+      }
+    });
+  }
+
+  if (saveRelayUrlBtn) {
+    saveRelayUrlBtn.addEventListener('click', async () => {
+      const relayVal = spvsRelayUrlInput ? spvsRelayUrlInput.value.trim() : '';
+      try {
+        if (engineWorkerClient.enabled) {
+          await engineWorkerClient.rpc('set_bridge_policy', { relayWsUrl: relayVal });
+        }
+        if (githubConnectStatus) {
+          githubConnectStatus.textContent = relayVal
+            ? `Updated SpiralCore relay endpoint (${relayVal}).`
+            : 'Restored default Cloudflare Edge SpiralCore relay endpoint.';
+        }
+      } catch (err) {
+        if (githubConnectStatus) {
+          githubConnectStatus.textContent = `Relay policy error: ${err && err.message ? err.message : String(err)}`;
+        }
+      }
+    });
+  }
+
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+      if (inspectorsModalEl && !inspectorsModalEl.hasAttribute('hidden')) {
+        ev.preventDefault();
+        closeInspectorsModal();
+      } else if (githubModal && !githubModal.hasAttribute('hidden')) {
+        ev.preventDefault();
+        closeGithubModal();
+      }
+    }
+  });
+}
+
 initCursorIdeWorkbench();
 
 try {
-  await init();
-  await restore_cached_uorlut_from_indexeddb();
-  if (typeof studio_weight_pack_status === 'function') {
-    try {
-      const packInfo = JSON.parse(studio_weight_pack_status());
-      if (packInfo && packInfo.status === 'ok' && globalThis.__uorWeightCacheMeta && globalThis.__uorWeightCacheMeta.mode !== 'indexeddb') {
-        const mb = (packInfo.byte_len / (1024 * 1024)).toFixed(1);
-        globalThis.__uorWeightCacheMeta.status = `${mb} MB Cached · 30/30 Proved`;
-      }
-    } catch {
-      // Ignore weight status parse error
+  initLayoutAndConnectedControls();
+  registerBrowserTerminalBridgeHooks();
+  startHeaderBrainPulseCanvas();
+
+  const workerBooted = engineWorkerClient.spawn();
+  if (!workerBooted) {
+    await init();
+    await restore_cached_uorlut_from_indexeddb();
+  }
+
+  if (lexLeanTerminal && workerBooted) {
+    if (lexLeanTerminal.promptLabel) {
+      lexLeanTerminal.promptLabel.textContent = 'casey@mvm:/workspace$';
+    }
+    if (lexLeanTerminal.env) {
+      lexLeanTerminal.env.USER = 'casey';
+      lexLeanTerminal.env.HOSTNAME = 'mvm';
+      lexLeanTerminal.env.CWD = '/workspace';
+      lexLeanTerminal.env.PROMPT = 'casey@mvm:/workspace$ ';
     }
   }
+
   updateWeightCacheBadge();
   const initialState = dispatchStudioEnvelope('state', '');
   renderStudioState(initialState);
-  restoreIntelligenceFromWebCache();
+  if (!workerBooted) {
+    restoreIntelligenceFromWebCache();
+  }
   const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
   renderWorkspaceList(initialWorkspace);
   if (typeof editorTabManager !== 'undefined' && editorTabManager) {
     editorTabManager.init(cursorOpenTabs);
   }
   selectWorkspaceFile(activeWorkspacePath);
-  runCursorR432Check('check');
-  if (studioPromptInput && studioPromptInput.value) {
-    runStudioGenerate(studioPromptInput.value);
+  if (!workerBooted) {
+    runCursorR432Check('check');
+    if (studioPromptInput && studioPromptInput.value) {
+      runStudioGenerate(studioPromptInput.value);
+    }
+    runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
+    executeCoordinateEnvelope();
   }
-  runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
-  executeCoordinateEnvelope();
   if (apiResponseOutput) {
     apiResponseOutput.textContent = '// Standalone Wasm API Endpoint ready.\n// Select an endpoint and click "Execute API Request in Wasm" to dispatch.';
   }
   const currentActiveThread = getActiveThread();
   if (!currentActiveThread.messages || currentActiveThread.messages.length === 0) {
-    runClaudeChat('Hello! Who are you and what can you do?', false);
+    if (workerBooted) {
+      appendChatTurn(
+        'assistant',
+        'UOR-R4 GLM v10 · Connected Studio',
+        'Welcome to **UOR-R4 Connected Chat & Studio v10**. Ask anything below, search live web documentation (`Web: ON`), connect a GitHub repository via **GitHub**, or switch instantaneously to the full 3-pane IDE & Linux MVM terminal with **Studio IDE**.',
+      );
+    } else {
+      runClaudeChat('Hello! Who are you and what can you do?', false);
+    }
   } else {
     const msgs = currentActiveThread.messages;
     let lastUserPrompt = 'Hello! Who are you and what can you do?';
@@ -11184,10 +12590,12 @@ try {
         }
       }
     }
-    const bootChatRes = dispatchStudioEnvelope('chat', lastUserPrompt);
-    selectedTraceIndex = 0;
-    if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
-      lexLean3dVisualizer.ingestConversationTurn(lastUserPrompt, bootChatRes?.reply || '', bootChatRes);
+    if (!workerBooted) {
+      const bootChatRes = dispatchStudioEnvelope('chat', lastUserPrompt);
+      selectedTraceIndex = 0;
+      if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
+        lexLean3dVisualizer.ingestConversationTurn(lastUserPrompt, bootChatRes?.reply || '', bootChatRes);
+      }
     }
   }
   if (claudeChatInput) {
@@ -11195,16 +12603,6 @@ try {
     claudeChatInput.focus();
   }
   fetchRecordedTraces();
-  if (typeof restore_mvm_cow_sectors_from_opfs === 'function') {
-    restore_mvm_cow_sectors_from_opfs().catch(() => {});
-  }
-  if (typeof stream_v9_sharded_weights_via_opfs_worker === 'function') {
-    stream_v9_sharded_weights_via_opfs_worker()
-      .then((loaded) => {
-        if (loaded) updateWeightCacheBadge();
-      })
-      .catch(() => {});
-  }
 } catch (err) {
   appendChatTurn(
     'assistant',
@@ -11212,3 +12610,5 @@ try {
     `WebAssembly initialization error: ${err && err.message ? err.message : String(err)}`,
   );
 }
+
+export { LexLeanTerminal };

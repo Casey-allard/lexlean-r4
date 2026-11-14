@@ -1123,13 +1123,18 @@ impl InferenceBackend for Arc<crate::lut_stack_exec::LutStackModel> {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) static EMBEDDED_BOOTSTRAP_UORLUT: &[u8] = include_bytes!("bootstrap_v8.uorlut");
+
+#[cfg(target_arch = "wasm32")]
+pub(crate) static EMBEDDED_BOOTSTRAP_UORLUT: &[u8] = include_bytes!("bootstrap_v8_seed.uorlut");
+
 static DEFAULT_MODEL: OnceLock<Arc<crate::lut_stack_exec::LutStackModel>> = OnceLock::new();
 
 /// Obtain shared default model instance backed by embedded weights.
 pub fn default_model_backend() -> Arc<crate::lut_stack_exec::LutStackModel> {
-    const BOOTSTRAP: &[u8] = include_bytes!("bootstrap_v8.uorlut");
     Arc::clone(DEFAULT_MODEL.get_or_init(|| {
-        let mut model = crate::lut_stack_exec::LutStackModel::parse(BOOTSTRAP)
+        let mut model = crate::lut_stack_exec::LutStackModel::parse(EMBEDDED_BOOTSTRAP_UORLUT)
             .expect("valid embedded bootstrap_v8.uorlut");
 
         // Seed foundational mathematical theorems into TurnMemory and PointKey

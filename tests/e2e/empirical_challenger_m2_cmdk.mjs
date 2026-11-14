@@ -1264,11 +1264,11 @@ console.log('--- Suite 7: 6-File Production Closure & Invariant Verification ---
     }
   });
 
-  runAssert('7.2 Strict Content-Security-Policy and zero cloud API connections', () => {
+  runAssert('7.2 Strict R4-39 Content-Security-Policy and zero hardcoded cloud API domains in HTML', () => {
     assert.ok(rawHtml.includes("Content-Security-Policy"));
     assert.ok(rawHtml.includes("connect-src 'self'"));
     assert.ok(!rawHtml.includes('https://api.'));
-    assert.ok(!rawHtml.includes('http://'));
+    assert.ok(!/http:\/\/(?!127\.0\.0\.1)/.test(rawHtml));
   });
 
   runAssert('7.3 Cmd+K floating bar semantic styling and theme contrast rules in app.css', () => {

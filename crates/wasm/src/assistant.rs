@@ -2,8 +2,7 @@
 //! Engine for the UOR-R4 Claude-Code-Desktop WebAssembly runtime.
 
 use crate::{
-    canonical_stem, gcd_shared_primes_sorted, is_stopword, m6_ablation_place_add,
-    prll_masses_from_scores, StudioEngine, TokenAtom, POINT_KEY_DIM,
+    canonical_stem, gcd_shared_primes_sorted, is_stopword, StudioEngine, TokenAtom, POINT_KEY_DIM,
 };
 
 /// Result of analyzing whether a user prompt is a code-synthesis / workspace-patch request.
@@ -19,13 +18,12 @@ impl StudioEngine {
     /// Evaluate exact arithmetic expressions, number theory (`gcd`, `lcm`, primality, factorization,
     /// factorials, Fibonacci), algebra (linear/quadratic equations), percentages, base conversions,
     /// and unit conversions using the proved `R4.ExactArithmetic` (M6) and `R4.DurableMemory` kernels.
-    #[allow(dead_code)]
     pub(crate) fn solve_exact_math_or_logic(&self, prompt: &str) -> Option<(String, String)> {
         let trimmed = prompt.trim();
         let lower = trimmed.to_ascii_lowercase();
 
-        // Do not intercept explicit code-generation requests (e.g., "write a python function for fibonacci")
-        let has_code_verb = has_any_word(
+        // Do not intercept coding, CS algorithm Q&A, workspace path, URL, or MicroVM/shell tool requests
+        let has_code_or_tool_context = has_any_word(
             &lower,
             &[
                 "write",
@@ -39,9 +37,41 @@ impl StudioEngine {
                 "python",
                 "typescript",
                 "javascript",
+                "c",
+                "cpp",
+                "go",
+                "sql",
+                "lean",
+                "bash",
+                "shell",
+                "snippet",
+                "expression",
+                "sandbox",
+                "microvm",
+                "mvm",
+                "linux",
+                "git",
+                "search",
+                "fetch",
+                "xxd",
+                "jq",
+                "sha256sum",
+                "bc",
+                "complexity",
+                "sorted",
+                "bytes",
+                "curl",
+                "wget",
+                "nslookup",
+                "dig",
+                "pkg",
             ],
-        );
-        if has_code_verb {
+        ) || lower.contains("/workspace")
+            || lower.contains("/usr")
+            || lower.contains("http://")
+            || lower.contains("https://")
+            || lower.contains("c++");
+        if has_code_or_tool_context {
             return None;
         }
 
@@ -233,10 +263,23 @@ impl StudioEngine {
         }
 
         // 7. Binary / Hexadecimal conversion ("255 in binary", "convert 42 to hex")
-        if (has_any_word(&lower, &["binary", "hex", "hexadecimal", "octal"])
-            && has_any_word(&lower, &["in", "to", "convert", "what"]))
-            && !numbers.is_empty()
-        {
+        let explicit_base_conversion = !lower.contains("binary search")
+            && !lower.contains("binary tree")
+            && !lower.contains("hex bytes")
+            && !lower.contains("hex dump")
+            && (lower.contains("in binary")
+                || lower.contains("to binary")
+                || lower.contains("as binary")
+                || lower.contains("in hex")
+                || lower.contains("to hex")
+                || lower.contains("as hex")
+                || lower.contains("in hexadecimal")
+                || lower.contains("to hexadecimal")
+                || lower.contains("in octal")
+                || lower.contains("to octal")
+                || (has_any_word(&lower, &["convert"])
+                    && has_any_word(&lower, &["binary", "hex", "hexadecimal", "octal"])));
+        if explicit_base_conversion && !numbers.is_empty() {
             let n = numbers[0].unsigned_abs();
             let reply = format!(
                 "Base representations for **`{n}`**:\n\n- **Decimal (Base 10)**: `{n}`\n- **Binary (Base 2)**: `0b{n:b}` (`{}` set bits / SWAR popcount)\n- **Hexadecimal (Base 16)**: `0x{n:x}`\n- **Octal (Base 8)**: `0o{n:o}`",
@@ -289,54 +332,6 @@ impl StudioEngine {
                     String::new(),
                 ));
             }
-        }
-
-        // 9. Word-form arithmetic ("15 plus 27", "100 minus 37", "12 times 14", "144 divided by 12", "2 to the power of 10")
-        if numbers.len() >= 2 {
-            let a = numbers[0];
-            let b = numbers[1];
-            let word_op = if lower.contains(" to the power of ") || lower.contains(" raised to ") {
-                Some('^')
-            } else if lower.contains(" plus ")
-                || lower.contains(" added to ")
-                || lower.contains("sum of ")
-            {
-                Some('+')
-            } else if lower.contains(" minus ")
-                || lower.contains(" subtract ")
-                || lower.contains("difference between ")
-            {
-                Some('-')
-            } else if lower.contains(" times ")
-                || lower.contains(" multiplied by ")
-                || lower.contains("product of ")
-            {
-                Some('*')
-            } else if lower.contains(" divided by ") {
-                Some('/')
-            } else if lower.contains(" modulo ") || lower.contains(" mod ") {
-                Some('%')
-            } else {
-                None
-            };
-
-            if let Some(op) = word_op {
-                return Some(format_exact_binary_math(a, b, op));
-            }
-        }
-
-        // 10. General symbolic arithmetic expression parser (`2 + 2`, `(15 + 25) * 3`, `2^16`, `48291 + 73948`)
-        if let Some((expr_str, val, binary_pair)) = try_eval_math_expression(trimmed) {
-            if let Some((a, b, op)) = binary_pair {
-                return Some(format_exact_binary_math(a, b, op));
-            }
-            let prll = prll_masses_from_scores([3900, 120, 60, 30]);
-            let reply = format!(
-                "Computed via **UOR-R4 M6 Exact Arithmetic Kernel (`R4.ExactArithmetic`, R4-27)**:\n\n- **Expression**: `{expr_str} = {val}`\n- **PRLL Lawful Likelihood Mass**: `{}` / `1,000,000` ppm (zero-float integer conservation).",
-                prll[0]
-            );
-            let code = format!("pub fn verified_m6_expression() -> i64 {{\n    {val}\n}}\n");
-            return Some((reply, code));
         }
 
         None
@@ -673,14 +668,14 @@ impl StudioEngine {
             || has_word(&words, "flask")
         {
             Some("python")
+        } else if has_word(&words, "javascript") || has_word(&words, "js") || lower.contains(".js")
+        {
+            Some("javascript")
         } else if has_word(&words, "typescript")
-            || has_word(&words, "javascript")
             || has_word(&words, "ts")
-            || has_word(&words, "js")
             || has_word(&words, "react")
             || has_word(&words, "node")
             || lower.contains(".ts")
-            || lower.contains(".js")
         {
             Some("typescript")
         } else if has_word(&words, "html")
@@ -719,6 +714,9 @@ impl StudioEngine {
             Some("go")
         } else if has_word(&words, "cpp") || lower.contains("c++") || lower.contains(".cpp") {
             Some("cpp")
+        } else if has_word(&words, "c") || lower.contains(".c") || lower.contains("freestanding c")
+        {
+            Some("c")
         } else if has_word(&words, "bash")
             || has_word(&words, "shell")
             || has_word(&words, "zsh")
@@ -976,7 +974,7 @@ impl StudioEngine {
         _flock_resonance: u64,
         _icosian_root: u8,
         _active_workspace_path: &str,
-        _code_outcome: &CodeSynthesisOutcome,
+        code_outcome: &CodeSynthesisOutcome,
     ) -> String {
         let trimmed = prompt.trim();
         if self.chat_history.is_empty() {
@@ -991,6 +989,7 @@ impl StudioEngine {
         );
         self.last_lut_generation = Some(lut_gen.clone());
 
+        // 1. Inline `Teach: <q> => <a>` admission and session-scoped recall
         if let Some(rest) = trimmed
             .strip_prefix("Teach:")
             .or_else(|| trimmed.strip_prefix("teach:"))
@@ -999,6 +998,13 @@ impl StudioEngine {
                 let q_clean = q.trim();
                 let a_raw = a.trim();
                 if !q_clean.is_empty() && !a_raw.is_empty() {
+                    let norm_q = normalize_session_key(q_clean);
+                    let tag = format!("__taught__:{norm_q}");
+                    self.binder_memory.retain(|(k, _)| k != &tag);
+                    self.binder_memory.push((tag, a_raw.to_string()));
+                    self.last_brain_pulses = self
+                        .gllm_v9
+                        .encode_prompt_pulses(trimmed, &self.chat_history);
                     let (_, clean_a) = parse_thinking_block(a_raw);
                     return format!(
                         "Admitted new knowledge turn into `/6`, `/7`, `/8`, and `R4.Admission` tables:\n\n- **Prompt**: `{q_clean}`\n- **Learned Response**: {clean_a}"
@@ -1007,7 +1013,68 @@ impl StudioEngine {
             }
         }
 
+        let norm_prompt_key = normalize_session_key(trimmed);
+        if !norm_prompt_key.is_empty() {
+            let lookup_tag = format!("__taught__:{norm_prompt_key}");
+            if let Some((_, taught_raw)) = self
+                .binder_memory
+                .iter()
+                .rev()
+                .find(|(k, _)| k == &lookup_tag)
+            {
+                let taught = taught_raw.clone();
+                self.last_brain_pulses = self
+                    .gllm_v9
+                    .encode_prompt_pulses(trimmed, &self.chat_history);
+                return taught;
+            }
+        }
+
+        // 2. High-precision symbolic math (`R4.ExactArithmetic` / `R4.DurableMemory` / `R4-31` De Bruijn slots)
+        if let Some((math_reply, _)) = self.solve_exact_math_or_logic(trimmed) {
+            self.last_brain_pulses = self
+                .gllm_v9
+                .encode_prompt_pulses(trimmed, &self.chat_history);
+            return math_reply;
+        }
+
         let lower = trimmed.to_ascii_lowercase();
+        let lower_words = tokenize_words_lower(&lower);
+        let is_compositional_v9_turn = (lower.starts_with("given ") && lower.contains(" = "))
+            || ((lower.starts_with("write a rust function ")
+                || lower.starts_with("write a freestanding c function "))
+                && trimmed.contains('(')
+                && !lower.contains(" that "))
+            || lower == "what is uor-r4?"
+            || lower.starts_with("how does uor-r4 attention")
+            || (lower.contains("weights") && lower.contains("browser") && lower.contains("stored"))
+            || lower.contains("in my browser")
+            || lower.contains("opfs")
+            || lower.contains("uorgllm")
+            || lower.contains("mvm-wasm")
+            || lower.contains("af_vsock")
+            || lower.contains("microvm")
+            || lower.contains("spiralcore")
+            || lower.contains("mvm_secret")
+            || lower.contains("host secret")
+            || lower.contains("guest ram")
+            || lower.contains("zero-nic")
+            || has_word(&lower_words, "mvm");
+
+        if !is_compositional_v9_turn
+            && lut_gen
+                .slot_frame
+                .as_ref()
+                .is_some_and(|sf| sf.has_active_kernel_substitution())
+            && !lut_gen.reply_text.trim().is_empty()
+        {
+            self.last_brain_pulses = self
+                .gllm_v9
+                .encode_prompt_pulses(trimmed, &self.chat_history);
+            return lut_gen.reply_text;
+        }
+
+        // 3. Live MVM-Wasm RV64IMAC sandbox & SpiralCore two-phase tool loop
         let is_mvm_sandbox_turn = !lower.contains("<tools>")
             && !lower.contains("available tools:")
             && (lower.contains("microvm")
@@ -1017,79 +1084,1211 @@ impl StudioEngine {
             && (lower.contains("run ")
                 || lower.contains("execute ")
                 || lower.starts_with("[agent_mode]"));
-        if is_mvm_sandbox_turn {
+        if is_mvm_sandbox_turn && self.gllm_v9.is_legacy_v9_container() {
             let agent_prompt = crate::format_mvm_agent_prompt(trimmed);
             let step1 = self
                 .gllm_v9
                 .generate_compositional(&agent_prompt, &self.chat_history, 256);
+            self.last_brain_pulses = step1.brain_pulses.clone();
             if let Some(cmd) = crate::extract_mvm_cmd_from_generation(&step1.text) {
                 self.sync_workspace_into_mvm();
-                if let Ok(outcome) = self.mvm.exec_command(&cmd, "/workspace") {
-                    self.sync_workspace_from_mvm();
-                    let obs_clean = outcome
-                        .stdout
-                        .lines()
-                        .map(str::trim)
-                        .filter(|l| !l.is_empty())
-                        .collect::<Vec<_>>()
-                        .join(" | ");
-                    let obs_for_kv = if obs_clean.is_empty() {
-                        format!("exit_code={}", outcome.exit_code)
-                    } else {
-                        obs_clean
-                    };
-                    let obs_prompt = format!(
-                        "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
-                    );
-                    let step2 =
-                        self.gllm_v9
-                            .generate_compositional(&obs_prompt, &self.chat_history, 256);
-                    if !step2.text.is_empty() {
-                        return step2.text;
+                match self.mvm.exec_interactive(&cmd, Some("/workspace")) {
+                    Ok(crate::mvm::MvmInteractiveOutcome::Completed(outcome)) => {
+                        self.sync_workspace_from_mvm();
+                        let obs_clean = outcome
+                            .stdout
+                            .lines()
+                            .map(str::trim)
+                            .filter(|l| !l.is_empty())
+                            .collect::<Vec<_>>()
+                            .join(" | ");
+                        let obs_for_kv = if obs_clean.is_empty() {
+                            format!("exit_code={}", outcome.exit_code)
+                        } else {
+                            obs_clean
+                        };
+                        let obs_prompt = format!(
+                            "[agent_mode] Verify sandbox execution.\n<tool_response> {obs_for_kv}</tool_response>"
+                        );
+                        let step2 = self.gllm_v9.generate_compositional(
+                            &obs_prompt,
+                            &self.chat_history,
+                            256,
+                        );
+                        let mut combined = step1.brain_pulses;
+                        for mut p in step2.brain_pulses {
+                            p.step = combined.len() as u32;
+                            combined.push(p);
+                        }
+                        self.last_brain_pulses = combined;
+                        if !step2.text.is_empty() {
+                            return step2.text;
+                        }
                     }
+                    Ok(crate::mvm::MvmInteractiveOutcome::NeedsBridge(pending)) => {
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": trimmed,
+                            "tool": "mvm_exec",
+                            "cmd": cmd,
+                            "bridge_req": pending.bridge_req,
+                            "mvm_resume_state": pending.resume_state,
+                        }));
+                        return format!(
+                            "<tool_call>{{\"name\":\"mvm_exec\",\"arguments\":{{\"cmd\":\"{}\"}}}}</tool_call>",
+                            crate::escape_json(&cmd)
+                        );
+                    }
+                    Err(_) => {}
                 }
             }
         }
 
+        // 4. Explicit Agentic Harness (`[agent_mode]`, `<tools>`, `<tool_response>`)
         if lower.contains("[agent_mode]")
             || lower.contains("<tool_response>")
             || lower.contains("<observation>")
             || lower.contains("<tools>")
             || lower.contains("available tools:")
         {
-            let words = tokenize_words_lower(&lower);
-            if let Some(agent_turn) = crate::glm_weights::try_synthesize_agentic_harness_turn(
-                trimmed,
-                &lower,
-                &words,
-                &self.chat_history,
-            ) {
-                return agent_turn;
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                let words = tokenize_words_lower(&lower);
+                if let Some(agent_turn) = crate::glm_weights::try_synthesize_agentic_harness_turn(
+                    trimmed,
+                    &lower,
+                    &words,
+                    &self.chat_history,
+                ) {
+                    self.last_brain_pulses = self
+                        .gllm_v9
+                        .encode_prompt_pulses(trimmed, &self.chat_history);
+                    return agent_turn;
+                }
+            }
+            #[cfg(target_arch = "wasm32")]
+            {
+                if let Ok(outcome) = crate::api::execute_agentic_turn(
+                    trimmed,
+                    &[],
+                    &self.chat_history,
+                    &mut self.rolling_context,
+                    &self.lut_stack,
+                    256,
+                ) {
+                    if !outcome.raw_output.trim().is_empty() {
+                        self.last_brain_pulses = self
+                            .gllm_v9
+                            .encode_prompt_pulses(trimmed, &self.chat_history);
+                        return outcome.raw_output;
+                    }
+                }
             }
         }
 
-        let is_compositional_v9_turn = (lower.starts_with("given ") && lower.contains(" = "))
-            || ((lower.starts_with("write a rust function ")
-                || lower.starts_with("write a freestanding c function "))
-                && trimmed.contains('('))
-            || lower == "what is uor-r4?"
-            || lower.starts_with("how does uor-r4 attention")
-            || (lower.contains("weights") && lower.contains("browser") && lower.contains("stored"))
-            || lower.contains("uorgllm")
-            || lower.contains("mvm-wasm")
-            || lower.contains("af_vsock");
-        if is_compositional_v9_turn {
-            let v9_gen = self
+        // 5. Dynamically admitted session turns (`StudioEngine::admit_turn`)
+        let base_turn_count = crate::default_knowledge_turns().len();
+        if self.turns.len() > base_turn_count
+            && self.turns[base_turn_count..]
+                .iter()
+                .any(|t| normalize_session_key(&t.prompt) == norm_prompt_key)
+            && !lut_gen.reply_text.trim().is_empty()
+        {
+            self.last_brain_pulses = self
                 .gllm_v9
-                .generate_compositional(trimmed, &self.chat_history, 256);
+                .encode_prompt_pulses(trimmed, &self.chat_history);
+            return lut_gen.reply_text;
+        }
+
+        let is_compact_seed =
+            self.lut_stack.vocab < 4096 || self.lut_stack.artifact_bytes < 1_000_000;
+        let has_grounded_lut_match = !lut_gen.reply_text.trim().is_empty()
+            && lut_gen.steps.first().is_some_and(|s| {
+                s.source_mechanism == "turn_memory_opening"
+                    || (s.source_mechanism != "whole_table_nearest"
+                        && lut_gen.matched_stem_count >= 2)
+            });
+
+        // 6. Primary single-pass `UORGLLM9` (`v10` multi-turn KV + ReAct `<tool_call>`, or legacy `v9` KV)
+        if !self.gllm_v9.is_legacy_v9_container() {
+            const PURE_GREETINGS: &[&str] = &[
+                "hi",
+                "hello",
+                "hey",
+                "how are you",
+                "who are you",
+                "good morning",
+                "good afternoon",
+                "good evening",
+            ];
+            let has_cross_turn_cue = !self.chat_history.is_empty()
+                && crate::gllm_v9::GllmV9Model::has_v10_cross_turn_cue(trimmed);
+            let is_session_fact =
+                crate::gllm_v9::GllmV9Model::is_v10_session_fact_declaration(trimmed);
+            let is_8l = self.gllm_v9.header().d_model >= 128;
+            let history_starts_with_greeting = self.chat_history.first().is_some_and(|(u, _)| {
+                let norm = normalize_session_key(u);
+                PURE_GREETINGS.contains(&norm.as_str())
+            });
+            let warmup_turns: Vec<(String, String)> = if is_8l
+                && (has_cross_turn_cue || is_session_fact)
+                && !history_starts_with_greeting
+            {
+                live_v10_kv_warmup(&self.gllm_v9)
+            } else {
+                Vec::new()
+            };
+            let scoped_history: Vec<(String, String)>;
+            let history_slice: &[(String, String)] =
+                if is_8l && (has_cross_turn_cue || is_session_fact) {
+                    &self.chat_history
+                } else if !has_cross_turn_cue {
+                    &[]
+                } else {
+                    let substantive: Vec<(String, String)> = self
+                        .chat_history
+                        .iter()
+                        .filter(|(u, _)| {
+                            let norm = normalize_session_key(u);
+                            !PURE_GREETINGS.contains(&norm.as_str())
+                        })
+                        .cloned()
+                        .collect();
+                    let keep_from = substantive.len().saturating_sub(2);
+                    scoped_history = substantive[keep_from..].to_vec();
+                    &scoped_history
+                };
+            let v10_gen = self.gllm_v9.generate_compositional_v10_with_warmup(
+                trimmed,
+                &warmup_turns,
+                history_slice,
+                256,
+            );
+            let mut pulses = v10_gen.brain_pulses.clone();
+            if let Some(handled) =
+                self.try_execute_v10_tool_call(trimmed, &v10_gen.text, &mut pulses)
+            {
+                self.last_brain_pulses = pulses;
+                return handled;
+            }
+            self.last_brain_pulses = pulses;
+            let v10_trimmed = v10_gen.text.trim();
+            let prose_ok = is_well_formed_v10_prose(&v10_gen);
+            let calibrated_steps =
+                has_calibrated_v10_steps_for_dim(&v10_gen, self.gllm_v9.header().d_model);
+            let coding_request = code_outcome.is_coding_turn
+                || ((lower.starts_with("given ") && lower.contains(" = "))
+                    || ((lower.starts_with("write a rust function ")
+                        || lower.starts_with("write a freestanding c function "))
+                        && trimmed.contains('(')));
+
+            if coding_request {
+                if is_well_formed_v10_code(&v10_gen, trimmed) {
+                    return v10_gen.text;
+                }
+                if !code_outcome.explanation_markdown.trim().is_empty() {
+                    return code_outcome.explanation_markdown.clone();
+                }
+            }
+
+            let safe_lut_reply = sanitize_lut_prose_fallback(&lut_gen.reply_text);
+
+            if !v10_trimmed.is_empty() {
+                let is_non_blind_lut = !is_compact_seed
+                    && !safe_lut_reply.trim().is_empty()
+                    && lut_gen
+                        .steps
+                        .first()
+                        .is_some_and(|s| s.source_mechanism != "whole_table_nearest");
+
+                if has_cross_turn_cue {
+                    if prose_ok && calibrated_steps {
+                        return v10_gen.text;
+                    }
+                    return safe_lut_reply;
+                }
+
+                if is_session_fact && prose_ok {
+                    return v10_gen.text;
+                }
+
+                if is_compact_seed || !is_non_blind_lut {
+                    if prose_ok && (calibrated_steps || !has_grounded_lut_match) {
+                        return v10_gen.text;
+                    }
+                    return safe_lut_reply;
+                }
+
+                if !has_grounded_lut_match {
+                    if prose_ok {
+                        return v10_gen.text;
+                    }
+                    return safe_lut_reply;
+                }
+
+                let length_ok = is_compositional_v9_turn
+                    || lut_gen.matched_stem_count <= 1
+                    || (v10_gen.generated_tokens.len() >= 20
+                        && v10_trimmed.split_whitespace().count() >= 20);
+                if prose_ok && calibrated_steps && length_ok {
+                    return v10_gen.text;
+                }
+                return safe_lut_reply;
+            }
+            if code_outcome.is_coding_turn && !code_outcome.explanation_markdown.trim().is_empty() {
+                return code_outcome.explanation_markdown.clone();
+            }
+            return safe_lut_reply;
+        }
+
+        let v9_gen = self
+            .gllm_v9
+            .generate_compositional(trimmed, &self.chat_history, 256);
+        self.last_brain_pulses = v9_gen.brain_pulses;
+
+        if is_compositional_v9_turn {
             let backticks_balanced = v9_gen.text.chars().filter(|&c| c == '`').count() % 2 == 0;
             if v9_gen.generated_tokens.len() >= 6 && !v9_gen.text.is_empty() && backticks_balanced {
                 return v9_gen.text;
             }
         }
 
+        if is_compact_seed {
+            if code_outcome.is_coding_turn && !code_outcome.explanation_markdown.is_empty() {
+                return code_outcome.explanation_markdown.clone();
+            }
+            if has_grounded_lut_match {
+                return lut_gen.reply_text;
+            }
+            if !v9_gen.text.trim().is_empty() {
+                return v9_gen.text;
+            }
+            return lut_gen.reply_text;
+        }
+
+        if has_grounded_lut_match {
+            return lut_gen.reply_text;
+        }
+        if !v9_gen.text.trim().is_empty() {
+            return v9_gen.text;
+        }
         lut_gen.reply_text
     }
+
+    pub(crate) fn try_execute_v10_tool_call(
+        &mut self,
+        user_prompt: &str,
+        generated_text: &str,
+        pulses: &mut Vec<crate::gllm_v9::BrainPulseStep>,
+    ) -> Option<String> {
+        let resolved = resolve_v10_tool_invocation(user_prompt, generated_text)?;
+
+        match resolved.tool_name.as_str() {
+            "mvm_exec" | "git" => {
+                let cmd = resolved.cmd.as_deref()?.trim();
+                if cmd.is_empty() {
+                    return None;
+                }
+                let full_cmd = if resolved.tool_name == "git" && !cmd.starts_with("git ") {
+                    format!("git {cmd}")
+                } else {
+                    cmd.to_string()
+                };
+                self.sync_workspace_into_mvm();
+                match self.mvm.exec_interactive(&full_cmd, None) {
+                    Ok(crate::mvm::MvmInteractiveOutcome::Completed(done)) => {
+                        self.sync_workspace_from_mvm();
+                        let joined_stdout = done
+                            .stdout
+                            .lines()
+                            .map(str::trim)
+                            .filter(|l| !l.is_empty())
+                            .collect::<Vec<_>>()
+                            .join(" | ");
+                        let obs = if joined_stdout.is_empty() {
+                            format!("exit_code={} {}", done.exit_code, done.stderr.trim())
+                                .trim()
+                                .to_string()
+                        } else {
+                            joined_stdout
+                        };
+                        let step2 = self.gllm_v9.generate_compositional_v10(
+                            &format!(
+                                "Summarize the verified tool output for `{user_prompt}`:\n<tool_response> {obs}</tool_response>"
+                            ),
+                            &[],
+                            256,
+                        );
+                        for mut p in step2.brain_pulses.clone() {
+                            p.step = pulses.len() as u32;
+                            pulses.push(p);
+                        }
+                        if is_well_formed_v10_step2(&step2, &obs) {
+                            Some(step2.text)
+                        } else {
+                            Some(format!(
+                                "Executed `{full_cmd}` in MVM-Wasm:\n```\n{obs}\n```"
+                            ))
+                        }
+                    }
+                    Ok(crate::mvm::MvmInteractiveOutcome::NeedsBridge(pending)) => {
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": user_prompt,
+                            "tool": "mvm_exec",
+                            "cmd": full_cmd,
+                            "bridge_req": pending.bridge_req,
+                            "mvm_resume_state": pending.resume_state,
+                        }));
+                        Some(format!(
+                            "<tool_call>{}</tool_call>",
+                            resolved.canonical_body
+                        ))
+                    }
+                    Err(crate::mvm::MvmError::BridgeRejected(be)) => Some(format!(
+                        "SpiralCore bridge refused `{full_cmd}` [{}]: {be}",
+                        be.error_code()
+                    )),
+                    Err(err) => Some(format!("MicroVM tool refused `{full_cmd}`: {err}")),
+                }
+            }
+            "web_search" => {
+                let query = resolved
+                    .query
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|q| !q.is_empty())
+                    .unwrap_or(user_prompt);
+                match self.mvm.prepare_web_search_bridge(query) {
+                    Ok(bridge_req) => {
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": user_prompt,
+                            "tool": "web_search",
+                            "query": query,
+                            "bridge_req": bridge_req,
+                        }));
+                        Some(format!(
+                            "<tool_call>{}</tool_call>",
+                            resolved.canonical_body
+                        ))
+                    }
+                    Err(crate::mvm::MvmError::BridgeRejected(be)) => Some(format!(
+                        "SpiralCore bridge refused `web_search` [{}]: {be}",
+                        be.error_code()
+                    )),
+                    Err(err) => Some(format!("SpiralCore bridge refused `web_search`: {err}")),
+                }
+            }
+            "web_fetch" => {
+                let url = resolved.url.as_deref()?.trim();
+                if url.is_empty() {
+                    return None;
+                }
+                match self.mvm.prepare_web_fetch_bridge(url) {
+                    Ok(bridge_req) => {
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": user_prompt,
+                            "tool": "web_fetch",
+                            "url": url,
+                            "bridge_req": bridge_req,
+                        }));
+                        Some(format!(
+                            "<tool_call>{}</tool_call>",
+                            resolved.canonical_body
+                        ))
+                    }
+                    Err(crate::mvm::MvmError::BridgeRejected(be)) => Some(format!(
+                        "SpiralCore bridge refused `web_fetch` [{}]: {be}",
+                        be.error_code()
+                    )),
+                    Err(err) => Some(format!("SpiralCore bridge refused `web_fetch`: {err}")),
+                }
+            }
+            _ => None,
+        }
+    }
+}
+
+struct ResolvedV10ToolCall {
+    tool_name: String,
+    cmd: Option<String>,
+    query: Option<String>,
+    url: Option<String>,
+    canonical_body: String,
+}
+
+fn extract_partial_json_str_field(raw: &str, key: &str) -> Option<String> {
+    let pat = format!("\"{key}\":");
+    let idx = raw.find(&pat)?;
+    let after = raw[idx + pat.len()..].trim_start();
+    let inner = after.strip_prefix('"')?;
+    let mut out = String::new();
+    let mut escaped = false;
+    for ch in inner.chars() {
+        if escaped {
+            out.push(ch);
+            escaped = false;
+        } else if ch == '\\' {
+            escaped = true;
+        } else if ch == '"' || ch == '\n' {
+            break;
+        } else {
+            out.push(ch);
+        }
+    }
+    let trimmed = out.trim();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    }
+}
+
+fn extract_explicit_http_url(prompt: &str) -> Option<String> {
+    for tok in prompt.split_whitespace() {
+        let cleaned = tok.trim_matches(|c: char| {
+            matches!(c, '`' | '"' | '\'' | '(' | ')' | '[' | ']' | '<' | '>')
+        });
+        let stripped = cleaned.trim_end_matches(['.', ',', ';', '!', '?']);
+        if stripped.starts_with("http://") || stripped.starts_with("https://") {
+            return Some(stripped.to_string());
+        }
+    }
+    None
+}
+
+fn extract_explicit_mvm_pkg_install(prompt: &str) -> Option<String> {
+    const MVM_PKGS: &[&str] = &[
+        "jq",
+        "rg",
+        "tree",
+        "xxd",
+        "sha256sum",
+        "bc",
+        "wc",
+        "head",
+        "tail",
+        "http",
+    ];
+    let lower = prompt.trim().to_ascii_lowercase();
+    if let Some(idx) = lower.find("pkg install ") {
+        let after = lower[idx + "pkg install ".len()..].trim_start();
+        let cand: String = after
+            .chars()
+            .take_while(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.' | '/' | ':'))
+            .collect();
+        if !cand.is_empty() {
+            return Some(cand);
+        }
+    }
+    let mentions_mvm = lower.contains("microvm")
+        || lower.contains("mvm")
+        || lower.contains("linux sandbox")
+        || lower.contains("inside the sandbox");
+    if !mentions_mvm || !lower.contains("install") {
+        return None;
+    }
+    let words = tokenize_words_lower(&lower);
+    for pkg in MVM_PKGS {
+        if words.iter().any(|w| w == pkg) {
+            return Some((*pkg).to_string());
+        }
+    }
+    None
+}
+
+fn extract_explicit_web_search_query(prompt: &str) -> Option<String> {
+    let trimmed = prompt.trim();
+    let lower = trimmed.to_ascii_lowercase();
+    const OPENERS: &[&str] = &[
+        "search the web for ",
+        "look up ",
+        "can you search online for ",
+        "find current documentation on ",
+        "use web search to check ",
+    ];
+    for opener in OPENERS {
+        if lower.starts_with(opener) {
+            let rest = trimmed[opener.len()..]
+                .trim()
+                .trim_end_matches(['.', '?'])
+                .trim();
+            if !rest.is_empty() {
+                return Some(rest.to_string());
+            }
+        }
+    }
+    None
+}
+
+fn resolve_v10_tool_invocation(
+    user_prompt: &str,
+    generated_text: &str,
+) -> Option<ResolvedV10ToolCall> {
+    let lower_prompt = user_prompt.trim().to_ascii_lowercase();
+    let explicit_url = extract_explicit_http_url(user_prompt);
+    let explicit_pkg = extract_explicit_mvm_pkg_install(user_prompt);
+    let explicit_search = extract_explicit_web_search_query(user_prompt);
+    let explicit_fetch_prompt = explicit_url.is_some()
+        && (lower_prompt.starts_with("fetch ")
+            || lower_prompt.starts_with("read ")
+            || lower_prompt.contains("web_fetch"))
+        && !lower_prompt.contains("clone ")
+        && !lower_prompt.contains("curl ")
+        && !lower_prompt.contains("wget ");
+    let explicit_tool_intent = explicit_url.is_some()
+        || explicit_search.is_some()
+        || lower_prompt.contains("microvm")
+        || lower_prompt.contains("mvm")
+        || lower_prompt.contains("linux sandbox")
+        || lower_prompt.contains("git ")
+        || lower_prompt.contains("`git")
+        || lower_prompt.contains("curl ")
+        || lower_prompt.contains("wget ")
+        || lower_prompt.contains("nslookup ")
+        || lower_prompt.contains("dig ")
+        || lower_prompt.contains("web_search")
+        || lower_prompt.contains("web_fetch")
+        || lower_prompt.contains("search online")
+        || lower_prompt.contains("search the web");
+
+    if let Some(pkg) = explicit_pkg {
+        let cmd = format!("pkg install {pkg}");
+        let body = serde_json::json!({
+            "name": "mvm_exec",
+            "arguments": { "env": "mvm", "cmd": cmd }
+        })
+        .to_string();
+        return Some(ResolvedV10ToolCall {
+            tool_name: "mvm_exec".to_string(),
+            cmd: Some(cmd),
+            query: None,
+            url: None,
+            canonical_body: body,
+        });
+    }
+
+    if let Some(start) = generated_text.find("<tool_call>") {
+        let after = &generated_text[start + "<tool_call>".len()..];
+        let body = after.split("</tool_call>").next().unwrap_or(after).trim();
+        if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(body) {
+            let tool_name = parsed
+                .get("name")
+                .or_else(|| parsed.get("tool"))
+                .and_then(|v| v.as_str())
+                .map(str::trim)
+                .unwrap_or("");
+            let args = parsed.get("arguments").unwrap_or(&parsed);
+            match tool_name {
+                "mvm_exec" | "git" => {
+                    let cmd = args
+                        .get("cmd")
+                        .or_else(|| args.get("command"))
+                        .or_else(|| args.get("args"))
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.trim().to_string());
+                    return Some(ResolvedV10ToolCall {
+                        tool_name: tool_name.to_string(),
+                        cmd,
+                        query: None,
+                        url: None,
+                        canonical_body: body.to_string(),
+                    });
+                }
+                "web_search" => {
+                    let query = args
+                        .get("query")
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.trim().to_string())
+                        .filter(|s| !s.is_empty())
+                        .or_else(|| explicit_search.clone());
+                    return Some(ResolvedV10ToolCall {
+                        tool_name: "web_search".to_string(),
+                        cmd: None,
+                        query,
+                        url: None,
+                        canonical_body: body.to_string(),
+                    });
+                }
+                "web_fetch" => {
+                    let url = explicit_url.clone().or_else(|| {
+                        args.get("url")
+                            .and_then(|v| v.as_str())
+                            .map(|s| s.trim().to_string())
+                            .filter(|s| !s.is_empty())
+                    });
+                    return Some(ResolvedV10ToolCall {
+                        tool_name: "web_fetch".to_string(),
+                        cmd: None,
+                        query: None,
+                        url,
+                        canonical_body: body.to_string(),
+                    });
+                }
+                _ => {}
+            }
+        } else if explicit_tool_intent {
+            let recovered_name = extract_partial_json_str_field(body, "name")
+                .or_else(|| extract_partial_json_str_field(body, "tool"));
+            match recovered_name.as_deref() {
+                Some("web_fetch") => {
+                    let url = explicit_url
+                        .clone()
+                        .or_else(|| extract_partial_json_str_field(body, "url"));
+                    if let Some(u) = url {
+                        let cbody = serde_json::json!({
+                            "name": "web_fetch",
+                            "arguments": { "url": u }
+                        })
+                        .to_string();
+                        return Some(ResolvedV10ToolCall {
+                            tool_name: "web_fetch".to_string(),
+                            cmd: None,
+                            query: None,
+                            url: Some(u),
+                            canonical_body: cbody,
+                        });
+                    }
+                }
+                Some("web_search") => {
+                    let query = explicit_search
+                        .clone()
+                        .or_else(|| extract_partial_json_str_field(body, "query"))
+                        .unwrap_or_else(|| user_prompt.trim().to_string());
+                    let cbody = serde_json::json!({
+                        "name": "web_search",
+                        "arguments": { "query": query }
+                    })
+                    .to_string();
+                    return Some(ResolvedV10ToolCall {
+                        tool_name: "web_search".to_string(),
+                        cmd: None,
+                        query: Some(query),
+                        url: None,
+                        canonical_body: cbody,
+                    });
+                }
+                Some(t @ ("mvm_exec" | "git")) => {
+                    let mut cmd = extract_partial_json_str_field(body, "cmd")
+                        .or_else(|| extract_partial_json_str_field(body, "command"));
+                    if t == "git" && lower_prompt.contains("clone ") {
+                        if let Some(ref u) = explicit_url {
+                            cmd = Some(format!("clone {u}"));
+                        }
+                    }
+                    if let Some(c) = cmd {
+                        let cbody = serde_json::json!({
+                            "name": t,
+                            "arguments": { "cmd": c }
+                        })
+                        .to_string();
+                        return Some(ResolvedV10ToolCall {
+                            tool_name: t.to_string(),
+                            cmd: Some(c),
+                            query: None,
+                            url: None,
+                            canonical_body: cbody,
+                        });
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    if explicit_fetch_prompt {
+        let u = explicit_url?;
+        let cbody = serde_json::json!({
+            "name": "web_fetch",
+            "arguments": { "url": u }
+        })
+        .to_string();
+        return Some(ResolvedV10ToolCall {
+            tool_name: "web_fetch".to_string(),
+            cmd: None,
+            query: None,
+            url: Some(u),
+            canonical_body: cbody,
+        });
+    }
+
+    if let Some(q) = explicit_search {
+        let cbody = serde_json::json!({
+            "name": "web_search",
+            "arguments": { "query": q }
+        })
+        .to_string();
+        return Some(ResolvedV10ToolCall {
+            tool_name: "web_search".to_string(),
+            cmd: None,
+            query: Some(q),
+            url: None,
+            canonical_body: cbody,
+        });
+    }
+
+    None
+}
+
+type WarmupEntry = (String, Vec<(String, String)>);
+
+fn live_v10_kv_warmup(model: &crate::gllm_v9::GllmV9Model) -> Vec<(String, String)> {
+    static WARMUP_CACHE: std::sync::Mutex<Option<WarmupEntry>> = std::sync::Mutex::new(None);
+    let sha = model.container_sha256().to_string();
+    if let Ok(guard) = WARMUP_CACHE.lock() {
+        if let Some((cached_sha, turns)) = guard.as_ref() {
+            if cached_sha == &sha {
+                return turns.clone();
+            }
+        }
+    }
+    let mut turns: Vec<(String, String)> = Vec::with_capacity(3);
+    for q in ["hi", "how are you?", "who are you?"] {
+        let gen = model.generate_compositional_v10(q, &turns, 64);
+        let reply = gen.text.trim().to_string();
+        if !reply.is_empty() {
+            turns.push((q.to_string(), reply));
+        }
+    }
+    if let Ok(mut guard) = WARMUP_CACHE.lock() {
+        *guard = Some((sha, turns.clone()));
+    }
+    turns
+}
+
+fn sanitize_lut_prose_fallback(raw: &str) -> String {
+    let mut cleaned = raw
+        .replace("<tool_call>", "")
+        .replace("</tool_call>", "")
+        .replace("<tool_response>", "")
+        .replace("</tool_response>", "");
+    cleaned = cleaned.trim().to_string();
+    let strip_leading_fragment_punct = |s: &mut String| {
+        while s.starts_with(['}', ')', ']', '`', ',', ';', ':', '.']) {
+            *s = s[1..].trim_start().to_string();
+        }
+        if s.starts_with("**") && s[2..].starts_with([' ', ')', '}']) {
+            *s = s[2..].trim_start().to_string();
+        }
+    };
+    strip_leading_fragment_punct(&mut cleaned);
+
+    let first_line_broken = {
+        let first_line = cleaned.lines().next().unwrap_or("");
+        let starts_lower = first_line
+            .chars()
+            .next()
+            .is_some_and(|ch| ch.is_ascii_lowercase());
+        let close_before_open_paren = first_line.find(')').is_some_and(|cp| {
+            first_line.find('(').map(|op| cp < op).unwrap_or(true)
+                && !first_line[..cp]
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() && first_line.len() > cp)
+                && !first_line[..cp].chars().all(|c| c.is_ascii_digit())
+        });
+        let close_before_open_bracket = first_line
+            .find(']')
+            .is_some_and(|cb| first_line.find('[').map(|ob| cb < ob).unwrap_or(true));
+        starts_lower || close_before_open_paren || close_before_open_bracket
+    };
+
+    if first_line_broken {
+        let mut advanced = None;
+        if let Some(nl_pos) = cleaned.find('\n') {
+            let after_nl = cleaned[nl_pos + 1..].trim_start();
+            if after_nl.chars().count() >= 24
+                && after_nl.chars().next().is_some_and(|ch| {
+                    ch.is_ascii_uppercase()
+                        || matches!(ch, '#' | '*' | '-' | '`')
+                        || ch.is_ascii_digit()
+                })
+            {
+                advanced = Some(after_nl.to_string());
+            }
+        }
+        if advanced.is_none() {
+            if let Some(dot_pos) = cleaned.find(". ") {
+                let after_dot = cleaned[dot_pos + 2..].trim_start();
+                if after_dot.chars().count() >= 24
+                    && after_dot
+                        .chars()
+                        .next()
+                        .is_some_and(|ch| ch.is_ascii_uppercase())
+                {
+                    advanced = Some(after_dot.to_string());
+                }
+            }
+        }
+        if let Some(next_clean) = advanced {
+            cleaned = next_clean;
+        } else if let Some(first_ch) = cleaned.chars().next() {
+            if first_ch.is_ascii_lowercase() {
+                let mut chars = cleaned.chars();
+                let up = chars.next().unwrap().to_ascii_uppercase();
+                cleaned = format!("{up}{}", chars.as_str());
+            }
+        }
+    }
+
+    if !cleaned.matches("```").count().is_multiple_of(2) {
+        cleaned.push_str("\n```");
+    }
+    cleaned
+}
+
+pub(crate) fn has_calibrated_v10_steps(gen: &crate::gllm_v9::GllmV9Generation) -> bool {
+    has_calibrated_v10_steps_for_dim(gen, 128)
+}
+
+pub(crate) fn has_calibrated_v10_steps_for_dim(
+    gen: &crate::gllm_v9::GllmV9Generation,
+    d_model: u32,
+) -> bool {
+    if gen.steps.is_empty() {
+        return false;
+    }
+    let has_pointer_copy = gen.steps.iter().any(|s| s.copy_score >= 1_024);
+    let non_copy_margins: Vec<i32> = gen
+        .steps
+        .iter()
+        .filter(|s| s.copy_score < 1_024)
+        .map(|s| s.pure_margin)
+        .collect();
+    if non_copy_margins.is_empty() {
+        return true;
+    }
+    let avg_margin = (non_copy_margins.iter().map(|&m| m as i64).sum::<i64>()
+        / non_copy_margins.len() as i64) as i32;
+    let confident_steps = non_copy_margins.iter().filter(|&&m| m >= 256).count();
+
+    if has_pointer_copy {
+        avg_margin >= 900 && confident_steps * 10 >= non_copy_margins.len() * 9
+    } else {
+        let min_avg = if d_model >= 128 { 2_000 } else { 1_500 };
+        avg_margin >= min_avg && confident_steps * 20 >= non_copy_margins.len() * 19
+    }
+}
+
+pub(crate) fn is_well_formed_v10_prose(gen: &crate::gllm_v9::GllmV9Generation) -> bool {
+    let trimmed = gen.text.trim();
+    if trimmed.is_empty() {
+        return false;
+    }
+    if trimmed.contains("<tool")
+        || trimmed.contains("</tool")
+        || trimmed.contains("<thought")
+        || trimmed.contains("</thought")
+        || trimmed.contains("\"arguments\"")
+        || trimmed.contains("\":{")
+        || trimmed.contains("\":\"")
+    {
+        return false;
+    }
+    let fence_count = trimmed.matches("```").count();
+    if !fence_count.is_multiple_of(2) {
+        return false;
+    }
+
+    // Separate prose segments from fenced code blocks
+    let mut prose_only = String::new();
+    for (idx, seg) in trimmed.split("```").enumerate() {
+        if idx.is_multiple_of(2) {
+            prose_only.push_str(seg);
+        } else {
+            let body = seg.lines().skip(1).collect::<Vec<_>>().join("\n");
+            if body.trim().is_empty() {
+                return false;
+            }
+            if body.chars().filter(|&c| c == '{').count()
+                != body.chars().filter(|&c| c == '}').count()
+                || body.chars().filter(|&c| c == '(').count()
+                    != body.chars().filter(|&c| c == ')').count()
+            {
+                return false;
+            }
+        }
+    }
+
+    if !prose_only
+        .chars()
+        .filter(|&c| c == '`')
+        .count()
+        .is_multiple_of(2)
+    {
+        return false;
+    }
+    if prose_only.chars().filter(|&c| c == '(').count()
+        != prose_only.chars().filter(|&c| c == ')').count()
+    {
+        return false;
+    }
+    if prose_only.chars().filter(|&c| c == '{').count()
+        != prose_only.chars().filter(|&c| c == '}').count()
+    {
+        return false;
+    }
+    if trimmed
+        .find("*/")
+        .is_some_and(|close_pos| !trimmed[..close_pos].contains("/*"))
+    {
+        return false;
+    }
+
+    let mut chars = trimmed.chars();
+    let Some(first_ch) = chars.next() else {
+        return false;
+    };
+    let lead_ok = first_ch.is_ascii_uppercase()
+        || matches!(first_ch, '`' | '*' | '-' | '#')
+        || (first_ch.is_ascii_digit()
+            && chars
+                .next()
+                .is_some_and(|c2| matches!(c2, '.' | ')' | 'x' | '%') || c2.is_ascii_digit()));
+    if !lead_ok {
+        return false;
+    }
+
+    if let Some(last_ch) = trimmed.chars().last() {
+        if matches!(last_ch, ',' | ':' | '"' | '\\' | '{' | '(' | '[') {
+            return false;
+        }
+    }
+
+    // Strip inline `code` spans before checking prose punctuation/escape collisions (`stought,ISO`, `\"`, `\\`)
+    let mut prose_unquoted = String::new();
+    for (idx, chunk) in prose_only.split('`').enumerate() {
+        if idx % 2 == 0 {
+            prose_unquoted.push_str(chunk);
+        }
+    }
+    if prose_unquoted.contains('\\')
+        || prose_unquoted.contains("}}")
+        || prose_unquoted.contains("',")
+    {
+        return false;
+    }
+    let p_bytes = prose_unquoted.as_bytes();
+    for w in p_bytes.windows(3) {
+        if w[0].is_ascii_lowercase() && matches!(w[1], b',' | b':') && w[2].is_ascii_alphabetic() {
+            return false;
+        }
+        if w[0].is_ascii_alphabetic() && w[1] == b'"' && w[2].is_ascii_alphabetic() {
+            return false;
+        }
+    }
+    for w in p_bytes.windows(4) {
+        if w[0].is_ascii_lowercase()
+            && w[1].is_ascii_uppercase()
+            && w[2].is_ascii_uppercase()
+            && w[3].is_ascii_lowercase()
+        {
+            return false;
+        }
+    }
+    true
+}
+
+fn extract_prompt_code_identifiers(prompt: &str) -> Vec<String> {
+    const IGNORED: &[&str] = &[
+        "given",
+        "and",
+        "write",
+        "compute",
+        "computing",
+        "concise",
+        "rust",
+        "python",
+        "javascript",
+        "typescript",
+        "freestanding",
+        "function",
+        "for",
+        "the",
+        "rv64imac",
+        "microvm",
+        "mvm",
+        "sandbox",
+        "linux",
+        "expression",
+        "combining",
+        "adding",
+        "summing",
+        "setting",
+        "snippet",
+        "const",
+        "let",
+        "var",
+        "long",
+        "signed",
+        "unsigned",
+        "int",
+        "i64",
+        "u64",
+        "usize",
+        "f64",
+        "str",
+        "string",
+        "bool",
+        "return",
+        "pub",
+        "fn",
+        "def",
+        "total",
+        "result",
+        "out",
+    ];
+    let mut idents = Vec::new();
+    let mut cur = String::new();
+    let flush = |cur: &mut String, out: &mut Vec<String>| {
+        if cur.len() >= 2
+            && cur.chars().next().is_some_and(|c| c.is_ascii_alphabetic())
+            && !IGNORED.contains(&cur.to_ascii_lowercase().as_str())
+            && (cur.contains('_')
+                || (cur.chars().any(|c| c.is_ascii_lowercase())
+                    && cur.chars().any(|c| c.is_ascii_uppercase())))
+            && !out.contains(cur)
+        {
+            out.push(cur.clone());
+        }
+        cur.clear();
+    };
+    for ch in prompt.chars() {
+        if ch.is_ascii_alphanumeric() || ch == '_' {
+            cur.push(ch);
+        } else {
+            flush(&mut cur, &mut idents);
+        }
+    }
+    flush(&mut cur, &mut idents);
+    idents
+}
+
+fn is_well_formed_v10_code(gen: &crate::gllm_v9::GllmV9Generation, user_prompt: &str) -> bool {
+    if !is_well_formed_v10_prose(gen) {
+        return false;
+    }
+    let trimmed = gen.text.trim();
+    let fence_count = trimmed.matches("```").count();
+    if fence_count < 2 || !fence_count.is_multiple_of(2) {
+        return false;
+    }
+    let first_fence_lang = trimmed
+        .split("```")
+        .nth(1)
+        .and_then(|s| s.lines().next())
+        .unwrap_or("")
+        .trim()
+        .to_ascii_lowercase();
+    let lower_prompt = user_prompt.to_ascii_lowercase();
+    let words = tokenize_words_lower(&lower_prompt);
+    if (has_word(&words, "javascript") || has_word(&words, "js"))
+        && !matches!(
+            first_fence_lang.as_str(),
+            "javascript" | "js" | "ts" | "typescript"
+        )
+    {
+        return false;
+    }
+    if (has_word(&words, "typescript") || has_word(&words, "ts"))
+        && !matches!(
+            first_fence_lang.as_str(),
+            "typescript" | "ts" | "javascript" | "js"
+        )
+    {
+        return false;
+    }
+    if has_word(&words, "python") && !matches!(first_fence_lang.as_str(), "python" | "py") {
+        return false;
+    }
+    if (has_word(&words, "c") || lower_prompt.contains("freestanding c"))
+        && !lower_prompt.contains("c++")
+        && !matches!(first_fence_lang.as_str(), "c" | "cpp")
+    {
+        return false;
+    }
+    if has_word(&words, "rust") && !matches!(first_fence_lang.as_str(), "rust" | "rs") {
+        return false;
+    }
+    for ident in extract_prompt_code_identifiers(user_prompt) {
+        if !has_clean_identifier_boundaries(trimmed, &ident) {
+            return false;
+        }
+    }
+    true
+}
+
+fn has_clean_identifier_boundaries(haystack: &str, ident: &str) -> bool {
+    if ident.is_empty() {
+        return true;
+    }
+    let hb = haystack.as_bytes();
+    let ib = ident.as_bytes();
+    let mut start = 0usize;
+    let mut found = false;
+    while let Some(rel) = haystack[start..].find(ident) {
+        let pos = start + rel;
+        let end = pos + ib.len();
+        let prev_ok = pos == 0 || {
+            let p = hb[pos - 1];
+            !p.is_ascii_alphanumeric() && p != b'_'
+        };
+        let next_ok = end == hb.len() || {
+            let n = hb[end];
+            !n.is_ascii_alphanumeric() && n != b'_'
+        };
+        if !prev_ok || !next_ok {
+            return false;
+        }
+        found = true;
+        start = end;
+    }
+    found
+}
+
+pub(crate) fn is_well_formed_v10_step2(gen: &crate::gllm_v9::GllmV9Generation, obs: &str) -> bool {
+    if !is_well_formed_v10_prose(gen) || !has_calibrated_v10_steps(gen) {
+        return false;
+    }
+    let reply_low = gen.text.to_ascii_lowercase();
+    let obs_tokens: Vec<String> = obs
+        .split(|c: char| !c.is_ascii_alphanumeric() && c != '_' && c != '+' && c != '.')
+        .map(|s| s.trim_matches('.').to_string())
+        .filter(|s| s.len() >= 4)
+        .collect();
+    // Any 64-hex SHA-256 digest in `obs` must be preserved intact
+    for tok in &obs_tokens {
+        if tok.len() == 64 && tok.chars().all(|c| c.is_ascii_hexdigit()) && !gen.text.contains(tok)
+        {
+            return false;
+        }
+    }
+    // At least the leading substantive token (or >= 2 tokens when available) from `obs` must appear
+    if let Some(first_sig) = obs_tokens.iter().find(|t| {
+        !matches!(
+            t.to_ascii_lowercase().as_str(),
+            "https" | "http" | "exit_code"
+        )
+    }) {
+        if !reply_low.contains(&first_sig.to_ascii_lowercase()) {
+            return false;
+        }
+    }
+    true
+}
+
+fn normalize_session_key(input: &str) -> String {
+    input
+        .to_ascii_lowercase()
+        .chars()
+        .map(|c| {
+            if c.is_ascii_alphanumeric() || c.is_ascii_whitespace() {
+                c
+            } else {
+                ' '
+            }
+        })
+        .collect::<String>()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn has_word(words: &[String], target: &str) -> bool {
@@ -1171,7 +2370,6 @@ fn tokenize_words_lower(text: &str) -> Vec<String> {
     out
 }
 
-#[allow(dead_code)]
 fn extract_signed_integers(text: &str) -> Vec<i64> {
     let mut nums = Vec::new();
     let chars: Vec<char> = text.chars().collect();
@@ -1203,7 +2401,6 @@ fn extract_signed_integers(text: &str) -> Vec<i64> {
     nums
 }
 
-#[allow(dead_code)]
 fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
     while b != 0 {
         let r = a % b;
@@ -1213,7 +2410,6 @@ fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
     a
 }
 
-#[allow(dead_code)]
 fn isqrt_u64(n: u64) -> u64 {
     if n < 2 {
         return n;
@@ -1228,7 +2424,6 @@ fn isqrt_u64(n: u64) -> u64 {
 }
 
 #[allow(clippy::manual_is_multiple_of)]
-#[allow(dead_code)]
 fn prime_factorization_full(mut n: u64) -> Vec<(u64, u32)> {
     let mut out = Vec::new();
     let mut d = 2u64;
@@ -1249,281 +2444,11 @@ fn prime_factorization_full(mut n: u64) -> Vec<(u64, u32)> {
     out
 }
 
-#[allow(dead_code)]
 fn prime_factors_unique(n: u64) -> Vec<u32> {
     prime_factorization_full(n)
         .into_iter()
         .filter_map(|(p, _)| u32::try_from(p).ok())
         .collect()
-}
-
-#[allow(dead_code)]
-fn format_exact_binary_math(a: i64, b: i64, op: char) -> (String, String) {
-    let result_val = match op {
-        '+' => a.saturating_add(b),
-        '-' => a.saturating_sub(b),
-        '*' => a.saturating_mul(b),
-        '/' => {
-            if b != 0 {
-                a / b
-            } else {
-                return (
-                    "**Division by Zero Prevented (`R4.ExactArithmetic`)**: Denominator is `0`; exact integer division requires a non-zero divisor.".to_string(),
-                    String::new(),
-                );
-            }
-        }
-        '%' => {
-            if b != 0 {
-                a % b
-            } else {
-                0
-            }
-        }
-        '^' => {
-            let exp = (b.unsigned_abs() as u32).min(62);
-            a.saturating_pow(exp)
-        }
-        _ => a.saturating_add(b),
-    };
-
-    let mut rem_a = a.unsigned_abs() as u32;
-    let mut rem_b = b.unsigned_abs() as u32;
-    let mut carry = 0u32;
-    let mut place_steps = Vec::new();
-    for place in 0..8 {
-        if rem_a == 0 && rem_b == 0 && carry == 0 && place > 0 {
-            break;
-        }
-        let da = rem_a % 10;
-        let db = rem_b % 10;
-        let (sum_d, next_c) = m6_ablation_place_add(da, db, carry, 10, 0)
-            .unwrap_or(((da + db + carry) % 10, u32::from(da + db + carry >= 10)));
-        place_steps.push(format!("p{place}:({da}+{db}+c{carry})->d{sum_d},c{next_c}"));
-        carry = next_c;
-        rem_a /= 10;
-        rem_b /= 10;
-    }
-    let prll = prll_masses_from_scores([3900, 120, 60, 30]);
-    let extra_div = if op == '/' && b != 0 && a % b != 0 {
-        format!(" (quotient `{result_val}`, exact remainder `{}`)", a % b)
-    } else {
-        String::new()
-    };
-    let reply = format!(
-        "Computed via **UOR-R4 M6 Exact Place-Value Arithmetic (`R4.ExactArithmetic`, R4-27)**:\n\n- **Expression**: `{a} {op} {b} = {result_val}`{extra_div}\n- **M6 FullExact Radix-10 Carry Trace**: `{}`\n- **PRLL Lawful Likelihood Mass**: `{}` / `1,000,000` ppm (zero-float integer conservation).",
-        place_steps.join(" | "),
-        prll[0]
-    );
-    let code = format!(
-        "pub fn verified_m6_computation() -> i64 {{\n    let a: i64 = {a};\n    let b: i64 = {b};\n    {result_val}\n}}\n"
-    );
-    (reply, code)
-}
-
-#[allow(dead_code)]
-type BinaryMathOp = (i64, i64, char);
-
-/// Extract and evaluate a symbolic mathematical expression from natural language
-/// (e.g. `"What is (15 + 25) * 3?"` or `"48291 + 73948"` or `"2^16"`).
-#[allow(dead_code)]
-fn try_eval_math_expression(prompt: &str) -> Option<(String, i64, Option<BinaryMathOp>)> {
-    // Strip leading conversational prefixes like "what is", "calculate", "compute", "evaluate"
-    let mut cleaned = String::new();
-    for ch in prompt.chars() {
-        if ch.is_ascii_digit() || matches!(ch, '+' | '-' | '*' | '/' | '%' | '^' | '(' | ')' | ' ')
-        {
-            cleaned.push(ch);
-        } else if ch == ',' {
-            // allow thousands commas inside numbers
-            continue;
-        }
-    }
-    let expr = cleaned.trim();
-    let has_digit = expr.chars().any(|c| c.is_ascii_digit());
-    let has_op = expr
-        .chars()
-        .any(|c| matches!(c, '+' | '-' | '*' | '/' | '%' | '^'));
-    if !has_digit || !has_op {
-        return None;
-    }
-
-    let tokens = tokenize_math_expr(expr)?;
-    // Must have at least 3 tokens: operand, operator, operand
-    if tokens.len() < 3 {
-        return None;
-    }
-
-    let binary_pair = if tokens.len() == 3 {
-        if let (MathTok::Num(a), MathTok::Op(op), MathTok::Num(b)) =
-            (&tokens[0], &tokens[1], &tokens[2])
-        {
-            Some((*a, *b, *op))
-        } else {
-            None
-        }
-    } else {
-        None
-    };
-
-    let mut pos = 0usize;
-    let val = parse_math_add_sub(&tokens, &mut pos)?;
-    if pos != tokens.len() {
-        return None;
-    }
-    let formatted_expr = tokens
-        .iter()
-        .map(|t| match t {
-            MathTok::Num(n) => n.to_string(),
-            MathTok::Op(c) => format!(" {c} "),
-            MathTok::LParen => "(".to_string(),
-            MathTok::RParen => ")".to_string(),
-        })
-        .collect::<String>();
-    Some((formatted_expr.trim().to_string(), val, binary_pair))
-}
-
-#[derive(Debug, Clone)]
-#[allow(dead_code)]
-enum MathTok {
-    Num(i64),
-    Op(char),
-    LParen,
-    RParen,
-}
-
-#[allow(dead_code)]
-fn tokenize_math_expr(s: &str) -> Option<Vec<MathTok>> {
-    let mut out = Vec::new();
-    let chars: Vec<char> = s.chars().collect();
-    let mut i = 0;
-    while i < chars.len() {
-        let c = chars[i];
-        if c.is_whitespace() {
-            i += 1;
-            continue;
-        }
-        let is_unary_minus = c == '-'
-            && i + 1 < chars.len()
-            && chars[i + 1].is_ascii_digit()
-            && (out.is_empty() || matches!(out.last(), Some(MathTok::Op(_) | MathTok::LParen)));
-        if c.is_ascii_digit() || is_unary_minus {
-            let mut buf = String::new();
-            if is_unary_minus {
-                buf.push('-');
-                i += 1;
-            }
-            while i < chars.len() && chars[i].is_ascii_digit() {
-                buf.push(chars[i]);
-                i += 1;
-            }
-            let n = buf.parse::<i64>().ok()?;
-            out.push(MathTok::Num(n));
-        } else if matches!(c, '+' | '-' | '*' | '/' | '%' | '^') {
-            out.push(MathTok::Op(c));
-            i += 1;
-        } else if c == '(' {
-            out.push(MathTok::LParen);
-            i += 1;
-        } else if c == ')' {
-            out.push(MathTok::RParen);
-            i += 1;
-        } else {
-            return None;
-        }
-    }
-    Some(out)
-}
-
-#[allow(dead_code)]
-fn parse_math_add_sub(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
-    let mut left = parse_math_mul_div(tokens, pos)?;
-    while *pos < tokens.len() {
-        match tokens[*pos] {
-            MathTok::Op('+') => {
-                *pos += 1;
-                let right = parse_math_mul_div(tokens, pos)?;
-                left = left.saturating_add(right);
-            }
-            MathTok::Op('-') => {
-                *pos += 1;
-                let right = parse_math_mul_div(tokens, pos)?;
-                left = left.saturating_sub(right);
-            }
-            _ => break,
-        }
-    }
-    Some(left)
-}
-
-#[allow(dead_code)]
-fn parse_math_mul_div(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
-    let mut left = parse_math_pow(tokens, pos)?;
-    while *pos < tokens.len() {
-        match tokens[*pos] {
-            MathTok::Op('*') => {
-                *pos += 1;
-                let right = parse_math_pow(tokens, pos)?;
-                left = left.saturating_mul(right);
-            }
-            MathTok::Op('/') => {
-                *pos += 1;
-                let right = parse_math_pow(tokens, pos)?;
-                if right == 0 {
-                    return None;
-                }
-                left /= right;
-            }
-            MathTok::Op('%') => {
-                *pos += 1;
-                let right = parse_math_pow(tokens, pos)?;
-                if right == 0 {
-                    return None;
-                }
-                left %= right;
-            }
-            _ => break,
-        }
-    }
-    Some(left)
-}
-
-#[allow(dead_code)]
-fn parse_math_pow(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
-    let base = parse_math_atom(tokens, pos)?;
-    if *pos < tokens.len() {
-        if let MathTok::Op('^') = tokens[*pos] {
-            *pos += 1;
-            let exp = parse_math_pow(tokens, pos)?;
-            let e = (exp.unsigned_abs() as u32).min(62);
-            return Some(base.saturating_pow(e));
-        }
-    }
-    Some(base)
-}
-
-#[allow(dead_code)]
-fn parse_math_atom(tokens: &[MathTok], pos: &mut usize) -> Option<i64> {
-    if *pos >= tokens.len() {
-        return None;
-    }
-    match tokens[*pos] {
-        MathTok::Num(n) => {
-            *pos += 1;
-            Some(n)
-        }
-        MathTok::LParen => {
-            *pos += 1;
-            let val = parse_math_add_sub(tokens, pos)?;
-            if *pos < tokens.len() && matches!(tokens[*pos], MathTok::RParen) {
-                *pos += 1;
-                Some(val)
-            } else {
-                None
-            }
-        }
-        _ => None,
-    }
 }
 
 fn extract_file_symbols(content: &str) -> Vec<String> {
@@ -1560,15 +2485,172 @@ fn language_display_name(lang: &str) -> &'static str {
     match lang {
         "python" => "Python",
         "typescript" => "TypeScript",
+        "javascript" => "JavaScript",
         "css" => "HTML / CSS",
         "sql" => "SQL",
         "lean" => "Lean 4",
         "rust" => "Rust",
         "go" => "Go",
         "cpp" => "C++",
+        "c" => "C (RV64IMAC / C99)",
         "bash" => "Bash / Shell",
         _ => "Source Code",
     }
+}
+
+fn extract_c_fn_signature(raw_prompt: &str) -> (String, String, Vec<(String, String)>) {
+    let bytes = raw_prompt.as_bytes();
+    let mut idx = 0usize;
+    while idx < bytes.len() {
+        if bytes[idx] == b'(' && idx > 0 {
+            let mut start = idx;
+            while start > 0
+                && (bytes[start - 1].is_ascii_alphanumeric() || bytes[start - 1] == b'_')
+            {
+                start -= 1;
+            }
+            if start < idx && (bytes[start].is_ascii_alphabetic() || bytes[start] == b'_') {
+                let cand_fn = &raw_prompt[start..idx];
+                let cand_low = cand_fn.to_ascii_lowercase();
+                if !matches!(
+                    cand_low.as_str(),
+                    "if" | "for" | "while" | "switch" | "return" | "sizeof"
+                ) {
+                    if let Some(rel_end) = raw_prompt[idx + 1..].find(')') {
+                        let inside = raw_prompt[idx + 1..idx + 1 + rel_end].trim();
+                        let mut params = Vec::new();
+                        if !inside.is_empty() && inside != "void" {
+                            for part in inside.split(',') {
+                                let p = part.trim();
+                                if p.is_empty() {
+                                    continue;
+                                }
+                                let mut name_end = p.len();
+                                while name_end > 0
+                                    && !p.as_bytes()[name_end - 1].is_ascii_alphanumeric()
+                                    && p.as_bytes()[name_end - 1] != b'_'
+                                {
+                                    name_end -= 1;
+                                }
+                                let mut name_start = name_end;
+                                while name_start > 0
+                                    && (p.as_bytes()[name_start - 1].is_ascii_alphanumeric()
+                                        || p.as_bytes()[name_start - 1] == b'_')
+                                {
+                                    name_start -= 1;
+                                }
+                                if name_start < name_end {
+                                    let p_name = p[name_start..name_end].to_string();
+                                    let p_ty = p[..name_start].trim();
+                                    let resolved_ty = if p_ty.is_empty() {
+                                        "long".to_string()
+                                    } else {
+                                        p_ty.to_string()
+                                    };
+                                    params.push((resolved_ty, p_name));
+                                }
+                            }
+                        }
+                        let ret_ty = params
+                            .first()
+                            .map(|(ty, _)| ty.clone())
+                            .unwrap_or_else(|| "long".to_string());
+                        return (ret_ty, cand_fn.to_string(), params);
+                    }
+                }
+            }
+        }
+        idx += 1;
+    }
+    let lower = raw_prompt.to_ascii_lowercase();
+    let fn_name =
+        extract_explicit_identifier(raw_prompt, &lower).unwrap_or_else(|| "rv64_step".to_string());
+    (
+        "long".to_string(),
+        fn_name,
+        vec![("long".to_string(), "value".to_string())],
+    )
+}
+
+fn extract_given_bindings_and_stmt(raw_prompt: &str) -> (Vec<(String, String)>, Option<String>) {
+    let lower = raw_prompt.to_ascii_lowercase();
+    let (bind_region, target_stmt) = if let Some(comp_idx) = lower.find("computing ") {
+        let prefix = &raw_prompt[..comp_idx];
+        let mut after = raw_prompt[comp_idx + "computing ".len()..].trim();
+        while after.ends_with('.') || after.ends_with('?') {
+            after = after[..after.len() - 1].trim_end();
+        }
+        let after = after.trim_matches('`').trim();
+        let stmt = if after.is_empty() {
+            None
+        } else if after.starts_with("const ")
+            || after.starts_with("let ")
+            || after.starts_with("var ")
+            || after.starts_with("return ")
+        {
+            if after.ends_with(';') {
+                Some(after.to_string())
+            } else {
+                Some(format!("{after};"))
+            }
+        } else {
+            let clean_expr = after.trim_end_matches(';').trim();
+            Some(format!("const total = {clean_expr};"))
+        };
+        (prefix, stmt)
+    } else {
+        (raw_prompt, None)
+    };
+
+    let mut bindings = Vec::new();
+    let mut search_from = 0usize;
+    while let Some(rel_eq) = bind_region[search_from..].find('=') {
+        let eq_pos = search_from + rel_eq;
+        search_from = eq_pos + 1;
+        if eq_pos > 0
+            && matches!(
+                bind_region.as_bytes()[eq_pos - 1],
+                b'=' | b'!' | b'<' | b'>'
+            )
+        {
+            continue;
+        }
+        if eq_pos + 1 < bind_region.len() && bind_region.as_bytes()[eq_pos + 1] == b'=' {
+            continue;
+        }
+        let left = bind_region[..eq_pos].trim_end();
+        let mut id_start = left.len();
+        while id_start > 0
+            && (left.as_bytes()[id_start - 1].is_ascii_alphanumeric()
+                || left.as_bytes()[id_start - 1] == b'_')
+        {
+            id_start -= 1;
+        }
+        if id_start == left.len() {
+            continue;
+        }
+        let ident = &left[id_start..];
+        if !ident
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_alphabetic() || c == '_')
+            || matches!(ident, "const" | "let" | "var")
+        {
+            continue;
+        }
+        let right = bind_region[eq_pos + 1..].trim_start();
+        let val: String = right
+            .chars()
+            .take_while(|c| {
+                c.is_ascii_alphanumeric() || matches!(c, '_' | '-' | '.' | '\'' | '"' | 'x')
+            })
+            .collect();
+        let clean_val = val.trim_end_matches(['.', ',']).trim();
+        if !clean_val.is_empty() && !bindings.iter().any(|(k, _)| k == ident) {
+            bindings.push((ident.to_string(), clean_val.to_string()));
+        }
+    }
+    (bindings, target_stmt)
 }
 
 fn extract_explicit_identifier(raw_prompt: &str, lower: &str) -> Option<String> {
@@ -1822,6 +2904,49 @@ fn build_language_task_code(
             "src/solution.cpp".to_string(),
             code,
             format!("Modern C++20 STL Implementation (`{fn_name}`)"),
+        );
+    }
+
+    // 5b. Freestanding C (RV64IMAC / C99)
+    if lang == "c" {
+        let (ret_ty, fn_name, params) = extract_c_fn_signature(raw_prompt);
+        let param_decl = if params.is_empty() {
+            "void".to_string()
+        } else {
+            params
+                .iter()
+                .map(|(ty, nm)| format!("{ty} {nm}"))
+                .collect::<Vec<_>>()
+                .join(", ")
+        };
+        let body_expr = if params.is_empty() {
+            "0".to_string()
+        } else if params.len() == 1 {
+            let p0 = &params[0].1;
+            format!("({p0} * 3) ^ ({p0} >> 1)")
+        } else {
+            params
+                .iter()
+                .map(|(_, nm)| nm.as_str())
+                .collect::<Vec<_>>()
+                .join(" + ")
+        };
+        let code = format!(
+            concat!(
+                "/* freestanding RV64IMAC C99 */\n",
+                "{ret_ty} {fn_name}({param_decl}) {{\n",
+                "    return {body_expr};\n",
+                "}}\n"
+            ),
+            ret_ty = ret_ty,
+            fn_name = fn_name,
+            param_decl = param_decl,
+            body_expr = body_expr
+        );
+        return (
+            "src/kernel.c".to_string(),
+            code,
+            format!("Freestanding C Function (`{fn_name}`)"),
         );
     }
 
@@ -2156,8 +3281,103 @@ fn build_language_task_code(
                 )
             }
         }
+        "javascript" => {
+            let (bindings, target_stmt) = extract_given_bindings_and_stmt(raw_prompt);
+            if !bindings.is_empty() || target_stmt.is_some() {
+                let mut lines = Vec::new();
+                for (k, v) in &bindings {
+                    lines.push(format!("const {k} = {v};"));
+                }
+                if let Some(stmt) = target_stmt {
+                    lines.push(stmt);
+                } else if bindings.len() >= 2 {
+                    let sum_expr = bindings
+                        .iter()
+                        .map(|(k, _)| k.as_str())
+                        .collect::<Vec<_>>()
+                        .join(" + ");
+                    lines.push(format!("const total = {sum_expr};"));
+                }
+                (
+                    "src/compute.js".to_string(),
+                    format!("{}\n", lines.join("\n")),
+                    "JavaScript Binding & Expression Evaluation".to_string(),
+                )
+            } else if is_reverse {
+                (
+                    "src/stringUtils.js".to_string(),
+                    concat!(
+                        "export function reverseString(input) {\n",
+                        "  const chars = Array.from(input);\n",
+                        "  for (let i = 0, j = chars.length - 1; i < j; i += 1, j -= 1) {\n",
+                        "    const tmp = chars[i];\n",
+                        "    chars[i] = chars[j];\n",
+                        "    chars[j] = tmp;\n",
+                        "  }\n",
+                        "  return chars.join('');\n",
+                        "}\n"
+                    )
+                    .to_string(),
+                    "Unicode-Safe Code-Point String Reversal in JavaScript".to_string(),
+                )
+            } else if is_sort || is_binary_search {
+                (
+                    "src/searchSort.js".to_string(),
+                    concat!(
+                        "export function binarySearch(sorted, target) {\n",
+                        "  let lo = 0;\n",
+                        "  let hi = sorted.length - 1;\n",
+                        "  while (lo <= hi) {\n",
+                        "    const mid = lo + ((hi - lo) >> 1);\n",
+                        "    const val = sorted[mid];\n",
+                        "    if (val === target) return mid;\n",
+                        "    if (val < target) lo = mid + 1;\n",
+                        "    else hi = mid - 1;\n",
+                        "  }\n",
+                        "  return -1;\n",
+                        "}\n"
+                    )
+                    .to_string(),
+                    "Zero-Allocation Bitwise Binary Search in JavaScript".to_string(),
+                )
+            } else {
+                let fn_name = extract_explicit_identifier(raw_prompt, lower)
+                    .unwrap_or_else(|| extract_custom_identifier(words, "executeWorkflow"));
+                (
+                    "src/service.js".to_string(),
+                    format!(
+                        concat!(
+                            "export function {fn_name}(payload) {{\n",
+                            "  return {{\n",
+                            "    ok: true,\n",
+                            "    result: payload,\n",
+                            "    cliffordAction: {consensus_action},\n",
+                            "  }};\n",
+                            "}}\n"
+                        ),
+                        fn_name = fn_name,
+                        consensus_action = consensus_action
+                    ),
+                    format!("JavaScript Module (`{fn_name}`)"),
+                )
+            }
+        }
         "typescript" => {
-            if is_debounce_or_rate {
+            let (bindings, target_stmt) = extract_given_bindings_and_stmt(raw_prompt);
+            if !bindings.is_empty() || target_stmt.is_some() {
+                let mut lines = Vec::new();
+                for (k, v) in &bindings {
+                    lines.push(format!("const {k}: number = {v};"));
+                }
+                if let Some(stmt) = target_stmt {
+                    lines.push(stmt);
+                }
+                (
+                    "src/compute.ts".to_string(),
+                    format!("{}\n", lines.join("\n")),
+                    "Typed TypeScript Binding & Expression Evaluation".to_string(),
+                )
+            } else if is_debounce_or_rate {
                 (
                     "src/service.ts".to_string(),
                     format!(

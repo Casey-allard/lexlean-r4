@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-39"
+level = "build"
+suite = "r4-connected-studio"
+statement = "Pure LexLean models Connected Chat-First Studio and SpiralCore CID 2 edge-relay security invariants: guest-to-host vsock bridge transport admission requiring guest source CID >= 3 targeting host CID 2 under non-Deny MCP policy over WssRelay, HttpsDirect, or LoopbackDev while rejecting PlainHttp and PlainWs, GitHub token placeholder substitution refusing guest RAM secret contamination, missing placeholders, and non-allowlisted hosts, external package installation into /usr/local/bin requiring exact SHA-256 manifest match, ELF64 EM_RISCV (machine 243) header admission, and bounded byte quota, and non-blocking Web Worker turn execution enforcing worker-thread isolation and 1024-token multi-turn sequence window bounds. Formal controls establish no remote Cloudflare Worker availability or external GitHub API liveness."
+
+[[id]]
 id = "R4-38"
 level = "build"
 suite = "r4-compositional-gllm"
