@@ -3362,3 +3362,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f214_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems poem and ence at row_idx=7860 (anchor_id=0x80000379)."
 prompt = "How does Q12 writer refinement encode poem and ence at row_idx=7860?"
 target_reply = "At row_idx=7860 with anchor_id=0x80000379, Q12 writer refinement aligns the 256D L1 PointKey prototype for poem and ence with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F215"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:movie-color:r107:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f215_corpus_induction"
+statement = "Verify cross-basin geodesic synthesis bridging movie and color across PointKey row 107 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect movie and color across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects movie and color by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
