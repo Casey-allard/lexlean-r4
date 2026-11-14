@@ -3254,3 +3254,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f207_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging dreams and asking across PointKey row 316 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect dreams and asking across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects dreams and asking by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F208"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:ating-dough:r4228:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f208_pointkey_resonance"
+statement = "Verify compact PointKey paraphrase routing for conversational stems ating and dough at manifold row 4228."
+prompt = "How does PointKey routing resolve conversational prompts about ating and dough?"
+target_reply = "PointKey routing matches conversational stems ating and dough directly to their canonical reply anchor without token loops."
