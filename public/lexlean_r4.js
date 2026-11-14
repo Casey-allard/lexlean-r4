@@ -266,7 +266,7 @@ function getArrayI32FromWasm0(ptr, len) {
     return getInt32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
 }
 /**
- * Export the trained `Q12` (`rows x 256`) projection slab from `GLM_TRANSITION_HORIZONS`
+ * Export the trained `Q12` (`rows x 256`) projection slab
  * for zero-copy transfer into the WebGPU `q12_attention_project` compute shader.
  * @param {number} max_rows
  * @returns {Int32Array}
@@ -308,8 +308,7 @@ function passArray32ToWasm0(arg, malloc) {
     return ptr;
 }
 /**
- * Decode WebGPU `Q12` row projection scores back through the `GLM_TRANSITION_HORIZONS`
- * token decoder.
+ * Decode WebGPU `Q12` row projection scores back through the active model token decoder.
  * @param {string} prompt
  * @param {Int32Array} gpu_row_scores
  * @param {number} max_tokens
@@ -2036,6 +2035,7 @@ export class SpiralCoreHostBridge {
   constructor(options = {}) {
     this.relayUrl = options.relayWsUrl || options.relayUrl || DEFAULT_SPIRALCORE_RELAY_WS_URL;
     this.relayHttpUrl = options.relayHttpUrl || '';
+    this.staticOrigin = options.staticOrigin || '';
     this.mcpPolicy = options.mcpPolicy || 'safe';
     this.webAccessEnabled = options.webAccessEnabled !== false;
     this.relayTimeoutMs = options.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
@@ -2567,6 +2567,10 @@ export class SpiralCoreHostBridge {
       });
       const contentType = String(respHeaders['content-type'] || '').toLowerCase();
       const decodedText = cachedTextDecoder.decode(bounded.bytes);
+      const isHtml = contentType.includes('html') || /<html|<body/i.test(decodedText);
+      const textExcerpt = isHtml
+        ? __uorStripHtmlToReadableText(decodedText).text.slice(0, 3200)
+        : decodedText.slice(0, 3200);
       return {
         ok: resp.ok,
         status: resp.status,
@@ -2575,6 +2579,7 @@ export class SpiralCoreHostBridge {
         headers: respHeaders,
         content_type: contentType,
         body_text: decodedText,
+        text_excerpt: textExcerpt,
         body_base64: req.binary ? __uorBytesToBase64(bounded.bytes) : undefined,
         byte_len: bounded.bytes.byteLength,
         truncated: bounded.truncated,
@@ -3131,9 +3136,15 @@ export class SpiralCoreHostBridge {
   }
 
   async handlePkgFetch(req) {
-    const sub = String(req.subcommand || req.action || (req.name ? 'install' : 'list')).toLowerCase();
+    const sub = String(req.subcommand || req.action || (req.name || req.pkg_name ? 'install' : 'list')).toLowerCase();
     const pkgName = String(req.pkg_name || req.name || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+    const httpOrigin =
+      this.staticOrigin ||
+      (typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
+        ? location.origin
+        : '');
     const indexCandidates = [
+      ...(httpOrigin ? [`${httpOrigin.replace(/\/+$/, '')}/weights/mvm-pkgs/index.json`] : []),
       new URL('weights/mvm-pkgs/index.json', import.meta.url).href,
       new URL('../gpu/weights/mvm-pkgs/index.json', import.meta.url).href,
     ];
@@ -3209,6 +3220,7 @@ export class SpiralCoreHostBridge {
       };
     }
 
+    const elfB64 = __uorBytesToBase64(elfBytes);
     return {
       ok: true,
       status: 200,
@@ -3216,17 +3228,22 @@ export class SpiralCoreHostBridge {
       subcommand: 'install',
       installed: true,
       name: pkgName,
+      pkg_name: pkgName,
       install_path: `/usr/local/bin/${pkgName}`,
+      expected_sha256: verified.sha256,
       sha256: verified.sha256,
       byte_len: elfBytes.byteLength,
       e_machine: verified.e_machine,
       elf_machine: verified.e_machine,
-      elf_base64: __uorBytesToBase64(elfBytes),
+      elf_base64: elfB64,
       data: {
         installed: true,
         name: pkgName,
+        pkg_name: pkgName,
+        expected_sha256: verified.sha256,
         sha256: verified.sha256,
         elf_machine: verified.e_machine,
+        elf_base64: elfB64,
       },
       body_text: `Installed verified RV64IMAC ELF64 binary /usr/local/bin/${pkgName} (${elfBytes.byteLength} B, sha256:${verified.sha256.slice(0, 16)})`,
     };
@@ -3235,7 +3252,12 @@ export class SpiralCoreHostBridge {
 
 export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload = false) {
   if (wasm === undefined || typeof studio_load_uorgllm_v9_bytes !== 'function') return null;
+  const httpOrigin =
+    typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
+      ? location.origin.replace(/\/+$/, '')
+      : '';
   const manifestCandidates = [
+    ...(httpOrigin ? [`${httpOrigin}/weights/v10/manifest.json`] : []),
     new URL('weights/v10/manifest.json', import.meta.url).href,
     new URL('../gpu/weights/v10/manifest.json', import.meta.url).href,
     new URL('weights/v9/manifest.json', import.meta.url).href,
@@ -3469,12 +3491,14 @@ function __uorStartDedicatedEngineWorker() {
         transport: hostBridge.lastTransportMode,
       });
 
+      const isChatTurn = envelope.includes('\tchat\t') || envelope.includes('\tchat_v10_turn\t');
       const resumeCmd =
         parsed.resume_command ||
-        (envelope.includes('\tchat\t') ? 'chat_complete_bridge' : 'mvm_complete_bridge');
+        (isChatTurn ? 'chat_complete_bridge' : 'mvm_complete_bridge');
       const resumePayload = JSON.stringify({
         session_id: parsed.session_id || parsed.bridge_id || '',
         bridge_id: parsed.bridge_id || parsed.session_id || '',
+        resume_state: parsed.resume_state,
         bridge_resp: bridgeResp,
         response: bridgeResp,
       });
@@ -3482,11 +3506,12 @@ function __uorStartDedicatedEngineWorker() {
       parsed = JSON.parse(currentRaw);
     }
 
-    if (envelope.includes('\tchat\t') || envelope.includes('\tmvm_exec\t')) {
+    const isChatTurn = envelope.includes('\tchat\t') || envelope.includes('\tchat_v10_turn\t');
+    if (isChatTurn || envelope.includes('\tmvm_exec\t')) {
       const pulses = __uorSynthesizeBrainPulsesFromReply(parsed, lastToolKind);
       postEvent('brain_pulse', { pulses });
     }
-    if (envelope.includes('\tmvm_exec\t')) {
+    if (envelope.includes('\tmvm_exec\t') || (isChatTurn && parsed && parsed.mvm_tool_executed)) {
       persist_mvm_cow_sectors_to_opfs().catch(() => {});
       postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
     }

@@ -10,3 +10,6 @@
 *.uorgllm binary
 *.bin binary
 gpu/weights/v9/*.part* binary
+*.part* binary
+*.xz binary
+*.elf binary

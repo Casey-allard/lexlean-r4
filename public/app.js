@@ -7602,6 +7602,29 @@ class LexLeanTerminal {
     const cmd = expandedTokens[0].toLowerCase();
     const args = expandedTokens.slice(1);
 
+    const MVM_PIPE_BINS = new Set([
+      'jq',
+      'rg',
+      'bc',
+      'xxd',
+      'tree',
+      'sha256sum',
+      'b3sum',
+      'wc-rv',
+      'sed-rv',
+      'awk-rv',
+    ]);
+    if (
+      pipeSpec &&
+      typeof globalThis.__uorRunMvmExecInTerm === 'function' &&
+      [cmd, ...pipeSpec.map((p) => p.trim().split(/\s+/)[0].toLowerCase())].some(
+        (prog) => MVM_PIPE_BINS.has(prog) || prog.startsWith('/usr/local/bin/') || prog.startsWith('./'),
+      )
+    ) {
+      globalThis.__uorRunMvmExecInTerm(cmd, args, segmentLine, this);
+      return;
+    }
+
     if (redirectMode || pipeSpec) {
       if (redirectMode && redirectTarget) {
         this.ensureGitInitialized();
@@ -12262,6 +12285,10 @@ function registerBrowserTerminalBridgeHooks() {
 
     if (cmd === 'pkg') {
       const sub = (args[0] || 'list').toLowerCase();
+      if (sub !== 'list' && sub !== 'search') {
+        globalThis.__uorRunMvmExecInTerm(cmd, args, fullCmd, term);
+        return;
+      }
       const pkgName = args[1] || '';
       engineWorkerClient
         .rpc('host_bridge_exec', { op: 'pkg', subcommand: sub, name: pkgName })

@@ -12,7 +12,8 @@
  * - Suite 6: Deep Empirical Audit of Cmd+K Unified Diff Invocation & State
  */
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { createServer } from 'node:http';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -462,21 +463,19 @@ assert.ok(canonicalDiff.includes('+++ b/src/foo.rs'), 'Canonical diff header mus
 assert.ok(canonicalDiff.includes('-    1'), 'Canonical diff must show deletion');
 assert.ok(canonicalDiff.includes('+    2'), 'Canonical diff must show addition');
 
-// Now check line 9460 call pattern in app.js:
-// const diffText = computeUnifiedDiffJs(targetPath, originalCode, proposedFullCode);
-const targetPath = 'src/foo.rs';
-const invertedDiff = computeUnifiedDiffJs(targetPath, oldCode, newCode);
+// Verify app.js uses the canonical (originalCode, proposedFullCode, targetPath) call order
+const hasCanonicalCmdKCall = rawAppJs.includes('computeUnifiedDiffJs(originalCode, proposedFullCode, targetPath)');
+const hasInvertedCmdKCall = rawAppJs.includes('computeUnifiedDiffJs(targetPath, originalCode, proposedFullCode)');
 
-console.log('  Testing inverted call pattern from app.js line 9460:');
+console.log('  Checking computeUnifiedDiffJs call pattern in app.js:');
 console.log('  Canonical output headers:', canonicalDiff.split('\n').slice(0, 2).join(' | '));
-console.log('  Inverted output headers: ', invertedDiff.split('\n').slice(0, 2).join(' | '));
 
-if (invertedDiff.includes('--- a/' + newCode) || !invertedDiff.includes('--- a/src/foo.rs')) {
+if (hasInvertedCmdKCall || !hasCanonicalCmdKCall) {
   recordDefect(
     'DEFECT-CMDK-01',
-    'computeUnifiedDiffJs argument order inverted at app.js line 9460',
+    'computeUnifiedDiffJs argument order inverted in app.js',
     'HIGH',
-    'app.js line 9460 passes (targetPath, originalCode, proposedFullCode) to computeUnifiedDiffJs(oldText, newText, targetPath), corrupting diff headers and comparing file path string against original code.'
+    'app.js passes (targetPath, originalCode, proposedFullCode) instead of (originalCode, proposedFullCode, targetPath).'
   );
 } else {
   console.log('  ✓ computeUnifiedDiffJs call pattern is valid.');
@@ -528,7 +527,12 @@ assert.ok(
   'lexlean_r4.js must integrate live Cloudflare Edge SpiralCore WSS relay'
 );
 
-const { SpiralCoreHostBridge } = await import(new URL('../../public/lexlean_r4.js', import.meta.url));
+const {
+  SpiralCoreHostBridge,
+  initSync,
+  studio_dispatch,
+  studio_load_uorgllm_v9_bytes,
+} = await import(new URL('../../public/lexlean_r4.js', import.meta.url));
 const bridge = new SpiralCoreHostBridge();
 const plainRej = await bridge.execute({ op: 'http_request', url: 'http://example.com/' });
 assert.equal(plainRej.ok, false);
@@ -563,6 +567,86 @@ assert.equal(shaRej.ok, false);
 assert.equal(shaRej.error_code, 'DigestMismatch');
 bridge.close();
 console.log('  ✓ 7.2 R4-39 SpiralCoreHostBridge negative R5 verdicts (InsecureTransportRejected, HostNotAllowlistedForSecret, PolicyDenied, InvalidElf64Riscv, DigestMismatch) verified.');
+
+// 7.3 Live Static Server (/weights/... -> gpu/weights/...) + Real Wasm <15MB + pkg install jq + chat_v10_turn
+const wasmBytes = readFileSync(resolve(PUBLIC_DIR, 'lexlean_r4_bg.wasm'));
+assert.ok(wasmBytes.byteLength < 15 * 1024 * 1024, `lexlean_r4_bg.wasm must be < 15 MiB (got ${wasmBytes.byteLength} B)`);
+initSync({ module: wasmBytes });
+
+const staticServer = createServer((req, res) => {
+  const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
+  const fsTarget = urlPath.startsWith('/weights/')
+    ? resolve(REPO_ROOT, 'gpu', urlPath.slice(1))
+    : resolve(PUBLIC_DIR, urlPath === '/' ? 'index.html' : urlPath.slice(1));
+  if (!existsSync(fsTarget) || !statSync(fsTarget).isFile()) {
+    res.writeHead(404);
+    res.end('Not Found');
+    return;
+  }
+  const body = readFileSync(fsTarget);
+  const ct = fsTarget.endsWith('.json')
+    ? 'application/json'
+    : fsTarget.endsWith('.wasm')
+      ? 'application/wasm'
+      : 'application/octet-stream';
+  res.writeHead(200, { 'Content-Type': ct });
+  res.end(body);
+});
+
+await new Promise((resolveListen) => staticServer.listen(0, '127.0.0.1', resolveListen));
+const srvAddr = staticServer.address();
+const staticOrigin = `http://127.0.0.1:${srvAddr.port}`;
+try {
+  // Verify /weights/v10/manifest.json routes cleanly to gpu/weights/v10/manifest.json
+  const v10ManifestResp = await fetch(`${staticOrigin}/weights/v10/manifest.json`);
+  assert.equal(v10ManifestResp.status, 200, 'Static server must map /weights/v10/manifest.json -> gpu/weights/v10/manifest.json');
+  const v10Manifest = await v10ManifestResp.json();
+  assert.equal(v10Manifest.format, 'UORGLLM9');
+  const fullV10 = new Uint8Array(v10Manifest.total_bytes);
+  for (const s of v10Manifest.shards) {
+    const sResp = await fetch(`${staticOrigin}/weights/v10/${s.file}`);
+    assert.equal(sResp.status, 200);
+    const sBytes = new Uint8Array(await sResp.arrayBuffer());
+    fullV10.set(sBytes, s.byte_offset);
+  }
+  const loadedV10 = JSON.parse(studio_load_uorgllm_v9_bytes(fullV10, 'e2e_static_weights_v10'));
+  assert.equal(loadedV10.status, 'ok');
+  assert.equal(loadedV10.n_layers, 8);
+  assert.equal(loadedV10.d_model, 128);
+
+  // Verify chat_v10_turn returns ok + brain_pulses
+  const chatTurn = JSON.parse(studio_dispatch('1\tstudio\tchat_v10_turn\thi'));
+  assert.equal(chatTurn.status, 'ok');
+  assert.ok(Array.isArray(chatTurn.brain_pulses) && chatTurn.brain_pulses.length > 0, 'chat_v10_turn must emit brain_pulses');
+
+  // Verify pkg install jq fetches /weights/mvm-pkgs/ ELF64 (EM_RISCV=243 + SHA-256) and installs /usr/local/bin/jq
+  const localBridge = new SpiralCoreHostBridge({ staticOrigin });
+  const pkgStep1 = JSON.parse(studio_dispatch('1\tstudio\tmvm_exec\tpkg install jq'));
+  assert.equal(pkgStep1.status, 'needs_bridge');
+  const pkgBridgeResp = await localBridge.execute(pkgStep1.bridge_req);
+  assert.equal(pkgBridgeResp.ok, true);
+  assert.equal(pkgBridgeResp.elf_machine, 243);
+  const pkgStep2 = JSON.parse(
+    studio_dispatch(
+      `1\tstudio\tmvm_complete_bridge\t${JSON.stringify({
+        resume_state: pkgStep1.resume_state,
+        bridge_resp: pkgBridgeResp,
+      })}`,
+    ),
+  );
+  assert.equal(pkgStep2.status, 'ok');
+  assert.equal(pkgStep2.exit_code, 0);
+  assert.ok(String(pkgStep2.mvm_stdout || '').includes('/usr/local/bin/jq'));
+
+  const jqPipeRes = JSON.parse(studio_dispatch('1\tstudio\tmvm_exec\techo \'{"n":42}\' | jq .n'));
+  assert.equal(jqPipeRes.status, 'ok');
+  assert.equal(jqPipeRes.exit_code, 0);
+  assert.equal(String(jqPipeRes.mvm_stdout || '').trim(), '42');
+  localBridge.close();
+  console.log('  ✓ 7.3 Static /weights/ mapping, <15 MiB Wasm v10 8L 128D hydration, chat_v10_turn brain_pulses, and RV64IMAC pkg install jq + pipe verified.');
+} finally {
+  await new Promise((resolveClose) => staticServer.close(resolveClose));
+}
 
 // ============================================================================
 // SUMMARY & VERDICT
