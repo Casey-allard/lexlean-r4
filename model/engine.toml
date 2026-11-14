@@ -2,8 +2,8 @@
 # Governed by `src/R4/AutonomousEngine.lex.tex` (`R4-28`).
 
 spec = "r4/engine/1"
-rule30_state = 2716216931826877382
-rule30_generation = 186
+rule30_state = 9019313183622129197
+rule30_generation = 187
 
 [[weight]]
 strategy = "corpus-induction"
@@ -3333,21 +3333,21 @@ library = "r4-integer-stack@1"
 outcome = "consolidated: updated=124, l1_shift=141, max_delta=3, points=216"
 tick = "2026-11-14T11:31:34Z"
 
-[[tick]]
-id = "2026-11-14T02:09:35Z"
-outcome = "advanced"
-discovered = 1
-pruned = 0
-proved = ["R4-F206"]
-minted = 16
+[[attempt]]
+kappa = "r4:v1:manifold:code-synthesis:return-ions:r11025:k=8"
+strategy = "bvgk-writer-refinement"
+template = "uorlut-v8-28bit-anchor"
+library = "r4-integer-stack@1"
+outcome = "proved"
+tick = "2026-11-14T12:23:50Z"
 
-[tick.consolidation]
-weights_updated = 105
-l1_shift = 117
-max_delta = 3
-points_consolidated = 205
-tokens_updated = 1
-orphaned_point_rows = 0
+[[attempt]]
+kappa = "r4:v1:weight:consolidation:tick=2026-11-14T12:23:50Z"
+strategy = "bvgk-writer-refinement"
+template = "uorlut-v8-coordinate-descent"
+library = "r4-integer-stack@1"
+outcome = "consolidated: updated=92, l1_shift=105, max_delta=3, points=217"
+tick = "2026-11-14T12:23:50Z"
 
 [[tick]]
 id = "2026-11-14T03:54:34Z"
@@ -3522,5 +3522,21 @@ weights_updated = 124
 l1_shift = 141
 max_delta = 3
 points_consolidated = 216
+tokens_updated = 1
+orphaned_point_rows = 0
+
+[[tick]]
+id = "2026-11-14T12:23:50Z"
+outcome = "advanced"
+discovered = 1
+pruned = 0
+proved = ["R4-F218"]
+minted = 16
+
+[tick.consolidation]
+weights_updated = 92
+l1_shift = 105
+max_delta = 3
+points_consolidated = 217
 tokens_updated = 1
 orphaned_point_rows = 0
