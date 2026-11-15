@@ -20,6 +20,10 @@ mod wasm_ast_eval;
 #[path = "../../crates/wasm/src/lexlean_generated.rs"]
 pub mod prism_factory_generated;
 
+#[allow(dead_code)]
+#[path = "ratchet.rs"]
+pub mod ratchet;
+
 /// Minimum Hebbian strategy weight (`R4.AutonomousEngine.inBounds`).
 pub const WEIGHT_MIN: u32 = 1;
 /// Maximum Hebbian strategy weight (`R4.AutonomousEngine.inBounds`).
@@ -901,6 +905,7 @@ jobs:
             "$image" bash -c '
               set -euo pipefail
               umask 077
+              cargo run -q -p xtask -- ratchet-check
               cargo run -q -p xtask -- literature-sync --offline-fallback --write || true
               cargo run -q -p xtask -- engine tick --budget-minutes 75 --commit --push
               cargo run -q -p xtask -- engine status > .r4-engine-status.txt || true
@@ -2921,12 +2926,25 @@ fn reply_is_cycle_free(reply: &str) -> bool {
 }
 
 /// Run priority-scheduled deduction (`cargo xtask deduce`) over `observed` and `open` frontier claims.
+/// Run priority-scheduled deduction over frontier claims.
 pub fn deduce(
     root: &Path,
     engine: &mut EngineFile,
     frontier: &mut FrontierFile,
     tick_id: &str,
     max_claims: usize,
+) -> Result<DeduceSummary, String> {
+    deduce_with_mode(root, engine, frontier, tick_id, max_claims, true)
+}
+
+/// Run priority-scheduled deduction with optional dry-run (`write_theorems = false`).
+pub fn deduce_with_mode(
+    root: &Path,
+    engine: &mut EngineFile,
+    frontier: &mut FrontierFile,
+    tick_id: &str,
+    max_claims: usize,
+    write_theorems: bool,
 ) -> Result<DeduceSummary, String> {
     let audit = audit_uorlut_synchronization(root)?;
     if audit.orphaned_point_rows != 0 || audit.reply_anchor_count == 0 {
@@ -3036,7 +3054,11 @@ pub fn deduce(
         }
     }
 
-    sync_and_verify_frontier_theorems(root, frontier, engine)?;
+    if write_theorems {
+        sync_and_verify_frontier_theorems(root, frontier, engine)?;
+    } else {
+        let _ = verify_frontier_theorems_ast(root, frontier)?;
+    }
 
     Ok(summary)
 }
@@ -3215,19 +3237,35 @@ fn emit_ci_output(outcome: &str, pushed: bool, tick_branch: &str, tick_title: &s
 }
 
 /// Execute the full 7-stage autonomous homeostasis tick (`cargo xtask engine tick`).
+/// Execute one complete autonomous homeostasis tick (`R4-28` / Peirce triadic `R4-41`).
 pub fn run_engine_tick(
     root: &Path,
     budget_minutes: u32,
     commit: bool,
     push: bool,
 ) -> Result<(), String> {
+    run_engine_tick_with_mode(root, budget_minutes, commit, push, false)
+}
+
+/// Execute one autonomous homeostasis tick with optional `dry_run` (zero file mutations).
+pub fn run_engine_tick_with_mode(
+    root: &Path,
+    budget_minutes: u32,
+    commit: bool,
+    push: bool,
+    dry_run: bool,
+) -> Result<(), String> {
+    use prism_factory_generated::r4_autonomous_engine::PeircePhase;
+
     if budget_minutes < GATE_MIN_MINUTES {
         return Err(format!(
             "budget_minutes ({budget_minutes}) must be at least GATE_MIN_MINUTES ({GATE_MIN_MINUTES})"
         ));
     }
 
-    // Stage 1: build, workflow/model preflight & codebase/inference diagnostic sweep
+    // Stage 1: build, workflow/model preflight, shrink-only ratchet check & codebase sweep
+    let _ratchet = ratchet::check(root)
+        .map_err(|e| format!("engine[ratchet]: shrink-only preflight failed: {e}"))?;
     let (tick_budget, gate_budget) = validate_workflow_homeostasis(root)?;
     let audit = audit_uorlut_synchronization(root)?;
     let pre_frontier = load_frontier(root)?;
@@ -3238,7 +3276,7 @@ pub fn run_engine_tick(
         .id
         .len();
     println!(
-        "engine[1/7 build]: workflow homeostasis ok (tick={tick_budget}m, gate={gate_budget}m), UORLUT01 anchors={} point_rows={} orphans={}, lexlean={}/{expected_ids}, benchmarks={}/{}, failure_basins={}, l1_residual={}",
+        "engine[1/7 build]: workflow homeostasis ok (tick={tick_budget}m, gate={gate_budget}m, dry_run={dry_run}), UORLUT01 anchors={} point_rows={} orphans={}, lexlean={}/{expected_ids}, benchmarks={}/{}, failure_basins={}, l1_residual={}",
         audit.reply_anchor_count,
         audit.point_row_count,
         audit.orphaned_point_rows,
@@ -3249,7 +3287,19 @@ pub fn run_engine_tick(
         pre_diag.total_trajectory_l1_residual
     );
 
-    // Stage 2: induction (always discover when observed/open claims < 2, curriculum remains, or failure basins exist)
+    // Stage 2 (Peirce Phase 1 — Abduction): Rule-30 discovery & hypothesis generation
+    let mut engine = load_engine(root)?;
+    engine.rule30_state = step_rule30_u64(engine.rule30_state);
+    engine.rule30_generation = engine.rule30_generation.saturating_add(1);
+    ratchet::verify_peirce_triadic_step(
+        PeircePhase::Abduction,
+        true,
+        audit.orphaned_point_rows == 0,
+        pre_diag.total_trajectory_l1_residual,
+        pre_diag.total_trajectory_l1_residual,
+        engine.rule30_state,
+    )?;
+
     let existing_ids: BTreeSet<String> = pre_frontier.claim.iter().map(|c| c.id.clone()).collect();
     let has_unobserved_curriculum = discovery_curriculum_pool()
         .iter()
@@ -3263,31 +3313,35 @@ pub fn run_engine_tick(
         || has_unobserved_curriculum
         || !pre_diag.failure_basins.is_empty()
     {
-        discover(root, true, 1)?
+        discover(root, !dry_run, 1)?
     } else {
         Vec::new()
     };
     println!(
-        "engine[2/7 induction]: discovered {} new claim(s): {:?}",
+        "engine[2/7 abduction]: discovered {} new claim(s): {:?}",
         discovered_ids.len(),
         discovered_ids
     );
 
-    // Stage 3: pruning
-    let pruned_ids = prune_frontier(root, true)?;
+    // Stage 3 & 4 (Peirce Phase 2 — Deduction): pruning & formal theorem deduction
+    let pruned_ids = prune_frontier(root, !dry_run)?;
     println!(
         "engine[3/7 pruning]: pruned {} falsified claim(s): {:?}",
         pruned_ids.len(),
         pruned_ids
     );
 
-    // Stage 4: deduction (prove up to 1 eligible claim per tick so ticks progress iteratively)
     let tick_id = utc_now_iso8601();
-    let mut engine = load_engine(root)?;
-    engine.rule30_state = step_rule30_u64(engine.rule30_state);
-    engine.rule30_generation = engine.rule30_generation.saturating_add(1);
     let mut frontier = load_frontier(root)?;
-    let deduce_summary = deduce(root, &mut engine, &mut frontier, &tick_id, 1)?;
+    let deduce_summary = deduce_with_mode(root, &mut engine, &mut frontier, &tick_id, 1, !dry_run)?;
+    ratchet::verify_peirce_triadic_step(
+        PeircePhase::Deduction,
+        true,
+        check_frontier(&frontier).is_ok(),
+        pre_diag.total_trajectory_l1_residual,
+        pre_diag.total_trajectory_l1_residual,
+        engine.rule30_state,
+    )?;
     println!(
         "engine[4/7 deduction]: proved {} claim(s): {:?}",
         deduce_summary.proved_ids.len(),
@@ -3303,7 +3357,7 @@ pub fn run_engine_tick(
         deduce_summary.outcomes.len()
     );
 
-    // Stage 6: hypotheses
+    // Stage 6 (Peirce Phase 3 — Induction setup): hypotheses, self-patch & Prism Factory
     let hyps = mint_hypotheses(&engine, &frontier, &tick_id);
     println!(
         "engine[6/7 hypotheses]: minted {} hypotheses (budget={})",
@@ -3311,8 +3365,7 @@ pub fn run_engine_tick(
         HYPOTHESIS_BUDGET
     );
 
-    // Stage 6b: autonomous adversarial code-repair, slot-binding, Wasm AST & geometric shard probe (Track C & D)
-    let self_patch_report = run_engine_self_patch(root, true)?;
+    let self_patch_report = run_engine_self_patch(root, !dry_run)?;
     println!(
         "engine[6b/7 self-patch]: probes={}/{} repairs={} shards={} receipt={}",
         self_patch_report.probes_passed,
@@ -3322,7 +3375,6 @@ pub fn run_engine_tick(
         &self_patch_report.receipt_sha256[..16.min(self_patch_report.receipt_sha256.len())]
     );
 
-    // Stage 6c: Prism Factory autonomous verification, registry placement, computed versioning & 28-obligation fulfillment (R4-36)
     let factory_report = run_prism_factory_pipeline(root)?;
     println!(
         "engine[6c/7 prism-factory]: features={} (recheck={}) components={} obligations={}/28 (undecided={}) route={:?} receipt={}",
@@ -3337,9 +3389,8 @@ pub fn run_engine_tick(
         &factory_report.receipt_sha256[..16.min(factory_report.receipt_sha256.len())]
     );
 
-    // Bounded coordinate-descent weight consolidation on every tick
-    let should_consolidate = !engine.attempt.is_empty();
     let mut consolidation_report = None;
+    let should_consolidate = !dry_run && !engine.attempt.is_empty();
     if should_consolidate {
         let report = run_engine_weight_consolidation(root, &frontier)?;
         println!(
@@ -3369,34 +3420,38 @@ pub fn run_engine_tick(
         || consolidation_report.is_some();
     let outcome = if advanced { "advanced" } else { "settled" };
 
-    if advanced {
-        engine.tick.push(TickRecord {
-            id: tick_id.clone(),
-            outcome: outcome.to_string(),
-            discovered: discovered_ids.len(),
-            pruned: pruned_ids.len(),
-            proved: deduce_summary.proved_ids.clone(),
-            minted: hyps.hypothesis.len(),
-            consolidation: consolidation_report,
-        });
-        while engine.tick.len() > MAX_TICK_HISTORY {
-            engine.tick.remove(0);
+    if !dry_run {
+        if advanced {
+            engine.tick.push(TickRecord {
+                id: tick_id.clone(),
+                outcome: outcome.to_string(),
+                discovered: discovered_ids.len(),
+                pruned: pruned_ids.len(),
+                proved: deduce_summary.proved_ids.clone(),
+                minted: hyps.hypothesis.len(),
+                consolidation: consolidation_report,
+            });
+            while engine.tick.len() > MAX_TICK_HISTORY {
+                engine.tick.remove(0);
+            }
+            let compiled_turns = compile_proved_frontier_claims_to_uorlut(root, &frontier)?;
+            if compiled_turns > 0 {
+                println!(
+                    "engine[4b/7 weight-synthesis]: compiled {compiled_turns} proved frontier claim(s) into crates/wasm/src/bootstrap_v8.uorlut"
+                );
+            }
+            save_frontier(root, &frontier)?;
+            save_engine(root, &engine)?;
+            save_hypotheses(root, &hyps)?;
+        } else {
+            let _ = std::fs::write(root.join(".r4-settled"), format!("{tick_id}\n"));
         }
-        let compiled_turns = compile_proved_frontier_claims_to_uorlut(root, &frontier)?;
-        if compiled_turns > 0 {
-            println!(
-                "engine[4b/7 weight-synthesis]: compiled {compiled_turns} proved frontier claim(s) into crates/wasm/src/bootstrap_v8.uorlut"
-            );
-        }
-        save_frontier(root, &frontier)?;
-        save_engine(root, &engine)?;
-        save_hypotheses(root, &hyps)?;
-    } else {
-        let _ = std::fs::write(root.join(".r4-settled"), format!("{tick_id}\n"));
     }
 
-    // Stage 7: acceptance gate
+    // Stage 7 (Peirce Phase 3 — Induction shrink-only ratchet & acceptance gate)
     println!("engine[7/7 gate]: running repository acceptance checks...");
+    let theorem_frontier = if dry_run { &pre_frontier } else { &frontier };
+    let post_diag = audit_codebase_and_inference(root, theorem_frontier)?;
     let gate_ok = if std::env::var_os("SDK_IMAGE").is_some() {
         Command::new("just")
             .current_dir(root)
@@ -3405,9 +3460,8 @@ pub fn run_engine_tick(
             .map(|s| s.success())
             .unwrap_or(false)
     } else {
-        let post_diag = audit_codebase_and_inference(root, &frontier)?;
-        check_frontier(&frontier).is_ok()
-            && verify_frontier_theorems_ast(root, &frontier).is_ok()
+        check_frontier(theorem_frontier).is_ok()
+            && verify_frontier_theorems_ast(root, theorem_frontier).is_ok()
             && load_engine(root).is_ok()
             && load_hypotheses(root).is_ok()
             && post_diag.lexlean_missing_modules.is_empty()
@@ -3416,6 +3470,14 @@ pub fn run_engine_tick(
             && post_diag.orphaned_point_rows == 0
             && post_diag.dead_ui_bindings.is_empty()
     };
+    ratchet::verify_peirce_triadic_step(
+        PeircePhase::Induction,
+        true,
+        gate_ok,
+        pre_diag.total_trajectory_l1_residual,
+        post_diag.total_trajectory_l1_residual,
+        engine.rule30_state,
+    )?;
 
     if !gate_ok {
         return Err("engine[7/7 gate]: acceptance gate failed; refusing to advance".into());
@@ -3424,7 +3486,7 @@ pub fn run_engine_tick(
     let mut pushed = false;
     let mut tick_branch = String::new();
     let mut tick_title = String::new();
-    if commit && advanced {
+    if !dry_run && commit && advanced {
         let base_sha = Command::new("git")
             .current_dir(root)
             .args(["rev-parse", "--short=12", "HEAD"])
@@ -4989,9 +5051,14 @@ pub fn run_engine_cmd(root: &Path, args: &[String]) -> Result<(), String> {
                     }
                 }
             }
-            let commit = args.iter().any(|a| a == "--commit");
-            let push = args.iter().any(|a| a == "--push");
-            run_engine_tick(root, budget, commit, push)
+            let dry_run = args.iter().any(|a| a == "--dry-run");
+            let commit = args.iter().any(|a| a == "--commit") && !dry_run;
+            let push = args.iter().any(|a| a == "--push") && !dry_run;
+            if dry_run {
+                run_engine_tick_with_mode(root, budget, false, false, true)
+            } else {
+                run_engine_tick(root, budget, commit, push)
+            }
         }
         other => Err(format!("unknown engine subcommand: {other}")),
     }

@@ -1,10 +1,10 @@
 {
-  "adapter_lock_sha256": "540dadb94d53c512edd9936bac1ef3ca965fe1e5ce208ef898bc7f25d58b19aa",
-  "adapter_wasm_sha256": "2cf02dda82007fd2dc0671232d187ab0ea4e4650d1bb50d2ca3cb791c8535cc4",
-  "binding_javascript_sha256": "d6d5b4afc2f311df47a0d38b868f9a0e3eed6711f2ab756ec4fc16dbca129e00",
-  "generated_core_sha256": "c5349478363af4e840287d4cd287300378f59c3df5631e34eed23e279c0cc019",
-  "model_id": "8a0e88c03975a5c7f8f6dd468080f5ec89a19c59502283a0058b88d8b9f4be67",
   "schema": "prismpm/browser-provenance/1",
+  "model_id": "8a0e88c03975a5c7f8f6dd468080f5ec89a19c59502283a0058b88d8b9f4be67",
   "view_manifest_sha256": "6b245cf2a02b6be350dc10915ffce6ff039a896d88f62f85b62b694a50d24f0c",
-  "view_model_id": "c1387d7bbf11b6973e4a905a4ecb819f61b0c0cf94e9f90647c40d65b058a9df"
+  "view_model_id": "c1387d7bbf11b6973e4a905a4ecb819f61b0c0cf94e9f90647c40d65b058a9df",
+  "generated_core_sha256": "a2b5ed5c126409ff7687e7cc407f78a95d00521332c6ee7af3cac2132a166e26",
+  "adapter_wasm_sha256": "5e6bcbbf1ffdf06a9745f328db3b26498acd276e2a48efae787afd100b47b4c3",
+  "binding_javascript_sha256": "4b50dc86d3cf4669b5e7d25fbd8dcf367ba920183ec5b9ca5e90c542c0c3c08a",
+  "adapter_lock_sha256": "540dadb94d53c512edd9936bac1ef3ca965fe1e5ce208ef898bc7f25d58b19aa"
 }

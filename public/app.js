@@ -318,7 +318,15 @@ const AppState = {
     retainLambda: 0.85,
     pluralityVotes: 8,
     mcpSecurityPolicy: 'safe',
-    activeProject: 'lexlean-r4'
+    activeProject: 'lexlean-r4',
+    connectedGitRepo: '',
+    connectedGitBranch: 'main',
+    gitBranches: ['main'],
+    gitBaselineFiles: {},
+    gitLazyPaths: [],
+    activePrNumber: null,
+    activePrUrl: '',
+    ciSummary: 'CI & Pages: Standby'
   },
   workspace: {
     activePath: 'src/attention.rs',
@@ -765,6 +773,8 @@ const engineWorkerClient = {
   shadowTraces: [],
   packInfo: null,
   gllmInfo: null,
+  stitchHealth: null,
+  studioUpdate: null,
 
   spawn() {
     if (typeof Worker !== 'function') return false;
@@ -796,25 +806,27 @@ const engineWorkerClient = {
 
   applyWorkspaceSnapshot(ws) {
     if (!ws || !Array.isArray(ws.files)) return;
-    const prevPinned = new Map();
-    for (const [p, prev] of this.workspaceFiles.entries()) {
-      prevPinned.set(p, Boolean(prev.pinned));
-    }
+    const prevEntries = new Map(this.workspaceFiles.entries());
     this.workspaceFiles.clear();
     for (const f of ws.files) {
-      const content = typeof f.content === 'string' ? f.content : '';
+      const prev = prevEntries.get(f.path);
+      const isLazy = Boolean(f.lazy || (prev && prev.lazy && !f.content));
+      const content = typeof f.content === 'string'
+        ? f.content
+        : (prev && typeof prev.content === 'string' ? prev.content : '');
       const lineCount = typeof f.line_count === 'number'
         ? f.line_count
         : (content ? content.split('\n').length : 0);
       const pinned = typeof f.pinned === 'boolean'
         ? f.pinned
-        : Boolean(prevPinned.get(f.path));
+        : Boolean(prev && prev.pinned);
       const digest = f.sha256 || f.updated_receipt || computeSha256Hex(content);
       this.workspaceFiles.set(f.path, {
         path: f.path,
         content,
         line_count: lineCount,
         pinned,
+        lazy: isLazy && !content,
         byte_len: f.byte_len ?? content.length,
         sha256: digest,
         updated_receipt: f.updated_receipt || digest,
@@ -888,10 +900,16 @@ const engineWorkerClient = {
       }
       if (snap.pack) this.packInfo = snap.pack;
       if (snap.gllm) this.gllmInfo = snap.gllm;
+      if (snap.stitchHealth) this.stitchHealth = snap.stitchHealth;
       if (msg.weightCacheMeta) globalThis.__uorWeightCacheMeta = msg.weightCacheMeta;
       if (msg.gllmMeta) globalThis.__uorGllmV9Meta = msg.gllmMeta;
       if (snap.workspace) this.applyWorkspaceSnapshot(snap.workspace);
       updateWeightCacheBadge();
+      if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
+      if (typeof updateDynamicPlanningPanel === 'function') updateDynamicPlanningPanel();
+      if (typeof renderDynamicPoolPanel === 'function') renderDynamicPoolPanel();
+      if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+      if (typeof emitPrismEmbedEvent === 'function') emitPrismEmbedEvent('prism:ready');
       if (globalThis.__uorRunWasmEvalAsync) {
         globalThis.__uorRunWasmEvalAsync('check');
       }
@@ -905,8 +923,25 @@ const engineWorkerClient = {
     }
     if (evType === 'weights_upgraded') {
       if (msg.gllm) this.gllmInfo = msg.gllm;
+      if (msg.stitchHealth) this.stitchHealth = msg.stitchHealth;
       if (msg.gllmMeta) globalThis.__uorGllmV9Meta = msg.gllmMeta;
       updateWeightCacheBadge();
+      if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
+      if (typeof renderDynamicPoolPanel === 'function') renderDynamicPoolPanel();
+      if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+      return;
+    }
+    if (evType === 'stitch_health') {
+      this.stitchHealth = msg.stitchHealth || null;
+      if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
+      if (typeof renderDynamicPoolPanel === 'function') renderDynamicPoolPanel();
+      if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+      if (typeof emitPrismEmbedEvent === 'function') emitPrismEmbedEvent('prism:status');
+      return;
+    }
+    if (evType === 'studio_update_available') {
+      this.studioUpdate = msg;
+      if (typeof showStudioUpdateBanner === 'function') showStudioUpdateBanner(msg);
       return;
     }
     if (evType === 'workspace_sync' && msg.workspace) {
@@ -1244,8 +1279,17 @@ function renderStudioState(state) {
 }
 
 function selectWorkspaceFile(pathText) {
+  const lazyEntry = engineWorkerClient && engineWorkerClient.workspaceFiles
+    ? engineWorkerClient.workspaceFiles.get(pathText)
+    : null;
+  if (lazyEntry && lazyEntry.lazy && !lazyEntry.content && AppState.config.connectedGitRepo && engineWorkerClient.enabled) {
+    hydrateLazyGitBlob(pathText).catch(() => {});
+  }
   if (typeof editorTabManager !== 'undefined' && editorTabManager && editorTabManager.tabs.has(pathText)) {
     editorTabManager.switchTo(pathText);
+    if (typeof renderCursorScmSection === 'function') {
+      renderCursorScmSection(engineWorkerClient.getWorkspaceListObject());
+    }
     return;
   }
   const res = dispatchStudioEnvelope('workspace_read', pathText);
@@ -1263,6 +1307,47 @@ function selectWorkspaceFile(pathText) {
   if (typeof syncCursorWorkbenchOnFileSelect === 'function') {
     syncCursorWorkbenchOnFileSelect(res);
   }
+  if (typeof renderCursorScmSection === 'function') {
+    renderCursorScmSection(engineWorkerClient.getWorkspaceListObject());
+  }
+}
+
+async function hydrateLazyGitBlob(pathText) {
+  const repo = AppState.config.connectedGitRepo;
+  const branch = AppState.config.connectedGitBranch || 'main';
+  if (!repo || !pathText || !engineWorkerClient.enabled) return null;
+  const res = await engineWorkerClient.rpc('host_bridge_exec', {
+    op: 'git',
+    subcommand: 'read_blob',
+    repo,
+    branch,
+    path: pathText,
+  });
+  if (res && res.ok && typeof res.content === 'string') {
+    const existing = engineWorkerClient.workspaceFiles.get(pathText) || {};
+    engineWorkerClient.workspaceFiles.set(pathText, {
+      ...existing,
+      path: pathText,
+      content: res.content,
+      lazy: false,
+      line_count: res.content ? res.content.split('\n').length : 0,
+      byte_len: res.content.length,
+    });
+    if (AppState.config.gitBaselineFiles && AppState.config.gitBaselineFiles[pathText] === undefined) {
+      AppState.config.gitBaselineFiles[pathText] = res.content;
+    }
+    activeWorkspacePath = pathText;
+    if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+      editorTabManager.open(pathText, res.content);
+    } else if (workspaceEditorTextarea) {
+      workspaceEditorTextarea.value = res.content;
+    }
+    renderWorkspaceList(engineWorkerClient.getWorkspaceListObject());
+    if (typeof renderCursorScmSection === 'function') {
+      renderCursorScmSection(engineWorkerClient.getWorkspaceListObject());
+    }
+  }
+  return res;
 }
 
 function renderWorkspaceList(ws) {
@@ -2565,7 +2650,11 @@ function renderCompletedChatResponse(trimmed, chatRes) {
       }
     }
     secopsAudit.recordEvent('patch_staged', chatRes.target_file, 'chat_engine', { target: chatRes.target_file }, 'info');
-  } else {
+  }
+  if (typeof updateDynamicPlanningPanel === 'function') updateDynamicPlanningPanel({ chatRes });
+  if (typeof renderDynamicPoolPanel === 'function') renderDynamicPoolPanel();
+  if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+  if (!chatRes.is_coding_turn) {
     if (chatTargetBadge) chatTargetBadge.textContent = `Context: ${activeWorkspacePath}`;
     if (!pendingProposedCode) {
       if (chatDiffFile) chatDiffFile.textContent = activeWorkspacePath || 'No patch staged';
@@ -3334,34 +3423,28 @@ const AGENTIC_SLASH_COMMANDS = [
 
 const COMPOSER_MODELS = [
   {
-    id: 'uor-r4-glm-v8',
-    name: 'UOR-R4 8/8 SpiralCore',
-    contextWindow: '8k',
-    badge: '256D Q12',
+    id: 'uor-r4.gllm-v11-agent',
+    name: 'UOR-R4 GLLM v11 Agent (uor-r4.lut-stack/8)',
+    contextWindow: '256k',
+    badge: 'ReAct + R4-32 Verifier',
   },
   {
-    id: 'claude-3-5-sonnet',
-    name: 'Claude 3.5 Sonnet (Local Emulation)',
-    contextWindow: '200k',
-    badge: 'Local UOR-R4 WASM',
+    id: 'uor-r4.gllm-v11-chat',
+    name: 'UOR-R4 GLLM v11 Chat (uor-r4.lut-stack/8)',
+    contextWindow: '256k',
+    badge: 'Rolling 256D Carry',
   },
   {
-    id: 'gpt-4o',
-    name: 'GPT-4o (Local Emulation)',
-    contextWindow: '128k',
-    badge: '6-Layer SpiralCore',
+    id: 'uor-r4.gllm-v11-code',
+    name: 'UOR-R4 GLLM v11 Code (uor-r4.lut-stack/8)',
+    contextWindow: '256k',
+    badge: 'Multi-File Patch',
   },
   {
-    id: 'deepseek-r1',
-    name: 'DeepSeek R1 Latent (Local)',
-    contextWindow: '64k',
-    badge: 'Q12 Coprocessor',
-  },
-  {
-    id: 'uor-r4-500b',
-    name: 'UOR-R4 500B Self-Improving Core',
-    contextWindow: '128k',
-    badge: 'R3 Scale Local',
+    id: 'uor-r4.opfs-large',
+    name: 'UOR-R4 OPFS Large (uor-r4.lut-stack/8)',
+    contextWindow: '256k',
+    badge: '79 Shards + Stitch 2-of-3',
   },
 ];
 
@@ -3370,7 +3453,7 @@ class AgenticTypeScriptComposer {
     this.state = {
       rawText: '',
       mode: 'agentic',
-      selectedModel: 'uor-r4-glm-v8',
+      selectedModel: 'uor-r4.gllm-v11-agent',
       savedDraft: null,
       attachments: [],
       history: [],
@@ -8746,6 +8829,13 @@ function initSidebarViews() {
   viewBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const targetView = btn.getAttribute('data-view');
+      const sidebarViewsContent = document.querySelectorAll('.sidebar-view-content');
+      if (document.body && document.body.dataset.layoutMode !== 'chat') {
+        sidebarViewsContent.forEach((vc) => {
+          vc.setAttribute('hidden', '');
+          vc.classList.remove('active');
+        });
+      }
       viewBtns.forEach((b) => {
         const isActive = b.getAttribute('data-view') === targetView;
         b.classList.toggle('active', isActive);
@@ -8757,6 +8847,11 @@ function initSidebarViews() {
         if (isMatch) p.removeAttribute('hidden');
         else p.setAttribute('hidden', '');
       });
+      if (targetView === 'planning' && typeof updateDynamicPlanningPanel === 'function') {
+        updateDynamicPlanningPanel();
+      } else if (targetView === 'pool' && typeof renderDynamicPoolPanel === 'function') {
+        renderDynamicPoolPanel();
+      }
     });
   });
 
@@ -10107,6 +10202,12 @@ function renderCursorFileTree(ws) {
     const badgesSpan = document.createElement('span');
     badgesSpan.className = 'cursor-tree-badges';
 
+    if (file.lazy && !file.content) {
+      const lb = document.createElement('span');
+      lb.className = 'cursor-git-badge cursor-git-u';
+      lb.textContent = 'LAZY';
+      badgesSpan.appendChild(lb);
+    }
     if (gitInfo.badge) {
       const b = document.createElement('span');
       b.className = `cursor-git-badge ${gitInfo.cls}`;
@@ -10163,16 +10264,27 @@ function renderCursorFileTree(ws) {
 function renderCursorScmSection(ws) {
   const scmSummary = document.getElementById('cursor-scm-summary');
   const scmList = document.getElementById('cursor-scm-list');
+  const scmDiffPre = document.getElementById('scm-live-diff-preview');
+  const scmLazyStatus = document.getElementById('scm-lazy-status');
   if (!scmList || !ws || !Array.isArray(ws.files)) return;
   scmList.replaceChildren();
 
   const pendingPatches = (AppState.workspace && AppState.workspace.pendingPatches) ? AppState.workspace.pendingPatches : {};
   const pendingPaths = Object.keys(pendingPatches);
+  const baseline = (AppState.config && AppState.config.gitBaselineFiles) || {};
+  const diffChunks = [];
   let changeCount = 0;
+  let lazyCount = 0;
 
   for (const file of ws.files) {
+    if (file.lazy && !file.content) lazyCount += 1;
+    const baseText = baseline[file.path];
+    const hasGitBaselineDiff = typeof baseText === 'string' && typeof file.content === 'string' && baseText !== file.content && !file.lazy;
     const gitInfo = computeCursorGitStatusForFile(file);
-    if (!gitInfo.badge && !pendingPatches[file.path]) continue;
+    if (hasGitBaselineDiff) {
+      diffChunks.push(computeUnifiedDiffJs(baseText, file.content, file.path));
+    }
+    if (!gitInfo.badge && !pendingPatches[file.path] && !hasGitBaselineDiff) continue;
     changeCount += 1;
     const row = document.createElement('button');
     row.type = 'button';
@@ -10182,7 +10294,7 @@ function renderCursorScmSection(ws) {
     label.textContent = file.path;
     const badge = document.createElement('span');
     badge.className = `cursor-git-badge ${gitInfo.cls || 'cursor-git-m'}`;
-    badge.textContent = `${gitInfo.badge || 'M'} ${gitInfo.delta}`;
+    badge.textContent = hasGitBaselineDiff ? 'M*' : `${gitInfo.badge || 'M'} ${gitInfo.delta}`;
     row.appendChild(label);
     row.appendChild(badge);
     row.addEventListener('click', () => {
@@ -10195,18 +10307,50 @@ function renderCursorScmSection(ws) {
     scmList.appendChild(row);
   }
 
+  if (scmList.children.length === 0) {
+    const emptyEl = document.createElement('div');
+    emptyEl.className = 'cursor-scm-empty';
+    const branchLabel = (AppState.config && AppState.config.connectedGitBranch) || 'main';
+    emptyEl.textContent = `Working tree clean on ${branchLabel}`;
+    scmList.appendChild(emptyEl);
+  }
+
   if (scmSummary) {
+    const repoLabel = (AppState.config && AppState.config.connectedGitRepo) || 'local-workspace';
+    const branchLabel = (AppState.config && AppState.config.connectedGitBranch) || 'main';
     scmSummary.textContent = changeCount > 0
-      ? `${changeCount} modified/staged file(s) · ${pendingPaths.length} pending AI patch(es)`
-      : 'Working tree clean · 0 staged diffs';
+      ? `${repoLabel}@${branchLabel} · ${changeCount} changed · ${pendingPaths.length} pending AI patch(es)`
+      : `${repoLabel}@${branchLabel} · Working tree clean · 0 staged diffs`;
+  }
+  if (scmLazyStatus) {
+    const totalCount = ws.files.length;
+    scmLazyStatus.textContent = lazyCount > 0
+      ? `${totalCount - lazyCount}/${totalCount} loaded · ${lazyCount} lazy blob(s) load on click`
+      : `${totalCount} workspace file(s) loaded`;
+  }
+  if (scmDiffPre) {
+    if (diffChunks.length > 0) {
+      scmDiffPre.textContent = diffChunks.join('\n\n');
+    } else if (pendingPaths.length > 0 && pendingPatches[pendingPaths[0]]) {
+      scmDiffPre.textContent = pendingPatches[pendingPaths[0]].diffPreview || 'Pending AI patch staged.';
+    } else {
+      scmDiffPre.textContent = 'Working tree clean — edit a file or stage a patch to inspect live unified diff.';
+    }
   }
 }
 
 function renderCursorShardsSection() {
   const shardsGrid = document.getElementById('cursor-shards-grid');
   const shardsSummary = document.getElementById('cursor-shards-summary');
+  const stitchCard = document.getElementById('stitch-custody-health-card');
   if (!shardsGrid) return;
   shardsGrid.replaceChildren();
+  const stHealth = typeof engineWorkerClient !== 'undefined' ? engineWorkerClient.stitchHealth : null;
+  const healedFiles = new Set(
+    stHealth && Array.isArray(stHealth.healedDetails)
+      ? stHealth.healedDetails.map((d) => String(d.file || ''))
+      : []
+  );
   for (let s = 0; s < 16; s += 1) {
     const item = document.createElement('div');
     item.className = 'cursor-tree-item';
@@ -10215,7 +10359,8 @@ function renderCursorShardsSection() {
     name.textContent = `Shard ${String(s).padStart(2, '0')} · E8 Basin [${s * 1088}..${(s + 1) * 1088 - 1}]`;
     const badge = document.createElement('span');
     badge.className = 'cursor-git-badge cursor-git-u';
-    badge.textContent = 'RESIDENT';
+    const shardName = `shard_${String(s).padStart(3, '0')}.bin`;
+    badge.textContent = healedFiles.has(shardName) ? 'PARITY-HEALED' : 'RESIDENT';
     item.appendChild(name);
     item.appendChild(badge);
     shardsGrid.appendChild(item);
@@ -10226,12 +10371,31 @@ function renderCursorShardsSection() {
       const info = hasWorker
         ? engineWorkerClient.packInfo
         : (typeof studio_weight_pack_status === 'function' ? JSON.parse(studio_weight_pack_status()) : null);
+      const stitchTag = stHealth ? ` · Stitch: ${stHealth.status}` : '';
       if (info && info.status === 'ok') {
-        shardsSummary.textContent = `16 E8 Shards · ${info.point_rows} /8 PointKey Rows · ${info.reply_entries} /7 Reply Rows`;
+        shardsSummary.textContent = `16 E8 Shards · ${info.point_rows} /8 PointKey Rows · ${info.reply_entries} /7 Reply Rows${stitchTag}`;
+      } else if (stHealth) {
+        shardsSummary.textContent = `16 E8 Shards · ${stHealth.verifiedShards}/${stHealth.totalShards} Verified · ${stHealth.healedShards} Parity-Healed`;
       }
     } catch {
       // Ignore early boot
     }
+  }
+  if (stitchCard) {
+    stitchCard.replaceChildren();
+    const row1 = document.createElement('div');
+    row1.textContent = `Stitch Custody: ${stHealth ? stHealth.scheme : 'stitch/xor-2-of-3/1'} (${stHealth ? stHealth.custodyMode : '2-of-3 XOR Parity + SHA-256'})`;
+    const row2 = document.createElement('div');
+    row2.textContent = stHealth
+      ? `Status: ${stHealth.status} · Verified ${stHealth.verifiedShards}/${stHealth.totalShards} · Parity-Healed ${stHealth.healedShards}`
+      : 'Parity State: Awaiting v10 / Stitch manifest load...';
+    const row3 = document.createElement('div');
+    row3.textContent = stHealth && Array.isArray(stHealth.activeSources) && stHealth.activeSources.length > 0
+      ? `Sources: ${stHealth.activeSources.join(', ')}`
+      : 'Mirrors: Primary origin + fallback mirrors ready';
+    stitchCard.appendChild(row1);
+    stitchCard.appendChild(row2);
+    stitchCard.appendChild(row3);
   }
 }
 
@@ -11575,6 +11739,12 @@ function initCursorIdeWorkbench() {
     currentActivityMode = mode;
     // Ensure sidebar is open
     toggleSidebar(false);
+    document.querySelectorAll('.sidebar-view-panel').forEach((panel) => {
+      if (panel.id !== 'sidebar-panel-history') {
+        panel.setAttribute('hidden', '');
+        panel.classList.remove('active');
+      }
+    });
 
     // Update Activity Bar buttons
     for (const cfg of activityBtnConfigs) {
@@ -12334,6 +12504,422 @@ function registerBrowserTerminalBridgeHooks() {
   };
 }
 
+function showStudioUpdateBanner(updateInfo) {
+  const banner = document.getElementById('studio-update-banner');
+  const textEl = document.getElementById('studio-update-banner-text');
+  if (!banner) return;
+  const sha = updateInfo && updateInfo.adapter_wasm_sha256 ? String(updateInfo.adapter_wasm_sha256).slice(0, 12) : 'updated';
+  if (textEl) {
+    textEl.textContent = `New Studio Version Live (wasm:${sha}) — Refresh & Reload Now`;
+  }
+  banner.removeAttribute('hidden');
+}
+
+function getPrismEmbedStatusSnapshot(eventType = 'prism:status') {
+  const repo = (AppState.config && AppState.config.connectedGitRepo) || '';
+  const branch = (AppState.config && AppState.config.connectedGitBranch) || 'main';
+  const st = typeof engineWorkerClient !== 'undefined' ? engineWorkerClient.stitchHealth : null;
+  const modelSel = document.getElementById('composer-model-select');
+  return {
+    type: eventType,
+    schema: 'prism/r4-workspace/1',
+    embed: Boolean(document.body && document.body.dataset.embed === 'me'),
+    layoutMode: (document.body && document.body.dataset.layoutMode) || 'chat',
+    workerReady: Boolean(typeof engineWorkerClient !== 'undefined' && engineWorkerClient.ready),
+    model: modelSel && modelSel.value ? modelSel.value : 'uor-r4.gllm-v11-agent',
+    repo,
+    branch,
+    prNumber: (AppState.config && AppState.config.activePrNumber) || null,
+    ciSummary: (AppState.config && AppState.config.ciSummary) || 'CI & Pages: Standby',
+    workspaceFileCount: engineWorkerClient && engineWorkerClient.workspaceFiles ? engineWorkerClient.workspaceFiles.size : 0,
+    stitchHealth: st,
+  };
+}
+
+function emitPrismEmbedEvent(eventType = 'prism:status', targetWindow = null) {
+  const payload = getPrismEmbedStatusSnapshot(eventType);
+  if (typeof globalThis === 'object') {
+    if (!Array.isArray(globalThis.__uorPrismEmbedEvents)) globalThis.__uorPrismEmbedEvents = [];
+    globalThis.__uorPrismEmbedEvents.push(payload);
+  }
+  const dest = targetWindow || (typeof window !== 'undefined' && window.parent && window.parent !== window ? window.parent : null);
+  if (dest && typeof dest.postMessage === 'function') {
+    try {
+      dest.postMessage(payload, '*');
+    } catch {
+      // Ignore cross-origin postMessage restrictions cleanly
+    }
+  }
+  return payload;
+}
+
+function updateDynamicPlanningPanel(extraCtx = {}) {
+  const dagEl = document.getElementById('plan-dag-diagram');
+  const listEl = document.getElementById('plan-checklist');
+  if (!dagEl && !listEl) return;
+  const repo = (AppState.config && AppState.config.connectedGitRepo) || 'local-workspace';
+  const branch = (AppState.config && AppState.config.connectedGitBranch) || 'main';
+  const fileCount = engineWorkerClient && engineWorkerClient.workspaceFiles ? engineWorkerClient.workspaceFiles.size : 0;
+  const st = engineWorkerClient ? engineWorkerClient.stitchHealth : null;
+  const prNum = AppState.config && AppState.config.activePrNumber;
+  const hasPending = AppState.workspace && Object.keys(AppState.workspace.pendingPatches || {}).length > 0;
+  const turnVerified = Boolean(extraCtx && extraCtx.chatRes && extraCtx.chatRes.react_agent_r4_35 && extraCtx.chatRes.react_agent_r4_35.verified);
+
+  if (dagEl) {
+    const nodes = [
+      { cls: engineWorkerClient && engineWorkerClient.ready ? 'dag-done' : 'dag-active', icon: engineWorkerClient && engineWorkerClient.ready ? '✓' : '▶', label: `Wasm + OPFS Boot (${fileCount} files on ${repo}@${branch})` },
+      { cls: st ? 'dag-done' : 'dag-active', icon: st ? '✓' : '▶', label: st ? `Stitch Custody: ${st.verifiedShards}/${st.totalShards} Verified · ${st.healedShards} Healed` : 'Stitch 2-of-3 Shard Verification' },
+      { cls: hasPending ? 'dag-active' : 'dag-done', icon: hasPending ? '▶' : '✓', label: hasPending ? 'Workspace Diff Staged for Review' : 'GLLM v11 Reasoning & Tool Synthesis' },
+      { cls: prNum || turnVerified ? 'dag-done' : 'dag-pending', icon: prNum || turnVerified ? '✓' : '◯', label: prNum ? `GitHub PR #${prNum} · ${AppState.config.ciSummary || 'Active'}` : 'Commit, Open PR & Watch CI/Pages' },
+    ];
+    dagEl.replaceChildren();
+    nodes.forEach((n, idx) => {
+      const nodeDiv = document.createElement('div');
+      nodeDiv.className = `dag-node ${n.cls}`;
+      const badgeSpan = document.createElement('span');
+      badgeSpan.className = 'dag-badge';
+      badgeSpan.textContent = n.icon;
+      nodeDiv.appendChild(badgeSpan);
+      nodeDiv.appendChild(document.createTextNode(` ${n.label}`));
+      dagEl.appendChild(nodeDiv);
+      if (idx < nodes.length - 1) {
+        const arr = document.createElement('div');
+        arr.className = 'dag-arrow';
+        arr.textContent = '↓';
+        dagEl.appendChild(arr);
+      }
+    });
+  }
+
+  if (listEl) {
+    const tasks = [
+      { done: Boolean(engineWorkerClient && engineWorkerClient.ready), active: false, text: `Dedicated Wasm Worker & Secret Vault (${engineWorkerClient && engineWorkerClient.githubConnected ? 'PAT Sealed' : 'Public/Ready'})` },
+      { done: Boolean(st && st.totalShards > 0), active: !st, text: st ? `Stitch 2-of-3 Parity (${st.scheme} · ${st.status})` : 'Hydrate V10 / Stitch Shards into OPFS' },
+      { done: Boolean(AppState.config && AppState.config.connectedGitRepo), active: false, text: `GitHub Workspace: ${repo}@${branch} (${fileCount} files)` },
+      { done: Boolean(prNum), active: hasPending, text: prNum ? `Pull Request #${prNum} (${AppState.config.ciSummary || 'Tracked'})` : 'Stage Workspace Edits / Open Pull Request' },
+    ];
+    listEl.replaceChildren();
+    tasks.forEach((t) => {
+      const li = document.createElement('li');
+      li.className = `plan-task-item${t.done ? ' done' : (t.active ? ' active' : '')}`;
+      li.style.cursor = 'pointer';
+      const icon = document.createElement('span');
+      icon.className = 'check-icon';
+      icon.textContent = t.done ? '☑' : (t.active ? '▶' : '☐');
+      li.appendChild(icon);
+      li.appendChild(document.createTextNode(` ${t.text}`));
+      li.addEventListener('click', () => {
+        if (li.classList.contains('done')) {
+          li.classList.remove('done');
+          icon.textContent = '☐';
+        } else {
+          li.classList.remove('active');
+          li.classList.add('done');
+          icon.textContent = '☑';
+        }
+      });
+      listEl.appendChild(li);
+    });
+  }
+}
+
+function renderDynamicPoolPanel() {
+  const poolGrid = document.getElementById('pool-status-grid');
+  const poolQueue = document.getElementById('pool-review-queue');
+  const repo = (AppState.config && AppState.config.connectedGitRepo) || 'local-workspace';
+  const branch = (AppState.config && AppState.config.connectedGitBranch) || 'main';
+  const st = engineWorkerClient ? engineWorkerClient.stitchHealth : null;
+  const gllm = engineWorkerClient ? engineWorkerClient.gllmInfo : null;
+  const modelSel = document.getElementById('composer-model-select');
+  const activeModel = modelSel && modelSel.value ? modelSel.value : 'uor-r4.gllm-v11-agent';
+
+  if (poolGrid) {
+    const cards = [
+      {
+        role: 'MVM Worker Engine',
+        active: Boolean(engineWorkerClient && engineWorkerClient.ready),
+        status: engineWorkerClient && engineWorkerClient.ready ? 'Ready · Wasm32' : 'Booting...',
+        detail: gllm ? `GLLM ${gllm.n_layers || 16}L/${gllm.d_model || 256}D · ${activeModel}` : `Mode: ${activeModel}`,
+      },
+      {
+        role: 'Stitch 2-of-3 Custody',
+        active: Boolean(st && st.healedShards > 0),
+        status: st ? st.status : 'Standby · 2-of-3 Parity',
+        detail: st ? `${st.verifiedShards}/${st.totalShards} Verified · ${st.healedShards} Parity-Healed` : 'Awaiting shard hydration',
+      },
+      {
+        role: 'GitHub Host Bridge',
+        active: Boolean(AppState.config && AppState.config.connectedGitRepo),
+        status: engineWorkerClient && engineWorkerClient.githubConnected ? 'Token Vault Sealed' : 'Public HTTPS / Relay',
+        detail: `${repo}@${branch}`,
+      },
+      {
+        role: 'CI & Pages Watcher',
+        active: Boolean(AppState.config && AppState.config.activePrNumber),
+        status: (AppState.config && AppState.config.ciSummary) || 'CI & Pages: Standby',
+        detail: AppState.config && AppState.config.activePrNumber ? `Tracking PR #${AppState.config.activePrNumber}` : 'Ready on PR / Deploy',
+      },
+    ];
+    poolGrid.replaceChildren();
+    for (const c of cards) {
+      const card = document.createElement('div');
+      card.className = `pool-card${c.active ? ' pool-card-active' : ''}`;
+      const rEl = document.createElement('div');
+      rEl.className = 'pool-card-role';
+      rEl.textContent = c.role;
+      const sEl = document.createElement('div');
+      sEl.className = 'pool-card-status';
+      sEl.textContent = c.status;
+      const dEl = document.createElement('div');
+      dEl.className = 'pool-card-detail';
+      dEl.textContent = c.detail;
+      card.appendChild(rEl);
+      card.appendChild(sEl);
+      card.appendChild(dEl);
+      poolGrid.appendChild(card);
+    }
+  }
+
+  if (poolQueue) {
+    const pendingPaths = Object.keys((AppState.workspace && AppState.workspace.pendingPatches) || {});
+    const baseline = (AppState.config && AppState.config.gitBaselineFiles) || {};
+    const changedPaths = [];
+    if (engineWorkerClient && engineWorkerClient.workspaceFiles) {
+      for (const [p, meta] of engineWorkerClient.workspaceFiles.entries()) {
+        if (typeof baseline[p] === 'string' && !meta.lazy && baseline[p] !== meta.content) {
+          changedPaths.push(p);
+        }
+      }
+    }
+    const fileEl = poolQueue.querySelector('.pool-review-file');
+    const statsEl = poolQueue.querySelector('.pool-review-stats');
+    const targetDisplay = pendingPaths[0] || changedPaths[0] || 'None';
+    if (fileEl) {
+      fileEl.textContent = `File: ${targetDisplay}`;
+    }
+    if (statsEl) {
+      statsEl.textContent = pendingPaths.length > 0
+        ? `${pendingPaths.length} AI patch(es) pending review`
+        : changedPaths.length > 0
+          ? `${changedPaths.length} modified file(s) ready to commit on ${branch}`
+          : `Queue idle on ${repo}@${branch}`;
+    }
+  }
+}
+
+function renderCoworkStatusBar() {
+  const turnDigest = document.getElementById('live-context-turn-digest');
+  const summary = document.getElementById('live-context-summary');
+  const frontier = document.getElementById('live-engine-frontier-badge');
+  const trace = document.getElementById('live-otel-trace-badge');
+  const modelSel = document.getElementById('composer-model-select');
+  const activeModel = modelSel && modelSel.value ? modelSel.value : 'uor-r4.gllm-v11-agent';
+  const thread = typeof getActiveThread === 'function' ? getActiveThread() : null;
+  const turnCount = thread && Array.isArray(thread.messages) ? Math.max(1, Math.ceil(thread.messages.length / 2)) : 1;
+  const repo = (AppState.config && AppState.config.connectedGitRepo) || 'local';
+  const branch = (AppState.config && AppState.config.connectedGitBranch) || 'main';
+  const st = engineWorkerClient ? engineWorkerClient.stitchHealth : null;
+  if (turnDigest) {
+    turnDigest.textContent = `Turn #${turnCount} · ${activeModel}`;
+  }
+  if (summary) {
+    summary.textContent = st
+      ? `${repo}@${branch} · Stitch ${st.verifiedShards}/${st.totalShards} (${st.healedShards} healed)`
+      : `${repo}@${branch} · Rolling 256D Carry Active`;
+  }
+  if (frontier) {
+    frontier.textContent = engineWorkerClient && engineWorkerClient.githubConnected
+      ? 'GitHub Vault: Sealed · R4-F32'
+      : 'R4-F32 Ready';
+  }
+  if (trace) {
+    trace.textContent = (AppState.config && AppState.config.ciSummary) || 'uor.gllm.trace/1';
+  }
+}
+
+function refreshScmBranchSelectors(branches, activeBranch) {
+  const list = Array.isArray(branches) && branches.length > 0 ? branches : ['main'];
+  const selected = activeBranch || list[0] || 'main';
+  for (const selId of ['scm-branch-select', 'github-branch-select']) {
+    const sel = document.getElementById(selId);
+    if (!sel) continue;
+    sel.replaceChildren();
+    for (const b of list) {
+      const opt = document.createElement('option');
+      opt.value = b;
+      opt.textContent = b;
+      if (b === selected) opt.selected = true;
+      sel.appendChild(opt);
+    }
+    sel.value = selected;
+  }
+}
+
+async function runGitHubLoopAction(subcommand, extraArgs = {}) {
+  const statusEl = document.getElementById('github-connect-status');
+  const ciChip = document.getElementById('scm-ci-pages-chip');
+  const mergeBtn = document.getElementById('scm-merge-pr-btn');
+  const repoInputScm = document.getElementById('scm-repo-input');
+  const repoInputModal = document.getElementById('github-repo-input');
+  const repoVal = String(
+    extraArgs.repo ||
+    extraArgs.repo_url ||
+    (repoInputScm && repoInputScm.value.trim()) ||
+    (repoInputModal && repoInputModal.value.trim()) ||
+    (AppState.config && AppState.config.connectedGitRepo) ||
+    ''
+  ).trim();
+  const branchVal = String(
+    extraArgs.branch ||
+    (AppState.config && AppState.config.connectedGitBranch) ||
+    'main'
+  ).trim();
+
+  const payload = {
+    op: 'git',
+    subcommand,
+    ...(repoVal ? { repo: repoVal, repo_url: repoVal } : {}),
+    ...(branchVal ? { branch: branchVal } : {}),
+    ...extraArgs,
+  };
+  if (subcommand === 'commit_push' && !Array.isArray(payload.files)) {
+    const baseline = (AppState.config && AppState.config.gitBaselineFiles) || {};
+    const changed = [];
+    for (const [p, meta] of engineWorkerClient.workspaceFiles.entries()) {
+      if (meta && !meta.lazy && typeof meta.content === 'string') {
+        if (baseline[p] === undefined || baseline[p] !== meta.content) {
+          changed.push({ path: p, content: meta.content });
+        }
+      }
+    }
+    payload.files = changed;
+  }
+
+  const res = await engineWorkerClient.rpc('host_bridge_exec', payload);
+  if (!res || res.ok === false) {
+    const errText = `${subcommand} error (${(res && res.error_code) || 'BridgeError'}): ${(res && res.message) || 'Failed'}`;
+    if (statusEl) statusEl.textContent = errText;
+    if (ciChip && (subcommand === 'pr_status' || subcommand === 'watch_deploy' || subcommand === 'create_pr' || subcommand === 'merge_pr')) {
+      ciChip.textContent = errText;
+    }
+    return res;
+  }
+
+  const detectedRepo = res.repo || (res.data && res.data.repo) || repoVal;
+  if (detectedRepo) {
+    AppState.config.connectedGitRepo = detectedRepo;
+    if (repoInputScm) repoInputScm.value = detectedRepo;
+    if (repoInputModal) repoInputModal.value = detectedRepo;
+  }
+  const activeBranch = res.branch || (res.data && res.data.default_branch) || branchVal;
+  if (activeBranch) {
+    AppState.config.connectedGitBranch = activeBranch;
+  }
+  const branches = res.branches || (res.data && res.data.branches);
+  if (Array.isArray(branches) && branches.length > 0) {
+    AppState.config.gitBranches = branches;
+  } else if (activeBranch && Array.isArray(AppState.config.gitBranches) && !AppState.config.gitBranches.includes(activeBranch)) {
+    AppState.config.gitBranches.push(activeBranch);
+  }
+  refreshScmBranchSelectors(AppState.config.gitBranches, AppState.config.connectedGitBranch);
+
+  if (subcommand === 'clone' || subcommand === 'pull') {
+    const baseline = {};
+    const clonedFiles = res.files || (res.data && res.data.files) || [];
+    for (const f of clonedFiles) {
+      if (f && typeof f.path === 'string' && typeof f.content === 'string' && !f.lazy) {
+        baseline[f.path] = f.content;
+      }
+    }
+    AppState.config.gitBaselineFiles = baseline;
+    AppState.config.gitLazyPaths = res.lazy_paths || (res.data && res.data.lazy_paths) || [];
+  } else if (subcommand === 'commit_push' && Array.isArray(payload.files)) {
+    const baseline = AppState.config.gitBaselineFiles || {};
+    for (const f of payload.files) {
+      if (f && typeof f.path === 'string' && typeof f.content === 'string') {
+        baseline[f.path] = f.content;
+      }
+    }
+    AppState.config.gitBaselineFiles = baseline;
+  }
+
+  if (subcommand === 'create_pr') {
+    const prNumber = res.pr_number || (res.data && res.data.pr_number) || null;
+    AppState.config.activePrNumber = prNumber;
+    AppState.config.activePrUrl = res.pr_url || (res.data && res.data.pr_url) || '';
+    AppState.config.ciSummary = prNumber ? `PR #${prNumber} Opened` : 'PR Opened';
+    if (mergeBtn && prNumber) mergeBtn.disabled = false;
+  } else if (subcommand === 'pr_status') {
+    const total = res.checks_total ?? res.total_check_runs ?? (res.data && (res.data.checks_total ?? res.data.total_check_runs)) ?? 0;
+    const conclusions = (res.check_runs || []).map((c) => c.conclusion || c.status).filter(Boolean);
+    const label = res.mergeable === false
+      ? `PR #${AppState.config.activePrNumber || ''} Conflicts`
+      : `CI: ${total} checks (${conclusions.join('/') || res.check_status || res.workflow_status || 'pending'})`;
+    AppState.config.ciSummary = label;
+  } else if (subcommand === 'merge_pr') {
+    AppState.config.ciSummary = `PR #${res.pr_number || AppState.config.activePrNumber || ''} Merged`;
+    if (mergeBtn) mergeBtn.disabled = true;
+  } else if (subcommand === 'watch_deploy') {
+    const pagesStatus = res.pages_status || (res.data && res.data.pages_status) || 'unknown';
+    const upd = res.update_available ? 'New Version Live!' : 'Up to date';
+    AppState.config.ciSummary = `Pages: ${pagesStatus} · ${upd}`;
+    if (res.update_available) {
+      showStudioUpdateBanner(res);
+    }
+  }
+
+  if (ciChip) ciChip.textContent = AppState.config.ciSummary || 'CI & Pages: Active';
+  if (statusEl) {
+    statusEl.textContent = `${subcommand} ok on ${AppState.config.connectedGitRepo || 'repo'}@${AppState.config.connectedGitBranch}`;
+  }
+  renderCursorScmSection(engineWorkerClient.getWorkspaceListObject());
+  updateDynamicPlanningPanel();
+  renderDynamicPoolPanel();
+  renderCoworkStatusBar();
+  emitPrismEmbedEvent('prism:status');
+  return res;
+}
+
+function initEmbedMeBridge() {
+  let isEmbedMe = false;
+  try {
+    if (typeof window !== 'undefined' && window.location) {
+      const params = new URLSearchParams(window.location.search || '');
+      isEmbedMe = params.get('embed') === 'me';
+    }
+  } catch {
+    isEmbedMe = false;
+  }
+  if (isEmbedMe && document.body) {
+    document.body.dataset.embed = 'me';
+    document.body.classList.add('embed-me-compact');
+  }
+
+  const handleInboundMessage = async (ev) => {
+    const msg = ev && ev.data ? ev.data : {};
+    if (!msg || typeof msg.type !== 'string') return;
+    if (msg.type === 'prism:open-repo' && msg.repo) {
+      const repoStr = String(msg.repo).trim();
+      const branchStr = String(msg.branch || 'main').trim();
+      await runGitHubLoopAction('connect', { repo: repoStr }).catch(() => null);
+      await runGitHubLoopAction('clone', { repo: repoStr, branch: branchStr }).catch(() => null);
+      emitPrismEmbedEvent('prism:status', ev.source || null);
+    }
+  };
+
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('message', handleInboundMessage);
+  }
+  if (typeof globalThis === 'object') {
+    globalThis.__uorPrismBridge = {
+      handleInboundMessage,
+      emitPrismEmbedEvent,
+      getPrismEmbedStatusSnapshot,
+    };
+  }
+  emitPrismEmbedEvent('prism:ready');
+}
+
 function initLayoutAndConnectedControls() {
   let initialMode = 'chat';
   try {
@@ -12431,6 +13017,8 @@ function initLayoutAndConnectedControls() {
         if (githubConnectStatus) {
           githubConnectStatus.textContent = 'GITHUB_TOKEN sealed in Host Worker Vault (allowlisted to github.com & api.github.com; zero bytes in guest RAM).';
         }
+        renderDynamicPoolPanel();
+        renderCoworkStatusBar();
       } catch (err) {
         if (githubConnectStatus) {
           githubConnectStatus.textContent = `Vault error: ${err && err.message ? err.message : String(err)}`;
@@ -12453,6 +13041,130 @@ function initLayoutAndConnectedControls() {
       if (githubConnectStatus) {
         githubConnectStatus.textContent = 'Cleared GITHUB_TOKEN from Host Worker Vault.';
       }
+      renderDynamicPoolPanel();
+      renderCoworkStatusBar();
+    });
+  }
+
+  const detectBtns = [
+    document.getElementById('github-detect-repo-btn'),
+    document.getElementById('scm-detect-repo-btn'),
+  ].filter(Boolean);
+  for (const btn of detectBtns) {
+    btn.addEventListener('click', () => runGitHubLoopAction('detect_repo', {}).catch(() => {}));
+  }
+
+  const branchesBtn = document.getElementById('github-connect-branches-btn');
+  if (branchesBtn) {
+    branchesBtn.addEventListener('click', () => runGitHubLoopAction('connect', {}).catch(() => {}));
+  }
+
+  for (const [btnId, inputId] of [
+    ['github-create-branch-btn', 'github-new-branch-input'],
+    ['scm-create-branch-btn', 'scm-new-branch-input'],
+  ]) {
+    const bBtn = document.getElementById(btnId);
+    const bInp = document.getElementById(inputId);
+    if (bBtn && bInp) {
+      bBtn.addEventListener('click', () => {
+        const nextBranch = bInp.value.trim();
+        if (!nextBranch) return;
+        runGitHubLoopAction('create_branch', {
+          branch: nextBranch,
+          base_branch: AppState.config.connectedGitBranch || 'main',
+        }).catch(() => {});
+      });
+    }
+  }
+
+  for (const selId of ['scm-branch-select', 'github-branch-select']) {
+    const sel = document.getElementById(selId);
+    if (sel) {
+      sel.addEventListener('change', () => {
+        const chosen = sel.value;
+        if (!chosen || !AppState.config.connectedGitRepo) return;
+        runGitHubLoopAction('clone', { repo: AppState.config.connectedGitRepo, branch: chosen }).catch(() => {});
+      });
+    }
+  }
+
+  const scmCloneBtn = document.getElementById('scm-connect-clone-btn');
+  if (scmCloneBtn) {
+    scmCloneBtn.addEventListener('click', async () => {
+      const repoInput = document.getElementById('scm-repo-input');
+      const repoVal = repoInput ? repoInput.value.trim() : '';
+      if (!repoVal) return;
+      await runGitHubLoopAction('connect', { repo: repoVal });
+      await runGitHubLoopAction('clone', { repo: repoVal, branch: AppState.config.connectedGitBranch || 'main' });
+    });
+  }
+
+  const scmCommitPushBtn = document.getElementById('scm-commit-push-btn');
+  if (scmCommitPushBtn) {
+    scmCommitPushBtn.addEventListener('click', () => {
+      const msgEl = document.getElementById('scm-commit-message-input');
+      const commitMsg = (msgEl && msgEl.value.trim()) || 'Update workspace files via LexLean-R4 Studio';
+      runGitHubLoopAction('commit_push', { message: commitMsg }).catch(() => {});
+    });
+  }
+
+  const scmCreatePrBtn = document.getElementById('scm-create-pr-btn');
+  if (scmCreatePrBtn) {
+    scmCreatePrBtn.addEventListener('click', () => {
+      const titleEl = document.getElementById('scm-pr-title-input');
+      const prTitle = (titleEl && titleEl.value.trim()) || `Workspace changes from ${AppState.config.connectedGitBranch || 'feature'}`;
+      runGitHubLoopAction('create_pr', {
+        title: prTitle,
+        head: AppState.config.connectedGitBranch || 'main',
+        base: 'main',
+      }).catch(() => {});
+    });
+  }
+
+  const scmRefreshCiBtn = document.getElementById('scm-refresh-ci-btn');
+  if (scmRefreshCiBtn) {
+    scmRefreshCiBtn.addEventListener('click', async () => {
+      if (AppState.config.activePrNumber) {
+        await runGitHubLoopAction('pr_status', { pr_number: AppState.config.activePrNumber });
+      }
+      await runGitHubLoopAction('watch_deploy', {});
+    });
+  }
+
+  const scmMergePrBtn = document.getElementById('scm-merge-pr-btn');
+  if (scmMergePrBtn) {
+    scmMergePrBtn.addEventListener('click', async () => {
+      if (!AppState.config.activePrNumber) return;
+      const merged = await runGitHubLoopAction('merge_pr', { pr_number: AppState.config.activePrNumber });
+      if (merged && merged.ok) {
+        await runGitHubLoopAction('watch_deploy', {}).catch(() => {});
+      }
+    });
+  }
+
+  const refreshReloadBtn = document.getElementById('studio-refresh-reload-btn');
+  if (refreshReloadBtn) {
+    refreshReloadBtn.addEventListener('click', async () => {
+      refreshReloadBtn.disabled = true;
+      try {
+        if (engineWorkerClient.enabled) {
+          await engineWorkerClient.rpc('force_refresh_reload', {}).catch(() => {});
+        }
+      } finally {
+        if (typeof window !== 'undefined' && window.location && typeof window.location.reload === 'function') {
+          window.location.reload();
+        }
+      }
+    });
+  }
+
+  const composerModelSel = document.getElementById('composer-model-select');
+  if (composerModelSel) {
+    composerModelSel.addEventListener('change', () => {
+      renderCoworkStatusBar();
+      updateDynamicPlanningPanel();
+      renderDynamicPoolPanel();
+      emitPrismEmbedEvent('prism:status');
     });
   }
 
@@ -12463,24 +13175,23 @@ function initLayoutAndConnectedControls() {
         if (githubConnectStatus) githubConnectStatus.textContent = 'Enter a GitHub repository (owner/repo or URL).';
         return;
       }
-      if (githubConnectStatus) githubConnectStatus.textContent = `Cloning ${repoVal} into /workspace...`;
+      const branchSel = document.getElementById('github-branch-select');
+      const selectedBranch = (branchSel && branchSel.value) || AppState.config.connectedGitBranch || 'main';
+      if (githubConnectStatus) githubConnectStatus.textContent = `Cloning ${repoVal}@${selectedBranch} into /workspace...`;
       cloneGithubRepoBtn.disabled = true;
       try {
-        const res = await engineWorkerClient.rpc('host_bridge_exec', {
-          op: 'git',
-          subcommand: 'clone',
+        await runGitHubLoopAction('connect', { repo: repoVal }).catch(() => null);
+        const res = await runGitHubLoopAction('clone', {
+          repo: repoVal,
           repo_url: repoVal,
+          branch: selectedBranch,
         });
         if (!res || res.ok === false) {
-          if (githubConnectStatus) {
-            githubConnectStatus.textContent = `Clone error (${res?.error_code || 'BridgeError'}): ${res?.message || 'Failed'}`;
-          }
           return;
         }
-        AppState.config.connectedGitRepo = repoVal;
-        const count = Array.isArray(res.data?.files) ? res.data.files.length : (res.data?.file_count ?? 0);
+        const count = Array.isArray(res.data?.files) ? res.data.files.length : (res.files?.length ?? res.data?.file_count ?? 0);
         if (githubConnectStatus) {
-          githubConnectStatus.textContent = `Cloned ${count} file(s) from ${repoVal} into /workspace. Switching to Studio IDE...`;
+          githubConnectStatus.textContent = `Cloned ${count} file(s) from ${repoVal}@${AppState.config.connectedGitBranch} into /workspace. Switching to Studio IDE...`;
         }
         setLayoutMode('studio');
         closeGithubModal();
@@ -12493,6 +13204,12 @@ function initLayoutAndConnectedControls() {
       }
     });
   }
+
+  initEmbedMeBridge();
+  updateDynamicPlanningPanel();
+  renderDynamicPoolPanel();
+  renderCoworkStatusBar();
+  renderCursorShardsSection();
 
   if (saveRelayUrlBtn) {
     saveRelayUrlBtn.addEventListener('click', async () => {

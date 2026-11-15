@@ -1,0 +1,71 @@
+{
+  "schema": "prism/r4-workspace/1",
+  "name": "LexLean-R4 Universal Workspace",
+  "shortName": "prism-r4",
+  "tagline": "In-browser WebAssembly UOR-R4 GLLM & Prism Agentic Studio with Zero-NIC Secret Vault and 2-of-3 Stitch Parity Custody",
+  "purpose": "Connect any GitHub repository into a sandboxed browser workspace backed by local UOR-R4 GLLM v11 execution, Stitch 2-of-3 XOR parity weight custody, and host-vaulted GitHub branch/commit/PR/CI loops where bearer credentials never enter guest RAM.",
+  "inputLabel": "Prompt or Workspace Command",
+  "placeholder": "Plan, edit, test, commit, open PR, or switch branch on any GitHub repository...",
+  "submitLabel": "Run",
+  "outputLabel": "Workspace Output",
+  "promise": {
+    "headline": "GitHub bearer credentials remain isolated in the Dedicated Worker host vault and allowlisted origins.",
+    "detail": "Arbitrary repository clones (>40 files lazy-loaded via read_blob), branch creation, atomic multi-file commits, pull requests, CI/workflow status polling, Pages digest checks, and Stitch 2-of-3 XOR parity recovery run through typed boundaries without exposing credentials to guest WebAssembly memory."
+  },
+  "claim": "R4-WS-01: Local UOR-R4 GLLM modes, Stitch 2-of-3 XOR parity custody, and arbitrary GitHub repository workflows execute deterministically with strict HostNotAllowlistedForSecret isolation.",
+  "embed": {
+    "supported": true,
+    "queryParam": "embed=me",
+    "metaTag": "prism/r4-workspace/1",
+    "compactMode": true,
+    "postMessage": {
+      "outbound": [
+        "prism:ready",
+        "prism:status"
+      ],
+      "inbound": [
+        "prism:open-repo"
+      ]
+    }
+  },
+  "custody": {
+    "scheme": "stitch/xor-2-of-3/1",
+    "parity": "2-of-3 XOR + SHA-256",
+    "weightsFormat": "UORGLLM9"
+  },
+  "models": [
+    "uor-r4.gllm-v11-agent",
+    "uor-r4.gllm-v11-chat",
+    "uor-r4.gllm-v11-code",
+    "uor-r4.opfs-large"
+  ],
+  "capabilities": [
+    "detect_repo",
+    "connect",
+    "branches",
+    "clone",
+    "read_blob",
+    "create_branch",
+    "commit_push",
+    "create_pr",
+    "pr_status",
+    "merge_pr",
+    "watch_deploy",
+    "stitch_2_of_3_recovery"
+  ],
+  "trusted": [
+    {
+      "name": "Browser WebAssembly Sandbox",
+      "value": "lexlean_r4_bg.wasm (zero-NIC guest memory isolation)"
+    },
+    {
+      "name": "Dedicated Worker Host Bridge",
+      "value": "HostNotAllowlistedForSecret secret-vault enforcement on github.com / api.github.com"
+    },
+    {
+      "name": "Stitch Parity Custody",
+      "value": "stitch/xor-2-of-3/1 deterministic XOR pair recovery + SHA-256 verification"
+    }
+  ],
+  "repository": "https://github.com/UOR-Foundation/Prism"
+}

@@ -108,6 +108,18 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-02` | `build` | The LexLean finite-geometry model preserves signed-axis composition, the canonical 64 actions and sixteen-root orbit, and ordered transport/branch metadata under formal finite checks. This is fixed geometry metadata, not model execution or research qualification. |
 
+## r4-github-git-loop
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-40` | `build` | Pure LexLean models arbitrary-repository GitHub git loop admission: allowlisted HTTPS/WSS transport and github.com/api.github.com host enforcement without guest RAM secret contamination, valid owner/repo slug and non-protected target branch naming, branch-create, commit-push, PR, CI-status, deploy-watch, and workspace-refresh phase transitions, and fail-closed refusal of non-allowlisted hosts, invalid slugs or refs, and unverified deploy states. Formal controls establish no live GitHub API availability or remote branch protection state. |
+
+## r4-gllm-v11
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-43` | `build` | Pure LexLean models the UOR-R4 GLLM v11 compositional architecture extension: container admission of versions 9, 10, and 11 with Cl(0,6) spin alignment (n_heads * 8 == d_model), multi-turn integer RoPE position bounds over causal KV windows (attendedPos <= queryPos), 16-channel integer PRLL bilinear attention with invariant mass conservation (PRLL_MASS_QUANTUM), and bounded agentic <tool_call> git loop admission routing through SpiralCore CID 2 with zero raw secret contamination. Formal controls establish no external checkpoint benchmark accuracy or remote model weight availability. |
+
 ## r4-hash
 
 | ID | Level | Statement |
@@ -216,6 +228,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-37` | `build` | Pure LexLean models the MVM-Wasm RV64IMAC Linux MicroVM and SpiralCore virtio-vsock zero-NIC security switch: default-deny guest socket admission (AF_VSOCK = 40 admitted while AF_INET, AF_INET6, and raw packet sockets are refused as NIC-disabled), 16-byte SpiralCore frame admission over CID pairs, Cl(0,6) spin actions (< 64), E8 orbits (< 16), and bounded payloads, ELF64 EM_RISCV (machine 243) executable header admission, and host egress proxy secret-placeholder substitution refusing raw secret residence in guest RAM. Formal controls establish no hardware KVM hypervisor privilege or unrestricted external internet routing. |
 
+## r4-stitch-fabric
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-42` | `build` | Pure LexLean models Stitch 2-of-3 XOR parity shard custody and FIPS 180-4 SHA-256 verification (stitch/xor-2-of-3/1): manifest threshold, count, and parity pairing invariants over data shard pairs including odd trailing singleton groups, deterministic 2-of-3 reconstruction across (left+right), (left+parity), and (right+parity) combinations, exact SHA-256 digest matching against declared shard and parity records, and typed refusal on insufficient shards (< 2 available) or tampered digest mismatch. Formal controls establish no external HTTP CDN liveness or browser OPFS hardware durability. |
+
 ## r4-tokenizer-json
 
 | ID | Level | Statement |
@@ -239,6 +257,12 @@ model does not sanction.
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-01` | `build` | The LexLean configuration predicate admits the pinned discrete-engine bounds and rejects boundary violations, verified by eleven independent Lean theorem cases. No model execution or research qualification is claimed. |
+
+## r4-verdant-ratchet
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-41` | `build` | Pure LexLean models the Verdant-Resonance Peirce triadic homeostasis and shrink-only ratchet gate (model/ratchet.toml): Abduction -> Deduction -> Induction cycling bounded by Rule 30 chaotic frontier discovery, non-vacuous witness and invariant checks, strict non-regression across every tracked shrink-only ceiling (residual, placeholder, classical choice, and handwritten ungrounded lines), and dry-run immutability. Formal controls establish no hosted Lean kernel execution beyond modeled metrics or unrestricted automatic synthesis. |
 
 ## r4-wasm-ast-eval
 

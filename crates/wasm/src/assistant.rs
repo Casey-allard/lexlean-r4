@@ -830,7 +830,15 @@ impl StudioEngine {
             || lower.contains("<observation>")
             || lower.contains("available tools:")
             || lower.contains("use the tool")
+            || lower.contains("use the git tool")
             || lower.contains("call the tool")
+            || lower.contains("create_branch")
+            || lower.contains("commit_push")
+            || lower.contains("create_pr")
+            || lower.contains("pr_status")
+            || lower.contains("merge_pr")
+            || lower.contains("watch_deploy")
+            || lower.contains("pull request")
             || lower.contains("[agent_mode]")
             || lower.starts_with("agent:");
 
@@ -1208,8 +1216,130 @@ impl StudioEngine {
                         && lut_gen.matched_stem_count >= 2)
             });
 
-        // 6. Primary single-pass `UORGLLM9` (`v10` multi-turn KV + ReAct `<tool_call>`, or legacy `v9` KV)
+        // 6. Primary single-pass `UORGLLM9` (`v11` full-history Q12 RoPE, `v10` KV, or legacy `v9` KV)
         if !self.gllm_v9.is_legacy_v9_container() {
+            let is_v11 = self.gllm_v9.is_v11_or_later();
+            let is_explicit_uor_query = lower.starts_with("uor:") || lower.starts_with("uor ");
+            if is_v11 && is_explicit_uor_query {
+                self.last_brain_pulses = self
+                    .gllm_v9
+                    .encode_prompt_pulses(trimmed, &self.chat_history);
+                return lut_gen.reply_text;
+            }
+
+            if is_v11 {
+                // In v11+, always pass full rolling multi-turn `chat_history` within `<= 768` token budget
+                // (never strip history via `has_v10_cross_turn_cue` and never hijack prose via `UORLUT08`).
+                let v11_gen =
+                    self.gllm_v9
+                        .generate_compositional_v10(trimmed, &self.chat_history, 256);
+                let mut pulses = v11_gen.brain_pulses.clone();
+                if let Some(handled) =
+                    self.try_execute_v10_tool_call(trimmed, &v11_gen.text, &mut pulses)
+                {
+                    self.last_brain_pulses = pulses;
+                    return handled;
+                }
+                self.last_brain_pulses = pulses;
+                let coding_request = code_outcome.is_coding_turn
+                    || ((lower.starts_with("given ") && lower.contains(" = "))
+                        || ((lower.starts_with("write a rust function ")
+                            || lower.starts_with("write a freestanding c function "))
+                            && trimmed.contains('(')));
+                if coding_request {
+                    if is_well_formed_v10_code(&v11_gen, trimmed) {
+                        return v11_gen.text;
+                    }
+                    if !code_outcome.explanation_markdown.trim().is_empty() {
+                        return code_outcome.explanation_markdown.clone();
+                    }
+                }
+                // Preserve third-person open-domain encyclopedic explanations from the grounded LUT
+                // because the 4K-vocab neural generator compresses broad world trivia below 20 tokens.
+                let is_open_domain_encyclopedic = !coding_request
+                    && !is_compositional_v9_turn
+                    && has_grounded_lut_match
+                    && lower_words.len() >= 5
+                    && !has_any_word(
+                        &lower,
+                        &[
+                            "you",
+                            "your",
+                            "yours",
+                            "youre",
+                            "our",
+                            "ours",
+                            "my",
+                            "mine",
+                            "we",
+                            "me",
+                            "i",
+                            "im",
+                            "uor",
+                            "q12",
+                            "r4",
+                            "v9",
+                            "v11",
+                            "repo",
+                            "repository",
+                            "wasm",
+                            "mvm",
+                            "rust",
+                            "git",
+                            "github",
+                            "prism",
+                            "lexlean",
+                            "spiralcore",
+                            "stitch",
+                            "gllm",
+                            "opfs",
+                            "shard",
+                            "shards",
+                            "weight",
+                            "weights",
+                            "model",
+                            "models",
+                            "token",
+                            "tokens",
+                            "tool",
+                            "tools",
+                            "file",
+                            "files",
+                            "code",
+                            "commit",
+                            "branch",
+                            "pr",
+                            "diff",
+                            "patch",
+                            "cargo",
+                            "crate",
+                            "browser",
+                            "studio",
+                            "workspace",
+                            "terminal",
+                            "remember",
+                            "earlier",
+                            "previous",
+                            "before",
+                            "chat",
+                            "conversation",
+                            "session",
+                            "memory",
+                        ],
+                    );
+                if is_open_domain_encyclopedic {
+                    let safe_lut = sanitize_lut_prose_fallback(&lut_gen.reply_text);
+                    if safe_lut.split_whitespace().count() >= 20 {
+                        return safe_lut;
+                    }
+                }
+                let (_, v11_visible) = parse_thinking_block(&v11_gen.text);
+                if !v11_visible.trim().is_empty() {
+                    return v11_gen.text;
+                }
+                return "I am ready to help with your question or repository workflow.".to_string();
+            }
+
             const PURE_GREETINGS: &[&str] = &[
                 "hi",
                 "hello",
@@ -1383,6 +1513,39 @@ impl StudioEngine {
         let resolved = resolve_v10_tool_invocation(user_prompt, generated_text)?;
 
         match resolved.tool_name.as_str() {
+            "git" if resolved.git_action.is_some() => {
+                let action = resolved.git_action.as_deref().unwrap_or("");
+                let empty_args = serde_json::json!({});
+                let args = resolved.git_args.as_ref().unwrap_or(&empty_args);
+                match self.prepare_github_git_bridge(action, args) {
+                    Ok((repo_slug, bridge_req)) => {
+                        let messages: Vec<serde_json::Value> = self
+                            .chat_history
+                            .iter()
+                            .rev()
+                            .take(12)
+                            .collect::<Vec<_>>()
+                            .into_iter()
+                            .rev()
+                            .map(|(u, a)| serde_json::json!({ "user": u, "assistant": a }))
+                            .collect();
+                        self.pending_chat_bridge = Some(serde_json::json!({
+                            "prompt": user_prompt,
+                            "tool": "git",
+                            "action": action,
+                            "repo": repo_slug,
+                            "bridge_req": bridge_req,
+                            "step1_raw": format!("<tool_call>{}</tool_call>", resolved.canonical_body),
+                            "messages": messages,
+                        }));
+                        Some(format!(
+                            "<tool_call>{}</tool_call>",
+                            resolved.canonical_body
+                        ))
+                    }
+                    Err(reason) => Some(format!("Git tool request refused ({action}): {reason}")),
+                }
+            }
             "mvm_exec" | "git" => {
                 let cmd = resolved.cmd.as_deref()?.trim();
                 if cmd.is_empty() {
@@ -1512,7 +1675,295 @@ struct ResolvedV10ToolCall {
     cmd: Option<String>,
     query: Option<String>,
     url: Option<String>,
+    git_action: Option<String>,
+    git_args: Option<serde_json::Value>,
     canonical_body: String,
+}
+
+const SUPPORTED_GITHUB_GIT_ACTIONS: &[&str] = &[
+    "clone",
+    "read_blob",
+    "create_branch",
+    "commit_push",
+    "create_pr",
+    "pr_status",
+    "merge_pr",
+    "watch_deploy",
+];
+
+fn is_valid_github_repo_slug(repo: &str) -> bool {
+    let trimmed = repo.trim();
+    let Some((owner, name)) = trimmed.split_once('/') else {
+        return false;
+    };
+    !owner.is_empty()
+        && !name.is_empty()
+        && !name.contains('/')
+        && !trimmed.contains("..")
+        && trimmed
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.' | b'/'))
+}
+
+impl StudioEngine {
+    /// Validate and construct a structured `#165` host-bridge GitHub `git` request (`R5` typed errors).
+    pub(crate) fn prepare_github_git_bridge(
+        &mut self,
+        action: &str,
+        args: &serde_json::Value,
+    ) -> Result<(String, serde_json::Value), String> {
+        use crate::lexlean_generated::r4_connected_studio::{
+            admit_bridge_transport, BridgeTransportVerdict, TransportKind,
+        };
+        match admit_bridge_transport(3, 2, self.mvm.policy_mode(), TransportKind::HttpsDirect) {
+            BridgeTransportVerdict::TransportAdmitted => {}
+            BridgeTransportVerdict::PolicyDenied => {
+                return Err(
+                    "PolicyDenied: SpiralCore network policy `deny` refuses outbound GitHub bridge"
+                        .to_string(),
+                );
+            }
+            BridgeTransportVerdict::InsecureTransportRejected => {
+                return Err(
+                    "InsecureTransportRejected: https required for outbound GitHub bridge"
+                        .to_string(),
+                );
+            }
+            BridgeTransportVerdict::InvalidVsockCid => {
+                return Err("InvalidVsockCid: invalid MVM bridge transport CID".to_string());
+            }
+        }
+        if !SUPPORTED_GITHUB_GIT_ACTIONS.contains(&action) {
+            return Err(format!(
+                "UnsupportedGitAction: '{action}' is not in {:?}",
+                SUPPORTED_GITHUB_GIT_ACTIONS
+            ));
+        }
+        let repo = args
+            .get("repo")
+            .and_then(|v| v.as_str())
+            .map(str::trim)
+            .unwrap_or("");
+        if !is_valid_github_repo_slug(repo) {
+            return Err(format!(
+                "InvalidRepoSlug: expected 'owner/repo', got '{repo}'"
+            ));
+        }
+        let non_empty = |key: &str| -> Option<String> {
+            args.get(key)
+                .and_then(|v| v.as_str())
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(str::to_string)
+        };
+        let mut req = serde_json::Map::new();
+        let req_id = format!("git-{action}-{}", self.chat_history.len() + 1);
+        req.insert("req_id".to_string(), serde_json::json!(req_id));
+        req.insert("op".to_string(), serde_json::json!("git"));
+        req.insert("subcommand".to_string(), serde_json::json!(action));
+        req.insert("repo".to_string(), serde_json::json!(repo));
+        req.insert("policy".to_string(), serde_json::json!("https_github_api"));
+
+        match action {
+            "clone" => {
+                let branch = non_empty("branch").unwrap_or_else(|| "main".to_string());
+                req.insert("branch".to_string(), serde_json::json!(branch));
+            }
+            "read_blob" => {
+                let branch = non_empty("branch").unwrap_or_else(|| "main".to_string());
+                let path = non_empty("path")
+                    .ok_or_else(|| "MissingArgument: read_blob requires 'path'".to_string())?;
+                req.insert("branch".to_string(), serde_json::json!(branch));
+                req.insert("path".to_string(), serde_json::json!(path));
+            }
+            "create_branch" => {
+                let branch = non_empty("branch").ok_or_else(|| {
+                    "MissingArgument: create_branch requires 'branch'".to_string()
+                })?;
+                let from_branch = non_empty("from_branch").unwrap_or_else(|| "main".to_string());
+                req.insert("branch".to_string(), serde_json::json!(branch));
+                req.insert("from_branch".to_string(), serde_json::json!(from_branch));
+            }
+            "commit_push" => {
+                let branch = non_empty("branch")
+                    .ok_or_else(|| "MissingArgument: commit_push requires 'branch'".to_string())?;
+                let message = non_empty("message").ok_or_else(|| {
+                    "MissingArgument: commit_push requires non-empty 'message'".to_string()
+                })?;
+                let files: Vec<serde_json::Value> = match args
+                    .get("files")
+                    .and_then(|v| v.as_array())
+                    .filter(|arr| !arr.is_empty())
+                {
+                    Some(explicit) => explicit.clone(),
+                    None if !self.workspace_files.is_empty() => self
+                        .workspace_files
+                        .iter()
+                        .map(|f| {
+                            serde_json::json!({
+                                "path": f.path,
+                                "content": f.content,
+                            })
+                        })
+                        .collect(),
+                    None => {
+                        return Err(
+                            "MissingArgument: commit_push requires 'files' array".to_string()
+                        );
+                    }
+                };
+                req.insert("branch".to_string(), serde_json::json!(branch));
+                req.insert("message".to_string(), serde_json::json!(message));
+                req.insert("files".to_string(), serde_json::Value::Array(files));
+            }
+            "create_pr" => {
+                let title = non_empty("title")
+                    .ok_or_else(|| "MissingArgument: create_pr requires 'title'".to_string())?;
+                let head = non_empty("head")
+                    .ok_or_else(|| "MissingArgument: create_pr requires 'head'".to_string())?;
+                let base = non_empty("base").unwrap_or_else(|| "main".to_string());
+                let body = non_empty("body").unwrap_or_default();
+                req.insert("title".to_string(), serde_json::json!(title));
+                req.insert("body".to_string(), serde_json::json!(body));
+                req.insert("head".to_string(), serde_json::json!(head));
+                req.insert("base".to_string(), serde_json::json!(base));
+            }
+            "pr_status" => {
+                let pr_number = args
+                    .get("pr_number")
+                    .and_then(|v| {
+                        v.as_u64()
+                            .or_else(|| v.as_str().and_then(|s| s.trim().parse::<u64>().ok()))
+                    })
+                    .filter(|&n| n > 0)
+                    .ok_or_else(|| {
+                        "MissingArgument: pr_status requires positive integer 'pr_number'"
+                            .to_string()
+                    })?;
+                req.insert("pr_number".to_string(), serde_json::json!(pr_number));
+            }
+            "merge_pr" => {
+                let pr_number = args
+                    .get("pr_number")
+                    .and_then(|v| {
+                        v.as_u64()
+                            .or_else(|| v.as_str().and_then(|s| s.trim().parse::<u64>().ok()))
+                    })
+                    .filter(|&n| n > 0)
+                    .ok_or_else(|| {
+                        "MissingArgument: merge_pr requires positive integer 'pr_number'"
+                            .to_string()
+                    })?;
+                let method = non_empty("merge_method").unwrap_or_else(|| "squash".to_string());
+                req.insert("pr_number".to_string(), serde_json::json!(pr_number));
+                req.insert("merge_method".to_string(), serde_json::json!(method));
+            }
+            "watch_deploy" => {
+                let branch = non_empty("branch").unwrap_or_else(|| "gh-pages".to_string());
+                req.insert("branch".to_string(), serde_json::json!(branch));
+                if let Some(prov_url) = non_empty("provenance_url") {
+                    if prov_url.to_ascii_lowercase().starts_with("http://") {
+                        return Err(format!(
+                            "PlainHttpRefused: https required for watch_deploy provenance_url ('{prov_url}')"
+                        ));
+                    }
+                    if !prov_url.to_ascii_lowercase().starts_with("https://") {
+                        return Err(format!(
+                            "InvalidProvenanceUrl: expected https:// URL, got '{prov_url}'"
+                        ));
+                    }
+                    req.insert("provenance_url".to_string(), serde_json::json!(prov_url));
+                }
+            }
+            _ => {}
+        }
+        Ok((repo.to_string(), serde_json::Value::Object(req)))
+    }
+
+    /// Format a `git` host-bridge response cleanly for multi-turn `<tool_response>` continuation.
+    pub(crate) fn format_git_bridge_observation(
+        action: &str,
+        bridge_resp: &serde_json::Value,
+    ) -> Result<String, String> {
+        if bridge_resp.get("ok") == Some(&serde_json::Value::Bool(false))
+            || bridge_resp.get("status").and_then(|v| v.as_str()) == Some("error")
+        {
+            let code = bridge_resp
+                .get("error_code")
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.is_empty())
+                .unwrap_or("BridgeError");
+            let msg = bridge_resp
+                .get("error")
+                .or_else(|| bridge_resp.get("message"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("remote git operation failed");
+            return Err(format!("[{code}] {msg}"));
+        }
+        if let Some(body) = bridge_resp.get("body_text").and_then(|v| v.as_str()) {
+            let trimmed = body.trim();
+            if !trimmed.is_empty() {
+                return Ok(trimmed.to_string());
+            }
+        }
+        let data = bridge_resp
+            .get("data")
+            .filter(|d| d.is_object() || d.is_string())
+            .unwrap_or(bridge_resp);
+        if let Some(body) = data.get("body_text").and_then(|v| v.as_str()) {
+            let trimmed = body.trim();
+            if !trimmed.is_empty() {
+                return Ok(trimmed.to_string());
+            }
+        }
+        if data.is_object() {
+            return Ok(format!("git {action} ok: {data}"));
+        }
+        Ok(format!("git {action} completed cleanly: {bridge_resp}"))
+    }
+
+    /// Complete a deferred `git` host-bridge tool turn cleanly via `<tool_response>` continuation.
+    pub fn complete_v11_git_bridge_turn(
+        &mut self,
+        orig_prompt: &str,
+        action: &str,
+        bridge_resp: &serde_json::Value,
+    ) -> Result<String, String> {
+        let obs_summary = Self::format_git_bridge_observation(action, bridge_resp)?;
+        let cont_prompt = format!(
+            "Summarize the verified tool output for `{orig_prompt}`:\n<tool_response> {obs_summary}</tool_response>"
+        );
+        let step2 = self
+            .gllm_v9
+            .generate_compositional_v10(&cont_prompt, &self.chat_history, 256);
+        let mut combined_pulses = std::mem::take(&mut self.last_brain_pulses);
+        for mut p in step2.brain_pulses.clone() {
+            p.step = combined_pulses.len() as u32;
+            combined_pulses.push(p);
+        }
+        self.last_brain_pulses = combined_pulses;
+
+        let assistant_reply = if !self.gllm_v9.is_legacy_v9_container()
+            && is_well_formed_v10_step2(&step2, &obs_summary)
+        {
+            step2.text
+        } else {
+            format!("Completed `git {action}` via `SpiralCore`:\n\n{obs_summary}")
+        };
+        if let Some(last) = self.chat_history.last_mut() {
+            if last.0 == orig_prompt && last.1.contains("<tool_call>") {
+                last.1 = assistant_reply.clone();
+            } else {
+                self.chat_history
+                    .push((orig_prompt.to_string(), assistant_reply.clone()));
+            }
+        } else {
+            self.chat_history
+                .push((orig_prompt.to_string(), assistant_reply.clone()));
+        }
+        self.pending_chat_bridge = None;
+        Ok(assistant_reply)
+    }
 }
 
 fn extract_partial_json_str_field(raw: &str, key: &str) -> Option<String> {
@@ -1636,6 +2087,7 @@ fn resolve_v10_tool_invocation(
         && !lower_prompt.contains("wget ");
     let explicit_tool_intent = explicit_url.is_some()
         || explicit_search.is_some()
+        || lower_prompt.contains("<tool_call>")
         || lower_prompt.starts_with("search ")
         || lower_prompt.contains("[agent_mode]")
         || lower_prompt.contains("microvm")
@@ -1647,6 +2099,19 @@ fn resolve_v10_tool_invocation(
         || lower_prompt.contains("pkg ")
         || lower_prompt.contains("git ")
         || lower_prompt.contains("`git")
+        || lower_prompt.contains("use the git tool")
+        || lower_prompt.contains("pull request")
+        || (lower_prompt.contains("github")
+            && (lower_prompt.contains("branch")
+                || lower_prompt.contains("commit")
+                || lower_prompt.contains("pr")
+                || lower_prompt.contains("deploy")))
+        || lower_prompt.contains("create_branch")
+        || lower_prompt.contains("commit_push")
+        || lower_prompt.contains("create_pr")
+        || lower_prompt.contains("pr_status")
+        || lower_prompt.contains("merge_pr")
+        || lower_prompt.contains("watch_deploy")
         || (lower_prompt.contains("push ") && lower_prompt.contains("origin"))
         || lower_prompt.contains("curl ")
         || lower_prompt.contains("wget ")
@@ -1670,13 +2135,18 @@ fn resolve_v10_tool_invocation(
             cmd: Some(cmd),
             query: None,
             url: None,
+            git_action: None,
+            git_args: None,
             canonical_body: body,
         });
     }
 
     if explicit_tool_intent {
-        if let Some(start) = generated_text.find("<tool_call>") {
-            let after = &generated_text[start + "<tool_call>".len()..];
+        for tc_source in [generated_text, user_prompt] {
+            let Some(start) = tc_source.find("<tool_call>") else {
+                continue;
+            };
+            let after = &tc_source[start + "<tool_call>".len()..];
             let body = after.split("</tool_call>").next().unwrap_or(after).trim();
             if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(body) {
                 let tool_name = parsed
@@ -1687,7 +2157,46 @@ fn resolve_v10_tool_invocation(
                     .unwrap_or("");
                 let args = parsed.get("arguments").unwrap_or(&parsed);
                 match tool_name {
-                    "mvm_exec" | "git" if !explicit_fetch_prompt => {
+                    "git" if !explicit_fetch_prompt => {
+                        if let Some(act) = args
+                            .get("action")
+                            .or_else(|| args.get("subcommand"))
+                            .and_then(|v| v.as_str())
+                            .map(str::trim)
+                            .filter(|s| !s.is_empty())
+                        {
+                            let canon = serde_json::json!({
+                                "name": "git",
+                                "arguments": args
+                            })
+                            .to_string();
+                            return Some(ResolvedV10ToolCall {
+                                tool_name: "git".to_string(),
+                                cmd: None,
+                                query: None,
+                                url: None,
+                                git_action: Some(act.to_string()),
+                                git_args: Some(args.clone()),
+                                canonical_body: canon,
+                            });
+                        }
+                        let cmd = args
+                            .get("cmd")
+                            .or_else(|| args.get("command"))
+                            .or_else(|| args.get("args"))
+                            .and_then(|v| v.as_str())
+                            .map(|s| s.trim().to_string());
+                        return Some(ResolvedV10ToolCall {
+                            tool_name: "git".to_string(),
+                            cmd,
+                            query: None,
+                            url: None,
+                            git_action: None,
+                            git_args: None,
+                            canonical_body: body.to_string(),
+                        });
+                    }
+                    "mvm_exec" if !explicit_fetch_prompt => {
                         let cmd = args
                             .get("cmd")
                             .or_else(|| args.get("command"))
@@ -1699,6 +2208,8 @@ fn resolve_v10_tool_invocation(
                             cmd,
                             query: None,
                             url: None,
+                            git_action: None,
+                            git_args: None,
                             canonical_body: body.to_string(),
                         });
                     }
@@ -1714,6 +2225,8 @@ fn resolve_v10_tool_invocation(
                             cmd: None,
                             query,
                             url: None,
+                            git_action: None,
+                            git_args: None,
                             canonical_body: body.to_string(),
                         });
                     }
@@ -1729,12 +2242,26 @@ fn resolve_v10_tool_invocation(
                             cmd: None,
                             query: None,
                             url,
+                            git_action: None,
+                            git_args: None,
                             canonical_body: body.to_string(),
                         });
                     }
                     _ => {}
                 }
-            } else {
+            }
+        }
+        let tc_source = if generated_text.contains("<tool_call>") {
+            generated_text
+        } else if user_prompt.contains("<tool_call>") {
+            user_prompt
+        } else {
+            generated_text
+        };
+        if let Some(start) = tc_source.find("<tool_call>") {
+            let after = &tc_source[start + "<tool_call>".len()..];
+            let body = after.split("</tool_call>").next().unwrap_or(after).trim();
+            if serde_json::from_str::<serde_json::Value>(body).is_err() {
                 let recovered_name = extract_partial_json_str_field(body, "name")
                     .or_else(|| extract_partial_json_str_field(body, "tool"));
                 match recovered_name.as_deref() {
@@ -1753,6 +2280,8 @@ fn resolve_v10_tool_invocation(
                                 cmd: None,
                                 query: None,
                                 url: Some(u),
+                                git_action: None,
+                                git_args: None,
                                 canonical_body: cbody,
                             });
                         }
@@ -1772,10 +2301,52 @@ fn resolve_v10_tool_invocation(
                             cmd: None,
                             query: Some(query),
                             url: None,
+                            git_action: None,
+                            git_args: None,
                             canonical_body: cbody,
                         });
                     }
                     Some(t @ ("mvm_exec" | "git")) if !explicit_fetch_prompt => {
+                        if t == "git" {
+                            if let Some(act) = extract_partial_json_str_field(body, "action")
+                                .or_else(|| extract_partial_json_str_field(body, "subcommand"))
+                            {
+                                let mut map = serde_json::Map::new();
+                                map.insert("action".to_string(), serde_json::json!(act));
+                                for k in [
+                                    "repo",
+                                    "branch",
+                                    "from_branch",
+                                    "path",
+                                    "message",
+                                    "title",
+                                    "body",
+                                    "head",
+                                    "base",
+                                    "merge_method",
+                                    "provenance_url",
+                                ] {
+                                    if let Some(val) = extract_partial_json_str_field(body, k) {
+                                        map.insert(k.to_string(), serde_json::json!(val));
+                                    }
+                                }
+                                let args_val = serde_json::Value::Object(map);
+                                let cbody = serde_json::json!({
+                                    "name": "git",
+                                    "arguments": args_val
+                                })
+                                .to_string();
+                                return Some(ResolvedV10ToolCall {
+                                    tool_name: "git".to_string(),
+                                    cmd: None,
+                                    query: None,
+                                    url: None,
+                                    git_action: Some(act),
+                                    git_args: Some(args_val),
+                                    canonical_body: cbody,
+                                });
+                            }
+                        }
                         let mut cmd = extract_partial_json_str_field(body, "cmd")
                             .or_else(|| extract_partial_json_str_field(body, "command"));
                         if t == "git" && lower_prompt.contains("clone ") {
@@ -1794,6 +2365,8 @@ fn resolve_v10_tool_invocation(
                                 cmd: Some(c),
                                 query: None,
                                 url: None,
+                                git_action: None,
+                                git_args: None,
                                 canonical_body: cbody,
                             });
                         }
@@ -1816,6 +2389,8 @@ fn resolve_v10_tool_invocation(
             cmd: None,
             query: None,
             url: Some(u),
+            git_action: None,
+            git_args: None,
             canonical_body: cbody,
         });
     }
@@ -1831,6 +2406,8 @@ fn resolve_v10_tool_invocation(
             cmd: None,
             query: Some(q),
             url: None,
+            git_action: None,
+            git_args: None,
             canonical_body: cbody,
         });
     }
@@ -5221,5 +5798,29 @@ mod tests {
         assert_eq!(parts.len(), 3);
         assert!(!s5.contains("T1:"));
         assert!(s5.contains("T5:"));
+    }
+
+    #[test]
+    fn test_git_bridge_validation_and_observation() {
+        let obs = StudioEngine::format_git_bridge_observation(
+            "create_pr",
+            &serde_json::json!({
+                "ok": true,
+                "data": { "number": 42, "html_url": "https://github.com/afflom/test/pull/42" }
+            }),
+        )
+        .expect("ok create_pr bridge observation");
+        assert!(obs.contains("42"));
+
+        let err = StudioEngine::format_git_bridge_observation(
+            "watch_deploy",
+            &serde_json::json!({
+                "status": "error",
+                "error_code": "PlainHttpRefused",
+                "message": "http:// blocked by egress gate"
+            }),
+        )
+        .expect_err("error bridge payload must fail cleanly");
+        assert!(err.contains("PlainHttpRefused"));
     }
 }

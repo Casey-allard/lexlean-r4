@@ -638,9 +638,9 @@ pub fn generate_bucket_c_code(
             continue;
         } else {
             let c_boost = if mode == 1 && i < 2600 {
-                19
+                3
             } else if mode == 2 && op == "+" && i < 2600 {
-                16
+                3
             } else if matches!(mode, 3 | 4 | 5) && i < 900 {
                 4
             } else if mode == 0 && i < 420 {
@@ -942,13 +942,7 @@ pub fn generate_bucket_c_code(
 
     // 3d. Prose-led multi-line Rust, Python, C, and TypeScript algorithms & data structures (`64` idioms)
     for (a_i, &(u_alg, a_alg)) in ALGO_SPECS.iter().enumerate() {
-        sb.add_v10_plain(
-            &[],
-            u_alg,
-            a_alg,
-            if a_i < 16 { "C" } else { "C_ext" },
-            12,
-        );
+        sb.add_v10_plain(&[], u_alg, a_alg, if a_i < 16 { "C" } else { "C_ext" }, 12);
         let mut alts: Vec<String> = Vec::new();
         if let Some(rest) = u_alg.strip_prefix("Show a concise ") {
             alts.push(format!("Implement {rest}"));
@@ -1033,10 +1027,8 @@ pub fn generate_bucket_d_mvm_and_git_tools(sb: &mut SampleBuilder, eval_sb: &mut
     ];
     for idx in 0..1400usize {
         let base_t = sha_tags[idx % sha_tags.len()];
-        let tag = if idx >= 200 {
+        let tag = if idx >= 20 {
             format!("{base_t}-{idx}")
-        } else if idx >= 20 {
-            format!("{idx}-{base_t}")
         } else {
             base_t.to_string()
         };
@@ -1047,14 +1039,14 @@ pub fn generate_bucket_d_mvm_and_git_tools(sb: &mut SampleBuilder, eval_sb: &mut
         };
         let dig = sha256_hex(tag.as_bytes());
         let u_prompt = format!("Run {cmd_phrase} inside the Linux MicroVM sandbox.");
-        let span_arg = format!(" {tag} | sha256sum");
+        let span_arg = format!(" {tag}");
         let segs_step1 = [
             (
                 "<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"uname -a && echo -n",
                 false,
             ),
             (span_arg.as_str(), true),
-            ("\"}}</tool_call>", false),
+            (" | sha256sum\"}}</tool_call>", false),
         ];
         let obs_v9_tail = format!(
             " mvm-wasm 6.6.0-uor-rv64imac #1 SMP PREEMPT_DYNAMIC riscv64 GNU/Linux | {dig}  -"
@@ -1534,14 +1526,19 @@ pub fn generate_bucket_e_web_tools(sb: &mut SampleBuilder, eval_sb: &mut SampleB
 
     for f_i in 0..1400usize {
         let dom = domains[f_i % domains.len()];
+        let scheme = if f_i % 6 == 5 && dom != "api.github.com/repos/rust-lang/rust" {
+            "http"
+        } else {
+            "https"
+        };
         let url = if f_i < domains.len() * fetch_openers.len() {
-            format!("https://{dom}")
+            format!("{scheme}://{dom}")
         } else if f_i % 2 == 0 {
             let cr_f = format!("{}_{}", fetch_crates[f_i % fetch_crates.len()], f_i);
-            format!("https://docs.rs/{cr_f}/latest/{cr_f}")
+            format!("{scheme}://docs.rs/{cr_f}/latest/{cr_f}")
         } else {
             format!(
-                "https://{dom}/{}_{}",
+                "{scheme}://{dom}/{}_{}",
                 fetch_slugs[f_i % fetch_slugs.len()],
                 f_i
             )

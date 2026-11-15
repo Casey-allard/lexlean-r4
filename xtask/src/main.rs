@@ -25,6 +25,7 @@ pub mod otel;
 #[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/wasm_ast_eval.rs"]
 pub mod wasm_ast_eval;
+mod wasm_bundle;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
@@ -39,6 +40,9 @@ fn main() -> ExitCode {
         "audit-deferral" => audit::audit_deferral(&root),
         "audit-bootstrap" => bootstrap::audit(&root),
         "audit-dependency-updates" => bootstrap::audit_dependency_updates(&root),
+        "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
+        "build-wasm" => wasm_bundle::run_build_wasm_cmd(&root, rest),
+        "check-wasm-sync" => wasm_bundle::run_check_wasm_sync_cmd(&root),
         "validate" => validate(&root),
         "status" => engine::print_status(&root).map_err(Into::into),
         "brief" => engine::print_brief(&root).map_err(Into::into),
@@ -110,6 +114,9 @@ fn main() -> ExitCode {
                  audit-deferral    R4: no deferral marker, no stub, no capability behind a flag\n\
                  audit-bootstrap   immutable SDK and least-privilege workflow trust root\n\
                  audit-dependency-updates   SDK ownership and ordinary dependency maintenance\n\
+                 ratchet-check     R4-41: shrink-only metric ratchet + Peirce triadic cycle\n\
+                 build-wasm        compile crates/wasm, inject bridge + cache hook, write provenance.json\n\
+                 check-wasm-sync   verify public/ Wasm/JS bundle matches provenance.json\n\
                  validate          run every gate above\n\
                  status | brief    print autonomous engine, frontier, and UORLUT01 status\n\
                  frontier          list, check, or update frontier.toml claims\n\
@@ -180,6 +187,7 @@ fn validate(root: &Path) -> Result<(), Fail> {
     check_model(root, false)?;
     audit::audit_limits(root)?;
     audit::audit_deferral(root)?;
+    engine::ratchet::check(root)?;
     bootstrap::audit(root)?;
     Ok(())
 }

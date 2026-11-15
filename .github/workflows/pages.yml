@@ -94,6 +94,7 @@ jobs:
           fi
 
           touch public/.nojekyll
+          if [ -f site/app.json ]; then cp site/app.json public/app.json; fi
           if [ -d gpu/weights ]; then
             cp -R gpu/weights public/weights
           fi

@@ -887,11 +887,14 @@ function buildGitUpstreamUrl(parsedRepo, rawPathAndQuery, method, serviceFallbac
     sub = method === "POST" ? svc : `info/refs?service=${encodeURIComponent(svc)}`;
   }
 
-  if (sub.includes("..") || sub.includes("\\") || sub.includes("@") || /^https?:/i.test(sub) || sub.startsWith("//")) {
+  if (sub.includes("..") || sub.includes("\\") || /^https?:/i.test(sub) || sub.startsWith("//")) {
     throw new RelayError("InvalidGitSmartHttpRequest", 400, "Disallowed path characters in git_smart_http request");
   }
 
   if (host === "github.com") {
+    if (sub.includes("@")) {
+      throw new RelayError("InvalidGitSmartHttpRequest", 400, "Disallowed '@' character in github.com Smart-HTTP target");
+    }
     const repoMatch = /^\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+?)(?:\.git)?\/?$/.exec(parsedRepo.pathname);
     if (!repoMatch || repoMatch[1] === "." || repoMatch[1] === ".." || repoMatch[2] === "." || repoMatch[2] === "..") {
       throw new RelayError(
@@ -941,7 +944,13 @@ function buildGitUpstreamUrl(parsedRepo, rawPathAndQuery, method, serviceFallbac
   const basePath = parsedRepo.pathname.replace(/\/+$/, "");
   const cleanSub = sub.replace(/^\/+/, "");
   const combined = new URL(`https://api.github.com${basePath}/${cleanSub}`);
-  if (combined.hostname.toLowerCase() !== "api.github.com" || combined.protocol !== "https:") {
+  if (
+    combined.hostname.toLowerCase() !== "api.github.com" ||
+    combined.protocol !== "https:" ||
+    combined.username ||
+    combined.password ||
+    combined.pathname.includes("..")
+  ) {
     throw new RelayError("InvalidGitSmartHttpRequest", 400, "Constructed GitHub REST URL escaped allowlist");
   }
   return combined;
@@ -1048,9 +1057,20 @@ async function handleGitSmartHttp(params, fetchImpl) {
   }
 
   let bodyBytes;
-  if (method !== "GET" && method !== "HEAD" && params?.body_b64) {
-    bodyBytes = base64ToBytes(params.body_b64);
-    if (bodyBytes.byteLength > MAX_GIT_BODY_BYTES) {
+  if (method !== "GET" && method !== "HEAD") {
+    if (params?.body_b64) {
+      bodyBytes = base64ToBytes(params.body_b64);
+    } else if (params?.body_json !== undefined) {
+      const jsonStr = typeof params.body_json === "string" ? params.body_json : JSON.stringify(params.body_json);
+      bodyBytes = new TextEncoder().encode(jsonStr);
+    } else if (params?.body_utf8 !== undefined) {
+      bodyBytes = new TextEncoder().encode(String(params.body_utf8));
+    } else if (typeof params?.body === "string") {
+      bodyBytes = new TextEncoder().encode(params.body);
+    } else if (params?.body && typeof params.body === "object") {
+      bodyBytes = new TextEncoder().encode(JSON.stringify(params.body));
+    }
+    if (bodyBytes && bodyBytes.byteLength > MAX_GIT_BODY_BYTES) {
       throw new RelayError("PayloadTooLarge", 413, "Git packfile payload exceeds 8 MiB limit");
     }
   }
@@ -1108,6 +1128,561 @@ async function handleGitSmartHttp(params, fetchImpl) {
       truncated,
     },
   };
+}
+
+function resolveAllowlistedRepoCoords(params) {
+  const rawAuthBearer = String(params?.auth_bearer ?? params?.auth_header ?? "").trim();
+  const rawRepoUrl = String(params?.repo_url ?? "").trim();
+  const rawRepoSlug = String(params?.repo ?? "").trim();
+
+  if (rawRepoUrl) {
+    let parsed;
+    try {
+      parsed = new URL(rawRepoUrl);
+    } catch {
+      throw new RelayError("InvalidUrl", 400, `Malformed repo_url '${rawRepoUrl}'`);
+    }
+    const host = parsed.hostname.toLowerCase();
+    if (!ALLOWLISTED_GITHUB_HOSTS.has(host)) {
+      if (rawAuthBearer || containsSecretPlaceholder(rawRepoUrl)) {
+        throw new RelayError(
+          "HostNotAllowlistedForSecret",
+          403,
+          `Refusing secret transmission to non-allowlisted host '${host}'; only github.com and api.github.com are permitted`,
+        );
+      }
+      throw new RelayError("HostNotAllowlisted", 403, `github_api strictly permits github.com and api.github.com (got '${host}')`);
+    }
+    if (parsed.protocol !== "https:") {
+      throw new RelayError("InsecureTransportRejected", 400, "github_api requires https:// transport");
+    }
+    const cleanPath = parsed.pathname.replace(/^\/repos\//i, "/").replace(/\.git$/i, "");
+    const parts = cleanPath.split("/").filter(Boolean);
+    if (parts.length < 2 || parts[0] === "." || parts[0] === ".." || parts[1] === "." || parts[1] === "..") {
+      throw new RelayError("InvalidGitSmartHttpRequest", 400, "Invalid owner/repo in GitHub URL");
+    }
+    return { owner: parts[0], repo: parts[1], slug: `${parts[0]}/${parts[1]}`, rawAuthBearer };
+  }
+
+  const cleanedSlug = rawRepoSlug.replace(/\.git$/i, "").replace(/^\/+|\/+$/g, "");
+  const slugParts = cleanedSlug.split("/").filter(Boolean);
+  if (
+    slugParts.length !== 2 ||
+    !/^[A-Za-z0-9_.-]+$/.test(slugParts[0]) ||
+    !/^[A-Za-z0-9_.-]+$/.test(slugParts[1]) ||
+    slugParts[0] === "." ||
+    slugParts[0] === ".." ||
+    slugParts[1] === "." ||
+    slugParts[1] === ".."
+  ) {
+    if (rawAuthBearer && rawRepoSlug) {
+      throw new RelayError("HostNotAllowlistedForSecret", 403, "Invalid or non-allowlisted GitHub repository target");
+    }
+    throw new RelayError("InvalidGitSmartHttpRequest", 400, `Expected owner/repo or https://github.com/owner/repo (got '${rawRepoSlug}')`);
+  }
+  return { owner: slugParts[0], repo: slugParts[1], slug: `${slugParts[0]}/${slugParts[1]}`, rawAuthBearer };
+}
+
+async function githubRestCall(fetchImpl, path, { method = "GET", authBearer = "", body = undefined } = {}) {
+  const cleanPath = String(path || "").replace(/^\/+/, "");
+  const targetUrl = new URL(`https://api.github.com/${cleanPath}`);
+  if (targetUrl.hostname.toLowerCase() !== "api.github.com" || targetUrl.protocol !== "https:") {
+    throw new RelayError("HostNotAllowlistedForSecret", 403, "GitHub API target escaped allowlist");
+  }
+  if (containsSecretPlaceholder(authBearer)) {
+    throw new RelayError("MissingSecretSubstitution", 400, "Raw {{MVM_SECRET:...}} placeholder must be resolved on host before upstream fetch");
+  }
+  const headers = new Headers();
+  headers.set("User-Agent", RELAY_USER_AGENT);
+  headers.set("Accept", "application/vnd.github+json");
+  headers.set("X-GitHub-Api-Version", "2022-11-28");
+  if (authBearer) {
+    headers.set("Authorization", /^(Bearer|Basic|token)\s+/i.test(authBearer) ? authBearer : `Bearer ${authBearer}`);
+  }
+  let bodyStr;
+  if (body !== undefined && method !== "GET" && method !== "HEAD") {
+    headers.set("Content-Type", "application/json");
+    bodyStr = typeof body === "string" ? body : JSON.stringify(body);
+  }
+  let resp;
+  try {
+    resp = await fetchImpl(targetUrl.toString(), {
+      method,
+      headers,
+      body: bodyStr,
+      redirect: "manual",
+      signal: AbortSignal.timeout(20_000),
+    });
+  } catch (err) {
+    throw new RelayError("UpstreamFetchFailed", 502, `GitHub API fetch failed: ${err?.message ?? String(err)}`);
+  }
+  if (resp.status >= 300 && resp.status < 400) {
+    const loc = resp.headers.get("location");
+    if (loc) {
+      const nextUrl = new URL(loc, targetUrl);
+      if (nextUrl.protocol !== "https:" || !ALLOWLISTED_GITHUB_HOSTS.has(nextUrl.hostname.toLowerCase())) {
+        throw new RelayError("HostNotAllowlistedForSecret", 403, "Blocked cross-host redirect from GitHub API");
+      }
+      resp = await fetchImpl(nextUrl.toString(), {
+        method,
+        headers,
+        body: bodyStr,
+        redirect: "manual",
+        signal: AbortSignal.timeout(20_000),
+      });
+    }
+  }
+  const text = await resp.text();
+  let json = null;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    json = null;
+  }
+  return { status: resp.status, ok: resp.ok, json, text };
+}
+
+async function handleGithubApi(params, fetchImpl) {
+  const action = String(params?.action ?? params?.subcommand ?? "connect").trim().toLowerCase();
+  const hasRawToken = Boolean(String(params?.auth_bearer ?? params?.auth_header ?? "").trim());
+
+  // If provenance_url is supplied without repo/repo_url for watch_deploy, ensure zero bearer leakage
+  if (action === "watch_deploy" && !params?.repo && !params?.repo_url) {
+    const provUrlRaw = String(params?.provenance_url ?? "").trim();
+    if (!provUrlRaw) {
+      throw new RelayError("InvalidGitSmartHttpRequest", 400, "watch_deploy requires repo or provenance_url");
+    }
+    const validated = validateHttpsPublicUrl(provUrlRaw);
+    if (hasRawToken && !ALLOWLISTED_GITHUB_HOSTS.has(validated.hostname.toLowerCase())) {
+      throw new RelayError(
+        "HostNotAllowlistedForSecret",
+        403,
+        `Refusing secret transmission to non-allowlisted provenance host '${validated.hostname}'`,
+      );
+    }
+    const provRes = await handleHttpRequest({ url: validated.href, method: "GET" }, fetchImpl);
+    let parsedProv = null;
+    try {
+      const txt = new TextDecoder().decode(base64ToBytes(provRes.data.body_b64 || ""));
+      parsedProv = txt ? JSON.parse(txt) : null;
+    } catch {
+      parsedProv = null;
+    }
+    return {
+      status: provRes.status,
+      data: {
+        action: "watch_deploy",
+        provenance_url: validated.href,
+        provenance: parsedProv,
+        adapter_wasm_sha256: parsedProv?.adapter_wasm_sha256 || "",
+        binding_javascript_sha256: parsedProv?.binding_javascript_sha256 || "",
+        generated_core_sha256: parsedProv?.generated_core_sha256 || "",
+      },
+    };
+  }
+
+  const coords = resolveAllowlistedRepoCoords(params);
+  const baseRepoApi = `repos/${encodeURIComponent(coords.owner)}/${encodeURIComponent(coords.repo)}`;
+  const token = coords.rawAuthBearer;
+
+  if (action === "connect" || action === "branches") {
+    const meta = await githubRestCall(fetchImpl, baseRepoApi, { authBearer: token });
+    if (!meta.ok) {
+      throw new RelayError(
+        meta.status === 401 || meta.status === 404 ? "GitRepoAccessDenied" : "GitApiError",
+        meta.status,
+        meta.json?.message || `GitHub API returned HTTP ${meta.status} for ${coords.slug}`,
+      );
+    }
+    const br = await githubRestCall(fetchImpl, `${baseRepoApi}/branches?per_page=50`, { authBearer: token });
+    const branchNames = Array.isArray(br.json) ? br.json.map((b) => String(b.name || "")).filter(Boolean) : [];
+    const defBranch = String(meta.json?.default_branch || "main");
+    if (defBranch && !branchNames.includes(defBranch)) branchNames.unshift(defBranch);
+    return {
+      status: 200,
+      data: {
+        action: "connect",
+        repo: coords.slug,
+        default_branch: defBranch,
+        private: Boolean(meta.json?.private),
+        html_url: meta.json?.html_url || `https://github.com/${coords.slug}`,
+        branches: branchNames,
+      },
+    };
+  }
+
+  if (action === "clone" || action === "pull" || action === "fetch" || action === "tree") {
+    const meta = await githubRestCall(fetchImpl, baseRepoApi, { authBearer: token });
+    if (!meta.ok) {
+      throw new RelayError(
+        meta.status === 401 || meta.status === 404 ? "GitRepoAccessDenied" : "GitApiError",
+        meta.status,
+        meta.json?.message || `GitHub API returned HTTP ${meta.status} for ${coords.slug}`,
+      );
+    }
+    const branch = String(params?.branch || meta.json?.default_branch || "main").trim();
+    const treeRes = await githubRestCall(
+      fetchImpl,
+      `${baseRepoApi}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+      { authBearer: token },
+    );
+    if (!treeRes.ok || !Array.isArray(treeRes.json?.tree)) {
+      throw new RelayError("GitTreeFetchFailed", treeRes.status || 404, treeRes.json?.message || `Failed to read tree for ${coords.slug}@${branch}`);
+    }
+    const blobs = treeRes.json.tree.filter(
+      (entry) =>
+        entry.type === "blob" &&
+        typeof entry.path === "string" &&
+        (entry.size ?? 0) <= 196_608 &&
+        !/\.(png|jpg|jpeg|gif|webp|ico|woff2?|ttf|wasm|bin|part\d+|xz|gz|zip|pdf)$/i.test(entry.path),
+    );
+    const maxInitial = Number.isInteger(Number(params?.limit)) && Number(params?.limit) > 0
+      ? Math.min(Number(params.limit), 80)
+      : 40;
+    const eager = action === "tree" ? [] : blobs.slice(0, maxInitial);
+    const lazyPaths = blobs.slice(eager.length).map((b) => ({
+      path: b.path,
+      sha: b.sha || "",
+      size: b.size ?? 0,
+    }));
+    const files = [];
+    for (let i = 0; i < eager.length; i += 8) {
+      const batch = eager.slice(i, i + 8);
+      const loaded = await Promise.all(
+        batch.map(async (entry) => {
+          try {
+            const b = await githubRestCall(fetchImpl, `${baseRepoApi}/git/blobs/${encodeURIComponent(entry.sha)}`, { authBearer: token });
+            if (b.ok && b.json?.encoding === "base64" && typeof b.json?.content === "string") {
+              const content = new TextDecoder().decode(base64ToBytes(b.json.content.replace(/\s+/g, "")));
+              return { path: entry.path, content, sha: entry.sha, size: entry.size ?? content.length };
+            }
+          } catch {
+            // Skip unreadable blob
+          }
+          return null;
+        }),
+      );
+      for (const item of loaded) {
+        if (item) files.push(item);
+      }
+    }
+    return {
+      status: 200,
+      data: {
+        action,
+        repo: coords.slug,
+        default_branch: meta.json?.default_branch || "main",
+        branch,
+        head_sha: treeRes.json?.sha || "",
+        files,
+        lazy_paths: lazyPaths,
+        total_blobs: blobs.length,
+        truncated: Boolean(treeRes.json?.truncated) || lazyPaths.length > 0,
+      },
+    };
+  }
+
+  if (action === "read_blob") {
+    const sha = String(params?.sha ?? "").trim();
+    const filePath = String(params?.path ?? "").trim().replace(/^\/+/, "");
+    const branch = String(params?.branch ?? "main").trim();
+    let res;
+    if (sha) {
+      res = await githubRestCall(fetchImpl, `${baseRepoApi}/git/blobs/${encodeURIComponent(sha)}`, { authBearer: token });
+    } else if (filePath) {
+      const encPath = filePath.split("/").map((p) => encodeURIComponent(p)).join("/");
+      res = await githubRestCall(fetchImpl, `${baseRepoApi}/contents/${encPath}?ref=${encodeURIComponent(branch)}`, { authBearer: token });
+    } else {
+      throw new RelayError("InvalidGitSmartHttpRequest", 400, "read_blob requires sha or path");
+    }
+    if (!res.ok) {
+      throw new RelayError("GitBlobFetchFailed", res.status, res.json?.message || `Failed to read blob (HTTP ${res.status})`);
+    }
+    const rawContent = res.json?.encoding === "base64" && typeof res.json?.content === "string"
+      ? new TextDecoder().decode(base64ToBytes(res.json.content.replace(/\s+/g, "")))
+      : String(res.json?.content ?? "");
+    return {
+      status: 200,
+      data: {
+        action: "read_blob",
+        repo: coords.slug,
+        branch,
+        path: filePath || res.json?.path || "",
+        sha: res.json?.sha || sha,
+        size: res.json?.size ?? rawContent.length,
+        content: rawContent,
+      },
+    };
+  }
+
+  if (action === "create_branch") {
+    if (!token) {
+      throw new RelayError("GitAuthRequired", 401, "create_branch requires GITHUB_TOKEN");
+    }
+    const newBranch = String(params?.branch ?? "").trim();
+    if (!newBranch || newBranch.includes("..")) {
+      throw new RelayError("InvalidGitSmartHttpRequest", 400, "Invalid target branch name");
+    }
+    let fromBranch = String(params?.from_branch ?? "").trim();
+    if (!fromBranch) {
+      const meta = await githubRestCall(fetchImpl, baseRepoApi, { authBearer: token });
+      fromBranch = String(meta.json?.default_branch || "main");
+    }
+    const baseRef = await githubRestCall(
+      fetchImpl,
+      `${baseRepoApi}/git/ref/heads/${encodeURIComponent(fromBranch)}`,
+      { authBearer: token },
+    );
+    if (!baseRef.ok || !baseRef.json?.object?.sha) {
+      throw new RelayError("GitRefReadFailed", baseRef.status || 404, `Base branch '${fromBranch}' not found`);
+    }
+    const baseSha = baseRef.json.object.sha;
+    const created = await githubRestCall(fetchImpl, `${baseRepoApi}/git/refs`, {
+      method: "POST",
+      authBearer: token,
+      body: { ref: `refs/heads/${newBranch}`, sha: baseSha },
+    });
+    if (!created.ok) {
+      throw new RelayError("GitBranchCreateFailed", created.status, created.json?.message || `Failed to create branch '${newBranch}'`);
+    }
+    return {
+      status: created.status,
+      data: {
+        action: "create_branch",
+        repo: coords.slug,
+        branch: newBranch,
+        from_branch: fromBranch,
+        ref: created.json?.ref || `refs/heads/${newBranch}`,
+        sha: created.json?.object?.sha || baseSha,
+      },
+    };
+  }
+
+  if (action === "commit_push" || action === "push") {
+    if (!token) {
+      throw new RelayError("GitAuthRequired", 401, "commit_push requires GITHUB_TOKEN");
+    }
+    const branch = String(params?.branch ?? "main").trim();
+    const message = String(params?.message ?? params?.commit_message ?? "Update from UOR-R4 Connected Studio");
+    const files = Array.isArray(params?.files) ? params.files : [];
+    if (files.length === 0) {
+      throw new RelayError("GitNothingToPush", 400, "No modified files supplied for commit_push");
+    }
+    const refRes = await githubRestCall(fetchImpl, `${baseRepoApi}/git/ref/heads/${encodeURIComponent(branch)}`, { authBearer: token });
+    if (!refRes.ok || !refRes.json?.object?.sha) {
+      throw new RelayError("GitRefReadFailed", refRes.status || 404, `Unable to read heads/${branch}`);
+    }
+    const baseCommitSha = refRes.json.object.sha;
+    const commitRes = await githubRestCall(fetchImpl, `${baseRepoApi}/git/commits/${encodeURIComponent(baseCommitSha)}`, { authBearer: token });
+    const baseTreeSha = commitRes.json?.tree?.sha;
+    const treeEntries = files.map((f) => {
+      const pathClean = String(f?.path ?? "").replace(/^\/+/, "");
+      if (f?.delete === true) {
+        return { path: pathClean, mode: "100644", type: "blob", sha: null };
+      }
+      return {
+        path: pathClean,
+        mode: String(f?.mode || "100644"),
+        type: "blob",
+        content: String(f?.content ?? ""),
+      };
+    });
+    const newTree = await githubRestCall(fetchImpl, `${baseRepoApi}/git/trees`, {
+      method: "POST",
+      authBearer: token,
+      body: { base_tree: baseTreeSha, tree: treeEntries },
+    });
+    if (!newTree.ok || !newTree.json?.sha) {
+      throw new RelayError("GitTreeCreateFailed", newTree.status, newTree.json?.message || "GitHub tree creation failed");
+    }
+    const newCommit = await githubRestCall(fetchImpl, `${baseRepoApi}/git/commits`, {
+      method: "POST",
+      authBearer: token,
+      body: { message, tree: newTree.json.sha, parents: [baseCommitSha] },
+    });
+    if (!newCommit.ok || !newCommit.json?.sha) {
+      throw new RelayError("GitCommitCreateFailed", newCommit.status, newCommit.json?.message || "GitHub commit creation failed");
+    }
+    const updRef = await githubRestCall(fetchImpl, `${baseRepoApi}/git/refs/heads/${encodeURIComponent(branch)}`, {
+      method: "PATCH",
+      authBearer: token,
+      body: { sha: newCommit.json.sha, force: Boolean(params?.force) },
+    });
+    if (!updRef.ok) {
+      throw new RelayError("GitRefUpdateFailed", updRef.status, updRef.json?.message || "GitHub ref fast-forward failed");
+    }
+    const deletedCount = treeEntries.filter((e) => e.sha === null).length;
+    return {
+      status: 200,
+      data: {
+        action: "commit_push",
+        repo: coords.slug,
+        branch,
+        commit_sha: newCommit.json.sha,
+        tree_sha: newTree.json.sha,
+        pushed_files: treeEntries.length - deletedCount,
+        deleted_files: deletedCount,
+      },
+    };
+  }
+
+  if (action === "create_pr") {
+    if (!token) {
+      throw new RelayError("GitAuthRequired", 401, "create_pr requires GITHUB_TOKEN");
+    }
+    const head = String(params?.head ?? params?.branch ?? "").trim();
+    const base = String(params?.base ?? "main").trim();
+    const title = String(params?.title ?? `Update ${head}`).trim();
+    const body = String(params?.body ?? "Automated PR from UOR-R4 Connected Studio").trim();
+    if (!head || !title) {
+      throw new RelayError("InvalidGitSmartHttpRequest", 400, "create_pr requires head and title");
+    }
+    const pr = await githubRestCall(fetchImpl, `${baseRepoApi}/pulls`, {
+      method: "POST",
+      authBearer: token,
+      body: { title, body, head, base, draft: Boolean(params?.draft) },
+    });
+    if (!pr.ok) {
+      throw new RelayError("GitPrCreateFailed", pr.status, pr.json?.message || "Failed to create Pull Request");
+    }
+    return {
+      status: pr.status,
+      data: {
+        action: "create_pr",
+        repo: coords.slug,
+        pr_number: pr.json?.number,
+        url: pr.json?.url || "",
+        html_url: pr.json?.html_url || "",
+        state: pr.json?.state || "open",
+        head: pr.json?.head?.ref || head,
+        base: pr.json?.base?.ref || base,
+        title: pr.json?.title || title,
+      },
+    };
+  }
+
+  if (action === "pr_status") {
+    const prNum = params?.pr_number ? Number(params.pr_number) : null;
+    let prMeta = null;
+    let headSha = String(params?.ref ?? params?.head_sha ?? "").trim();
+    if (prNum && Number.isInteger(prNum) && prNum > 0) {
+      const prRes = await githubRestCall(fetchImpl, `${baseRepoApi}/pulls/${prNum}`, { authBearer: token });
+      if (!prRes.ok) {
+        throw new RelayError("GitPrStatusFailed", prRes.status, prRes.json?.message || `Failed to inspect PR #${prNum}`);
+      }
+      prMeta = prRes.json;
+      headSha = prMeta?.head?.sha || headSha;
+    }
+    let checkRuns = [];
+    let workflowRuns = [];
+    if (headSha) {
+      const [cr, wr] = await Promise.all([
+        githubRestCall(fetchImpl, `${baseRepoApi}/commits/${encodeURIComponent(headSha)}/check-runs`, { authBearer: token }),
+        githubRestCall(fetchImpl, `${baseRepoApi}/actions/runs?head_sha=${encodeURIComponent(headSha)}&per_page=10`, { authBearer: token }),
+      ]);
+      if (cr.ok && Array.isArray(cr.json?.check_runs)) checkRuns = cr.json.check_runs;
+      if (wr.ok && Array.isArray(wr.json?.workflow_runs)) workflowRuns = wr.json.workflow_runs;
+    }
+    const checksPassed = checkRuns.filter((c) => c.conclusion === "success" || c.conclusion === "neutral").length;
+    const anyPending = checkRuns.some((c) => c.status !== "completed") || workflowRuns.some((w) => w.status !== "completed");
+    const anyFailed = checkRuns.some((c) => c.conclusion === "failure" || c.conclusion === "timed_out") ||
+      workflowRuns.some((w) => w.conclusion === "failure" || w.conclusion === "cancelled");
+    const checkStatus = anyFailed ? "failure" : anyPending ? "pending" : checkRuns.length > 0 ? "success" : "unknown";
+    const latestWf = workflowRuns[0] || null;
+    return {
+      status: 200,
+      data: {
+        action: "pr_status",
+        repo: coords.slug,
+        pr_number: prNum,
+        state: prMeta?.state || (prNum ? "unknown" : "commit"),
+        mergeable: prMeta?.mergeable ?? null,
+        mergeable_state: prMeta?.mergeable_state || "unknown",
+        html_url: prMeta?.html_url || "",
+        head_sha: headSha,
+        check_status: checkStatus,
+        checks_total: checkRuns.length,
+        checks_passed: checksPassed,
+        workflow_status: latestWf?.status || "unknown",
+        workflow_conclusion: latestWf?.conclusion || null,
+        check_runs: checkRuns.map((c) => ({ name: c.name, status: c.status, conclusion: c.conclusion })),
+        workflow_runs: workflowRuns.map((w) => ({ id: w.id, name: w.name, status: w.status, conclusion: w.conclusion })),
+      },
+    };
+  }
+
+  if (action === "merge_pr") {
+    if (!token) {
+      throw new RelayError("GitAuthRequired", 401, "merge_pr requires GITHUB_TOKEN");
+    }
+    const prNum = Number(params?.pr_number);
+    if (!Number.isInteger(prNum) || prNum <= 0) {
+      throw new RelayError("InvalidGitSmartHttpRequest", 400, "merge_pr requires valid integer pr_number");
+    }
+    const body = { merge_method: String(params?.merge_method || "squash") };
+    if (params?.commit_title) body.commit_title = String(params.commit_title);
+    const merged = await githubRestCall(fetchImpl, `${baseRepoApi}/pulls/${prNum}/merge`, {
+      method: "PUT",
+      authBearer: token,
+      body,
+    });
+    if (!merged.ok) {
+      throw new RelayError("GitPrMergeFailed", merged.status, merged.json?.message || `Failed to merge PR #${prNum}`);
+    }
+    return {
+      status: merged.status,
+      data: {
+        action: "merge_pr",
+        repo: coords.slug,
+        pr_number: prNum,
+        merged: Boolean(merged.json?.merged ?? true),
+        sha: merged.json?.sha || "",
+        message: merged.json?.message || "Pull Request merged",
+      },
+    };
+  }
+
+  if (action === "watch_deploy") {
+    const [pagesRes, buildRes] = await Promise.all([
+      githubRestCall(fetchImpl, `${baseRepoApi}/pages`, { authBearer: token }).catch(() => ({ ok: false, json: null })),
+      githubRestCall(fetchImpl, `${baseRepoApi}/pages/builds/latest`, { authBearer: token }).catch(() => ({ ok: false, json: null })),
+    ]);
+    const pagesUrl = pagesRes.ok ? String(pagesRes.json?.html_url || "") : "";
+    let provUrl = String(params?.provenance_url || "").trim();
+    if (!provUrl && pagesUrl) {
+      provUrl = `${pagesUrl.replace(/\/+$/, "")}/provenance.json`;
+    }
+    let provenance = null;
+    if (provUrl) {
+      const validated = validateHttpsPublicUrl(provUrl);
+      // Strict R4-39 secret isolation: NEVER attach GitHub auth_bearer to non-allowlisted provenance origin
+      try {
+        const provRes = await handleHttpRequest({ url: validated.href, method: "GET" }, fetchImpl);
+        const txt = new TextDecoder().decode(base64ToBytes(provRes.data.body_b64 || ""));
+        provenance = txt ? JSON.parse(txt) : null;
+      } catch {
+        provenance = null;
+      }
+    }
+    return {
+      status: 200,
+      data: {
+        action: "watch_deploy",
+        repo: coords.slug,
+        pages_status: pagesRes.ok ? (pagesRes.json?.status || buildRes.json?.status || "built") : "unconfigured",
+        pages_url: pagesUrl,
+        build_status: buildRes.ok ? (buildRes.json?.status || "unknown") : "unknown",
+        deployment_sha: buildRes.ok ? (buildRes.json?.commit || "") : "",
+        provenance_url: provUrl,
+        provenance,
+        adapter_wasm_sha256: provenance?.adapter_wasm_sha256 || "",
+        binding_javascript_sha256: provenance?.binding_javascript_sha256 || "",
+        generated_core_sha256: provenance?.generated_core_sha256 || "",
+      },
+    };
+  }
+
+  throw new RelayError("UnsupportedGitSubcommand", 400, `Unsupported github_api action '${action}'`);
 }
 
 export async function handleSpvsEnvelope(envelope, options = {}) {
@@ -1178,6 +1753,10 @@ export async function handleSpvsEnvelope(envelope, options = {}) {
       }
       case "git_smart_http": {
         const res = await handleGitSmartHttp(params, fetchImpl);
+        return makeOkResponse(reqId, res.status, res.data);
+      }
+      case "github_api": {
+        const res = await handleGithubApi(params, fetchImpl);
         return makeOkResponse(reqId, res.status, res.data);
       }
       default:

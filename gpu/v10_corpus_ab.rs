@@ -257,7 +257,7 @@ fn encode_continuous_segments_with(
     let mut r_copy = Vec::with_capacity(r_ids.len() + 1);
     for (tid, &(c_start, c_end)) in r_ids.iter().zip(offsets.iter()) {
         let mut flagged = 0u8;
-        if prompt_token_set.contains(tid) {
+        if prompt_token_set.contains(tid) && !tok.decode(&[*tid]).trim().is_empty() {
             for &(a, b) in &copy_intervals {
                 if c_end > a && c_start < b {
                     flagged = 1;
@@ -1745,11 +1745,10 @@ pub fn generate_bucket_b_qa(
                 "Why are self-referential async futures pinned with Pin in Rust?".to_string(),
             );
         } else if q.contains("TLBs cache") {
+            alts.push("How do TLBs speed up virtual memory address translation?".to_string());
             alts.push(
-                "How do TLBs speed up virtual memory address translation?".to_string(),
-            );
-            alts.push(
-                "Why does a TLB reduce virtual-to-physical address translation latency?".to_string(),
+                "Why does a TLB reduce virtual-to-physical address translation latency?"
+                    .to_string(),
             );
         }
         for alt in alts {

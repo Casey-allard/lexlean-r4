@@ -599,7 +599,7 @@ mod tests {
     use super::{
         action_reference_is_pinned, content_matches, dependency_updates_are_confined,
         docker_credentials_are_confined, immutable_image, pipeline_lifecycle_is_complete,
-        policy_boundary_is_canonical, sha256, update_preserves_project_content,
+        policy_boundary_is_canonical, sha256, update_preserves_project_content, workflow_files,
         workflow_history_is_complete, PROJECT_CONTENT_PATHS, UNIVERSAL_POLICY_PATHS,
     };
 
@@ -987,5 +987,35 @@ docker buildx version
             "needs: [resolve-sdk, promote, deploy, verify-deployment, conformance]",
             "needs: [resolve-sdk, promote, deploy, verify-deployment]"
         )));
+    }
+
+    #[test]
+    fn all_repo_workflows_pass_bootstrap_checks() {
+        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .expect("workspace root")
+            .to_path_buf();
+        let files = workflow_files(&root).expect("list .github/workflows");
+        assert!(files.iter().any(|p| p.ends_with("automerge.yml")));
+        assert!(files.iter().any(|p| p.ends_with("deploy-watch.yml")));
+        assert!(files.iter().any(|p| p.ends_with("pages.yml")));
+        assert!(files.iter().any(|p| p.ends_with("engine.yml")));
+        for path in files {
+            let source = std::fs::read_to_string(&path).expect("read workflow");
+            assert!(
+                workflow_history_is_complete(&source),
+                "{} must use fetch-depth: 0 and persist-credentials: false",
+                path.display()
+            );
+            assert!(
+                !source.contains("ubuntu-latest")
+                    && !source.contains("@main")
+                    && !source.contains("@master")
+                    && !source.lines().any(|line| line.trim().starts_with("uses:")
+                        && !action_reference_is_pinned(line)),
+                "{} contains floating workflow input",
+                path.display()
+            );
+        }
     }
 }

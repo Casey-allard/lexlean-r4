@@ -93,6 +93,105 @@ export function studio_dispatch(input) {
     }
 }
 
+function passArray8ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 1, 1) >>> 0;
+    getUint8ArrayMemory0().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+/**
+ * Encode an arbitrary payload into 3 Stitch `xor-2-of-3` custody fragments and return JSON metadata.
+ * @param {Uint8Array} payload
+ * @returns {string}
+ */
+export function studio_stitch_split_2of3(payload) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(payload, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_stitch_split_2of3(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_0.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
+
+function getArrayU8FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
+}
+/**
+ * Heal and recover a single requested shard (`left` if `recover_left == true`, else `right`)
+ * from a `StitchParityGroup` JSON descriptor and up to 3 candidate byte slices using 2-of-3 XOR
+ * parity + strict SHA-256 verification.
+ * @param {string} group_json
+ * @param {boolean} recover_left
+ * @param {boolean} has_left
+ * @param {Uint8Array} left_bytes
+ * @param {boolean} has_right
+ * @param {Uint8Array} right_bytes
+ * @param {boolean} has_parity
+ * @param {Uint8Array} parity_bytes
+ * @returns {Uint8Array}
+ */
+export function studio_stitch_recover_pair_auto(group_json, recover_left, has_left, left_bytes, has_right, right_bytes, has_parity, parity_bytes) {
+    const ptr0 = passStringToWasm0(group_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(left_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArray8ToWasm0(right_bytes, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passArray8ToWasm0(parity_bytes, wasm.__wbindgen_malloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_stitch_recover_pair_auto(ptr0, len0, recover_left, has_left, ptr1, len1, has_right, ptr2, len2, has_parity, ptr3, len3);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
+    }
+    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v5;
+}
+
+/**
+ * Recover an original payload from any 2 of 3 raw `afflom/stitch` `xor-2-of-3` fragments and verify
+ * its SHA-256 digest when `expected_object_sha256` is non-empty.
+ * @param {boolean} has_frag0
+ * @param {Uint8Array} frag0
+ * @param {boolean} has_frag1
+ * @param {Uint8Array} frag1
+ * @param {boolean} has_frag2
+ * @param {Uint8Array} frag2
+ * @param {number} original_length
+ * @param {string} expected_object_sha256
+ * @returns {Uint8Array}
+ */
+export function studio_stitch_recover_2of3_object(has_frag0, frag0, has_frag1, frag1, has_frag2, frag2, original_length, expected_object_sha256) {
+    const ptr0 = passArray8ToWasm0(frag0, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(frag1, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArray8ToWasm0(frag2, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passStringToWasm0(expected_object_sha256, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_stitch_recover_2of3_object(has_frag0, ptr0, len0, has_frag1, ptr1, len1, has_frag2, ptr2, len2, original_length, ptr3, len3);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
+    }
+    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v5;
+}
+
 /**
  * Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
  * @param {string} request_json
@@ -153,10 +252,6 @@ export function studio_v1_traces(query_or_payload) {
     }
 }
 
-function getArrayU8FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
-}
 /**
  * Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
  * @param {number} e8_root
@@ -169,12 +264,6 @@ export function studio_export_uorlut_shard(e8_root) {
     return v1;
 }
 
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1, 1) >>> 0;
-    getUint8ArrayMemory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
 /**
  * Merge a content-addressed `UORSHRD1` binary shard into the resident `LutStackModel` and rebuild its Radix `/8` index.
  * @param {Uint8Array} shard_bytes
@@ -195,11 +284,6 @@ export function studio_merge_uorlut_shard(shard_bytes) {
     }
 }
 
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_0.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
 /**
  * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
  *
@@ -328,6 +412,26 @@ export function studio_decode_with_webgpu_q12_scores(prompt, gpu_row_scores, max
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Parse and validate a `manifest.stitch.json` (`stitch/xor-2-of-3/1`) document.
+ * @param {string} manifest_json
+ * @returns {string}
+ */
+export function studio_stitch_verify_manifest(manifest_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(manifest_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_stitch_verify_manifest(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
@@ -575,6 +679,7 @@ function initSync(module) {
     return __wbg_finalize_init(instance, module);
 }
 
+// === UOR_CUSTOM_SECTION_1_START ===
 const WEIGHT_CACHE_NAME = 'uor-r4-wasm-weights-v2';
 const IDB_DB_NAME = 'UOR_R4_WEIGHT_CACHE';
 const IDB_STORE_NAME = 'uorlut_packs';
@@ -1910,6 +2015,8 @@ export async function stream_v9_sharded_weights_via_opfs_worker(onProgress, forc
   return null;
 }
 
+// === UOR_CUSTOM_SECTION_1_END ===
+
 async function __wbg_init(module_or_path) {
     if (wasm !== undefined) return wasm;
 
@@ -1941,6 +2048,7 @@ async function __wbg_init(module_or_path) {
     return __wbg_finalize_init(instance, module);
 }
 
+// === UOR_CUSTOM_SECTION_2_START ===
 const OPFS_V10_WEIGHT_FILE = 'uor_r4_gllm_v10_weights.bin';
 const OPFS_V10_META_FILE = 'uor_r4_gllm_v10_meta.json';
 const DEFAULT_SPIRALCORE_RELAY_WS_URL = 'wss://lexlean-r4-spiralcore-relay.swarm-relay-cloud-8d31a122.workers.dev/spvs';
@@ -2031,15 +2139,22 @@ export class SpiralCoreHostBridge {
   #wsConnecting = null;
   #pendingWs = new Map();
   #nextReqSeq = 1;
+  #lazyRepoTrees = new Map();
+  #provenanceBaseline = null;
 
   constructor(options = {}) {
-    this.relayUrl = options.relayWsUrl || options.relayUrl || DEFAULT_SPIRALCORE_RELAY_WS_URL;
+    this.relayUrl =
+      options.relayWsUrl !== undefined
+        ? options.relayWsUrl
+        : (options.relayUrl !== undefined ? options.relayUrl : DEFAULT_SPIRALCORE_RELAY_WS_URL);
     this.relayHttpUrl = options.relayHttpUrl || '';
     this.staticOrigin = options.staticOrigin || '';
+    this.locationOrigin = options.locationOrigin || '';
     this.mcpPolicy = options.mcpPolicy || 'safe';
     this.webAccessEnabled = options.webAccessEnabled !== false;
     this.relayTimeoutMs = options.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
     this.lastTransportMode = 'standby';
+    this.fetchImpl = options.fetchImpl || globalThis.fetch;
   }
 
   setRelayUrl(url) {
@@ -2792,8 +2907,10 @@ export class SpiralCoreHostBridge {
     }
     try {
       const u = new URL(cleaned);
-      if (u.hostname.toLowerCase() === 'github.com') {
-        const parts = u.pathname.split('/').filter(Boolean);
+      const host = u.hostname.toLowerCase();
+      if (host === 'github.com' || host === 'api.github.com') {
+        const cleanPath = host === 'api.github.com' ? u.pathname.replace(/^\/repos\//i, '/') : u.pathname;
+        const parts = cleanPath.split('/').filter(Boolean);
         if (parts.length >= 2) {
           return { owner: parts[0], repo: parts[1], url: `https://github.com/${parts[0]}/${parts[1]}` };
         }
@@ -2804,11 +2921,225 @@ export class SpiralCoreHostBridge {
     return null;
   }
 
+  detectHostedGitHubRepo(req = {}) {
+    const hint = String(req.repo_hint || req.repo || '').trim();
+    if (hint) {
+      const parsed = this.parseGitHubRepoCoords(hint);
+      if (parsed) {
+        return {
+          ok: true,
+          op: 'git',
+          subcommand: 'detect_repo',
+          owner: parsed.owner,
+          repo: `${parsed.owner}/${parsed.repo}`,
+          repo_name: parsed.repo,
+          repo_url: parsed.url,
+          detected: true,
+          source: 'hint',
+        };
+      }
+    }
+    let loc = req.location || (typeof location !== 'undefined' ? location : null);
+    if (!loc && this.locationOrigin) {
+      try {
+        loc = new URL(this.locationOrigin);
+      } catch {
+        loc = null;
+      }
+    }
+    if (loc && typeof loc.hostname === 'string') {
+      const m = /^([A-Za-z0-9_.-]+)\.github\.io$/i.exec(loc.hostname.trim());
+      if (m) {
+        const owner = m[1];
+        const segs = String(loc.pathname || '/').split('/').filter(Boolean);
+        const repoName = segs[0] || `${owner}.github.io`;
+        return {
+          ok: true,
+          op: 'git',
+          subcommand: 'detect_repo',
+          owner,
+          repo: `${owner}/${repoName}`,
+          repo_name: repoName,
+          repo_url: `https://github.com/${owner}/${repoName}`,
+          detected: true,
+          source: 'github-pages-origin',
+        };
+      }
+    }
+    return {
+      ok: true,
+      op: 'git',
+      subcommand: 'detect_repo',
+      owner: 'UOR-Foundation',
+      repo: 'UOR-Foundation/Prism',
+      repo_name: 'Prism',
+      repo_url: 'https://github.com/UOR-Foundation/Prism',
+      detected: false,
+      source: 'default',
+    };
+  }
+
+  async #fetchImpl(url, init) {
+    const fn = this.fetchImpl || globalThis.fetch;
+    return fn(url, init);
+  }
+
+  async #resolveRelayGithubApi(action, params) {
+    if (!this.relayUrl && !this.relayHttpUrl) return null;
+    try {
+      const res = await this.tryRelayRpc('github_api', { action, ...params });
+      if (res && typeof res.ok === 'boolean') return res;
+    } catch {
+      // Fall through to direct HTTPS REST fetch
+    }
+    return null;
+  }
+
+  async #githubRestJson(coords, pathAndQuery, { method = 'GET', body = undefined, headers = {} } = {}) {
+    const cleanSub = String(pathAndQuery || '').replace(/^\/+/, '');
+    const apiBase = `https://api.github.com/repos/${coords.owner}/${coords.repo}`;
+    const fullUrl = cleanSub ? `${apiBase}/${cleanSub}` : apiBase;
+    const urlObj = new URL(fullUrl);
+    if (urlObj.hostname.toLowerCase() !== 'api.github.com' || urlObj.protocol !== 'https:') {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'HostNotAllowlistedForSecret',
+        message: 'Refusing GitHub request outside api.github.com',
+      };
+    }
+    const authRes = this.applyHostSecretSubstitution(urlObj, {
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...headers,
+    });
+    if (!authRes.ok) return authRes;
+    const reqHeaders = { ...authRes.headers };
+    if (body !== undefined && method !== 'GET' && method !== 'HEAD') {
+      reqHeaders['Content-Type'] = 'application/json';
+    }
+    const relayRes = await this.tryRelayRpc('git_smart_http', {
+      repo_url: apiBase,
+      path_and_query: cleanSub,
+      method,
+      auth_bearer: reqHeaders.Authorization ? reqHeaders.Authorization.replace(/^Bearer\s+/i, '') : undefined,
+      body_json: body,
+    });
+    if (relayRes && relayRes.ok && relayRes.data) {
+      const rawTxt = relayRes.data.body_b64
+        ? cachedTextDecoder.decode(__uorBase64ToBytes(relayRes.data.body_b64))
+        : '';
+      let parsed = null;
+      try {
+        parsed = rawTxt ? JSON.parse(rawTxt) : null;
+      } catch {
+        parsed = null;
+      }
+      return {
+        ok: relayRes.data.status >= 200 && relayRes.data.status < 300,
+        status: relayRes.data.status,
+        json: parsed,
+        text: rawTxt,
+        viaRelay: true,
+      };
+    }
+    const resp = await this.#fetchImpl(urlObj.href, {
+      method,
+      headers: reqHeaders,
+      body: body !== undefined && method !== 'GET' && method !== 'HEAD' ? JSON.stringify(body) : undefined,
+    });
+    const text = await resp.text();
+    let json = null;
+    try {
+      json = text ? JSON.parse(text) : null;
+    } catch {
+      json = null;
+    }
+    this.lastTransportMode = 'direct-https-github-rest';
+    return { ok: resp.ok, status: resp.status, json, text, viaRelay: false };
+  }
+
+  async checkProvenanceUpdate(provenanceUrlInput = '') {
+    const httpOrigin =
+      this.staticOrigin ||
+      (typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
+        ? location.origin.replace(/\/+$/, '')
+        : '');
+    const rawInput = String(provenanceUrlInput || '').trim();
+    const normalizedInput = rawInput
+      ? (/\.json(?:[?#].*)?$/i.test(rawInput) ? rawInput : `${rawInput.replace(/\/+$/, '')}/provenance.json`)
+      : '';
+    const provUrl =
+      normalizedInput ||
+      (httpOrigin ? `${httpOrigin}/provenance.json` : new URL('provenance.json', import.meta.url).href);
+    // Strict R4-39 rule: NEVER attach Host Secrets to non-GitHub provenance origins
+    const validated = this.validateTransportUrl(provUrl, false);
+    if (!validated.ok) return validated;
+    try {
+      const sep = validated.url.href.includes('?') ? '&' : '?';
+      const resp = await this.#fetchImpl(`${validated.url.href}${sep}_t=${Date.now()}`, { cache: 'no-store' });
+      if (!resp.ok) {
+        return { ok: false, status: resp.status, error_code: 'GitDeployWatchFailed', message: `provenance.json returned HTTP ${resp.status}` };
+      }
+      const live = await resp.json();
+      if (!this.#provenanceBaseline) {
+        this.#provenanceBaseline = {
+          adapter_wasm_sha256: live.adapter_wasm_sha256 || '',
+          binding_javascript_sha256: live.binding_javascript_sha256 || '',
+          generated_core_sha256: live.generated_core_sha256 || '',
+        };
+      }
+      const updateAvailable = Boolean(
+        this.#provenanceBaseline &&
+          ((live.adapter_wasm_sha256 && live.adapter_wasm_sha256 !== this.#provenanceBaseline.adapter_wasm_sha256) ||
+            (live.binding_javascript_sha256 && live.binding_javascript_sha256 !== this.#provenanceBaseline.binding_javascript_sha256)),
+      );
+      return {
+        ok: true,
+        status: 200,
+        provenance_url: validated.url.href,
+        current: this.#provenanceBaseline,
+        live,
+        adapter_wasm_sha256: live.adapter_wasm_sha256 || '',
+        binding_javascript_sha256: live.binding_javascript_sha256 || '',
+        generated_core_sha256: live.generated_core_sha256 || '',
+        update_available: updateAvailable,
+      };
+    } catch (err) {
+      return { ok: false, status: 502, error_code: 'GitDeployWatchFailed', message: err && err.message ? err.message : String(err) };
+    }
+  }
+
   async handleGitBridge(req) {
     const rawArgs = String(req.args || (req.arguments && req.arguments.args) || '').trim();
     const argParts = rawArgs ? rawArgs.split(/\s+/) : [];
-    const subcommand = String(req.subcommand || req.action || argParts[0] || 'clone').toLowerCase();
-    const rawRepo = String(req.repo_url || req.repo || req.url || argParts[1] || '').trim();
+    const argsObj = (req.arguments && typeof req.arguments === 'object') ? req.arguments : {};
+    const subcommand = String(req.subcommand || req.action || argsObj.action || argsObj.subcommand || argParts[0] || 'clone').toLowerCase();
+    const rawRepo = String(req.repo_url || req.repo || argsObj.repo_url || argsObj.repo || req.url || argParts[1] || '').trim();
+
+    if (subcommand === 'detect_repo' || subcommand === 'auto_detect') {
+      return this.detectHostedGitHubRepo(req);
+    }
+
+    // Strict R4-39 secret check BEFORE routing or network access whenever a URL or bearer targets non-GitHub origins
+    if (req.provenance_url) {
+      let provHost = '';
+      try {
+        provHost = new URL(String(req.provenance_url)).hostname.toLowerCase();
+      } catch {
+        provHost = '';
+      }
+      const hasSecretInput = Boolean(req.auth_bearer) || String(req.auth_bearer || '').includes('{{MVM_SECRET:') ||
+        Object.values(req.headers || {}).some((v) => String(v || '').includes('{{MVM_SECRET:'));
+      if (hasSecretInput && provHost && !SECRET_HOST_ALLOWLIST.GITHUB_TOKEN.has(provHost)) {
+        return {
+          ok: false,
+          status: 403,
+          error_code: 'HostNotAllowlistedForSecret',
+          message: `Secret GITHUB_TOKEN is not allowlisted for provenance host ${provHost}`,
+        };
+      }
+    }
 
     if (req.path_and_query) {
       const repoValid = this.validateTransportUrl(rawRepo, false);
@@ -2838,6 +3169,7 @@ export class SpiralCoreHostBridge {
         content_type: req.content_type || undefined,
         auth_bearer: authBearer,
         body_b64: req.body_b64 || req.body_base64 || undefined,
+        body_json: req.body_json || undefined,
       });
       if (relayGit && relayGit.ok && relayGit.data) {
         const d = relayGit.data;
@@ -2874,6 +3206,43 @@ export class SpiralCoreHostBridge {
       });
     }
 
+    // Special case: watch_deploy without repo can inspect static origin provenance.json directly
+    if (subcommand === 'watch_deploy' && !rawRepo) {
+      const provUrl = String(req.provenance_url || argsObj.provenance_url || '').trim();
+      const provRes = await this.checkProvenanceUpdate(provUrl);
+      if (!provRes.ok) return provRes;
+      return {
+        ok: true,
+        status: 200,
+        op: 'git',
+        subcommand: 'watch_deploy',
+        ...provRes,
+        data: provRes,
+        body_text: `Provenance digest (${String(provRes.adapter_wasm_sha256).slice(0, 12)}) update_available=${provRes.update_available}`,
+        transport: this.lastTransportMode,
+      };
+    }
+
+    // Reject non-GitHub URL remotes targeting secrets immediately with HostNotAllowlistedForSecret
+    if (/^https?:\/\//i.test(rawRepo)) {
+      let hostLower = '';
+      try {
+        hostLower = new URL(rawRepo).hostname.toLowerCase();
+      } catch {
+        hostLower = '';
+      }
+      const wantsSecret = this.hasSecret('GITHUB_TOKEN') || Boolean(req.auth_bearer) || rawRepo.includes('{{MVM_SECRET:') ||
+        ['push', 'commit_push', 'create_branch', 'create_pr', 'merge_pr'].includes(subcommand);
+      if (hostLower && !SECRET_HOST_ALLOWLIST.GITHUB_TOKEN.has(hostLower) && wantsSecret) {
+        return {
+          ok: false,
+          status: 403,
+          error_code: 'HostNotAllowlistedForSecret',
+          message: `Secret GITHUB_TOKEN is not allowlisted for remote host ${hostLower}`,
+        };
+      }
+    }
+
     const coords = this.parseGitHubRepoCoords(rawRepo);
     if (!coords) {
       if (rawRepo) {
@@ -2888,37 +3257,123 @@ export class SpiralCoreHostBridge {
       };
     }
 
-    const ghHeaders = { Accept: 'application/vnd.github+json' };
-    const authRes = this.applyHostSecretSubstitution(new URL('https://api.github.com'), ghHeaders);
-    if (!authRes.ok) return authRes;
-    const headers = authRes.headers;
+    const repoSlug = `${coords.owner}/${coords.repo}`;
+    const resolvedAuthBearer = this.hasSecret('GITHUB_TOKEN') ? this.#secretVault.get('GITHUB_TOKEN') : undefined;
+
+    if (subcommand === 'connect' || subcommand === 'branches') {
+      try {
+        const relayOut = await this.#resolveRelayGithubApi('connect', { repo: repoSlug, auth_bearer: resolvedAuthBearer });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          this.lastTransportMode = this.lastTransportMode || 'spvs-relay';
+          return {
+            ok: true,
+            status: 200,
+            op: 'git',
+            subcommand: 'connect',
+            repo: repoSlug,
+            ...relayOut.data,
+            data: relayOut.data,
+            body_text: `Connected ${repoSlug} (default: ${relayOut.data.default_branch}, ${(relayOut.data.branches || []).length} branches)`,
+            transport: this.lastTransportMode,
+          };
+        }
+        const meta = await this.#githubRestJson(coords, '');
+        if (!meta.ok) {
+          return {
+            ok: false,
+            status: meta.status,
+            error_code: meta.status === 401 || meta.status === 404 ? 'GitRepoAccessDenied' : 'GitApiError',
+            message: (meta.json && meta.json.message) || `GitHub API returned HTTP ${meta.status} for ${repoSlug}`,
+          };
+        }
+        const br = await this.#githubRestJson(coords, 'branches?per_page=50');
+        const branchNames = Array.isArray(br.json) ? br.json.map((b) => String(b.name || '')).filter(Boolean) : [];
+        const defBranch = String((meta.json && meta.json.default_branch) || 'main');
+        if (defBranch && !branchNames.includes(defBranch)) branchNames.unshift(defBranch);
+        const data = {
+          repo: repoSlug,
+          default_branch: defBranch,
+          private: Boolean(meta.json && meta.json.private),
+          html_url: (meta.json && meta.json.html_url) || coords.url,
+          branches: branchNames,
+        };
+        return {
+          ok: true,
+          status: 200,
+          op: 'git',
+          subcommand: 'connect',
+          repo: repoSlug,
+          ...data,
+          data,
+          body_text: `Connected ${repoSlug} (default: ${defBranch}, ${branchNames.length} branches)`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return { ok: false, status: 502, error_code: 'GitNetworkFailure', message: err && err.message ? err.message : String(err) };
+      }
+    }
 
     if (subcommand === 'clone' || subcommand === 'pull' || subcommand === 'fetch') {
       try {
-        const repoResp = await fetch(`https://api.github.com/repos/${coords.owner}/${coords.repo}`, { headers });
-        if (!repoResp.ok) {
+        const requestedBranch = String(req.branch || argsObj.branch || '').trim();
+        const relayOut = await this.#resolveRelayGithubApi(subcommand, {
+          repo: repoSlug,
+          branch: requestedBranch || undefined,
+          limit: req.limit || 40,
+          auth_bearer: resolvedAuthBearer,
+        });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          const d = relayOut.data;
+          const treeKey = `${repoSlug}@${d.branch}`;
+          const lazyMap = new Map();
+          for (const lp of d.lazy_paths || []) {
+            lazyMap.set(lp.path, lp);
+          }
+          this.#lazyRepoTrees.set(treeKey, lazyMap);
           return {
-            ok: false,
-            status: repoResp.status,
-            error_code: repoResp.status === 401 || repoResp.status === 404 ? 'GitRepoAccessDenied' : 'GitApiError',
-            message: `GitHub API returned HTTP ${repoResp.status} for ${coords.owner}/${coords.repo}`,
+            ok: true,
+            status: 200,
+            op: 'git',
+            subcommand,
+            repo: repoSlug,
+            repo_url: coords.url,
+            branch: d.branch,
+            head_sha: d.head_sha || '',
+            files: d.files || [],
+            file_count: (d.files || []).length,
+            lazy_paths: d.lazy_paths || [],
+            total_blobs: d.total_blobs ?? (d.files || []).length,
+            data: d,
+            body_text: `Synchronized ${(d.files || []).length}/${d.total_blobs ?? (d.files || []).length} files from ${repoSlug}@${d.branch}`,
+            transport: this.lastTransportMode,
           };
         }
-        const repoMeta = await repoResp.json();
-        const branch = String(req.branch || repoMeta.default_branch || 'main');
-        const treeResp = await fetch(
-          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
-          { headers },
-        );
-        if (!treeResp.ok) {
+
+        const metaRes = await this.#githubRestJson(coords, '');
+        if (!metaRes.ok) {
           return {
             ok: false,
-            status: treeResp.status,
+            status: metaRes.status,
+            error_code: metaRes.status === 401 || metaRes.status === 404 ? 'GitRepoAccessDenied' : 'GitApiError',
+            message: `GitHub API returned HTTP ${metaRes.status} for ${repoSlug}`,
+          };
+        }
+        const repoMeta = metaRes.json || {};
+        const branch = requestedBranch || String(repoMeta.default_branch || 'main');
+        const brRes = await this.#githubRestJson(coords, 'branches?per_page=50').catch(() => ({ ok: false, json: [] }));
+        const branches = Array.isArray(brRes.json) ? brRes.json.map((b) => String(b.name || '')).filter(Boolean) : [branch];
+        if (!branches.includes(branch)) branches.unshift(branch);
+
+        const treeRes = await this.#githubRestJson(coords, `git/trees/${encodeURIComponent(branch)}?recursive=1`);
+        if (!treeRes.ok) {
+          return {
+            ok: false,
+            status: treeRes.status,
             error_code: 'GitTreeFetchFailed',
-            message: `Failed to fetch tree for ${coords.owner}/${coords.repo}@${branch} (HTTP ${treeResp.status})`,
+            message: `Failed to fetch tree for ${repoSlug}@${branch} (HTTP ${treeRes.status})`,
           };
         }
-        const treeJson = await treeResp.json();
+        const treeJson = treeRes.json || {};
         const blobs = (Array.isArray(treeJson.tree) ? treeJson.tree : []).filter(
           (entry) =>
             entry.type === 'blob' &&
@@ -2926,10 +3381,16 @@ export class SpiralCoreHostBridge {
             (entry.size ?? 0) <= 196608 &&
             !/\.(png|jpg|jpeg|gif|webp|ico|woff2?|ttf|wasm|bin|part\d+|xz|gz|zip|pdf)$/i.test(entry.path),
         );
-        const selected = blobs.slice(0, 40);
+        const eagerCap = Number.isInteger(Number(req.limit)) && Number(req.limit) > 0 ? Math.min(Number(req.limit), 80) : 40;
+        const selected = blobs.slice(0, eagerCap);
+        const lazyPaths = blobs.slice(eagerCap).map((b) => ({ path: b.path, sha: b.sha || '', size: b.size ?? 0 }));
+        const treeKey = `${repoSlug}@${branch}`;
+        const lazyMap = new Map();
+        for (const lp of lazyPaths) lazyMap.set(lp.path, lp);
+        this.#lazyRepoTrees.set(treeKey, lazyMap);
+
         const hasToken = this.hasSecret('GITHUB_TOKEN');
         const fetchedFiles = [];
-
         const batchSize = 8;
         for (let i = 0; i < selected.length; i += batchSize) {
           const slice = selected.slice(i, i + batchSize);
@@ -2938,20 +3399,15 @@ export class SpiralCoreHostBridge {
               try {
                 if (!hasToken && !repoMeta.private) {
                   const rawUrl = `https://raw.githubusercontent.com/${coords.owner}/${coords.repo}/${encodeURIComponent(branch)}/${entry.path}`;
-                  const r = await fetch(rawUrl);
+                  const r = await this.#fetchImpl(rawUrl);
                   if (r.ok) {
-                    return { path: entry.path, content: await r.text(), sha: entry.sha };
+                    return { path: entry.path, content: await r.text(), sha: entry.sha, size: entry.size ?? 0 };
                   }
                 }
-                const blobResp = await fetch(
-                  `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/blobs/${entry.sha}`,
-                  { headers },
-                );
-                if (!blobResp.ok) return null;
-                const blobJson = await blobResp.json();
-                if (blobJson.encoding === 'base64' && typeof blobJson.content === 'string') {
-                  const bytes = __uorBase64ToBytes(blobJson.content);
-                  return { path: entry.path, content: cachedTextDecoder.decode(bytes), sha: entry.sha };
+                const blobRes = await this.#githubRestJson(coords, `git/blobs/${entry.sha}`);
+                if (blobRes.ok && blobRes.json && blobRes.json.encoding === 'base64' && typeof blobRes.json.content === 'string') {
+                  const bytes = __uorBase64ToBytes(blobRes.json.content);
+                  return { path: entry.path, content: cachedTextDecoder.decode(bytes), sha: entry.sha, size: entry.size ?? bytes.byteLength };
                 }
                 return null;
               } catch {
@@ -2964,26 +3420,45 @@ export class SpiralCoreHostBridge {
           }
         }
 
-        this.lastTransportMode = 'direct-https-github-rest';
+        const lazyEntries = lazyPaths.map((lp) => ({
+          path: lp.path,
+          content: null,
+          sha: lp.sha,
+          size: lp.size,
+          lazy: true,
+        }));
+        const allFiles = [...fetchedFiles, ...lazyEntries];
+
         return {
           ok: true,
           status: 200,
           op: 'git',
           subcommand,
-          repo: `${coords.owner}/${coords.repo}`,
+          repo: repoSlug,
           repo_url: coords.url,
           branch,
+          default_branch: repoMeta.default_branch || branch,
+          branches,
           head_sha: treeJson.sha || '',
-          files: fetchedFiles,
-          file_count: fetchedFiles.length,
+          files: allFiles,
+          hydrated_count: fetchedFiles.length,
+          file_count: allFiles.length,
+          lazy_paths: lazyPaths,
+          total_blobs: blobs.length,
+          truncated: Boolean(treeJson.truncated) || lazyPaths.length > 0,
           data: {
-            repo: `${coords.owner}/${coords.repo}`,
+            repo: repoSlug,
+            default_branch: repoMeta.default_branch || branch,
             branch,
+            branches,
             head_sha: treeJson.sha || '',
             files: fetchedFiles,
+            lazy_paths: lazyPaths,
+            total_blobs: blobs.length,
             file_count: fetchedFiles.length,
+            truncated: Boolean(treeJson.truncated) || lazyPaths.length > 0,
           },
-          body_text: `Synchronized ${fetchedFiles.length} files from ${coords.owner}/${coords.repo}@${branch} (${String(treeJson.sha || '').slice(0, 12)})`,
+          body_text: `Synchronized ${fetchedFiles.length}/${blobs.length} files from ${repoSlug}@${branch} (${String(treeJson.sha || '').slice(0, 12)})`,
           transport: this.lastTransportMode,
         };
       } catch (err) {
@@ -2996,7 +3471,160 @@ export class SpiralCoreHostBridge {
       }
     }
 
-    if (subcommand === 'push') {
+    if (subcommand === 'read_blob' || subcommand === 'cat_blob' || subcommand === 'blob') {
+      const branch = String(req.branch || argsObj.branch || 'main').trim();
+      const filePath = String(req.path || argsObj.path || argParts[2] || '').trim().replace(/^\/+/, '');
+      const cachedEntry = this.#lazyRepoTrees.get(`${repoSlug}@${branch}`)?.get(filePath);
+      const sha = String(req.sha || argsObj.sha || (cachedEntry && cachedEntry.sha) || '').trim();
+      if (!sha && !filePath) {
+        return { ok: false, status: 400, error_code: 'GitBlobFetchFailed', message: 'read_blob requires path or sha' };
+      }
+      try {
+        const relayOut = await this.#resolveRelayGithubApi('read_blob', {
+          repo: repoSlug,
+          branch,
+          path: filePath,
+          sha: sha || undefined,
+          auth_bearer: resolvedAuthBearer,
+        });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          const d = relayOut.data;
+          return {
+            ok: true,
+            status: 200,
+            op: 'git',
+            subcommand: 'read_blob',
+            repo: repoSlug,
+            branch,
+            path: d.path || filePath,
+            sha: d.sha || sha,
+            size: d.size ?? String(d.content || '').length,
+            content: d.content || '',
+            files: d.path ? [{ path: d.path, content: d.content || '', sha: d.sha || sha }] : [],
+            data: d,
+            body_text: `Loaded ${d.path || filePath} (${d.size ?? String(d.content || '').length} bytes) from ${repoSlug}@${branch}`,
+            transport: this.lastTransportMode,
+          };
+        }
+        const restPath = sha
+          ? `git/blobs/${encodeURIComponent(sha)}`
+          : `contents/${filePath.split('/').map((s) => encodeURIComponent(s)).join('/')}?ref=${encodeURIComponent(branch)}`;
+        const blobRes = await this.#githubRestJson(coords, restPath);
+        if (!blobRes.ok || !blobRes.json) {
+          return {
+            ok: false,
+            status: blobRes.status || 404,
+            error_code: 'GitBlobFetchFailed',
+            message: (blobRes.json && blobRes.json.message) || `Failed to read blob ${filePath || sha}`,
+          };
+        }
+        const content =
+          blobRes.json.encoding === 'base64' && typeof blobRes.json.content === 'string'
+            ? cachedTextDecoder.decode(__uorBase64ToBytes(blobRes.json.content))
+            : String(blobRes.json.content || '');
+        const resolvedSha = blobRes.json.sha || sha;
+        const resolvedPath = filePath || blobRes.json.path || '';
+        const data = { repo: repoSlug, branch, path: resolvedPath, sha: resolvedSha, size: blobRes.json.size ?? content.length, content };
+        return {
+          ok: true,
+          status: 200,
+          op: 'git',
+          subcommand: 'read_blob',
+          repo: repoSlug,
+          branch,
+          path: resolvedPath,
+          sha: resolvedSha,
+          size: data.size,
+          content,
+          files: resolvedPath ? [{ path: resolvedPath, content, sha: resolvedSha }] : [],
+          data,
+          body_text: `Loaded ${resolvedPath} (${data.size} bytes) from ${repoSlug}@${branch}`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return { ok: false, status: 502, error_code: 'GitBlobFetchFailed', message: err && err.message ? err.message : String(err) };
+      }
+    }
+
+    if (subcommand === 'create_branch' || subcommand === 'branch' || subcommand === 'checkout') {
+      if (!this.hasSecret('GITHUB_TOKEN')) {
+        return { ok: false, status: 401, error_code: 'GitAuthRequired', message: 'GitHub PAT required for create_branch.' };
+      }
+      const branch = String(req.branch || argsObj.branch || argParts[2] || '').trim();
+      const fromBranchInput = String(req.from_branch || argsObj.from_branch || argsObj.base || '').trim();
+      if (!branch || branch.includes('..')) {
+        return { ok: false, status: 400, error_code: 'GitBranchCreateFailed', message: `Invalid branch name '${branch}'` };
+      }
+      try {
+        const relayOut = await this.#resolveRelayGithubApi('create_branch', {
+          repo: repoSlug,
+          branch,
+          from_branch: fromBranchInput || undefined,
+          auth_bearer: resolvedAuthBearer,
+        });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          const d = relayOut.data;
+          return {
+            ok: true,
+            status: 201,
+            op: 'git',
+            subcommand: 'create_branch',
+            repo: repoSlug,
+            branch: d.branch,
+            from_branch: d.from_branch,
+            sha: d.sha,
+            ref: d.ref,
+            data: d,
+            body_text: `Created branch ${d.branch} from ${d.from_branch} at ${String(d.sha || '').slice(0, 12)}`,
+            transport: this.lastTransportMode,
+          };
+        }
+        let fromBranch = fromBranchInput;
+        if (!fromBranch) {
+          const meta = await this.#githubRestJson(coords, '');
+          fromBranch = String((meta.json && meta.json.default_branch) || 'main');
+        }
+        const baseRef = await this.#githubRestJson(coords, `git/ref/heads/${encodeURIComponent(fromBranch)}`);
+        if (!baseRef.ok || !baseRef.json || !baseRef.json.object || !baseRef.json.object.sha) {
+          return { ok: false, status: baseRef.status || 404, error_code: 'GitRefReadFailed', message: `Base branch '${fromBranch}' not found` };
+        }
+        const baseSha = baseRef.json.object.sha;
+        const created = await this.#githubRestJson(coords, 'git/refs', {
+          method: 'POST',
+          body: { ref: `refs/heads/${branch}`, sha: baseSha },
+        });
+        if (!created.ok) {
+          return {
+            ok: false,
+            status: created.status,
+            error_code: 'GitBranchCreateFailed',
+            message: (created.json && created.json.message) || `Failed to create branch '${branch}'`,
+          };
+        }
+        const data = {
+          repo: repoSlug,
+          branch,
+          from_branch: fromBranch,
+          ref: (created.json && created.json.ref) || `refs/heads/${branch}`,
+          sha: (created.json && created.json.object && created.json.object.sha) || baseSha,
+        };
+        return {
+          ok: true,
+          status: created.status,
+          op: 'git',
+          subcommand: 'create_branch',
+          repo: repoSlug,
+          ...data,
+          data,
+          body_text: `Created branch ${branch} from ${fromBranch} at ${String(data.sha || '').slice(0, 12)}`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return { ok: false, status: 502, error_code: 'GitBranchCreateFailed', message: err && err.message ? err.message : String(err) };
+      }
+    }
+
+    if (subcommand === 'push' || subcommand === 'commit_push' || subcommand === 'commit') {
       if (!this.hasSecret('GITHUB_TOKEN')) {
         return {
           ok: false,
@@ -3005,125 +3633,373 @@ export class SpiralCoreHostBridge {
           message: 'GitHub PAT not configured. Click GitHub in the header to store GITHUB_TOKEN in the host vault.',
         };
       }
-      const filesToPush = Array.isArray(req.files) ? req.files : [];
+      const filesToPush = Array.isArray(req.files) ? req.files : Array.isArray(argsObj.files) ? argsObj.files : [];
       if (filesToPush.length === 0) {
         return {
           ok: false,
           status: 400,
           error_code: 'GitNothingToPush',
-          message: 'No modified workspace files supplied for git push',
+          message: 'No modified workspace files supplied for commit_push',
         };
       }
-      const branch = String(req.branch || 'main');
-      const commitMessage = String(req.message || req.commit_message || 'Update from UOR-R4 Connected Studio');
+      const branch = String(req.branch || argsObj.branch || 'main');
+      const commitMessage = String(req.message || argsObj.message || req.commit_message || 'Update from UOR-R4 Connected Studio');
       try {
-        const refResp = await fetch(
-          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/ref/heads/${encodeURIComponent(branch)}`,
-          { headers },
-        );
-        if (!refResp.ok) {
+        const relayOut = await this.#resolveRelayGithubApi('commit_push', {
+          repo: repoSlug,
+          branch,
+          message: commitMessage,
+          files: filesToPush,
+          force: Boolean(req.force),
+          auth_bearer: resolvedAuthBearer,
+        });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          const d = relayOut.data;
           return {
-            ok: false,
-            status: refResp.status,
-            error_code: 'GitRefReadFailed',
-            message: `Unable to read heads/${branch} on ${coords.owner}/${coords.repo} (HTTP ${refResp.status})`,
+            ok: true,
+            status: 200,
+            op: 'git',
+            subcommand: 'commit_push',
+            repo: repoSlug,
+            branch,
+            commit_sha: d.commit_sha,
+            tree_sha: d.tree_sha,
+            pushed_files: d.pushed_files,
+            deleted_files: d.deleted_files || 0,
+            data: d,
+            body_text: `Committed & pushed ${d.pushed_files} file(s) to ${repoSlug}@${branch} -> ${String(d.commit_sha || '').slice(0, 12)}`,
+            transport: this.lastTransportMode,
           };
         }
-        const refJson = await refResp.json();
-        const baseCommitSha = refJson.object && refJson.object.sha;
-        const commitResp = await fetch(
-          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/commits/${baseCommitSha}`,
-          { headers },
-        );
-        const commitJson = await commitResp.json();
-        const baseTreeSha = commitJson.tree && commitJson.tree.sha;
 
-        const treeEntries = filesToPush.map((f) => ({
-          path: String(f.path || '').replace(/^\/+/, ''),
-          mode: '100644',
-          type: 'blob',
-          content: String(f.content ?? ''),
-        }));
-        const createTreeResp = await fetch(
-          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/trees`,
-          {
-            method: 'POST',
-            headers: { ...headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ base_tree: baseTreeSha, tree: treeEntries }),
-          },
-        );
-        if (!createTreeResp.ok) {
+        const refRes = await this.#githubRestJson(coords, `git/ref/heads/${encodeURIComponent(branch)}`);
+        if (!refRes.ok || !refRes.json || !refRes.json.object) {
           return {
             ok: false,
-            status: createTreeResp.status,
-            error_code: 'GitTreeCreateFailed',
-            message: `GitHub tree creation failed (HTTP ${createTreeResp.status})`,
+            status: refRes.status || 404,
+            error_code: 'GitRefReadFailed',
+            message: `Unable to read heads/${branch} on ${repoSlug} (HTTP ${refRes.status})`,
           };
         }
-        const newTree = await createTreeResp.json();
-        const newCommitResp = await fetch(
-          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/commits`,
-          {
-            method: 'POST',
-            headers: { ...headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              message: commitMessage,
-              tree: newTree.sha,
-              parents: [baseCommitSha],
-            }),
-          },
-        );
-        if (!newCommitResp.ok) {
-          return {
-            ok: false,
-            status: newCommitResp.status,
-            error_code: 'GitCommitCreateFailed',
-            message: `GitHub commit creation failed (HTTP ${newCommitResp.status})`,
-          };
+        const baseCommitSha = refRes.json.object.sha;
+        const commitRes = await this.#githubRestJson(coords, `git/commits/${baseCommitSha}`);
+        const baseTreeSha = commitRes.json && commitRes.json.tree && commitRes.json.tree.sha;
+
+        const treeEntries = filesToPush.map((f) => {
+          const pathClean = String(f.path || '').replace(/^\/+/, '');
+          if (f.delete === true) {
+            return { path: pathClean, mode: '100644', type: 'blob', sha: null };
+          }
+          return { path: pathClean, mode: String(f.mode || '100644'), type: 'blob', content: String(f.content ?? '') };
+        });
+        const newTree = await this.#githubRestJson(coords, 'git/trees', {
+          method: 'POST',
+          body: { base_tree: baseTreeSha, tree: treeEntries },
+        });
+        if (!newTree.ok || !newTree.json) {
+          return { ok: false, status: newTree.status, error_code: 'GitTreeCreateFailed', message: `GitHub tree creation failed (HTTP ${newTree.status})` };
         }
-        const createdCommit = await newCommitResp.json();
-        const updateRefResp = await fetch(
-          `https://api.github.com/repos/${coords.owner}/${coords.repo}/git/refs/heads/${encodeURIComponent(branch)}`,
-          {
-            method: 'PATCH',
-            headers: { ...headers, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sha: createdCommit.sha, force: false }),
-          },
-        );
-        if (!updateRefResp.ok) {
-          return {
-            ok: false,
-            status: updateRefResp.status,
-            error_code: 'GitRefUpdateFailed',
-            message: `GitHub ref fast-forward failed (HTTP ${updateRefResp.status})`,
-          };
+        const createdCommit = await this.#githubRestJson(coords, 'git/commits', {
+          method: 'POST',
+          body: { message: commitMessage, tree: newTree.json.sha, parents: [baseCommitSha] },
+        });
+        if (!createdCommit.ok || !createdCommit.json) {
+          return { ok: false, status: createdCommit.status, error_code: 'GitCommitCreateFailed', message: `GitHub commit creation failed (HTTP ${createdCommit.status})` };
         }
-        this.lastTransportMode = 'direct-https-github-rest';
+        const updRef = await this.#githubRestJson(coords, `git/refs/heads/${encodeURIComponent(branch)}`, {
+          method: 'PATCH',
+          body: { sha: createdCommit.json.sha, force: Boolean(req.force) },
+        });
+        if (!updRef.ok) {
+          return { ok: false, status: updRef.status, error_code: 'GitRefUpdateFailed', message: `GitHub ref fast-forward failed (HTTP ${updRef.status})` };
+        }
+        const deletedFiles = treeEntries.filter((e) => e.sha === null).length;
+        const pushedFiles = treeEntries.length - deletedFiles;
+        const data = {
+          repo: repoSlug,
+          branch,
+          commit_sha: createdCommit.json.sha,
+          tree_sha: newTree.json.sha,
+          pushed_files: pushedFiles,
+          deleted_files: deletedFiles,
+        };
         return {
           ok: true,
           status: 200,
           op: 'git',
-          subcommand: 'push',
-          repo: `${coords.owner}/${coords.repo}`,
-          branch,
-          commit_sha: createdCommit.sha,
-          pushed_files: treeEntries.length,
-          data: {
-            repo: `${coords.owner}/${coords.repo}`,
-            branch,
-            commit_sha: createdCommit.sha,
-            pushed_files: treeEntries.length,
-          },
-          body_text: `Pushed ${treeEntries.length} file(s) to ${coords.owner}/${coords.repo}@${branch} -> ${String(createdCommit.sha || '').slice(0, 12)}`,
+          subcommand: subcommand === 'push' ? 'push' : 'commit_push',
+          ...data,
+          data,
+          body_text: `Committed & pushed ${pushedFiles} file(s) to ${repoSlug}@${branch} -> ${String(createdCommit.json.sha || '').slice(0, 12)}`,
           transport: this.lastTransportMode,
         };
       } catch (err) {
-        return {
-          ok: false,
-          status: 502,
-          error_code: 'GitPushNetworkError',
-          message: err && err.message ? err.message : String(err),
+        return { ok: false, status: 502, error_code: 'GitPushNetworkError', message: err && err.message ? err.message : String(err) };
+      }
+    }
+
+    if (subcommand === 'create_pr' || subcommand === 'open_pr') {
+      if (!this.hasSecret('GITHUB_TOKEN')) {
+        return { ok: false, status: 401, error_code: 'GitAuthRequired', message: 'GitHub PAT required for create_pr.' };
+      }
+      const head = String(req.head || argsObj.head || req.branch || argsObj.branch || '').trim();
+      const base = String(req.base || argsObj.base || 'main').trim();
+      const title = String(req.title || argsObj.title || `Update ${head}`).trim();
+      const body = String(req.body || argsObj.body || 'PR opened from UOR-R4 Connected Studio').trim();
+      if (!head || !title) {
+        return { ok: false, status: 400, error_code: 'GitPrCreateFailed', message: 'create_pr requires head branch and title' };
+      }
+      try {
+        const relayOut = await this.#resolveRelayGithubApi('create_pr', {
+          repo: repoSlug, head, base, title, body, draft: Boolean(req.draft), auth_bearer: resolvedAuthBearer,
+        });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          const d = relayOut.data;
+          return {
+            ok: true,
+            status: 201,
+            op: 'git',
+            subcommand: 'create_pr',
+            repo: repoSlug,
+            ...d,
+            data: d,
+            body_text: `Opened PR #${d.pr_number} (${d.head} -> ${d.base}): ${d.html_url || d.url}`,
+            transport: this.lastTransportMode,
+          };
+        }
+        const prRes = await this.#githubRestJson(coords, 'pulls', {
+          method: 'POST',
+          body: { title, body, head, base, draft: Boolean(req.draft) },
+        });
+        if (!prRes.ok || !prRes.json) {
+          return {
+            ok: false,
+            status: prRes.status,
+            error_code: 'GitPrCreateFailed',
+            message: (prRes.json && prRes.json.message) || `GitHub PR creation failed (HTTP ${prRes.status})`,
+          };
+        }
+        const data = {
+          repo: repoSlug,
+          pr_number: prRes.json.number,
+          url: prRes.json.url || '',
+          html_url: prRes.json.html_url || '',
+          state: prRes.json.state || 'open',
+          head: (prRes.json.head && prRes.json.head.ref) || head,
+          base: (prRes.json.base && prRes.json.base.ref) || base,
+          title: prRes.json.title || title,
         };
+        return {
+          ok: true,
+          status: prRes.status,
+          op: 'git',
+          subcommand: 'create_pr',
+          ...data,
+          data,
+          body_text: `Opened PR #${data.pr_number} (${data.head} -> ${data.base}): ${data.html_url || data.url}`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return { ok: false, status: 502, error_code: 'GitPrCreateFailed', message: err && err.message ? err.message : String(err) };
+      }
+    }
+
+    if (subcommand === 'pr_status' || subcommand === 'ci_status') {
+      const prNum = Number(req.pr_number || argsObj.pr_number || 0) || null;
+      let headSha = String(req.ref || argsObj.ref || req.head_sha || '').trim();
+      try {
+        const relayOut = await this.#resolveRelayGithubApi('pr_status', {
+          repo: repoSlug, pr_number: prNum || undefined, ref: headSha || undefined, auth_bearer: resolvedAuthBearer,
+        });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          const d = relayOut.data;
+          return {
+            ok: true,
+            status: 200,
+            op: 'git',
+            subcommand: 'pr_status',
+            ...d,
+            data: d,
+            body_text: `PR #${d.pr_number || '-'} state=${d.state} mergeable=${d.mergeable} checks=${d.check_status} (${d.checks_passed}/${d.checks_total})`,
+            transport: this.lastTransportMode,
+          };
+        }
+        let prMeta = null;
+        if (prNum && Number.isInteger(prNum) && prNum > 0) {
+          const prRes = await this.#githubRestJson(coords, `pulls/${prNum}`);
+          if (!prRes.ok || !prRes.json) {
+            return { ok: false, status: prRes.status || 404, error_code: 'GitPrStatusFailed', message: `Failed to fetch PR #${prNum}` };
+          }
+          prMeta = prRes.json;
+          headSha = (prMeta.head && prMeta.head.sha) || headSha;
+        }
+        let checkRuns = [];
+        let workflowRuns = [];
+        if (headSha) {
+          const [cr, wr] = await Promise.all([
+            this.#githubRestJson(coords, `commits/${encodeURIComponent(headSha)}/check-runs`),
+            this.#githubRestJson(coords, `actions/runs?head_sha=${encodeURIComponent(headSha)}&per_page=10`),
+          ]);
+          if (cr.ok && cr.json && Array.isArray(cr.json.check_runs)) checkRuns = cr.json.check_runs;
+          if (wr.ok && wr.json && Array.isArray(wr.json.workflow_runs)) workflowRuns = wr.json.workflow_runs;
+        }
+        const checksPassed = checkRuns.filter((c) => c.conclusion === 'success' || c.conclusion === 'neutral').length;
+        const anyPending = checkRuns.some((c) => c.status !== 'completed') || workflowRuns.some((w) => w.status !== 'completed');
+        const anyFailed = checkRuns.some((c) => c.conclusion === 'failure' || c.conclusion === 'timed_out') ||
+          workflowRuns.some((w) => w.conclusion === 'failure' || w.conclusion === 'cancelled');
+        const checkStatus = anyFailed ? 'failure' : anyPending ? 'pending' : checkRuns.length > 0 ? 'success' : 'unknown';
+        const latestWf = workflowRuns[0] || null;
+        const data = {
+          repo: repoSlug,
+          pr_number: prNum,
+          state: (prMeta && prMeta.state) || (prNum ? 'unknown' : 'commit'),
+          mergeable: prMeta ? (prMeta.mergeable ?? null) : null,
+          mergeable_state: (prMeta && prMeta.mergeable_state) || 'unknown',
+          html_url: (prMeta && prMeta.html_url) || '',
+          head_sha: headSha,
+          check_status: checkStatus,
+          checks_total: checkRuns.length,
+          checks_passed: checksPassed,
+          workflow_status: (latestWf && latestWf.status) || 'unknown',
+          workflow_conclusion: (latestWf && latestWf.conclusion) || null,
+          check_runs: checkRuns.map((c) => ({ name: c.name, status: c.status, conclusion: c.conclusion })),
+          workflow_runs: workflowRuns.map((w) => ({ id: w.id, name: w.name, status: w.status, conclusion: w.conclusion })),
+        };
+        return {
+          ok: true,
+          status: 200,
+          op: 'git',
+          subcommand: 'pr_status',
+          ...data,
+          data,
+          body_text: `PR #${data.pr_number || '-'} state=${data.state} mergeable=${data.mergeable} checks=${data.check_status} (${data.checks_passed}/${data.checks_total})`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return { ok: false, status: 502, error_code: 'GitPrStatusFailed', message: err && err.message ? err.message : String(err) };
+      }
+    }
+
+    if (subcommand === 'merge_pr') {
+      if (!this.hasSecret('GITHUB_TOKEN')) {
+        return { ok: false, status: 401, error_code: 'GitAuthRequired', message: 'GitHub PAT required for merge_pr.' };
+      }
+      const prNum = Number(req.pr_number || argsObj.pr_number || 0);
+      if (!Number.isInteger(prNum) || prNum <= 0) {
+        return { ok: false, status: 400, error_code: 'GitPrMergeFailed', message: 'merge_pr requires valid integer pr_number' };
+      }
+      try {
+        const relayOut = await this.#resolveRelayGithubApi('merge_pr', {
+          repo: repoSlug,
+          pr_number: prNum,
+          merge_method: req.merge_method || argsObj.merge_method || 'squash',
+          commit_title: req.commit_title || argsObj.commit_title || undefined,
+          auth_bearer: resolvedAuthBearer,
+        });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          const d = relayOut.data;
+          return {
+            ok: true,
+            status: 200,
+            op: 'git',
+            subcommand: 'merge_pr',
+            ...d,
+            data: d,
+            body_text: `Merged PR #${prNum} on ${repoSlug} (sha=${String(d.sha || '').slice(0, 12)})`,
+            transport: this.lastTransportMode,
+          };
+        }
+        const mergeBody = { merge_method: String(req.merge_method || argsObj.merge_method || 'squash') };
+        if (req.commit_title || argsObj.commit_title) mergeBody.commit_title = String(req.commit_title || argsObj.commit_title);
+        const mRes = await this.#githubRestJson(coords, `pulls/${prNum}/merge`, { method: 'PUT', body: mergeBody });
+        if (!mRes.ok) {
+          return { ok: false, status: mRes.status, error_code: 'GitPrMergeFailed', message: (mRes.json && mRes.json.message) || `Failed to merge PR #${prNum}` };
+        }
+        const data = {
+          repo: repoSlug,
+          pr_number: prNum,
+          merged: Boolean(mRes.json && (mRes.json.merged ?? true)),
+          sha: (mRes.json && mRes.json.sha) || '',
+          message: (mRes.json && mRes.json.message) || 'Pull Request merged',
+        };
+        return {
+          ok: true,
+          status: mRes.status,
+          op: 'git',
+          subcommand: 'merge_pr',
+          ...data,
+          data,
+          body_text: `Merged PR #${prNum} on ${repoSlug} (sha=${String(data.sha || '').slice(0, 12)})`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return { ok: false, status: 502, error_code: 'GitPrMergeFailed', message: err && err.message ? err.message : String(err) };
+      }
+    }
+
+    if (subcommand === 'watch_deploy') {
+      const provUrlOverride = String(req.provenance_url || argsObj.provenance_url || '').trim();
+      try {
+        const relayOut = await this.#resolveRelayGithubApi('watch_deploy', {
+          repo: repoSlug,
+          provenance_url: provUrlOverride || undefined,
+          auth_bearer: resolvedAuthBearer,
+        });
+        if (relayOut && relayOut.ok && relayOut.data) {
+          const d = relayOut.data;
+          const updateAvail = Boolean(
+            this.#provenanceBaseline &&
+              d.adapter_wasm_sha256 &&
+              (d.adapter_wasm_sha256 !== this.#provenanceBaseline.adapter_wasm_sha256 ||
+                d.binding_javascript_sha256 !== this.#provenanceBaseline.binding_javascript_sha256),
+          );
+          const merged = { ...d, update_available: updateAvail };
+          return {
+            ok: true,
+            status: 200,
+            op: 'git',
+            subcommand: 'watch_deploy',
+            ...merged,
+            data: merged,
+            body_text: `Pages ${merged.pages_status} (${merged.pages_url || 'origin'}) · provenance=${String(merged.adapter_wasm_sha256 || '').slice(0, 12)} · update=${updateAvail}`,
+            transport: this.lastTransportMode,
+          };
+        }
+        const [pagesRes, buildRes] = await Promise.all([
+          this.#githubRestJson(coords, 'pages').catch(() => ({ ok: false, json: null })),
+          this.#githubRestJson(coords, 'pages/builds/latest').catch(() => ({ ok: false, json: null })),
+        ]);
+        const pagesUrl = pagesRes.ok && pagesRes.json ? String(pagesRes.json.html_url || '') : '';
+        const targetProvUrl = provUrlOverride || (pagesUrl ? `${pagesUrl.replace(/\/+$/, '')}/provenance.json` : '');
+        let provRes = null;
+        if (targetProvUrl) {
+          provRes = await this.checkProvenanceUpdate(targetProvUrl);
+        }
+        const data = {
+          repo: repoSlug,
+          pages_status: pagesRes.ok && pagesRes.json ? (pagesRes.json.status || (buildRes.json && buildRes.json.status) || 'built') : 'unconfigured',
+          pages_url: pagesUrl,
+          build_status: buildRes.ok && buildRes.json ? (buildRes.json.status || 'unknown') : 'unknown',
+          deployment_sha: buildRes.ok && buildRes.json ? (buildRes.json.commit || '') : '',
+          provenance_url: targetProvUrl,
+          provenance: provRes && provRes.ok ? provRes.live : null,
+          adapter_wasm_sha256: provRes && provRes.ok ? provRes.adapter_wasm_sha256 : '',
+          binding_javascript_sha256: provRes && provRes.ok ? provRes.binding_javascript_sha256 : '',
+          generated_core_sha256: provRes && provRes.ok ? provRes.generated_core_sha256 : '',
+          update_available: Boolean(provRes && provRes.ok && provRes.update_available),
+        };
+        return {
+          ok: true,
+          status: 200,
+          op: 'git',
+          subcommand: 'watch_deploy',
+          ...data,
+          data,
+          body_text: `Pages ${data.pages_status} (${data.pages_url || targetProvUrl || 'local'}) · provenance=${String(data.adapter_wasm_sha256 || '').slice(0, 12)} · update=${data.update_available}`,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        return { ok: false, status: 502, error_code: 'GitDeployWatchFailed', message: err && err.message ? err.message : String(err) };
       }
     }
 
@@ -3250,6 +4126,254 @@ export class SpiralCoreHostBridge {
   }
 }
 
+function __uorNormalizeStitchGroup(g) {
+  if (!g || typeof g !== 'object') return null;
+  const left =
+    g.left && typeof g.left === 'object'
+      ? g.left
+      : g.left_file
+        ? { file: g.left_file, byte_length: g.left_length >>> 0, sha256: String(g.left_sha256 || '') }
+        : null;
+  const right =
+    g.right && typeof g.right === 'object'
+      ? g.right
+      : g.right_file
+        ? { file: g.right_file, byte_length: g.right_length >>> 0, sha256: String(g.right_sha256 || '') }
+        : null;
+  const parity =
+    g.parity && typeof g.parity === 'object'
+      ? g.parity
+      : g.parity_file
+        ? { file: g.parity_file, byte_length: g.parity_length >>> 0, sha256: String(g.parity_sha256 || '') }
+        : null;
+  if (!left || !parity) return null;
+  return {
+    group_index: Number.isInteger(g.group_index) ? g.group_index : (Number(g.group_id || 0) >>> 0),
+    left,
+    right,
+    parity,
+  };
+}
+
+function __uorStitchXorPairRecoverJs(group, missingSide, presentLeft, presentRight, presentParity) {
+  const normalized = __uorNormalizeStitchGroup(group);
+  if (!normalized) {
+    throw new Error('Invalid Stitch parity group');
+  }
+  const leftLen = Number(normalized.left.byte_length) >>> 0;
+  const rightLen = normalized.right ? (Number(normalized.right.byte_length) >>> 0) : 0;
+  const parityLen = Number(normalized.parity.byte_length) >>> 0;
+  const targetLen = missingSide === 'left' ? leftLen : rightLen;
+  // Only enter wasm-bindgen wrappers when Wasm is initialized so pre-init Stitch shard loading uses pure JS.
+  if (typeof wasm !== 'undefined' && wasm !== undefined && typeof studio_stitch_recover_pair_auto === 'function') {
+    return studio_stitch_recover_pair_auto(
+      JSON.stringify(normalized),
+      missingSide === 'left',
+      Boolean(presentLeft),
+      presentLeft || new Uint8Array(0),
+      Boolean(presentRight),
+      presentRight || new Uint8Array(0),
+      Boolean(presentParity),
+      presentParity || new Uint8Array(0)
+    );
+  }
+  const hasPartnerRequired = Boolean(normalized.right);
+  const other = missingSide === 'left' ? (presentRight || new Uint8Array(0)) : (presentLeft || new Uint8Array(0));
+  const parity = presentParity;
+  if (!(parity instanceof Uint8Array) || (hasPartnerRequired && !(other instanceof Uint8Array))) {
+    throw new Error('Insufficient Stitch parity shards (need 2 of 3)');
+  }
+  if (parity.byteLength !== parityLen) {
+    throw new Error(`Stitch parity length mismatch: ${parity.byteLength} != ${parityLen}`);
+  }
+  const out = new Uint8Array(targetLen);
+  for (let idx = 0; idx < targetLen; idx++) {
+    const pByte = idx < parity.byteLength ? parity[idx] : 0;
+    const oByte = idx < other.byteLength ? other[idx] : 0;
+    out[idx] = pByte ^ oByte;
+  }
+  return out;
+}
+
+export async function stitch_fetch_with_parity_recovery({
+  manifest,
+  baseUrl,
+  stitchManifest = null,
+  mirrors = [],
+  fetchImpl = typeof fetch === 'function' ? fetch.bind(globalThis) : null,
+  onProgress = null,
+} = {}) {
+  if (!manifest || !Array.isArray(manifest.shards)) {
+    throw new Error('Valid shard manifest is required');
+  }
+  if (typeof fetchImpl !== 'function') {
+    throw new Error('No fetch implementation available for Stitch shard fetch');
+  }
+  const normalizedBase = String(baseUrl || '').endsWith('/') ? String(baseUrl || '') : `${String(baseUrl || '')}/`;
+  const sourceBases = Array.from(
+    new Set(
+      [normalizedBase, ...(Array.isArray(mirrors) ? mirrors : [])]
+        .filter((u) => typeof u === 'string' && u.trim().length > 0)
+        .map((u) => (u.endsWith('/') ? u : `${u}/`))
+    )
+  );
+
+  let verifiedStitch = null;
+  if (stitchManifest) {
+    if (typeof wasm !== 'undefined' && wasm !== undefined && typeof studio_stitch_verify_manifest === 'function') {
+      const check = JSON.parse(studio_stitch_verify_manifest(JSON.stringify(stitchManifest)));
+      if (!check || check.status !== 'ok') {
+        throw new Error((check && check.message) || 'Invalid Stitch parity manifest');
+      }
+      verifiedStitch = stitchManifest;
+    } else if (
+      (stitchManifest.schema === 'stitch/xor-2-of-3/1' || stitchManifest.scheme === 'stitch/xor-2-of-3/1') &&
+      Array.isArray(stitchManifest.groups)
+    ) {
+      verifiedStitch = stitchManifest;
+    }
+  }
+
+  const shardGroupByFile = new Map();
+  if (verifiedStitch && Array.isArray(verifiedStitch.groups)) {
+    for (const rawGroup of verifiedStitch.groups) {
+      const g = __uorNormalizeStitchGroup(rawGroup);
+      if (!g) continue;
+      if (g.left && typeof g.left.file === 'string') shardGroupByFile.set(g.left.file, { group: g, side: 'left' });
+      if (g.right && typeof g.right.file === 'string') shardGroupByFile.set(g.right.file, { group: g, side: 'right' });
+    }
+  }
+
+  const fetchVerifiedShard = async (fileName, expectedLength, expectedSha256, failures) => {
+    for (const originBase of sourceBases) {
+      const url = `${originBase}${fileName}`;
+      try {
+        const resp = await fetchImpl(url);
+        if (!resp || !resp.ok) {
+          failures.push(`${url}: HTTP ${resp ? resp.status : 'error'}`);
+          continue;
+        }
+        const ab = await resp.arrayBuffer();
+        const bytes = new Uint8Array(ab);
+        if (typeof expectedLength === 'number' && expectedLength >= 0 && bytes.byteLength !== expectedLength) {
+          failures.push(`${url}: length ${bytes.byteLength} != ${expectedLength}`);
+          continue;
+        }
+        if (expectedSha256) {
+          const digest = await __uorSha256HexBytes(bytes);
+          if (digest !== expectedSha256) {
+            failures.push(`${url}: sha256 mismatch`);
+            continue;
+          }
+        }
+        return { bytes, source: originBase };
+      } catch (err) {
+        failures.push(`${url}: ${err && err.message ? err.message : String(err)}`);
+      }
+    }
+    return null;
+  };
+
+  const totalBytes = manifest.total_bytes >>> 0;
+  const fullBuf = new Uint8Array(totalBytes);
+  const fetchedMap = new Map();
+  const failedSources = [];
+  const healedShards = [];
+  const sourcesUsed = new Set();
+
+  for (let i = 0; i < manifest.shards.length; i++) {
+    const s = manifest.shards[i];
+    const hit = fetchedMap.get(s.file)
+      ? { bytes: fetchedMap.get(s.file), source: normalizedBase }
+      : await fetchVerifiedShard(s.file, s.byte_length, s.sha256, failedSources);
+    let shardBytes = hit ? hit.bytes : null;
+    if (hit) {
+      sourcesUsed.add(hit.source);
+      fetchedMap.set(s.file, shardBytes);
+    } else {
+      const entry = shardGroupByFile.get(s.file);
+      if (!entry) {
+        throw new Error(`Shard fetch failed with no Stitch parity group for ${s.file}: ${failedSources.join('; ')}`);
+      }
+      const { group, side } = entry;
+      const partnerEntry = side === 'left' ? group.right : group.left;
+      const partnerFile = partnerEntry ? partnerEntry.file : null;
+      const partnerLen = partnerEntry ? partnerEntry.byte_length : 0;
+      const partnerSha = partnerEntry ? partnerEntry.sha256 : '';
+
+      let partnerBytes = partnerFile ? fetchedMap.get(partnerFile) || null : null;
+      if (partnerFile && !partnerBytes) {
+        const partnerHit = await fetchVerifiedShard(partnerFile, partnerLen, partnerSha, failedSources);
+        if (partnerHit) {
+          partnerBytes = partnerHit.bytes;
+          fetchedMap.set(partnerFile, partnerBytes);
+          sourcesUsed.add(partnerHit.source);
+        }
+      }
+
+      const parityHit = await fetchVerifiedShard(
+        group.parity.file,
+        group.parity.byte_length,
+        group.parity.sha256,
+        failedSources
+      );
+      if (!parityHit || (partnerFile && !partnerBytes)) {
+        throw new Error(`Stitch 2-of-3 parity recovery failed for ${s.file}: ${failedSources.join('; ')}`);
+      }
+      sourcesUsed.add(parityHit.source);
+
+      shardBytes = __uorStitchXorPairRecoverJs(
+        group,
+        side,
+        side === 'right' ? partnerBytes : null,
+        side === 'left' ? partnerBytes : null,
+        parityHit.bytes
+      );
+      if (shardBytes.byteLength !== s.byte_length) {
+        throw new Error(`Recovered shard length mismatch on ${s.file}`);
+      }
+      const recoveredSha = await __uorSha256HexBytes(shardBytes);
+      if (s.sha256 && recoveredSha !== s.sha256) {
+        throw new Error(`Recovered shard SHA-256 mismatch on ${s.file}`);
+      }
+      fetchedMap.set(s.file, shardBytes);
+      healedShards.push({
+        file: s.file,
+        group: group.group_index,
+        parityFile: group.parity.file,
+        recoveredSha256: recoveredSha,
+      });
+    }
+
+    fullBuf.set(shardBytes, s.byte_offset);
+    if (typeof onProgress === 'function') {
+      onProgress({
+        index: i + 1,
+        total: manifest.shards.length,
+        bytes: s.byte_offset + s.byte_length,
+        totalBytes,
+        healedCount: healedShards.length,
+      });
+    }
+  }
+
+  const stitchHealth = {
+    scheme: verifiedStitch ? 'stitch/xor-2-of-3/1' : 'uorlut-sha256-verified',
+    custodyMode: verifiedStitch ? '2-of-3 XOR Parity + SHA-256' : 'SHA-256 Direct',
+    totalShards: manifest.shards.length,
+    verifiedShards: manifest.shards.length - healedShards.length,
+    healedShards: healedShards.length,
+    healedDetails: healedShards,
+    failedSources: failedSources.slice(-16),
+    mirrorsConfigured: sourceBases,
+    activeSources: Array.from(sourcesUsed),
+    status: healedShards.length > 0 ? 'Healed via 2-of-3 Parity' : 'Healthy (All Verified)',
+    updatedAt: new Date().toISOString(),
+  };
+  globalThis.__uorStitchHealth = stitchHealth;
+  return { fullBuf, stitchHealth };
+}
+
 export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload = false) {
   if (wasm === undefined || typeof studio_load_uorgllm_v9_bytes !== 'function') return null;
   const httpOrigin =
@@ -3290,6 +4414,19 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
     return restore_gllm_v9_from_opfs('');
   }
 
+  let stitchManifest = null;
+  try {
+    const stResp = await fetch(`${baseUrl}manifest.stitch.json`, { cache: 'no-cache' });
+    if (stResp && stResp.ok) {
+      const candidate = await stResp.json();
+      if (candidate && (candidate.schema === 'stitch/xor-2-of-3/1' || candidate.scheme === 'stitch/xor-2-of-3/1') && Array.isArray(candidate.groups)) {
+        stitchManifest = candidate;
+      }
+    }
+  } catch {
+    // Optional stitch parity sidecar manifest
+  }
+
   const expectedSha = String(manifest.container_sha256 || '');
   if (!forceReload && hasOpfs && expectedSha) {
     try {
@@ -3301,10 +4438,25 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
         const bytes = new Uint8Array(await (await wfh.getFile()).arrayBuffer());
         const loaded = JSON.parse(studio_load_uorgllm_v9_bytes(bytes, 'opfs_cached_v10_16L_256D'));
         if (loaded && loaded.status === 'ok') {
+          const stitchHealth = {
+            scheme: stitchManifest ? 'stitch/xor-2-of-3/1' : 'opfs-cached-verified',
+            custodyMode: stitchManifest ? '2-of-3 XOR Parity + OPFS' : 'OPFS SHA-256 Verified',
+            totalShards: manifest.shards.length,
+            verifiedShards: manifest.shards.length,
+            healedShards: 0,
+            healedDetails: [],
+            failedSources: [],
+            mirrorsConfigured: [baseUrl],
+            activeSources: ['opfs://local-cache'],
+            status: 'Healthy (OPFS Cached)',
+            updatedAt: new Date().toISOString(),
+          };
+          globalThis.__uorStitchHealth = stitchHealth;
           globalThis.__uorGllmV9Meta = {
             status: `OPFS UORGLLM v10 (${loaded.n_layers}L ${loaded.d_model}D)`,
             sha256: expectedSha,
             mode: 'opfs-v10-cached',
+            stitchHealth,
           };
           return loaded;
         }
@@ -3314,26 +4466,19 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
     }
   }
 
-  const totalBytes = manifest.total_bytes >>> 0;
-  const fullBuf = new Uint8Array(totalBytes);
-  for (let i = 0; i < manifest.shards.length; i++) {
-    const s = manifest.shards[i];
-    const sResp = await fetch(baseUrl + s.file);
-    if (!sResp.ok) throw new Error(`Shard HTTP ${sResp.status} on ${s.file}`);
-    const ab = await sResp.arrayBuffer();
-    if (ab.byteLength !== s.byte_length) throw new Error(`Shard length mismatch on ${s.file}`);
-    const shardSha = await __uorSha256HexBytes(new Uint8Array(ab));
-    if (shardSha !== s.sha256) throw new Error(`Shard SHA-256 mismatch on ${s.file}`);
-    fullBuf.set(new Uint8Array(ab), s.byte_offset);
-    if (typeof onProgress === 'function') {
-      onProgress({
-        index: i + 1,
-        total: manifest.shards.length,
-        bytes: s.byte_offset + s.byte_length,
-        totalBytes,
-      });
-    }
-  }
+  const mirrors = Array.isArray(manifest.mirrors)
+    ? manifest.mirrors
+    : stitchManifest && Array.isArray(stitchManifest.mirrors)
+      ? stitchManifest.mirrors
+      : [];
+  const { fullBuf, stitchHealth } = await stitch_fetch_with_parity_recovery({
+    manifest,
+    baseUrl,
+    stitchManifest,
+    mirrors,
+    onProgress,
+  });
+  const totalBytes = fullBuf.byteLength;
 
   const fullSha = await __uorSha256HexBytes(fullBuf);
   if (expectedSha && fullSha !== expectedSha) {
@@ -3479,9 +4624,25 @@ function __uorStartDedicatedEngineWorker() {
         ],
       });
 
-      const bridgeResp = await hostBridge.execute(bridgeReq);
-      if (bridgeResp && bridgeResp.op === 'git' && Array.isArray(bridgeResp.files) && bridgeResp.files.length > 0) {
-        applyClonedFilesToWorkspace(bridgeResp.files);
+      let execBridgeReq = bridgeReq;
+      if (
+        execBridgeReq &&
+        execBridgeReq.op === 'git' &&
+        (execBridgeReq.subcommand === 'push' || execBridgeReq.subcommand === 'commit_push') &&
+        !Array.isArray(execBridgeReq.files)
+      ) {
+        const snap = __uorCollectWorkspaceSnapshot();
+        if (snap && Array.isArray(snap.files) && snap.files.length > 0) {
+          execBridgeReq = { ...execBridgeReq, files: snap.files };
+        }
+      }
+      const bridgeResp = await hostBridge.execute(execBridgeReq);
+      if (bridgeResp && bridgeResp.op === 'git') {
+        if (Array.isArray(bridgeResp.files) && bridgeResp.files.length > 0) {
+          applyClonedFilesToWorkspace(bridgeResp.files);
+        } else if (typeof bridgeResp.path === 'string' && typeof bridgeResp.content === 'string') {
+          applyClonedFilesToWorkspace([{ path: bridgeResp.path, content: bridgeResp.content }]);
+        }
       }
       postEvent('bridge_activity', {
         phase: 'complete',
@@ -3545,13 +4706,21 @@ function __uorStartDedicatedEngineWorker() {
           ],
         });
         let reqPayload = payload || {};
-        if (reqPayload.op === 'git' && reqPayload.subcommand === 'push' && !Array.isArray(reqPayload.files)) {
+        if (
+          reqPayload.op === 'git' &&
+          (reqPayload.subcommand === 'push' || reqPayload.subcommand === 'commit_push') &&
+          !Array.isArray(reqPayload.files)
+        ) {
           const snap = __uorCollectWorkspaceSnapshot();
           reqPayload = { ...reqPayload, files: snap.files };
         }
         const res = await hostBridge.execute(reqPayload);
-        if (res && res.op === 'git' && Array.isArray(res.files) && res.files.length > 0) {
-          applyClonedFilesToWorkspace(res.files);
+        if (res && res.op === 'git') {
+          if (Array.isArray(res.files) && res.files.length > 0) {
+            applyClonedFilesToWorkspace(res.files);
+          } else if (typeof res.path === 'string' && typeof res.content === 'string') {
+            applyClonedFilesToWorkspace([{ path: res.path, content: res.content }]);
+          }
         }
         postEvent('bridge_activity', {
           phase: 'complete',
@@ -3665,7 +4834,64 @@ function __uorStartDedicatedEngineWorker() {
         const workspace = __uorCollectWorkspaceSnapshot();
         const pack = JSON.parse(studio_weight_pack_status());
         const gllm = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
-        self.postMessage({ id, ok: true, result: { state, workspace, pack, gllm } });
+        self.postMessage({
+          id,
+          ok: true,
+          result: {
+            state,
+            workspace,
+            pack,
+            gllm,
+            stitchHealth: globalThis.__uorStitchHealth || null,
+          },
+        });
+        return;
+      }
+      if (op === 'stitch_health') {
+        self.postMessage({ id, ok: true, result: globalThis.__uorStitchHealth || null });
+        return;
+      }
+      if (op === 'check_studio_update') {
+        const origin = payload && typeof payload.origin === 'string' ? payload.origin : '';
+        const update = await hostBridge.checkProvenanceUpdate(origin);
+        if (update && update.update_available) {
+          postEvent('studio_update_available', update);
+        }
+        self.postMessage({ id, ok: true, result: update });
+        return;
+      }
+      if (op === 'force_refresh_reload') {
+        if (typeof caches !== 'undefined' && typeof caches.keys === 'function') {
+          try {
+            const keys = await caches.keys();
+            for (const key of keys) {
+              await caches.delete(key);
+            }
+          } catch {
+            // Optional cache cleanup
+          }
+        }
+        if (
+          typeof navigator !== 'undefined' &&
+          navigator.storage &&
+          typeof navigator.storage.getDirectory === 'function'
+        ) {
+          try {
+            const root = await navigator.storage.getDirectory();
+            await root.removeEntry(OPFS_V10_META_FILE).catch(() => {});
+          } catch {
+            // Optional OPFS cleanup
+          }
+        }
+        let reloadedWasm = false;
+        try {
+          await __uor_resolve_cached_wasm(new URL('lexlean_r4_bg.wasm', import.meta.url), true);
+          reloadedWasm = true;
+        } catch {
+          // Allow reload to fetch fresh artifacts cleanly
+        }
+        const provenance = await hostBridge.checkProvenanceUpdate().catch(() => null);
+        self.postMessage({ id, ok: true, result: { ok: true, reloadedWasm, provenance } });
         return;
       }
       self.postMessage({ id, ok: false, error: `Unknown worker op: ${op}` });
@@ -3717,14 +4943,32 @@ function __uorStartDedicatedEngineWorker() {
         postEvent('boot_progress', { stage: 'v10_shards', ...prog });
       }, false)
         .then((v10Info) => {
+          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
           if (v10Info) {
             postEvent('weights_upgraded', {
               gllm: v10Info,
               gllmMeta: globalThis.__uorGllmV9Meta || null,
+              stitchHealth: globalThis.__uorStitchHealth || null,
             });
           }
         })
         .catch(() => {});
+
+      if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {
+        hostBridge.checkProvenanceUpdate(location.origin).catch(() => null);
+        if (typeof setInterval === 'function') {
+          setInterval(() => {
+            hostBridge
+              .checkProvenanceUpdate(location.origin)
+              .then((upd) => {
+                if (upd && upd.update_available) {
+                  postEvent('studio_update_available', upd);
+                }
+              })
+              .catch(() => {});
+          }, 60000);
+        }
+      }
     })().catch((err) => {
       postEvent('boot_error', {
         message: err && err.message ? err.message : String(err),
@@ -3744,6 +4988,7 @@ if (
 ) {
   __uorStartDedicatedEngineWorker();
 }
+// === UOR_CUSTOM_SECTION_2_END ===
 
 export { initSync };
 export default __wbg_init;

@@ -652,4 +652,214 @@ describe("SpiralCore Local Node WebSocket + HTTP Relay E2E Suite", () => {
       await mockRelay.close();
     }
   });
+
+  it("supports full arbitrary-repo github_api loop, preserves HostNotAllowlistedForSecret, and strips bearer on provenance watch", async () => {
+    const calls = [];
+    const mockGitHubFetch = async (input, init = {}) => {
+      const url = String(input);
+      const method = (init.method || "GET").toUpperCase();
+      const hdrs = new Headers(init.headers || {});
+      const auth = hdrs.get("authorization") || "";
+      const bodyText = typeof init.body === "string" ? init.body : "";
+      calls.push({ url, method, auth, bodyText });
+
+      if (url === "https://api.github.com/repos/afflom/me" && method === "GET") {
+        return new Response(JSON.stringify({ default_branch: "main", private: false, html_url: "https://github.com/afflom/me" }), { status: 200 });
+      }
+      if (url.startsWith("https://api.github.com/repos/afflom/me/branches")) {
+        return new Response(JSON.stringify([{ name: "main" }, { name: "gh-pages" }]), { status: 200 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/git/blobs/blobsha123") {
+        return new Response(
+          JSON.stringify({
+            sha: "blobsha123",
+            size: 11,
+            encoding: "base64",
+            content: Buffer.from("hello world", "utf8").toString("base64"),
+          }),
+          { status: 200 },
+        );
+      }
+      if (url === "https://api.github.com/repos/afflom/me/git/ref/heads/main") {
+        return new Response(JSON.stringify({ object: { sha: "basecommit001" } }), { status: 200 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/git/refs" && method === "POST") {
+        return new Response(JSON.stringify({ ref: "refs/heads/feat/stitch", object: { sha: "basecommit001" } }), { status: 201 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/git/ref/heads/feat%2Fstitch") {
+        return new Response(JSON.stringify({ object: { sha: "basecommit001" } }), { status: 200 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/git/commits/basecommit001") {
+        return new Response(JSON.stringify({ sha: "basecommit001", tree: { sha: "basetree001" } }), { status: 200 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/git/trees" && method === "POST") {
+        return new Response(JSON.stringify({ sha: "newtree002" }), { status: 201 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/git/commits" && method === "POST") {
+        return new Response(JSON.stringify({ sha: "newcommit003" }), { status: 201 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/git/refs/heads/feat%2Fstitch" && method === "PATCH") {
+        return new Response(JSON.stringify({ object: { sha: "newcommit003" } }), { status: 200 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/pulls" && method === "POST") {
+        return new Response(
+          JSON.stringify({
+            number: 42,
+            url: "https://api.github.com/repos/afflom/me/pulls/42",
+            html_url: "https://github.com/afflom/me/pull/42",
+            state: "open",
+            head: { ref: "feat/stitch" },
+            base: { ref: "main" },
+            title: "Add Stitch parity custody",
+          }),
+          { status: 201 },
+        );
+      }
+      if (url === "https://api.github.com/repos/afflom/me/pulls/42" && method === "GET") {
+        return new Response(
+          JSON.stringify({
+            number: 42,
+            state: "open",
+            mergeable: true,
+            mergeable_state: "clean",
+            html_url: "https://github.com/afflom/me/pull/42",
+            head: { sha: "newcommit003" },
+          }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/commits/newcommit003/check-runs")) {
+        return new Response(
+          JSON.stringify({ check_runs: [{ name: "vv-gates", status: "completed", conclusion: "success" }] }),
+          { status: 200 },
+        );
+      }
+      if (url.includes("/actions/runs?head_sha=newcommit003")) {
+        return new Response(
+          JSON.stringify({ workflow_runs: [{ id: 901, name: "Pages Deploy", status: "completed", conclusion: "success" }] }),
+          { status: 200 },
+        );
+      }
+      if (url === "https://api.github.com/repos/afflom/me/pulls/42/merge" && method === "PUT") {
+        return new Response(JSON.stringify({ merged: true, sha: "mergesha004", message: "Pull Request successfully merged" }), { status: 200 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/pages") {
+        return new Response(JSON.stringify({ status: "built", html_url: "https://afflom.github.io/me/" }), { status: 200 });
+      }
+      if (url === "https://api.github.com/repos/afflom/me/pages/builds/latest") {
+        return new Response(JSON.stringify({ status: "built", commit: "mergesha004" }), { status: 200 });
+      }
+      if (url === "https://afflom.github.io/me/provenance.json") {
+        // Critical R4-39 assertion: Pages origin must NEVER receive GITHUB_TOKEN!
+        assert.equal(auth, "", "Bearer token must NEVER leak to Pages provenance origin");
+        return new Response(
+          JSON.stringify({
+            schema: "prismpm/browser-provenance/1",
+            adapter_wasm_sha256: "aaaa1111",
+            binding_javascript_sha256: "bbbb2222",
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        );
+      }
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    };
+
+    // Negative: HostNotAllowlistedForSecret BEFORE touching fetchImpl
+    const secretLeak = await workerModule.handleSpvsEnvelope(
+      makeSpvsEnvelope("github_api", {
+        action: "create_branch",
+        repo_url: "https://evil.example.org/owner/repo",
+        branch: "feat/x",
+        auth_bearer: "ghp_never_leak",
+      }),
+      { fetchImpl: mockGitHubFetch },
+    );
+    assert.equal(secretLeak.ok, false);
+    assert.equal(secretLeak.error_code, "HostNotAllowlistedForSecret");
+    assert.equal(calls.length, 0);
+
+    const provLeak = await workerModule.handleSpvsEnvelope(
+      makeSpvsEnvelope("github_api", {
+        action: "watch_deploy",
+        provenance_url: "https://evil.example.org/provenance.json",
+        auth_bearer: "ghp_never_leak",
+      }),
+      { fetchImpl: mockGitHubFetch },
+    );
+    assert.equal(provLeak.ok, false);
+    assert.equal(provLeak.error_code, "HostNotAllowlistedForSecret");
+    assert.equal(calls.length, 0);
+
+    // Negative: missing token on write ops returns GitAuthRequired
+    const noAuth = await workerModule.handleSpvsEnvelope(
+      makeSpvsEnvelope("github_api", { action: "create_pr", repo: "afflom/me", head: "feat/stitch", base: "main", title: "x" }),
+      { fetchImpl: mockGitHubFetch },
+    );
+    assert.equal(noAuth.ok, false);
+    assert.equal(noAuth.error_code, "GitAuthRequired");
+
+    // Full end-to-end WebSocket lifecycle over local-relay.mjs
+    const relaySrv = await startLocalRelay({ host: "127.0.0.1", port: 0, fetchImpl: mockGitHubFetch });
+    const ws = await openWebSocket(`ws://127.0.0.1:${relaySrv.port}/spvs`);
+    try {
+      const conn = await sendWsRequest(ws, makeSpvsEnvelope("github_api", { action: "connect", repo: "afflom/me" }));
+      assert.equal(conn.ok, true);
+      assert.deepEqual(conn.data.branches, ["main", "gh-pages"]);
+
+      const blob = await sendWsRequest(ws, makeSpvsEnvelope("github_api", { action: "read_blob", repo: "afflom/me", sha: "blobsha123", path: "README.md" }));
+      assert.equal(blob.ok, true);
+      assert.equal(blob.data.content, "hello world");
+
+      const br = await sendWsRequest(ws, makeSpvsEnvelope("github_api", { action: "create_branch", repo: "afflom/me", branch: "feat/stitch", from_branch: "main", auth_bearer: "ghp_pat" }));
+      assert.equal(br.ok, true);
+      assert.equal(br.data.branch, "feat/stitch");
+
+      const push = await sendWsRequest(ws, makeSpvsEnvelope("github_api", {
+        action: "commit_push",
+        repo: "afflom/me",
+        branch: "feat/stitch",
+        message: "Add stitch module",
+        auth_bearer: "ghp_pat",
+        files: [{ path: "src/stitch.rs", content: "pub fn ok() {}" }, { path: "old.txt", delete: true }],
+      }));
+      assert.equal(push.ok, true);
+      assert.equal(push.data.commit_sha, "newcommit003");
+      assert.equal(push.data.pushed_files, 1);
+      assert.equal(push.data.deleted_files, 1);
+
+      const pr = await sendWsRequest(ws, makeSpvsEnvelope("github_api", { action: "create_pr", repo: "afflom/me", head: "feat/stitch", base: "main", title: "Add Stitch parity custody", auth_bearer: "ghp_pat" }));
+      assert.equal(pr.ok, true);
+      assert.equal(pr.data.pr_number, 42);
+
+      const status = await sendWsRequest(ws, makeSpvsEnvelope("github_api", { action: "pr_status", repo: "afflom/me", pr_number: 42, auth_bearer: "ghp_pat" }));
+      assert.equal(status.ok, true);
+      assert.equal(status.data.mergeable, true);
+      assert.equal(status.data.check_status, "success");
+      assert.equal(status.data.workflow_conclusion, "success");
+
+      const merged = await sendWsRequest(ws, makeSpvsEnvelope("github_api", { action: "merge_pr", repo: "afflom/me", pr_number: 42, auth_bearer: "ghp_pat" }));
+      assert.equal(merged.ok, true);
+      assert.equal(merged.data.merged, true);
+
+      const deploy = await sendWsRequest(ws, makeSpvsEnvelope("github_api", { action: "watch_deploy", repo: "afflom/me", auth_bearer: "ghp_pat" }));
+      assert.equal(deploy.ok, true);
+      assert.equal(deploy.data.pages_status, "built");
+      assert.equal(deploy.data.adapter_wasm_sha256, "aaaa1111");
+      assert.equal(deploy.data.binding_javascript_sha256, "bbbb2222");
+
+      // Also verify git_smart_http handles @ in query ref + body_json
+      const smartJson = await sendWsRequest(ws, makeSpvsEnvelope("git_smart_http", {
+        repo_url: "https://api.github.com/repos/afflom/me",
+        path_and_query: "git/trees",
+        method: "POST",
+        auth_bearer: "ghp_pat",
+        body_json: { base_tree: "basetree001", tree: [] },
+      }));
+      assert.equal(smartJson.ok, true);
+      assert.equal(JSON.parse(Buffer.from(smartJson.data.body_b64, "base64").toString("utf8")).sha, "newtree002");
+    } finally {
+      ws.close();
+      await relaySrv.close();
+    }
+  });
 });

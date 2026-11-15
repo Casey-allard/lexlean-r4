@@ -44383,6 +44383,32 @@ pub mod r4_rule30_evolution {
             }
         }
     }
+
+    /// Inductive type `R4.Rule30Evolution.RatchetMetricVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum RatchetMetricVerdict {
+        /// Variant `ShrinkAdmitted`.
+        ShrinkAdmitted,
+        /// Variant `RefusedResidualRegression`.
+        RefusedResidualRegression,
+        /// Variant `RefusedDeadRule30Seed`.
+        RefusedDeadRule30Seed,
+    }
+
+    /// Function `R4.Rule30Evolution.admitShrinkOnlyRatchet`.
+    pub fn admit_shrink_only_ratchet(
+        prev_residual: u64,
+        next_residual: u64,
+        seed_nonzero: bool,
+    ) -> RatchetMetricVerdict {
+        if !seed_nonzero {
+            RatchetMetricVerdict::RefusedDeadRule30Seed
+        } else if next_residual > prev_residual {
+            RatchetMetricVerdict::RefusedResidualRegression
+        } else {
+            RatchetMetricVerdict::ShrinkAdmitted
+        }
+    }
 }
 
 /// Generated from `R4.PhraseDag` (`src/R4/PhraseDag.lex.tex`).
@@ -44767,6 +44793,63 @@ pub mod r4_autonomous_engine {
             } else {
                 subtract_nat(w.clone(), 1u64)
             }
+        }
+    }
+
+    /// Inductive type `R4.AutonomousEngine.PeircePhase`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PeircePhase {
+        /// Variant `Abduction`.
+        Abduction,
+        /// Variant `Deduction`.
+        Deduction,
+        /// Variant `Induction`.
+        Induction,
+    }
+
+    /// Structure `R4.AutonomousEngine.PeirceTriadicCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct PeirceTriadicCheck {
+        /// Field `phase`.
+        pub phase: PeircePhase,
+        /// Field `witnessPresent`.
+        pub witness_present: bool,
+        /// Field `invariantPreserved`.
+        pub invariant_preserved: bool,
+        /// Field `metricImprovedOrHeld`.
+        pub metric_improved_or_held: bool,
+        /// Field `rule30Nonzero`.
+        pub rule30_nonzero: bool,
+    }
+
+    /// Inductive type `R4.AutonomousEngine.PeirceTriadicVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PeirceTriadicVerdict {
+        /// Variant `TriadicStepAdmitted`.
+        TriadicStepAdmitted,
+        /// Variant `RefusedMissingWitness`.
+        RefusedMissingWitness,
+        /// Variant `RefusedInvariantViolation`.
+        RefusedInvariantViolation,
+        /// Variant `RefusedMetricRegression`.
+        RefusedMetricRegression,
+        /// Variant `RefusedZeroRule30Seed`.
+        RefusedZeroRule30Seed,
+    }
+
+    /// Function `R4.AutonomousEngine.admitPeirceTriadicCycle`.
+    pub fn admit_peirce_triadic_cycle(c: PeirceTriadicCheck) -> PeirceTriadicVerdict {
+        let _phase = c.phase;
+        if !c.witness_present {
+            PeirceTriadicVerdict::RefusedMissingWitness
+        } else if !c.invariant_preserved {
+            PeirceTriadicVerdict::RefusedInvariantViolation
+        } else if !c.metric_improved_or_held {
+            PeirceTriadicVerdict::RefusedMetricRegression
+        } else if !c.rule30_nonzero {
+            PeirceTriadicVerdict::RefusedZeroRule30Seed
+        } else {
+            PeirceTriadicVerdict::TriadicStepAdmitted
         }
     }
 }
@@ -45745,6 +45828,11 @@ pub mod r4_prism_factory {
             semantic_presentation_valid: true,
         }
     }
+
+    /// Function `R4.PrismFactory.admitRatchetObligation`.
+    pub fn admit_ratchet_obligation(current: u64, baseline: u64, witness_present: bool) -> bool {
+        current <= baseline && witness_present
+    }
 }
 
 /// Generated from `R4.SpiralCoreVsock` (`src/R4/SpiralCoreVsock.lex.tex`).
@@ -46039,7 +46127,7 @@ pub mod r4_compositional_gllm {
 
     /// Function `R4.CompositionalGllm.admitGllmContainer`.
     pub fn admit_gllm_container(c: ContainerSummary) -> ContainerVerdict {
-        if !c.magic_valid || c.version_code != 9 {
+        if !c.magic_valid || !matches!(c.version_code, 9 | 10 | 11) {
             ContainerVerdict::RefusedBadMagicOrVersion
         } else if c.turn_memory_entries != 0 {
             ContainerVerdict::RefusedStampedTurnMemory
@@ -46082,6 +46170,110 @@ pub mod r4_compositional_gllm {
             TmacLutVerdict::RefusedQ12Overflow
         } else {
             TmacLutVerdict::LutReadAdmitted
+        }
+    }
+
+    /// Structure `R4.CompositionalGllm.GllmV11RopePrllCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct GllmV11RopePrllCheck {
+        /// Field `versionCode`.
+        pub version_code: u64,
+        /// Field `prllChannels`.
+        pub prll_channels: u64,
+        /// Field `positionIdx`.
+        pub position_idx: u64,
+        /// Field `maxSeqLen`.
+        pub max_seq_len: u64,
+        /// Field `queryPos`.
+        pub query_pos: u64,
+        /// Field `keyPos`.
+        pub key_pos: u64,
+        /// Field `massPreserved`.
+        pub mass_preserved: bool,
+        /// Field `integerRopeTableValid`.
+        pub integer_rope_table_valid: bool,
+    }
+
+    /// Inductive type `R4.CompositionalGllm.GllmV11RopePrllVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum GllmV11RopePrllVerdict {
+        /// Variant `V11RopePrllAdmitted`.
+        V11RopePrllAdmitted,
+        /// Variant `RefusedUnsupportedV11Version`.
+        RefusedUnsupportedV11Version,
+        /// Variant `RefusedWrongPrllChannels`.
+        RefusedWrongPrllChannels,
+        /// Variant `RefusedRopePositionOverflow`.
+        RefusedRopePositionOverflow,
+        /// Variant `RefusedCausalMaskViolation`.
+        RefusedCausalMaskViolation,
+        /// Variant `RefusedPrllMassConservation`.
+        RefusedPrllMassConservation,
+    }
+
+    /// Function `R4.CompositionalGllm.admitGllmV11RopePrll`.
+    pub fn admit_gllm_v11_rope_prll(c: GllmV11RopePrllCheck) -> GllmV11RopePrllVerdict {
+        if c.version_code != 11 {
+            GllmV11RopePrllVerdict::RefusedUnsupportedV11Version
+        } else if c.prll_channels != 16 {
+            GllmV11RopePrllVerdict::RefusedWrongPrllChannels
+        } else if c.position_idx >= c.max_seq_len || !c.integer_rope_table_valid {
+            GllmV11RopePrllVerdict::RefusedRopePositionOverflow
+        } else if c.key_pos > c.query_pos {
+            GllmV11RopePrllVerdict::RefusedCausalMaskViolation
+        } else if !c.mass_preserved {
+            GllmV11RopePrllVerdict::RefusedPrllMassConservation
+        } else {
+            GllmV11RopePrllVerdict::V11RopePrllAdmitted
+        }
+    }
+
+    /// Structure `R4.CompositionalGllm.AgenticGitToolCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct AgenticGitToolCheck {
+        /// Field `repoConnected`.
+        pub repo_connected: bool,
+        /// Field `toolTagValid`.
+        pub tool_tag_valid: bool,
+        /// Field `branchNonempty`.
+        pub branch_nonempty: bool,
+        /// Field `hostAllowlisted`.
+        pub host_allowlisted: bool,
+        /// Field `secretInPrompt`.
+        pub secret_in_prompt: bool,
+    }
+
+    /// Inductive type `R4.CompositionalGllm.AgenticGitToolVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum AgenticGitToolVerdict {
+        /// Variant `GitToolCallAdmitted`.
+        GitToolCallAdmitted,
+        /// Variant `RefusedRepoNotConnected`.
+        RefusedRepoNotConnected,
+        /// Variant `RefusedMalformedToolTag`.
+        RefusedMalformedToolTag,
+        /// Variant `RefusedInvalidBranchRef`.
+        RefusedInvalidBranchRef,
+        /// Variant `RefusedUntrustedHost`.
+        RefusedUntrustedHost,
+        /// Variant `RefusedSecretInPrompt`.
+        RefusedSecretInPrompt,
+    }
+
+    /// Function `R4.CompositionalGllm.admitAgenticGitLoop`.
+    pub fn admit_agentic_git_loop(c: AgenticGitToolCheck) -> AgenticGitToolVerdict {
+        if !c.repo_connected {
+            AgenticGitToolVerdict::RefusedRepoNotConnected
+        } else if !c.tool_tag_valid {
+            AgenticGitToolVerdict::RefusedMalformedToolTag
+        } else if !c.branch_nonempty {
+            AgenticGitToolVerdict::RefusedInvalidBranchRef
+        } else if !c.host_allowlisted {
+            AgenticGitToolVerdict::RefusedUntrustedHost
+        } else if c.secret_in_prompt {
+            AgenticGitToolVerdict::RefusedSecretInPrompt
+        } else {
+            AgenticGitToolVerdict::GitToolCallAdmitted
         }
     }
 }
@@ -46234,6 +46426,185 @@ pub mod r4_connected_studio {
             WorkerTurnVerdict::SequenceWindowExceeded
         } else {
             WorkerTurnVerdict::WorkerTurnAdmitted
+        }
+    }
+}
+
+/// Generated module `R4.StitchFabric` (`src/R4/StitchFabric.lex.tex`, `R4-42`).
+pub mod r4_stitch_fabric {
+    /// Inductive type `R4.StitchFabric.StitchParityVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum StitchParityVerdict {
+        /// Variant `ParityManifestAdmitted`.
+        ParityManifestAdmitted,
+        /// Variant `RefusedInvalidSchemaOrScheme`.
+        RefusedInvalidSchemaOrScheme,
+        /// Variant `RefusedInsufficientThreshold`.
+        RefusedInsufficientThreshold,
+        /// Variant `RefusedShardParityMismatch`.
+        RefusedShardParityMismatch,
+    }
+
+    /// Structure `R4.StitchFabric.StitchManifestCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct StitchManifestCheck {
+        /// Field `schemaValid`.
+        pub schema_valid: bool,
+        /// Field `threshold`.
+        pub threshold: u64,
+        /// Field `totalCount`.
+        pub total_count: u64,
+        /// Field `dataShardCount`.
+        pub data_shard_count: u64,
+        /// Field `parityGroupCount`.
+        pub parity_group_count: u64,
+        /// Field `xorDigestVerified`.
+        pub xor_digest_verified: bool,
+    }
+
+    /// Function `R4.StitchFabric.admitStitchManifest`.
+    pub fn admit_stitch_manifest(c: StitchManifestCheck) -> StitchParityVerdict {
+        if !c.schema_valid {
+            StitchParityVerdict::RefusedInvalidSchemaOrScheme
+        } else if c.threshold != 2 || c.total_count < 3 {
+            StitchParityVerdict::RefusedInsufficientThreshold
+        } else if c.data_shard_count == 0
+            || c.parity_group_count.saturating_mul(2) < c.data_shard_count
+            || !c.xor_digest_verified
+        {
+            StitchParityVerdict::RefusedShardParityMismatch
+        } else {
+            StitchParityVerdict::ParityManifestAdmitted
+        }
+    }
+
+    /// Inductive type `R4.StitchFabric.StitchRecoveryVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum StitchRecoveryVerdict {
+        /// Variant `RecoveryAdmitted`.
+        RecoveryAdmitted,
+        /// Variant `RefusedFewerThanTwoShards`.
+        RefusedFewerThanTwoShards,
+        /// Variant `RefusedSha256Mismatch`.
+        RefusedSha256Mismatch,
+        /// Variant `RefusedXorParityMismatch`.
+        RefusedXorParityMismatch,
+    }
+
+    /// Structure `R4.StitchFabric.StitchRecoveryCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct StitchRecoveryCheck {
+        /// Field `leftPresent`.
+        pub left_present: bool,
+        /// Field `rightPresent`.
+        pub right_present: bool,
+        /// Field `parityPresent`.
+        pub parity_present: bool,
+        /// Field `availableShards`.
+        pub available_shards: u64,
+        /// Field `sha256Verified`.
+        pub sha256_verified: bool,
+        /// Field `xorConsistent`.
+        pub xor_consistent: bool,
+    }
+
+    /// Function `R4.StitchFabric.admitStitchParityRecovery`.
+    pub fn admit_stitch_parity_recovery(c: StitchRecoveryCheck) -> StitchRecoveryVerdict {
+        let two_present = (c.left_present && c.right_present)
+            || (c.left_present && c.parity_present)
+            || (c.right_present && c.parity_present);
+        if c.available_shards < 2 || !two_present {
+            StitchRecoveryVerdict::RefusedFewerThanTwoShards
+        } else if !c.sha256_verified {
+            StitchRecoveryVerdict::RefusedSha256Mismatch
+        } else if !c.xor_consistent {
+            StitchRecoveryVerdict::RefusedXorParityMismatch
+        } else {
+            StitchRecoveryVerdict::RecoveryAdmitted
+        }
+    }
+
+    /// Function `R4.StitchFabric.isStitchRecoveryAdmitted`.
+    pub fn is_stitch_recovery_admitted(verdict: StitchRecoveryVerdict) -> bool {
+        matches!(verdict, StitchRecoveryVerdict::RecoveryAdmitted)
+    }
+}
+
+/// Generated module `R4.GithubAgentLoop` (`src/R4/GithubAgentLoop.lex.tex`, `R4-40`).
+pub mod r4_github_agent_loop {
+    /// Inductive type `R4.GithubAgentLoop.GithubActionKind`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum GithubActionKind {
+        /// Variant `ConnectRepo`.
+        ConnectRepo,
+        /// Variant `CreateBranch`.
+        CreateBranch,
+        /// Variant `CommitPush`.
+        CommitPush,
+        /// Variant `OpenPullRequest`.
+        OpenPullRequest,
+        /// Variant `WatchCiAndDeploy`.
+        WatchCiAndDeploy,
+        /// Variant `RefreshRepoState`.
+        RefreshRepoState,
+    }
+
+    /// Structure `R4.GithubAgentLoop.GithubActionCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct GithubActionCheck {
+        /// Field `action`.
+        pub action: GithubActionKind,
+        /// Field `policyReadWrite`.
+        pub policy_read_write: bool,
+        /// Field `transportHttps`.
+        pub transport_https: bool,
+        /// Field `secretInGuest`.
+        pub secret_in_guest: bool,
+        /// Field `hostAllowlisted`.
+        pub host_allowlisted: bool,
+        /// Field `repoSlugValid`.
+        pub repo_slug_valid: bool,
+        /// Field `branchValid`.
+        pub branch_valid: bool,
+        /// Field `ciAndDeployGreen`.
+        pub ci_and_deploy_green: bool,
+    }
+
+    /// Inductive type `R4.GithubAgentLoop.GithubLoopVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum GithubLoopVerdict {
+        /// Variant `ActionAdmitted`.
+        ActionAdmitted,
+        /// Variant `RefusedPolicyDenied`.
+        RefusedPolicyDenied,
+        /// Variant `RefusedInsecureTransport`.
+        RefusedInsecureTransport,
+        /// Variant `RefusedGuestSecretLeak`.
+        RefusedGuestSecretLeak,
+        /// Variant `RefusedHostNotAllowlisted`.
+        RefusedHostNotAllowlisted,
+        /// Variant `RefusedInvalidSlugOrRef`.
+        RefusedInvalidSlugOrRef,
+        /// Variant `RefusedCiOrDeployFailed`.
+        RefusedCiOrDeployFailed,
+    }
+
+    /// Function `R4.GithubAgentLoop.admitGithubAction`.
+    pub fn admit_github_action(c: GithubActionCheck) -> GithubLoopVerdict {
+        if !c.policy_read_write {
+            GithubLoopVerdict::RefusedPolicyDenied
+        } else if !c.transport_https {
+            GithubLoopVerdict::RefusedInsecureTransport
+        } else if c.secret_in_guest {
+            GithubLoopVerdict::RefusedGuestSecretLeak
+        } else if !c.host_allowlisted {
+            GithubLoopVerdict::RefusedHostNotAllowlisted
+        } else if !c.repo_slug_valid || !c.branch_valid {
+            GithubLoopVerdict::RefusedInvalidSlugOrRef
+        } else if matches!(c.action, GithubActionKind::WatchCiAndDeploy) && !c.ci_and_deploy_green {
+            GithubLoopVerdict::RefusedCiOrDeployFailed
+        } else {
+            GithubLoopVerdict::ActionAdmitted
         }
     }
 }

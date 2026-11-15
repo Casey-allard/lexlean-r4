@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="prism-surface" content="prism/r4-workspace/1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
@@ -97,14 +98,45 @@
         <!-- Sidebar View: Source Control (SCM) -->
         <div id="sidebar-view-scm" class="sidebar-view-content" role="region" aria-label="Source Control &amp; Staged Diffs" hidden>
           <div id="cursor-scm-section" class="sidebar-collapsible cursor-scm-section">
-            <div class="sidebar-heading sidebar-summary">SOURCE CONTROL &middot; STAGED DIFFS</div>
+            <div class="sidebar-heading sidebar-summary">SOURCE CONTROL &middot; GITHUB LOOP &amp; DIFFS</div>
+            <div class="scm-workflow-card" id="scm-github-workflow-card">
+              <div class="scm-row">
+                <input id="scm-repo-input" type="text" class="cursor-tree-filter" value="UOR-Foundation/Prism" placeholder="owner/repo" autocomplete="off" spellcheck="false" aria-label="GitHub owner/repo">
+                <button id="scm-detect-repo-btn" type="button" class="cursor-mini-btn" title="Auto-detect hosted GitHub repo">Auto-Detect</button>
+                <button id="scm-connect-clone-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept">Clone</button>
+              </div>
+              <div class="scm-row">
+                <select id="scm-branch-select" class="sidebar-select scm-branch-select" aria-label="Active GitHub Branch">
+                  <option value="main" selected>main</option>
+                </select>
+                <input id="scm-new-branch-input" type="text" class="cursor-tree-filter" placeholder="feat/new-branch" autocomplete="off" spellcheck="false" aria-label="New branch name">
+                <button id="scm-create-branch-btn" type="button" class="cursor-mini-btn">Branch</button>
+              </div>
+              <div id="scm-lazy-status" class="scm-lazy-status">Workspace local (connect any owner/repo; &gt;40 files lazy-loaded on demand)</div>
+            </div>
             <div id="cursor-scm-summary" class="cursor-scm-summary">Working tree clean on <code>main</code></div>
             <div id="cursor-scm-list" class="cursor-scm-list" aria-label="Modified and Staged Files">
               <div class="cursor-scm-empty">Working tree clean on <code>main</code></div>
             </div>
+            <pre id="scm-live-diff-preview" class="scm-diff-preview" aria-label="Live Workspace Diff Preview">Working tree clean — select or modify a file to inspect unified diff.</pre>
             <div class="cursor-scm-actions">
               <button id="cursor-scm-accept-all-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept">Accept All</button>
               <button id="cursor-scm-discard-all-btn" type="button" class="cursor-mini-btn cursor-mini-btn-reject">Reject All</button>
+            </div>
+            <div class="scm-workflow-card" id="scm-commit-pr-card">
+              <div class="scm-row">
+                <input id="scm-commit-message-input" type="text" class="cursor-tree-filter" placeholder="Commit message..." autocomplete="off" spellcheck="false" aria-label="Commit message">
+                <button id="scm-commit-push-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept">Commit &amp; Push</button>
+              </div>
+              <div class="scm-row">
+                <input id="scm-pr-title-input" type="text" class="cursor-tree-filter" placeholder="Pull request title..." autocomplete="off" spellcheck="false" aria-label="Pull request title">
+                <button id="scm-create-pr-btn" type="button" class="cursor-mini-btn">Open PR</button>
+                <button id="scm-merge-pr-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept" disabled>Merge PR</button>
+              </div>
+              <div class="scm-row">
+                <span id="scm-ci-pages-chip" class="scm-ci-chip" role="status" aria-live="polite">CI &amp; Pages: Standby</span>
+                <button id="scm-refresh-ci-btn" type="button" class="cursor-mini-btn">Check CI &amp; Deploy</button>
+              </div>
             </div>
           </div>
         </div>
@@ -117,6 +149,10 @@
               <div><strong>Model:</strong> <code>uor-r4.lut-stack/8</code></div>
               <div><strong>Coprocessor:</strong> <code>WebGPU Q12 + Wasm32</code></div>
               <div><strong>Shards:</strong> <code>16 E8 Product Sectors</code></div>
+            </div>
+            <div id="stitch-custody-health-card" class="stitch-health-card" role="status" aria-live="polite">
+              <div><strong>Stitch Custody:</strong> <code>stitch/xor-2-of-3/1</code></div>
+              <div><strong>Parity State:</strong> Bootstrapping multi-source verification...</div>
             </div>
             <div class="cursor-scm-actions">
               <button id="cursor-hydrate-shards-btn" type="button" class="cursor-mini-btn">Hydrate 16 E8 Shards</button>
@@ -331,13 +367,18 @@
           <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
           <button id="sync-weights-btn" type="button" class="topbar-btn">Sync</button>
           <button id="toggle-right-drawer-btn" type="button" class="topbar-btn" title="Toggle Center Workbench" aria-label="Toggle Right Drawer">&#9881; Workbench</button>
-          <button id="topbar-feed-btn" type="button" class="topbar-btn" data-canvas-tab="feed" hidden>Self-Improvement</button>
-          <button id="topbar-consolidation-btn" type="button" class="topbar-btn" data-canvas-tab="consolidation" hidden>Consolidate Weights</button>
+          <button id="topbar-feed-btn" type="button" class="topbar-btn" data-canvas-tab="feed">Self-Improvement</button>
+          <button id="topbar-consolidation-btn" type="button" class="topbar-btn" data-canvas-tab="consolidation">Consolidate Weights</button>
           <button id="topbar-traces-btn" type="button" class="topbar-btn" data-canvas-tab="traces" hidden>OTel Traces</button>
           <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace" hidden>Workspace IDE</button>
           <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics" hidden>API &amp; 30/30</button>
         </div>
       </header>
+
+      <div id="studio-update-banner" class="studio-update-banner" role="status" aria-live="polite" hidden>
+        <span id="studio-update-banner-text">New Studio Version Live &mdash; Provenance updated on origin.</span>
+        <button id="studio-refresh-reload-btn" type="button" class="studio-update-reload-btn">New Studio Version Live — Refresh &amp; Reload Now</button>
+      </div>
 
       <!-- Cursor AI Mode & Context Pills Bar (Cmd+I Composer / Cmd+L Chat) -->
       <div id="cursor-ai-context-bar" class="cursor-ai-context-bar" role="toolbar" aria-label="Cursor AI Mode and Context Pills">
@@ -420,11 +461,10 @@
                 <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
                 <label for="composer-model-select" class="sr-only">Select Local UOR-R4 Execution Mode</label>
                 <select id="composer-model-select" class="composer-model-select" aria-label="Select Model">
-                  <option value="uor-r4-glm-v8" selected>uor-r4.lut-stack/8 &middot; Agent (ReAct R4-35 + R4-32 Verifier)</option>
-                  <option value="claude-3-5-sonnet">uor-r4.lut-stack/8 &middot; Composer (Multi-File Surgical Patch)</option>
-                  <option value="gpt-4o">uor-r4.lut-stack/8 &middot; Ask (6-Layer SpiralCore + /8 Q12)</option>
-                  <option value="deepseek-r1">uor-r4.lut-stack/8 &middot; WebGPU Q12 Coprocessor (16 E8 Shards)</option>
-                  <option value="uor-r4-500b">uor-r4.lut-stack/8 &middot; Deep Frontier (500B Self-Improving Core)</option>
+                  <option value="uor-r4.gllm-v11-agent" selected>uor-r4.lut-stack/8 &middot; GLLM v11 Agent (ReAct + R4-32 Verifier)</option>
+                  <option value="uor-r4.gllm-v11-chat">uor-r4.lut-stack/8 &middot; GLLM v11 Chat (Rolling Context Carry)</option>
+                  <option value="uor-r4.gllm-v11-code">uor-r4.lut-stack/8 &middot; GLLM v11 Code (Multi-File Workspace Patch)</option>
+                  <option value="uor-r4.opfs-large">uor-r4.lut-stack/8 &middot; OPFS Large Weights (79 Shards + Stitch 2-of-3)</option>
                 </select>
                 <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands (/think, /teach, /patch, /arxiv, /math)" aria-label="Slash Commands">/</button>
                 <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
@@ -1301,10 +1341,22 @@
             </div>
           </div>
           <div class="field">
-            <label for="github-repo-input">Clone or Pull GitHub Repository into <code>/workspace</code></label>
+            <label for="github-repo-input">Clone or Connect Any GitHub Repository into <code>/workspace</code></label>
             <div class="github-input-row">
               <input id="github-repo-input" type="text" value="UOR-Foundation/Prism" placeholder="owner/repo" autocomplete="off" spellcheck="false">
+              <button id="github-detect-repo-btn" type="button" class="btn-secondary">Auto-Detect</button>
+              <button id="github-connect-branches-btn" type="button" class="btn-secondary">Branches</button>
               <button id="clone-github-repo-btn" type="button" class="btn-primary">Clone into Studio</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="github-branch-select">Branch Selector &amp; New Branch Creation</label>
+            <div class="github-input-row">
+              <select id="github-branch-select" aria-label="Select GitHub Branch">
+                <option value="main" selected>main</option>
+              </select>
+              <input id="github-new-branch-input" type="text" placeholder="feat/my-branch" autocomplete="off" spellcheck="false">
+              <button id="github-create-branch-btn" type="button" class="btn-secondary">Create Branch</button>
             </div>
           </div>
           <div class="field">

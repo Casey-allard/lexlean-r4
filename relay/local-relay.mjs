@@ -227,7 +227,12 @@ export function startLocalRelay(options = {}) {
 
     const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "127.0.0.1"}`);
 
-    if (req.method === "GET" && (url.pathname === "/health" || url.pathname === "/")) {
+    if ((req.method === "GET" || req.method === "HEAD") && (url.pathname === "/health" || url.pathname === "/")) {
+      if (req.method === "HEAD") {
+        res.writeHead(200, { ...CORS_HEADERS, "Content-Type": "application/json; charset=utf-8" });
+        res.end();
+        return;
+      }
       writeJson(res, 200, { ok: true, service: SERVICE_NAME });
       return;
     }

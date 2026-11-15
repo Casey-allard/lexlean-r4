@@ -16,7 +16,7 @@ fn test_gllm_v9_zero_stamped_turn_memory_and_negative_refusals_r4_38() {
     let model = GllmV9Model::default_embedded();
     let hdr = model.header();
     assert_eq!(&hdr.magic, b"UORGLLM9");
-    assert_eq!(hdr.version, 9);
+    assert!(matches!(hdr.version, 9..=11));
     assert_eq!(hdr.vocab_size, 4096);
     assert_eq!(hdr.d_model % 64, 0);
     assert!(hdr.n_layers >= 6);

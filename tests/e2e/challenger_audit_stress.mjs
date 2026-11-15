@@ -2,7 +2,7 @@
  * Challenger M4.1 Deep Adversarial Stress Audit
  *
  * Exercises:
- * 1. 2,000 rapid model switching cycles across all 5 models with adversarial/fuzzed inputs.
+ * 1. 2,000 rapid model switching cycles across all 4 GLLM v11 models with adversarial/fuzzed inputs.
  * 2. Camera zoom boundary conditions: strict [2.0, 50.0] clamping under extreme (+1e9, -1e9, NaN, Inf, subnormals).
  * 3. Orbit pitch clamping [-1.45, 1.45]: gimbal lock prevention, horizon collapse verification, LookAt rigidity.
  * 4. Trace corruption & missing intern table fuzzing: malformed payloads, NaN/Inf grades, 10,000 decode steps.
@@ -166,7 +166,7 @@ const discoveredDefects = [];
 console.log('--- Audit 1: 2,000 Rapid Model Switching Cycles ---');
 {
   const composer = new AgenticTypeScriptComposer();
-  const models = ['uor-r4-glm-v8', 'claude-3-5-sonnet', 'gpt-4o', 'deepseek-r1', 'uor-r4-500b'];
+  const models = ['uor-r4.gllm-v11-agent', 'uor-r4.gllm-v11-chat', 'uor-r4.gllm-v11-code', 'uor-r4.opfs-large'];
 
   // Seed history and uncommitted draft
   composer.pushHistory('initial prompt 1');

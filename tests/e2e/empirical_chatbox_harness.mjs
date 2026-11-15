@@ -293,24 +293,23 @@ for (const { name, ComposerClass, models } of implementations) {
   console.log('    ✓ Uncommitted draft restoration passed across all test payloads.');
 
   // =========================================================================
-  // SUITE 3: RAPID MODEL SWITCHING (All 5 models)
+  // SUITE 3: RAPID MODEL SWITCHING (All 4 GLLM v11 models)
   // =========================================================================
-  console.log('  Suite 3: Rapid Model Switching Across All 5 Models');
+  console.log('  Suite 3: Rapid Model Switching Across All 4 GLLM v11 Models');
 
   {
     const composer = new ComposerClass();
     const expectedModelIds = [
-      'uor-r4-glm-v8',
-      'claude-3-5-sonnet',
-      'gpt-4o',
-      'deepseek-r1',
-      'uor-r4-500b',
+      'uor-r4.gllm-v11-agent',
+      'uor-r4.gllm-v11-chat',
+      'uor-r4.gllm-v11-code',
+      'uor-r4.opfs-large',
     ];
 
     // Verify model inventory
     const registered = composer.getModelOptions();
-    assert.equal(registered.length, 5, 'Must have exactly 5 models registered');
-    for (let i = 0; i < 5; i++) {
+    assert.equal(registered.length, 4, 'Must have exactly 4 models registered');
+    for (let i = 0; i < 4; i++) {
       assert.equal(registered[i].id, expectedModelIds[i]);
       assert.ok(registered[i].name.length > 0, `Model ${expectedModelIds[i]} must have non-empty name`);
       assert.ok(registered[i].contextWindow.length > 0, `Model ${expectedModelIds[i]} must have contextWindow`);
@@ -318,11 +317,11 @@ for (const { name, ComposerClass, models } of implementations) {
     }
 
     // Default model
-    assert.equal(composer.getSelectedModel(), 'uor-r4-glm-v8');
+    assert.equal(composer.getSelectedModel(), 'uor-r4.gllm-v11-agent');
 
     // 1,000 rapid switches in round-robin and random sequence
     for (let iter = 0; iter < 1000; iter++) {
-      const targetModel = expectedModelIds[iter % 5];
+      const targetModel = expectedModelIds[iter % expectedModelIds.length];
       const ok = composer.setModel(targetModel);
       assert.equal(ok, true, `setModel(${targetModel}) must return true`);
       assert.equal(composer.getSelectedModel(), targetModel, `getSelectedModel() must match ${targetModel}`);
@@ -330,7 +329,7 @@ for (const { name, ComposerClass, models } of implementations) {
 
     // Random shuffle 1,000 switches
     for (let iter = 0; iter < 1000; iter++) {
-      const idx = Math.floor(Math.random() * 5);
+      const idx = Math.floor(Math.random() * expectedModelIds.length);
       const targetModel = expectedModelIds[idx];
       const ok = composer.setModel(targetModel);
       assert.equal(ok, true);
@@ -571,15 +570,15 @@ inputEl.addEventListener('input', () => {
 });
 
 // TEST 5.1: Model selection change event
-syncComposerModel('claude-3-5-sonnet');
-assert.equal(domComposer.getSelectedModel(), 'claude-3-5-sonnet');
-assert.equal(selectEl.value, 'claude-3-5-sonnet');
-assert.equal(topbarTag.textContent, 'Claude 3.5 Sonnet · v1/messages');
+syncComposerModel('uor-r4.gllm-v11-chat');
+assert.equal(domComposer.getSelectedModel(), 'uor-r4.gllm-v11-chat');
+assert.equal(selectEl.value, 'uor-r4.gllm-v11-chat');
+assert.equal(topbarTag.textContent, 'UOR-R4 GLLM v11 Chat (uor-r4.lut-stack/8) · Rolling 256D Carry');
 
-syncComposerModel('uor-r4-500b');
-assert.equal(domComposer.getSelectedModel(), 'uor-r4-500b');
-assert.equal(selectEl.value, 'uor-r4-500b');
-assert.equal(topbarTag.textContent, 'UOR-R4 500B Self-Improving Core · R3 Scale');
+syncComposerModel('uor-r4.opfs-large');
+assert.equal(domComposer.getSelectedModel(), 'uor-r4.opfs-large');
+assert.equal(selectEl.value, 'uor-r4.opfs-large');
+assert.equal(topbarTag.textContent, 'UOR-R4 OPFS Large (uor-r4.lut-stack/8) · 79 Shards + Stitch 2-of-3');
 console.log('  ✓ DOM model select synchronization works as expected.');
 
 // TEST 5.2: Textarea input and auto-expansion

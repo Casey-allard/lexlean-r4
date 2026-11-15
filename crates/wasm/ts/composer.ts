@@ -47,34 +47,28 @@ export interface ComposerModelOption {
 
 export const COMPOSER_MODELS: readonly ComposerModelOption[] = [
   {
-    id: 'uor-r4-glm-v8',
-    name: 'UOR-R4 8/8 SpiralCore',
-    contextWindow: '8k',
-    badge: '256D Q12',
+    id: 'uor-r4.gllm-v11-agent',
+    name: 'UOR-R4 GLLM v11 Agent (uor-r4.lut-stack/8)',
+    contextWindow: '256k',
+    badge: 'ReAct + R4-32 Verifier',
   },
   {
-    id: 'claude-3-5-sonnet',
-    name: 'Claude 3.5 Sonnet',
-    contextWindow: '200k',
-    badge: 'v1/messages',
+    id: 'uor-r4.gllm-v11-chat',
+    name: 'UOR-R4 GLLM v11 Chat (uor-r4.lut-stack/8)',
+    contextWindow: '256k',
+    badge: 'Rolling 256D Carry',
   },
   {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    contextWindow: '128k',
-    badge: 'v1/chat',
+    id: 'uor-r4.gllm-v11-code',
+    name: 'UOR-R4 GLLM v11 Code (uor-r4.lut-stack/8)',
+    contextWindow: '256k',
+    badge: 'Multi-File Patch',
   },
   {
-    id: 'deepseek-r1',
-    name: 'DeepSeek R1 Latent',
-    contextWindow: '64k',
-    badge: 'MLA Q12',
-  },
-  {
-    id: 'uor-r4-500b',
-    name: 'UOR-R4 500B Self-Improving Core',
-    contextWindow: '128k',
-    badge: 'R3 Scale',
+    id: 'uor-r4.opfs-large',
+    name: 'UOR-R4 OPFS Large (uor-r4.lut-stack/8)',
+    contextWindow: '256k',
+    badge: '79 Shards + Stitch 2-of-3',
   },
 ];
 
@@ -166,7 +160,7 @@ export class AgenticTypeScriptComposer {
     this.state = {
       rawText: '',
       mode: 'agentic',
-      selectedModel: 'uor-r4-glm-v8',
+      selectedModel: 'uor-r4.gllm-v11-agent',
       savedDraft: null,
       attachments: [],
       history: [],

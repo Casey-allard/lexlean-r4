@@ -4659,13 +4659,17 @@ main.canvas-drawer-closed > #claude-code-desktop {
   overflow: hidden;
 }
 
-body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view-history[hidden]) > .sidebar-views-nav,
 body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view-history[hidden]) > #sidebar-panel-history,
-body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view-history[hidden]) > #sidebar-panel-planning,
-body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view-history[hidden]) > #sidebar-panel-pool,
 body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view-history[hidden]) > #sidebar-panel-projects,
 body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view-history[hidden]) > .sidebar-footer {
   display: none !important;
+}
+
+.sidebar-view-panel.active:not([hidden]) {
+  display: block;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .cursor-explorer-header {
@@ -5236,8 +5240,19 @@ body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view
   margin: 0;
 }
 
-#cowork-agent-status-bar {
+#cowork-agent-status-bar[hidden] {
   display: none !important;
+}
+
+#cowork-agent-status-bar:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  font-size: 0.72rem;
 }
 
 .cursor-editor-surface {
@@ -6752,18 +6767,31 @@ body[data-layout-mode="chat"] #sidebar-view-explorer,
 body[data-layout-mode="chat"] #sidebar-view-search,
 body[data-layout-mode="chat"] #sidebar-view-scm,
 body[data-layout-mode="chat"] #sidebar-view-shards,
-body[data-layout-mode="chat"] .sidebar-views-nav,
-body[data-layout-mode="chat"] #sidebar-panel-planning,
-body[data-layout-mode="chat"] #sidebar-panel-pool,
 body[data-layout-mode="chat"] #sidebar-panel-projects,
 body[data-layout-mode="chat"] #sidebar-agent-surfaces,
 body[data-layout-mode="chat"] #cursor-ai-context-bar,
-body[data-layout-mode="chat"] #cowork-agent-status-bar,
 body[data-layout-mode="chat"] #chat-target-badge,
 body[data-layout-mode="chat"] #topbar-terminal-btn,
 body[data-layout-mode="chat"] #load-weights-topbar-btn,
 body[data-layout-mode="chat"] #toggle-right-drawer-btn {
   display: none !important;
+}
+
+body[data-layout-mode="chat"] #sidebar-panel-history[hidden],
+body[data-layout-mode="chat"] #sidebar-panel-planning[hidden],
+body[data-layout-mode="chat"] #sidebar-panel-pool[hidden] {
+  display: none !important;
+}
+
+body[data-layout-mode="chat"] #sidebar-panel-planning:not([hidden]),
+body[data-layout-mode="chat"] #sidebar-panel-pool:not([hidden]) {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem 0.75rem;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 body[data-layout-mode="chat"] #threads-sidebar {
@@ -6862,7 +6890,7 @@ body.theme-warm-light[data-layout-mode="chat"] #workbench-sidebar-content #chat-
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
-body[data-layout-mode="chat"] #workbench-sidebar-content > #sidebar-panel-history {
+body[data-layout-mode="chat"] #workbench-sidebar-content > #sidebar-panel-history:not([hidden]) {
   display: flex !important;
   flex-direction: column !important;
   gap: 0.85rem !important;
@@ -6870,6 +6898,10 @@ body[data-layout-mode="chat"] #workbench-sidebar-content > #sidebar-panel-histor
   overflow-y: auto !important;
   flex: 1 1 auto !important;
   min-height: 0 !important;
+}
+
+body[data-layout-mode="chat"] #workbench-sidebar-content > #sidebar-panel-history {
+  flex-direction: column;
 }
 
 body[data-layout-mode="chat"] #sidebar-panel-history > details.sidebar-collapsible:first-of-type {
@@ -7234,6 +7266,111 @@ body.theme-warm-light .chat-bridge-pill {
   background: #eff6ff;
   border-color: #2563eb;
   color: #1e40af;
+}
+
+.studio-update-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.45rem 0.85rem;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.2), rgba(56, 189, 248, 0.2));
+  border-bottom: 1px solid rgba(16, 185, 129, 0.55);
+  color: #ecfdf5;
+  font-size: 0.78rem;
+}
+
+.studio-update-banner[hidden] {
+  display: none !important;
+}
+
+.studio-update-reload-btn {
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid #10b981;
+  background: #059669;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scm-workflow-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  padding: 0.45rem;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.35);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.scm-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.scm-branch-select {
+  min-width: 92px;
+  max-width: 130px;
+}
+
+.scm-lazy-status {
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+.scm-diff-preview {
+  max-height: 150px;
+  overflow: auto;
+  margin: 0.25rem 0;
+  padding: 0.4rem;
+  border-radius: 6px;
+  background: #0b0f19;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  font-size: 0.68rem;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+
+.scm-ci-chip {
+  flex: 1;
+  font-size: 0.68rem;
+  padding: 0.22rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #e0f2fe;
+}
+
+.stitch-health-card {
+  margin-top: 0.4rem;
+  padding: 0.45rem;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.32);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+/* afflom/me compact embed mode (?embed=me) */
+body.embed-me-compact > main,
+body[data-embed="me"] > main {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+body.embed-me-compact #threads-sidebar,
+body[data-embed="me"] #threads-sidebar,
+body.embed-me-compact #cowork-agent-status-bar,
+body[data-embed="me"] #cowork-agent-status-bar {
+  display: none !important;
+}
+
+body.embed-me-compact .gpt-topbar,
+body[data-embed="me"] .gpt-topbar {
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 0.5rem !important;
 }
 
 

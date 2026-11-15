@@ -23,8 +23,8 @@ use crate::lut_stack_exec::ByteBpe4096;
 
 /// Eight-byte magic header for `UOR-R4-GLLM v9` binary weight containers.
 pub const UORGLLM9_MAGIC: [u8; 8] = *b"UORGLLM9";
-/// Active `UORGLLM9` container format version.
-pub const UORGLLM9_VERSION: u32 = 9;
+/// Active `UORGLLM9` container format version (`v11`: Q12 RoPE, 16-ch bilinear+sign-sketch PRLL).
+pub const UORGLLM9_VERSION: u32 = 11;
 /// Fixed vocabulary size (`ByteBpe4096`).
 pub const GLLM_V9_VOCAB: usize = 4096;
 /// Output channels per 4-channel LUT group in `Q_lut`, `K_lut`, and `V_lut`.
@@ -33,6 +33,153 @@ pub const GLLM_V9_QKV_OUT: usize = 16;
 pub const GLLM_V9_PRLL_QUANTUM: u64 = 1_000_000;
 /// Maximum causal KV sequence window per inference turn (`R4-39`).
 pub const GLLM_V9_MAX_SEQ: usize = 1024;
+/// Maximum rolling multi-turn prompt/history token budget in `v11` (`<= 768` + `<= 256` = `1024`).
+pub const GLLM_V11_MAX_PROMPT_SEQ: usize = 768;
+
+/// `atan(2^-i)` angles in 32-bit Binary Angle Measurement (`2^32 == 2*pi`) for pure integer CORDIC.
+const CORDIC_ATAN_BAM: [u32; 28] = [
+    536_870_912,
+    316_933_406,
+    167_458_907,
+    85_004_756,
+    42_667_331,
+    21_354_465,
+    10_679_838,
+    5_340_245,
+    2_670_163,
+    1_335_087,
+    667_544,
+    333_772,
+    166_886,
+    83_443,
+    41_722,
+    20_861,
+    10_430,
+    5_215,
+    2_608,
+    1_304,
+    652,
+    326,
+    163,
+    81,
+    41,
+    20,
+    10,
+    5,
+];
+
+/// RoPE angular frequencies `(rad/token / (2*pi)) * 2^32` for `p in 0..8` tuned for 1024-token multi-scale relative order without destructive short-range aliasing.
+const ROPE_OMEGA_BAM: [u32; 8] = [
+    20_506_958, 6_835_653, 2_050_696, 683_565, 205_070, 68_357, 20_507, 6_836,
+];
+
+/// Pure integer Q12 (`1.0 == 4096`) CORDIC cosine/sine evaluator over 32-bit BAM angle (zero floats).
+const fn cordic_cos_sin_q12(bam: u32) -> (i16, i16) {
+    let quad = bam >> 30;
+    let rem = bam & 0x3FFF_FFFF;
+    if rem == 0 {
+        return match quad {
+            0 => (4096, 0),
+            1 => (0, 4096),
+            2 => (-4096, 0),
+            _ => (0, -4096),
+        };
+    }
+    let mut x: i64 = 652_032_874;
+    let mut y: i64 = 0;
+    let mut z: i64 = rem as i64;
+    let mut i = 0usize;
+    while i < 28 {
+        let dx = x >> i;
+        let dy = y >> i;
+        let dz = CORDIC_ATAN_BAM[i] as i64;
+        if z >= 0 {
+            x -= dy;
+            y += dx;
+            z -= dz;
+        } else {
+            x += dy;
+            y -= dx;
+            z += dz;
+        }
+        i += 1;
+    }
+    let rx = (x + (if x >= 0 { 1 << 17 } else { -(1 << 17) })) >> 18;
+    let ry = (y + (if y >= 0 { 1 << 17 } else { -(1 << 17) })) >> 18;
+    let c0 = if rx > 4096 {
+        4096
+    } else if rx < -4096 {
+        -4096
+    } else {
+        rx as i16
+    };
+    let s0 = if ry > 4096 {
+        4096
+    } else if ry < -4096 {
+        -4096
+    } else {
+        ry as i16
+    };
+    match quad {
+        0 => (c0, s0),
+        1 => (-s0, c0),
+        2 => (-c0, -s0),
+        _ => (s0, -c0),
+    }
+}
+
+const fn build_rope_tables_q12() -> ([[i16; 8]; GLLM_V9_MAX_SEQ], [[i16; 8]; GLLM_V9_MAX_SEQ]) {
+    let mut cos_t = [[4096i16; 8]; GLLM_V9_MAX_SEQ];
+    let mut sin_t = [[0i16; 8]; GLLM_V9_MAX_SEQ];
+    let mut pos = 0usize;
+    while pos < GLLM_V9_MAX_SEQ {
+        let mut p = 0usize;
+        while p < 8 {
+            let bam = (pos as u32).wrapping_mul(ROPE_OMEGA_BAM[p]);
+            let (c, s) = cordic_cos_sin_q12(bam);
+            cos_t[pos][p] = c;
+            sin_t[pos][p] = s;
+            p += 1;
+        }
+        pos += 1;
+    }
+    (cos_t, sin_t)
+}
+
+const ROPE_TABLES_Q12: ([[i16; 8]; GLLM_V9_MAX_SEQ], [[i16; 8]; GLLM_V9_MAX_SEQ]) =
+    build_rope_tables_q12();
+/// Compile-time deterministic Q12 integer RoPE cosine table `[pos][freq]` over `0..1024`.
+pub const ROPE_COS_Q12: [[i16; 8]; GLLM_V9_MAX_SEQ] = ROPE_TABLES_Q12.0;
+/// Compile-time deterministic Q12 integer RoPE sine table `[pos][freq]` over `0..1024`.
+pub const ROPE_SIN_Q12: [[i16; 8]; GLLM_V9_MAX_SEQ] = ROPE_TABLES_Q12.1;
+
+/// Apply causal Q12 integer RoPE in-place over complex pairs `(2*k, 2*k+1)` (`k & 7` frequency).
+#[inline]
+pub fn apply_rope_q12_inplace(vec: &mut [i16], pos: usize) {
+    let p_idx = pos.min(GLLM_V9_MAX_SEQ - 1);
+    let cos_row = &ROPE_COS_Q12[p_idx];
+    let sin_row = &ROPE_SIN_Q12[p_idx];
+    let pairs = vec.len() / 2;
+    for k in 0..pairs {
+        let freq = k & 7;
+        let c = cos_row[freq] as i32;
+        let s = sin_row[freq] as i32;
+        let x0 = vec[2 * k] as i32;
+        let x1 = vec[2 * k + 1] as i32;
+        vec[2 * k] = clamp_q12((x0 * c - x1 * s) >> 12);
+        vec[2 * k + 1] = clamp_q12((x0 * s + x1 * c) >> 12);
+    }
+}
+
+/// Rotate only positional syntax head slices (`[32*b .. 32*b+16]`) so copy/induction head slices
+/// (`[32*b+16 .. 32*b+32]`) remain translation-invariant across 0..1024.
+#[inline]
+fn apply_rope_q12_pos_heads_inplace(vec: &mut [i16], pos: usize) {
+    for chunk32 in vec.chunks_mut(32) {
+        let len = chunk32.len().min(16);
+        apply_rope_q12_inplace(&mut chunk32[..len], pos);
+    }
+}
 /// Immutable SHA-256 of the legacy pre-v10 `6L 64D` `bootstrap_v9.uorgllm` container.
 pub const LEGACY_V9_BOOTSTRAP_SHA256: &str =
     "9fbe91bbac22db96c9b79bd087b4b1c12c4b74dd4debfcda409f79e645ac22f7";
@@ -219,6 +366,12 @@ fn clamp_q12(v: i32) -> i16 {
 fn dequant_i8_q12(q: i8, scale_q8: u16) -> i16 {
     let sc = (scale_q8.max(16)) as i32;
     clamp_q12(((q as i32) * sc) >> 4)
+}
+
+#[inline]
+fn dequant_i4_q12(q4: i8, scale_q8: u16) -> i16 {
+    let sc = (scale_q8.max(16)) as i32;
+    clamp_q12(((q4 as i32) * sc) >> 1)
 }
 
 #[inline]
@@ -438,6 +591,16 @@ impl GllmV9Model {
         if verdict != ContainerVerdict::ContainerAdmitted {
             return Err(GllmV9Error::ContainerRefused(verdict));
         }
+        let valid_quant = if hdr.version >= 11 {
+            hdr.quant_bits == 4 || hdr.quant_bits == 8
+        } else {
+            hdr.quant_bits == 8
+        };
+        if !valid_quant {
+            return Err(GllmV9Error::ContainerRefused(
+                ContainerVerdict::RefusedInvalidGeometry,
+            ));
+        }
 
         let actual_payload_sha = sha256_bytes_arr(&bytes[80..]);
         if actual_payload_sha != payload_sha256 {
@@ -465,6 +628,23 @@ impl GllmV9Model {
                     out.push(dequant_i8_q12(b as i8, sc));
                 }
                 *cur += len;
+                Ok(out)
+            };
+
+        let deq_i4_slice =
+            |bytes: &[u8], cur: &mut usize, len: usize, sc: u16| -> Result<Vec<i16>, GllmV9Error> {
+                let packed_len = len / 2;
+                if !len.is_multiple_of(2) || *cur + packed_len > bytes.len() {
+                    return Err(GllmV9Error::TruncatedContainer);
+                }
+                let mut out = Vec::with_capacity(len);
+                for &b in &bytes[*cur..*cur + packed_len] {
+                    let lo = (((b & 0x0F) as i8) << 4) >> 4;
+                    let hi = (b as i8) >> 4;
+                    out.push(dequant_i4_q12(lo, sc));
+                    out.push(dequant_i4_q12(hi, sc));
+                }
+                *cur += packed_len;
                 Ok(out)
             };
 
@@ -506,7 +686,11 @@ impl GllmV9Model {
             let q_lut = deq_slice(bytes, &mut cur, qkv_len, scales[3 + 4 * l])?;
             let k_lut = deq_slice(bytes, &mut cur, qkv_len, scales[3 + 4 * l + 1])?;
             let v_lut = deq_slice(bytes, &mut cur, qkv_len, scales[3 + 4 * l + 2])?;
-            let ffn_lut = deq_slice(bytes, &mut cur, ffn_len, scales[3 + 4 * l + 3])?;
+            let ffn_lut = if hdr.version >= 11 && hdr.quant_bits == 4 {
+                deq_i4_slice(bytes, &mut cur, ffn_len, scales[3 + 4 * l + 3])?
+            } else {
+                deq_slice(bytes, &mut cur, ffn_len, scales[3 + 4 * l + 3])?
+            };
 
             layers.push(LayerTables {
                 head_tau,
@@ -617,6 +801,11 @@ impl GllmV9Model {
             || self.container_sha256 == LEGACY_V9_FULL_SHA256
     }
 
+    /// Return `true` when this container uses `UORGLLM9` `version >= 11` (RoPE + 16-ch bilinear+sign-sketch PRLL).
+    pub fn is_v11_or_later(&self) -> bool {
+        self.header.version >= 11
+    }
+
     /// Validate a Worker inference turn against `R4.ConnectedStudio.admitWorkerTurn` (`R4-39`).
     pub fn validate_worker_turn_window(
         runs_on_worker_thread: bool,
@@ -706,6 +895,16 @@ impl GllmV9Model {
         Self::encode_v10_chat_prompt_with_warmup(prompt, &[], history, max_new_tokens)
     }
 
+    /// Encode a multi-turn `<|user|>` / `<|assistant|>` `v11` chat dialogue within `<= 768` tokens,
+    /// retaining full rolling history without cue-stripping and exposing all history tokens to RoPE KV attention.
+    pub fn encode_v11_chat_prompt(
+        prompt: &str,
+        history: &[(String, String)],
+        max_new_tokens: usize,
+    ) -> (Vec<u32>, usize) {
+        Self::encode_chat_prompt_inner(prompt, &[], history, max_new_tokens, true)
+    }
+
     /// Encode a `v10` chat dialogue with an optional live-generated KV positional warmup prefix
     /// whose tokens remain strictly excluded from pointer-copy (`copy_start >= real_history_start`).
     pub fn encode_v10_chat_prompt_with_warmup(
@@ -714,9 +913,21 @@ impl GllmV9Model {
         history: &[(String, String)],
         max_new_tokens: usize,
     ) -> (Vec<u32>, usize) {
+        Self::encode_chat_prompt_inner(prompt, warmup_turns, history, max_new_tokens, false)
+    }
+
+    fn encode_chat_prompt_inner(
+        prompt: &str,
+        warmup_turns: &[(String, String)],
+        history: &[(String, String)],
+        max_new_tokens: usize,
+        full_v11_history: bool,
+    ) -> (Vec<u32>, usize) {
         let bpe = ByteBpe4096::global();
         let reserved_gen = max_new_tokens.clamp(16, 256);
-        let max_prompt_budget = GLLM_V9_MAX_SEQ.saturating_sub(reserved_gen + 2).max(64);
+        let max_prompt_budget = GLLM_V9_MAX_SEQ
+            .saturating_sub(reserved_gen + 2)
+            .clamp(64, GLLM_V11_MAX_PROMPT_SEQ);
         let current_turn_ids = bpe.encode(&format!("<|user|>\n{}\n<|assistant|>\n", prompt.trim()));
 
         let compact_assistant = |raw: &str| -> String {
@@ -800,11 +1011,12 @@ impl GllmV9Model {
             };
             prefix_ids = clipped;
         }
-        let copy_start = if !history.is_empty() && Self::has_v10_cross_turn_cue(prompt) {
-            real_history_start.max(1)
-        } else {
-            current_turn_start.max(1)
-        };
+        let copy_start =
+            if !history.is_empty() && (full_v11_history || Self::has_v10_cross_turn_cue(prompt)) {
+                real_history_start.max(1)
+            } else {
+                current_turn_start.max(1)
+            };
         (prefix_ids, copy_start)
     }
 
@@ -818,7 +1030,7 @@ impl GllmV9Model {
         self.generate_compositional_v10_with_warmup(prompt, &[], history, max_new_tokens)
     }
 
-    /// Execute `1024`-token multi-turn `v10` causal KV generation with live-generated KV positional warmup.
+    /// Execute `1024`-token multi-turn `v10`/`v11` causal KV generation with optional warmup (`v10` only).
     pub fn generate_compositional_v10_with_warmup(
         &self,
         prompt: &str,
@@ -826,8 +1038,11 @@ impl GllmV9Model {
         history: &[(String, String)],
         max_new_tokens: usize,
     ) -> GllmV9Generation {
-        let (prefix_ids, copy_start) =
-            Self::encode_v10_chat_prompt_with_warmup(prompt, warmup_turns, history, max_new_tokens);
+        let (prefix_ids, copy_start) = if self.is_v11_or_later() {
+            Self::encode_v11_chat_prompt(prompt, history, max_new_tokens)
+        } else {
+            Self::encode_v10_chat_prompt_with_warmup(prompt, warmup_turns, history, max_new_tokens)
+        };
         self.run_kv_generation(prefix_ids, copy_start, max_new_tokens, true)
     }
 
@@ -839,7 +1054,9 @@ impl GllmV9Model {
         history: &[(String, String)],
     ) -> Vec<BrainPulseStep> {
         let trimmed = prompt.trim();
-        let (prefix_ids, copy_start) = if !self.is_legacy_v9_container() {
+        let (prefix_ids, copy_start) = if self.is_v11_or_later() {
+            Self::encode_v11_chat_prompt(trimmed, history, 64)
+        } else if !self.is_legacy_v9_container() {
             Self::encode_v10_chat_prompt(trimmed, history, 64)
         } else {
             let bpe = ByteBpe4096::global();
@@ -885,7 +1102,9 @@ impl GllmV9Model {
         max_new_tokens: usize,
     ) -> GllmV9Generation {
         let trimmed_prompt = prompt.trim();
-        if !self.is_legacy_v9_container() && !trimmed_prompt.starts_with("[agent_mode]") {
+        if self.is_v11_or_later()
+            || (!self.is_legacy_v9_container() && !trimmed_prompt.starts_with("[agent_mode]"))
+        {
             return self.generate_compositional_v10(trimmed_prompt, history, max_new_tokens);
         }
 
@@ -1066,7 +1285,9 @@ impl GllmV9Model {
             });
 
             if v10_stop_markers
-                && (partial_text.contains("<|end|>") || partial_text.ends_with("</tool_call>"))
+                && (partial_text.contains("<|end|>")
+                    || partial_text.contains("<|user|>")
+                    || partial_text.ends_with("</tool_call>"))
             {
                 break;
             }
@@ -1075,6 +1296,9 @@ impl GllmV9Model {
         let mut decoded = bpe.decode(&generated);
         if v10_stop_markers {
             if let Some(idx) = decoded.find("<|end|>") {
+                decoded.truncate(idx);
+            }
+            if let Some(idx) = decoded.find("<|user|>") {
                 decoded.truncate(idx);
             }
             decoded = strip_v10_thought_block(&decoded);
@@ -1160,6 +1384,7 @@ struct GllmV9KvCache {
     seq_len: usize,
     struct_pos: usize,
     tool_obs_range: Option<(usize, usize)>,
+    prompt_nocopy: Vec<bool>,
     tokens: Vec<u32>,
     prev_layer_in: Vec<Vec<i16>>, // [n_layers][d_model] causal 1-back input state
     k_cache: Vec<Vec<i16>>,       // [n_layers][seq * d_model]
@@ -1167,6 +1392,9 @@ struct GllmV9KvCache {
     k_sk: Vec<Vec<u64>>,          // [n_layers][seq * sk_blocks]
     last_top_q: Vec<i16>,
     last_top_q_sk: Vec<u64>, // [sk_blocks]
+    last_top_prll_w: Vec<Vec<u32>>,
+    last_top_best_s: Vec<usize>,
+    last_top_mass_ok: bool,
     last_hidden: Vec<i16>,
 }
 
@@ -1192,6 +1420,7 @@ impl GllmV9KvCache {
             seq_len: 0,
             struct_pos: 0,
             tool_obs_range,
+            prompt_nocopy: Vec::new(),
             tokens: Vec::with_capacity(GLLM_V9_MAX_SEQ),
             prev_layer_in: vec![vec![0i16; d]; l],
             k_cache: vec![Vec::with_capacity(GLLM_V9_MAX_SEQ * d); l],
@@ -1199,6 +1428,9 @@ impl GllmV9KvCache {
             k_sk: vec![Vec::with_capacity(GLLM_V9_MAX_SEQ * sk_blocks); l],
             last_top_q: vec![0i16; d],
             last_top_q_sk: vec![0u64; sk_blocks],
+            last_top_prll_w: vec![Vec::with_capacity(GLLM_V9_MAX_SEQ); h],
+            last_top_best_s: vec![0usize; h],
+            last_top_mass_ok: true,
             last_hidden: vec![0i16; d],
         }
     }
@@ -1209,6 +1441,9 @@ impl GllmV9KvCache {
         tok_id: u32,
         was_copied: bool,
     ) -> StepDiagnostics {
+        if model.is_v11_or_later() {
+            return self.push_token_v11(model, tok_id);
+        }
         let t = self.seq_len;
         let tok = (tok_id as usize).min(GLLM_V9_VOCAB - 1);
         let d = self.d_model;
@@ -1529,12 +1764,826 @@ impl GllmV9KvCache {
         }
     }
 
+    fn push_token_v11(&mut self, model: &GllmV9Model, tok_id: u32) -> StepDiagnostics {
+        let t = self.seq_len;
+        let tok = (tok_id as usize).min(GLLM_V9_VOCAB - 1);
+        let d = self.d_model;
+        let h_cnt = self.n_heads;
+        let g_cnt = self.lut_groups;
+
+        self.tokens.push(tok as u32);
+        self.seq_len += 1;
+
+        if self.tokens.len() == self.prompt_len && self.prompt_nocopy.is_empty() {
+            const NOCOPY_TAGS: &[&str] = &[
+                "<|user|>",
+                "<|assistant|>",
+                "<|end|>",
+                "<tool_call>",
+                "</tool_call>",
+                "<tool_response>",
+                "</tool_response>",
+            ];
+            let bpe = ByteBpe4096::global();
+            let mut joined = String::new();
+            let mut spans = Vec::with_capacity(self.prompt_len);
+            for &ptid in &self.tokens {
+                let s0 = joined.len();
+                joined.push_str(&bpe.decode(&[ptid]));
+                spans.push((s0, joined.len()));
+            }
+            let mut nocopy = vec![false; self.prompt_len];
+            for tag in NOCOPY_TAGS {
+                let mut pos = 0usize;
+                while let Some(rel) = joined[pos..].find(tag) {
+                    let t0 = pos + rel;
+                    let t1 = t0 + tag.len();
+                    for (idx, &(b0, b1)) in spans.iter().enumerate() {
+                        if b1 > t0 && b0 < t1 {
+                            nocopy[idx] = true;
+                        }
+                    }
+                    pos = t1;
+                }
+            }
+            self.prompt_nocopy = nocopy;
+        }
+
+        // 1. Clean token embedding without prompt position flattening (`pos_idx` stays real via RoPE over 0..1024).
+        let et_row = &model.e_tok[tok * d..(tok + 1) * d];
+        let mut x_cur = et_row.to_vec();
+
+        let mut mass_conserved = true;
+        let mut dominant_layer = 0u8;
+        let mut winning_head = 0u8;
+        let mut top_mass = 0u32;
+        let mut u_blk = vec![0i16; d];
+        let mut k_in = vec![0i16; d];
+        let mut u_k = vec![0i16; d];
+        let mut q_vec = vec![0i16; d];
+        let mut k_vec = vec![0i16; d];
+        let mut v_vec = vec![0i16; d];
+        let mut attn_out = vec![0i16; d];
+        let mut x_mid = vec![0i16; d];
+        let mut u_ffn = vec![0i16; d];
+
+        let attn_res_shift = if self.n_layers >= 16 { 2 } else { 1 };
+        let ffn_shift = if d >= 256 { 5 } else { 4 };
+        let sk_blocks = if d >= 256 { d / 64 } else { 1 };
+
+        for (l, lt) in model.layers.iter().enumerate() {
+            for c in 0..d {
+                let prev_x = if t > 0 {
+                    self.prev_layer_in[l][c ^ 1] as i32
+                } else {
+                    0
+                };
+                k_in[c] = clamp_q12((((x_cur[c] as i32) * 3) + prev_x) >> 2);
+            }
+            self.prev_layer_in[l].copy_from_slice(&x_cur);
+
+            for blk in 0..(d / 64) {
+                fwht64_block(
+                    &x_cur[blk * 64..(blk + 1) * 64],
+                    &mut u_blk[blk * 64..(blk + 1) * 64],
+                );
+                fwht64_block(
+                    &k_in[blk * 64..(blk + 1) * 64],
+                    &mut u_k[blk * 64..(blk + 1) * 64],
+                );
+            }
+
+            let mut q_acc = vec![0i32; d];
+            let mut k_acc = vec![0i32; d];
+            let mut v_acc = vec![0i32; d];
+
+            for g in 0..g_cnt {
+                let q_code = code_4ch(&u_blk[g * 4..g * 4 + 4]) as usize;
+                let k_code = code_4ch(&u_k[g * 4..g * 4 + 4]) as usize;
+                debug_assert_eq!(
+                    admit_tmac_lut_read(TmacLutReadCheck {
+                        group_index: g as u64,
+                        max_groups: g_cnt as u64,
+                        subvector_code: q_code as u64,
+                        q12_magnitude: 8192,
+                    }),
+                    TmacLutVerdict::LutReadAdmitted
+                );
+                let base_c = (g * 4) % d;
+                let qv_row = (g * 256 + q_code) * GLLM_V9_QKV_OUT;
+                let k_row = (g * 256 + k_code) * GLLM_V9_QKV_OUT;
+                for o in 0..GLLM_V9_QKV_OUT {
+                    let dst = (base_c + o) % d;
+                    q_acc[dst] += lt.q_lut[qv_row + o] as i32;
+                    k_acc[dst] += lt.k_lut[k_row + o] as i32;
+                    v_acc[dst] += lt.v_lut[qv_row + o] as i32;
+                }
+            }
+
+            for c in 0..d {
+                q_vec[c] = clamp_q12((q_acc[c] >> 2) + ((u_blk[c] as i32) >> 1));
+                k_vec[c] = clamp_q12((k_acc[c] >> 2) + ((u_k[c] as i32) >> 1));
+                v_vec[c] = clamp_q12((v_acc[c] >> 2) + ((x_cur[c] as i32) >> 1));
+            }
+
+            // Apply relative Q12 integer RoPE over 0..1024 to positional head blocks while keeping
+            // copy/induction head blocks (`(h & 3) >= 2`) translation-invariant.
+            apply_rope_q12_pos_heads_inplace(&mut q_vec, t);
+            apply_rope_q12_pos_heads_inplace(&mut k_vec, t);
+
+            let mut q_sk = vec![0u64; sk_blocks];
+            for b in 0..sk_blocks {
+                q_sk[b] = pack_sign64(&q_vec[b * 64..(b + 1) * 64]);
+                self.k_sk[l].push(pack_sign64(&k_vec[b * 64..(b + 1) * 64]));
+            }
+            self.k_cache[l].extend_from_slice(&k_vec);
+            self.v_cache[l].extend_from_slice(&v_vec);
+
+            let is_top = l + 1 == self.n_layers;
+            if is_top {
+                self.last_top_q.copy_from_slice(&q_vec);
+                self.last_top_q_sk.copy_from_slice(&q_sk);
+            }
+
+            // 16-channel Q12 integer bilinear inner-product + 16-bit sign-sketch + causal induction + slope PRLL.
+            let mut raw_w = vec![0u64; t + 1];
+            let mut prll_w = vec![0u32; t + 1];
+
+            for h in 0..h_cnt {
+                let v_off = h * 8;
+                let qk_off = ((h & !3) * 8) + if (h & 2) != 0 { 16 } else { 0 };
+                let sh = h & 3;
+                let tau = (lt.head_tau[h].max(256)) as i32;
+                let slope = lt.head_slope[h] as i32;
+
+                let mut q16 = [0i32; 16];
+                let mut q_mask16 = 0u16;
+                for (j, slot) in q16.iter_mut().enumerate() {
+                    let qv = q_vec[(qk_off + j) % d] as i32;
+                    *slot = qv;
+                    if qv >= 0 {
+                        q_mask16 |= 1u16 << j;
+                    }
+                }
+
+                let mut sum_raw = 0u64;
+                let mut best_s = 0usize;
+                let mut best_w = 0u64;
+                let mut min_d = i32::MAX;
+                let k_slice = &self.k_cache[l];
+                let gate_at = |idx: usize| -> u8 {
+                    let tok_u = self.tokens[idx] as usize;
+                    let base = model.copy_tok_gate.get(tok_u).copied().unwrap_or(0);
+                    if base != 0 || tok_u < 3 {
+                        return base;
+                    }
+                    let bpe = ByteBpe4096::global();
+                    let piece = bpe.decode(&[tok_u as u32]);
+                    let trimmed = piece.trim_start_matches(' ');
+                    if trimmed.is_empty()
+                        || !trimmed
+                            .chars()
+                            .all(|c| c.is_ascii_alphanumeric() || c == '_')
+                        || !trimmed.chars().any(|c| c.is_ascii_alphanumeric())
+                    {
+                        return 0;
+                    }
+                    let prompt_hi = self.prompt_len.min(self.tokens.len());
+                    let is_glued_after = |p: usize| -> bool {
+                        let next_i = p + 1;
+                        if next_i >= prompt_hi
+                            || self.prompt_nocopy.get(next_i).copied().unwrap_or(false)
+                        {
+                            return false;
+                        }
+                        let np = bpe.decode(&[self.tokens[next_i]]);
+                        !np.is_empty()
+                            && !np.starts_with(char::is_whitespace)
+                            && np.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+                    };
+                    if idx < prompt_hi {
+                        if is_glued_after(idx) {
+                            224
+                        } else {
+                            0
+                        }
+                    } else if (0..prompt_hi.saturating_sub(1))
+                        .any(|p| self.tokens[p] as usize == tok_u && is_glued_after(p))
+                    {
+                        224
+                    } else {
+                        0
+                    }
+                };
+                let t_delim = gate_at(t) == 0;
+                let t_multi_byte = ByteBpe4096::global().decode(&[self.tokens[t]]).len() >= 2;
+                let t_prev = if !t_delim {
+                    None
+                } else if t >= 1 && gate_at(t - 1) > 0 {
+                    Some(t - 1)
+                } else if t >= 2 && gate_at(t - 2) > 0 {
+                    Some(t - 2)
+                } else if t >= 3 && gate_at(t - 3) > 0 {
+                    Some(t - 3)
+                } else {
+                    None
+                };
+
+                for (s, rw) in raw_w.iter_mut().enumerate().take(t + 1) {
+                    let k_base = s * d;
+                    let mut dot16 = 0i64;
+                    let mut d_l1 = 0i32;
+                    let mut k_mask16 = 0u16;
+                    for (j, &qv) in q16.iter().enumerate() {
+                        let kv = k_slice[k_base + ((qk_off + j) % d)] as i32;
+                        dot16 += (qv as i64) * (kv as i64);
+                        d_l1 += (qv - kv).abs();
+                        if kv >= 0 {
+                            k_mask16 |= 1u16 << j;
+                        }
+                    }
+                    let dot_scaled = (dot16 >> 10).clamp(-4096, 4096) as i32;
+                    let bilinear_pen = 4096 - dot_scaled;
+                    let d_ham16 = (q_mask16 ^ k_mask16).count_ones() as i32;
+                    let d_pos = (((t - s) as i32) * slope) >> 3;
+                    let d_ind = if sh < 2 {
+                        0
+                    } else if s == t {
+                        if t > 0 {
+                            3072
+                        } else {
+                            0
+                        }
+                    } else if sh == 2 {
+                        if s + 1 < self.prompt_len
+                            && s + 1 < self.tokens.len()
+                            && gate_at(s + 1) == 0
+                        {
+                            2048
+                        } else if s >= 1
+                            && t >= 1
+                            && self.tokens[s - 1] == self.tokens[t - 1]
+                            && self.tokens[s] == self.tokens[t]
+                        {
+                            0
+                        } else if let Some(tp) = t_prev {
+                            if tp >= 1
+                                && s >= 1
+                                && self.tokens[s - 1] == self.tokens[tp - 1]
+                                && self.tokens[s] == self.tokens[tp]
+                            {
+                                64
+                            } else if gate_at(s) == 0
+                                && ((s >= 1 && self.tokens[s - 1] == self.tokens[tp])
+                                    || (s >= 2 && self.tokens[s - 2] == self.tokens[tp])
+                                    || (s >= 3
+                                        && self.tokens[s - 3] == self.tokens[tp]
+                                        && gate_at(s - 1) == 0
+                                        && gate_at(s - 2) == 0))
+                            {
+                                128
+                            } else if self.tokens[s] == self.tokens[t] {
+                                384
+                            } else if self.tokens[s] == self.tokens[tp] {
+                                448
+                            } else {
+                                640
+                            }
+                        } else if (t_delim || t_multi_byte) && self.tokens[s] == self.tokens[t] {
+                            384
+                        } else {
+                            640
+                        }
+                    } else {
+                        0
+                    };
+                    let d_tot =
+                        (bilinear_pen + (d_l1 >> 4) + (d_ham16 << 5) + d_pos + d_ind).max(0);
+                    *rw = d_tot as u64;
+                    if d_tot < min_d {
+                        min_d = d_tot;
+                        best_s = s;
+                    }
+                }
+                // Multi-scale PRLL: local syntax heads ((h & 3) < 2) average smoothly on
+                // absolute distance, whereas copy/long-range heads ((h & 3) >= 2) subtract
+                // min_d and apply 4x relative sharpening to suppress 1/d^4 polynomial tails.
+                let is_long_copy_head = sh >= 2;
+                for rw in raw_w.iter_mut().take(t + 1) {
+                    let d_eff = if is_long_copy_head {
+                        ((*rw as i32) - min_d).max(0) << 2
+                    } else {
+                        *rw as i32
+                    };
+                    let w = prll_weight_order4_v10(tau, d_eff);
+                    *rw = w;
+                    sum_raw += w;
+                    if w > best_w {
+                        best_w = w;
+                    }
+                }
+
+                let mut mass_acc = 0u64;
+                for s in 0..=t {
+                    let wp = ((raw_w[s] * GLLM_V9_PRLL_QUANTUM) / sum_raw.max(1)) as u32;
+                    prll_w[s] = wp;
+                    mass_acc += wp as u64;
+                }
+                prll_w[best_s] += (GLLM_V9_PRLL_QUANTUM - mass_acc) as u32;
+                let final_mass: u64 = prll_w.iter().map(|&w| w as u64).sum();
+                if prll_w[best_s] >= top_mass {
+                    top_mass = prll_w[best_s];
+                    dominant_layer = l as u8;
+                    winning_head = h as u8;
+                }
+
+                if admit_causal_kv_step(KvAttentionCheck {
+                    seq_len: (t + 1) as u64,
+                    max_seq_len: GLLM_V9_MAX_SEQ as u64,
+                    attended_pos: best_s as u64,
+                    query_pos: t as u64,
+                    prll_mass_sum: final_mass,
+                    expected_quantum: GLLM_V9_PRLL_QUANTUM,
+                }) != KvAttentionVerdict::CausalKvAdmitted
+                {
+                    mass_conserved = false;
+                }
+
+                if is_top {
+                    self.last_top_prll_w[h].clear();
+                    self.last_top_prll_w[h].extend_from_slice(&prll_w);
+                    self.last_top_best_s[h] = best_s;
+                }
+
+                let mut acc_v = [0i64; 8];
+                for (s, &wp_u32) in prll_w.iter().enumerate().take(t + 1) {
+                    let wp = wp_u32 as i64;
+                    let v_row = &self.v_cache[l][s * d + v_off..s * d + v_off + 8];
+                    for j in 0..8 {
+                        acc_v[j] += wp * (v_row[j] as i64);
+                    }
+                }
+                for j in 0..8 {
+                    attn_out[v_off + j] =
+                        clamp_q12((acc_v[j] / (GLLM_V9_PRLL_QUANTUM as i64)) as i32);
+                }
+            }
+
+            for c in 0..d {
+                x_mid[c] = clamp_q12((x_cur[c] as i32) + ((attn_out[c] as i32) >> attn_res_shift));
+            }
+            for blk in 0..(d / 64) {
+                fwht64_block(
+                    &x_mid[blk * 64..(blk + 1) * 64],
+                    &mut u_ffn[blk * 64..(blk + 1) * 64],
+                );
+            }
+            let mut ffn_acc = vec![0i32; d];
+            for g in 0..g_cnt {
+                let code = code_4ch(&u_ffn[g * 4..g * 4 + 4]) as usize;
+                let row = &lt.ffn_lut[(g * 256 + code) * d..(g * 256 + code + 1) * d];
+                for c in 0..d {
+                    ffn_acc[c] += row[c] as i32;
+                }
+            }
+            for c in 0..d {
+                let act = icosian_hinge(ffn_acc[c] >> ffn_shift);
+                x_cur[c] = clamp_q12((x_mid[c] as i32) + (act as i32));
+            }
+        }
+
+        self.last_top_mass_ok = mass_conserved;
+        self.last_hidden.copy_from_slice(&x_cur);
+        let h_sign = pack_sign64(&x_cur[0..64]);
+        let e8_orbit = (((h_sign.count_ones() as usize) + tok) & 15) as u8;
+        let cl06_grade = ((t.min(63) as u32).count_ones() as u8).min(6);
+        StepDiagnostics {
+            mass_conserved,
+            dominant_layer,
+            winning_head,
+            e8_orbit,
+            cl06_grade,
+            top_mass,
+        }
+    }
+
+    fn predict_next_token_v11(
+        &self,
+        model: &GllmV9Model,
+        generated_so_far: &[u32],
+        prev_copy_src: Option<usize>,
+    ) -> PredictOutcome {
+        let t = self.seq_len - 1;
+        let d = self.d_model;
+        let g_cnt = self.lut_groups;
+        let top_l = self.n_layers - 1;
+        let lt = &model.layers[top_l];
+        let d_shift = if d >= 256 {
+            2
+        } else if d >= 128 {
+            1
+        } else {
+            0
+        };
+
+        let mut act_lut = vec![[0i32; 81]; g_cnt];
+        for (g, lut_g) in act_lut.iter_mut().enumerate() {
+            build_tmac_act_lut81(&self.last_hidden[g * 4..g * 4 + 4], lut_g);
+        }
+
+        // Learned multi-head causal pointer-copy marginalization bounded strictly to prompt
+        // positions `scan_lo..scan_hi` (`s + 1 < self.prompt_len`).
+        let mut copy_logits = vec![0i32; GLLM_V9_VOCAB];
+        let mut copy_best_src = vec![0usize; GLLM_V9_VOCAB];
+        let mut copy_best_cand = vec![0i32; GLLM_V9_VOCAB];
+        let mut overall_top_s = 0usize;
+        let mut overall_top_mass = 0u32;
+        let mut overall_winning_head = 0u8;
+
+        let bpe = ByteBpe4096::global();
+        let prompt_copy_hi = self.prompt_len.saturating_sub(1).min(t);
+        let (scan_lo, scan_hi) = if let Some((obs_lo, obs_hi)) = self.tool_obs_range {
+            let hi = obs_hi.min(prompt_copy_hi);
+            let lo = obs_lo.saturating_sub(1).min(hi);
+            if lo < hi {
+                (lo, hi)
+            } else {
+                (
+                    self.copy_start.saturating_sub(1).min(prompt_copy_hi),
+                    prompt_copy_hi,
+                )
+            }
+        } else {
+            (
+                self.copy_start.saturating_sub(1).min(prompt_copy_hi),
+                prompt_copy_hi,
+            )
+        };
+
+        let gen_prefix = if generated_so_far.is_empty() {
+            String::new()
+        } else {
+            bpe.decode(&generated_so_far[..generated_so_far.len().min(6)])
+        };
+        let in_code_gen = gen_prefix.trim_start().starts_with("```");
+
+        // Multi-piece subword, slug, URL, and tool-observation span continuation over `prev_copy_src`.
+        fn piece_continues_span(
+            tokens: &[u32],
+            prompt_len: usize,
+            in_code_gen: bool,
+            ns: usize,
+        ) -> bool {
+            let bpe = ByteBpe4096::global();
+            let ns_piece = bpe.decode(&[tokens[ns]]);
+            if ns_piece.is_empty() || ns_piece.starts_with(char::is_whitespace) {
+                return false;
+            }
+            let is_ident_or_slug = ns_piece.chars().all(|ch| {
+                ch.is_ascii_alphanumeric() || ch == '_' || (!in_code_gen && matches!(ch, '-' | '/'))
+            });
+            let is_dotted_host = !in_code_gen
+                && ns_piece == "."
+                && ns + 1 < prompt_len
+                && bpe
+                    .decode(&[tokens[ns + 1]])
+                    .starts_with(|ch: char| ch.is_ascii_alphanumeric());
+            let is_url_scheme = !in_code_gen
+                && (ns_piece == "://"
+                    || (ns_piece == ":"
+                        && ns + 1 < prompt_len
+                        && bpe.decode(&[tokens[ns + 1]]).starts_with('/')));
+            is_ident_or_slug || is_dotted_host || is_url_scheme
+        }
+
+        let mut eff_ctg_override = [0u8; GLLM_V9_VOCAB];
+        for h in 0..self.n_heads {
+            let wp_vec = &self.last_top_prll_w[h];
+            let best_s = self.last_top_best_s[h];
+            if best_s < wp_vec.len() && wp_vec[best_s] >= overall_top_mass {
+                overall_top_mass = wp_vec[best_s];
+                overall_top_s = best_s;
+                overall_winning_head = h as u8;
+            }
+
+            let cg_row = &lt.head_copy_gate_trits[h * g_cnt..(h + 1) * g_cnt];
+            let mut gate_sum = lt.head_copy_b[h] as i32;
+            for (g, &pcode) in cg_row.iter().enumerate() {
+                gate_sum += act_lut[g][pcode as usize];
+            }
+            let gs_norm = if d >= 256 { gate_sum >> 1 } else { gate_sum };
+            // Avoid step-0 header echo where <assistant>\n attends to <user>\n and copies the opening prompt token.
+            if generated_so_far.is_empty() || gs_norm <= 0 || scan_hi <= scan_lo {
+                continue;
+            }
+            let copy_gain = gs_norm.clamp(0, 2_048) as u64;
+            let mut head_acc = vec![0u64; GLLM_V9_VOCAB];
+            let mut head_best_s = vec![0usize; GLLM_V9_VOCAB];
+            let mut head_best_w = vec![0u32; GLLM_V9_VOCAB];
+            for (s, &wp) in wp_vec.iter().enumerate().take(scan_hi).skip(scan_lo) {
+                let in_obs = self
+                    .tool_obs_range
+                    .is_some_and(|(lo, hi)| s + 1 >= lo && s + 1 < hi);
+                if !in_obs && self.prompt_nocopy.get(s + 1).copied().unwrap_or(false) {
+                    continue;
+                }
+                let tok_next = self.tokens[s + 1] as usize;
+                let mut ctg = model.copy_tok_gate.get(tok_next).copied().unwrap_or(0);
+                if ctg == 0
+                    && tok_next >= 3
+                    && s + 2 < self.prompt_len
+                    && !self.prompt_nocopy.get(s + 2).copied().unwrap_or(false)
+                {
+                    let tok_piece = bpe.decode(&[tok_next as u32]);
+                    let trimmed = tok_piece.trim_start_matches(' ');
+                    if !trimmed.is_empty()
+                        && trimmed
+                            .chars()
+                            .all(|c| c.is_ascii_alphanumeric() || c == '_')
+                        && trimmed.chars().any(|c| c.is_ascii_alphanumeric())
+                        && piece_continues_span(&self.tokens, self.prompt_len, in_code_gen, s + 2)
+                    {
+                        ctg = 224;
+                        eff_ctg_override[tok_next] = 224;
+                    }
+                }
+                if tok_next < 3 || wp == 0 || ctg == 0 {
+                    continue;
+                }
+                head_acc[tok_next] += ((wp as u64) * copy_gain) >> 6;
+                if wp > head_best_w[tok_next] {
+                    head_best_w[tok_next] = wp;
+                    head_best_s[tok_next] = s + 1;
+                }
+            }
+            let shift_bits = 20 + d_shift;
+            for (v, &acc) in head_acc.iter().enumerate() {
+                let ctg = model
+                    .copy_tok_gate
+                    .get(v)
+                    .copied()
+                    .unwrap_or(0)
+                    .max(eff_ctg_override[v]) as u64;
+                if acc > 0 && ctg > 0 {
+                    let cand = (((acc * ctg) >> shift_bits).min(1_536)) as i32;
+                    if cand > 0 {
+                        copy_logits[v] = (copy_logits[v] + cand).min(4_608);
+                        if cand > copy_best_cand[v] {
+                            copy_best_cand[v] = cand;
+                            copy_best_src[v] = head_best_s[v];
+                        }
+                    }
+                }
+            }
+        }
+
+        let cont_src: Option<usize> = prev_copy_src.and_then(|sp| {
+            let ns = sp + 1;
+            if ns >= self.prompt_len
+                || ns > t
+                || self.prompt_nocopy.get(ns).copied().unwrap_or(false)
+            {
+                return None;
+            }
+            if let Some((obs_lo, obs_hi)) = self.tool_obs_range {
+                if sp >= obs_lo && ns < obs_hi.min(self.prompt_len) {
+                    return Some(ns);
+                }
+            }
+            piece_continues_span(&self.tokens, self.prompt_len, in_code_gen, ns).then_some(ns)
+        });
+        if let Some(ns) = cont_src {
+            let v_ns = self.tokens[ns] as usize;
+            if (3..GLLM_V9_VOCAB).contains(&v_ns) {
+                copy_logits.fill(0);
+                copy_logits[v_ns] = 4_608;
+                copy_best_src[v_ns] = ns;
+            }
+        } else if in_code_gen && !generated_so_far.is_empty() {
+            // Avoid re-selecting an already-emitted same-line variable/fn start so 2-arg
+            // Rust expressions/signatures (`a + b`, `fn f(p1, p2)`) pick distinct identifiers.
+            let line_start = generated_so_far
+                .iter()
+                .rposition(|&tok| bpe.decode(&[tok]).contains('\n'))
+                .map_or(0, |idx| idx + 1);
+            let same_line = &generated_so_far[line_start..];
+            for (v, slot) in copy_logits.iter_mut().enumerate() {
+                if *slot <= 0 {
+                    continue;
+                }
+                let v_ws = bpe.decode(&[v as u32]).starts_with(char::is_whitespace);
+                let seen_start = same_line.iter().enumerate().any(|(k, &tv)| {
+                    tv == v as u32
+                        && (k == 0
+                            || v_ws
+                            || !bpe
+                                .decode(&[same_line[k - 1]])
+                                .chars()
+                                .last()
+                                .is_some_and(|ch| ch.is_ascii_alphanumeric() || ch == '_'))
+                });
+                if seen_start {
+                    *slot >>= 2;
+                }
+            }
+        }
+
+        // Minimal cycle blocker (only if >= 3 exact consecutive repeating periods of length 1..8)
+        let mut blocked_cycle_next: Option<u32> = None;
+        let gen_len = generated_so_far.len();
+        if gen_len >= 5
+            && generated_so_far[gen_len - 5..]
+                .windows(2)
+                .all(|w| w[0] == w[1])
+        {
+            blocked_cycle_next = Some(generated_so_far[gen_len - 1]);
+        } else {
+            for period in 2usize..=8 {
+                if gen_len >= period * 3
+                    && generated_so_far[gen_len - period..]
+                        == generated_so_far[gen_len - 2 * period..gen_len - period]
+                    && generated_so_far[gen_len - 2 * period..gen_len - period]
+                        == generated_so_far[gen_len - 3 * period..gen_len - 2 * period]
+                {
+                    blocked_cycle_next = Some(generated_so_far[gen_len - period]);
+                    break;
+                }
+            }
+        }
+
+        let n_blocks = d / 64;
+        let mut h_sk = vec![0u64; n_blocks];
+        for (b, slot) in h_sk.iter_mut().enumerate() {
+            *slot = pack_sign64(&self.last_hidden[b * 64..(b + 1) * 64]);
+        }
+
+        let block_span_exit_alnum = self.tool_obs_range.is_none()
+            && cont_src.is_none()
+            && prev_copy_src.is_some_and(|sp| {
+                bpe.decode(&[self.tokens[sp]])
+                    .chars()
+                    .last()
+                    .is_some_and(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+            });
+
+        let mut best_v = 1u32;
+        let mut best_score = i32::MIN;
+        let mut best_copy = 0i32;
+        let mut best_winner_pure = i32::MIN;
+        let mut max_pure_overall = i32::MIN;
+        let mut second_pure_overall = i32::MIN;
+        let mut max_pure_v = 1u32;
+        let mut pure_scores = [i32::MIN; GLLM_V9_VOCAB];
+
+        for (v, slot) in pure_scores.iter_mut().enumerate().take(GLLM_V9_VOCAB) {
+            if v == 0 || v == 2 {
+                continue;
+            }
+            if v == 1 && generated_so_far.is_empty() {
+                continue;
+            }
+            if blocked_cycle_next == Some(v as u32) {
+                continue;
+            }
+            if block_span_exit_alnum && v >= 3 {
+                let piece = bpe.decode(&[v as u32]);
+                if !piece.is_empty()
+                    && !piece.starts_with(char::is_whitespace)
+                    && piece
+                        .chars()
+                        .next()
+                        .is_some_and(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+                {
+                    continue;
+                }
+            }
+
+            let hi_row = &model.tmac_readout_hi[v * g_cnt..(v + 1) * g_cnt];
+            let lo_row = &model.tmac_readout_lo[v * g_cnt..(v + 1) * g_cnt];
+            let mut tmac_sum = 0i32;
+            for g in 0..g_cnt {
+                let v_hi = act_lut[g][hi_row[g] as usize];
+                let v_lo = act_lut[g][lo_row[g] as usize];
+                tmac_sum += (v_hi << 1) + v_hi + v_lo;
+            }
+
+            let p_row = &model.p_out[v * d..(v + 1) * d];
+            let mut l1 = 0i32;
+            for (c, &pv) in p_row.iter().enumerate().take(d) {
+                l1 += ((self.last_hidden[c] as i32) - (pv as i32)).abs();
+            }
+            let p_sk_row = &model.p_sk[v * n_blocks..(v + 1) * n_blocks];
+            let mut ham = 0i32;
+            for b in 0..n_blocks {
+                ham += (h_sk[b] ^ p_sk_row[b]).count_ones() as i32;
+            }
+            let pure_score = (tmac_sum >> d_shift) + ((model.b_out[v] as i32) * 2)
+                - ((ham * 24) >> d_shift)
+                - (l1 >> (5 + d_shift));
+            *slot = pure_score;
+
+            if pure_score > max_pure_overall {
+                second_pure_overall = max_pure_overall;
+                max_pure_overall = pure_score;
+                max_pure_v = v as u32;
+            } else if pure_score > second_pure_overall {
+                second_pure_overall = pure_score;
+            }
+        }
+
+        let uncertain_vocab = max_pure_overall < -1_024;
+        let copy_span_thresh = if uncertain_vocab { 256 } else { 512 };
+        let lift_shift = if uncertain_vocab { 8 } else { 10 };
+
+        for (v, (&copy_logit, &pure_score)) in copy_logits
+            .iter()
+            .zip(pure_scores.iter())
+            .enumerate()
+            .take(GLLM_V9_VOCAB)
+        {
+            if pure_score == i32::MIN {
+                continue;
+            }
+            let copy_lift = if copy_logit >= copy_span_thresh
+                && pure_score < -1_408
+                && !generated_so_far.contains(&(v as u32))
+            {
+                let deficit = -1_408 - pure_score;
+                (((deficit as i64) * (copy_logit as i64)) >> lift_shift).min(deficit as i64) as i32
+            } else {
+                0
+            };
+            let score = pure_score + copy_logit + copy_lift;
+
+            if score > best_score {
+                best_score = score;
+                best_v = v as u32;
+                best_copy = copy_logit;
+                best_winner_pure = pure_score;
+            }
+        }
+
+        let best_src = copy_best_src[best_v as usize];
+        let mid_vocab_ident = prev_copy_src.is_none()
+            && !bpe.decode(&[best_v]).starts_with(char::is_whitespace)
+            && generated_so_far.last().is_some_and(|&pt| {
+                !(best_src > 0 && self.tokens[best_src - 1] == pt)
+                    && bpe
+                        .decode(&[pt])
+                        .chars()
+                        .last()
+                        .is_some_and(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+            });
+        let has_ident_cont = best_copy >= copy_span_thresh
+            && best_src + 1 < self.prompt_len
+            && !self
+                .prompt_nocopy
+                .get(best_src + 1)
+                .copied()
+                .unwrap_or(false)
+            && (self
+                .tool_obs_range
+                .is_some_and(|(lo, hi)| best_src >= lo && best_src + 1 < hi)
+                || (!mid_vocab_ident
+                    && piece_continues_span(
+                        &self.tokens,
+                        self.prompt_len,
+                        in_code_gen,
+                        best_src + 1,
+                    )));
+        let won_by_vocab_readout = cont_src.is_none()
+            && !has_ident_cont
+            && best_v == max_pure_v
+            && best_winner_pure > -1_024
+            && best_winner_pure > second_pure_overall.saturating_add(512);
+        let next_copy_src = if best_copy >= copy_span_thresh && !won_by_vocab_readout {
+            Some(best_src)
+        } else {
+            None
+        };
+
+        PredictOutcome {
+            token_id: best_v,
+            best_score,
+            copy_score: best_copy,
+            pure_margin: best_winner_pure.saturating_sub(second_pure_overall),
+            next_copy_src,
+            top_attended_pos: overall_top_s,
+            winning_head: overall_winning_head,
+            top_mass: overall_top_mass.min(GLLM_V9_PRLL_QUANTUM as u32),
+            mass_ok: self.last_top_mass_ok,
+        }
+    }
+
     fn predict_next_token(
         &self,
         model: &GllmV9Model,
         generated_so_far: &[u32],
         prev_copy_src: Option<usize>,
     ) -> PredictOutcome {
+        if model.is_v11_or_later() {
+            return self.predict_next_token_v11(model, generated_so_far, prev_copy_src);
+        }
         let prev_was_copied = prev_copy_src.is_some();
         let t = self.seq_len - 1;
         let d = self.d_model;

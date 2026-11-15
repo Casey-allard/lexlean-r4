@@ -1,0 +1,14 @@
+# Authoritative shrink-only ratchet & Peirce triadic invariants (`r4/ratchet/1`).
+# Governed by `src/R4/{AutonomousEngine,PrismFactory,Rule30Evolution}.lex.tex` (`R4-41`).
+
+spec = "r4/ratchet/1"
+peirce_phases = ["Abduction", "Deduction", "Induction"]
+rule30_rule_number = 30
+rule30_min_generation = 1
+
+max_handwritten_bypass_files = 0
+max_deferral_markers = 0
+max_ignored_conformance_tests = 0
+max_ungrounded_defs = 0
+max_orphaned_point_rows = 0
+max_trajectory_l1_milli = 250000

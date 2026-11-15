@@ -42,6 +42,8 @@ console.log('--- Test 1: Topbar Layout & Action Buttons ---');
   // 2. Check DOM contains all required buttons
   const requiredButtons = [
     'topbar-terminal-btn',
+    'topbar-feed-btn',
+    'topbar-consolidation-btn',
     'sync-weights-btn',
     'load-weights-topbar-btn',
     'toggle-right-drawer-btn'
@@ -57,8 +59,6 @@ console.log('--- Test 1: Topbar Layout & Action Buttons ---');
 
   // 3. Check redundant drawer buttons are hidden but present for DOM compatibility
   const legacyButtons = [
-    'topbar-feed-btn',
-    'topbar-consolidation-btn',
     'topbar-traces-btn',
     'topbar-workspace-btn',
     'topbar-diagnostics-btn'
