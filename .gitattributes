@@ -8,6 +8,7 @@
 *.tar.gz binary
 *.gz binary
 *.uorgllm binary
+*.uorr4 binary
 *.bin binary
 gpu/weights/v9/*.part* binary
 *.part* binary
