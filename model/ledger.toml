@@ -14,6 +14,24 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-VERDANT-UORC-PLUMBING"
+level = "some-true"
+authority = "VERDANT-UORC-PLUMBING"
+statement = "Browser UORC\\x01 generation capsule bounds, 3-strike watchdog rollback semantics, Worker concurrency sizing, and workspace bridge framing are imported from the upstream Verdant-Resonance and me specifications. Formal LexLean controls do not entail remote browser persistence or live external host availability."
+
+[[claim]]
+id = "AUTH-VERDANT-UORUST-SYNTHESIS"
+level = "some-true"
+authority = "VERDANT-UORUST-SYNTHESIS"
+statement = "Topological AST mechanization, function-level SHA-256 kappa monotonicity under uorust/function-kappa/1, multi-axis fidelity scoring, and Pareto/Lyapunov Hebbian synthesis scheduling are imported from the upstream verdant-resonance, UORust, and prism-devrel specifications. Formal LexLean controls do not replace local Rust build or ratchet verification."
+
+[[claim]]
+id = "AUTH-R4-DIRECT-RECOMPILATION"
+level = "some-true"
+authority = "UOR-R4-DIRECT-RECOMPILATION"
+statement = "SmolLM2-135M architectural dimensions and multiplier-free integer nibble-pair LUT recompilation structure are imported from the upstream uor-r4 and model config specifications. Formal LexLean controls supply container and dimension admission only and make no benchmark fluency or HuggingFace availability claims."
+
+[[claim]]
 id = "AUTH-UOR-R4-REACT-AGENT"
 level = "some-true"
 authority = "UOR-R4-REACT-AGENT"

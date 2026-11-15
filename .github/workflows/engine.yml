@@ -117,7 +117,10 @@ jobs:
             "$image" bash -c '
               set -euo pipefail
               umask 077
+              cargo run -q -p xtask -- mechanize
+              cargo run -q -p xtask -- lift-register
               cargo run -q -p xtask -- ratchet-check
+              cargo run -q -p xtask -- synthesize --write
               cargo run -q -p xtask -- literature-sync --offline-fallback --write || true
               cargo run -q -p xtask -- engine tick --budget-minutes 75 --commit --push
               cargo run -q -p xtask -- engine status > .r4-engine-status.txt || true

@@ -20,6 +20,24 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-46"
+level = "build"
+suite = "r4-honest-plumbing"
+statement = "Pure LexLean models honest model-routed Studio plumbing and browser .uorc organism watchdog admission (R4.HonestPlumbing): explicit routing across the four composer modes (uor-r4.recompiled-v12-agent, uor-r4.recompiled-v12-chat, uor-r4.seed-fast, uor-r4.lut-symbolic) requiring zero canned turn-memory or template overrides during neural geometric modes, honest UI capacity and tier state without stale banners or unwired controls, UORR4V12 and UORGLLM9 container magic admission, UORC\\x01 OPFS generation capsule admission (zero residue, bounded wasm bytes, frame budget adherence, and strict Pareto improvement), and 3-strike watchdog rollback to the last certified HEAD generation. Formal controls establish no external browser OPFS hardware durability or remote service availability."
+
+[[id]]
+id = "R4-45"
+level = "build"
+suite = "r4-verdant-synthesis"
+statement = "Pure LexLean models the Verdant-Resonance AST mechanizer, UORust kappa-lift ratchet, and 4-facet synthesis engine (R4.VerdantSynthesis): topological module graph resolution across src/R4/*.lex.tex with automatic breaks* counterexample sweeps and executable closure admission, deterministic uorust/function-kappa/1 SHA-256 function classification into lifted, effect, foreign, and residue with monotonic non-regression against model/lift_register.json, 4-facet reflexive holon KPI aggregation (ModelAndTraining, ServingRuntime, UiAndPlumbing, EcosystemStandards), [1..16] +2/-1 Hebbian bandit updates, strict Pareto/Lyapunov zero-defect acceptance, and shrink-only serving and UI ratchet limits (max_float_serving_ops = 0, max_dense_matmul_ops = 0, max_unwired_ui_controls = 0). Formal controls establish no external Lean kernel toolchain execution beyond modeled AST and source invariants."
+
+[[id]]
+id = "R4-44"
+level = "build"
+suite = "r4-geometric-recompiler"
+statement = "Pure LexLean models direct teacher-to-R4 geometric vector recompilation and multiplier-free serving (R4.GeometricRecompiler): container UORR4V12 header admission enforcing zero float serving operations, zero dense matrix multiplication operations, zero softmax operations, zero canned turn-memory hijack entries, tied LM-head and RMS norm preservation across SmolLM2-135M geometry (30 layers, 9 query heads, 3 KV heads, head_dim = 64, d_model = 576, vocab_size = 49152, rope_theta = 100000), fixed-point integer Q14 RoPE and nibble-pair 256-entry LUT step bounds, and causal GQA KV-head broadcast mapping (kv_head = q_head / 3). Formal controls establish no external HuggingFace hub weight availability or benchmark perplexity claims."
+
+[[id]]
 id = "R4-43"
 level = "build"
 suite = "r4-gllm-v11"

@@ -102,6 +102,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-10` | `build` | Pure LexLean models complete Flock and Relation reads over admitted occurrence roots and ordered forests, preserving exact frame transport, snapped consensus, causal ranking, five-edge synchronous cumulative relation sweeps, virtual changes and typed trace projections. Formal controls do not establish batch provenance, GPU parity, training permission or runtime performance. |
 
+## r4-geometric-recompiler
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-44` | `build` | Pure LexLean models direct teacher-to-R4 geometric vector recompilation and multiplier-free serving (R4.GeometricRecompiler): container UORR4V12 header admission enforcing zero float serving operations, zero dense matrix multiplication operations, zero softmax operations, zero canned turn-memory hijack entries, tied LM-head and RMS norm preservation across SmolLM2-135M geometry (30 layers, 9 query heads, 3 KV heads, head_dim = 64, d_model = 576, vocab_size = 49152, rope_theta = 100000), fixed-point integer Q14 RoPE and nibble-pair 256-entry LUT step bounds, and causal GQA KV-head broadcast mapping (kv_head = q_head / 3). Formal controls establish no external HuggingFace hub weight availability or benchmark perplexity claims. |
+
 ## r4-geometry
 
 | ID | Level | Statement |
@@ -125,6 +131,12 @@ model does not sanction.
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-11` | `build` | Pure LexLean computes SHA-256 over admitted finite byte sequences and configured twelve-byte BLAKE2b node identities with exact padding, counters, rounds and encoding, rejecting invalid bytes, lengths, scales and caller budgets. Independent digest controls establish no injectivity, production runtime, durable storage or model capability. |
+
+## r4-honest-plumbing
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-46` | `build` | Pure LexLean models honest model-routed Studio plumbing and browser .uorc organism watchdog admission (R4.HonestPlumbing): explicit routing across the four composer modes (uor-r4.recompiled-v12-agent, uor-r4.recompiled-v12-chat, uor-r4.seed-fast, uor-r4.lut-symbolic) requiring zero canned turn-memory or template overrides during neural geometric modes, honest UI capacity and tier state without stale banners or unwired controls, UORR4V12 and UORGLLM9 container magic admission, UORC\x01 OPFS generation capsule admission (zero residue, bounded wasm bytes, frame budget adherence, and strict Pareto improvement), and 3-strike watchdog rollback to the last certified HEAD generation. Formal controls establish no external browser OPFS hardware durability or remote service availability. |
 
 ## r4-integer-stack
 
@@ -264,6 +276,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-41` | `build` | Pure LexLean models the Verdant-Resonance Peirce triadic homeostasis and shrink-only ratchet gate (model/ratchet.toml): Abduction -> Deduction -> Induction cycling bounded by Rule 30 chaotic frontier discovery, non-vacuous witness and invariant checks, strict non-regression across every tracked shrink-only ceiling (residual, placeholder, classical choice, and handwritten ungrounded lines), and dry-run immutability. Formal controls establish no hosted Lean kernel execution beyond modeled metrics or unrestricted automatic synthesis. |
 
+## r4-verdant-synthesis
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-45` | `build` | Pure LexLean models the Verdant-Resonance AST mechanizer, UORust kappa-lift ratchet, and 4-facet synthesis engine (R4.VerdantSynthesis): topological module graph resolution across src/R4/*.lex.tex with automatic breaks* counterexample sweeps and executable closure admission, deterministic uorust/function-kappa/1 SHA-256 function classification into lifted, effect, foreign, and residue with monotonic non-regression against model/lift_register.json, 4-facet reflexive holon KPI aggregation (ModelAndTraining, ServingRuntime, UiAndPlumbing, EcosystemStandards), [1..16] +2/-1 Hebbian bandit updates, strict Pareto/Lyapunov zero-defect acceptance, and shrink-only serving and UI ratchet limits (max_float_serving_ops = 0, max_dense_matmul_ops = 0, max_unwired_ui_controls = 0). Formal controls establish no external Lean kernel toolchain execution beyond modeled AST and source invariants. |
+
 ## r4-wasm-ast-eval
 
 | ID | Level | Statement |
@@ -282,6 +300,9 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `VERDANT-UORC-PLUMBING` | https://github.com/afflom/verdant-resonance (src/selfhost/browserSelfHostEngine.ts OPFS UORC\x01 generation capsule admission and 3-strike watchdog rollback) and https://github.com/afflom/me (uor-workspace-bridge/1 host bridge contract); companion src/R4/HonestPlumbing.lex.tex | `R4-46` |
+| `VERDANT-UORUST-SYNTHESIS` | https://github.com/afflom/verdant-resonance, https://github.com/afflom/UORust, and https://github.com/afflom/prism-devrel (topological LexLean AST mechanizer, uorust/register/1 SHA-256 function kappa ratchet, W3C PROV-O / ISO 29148 / ISO 15939 fidelity axes, 4-facet holon KPIs, and [1..16] Hebbian Pareto/Lyapunov engine); companion src/R4/VerdantSynthesis.lex.tex | `R4-45` |
+| `UOR-R4-DIRECT-RECOMPILATION` | https://github.com/Casey-allard/uor-r4 and https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct (30 layers, 9 query heads, 3 KV heads, head_dim=64, d_model=576, intermediate_size=1536, vocab_size=49152, tied embeddings, RoPE theta=100000); companion src/R4/GeometricRecompiler.lex.tex | `R4-44` |
 | `UOR-R4-REACT-AGENT` | https://arxiv.org/abs/2210.03629 — Yao et al. (2023) ReAct: Synergizing Reasoning and Acting in Language Models; companion crates/wasm/src/assistant.rs, src/R4/ReactAgent.lex.tex, and tests/lexlean/ReactAgentControls.lex.tex | `R4-35` |
 | `UOR-R4-PHRASE-DAG` | https://github.com/UOR-Foundation/uor-r4/blob/4195ce2bf83d703b1acd3eb868c888d1da053479/crates/uor-r4-integer/src/stack/point_key.rs; companion crates/wasm/src/lut_stack_exec.rs, src/R4/PhraseDag.lex.tex, and tests/lexlean/PhraseDagControls.lex.tex | `R4-34` |
 | `UOR-R4-RULE30-EVOLUTION` | https://doi.org/10.1103/RevModPhys.55.601 — S. Wolfram (1983) Statistical mechanics of cellular automata (Rule 30); companion xtask/src/engine.rs, src/R4/Rule30Evolution.lex.tex, and tests/lexlean/Rule30EvolutionControls.lex.tex | `R4-33` |
@@ -325,6 +346,9 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-VERDANT-UORC-PLUMBING` | `some-true` | Browser UORC\x01 generation capsule bounds, 3-strike watchdog rollback semantics, Worker concurrency sizing, and workspace bridge framing are imported from the upstream Verdant-Resonance and me specifications. Formal LexLean controls do not entail remote browser persistence or live external host availability. |
+| `AUTH-VERDANT-UORUST-SYNTHESIS` | `some-true` | Topological AST mechanization, function-level SHA-256 kappa monotonicity under uorust/function-kappa/1, multi-axis fidelity scoring, and Pareto/Lyapunov Hebbian synthesis scheduling are imported from the upstream verdant-resonance, UORust, and prism-devrel specifications. Formal LexLean controls do not replace local Rust build or ratchet verification. |
+| `AUTH-R4-DIRECT-RECOMPILATION` | `some-true` | SmolLM2-135M architectural dimensions and multiplier-free integer nibble-pair LUT recompilation structure are imported from the upstream uor-r4 and model config specifications. Formal LexLean controls supply container and dimension admission only and make no benchmark fluency or HuggingFace availability claims. |
 | `AUTH-UOR-R4-REACT-AGENT` | `some-true` | Fuel- and iteration-bounded ReAct phase transitions, compiler and test-runner diagnostic self-correction retry routing, and verified patch commit admission are imported from the pinned UOR-R4 ReAct agent specification. Formal LexLean controls do not establish open-world autonomous synthesis completeness. |
 | `AUTH-UOR-R4-PHRASE-DAG` | `some-true` | Bounded acyclic PhraseDag node admission over ServedPointKey rows, multi-basin Icosian and Hamming edge composition, and cycle-free topological clause synthesis are imported from the pinned UOR-R4 compositional PhraseDag specification. Formal LexLean controls do not establish open-ended natural-language discourse completeness. |
 | `AUTH-UOR-R4-RULE30-EVOLUTION` | `some-true` | 64-cell periodic Rule 30 cellular automaton chaotic frontier stepping and non-vacuous monotonic L1 weight consolidation are imported from the pinned UOR-R4 Rule 30 evolution specification. Formal LexLean controls do not establish unbounded empirical benchmark convergence. |

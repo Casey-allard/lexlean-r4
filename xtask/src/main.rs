@@ -40,6 +40,9 @@ fn main() -> ExitCode {
         "audit-deferral" => audit::audit_deferral(&root),
         "audit-bootstrap" => bootstrap::audit(&root),
         "audit-dependency-updates" => bootstrap::audit_dependency_updates(&root),
+        "mechanize" => engine::mechanizer::cmd_mechanize(&root),
+        "lift-register" => engine::lift_register::cmd_lift_register(&root, write),
+        "synthesize" => engine::synthesis::cmd_synthesize(&root, write),
         "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
         "build-wasm" => wasm_bundle::run_build_wasm_cmd(&root, rest),
         "check-wasm-sync" => wasm_bundle::run_check_wasm_sync_cmd(&root),
@@ -114,6 +117,9 @@ fn main() -> ExitCode {
                  audit-deferral    R4: no deferral marker, no stub, no capability behind a flag\n\
                  audit-bootstrap   immutable SDK and least-privilege workflow trust root\n\
                  audit-dependency-updates   SDK ownership and ordinary dependency maintenance\n\
+                 mechanize         R4-45: topological .lex.tex AST mechanizer + breaks* sweep\n\
+                 lift-register     R4-45: UORust function kappa-lift scanner + UE-16 ratchet (--write)\n\
+                 synthesize        R4-45: 4-facet holon KPIs + Hebbian bandit Pareto tick (--write)\n\
                  ratchet-check     R4-41: shrink-only metric ratchet + Peirce triadic cycle\n\
                  build-wasm        compile crates/wasm, inject bridge + cache hook, write provenance.json\n\
                  check-wasm-sync   verify public/ Wasm/JS bundle matches provenance.json\n\
@@ -187,7 +193,9 @@ fn validate(root: &Path) -> Result<(), Fail> {
     check_model(root, false)?;
     audit::audit_limits(root)?;
     audit::audit_deferral(root)?;
+    engine::mechanizer::run_mechanizer_gate(root)?;
     engine::ratchet::check(root)?;
+    engine::synthesis::cmd_synthesize(root, false)?;
     bootstrap::audit(root)?;
     Ok(())
 }

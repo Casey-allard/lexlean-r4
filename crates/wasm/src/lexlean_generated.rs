@@ -46608,3 +46608,603 @@ pub mod r4_github_agent_loop {
         }
     }
 }
+
+/// Generated module `R4.GeometricRecompiler` (`src/R4/GeometricRecompiler.lex.tex`, `R4-44`).
+pub mod r4_geometric_recompiler {
+    /// Structure `R4.GeometricRecompiler.RecompilerHeaderCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct RecompilerHeaderCheck {
+        /// Container format version (must equal `12` for `UORR4V12`).
+        pub container_version: u64,
+        /// Number of transformer layers in the recompiled geometric stack.
+        pub layer_count: u64,
+        /// Query attention head count.
+        pub q_head_count: u64,
+        /// Key/value grouped-query head count.
+        pub kv_head_count: u64,
+        /// Per-head hidden width (`d_model / q_head_count`).
+        pub head_dim: u64,
+        /// Model embedding dimension (`q_head_count * head_dim`).
+        pub d_model: u64,
+        /// Tokenizer vocabulary cardinality.
+        pub vocab_size: u64,
+        /// Rotary position base `rope_theta`.
+        pub rope_theta: u64,
+        /// Float serving operations detected on hot path (must be `0`).
+        pub float_serving_ops: u64,
+        /// Dense matrix-multiply operations detected on serving path (must be `0`).
+        pub dense_matmul_ops: u64,
+        /// Transcendental softmax operations detected on serving path (must be `0`).
+        pub softmax_ops: u64,
+        /// Turn-memory override hijack entries attached to serving (must be `0`).
+        pub turn_memory_entries: u64,
+        /// Whether tied `lm_head` embedding projection is preserved.
+        pub tied_lm_head: bool,
+        /// Whether Q15 RMSNorm weights are preserved.
+        pub rms_norm_preserved: bool,
+    }
+
+    /// Inductive `R4.GeometricRecompiler.RecompilerHeaderVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum RecompilerHeaderVerdict {
+        /// Container header satisfies all zero-float, GQA, and structural invariants.
+        Admitted,
+        /// Unsupported or legacy container version (`!= 12`).
+        RefusedInvalidVersion,
+        /// Floating-point operations detected on the serving path.
+        RefusedFloatServingOp,
+        /// Dense floating-point or non-LUT matrix multiplication detected.
+        RefusedDenseMatmulOp,
+        /// Transcendental softmax operation detected on the serving path.
+        RefusedSoftmaxOp,
+        /// Turn-memory fallback hijack present on neural serving path.
+        RefusedTurnMemoryHijack,
+        /// Grouped-query attention dimensions or divisors are malformed.
+        RefusedGqaDimensionMismatch,
+        /// Missing RMSNorm scales or tied LM head invariant.
+        RefusedMissingNormOrTiedHead,
+    }
+
+    /// Structure `R4.GeometricRecompiler.NibbleLutStepCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct NibbleLutStepCheck {
+        /// Zero-based layer index being evaluated.
+        pub layer_idx: u64,
+        /// Total layers in the mounted geometric stack.
+        pub layer_count: u64,
+        /// Cardinality of nibble-pair LUT (must equal `256`).
+        pub lut_table_len: u64,
+        /// Accumulated Q14 absolute magnitude across step accumulators.
+        pub q14_abs_sum: u64,
+        /// Admitted Q14 upper bound (`> 0`).
+        pub max_q14_bound: u64,
+        /// Whether any float instruction or cast executed during the step.
+        pub uses_float: bool,
+    }
+
+    /// Inductive `R4.GeometricRecompiler.NibbleLutVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum NibbleLutVerdict {
+        /// Nibble-pair integer LUT step is bounded and float-free.
+        StepAdmitted,
+        /// Layer index out of bounds or layer count is zero.
+        RefusedInvalidLayer,
+        /// LUT cardinality does not equal 256 byte-packed pairs.
+        RefusedInvalidLutTable,
+        /// Q14 accumulator magnitude exceeded `max_q14_bound`.
+        RefusedQ14Overflow,
+        /// Floating-point operation observed in LUT step.
+        RefusedFloatOp,
+    }
+
+    /// Function `R4.GeometricRecompiler.admitRecompilerContainer`.
+    pub fn admit_recompiler_container(c: RecompilerHeaderCheck) -> RecompilerHeaderVerdict {
+        if c.container_version != 12 {
+            RecompilerHeaderVerdict::RefusedInvalidVersion
+        } else if c.float_serving_ops > 0 {
+            RecompilerHeaderVerdict::RefusedFloatServingOp
+        } else if c.dense_matmul_ops > 0 {
+            RecompilerHeaderVerdict::RefusedDenseMatmulOp
+        } else if c.softmax_ops > 0 {
+            RecompilerHeaderVerdict::RefusedSoftmaxOp
+        } else if c.turn_memory_entries > 0 {
+            RecompilerHeaderVerdict::RefusedTurnMemoryHijack
+        } else if c.layer_count == 0
+            || c.q_head_count == 0
+            || c.kv_head_count == 0
+            || c.head_dim == 0
+            || c.d_model == 0
+            || c.vocab_size == 0
+            || c.rope_theta == 0
+            || !c.q_head_count.is_multiple_of(c.kv_head_count)
+            || c.q_head_count.checked_mul(c.head_dim) != Some(c.d_model)
+        {
+            RecompilerHeaderVerdict::RefusedGqaDimensionMismatch
+        } else if !c.tied_lm_head || !c.rms_norm_preserved {
+            RecompilerHeaderVerdict::RefusedMissingNormOrTiedHead
+        } else {
+            RecompilerHeaderVerdict::Admitted
+        }
+    }
+
+    /// Function `R4.GeometricRecompiler.mapGqaKvHead`.
+    pub fn map_gqa_kv_head(q_head: u64, q_head_count: u64, kv_head_count: u64) -> Option<u64> {
+        if q_head_count == 0
+            || kv_head_count == 0
+            || q_head >= q_head_count
+            || !q_head_count.is_multiple_of(kv_head_count)
+        {
+            None
+        } else {
+            Some(q_head / (q_head_count / kv_head_count))
+        }
+    }
+
+    /// Function `R4.GeometricRecompiler.admitNibbleLutStep`.
+    pub fn admit_nibble_lut_step(c: NibbleLutStepCheck) -> NibbleLutVerdict {
+        if c.uses_float {
+            NibbleLutVerdict::RefusedFloatOp
+        } else if c.layer_count == 0 || c.layer_idx >= c.layer_count {
+            NibbleLutVerdict::RefusedInvalidLayer
+        } else if c.lut_table_len != 256 {
+            NibbleLutVerdict::RefusedInvalidLutTable
+        } else if c.max_q14_bound == 0 || c.q14_abs_sum > c.max_q14_bound {
+            NibbleLutVerdict::RefusedQ14Overflow
+        } else {
+            NibbleLutVerdict::StepAdmitted
+        }
+    }
+}
+
+/// Generated module `R4.VerdantSynthesis` (`src/R4/VerdantSynthesis.lex.tex`, `R4-45`).
+pub mod r4_verdant_synthesis {
+    /// Inductive `R4.VerdantSynthesis.LiftStatusCode`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum LiftStatusCode {
+        /// Pure function lifted to formal `kappa` certificate.
+        Lifted,
+        /// Explicit boundary effect carrier.
+        Effect,
+        /// External or host FFI boundary symbol.
+        Foreign,
+        /// Unlifted residue counted against the shrink-only ceiling.
+        Residue,
+    }
+
+    /// Inductive `R4.VerdantSynthesis.MechanizerVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum MechanizerVerdict {
+        /// Acyclic DAG, complete executable roots, and zero counterexamples triggered.
+        ClosureAdmitted,
+        /// Declared root or callee lacks pure executable definition.
+        RefusedNonExecutableRoot,
+        /// Module import graph contains a dependency cycle.
+        RefusedCycleInModuleGraph,
+        /// A `breaks*` counterexample or `verify*` invariant failed.
+        RefusedCounterexampleTriggered,
+        /// Duplicate module or symbol declaration discovered.
+        RefusedDuplicateDeclaration,
+    }
+
+    /// Structure `R4.VerdantSynthesis.MechanizerCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct MechanizerCheck {
+        /// Whether topological module ordering is cycle-free.
+        pub dag_acyclic: bool,
+        /// Whether every semantic module root and definition closes cleanly.
+        pub all_roots_executable: bool,
+        /// Number of duplicate declaration keys observed across modules.
+        pub duplicate_decls: u64,
+        /// Number of `breaks*` counterexample predicates that evaluated `true`.
+        pub breaks_triggered: u64,
+        /// Number of `verify*` predicates that evaluated `true`.
+        pub verify_passed: u64,
+        /// Total `verify*` predicates swept.
+        pub verify_total: u64,
+    }
+
+    /// Inductive `R4.VerdantSynthesis.LiftRatchetVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum LiftRatchetVerdict {
+        /// Lift register transition and bounds satisfy `UE-16` monotonicity.
+        LiftAdmitted,
+        /// Previously lifted symbol regressed status or lost exact divergence-free property.
+        RefusedKappaRegressed,
+        /// Unlifted residue count exceeded the shrink-only ceiling.
+        RefusedResidueCeilingExceeded,
+        /// Registered row lacks mandatory classification metadata.
+        RefusedMissingRowType,
+    }
+
+    /// Inductive `R4.VerdantSynthesis.SynthesisFacetKind`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SynthesisFacetKind {
+        /// Geometric recompiler, teacher parity, and quantization facet.
+        ModelAndTraining,
+        /// Pure-integer LUT serving and SIMD/WebGPU kernel facet.
+        ServingRuntime,
+        /// Honest Studio routing, WebWorker concurrency, and OPFS `.uorc` facet.
+        UiAndPlumbing,
+        /// Formal model, mechanizer, lift-register, and CI standards facet.
+        EcosystemStandards,
+    }
+
+    /// Structure `R4.VerdantSynthesis.ParetoSynthesisCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct ParetoSynthesisCheck {
+        /// Count of measured formal/ratchet/runtime defects (must be `0`).
+        pub candidate_defects: u64,
+        /// Candidate aggregate facet score in milli-units `[0..1000]`.
+        pub candidate_score_milli: u64,
+        /// Incumbent baseline score in milli-units `[0..1000]`.
+        pub incumbent_score_milli: u64,
+        /// Candidate normalized complexity metric.
+        pub candidate_complexity: u64,
+        /// Incumbent normalized complexity metric.
+        pub incumbent_complexity: u64,
+        /// Hebbian bandit strategy weight in `[1..16]`.
+        pub bandit_weight: u64,
+        /// Whether shrink-only repository ratchet checks passed cleanly.
+        pub ratchet_clean: bool,
+    }
+
+    /// Inductive `R4.VerdantSynthesis.ParetoSynthesisVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ParetoSynthesisVerdict {
+        /// Candidate has zero defects, clean ratchet, valid weight, and strictly dominates incumbent.
+        CandidateAdmitted,
+        /// Non-zero Lyapunov defect vector (`defect != 0`).
+        RefusedNonZeroDefect,
+        /// Repository metric ratchet failed.
+        RefusedRatchetViolation,
+        /// Bandit strategy weight escaped `[1..16]`.
+        RefusedWeightOutOfBounds,
+        /// Candidate failed strict Pareto dominance over incumbent.
+        RefusedNotParetoImproving,
+    }
+
+    /// Function `R4.VerdantSynthesis.admitMechanizerGraph`.
+    pub fn admit_mechanizer_graph(c: MechanizerCheck) -> MechanizerVerdict {
+        if !c.dag_acyclic {
+            MechanizerVerdict::RefusedCycleInModuleGraph
+        } else if c.duplicate_decls > 0 {
+            MechanizerVerdict::RefusedDuplicateDeclaration
+        } else if !c.all_roots_executable {
+            MechanizerVerdict::RefusedNonExecutableRoot
+        } else if c.breaks_triggered > 0 || c.verify_total == 0 || c.verify_passed < c.verify_total
+        {
+            MechanizerVerdict::RefusedCounterexampleTriggered
+        } else {
+            MechanizerVerdict::ClosureAdmitted
+        }
+    }
+
+    /// Function `R4.VerdantSynthesis.admitLiftTransition`.
+    pub fn admit_lift_transition(
+        was_lifted: bool,
+        next_status: LiftStatusCode,
+        was_exact_divergence_free: bool,
+        next_has_divergence: bool,
+    ) -> LiftRatchetVerdict {
+        if (was_lifted && !matches!(next_status, LiftStatusCode::Lifted))
+            || (was_exact_divergence_free && next_has_divergence)
+        {
+            LiftRatchetVerdict::RefusedKappaRegressed
+        } else {
+            LiftRatchetVerdict::LiftAdmitted
+        }
+    }
+
+    /// Function `R4.VerdantSynthesis.admitLiftRegisterBounds`.
+    pub fn admit_lift_register_bounds(
+        residue_count: u64,
+        max_residue: u64,
+        row_metadata_complete: bool,
+    ) -> LiftRatchetVerdict {
+        if !row_metadata_complete {
+            LiftRatchetVerdict::RefusedMissingRowType
+        } else if residue_count > max_residue {
+            LiftRatchetVerdict::RefusedResidueCeilingExceeded
+        } else {
+            LiftRatchetVerdict::LiftAdmitted
+        }
+    }
+
+    /// Function `R4.VerdantSynthesis.admitParetoSynthesisTick`.
+    pub fn admit_pareto_synthesis_tick(c: ParetoSynthesisCheck) -> ParetoSynthesisVerdict {
+        let strictly_dominates = c.candidate_score_milli >= c.incumbent_score_milli
+            && c.candidate_complexity <= c.incumbent_complexity
+            && (c.candidate_score_milli > c.incumbent_score_milli
+                || c.candidate_complexity < c.incumbent_complexity);
+        if c.candidate_defects > 0 {
+            ParetoSynthesisVerdict::RefusedNonZeroDefect
+        } else if !c.ratchet_clean {
+            ParetoSynthesisVerdict::RefusedRatchetViolation
+        } else if c.bandit_weight < 1 || c.bandit_weight > 16 {
+            ParetoSynthesisVerdict::RefusedWeightOutOfBounds
+        } else if !strictly_dominates {
+            ParetoSynthesisVerdict::RefusedNotParetoImproving
+        } else {
+            ParetoSynthesisVerdict::CandidateAdmitted
+        }
+    }
+
+    /// Function `R4.VerdantSynthesis.updateBanditWeight`.
+    pub fn update_bandit_weight(weight: u64, improved: bool) -> u64 {
+        let bounded = weight.clamp(1, 16);
+        if improved {
+            bounded.saturating_add(2).min(16)
+        } else {
+            bounded.saturating_sub(1).max(1)
+        }
+    }
+}
+
+/// Generated module `R4.HonestPlumbing` (`src/R4/HonestPlumbing.lex.tex`, `R4-46`).
+pub mod r4_honest_plumbing {
+    /// Maximum consecutive browser runtime/generation faults before watchdog rollback.
+    pub const WATCHDOG_STRIKE_THRESHOLD: u64 = 3;
+
+    /// Inductive `R4.HonestPlumbing.ComposerRouteMode`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ComposerRouteMode {
+        /// Recompiled `UORR4V12` geometric stack configured for agent tool turns.
+        RecompiledV12Agent,
+        /// Recompiled `UORR4V12` geometric stack configured for chat responses.
+        RecompiledV12Chat,
+        /// Fast embedded geometric seed stack (`gllm_v9` / compact stack).
+        SeedFast,
+        /// Symbolic LUT-only mode without neural transformer sampling.
+        LutSymbolic,
+    }
+
+    impl ComposerRouteMode {
+        /// Canonical wire identifier exchanged between UI controls and Wasm router.
+        pub const fn wire_id(self) -> &'static str {
+            match self {
+                Self::RecompiledV12Agent => "uor-r4.recompiled-v12-agent",
+                Self::RecompiledV12Chat => "uor-r4.recompiled-v12-chat",
+                Self::SeedFast => "uor-r4.seed-fast",
+                Self::LutSymbolic => "uor-r4.lut-symbolic",
+            }
+        }
+
+        /// Parse a canonical wire identifier into a `ComposerRouteMode`, rejecting legacy names.
+        pub fn from_wire_id(wire: &str) -> Option<Self> {
+            match wire.trim() {
+                "uor-r4.recompiled-v12-agent" => Some(Self::RecompiledV12Agent),
+                "uor-r4.recompiled-v12-chat" => Some(Self::RecompiledV12Chat),
+                "uor-r4.seed-fast" => Some(Self::SeedFast),
+                "uor-r4.lut-symbolic" => Some(Self::LutSymbolic),
+                _ => None,
+            }
+        }
+
+        /// Whether this mode executes pure neural geometric inference rather than template LUTs.
+        pub const fn is_neural_geometric(self) -> bool {
+            match self {
+                Self::RecompiledV12Agent | Self::RecompiledV12Chat | Self::SeedFast => true,
+                Self::LutSymbolic => false,
+            }
+        }
+    }
+
+    /// Structure `R4.HonestPlumbing.ModelRoutingCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct ModelRoutingCheck {
+        /// Model mode selected by the UI composer.
+        pub requested_mode: ComposerRouteMode,
+        /// Model mode actually executed by Wasm runtime.
+        pub executed_mode: ComposerRouteMode,
+        /// Whether a canned template override intercepted the response.
+        pub template_override_used: bool,
+        /// Whether turn-memory retrieval hijacked neural token generation.
+        pub turn_memory_hijack_used: bool,
+        /// Whether a stale version banner/badge is displayed.
+        pub stale_banner_present: bool,
+        /// Whether the full `UORR4V12` shard bundle is mounted in OPFS/RAM.
+        pub full_v12_mounted: bool,
+        /// Whether the fast geometric seed weights are mounted.
+        pub seed_mounted: bool,
+    }
+
+    /// Inductive `R4.HonestPlumbing.ModelRoutingVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ModelRoutingVerdict {
+        /// Executed backend matches requested mode with honest banner and mounted weights.
+        RoutingAdmitted,
+        /// Executed mode silently diverged from requested UI selection.
+        RefusedModeMismatch,
+        /// Template or turn-memory override intercepted a neural geometric mode.
+        RefusedTemplateHijackInNeuralMode,
+        /// UI presents a stale model version label (`v9`/`v10` mismatch).
+        RefusedStaleVersionBanner,
+        /// Requested neural model has not mounted its backing weights.
+        RefusedRequestedModelUnmounted,
+    }
+
+    /// Inductive `R4.HonestPlumbing.ShardMagicKind`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ShardMagicKind {
+        /// Direct-recompiled geometric stack container (`UORR4V12`).
+        UorR4V12,
+        /// Legacy `UORGLLM9` container header accepted for backward seed compatibility.
+        UorGllm9,
+        /// Unrecognized or corrupt container header.
+        Unknown,
+    }
+
+    /// Structure `R4.HonestPlumbing.UorcCapsuleCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct UorcCapsuleCheck {
+        /// Whether archive begins with valid `UORC\x01` capsule header magic.
+        pub magic_uorc_valid: bool,
+        /// Verification gates passed prior to OPFS sealing.
+        pub gates_passed: u64,
+        /// Total required verification gates.
+        pub gates_total: u64,
+        /// Unlifted residue count carried by candidate capsule (must be `0`).
+        pub residue_count: u64,
+        /// Coercive or unsafe runtime pattern count (must be `0`).
+        pub coercive_patterns: u64,
+        /// Compiled Wasm payload size in bytes.
+        pub wasm_bytes: u64,
+        /// Admitted maximum Wasm payload budget in bytes.
+        pub max_wasm_bytes: u64,
+        /// Measured frame latency in microseconds.
+        pub frame_time_micros: u64,
+        /// Admitted 60fps frame budget in microseconds.
+        pub frame_budget_micros: u64,
+        /// Candidate evaluation loss (lower is better).
+        pub candidate_loss: u64,
+        /// Incumbent baseline loss.
+        pub incumbent_loss: u64,
+        /// Candidate evaluation step count (lower is better).
+        pub candidate_steps: u64,
+        /// Incumbent evaluation step count.
+        pub incumbent_steps: u64,
+    }
+
+    /// Inductive `R4.HonestPlumbing.UorcCapsuleVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum UorcCapsuleVerdict {
+        /// `.uorc` capsule is certified for browser hot-swap and OPFS promotion.
+        CapsuleAdmitted,
+        /// Missing or corrupted `UORC\x01` archive header.
+        RefusedInvalidArchiveMagic,
+        /// One or more formal/browser verification gates failed.
+        RefusedFailedVerificationGates,
+        /// Candidate introduced non-zero residue or coercive patterns.
+        RefusedNonZeroResidueOrCoercion,
+        /// Wasm artifact exceeds `max_wasm_bytes`.
+        RefusedWasmByteBudgetExceeded,
+        /// Frame execution latency exceeds `frame_budget_micros`.
+        RefusedFrameBudgetExceeded,
+        /// Candidate failed Pareto dominance `(loss, steps)` against incumbent.
+        RefusedParetoRegression,
+    }
+
+    /// Structure `R4.HonestPlumbing.WatchdogStateCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct WatchdogStateCheck {
+        /// Active generation index (`0` denotes genesis bundle).
+        pub generation_index: u64,
+        /// Consecutive runtime/boot fault count observed in current generation.
+        pub consecutive_faults: u64,
+        /// Whether a certified parent generation exists for rollback.
+        pub has_certified_parent: bool,
+        /// Strike limit before automatic parent rollback (`3`).
+        pub watchdog_strike_limit: u64,
+    }
+
+    /// Inductive `R4.HonestPlumbing.WatchdogVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum WatchdogVerdict {
+        /// Zero consecutive faults; active generation healthy.
+        Healthy,
+        /// Fault recorded below strike threshold; continue on active generation.
+        FaultRecordedContinue,
+        /// Strike threshold reached with certified parent; roll back immediately.
+        RollbackToParentHead,
+        /// Strike threshold reached at generation zero without certified parent.
+        RefusedRollbackAtGenZero,
+    }
+
+    /// Function `R4.HonestPlumbing.admitModelRouting`.
+    pub fn admit_model_routing(c: ModelRoutingCheck) -> ModelRoutingVerdict {
+        if c.requested_mode != c.executed_mode {
+            ModelRoutingVerdict::RefusedModeMismatch
+        } else if c.requested_mode.is_neural_geometric()
+            && (c.template_override_used || c.turn_memory_hijack_used)
+        {
+            ModelRoutingVerdict::RefusedTemplateHijackInNeuralMode
+        } else if c.stale_banner_present {
+            ModelRoutingVerdict::RefusedStaleVersionBanner
+        } else {
+            let mounted = match c.requested_mode {
+                ComposerRouteMode::RecompiledV12Agent | ComposerRouteMode::RecompiledV12Chat => {
+                    c.full_v12_mounted
+                }
+                ComposerRouteMode::SeedFast => c.seed_mounted,
+                ComposerRouteMode::LutSymbolic => true,
+            };
+            if !mounted {
+                ModelRoutingVerdict::RefusedRequestedModelUnmounted
+            } else {
+                ModelRoutingVerdict::RoutingAdmitted
+            }
+        }
+    }
+
+    /// Function `R4.HonestPlumbing.admitShardContainerMagic`.
+    pub fn admit_shard_container_magic(magic_bytes: &[u8]) -> ShardMagicKind {
+        if magic_bytes.starts_with(b"UORR4V12") {
+            ShardMagicKind::UorR4V12
+        } else if magic_bytes.starts_with(b"UORGLLM9") {
+            ShardMagicKind::UorGllm9
+        } else {
+            ShardMagicKind::Unknown
+        }
+    }
+
+    /// Function `R4.HonestPlumbing.admitUorcGenerationCapsule`.
+    pub fn admit_uorc_generation_capsule(c: UorcCapsuleCheck) -> UorcCapsuleVerdict {
+        let strictly_dominates = c.candidate_loss <= c.incumbent_loss
+            && c.candidate_steps <= c.incumbent_steps
+            && (c.candidate_loss < c.incumbent_loss || c.candidate_steps < c.incumbent_steps);
+        if !c.magic_uorc_valid {
+            UorcCapsuleVerdict::RefusedInvalidArchiveMagic
+        } else if c.gates_total == 0 || c.gates_passed < c.gates_total {
+            UorcCapsuleVerdict::RefusedFailedVerificationGates
+        } else if c.residue_count > 0 || c.coercive_patterns > 0 {
+            UorcCapsuleVerdict::RefusedNonZeroResidueOrCoercion
+        } else if c.max_wasm_bytes == 0 || c.wasm_bytes > c.max_wasm_bytes {
+            UorcCapsuleVerdict::RefusedWasmByteBudgetExceeded
+        } else if c.frame_budget_micros == 0 || c.frame_time_micros > c.frame_budget_micros {
+            UorcCapsuleVerdict::RefusedFrameBudgetExceeded
+        } else if !strictly_dominates {
+            UorcCapsuleVerdict::RefusedParetoRegression
+        } else {
+            UorcCapsuleVerdict::CapsuleAdmitted
+        }
+    }
+
+    /// Function `R4.HonestPlumbing.evaluateGenerationWatchdog`.
+    pub fn evaluate_generation_watchdog(c: WatchdogStateCheck) -> WatchdogVerdict {
+        if c.consecutive_faults == 0 {
+            WatchdogVerdict::Healthy
+        } else if c.watchdog_strike_limit == 0 || c.consecutive_faults < c.watchdog_strike_limit {
+            WatchdogVerdict::FaultRecordedContinue
+        } else if c.generation_index == 0 || !c.has_certified_parent {
+            WatchdogVerdict::RefusedRollbackAtGenZero
+        } else {
+            WatchdogVerdict::RollbackToParentHead
+        }
+    }
+
+    /// Function `R4.HonestPlumbing.shouldRollbackGenerationWatchdog`.
+    pub fn should_rollback_generation_watchdog(
+        generation_index: u64,
+        consecutive_faults: u64,
+    ) -> bool {
+        matches!(
+            evaluate_generation_watchdog(WatchdogStateCheck {
+                generation_index,
+                consecutive_faults,
+                has_certified_parent: generation_index > 0,
+                watchdog_strike_limit: WATCHDOG_STRIKE_THRESHOLD,
+            }),
+            WatchdogVerdict::RollbackToParentHead
+        )
+    }
+
+    /// Function `R4.HonestPlumbing.optimalBrowserWorkerCount`.
+    pub fn optimal_browser_worker_count(
+        hardware_concurrency: u64,
+        memory_gib: u64,
+        cross_origin_isolated: bool,
+    ) -> u64 {
+        let cap = if cross_origin_isolated { 8 } else { 2 };
+        hardware_concurrency.min(memory_gib).clamp(1, cap)
+    }
+}

@@ -12,3 +12,7 @@ max_ignored_conformance_tests = 0
 max_ungrounded_defs = 0
 max_orphaned_point_rows = 0
 max_trajectory_l1_milli = 250000
+max_residue_functions = 601
+max_float_serving_ops = 0
+max_dense_matmul_ops = 0
+max_unwired_ui_controls = 0

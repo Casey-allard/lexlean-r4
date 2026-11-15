@@ -21,8 +21,20 @@ mod wasm_ast_eval;
 pub mod prism_factory_generated;
 
 #[allow(dead_code)]
+#[path = "mechanizer.rs"]
+pub mod mechanizer;
+
+#[allow(dead_code)]
+#[path = "lift_register.rs"]
+pub mod lift_register;
+
+#[allow(dead_code)]
 #[path = "ratchet.rs"]
 pub mod ratchet;
+
+#[allow(dead_code)]
+#[path = "synthesis.rs"]
+pub mod synthesis;
 
 /// Minimum Hebbian strategy weight (`R4.AutonomousEngine.inBounds`).
 pub const WEIGHT_MIN: u32 = 1;
@@ -905,7 +917,10 @@ jobs:
             "$image" bash -c '
               set -euo pipefail
               umask 077
+              cargo run -q -p xtask -- mechanize
+              cargo run -q -p xtask -- lift-register
               cargo run -q -p xtask -- ratchet-check
+              cargo run -q -p xtask -- synthesize --write
               cargo run -q -p xtask -- literature-sync --offline-fallback --write || true
               cargo run -q -p xtask -- engine tick --budget-minutes 75 --commit --push
               cargo run -q -p xtask -- engine status > .r4-engine-status.txt || true
@@ -1040,12 +1055,18 @@ pub fn validate_workflow_homeostasis(root: &Path) -> Result<(u32, u32), String> 
     if !source.contains("--budget-minutes 75") {
         return Err("engine.yml must invoke engine tick with --budget-minutes 75".into());
     }
-    if !source
-        .contains("cargo run -q -p xtask -- literature-sync --offline-fallback --write || true")
-    {
-        return Err(
-            "engine.yml must run literature-sync with offline fallback and --write before engine tick".into(),
-        );
+    for required_gate in [
+        "cargo run -q -p xtask -- mechanize",
+        "cargo run -q -p xtask -- lift-register",
+        "cargo run -q -p xtask -- ratchet-check",
+        "cargo run -q -p xtask -- synthesize --write",
+        "cargo run -q -p xtask -- literature-sync --offline-fallback --write || true",
+    ] {
+        if !source.contains(required_gate) {
+            return Err(format!(
+                "engine.yml must invoke `{required_gate}` before engine tick"
+            ));
+        }
     }
 
     let non_gate_sum: u32 = STAGE_BUDGETS

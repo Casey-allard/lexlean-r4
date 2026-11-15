@@ -13,6 +13,33 @@
 spec = "template/1"
 
 [[authority]]
+id = "VERDANT-UORC-PLUMBING"
+name = "Verdant-Resonance OPFS .uorc organism watchdog and Studio workspace bridge"
+citation = "https://github.com/afflom/verdant-resonance (src/selfhost/browserSelfHostEngine.ts OPFS UORC\\x01 generation capsule admission and 3-strike watchdog rollback) and https://github.com/afflom/me (uor-workspace-bridge/1 host bridge contract); companion src/R4/HonestPlumbing.lex.tex"
+checksum = "none"
+checksum_reason = "Upstream external browser self-host and workspace-bridge repositories are cited for protocol and admission design provenance rather than vendored verbatim locally; local module parity is checked under src/R4/HonestPlumbing.lex.tex."
+statement = "Browser UORC\\x01 generation capsule bounds, 3-strike watchdog rollback behavior, Worker pool concurrency sizing, and explicit mode-routing contracts are cited from upstream Studio and browser self-host specifications; source citations do not entail remote browser availability or persistent host storage."
+realized_by = ["R4-46"]
+
+[[authority]]
+id = "VERDANT-UORUST-SYNTHESIS"
+name = "Verdant-Resonance AST mechanizer, UORust function-kappa ratchet, and prism-devrel multi-axis fidelity"
+citation = "https://github.com/afflom/verdant-resonance, https://github.com/afflom/UORust, and https://github.com/afflom/prism-devrel (topological LexLean AST mechanizer, uorust/register/1 SHA-256 function kappa ratchet, W3C PROV-O / ISO 29148 / ISO 15939 fidelity axes, 4-facet holon KPIs, and [1..16] Hebbian Pareto/Lyapunov engine); companion src/R4/VerdantSynthesis.lex.tex"
+checksum = "none"
+checksum_reason = "Upstream TypeScript, Python, and Rust reference repositories are cited as external architectural provenance rather than vendored verbatim locally; the pure-Rust implementation resides in xtask/src/ and src/R4/VerdantSynthesis.lex.tex."
+statement = "Topologically ordered LexLean AST mechanization, function-level SHA-256 kappa monotonicity, multi-axis fidelity scoring, and Pareto/Lyapunov synthesis portfolio rules are reproduced from the named upstream specifications; source citations supply no local theorem verification without repository checks."
+realized_by = ["R4-45"]
+
+[[authority]]
+id = "UOR-R4-DIRECT-RECOMPILATION"
+name = "Direct teacher-to-R4 geometric vector recompilation and multiplier-free integer LUT architecture"
+citation = "https://github.com/Casey-allard/uor-r4 and https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct (30 layers, 9 query heads, 3 KV heads, head_dim=64, d_model=576, intermediate_size=1536, vocab_size=49152, tied embeddings, RoPE theta=100000); companion src/R4/GeometricRecompiler.lex.tex"
+checksum = "none"
+checksum_reason = "External upstream teacher checkpoint and uor-r4 design references reside outside this git tree; recompiled integer runtime dimensions and zero-float invariants are modeled locally in src/R4/GeometricRecompiler.lex.tex."
+statement = "External teacher architecture dimensions and direct teacher-to-R4 integer LUT transformation semantics are cited from the upstream uor-r4 and SmolLM2-135M specifications; imported parameter counts are not benchmark fluency claims or local weight verification."
+realized_by = ["R4-44"]
+
+[[authority]]
 id = "UOR-R4-REACT-AGENT"
 name = "UOR-R4 fuel-bounded ReAct self-correcting agent controller and verified patch admission gate"
 citation = "https://arxiv.org/abs/2210.03629 — Yao et al. (2023) ReAct: Synergizing Reasoning and Acting in Language Models; companion crates/wasm/src/assistant.rs, src/R4/ReactAgent.lex.tex, and tests/lexlean/ReactAgentControls.lex.tex"
