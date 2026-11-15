@@ -2279,30 +2279,95 @@ fn pick_next_token(
     bos_local: u32,
     eot_local: u32,
 ) -> u32 {
-    let window_start = generated.len().saturating_sub(24);
-    let recent = &generated[window_start..];
-    let mut best_id = 0u32;
-    let mut best_score = i64::MIN;
-    for (idx, &raw_logit) in logits.iter().enumerate() {
-        let tok = idx as u32;
-        if step_idx == 0 && (tok == eos_local || tok == eot_local) {
-            continue;
-        }
-        if tok == bos_local {
-            continue;
-        }
-        let mut score = i64::from(raw_logit);
-        // Gentle integer repetition damping (~1.25 in RESIDUAL_EXP=-16 per repeat in recent 24 tokens).
-        let rep_count = recent.iter().filter(|&&prev| prev == tok).count() as i64;
-        if rep_count > 0 {
-            score = score.saturating_sub(rep_count.saturating_mul(81_920));
-        }
-        if score > best_score {
-            best_score = score;
-            best_id = tok;
+    if logits.is_empty() {
+        return eos_local;
+    }
+    let mut scores: Vec<i64> = logits.iter().map(|&v| i64::from(v)).collect();
+
+    // Pure-integer seen-token frequency + recent window penalty in Q16 logit units (`1.0 == 65_536`).
+    let recent_start = generated.len().saturating_sub(32);
+    for (pos_idx, &prev) in generated.iter().enumerate() {
+        let slot = prev as usize;
+        if slot < scores.len() {
+            let penalty = if pos_idx >= recent_start {
+                81_920
+            } else {
+                32_768
+            };
+            scores[slot] = scores[slot].saturating_sub(penalty);
         }
     }
-    best_id
+
+    // Hard-block consecutive identical tokens, immediate 2-gram cycles (a b a -> b),
+    // and any previously emitted 3-gram or 4-gram from repeating in `generated`.
+    let n = generated.len();
+    if n >= 1 {
+        let last = generated[n - 1] as usize;
+        if last < scores.len() {
+            scores[last] = i64::MIN;
+        }
+    }
+    if n >= 3 && generated[n - 1] == generated[n - 3] {
+        let alt = generated[n - 2] as usize;
+        if alt < scores.len() {
+            scores[alt] = i64::MIN;
+        }
+    }
+    if n >= 2 {
+        let p0 = generated[n - 2];
+        let p1 = generated[n - 1];
+        for w in generated.windows(3) {
+            if w[0] == p0 && w[1] == p1 {
+                let blk = w[2] as usize;
+                if blk < scores.len() {
+                    scores[blk] = i64::MIN;
+                }
+            }
+        }
+    }
+    if n >= 3 {
+        let p0 = generated[n - 3];
+        let p1 = generated[n - 2];
+        let p2 = generated[n - 1];
+        for w in generated.windows(4) {
+            if w[0] == p0 && w[1] == p1 && w[2] == p2 {
+                let blk = w[3] as usize;
+                if blk < scores.len() {
+                    scores[blk] = i64::MIN;
+                }
+            }
+        }
+    }
+
+    // Keep BOS suppressed while allowing natural EOS/EOT completion unpenalized after step 0.
+    let bos = bos_local as usize;
+    if bos < scores.len() {
+        scores[bos] = i64::MIN;
+    }
+    let eos = eos_local as usize;
+    let eot = eot_local as usize;
+    if step_idx == 0 {
+        if eos < scores.len() {
+            scores[eos] = i64::MIN;
+        }
+        if eot < scores.len() {
+            scores[eot] = i64::MIN;
+        }
+    } else {
+        if eos < scores.len() {
+            scores[eos] = i64::from(logits[eos]);
+        }
+        if eot < scores.len() {
+            scores[eot] = i64::from(logits[eot]);
+        }
+    }
+
+    scores
+        .iter()
+        .enumerate()
+        .max_by_key(|&(_, &s)| s)
+        .map(|(idx, _)| idx as u32)
+        .unwrap_or(eos_local)
 }
 
 fn decode_model_tokens(tok: &SmolTokenizer, model: &R4CompiledModel, ids: &[u32]) -> String {
@@ -2314,5 +2379,50 @@ fn decode_model_tokens(tok: &SmolTokenizer, model: &R4CompiledModel, ids: &[u32]
             .filter_map(|&lid| model.local_to_global.get(lid as usize).copied())
             .collect();
         tok.decode_global(&global)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::pick_next_token;
+
+    #[test]
+    fn test_pick_next_token_blocks_consecutive_cycles_and_ngrams_while_keeping_eos() {
+        let mut logits = vec![0i32; 64];
+        // Consecutive duplicate blocked
+        logits[10] = 500_000;
+        logits[11] = 200_000;
+        assert_eq!(pick_next_token(&logits, &[10], 1, 2, 1, 0), 11);
+
+        // 2-gram cycle [10, 20, 10] -> blocks 20
+        logits.fill(0);
+        logits[20] = 500_000;
+        logits[21] = 200_000;
+        assert_eq!(pick_next_token(&logits, &[10, 20, 10], 3, 2, 1, 0), 21);
+
+        // 3-gram repeat [10, 20, 30, 40, 10, 20] -> blocks 30
+        logits.fill(0);
+        logits[30] = 500_000;
+        logits[31] = 200_000;
+        assert_eq!(
+            pick_next_token(&logits, &[10, 20, 30, 40, 10, 20], 6, 2, 1, 0),
+            31
+        );
+
+        // 4-gram repeat [10, 20, 30, 40, 50, 10, 20, 30] -> blocks 40
+        logits.fill(0);
+        logits[40] = 500_000;
+        logits[41] = 200_000;
+        assert_eq!(
+            pick_next_token(&logits, &[10, 20, 30, 40, 50, 10, 20, 30], 8, 2, 1, 0),
+            41
+        );
+
+        // EOS allowed unpenalized when step_idx > 0, skipped only at step 0
+        logits.fill(0);
+        logits[2] = 600_000;
+        logits[15] = 400_000;
+        assert_eq!(pick_next_token(&logits, &[], 0, 2, 1, 0), 15);
+        assert_eq!(pick_next_token(&logits, &[15, 16, 17], 3, 2, 1, 0), 2);
     }
 }

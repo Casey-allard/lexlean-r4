@@ -3851,6 +3851,91 @@ fn ensure_hf_cache(cache_dir: &Path) -> Result<(String, String, String), String>
     Ok((hashes[0].clone(), hashes[1].clone(), hashes[2].clone()))
 }
 
+fn pick_next_token_antirep(
+    logits: &[i32],
+    generated: &[u32],
+    step_idx: usize,
+    eos_local: u32,
+    bos_local: u32,
+    eot_local: u32,
+) -> u32 {
+    if logits.is_empty() {
+        return eos_local;
+    }
+    let mut scores: Vec<i64> = logits.iter().map(|&v| i64::from(v)).collect();
+
+    // Pure-integer seen-token frequency + recent window penalty in Q16 logit units (`1.0 == 65_536`).
+    let recent_start = generated.len().saturating_sub(32);
+    for (pos_idx, &prev) in generated.iter().enumerate() {
+        let slot = prev as usize;
+        if slot < scores.len() {
+            let penalty = if pos_idx >= recent_start { 81_920 } else { 32_768 };
+            scores[slot] = scores[slot].saturating_sub(penalty);
+        }
+    }
+
+    // Hard-block consecutive duplicates, 2-gram cycles (a b a -> b), and repeated 3/4-grams.
+    let n = generated.len();
+    if n >= 1 {
+        let last = generated[n - 1] as usize;
+        if last < scores.len() {
+            scores[last] = i64::MIN;
+        }
+    }
+    if n >= 3 && generated[n - 1] == generated[n - 3] {
+        let alt = generated[n - 2] as usize;
+        if alt < scores.len() {
+            scores[alt] = i64::MIN;
+        }
+    }
+    if n >= 2 {
+        let p0 = generated[n - 2];
+        let p1 = generated[n - 1];
+        for w in generated.windows(3) {
+            if w[0] == p0 && w[1] == p1 {
+                let blk = w[2] as usize;
+                if blk < scores.len() {
+                    scores[blk] = i64::MIN;
+                }
+            }
+        }
+    }
+    if n >= 3 {
+        let p0 = generated[n - 3];
+        let p1 = generated[n - 2];
+        let p2 = generated[n - 1];
+        for w in generated.windows(4) {
+            if w[0] == p0 && w[1] == p1 && w[2] == p2 {
+                let blk = w[3] as usize;
+                if blk < scores.len() {
+                    scores[blk] = i64::MIN;
+                }
+            }
+        }
+    }
+
+    let bos = bos_local as usize;
+    if bos < scores.len() {
+        scores[bos] = i64::MIN;
+    }
+    let eos = eos_local as usize;
+    let eot = eot_local as usize;
+    if step_idx == 0 {
+        if eos < scores.len() { scores[eos] = i64::MIN; }
+        if eot < scores.len() { scores[eot] = i64::MIN; }
+    } else {
+        if eos < scores.len() { scores[eos] = i64::from(logits[eos]); }
+        if eot < scores.len() { scores[eot] = i64::from(logits[eot]); }
+    }
+
+    scores
+        .iter()
+        .enumerate()
+        .max_by_key(|&(_, &s)| s)
+        .map(|(idx, _)| idx as u32)
+        .unwrap_or(eos_local)
+}
+
 fn eval_kl_and_parity(teacher_logits: &[f32], int_logits_i32: &[i32]) -> (bool, bool, f64, usize, usize) {
     let mut t_top5: Vec<(usize, f32)> = teacher_logits.iter().copied().enumerate().collect();
     t_top5.sort_by(|a, b| b.1.total_cmp(&a.1));
@@ -3929,12 +4014,14 @@ fn main() -> ExitCode {
     let mut repo_root = PathBuf::from(".");
     let mut cache_dir = PathBuf::from("/var/tmp/r4_teacher_cache");
     let mut reshard_cached = false;
+    let mut reuse_gpu_cache = false;
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
             "--repo" if i + 1 < args.len() => { repo_root = PathBuf::from(&args[i + 1]); i += 2; }
             "--cache-dir" if i + 1 < args.len() => { cache_dir = PathBuf::from(&args[i + 1]); i += 2; }
             "--reshard-cached" => { reshard_cached = true; i += 1; }
+            "--reuse-gpu-cache" => { reuse_gpu_cache = true; i += 1; }
             _ => i += 1,
         }
     }
@@ -3990,26 +4077,46 @@ fn main() -> ExitCode {
     // Compile inline CUDA C++ engine via nvcc.
     let cuda_cu_path = cache_dir.join("r4_smollm2_cuda.cu");
     let cuda_bin_path = cache_dir.join("r4_smollm2_cuda");
-    fs::write(&cuda_cu_path, CUDA_DISTILL_SRC).unwrap();
-    eprintln!("[recompiler] Compiling CUDA RTX 4090 engine via nvcc...");
-    let nvcc_st = Command::new("/usr/local/cuda-13.1/bin/nvcc")
-        .args(["-O3", "-arch=sm_89", "-diag-suppress=1650", "-o"])
-        .arg(&cuda_bin_path)
-        .arg(&cuda_cu_path)
-        .arg("-lcublas")
-        .status()
-        .expect("launch nvcc");
-    if !nvcc_st.success() {
-        eprintln!("[error] nvcc compilation failed");
-        return ExitCode::FAILURE;
+    let teacher_bin = cache_dir.join("teacher_f32.bin");
+    let teacher_logits_bin = cache_dir.join("eval_teacher_logits.bin");
+    let teacher_gen_bin = cache_dir.join("eval_teacher_gen.bin");
+    let student_f32_bin = cache_dir.join("student_f32.bin");
+    let distill_summary_bin = cache_dir.join("distill_summary.bin");
+    let have_cached_gpu = reuse_gpu_cache
+        && teacher_bin.exists()
+        && teacher_logits_bin.exists()
+        && teacher_gen_bin.exists()
+        && student_f32_bin.exists()
+        && distill_summary_bin.exists();
+    if !have_cached_gpu {
+        fs::write(&cuda_cu_path, CUDA_DISTILL_SRC).unwrap();
+        eprintln!("[recompiler] Compiling CUDA RTX 4090 engine via nvcc...");
+        let nvcc_st = Command::new("/usr/local/cuda-13.1/bin/nvcc")
+            .args(["-O3", "-arch=sm_89", "-diag-suppress=1650", "-o"])
+            .arg(&cuda_bin_path)
+            .arg(&cuda_cu_path)
+            .arg("-lcublas")
+            .status()
+            .expect("launch nvcc");
+        if !nvcc_st.success() {
+            eprintln!("[error] nvcc compilation failed");
+            return ExitCode::FAILURE;
+        }
+    } else {
+        eprintln!("[recompiler] --reuse-gpu-cache active: skipping nvcc & GPU steps using cached RTX 4090 binaries.");
     }
 
-    eprintln!("[recompiler] Opening Safetensors & exporting FP32 teacher weights...");
+    eprintln!("[recompiler] Opening Safetensors & loading FP32 teacher embed/norm...");
     let st = SafetensorsFile::open(&cache_dir.join("model.safetensors")).unwrap();
-    let teacher_bin = cache_dir.join("teacher_f32.bin");
-    let (teacher_embed, teacher_final_norm) = export_teacher_f32_bin(
-        &st, &teacher_bin, vocab, d_model, n_layers, n_heads, n_kv_heads, ffn, rms_eps as f32, rope_theta as f32,
-    ).unwrap();
+    let (teacher_embed, teacher_final_norm) = if have_cached_gpu {
+        let (_, embed) = st.tensor_f32("model.embed_tokens.weight").unwrap();
+        let (_, final_norm) = st.tensor_f32("model.norm.weight").unwrap();
+        (embed, final_norm)
+    } else {
+        export_teacher_f32_bin(
+            &st, &teacher_bin, vocab, d_model, n_layers, n_heads, n_kv_heads, ffn, rms_eps as f32, rope_theta as f32,
+        ).unwrap()
+    };
 
     // Prepare 12 official OOD prompts
     let ood_list = ood_12_prompts();
@@ -4035,20 +4142,20 @@ fn main() -> ExitCode {
         f.flush().unwrap();
     }
 
-    let teacher_logits_bin = cache_dir.join("eval_teacher_logits.bin");
-    let teacher_gen_bin = cache_dir.join("eval_teacher_gen.bin");
-    let st_eval = Command::new(&cuda_bin_path)
-        .args(["teacher-eval"])
-        .arg(&teacher_bin)
-        .arg(&ood_prompts_bin)
-        .arg(&teacher_logits_bin)
-        .arg(&teacher_gen_bin)
-        .arg("48")
-        .status()
-        .expect("run teacher-eval");
-    if !st_eval.success() {
-        eprintln!("[error] teacher-eval failed");
-        return ExitCode::FAILURE;
+    if !have_cached_gpu {
+        let st_eval = Command::new(&cuda_bin_path)
+            .args(["teacher-eval"])
+            .arg(&teacher_bin)
+            .arg(&ood_prompts_bin)
+            .arg(&teacher_logits_bin)
+            .arg(&teacher_gen_bin)
+            .arg("48")
+            .status()
+            .expect("run teacher-eval");
+        if !st_eval.success() {
+            eprintln!("[error] teacher-eval failed");
+            return ExitCode::FAILURE;
+        }
     }
 
     // Read teacher float logits + completions for the 12 OOD prompts.
@@ -4208,8 +4315,8 @@ fn main() -> ExitCode {
                 }
                 let (m1, m5, kl, t_top, q_top) = eval_kl_and_parity(teacher_l, &last_logits);
                 let mut gen_ids = Vec::new();
-                let mut next_tok = q_top as u32;
-                for _ in 0..48 {
+                let mut next_tok = pick_next_token_antirep(&last_logits, &gen_ids, 0, 2, 1, 0);
+                for step_i in 0..48 {
                     if next_tok == 2 || next_tok == 0 {
                         break;
                     }
@@ -4217,8 +4324,7 @@ fn main() -> ExitCode {
                     let (l, nl, le) = sess.step(next_tok, true);
                     nl_sum += nl;
                     le_sum += le;
-                    let best = l.iter().enumerate().max_by_key(|&(_, &v)| v).map(|(i, _)| i).unwrap_or(2);
-                    next_tok = best as u32;
+                    next_tok = pick_next_token_antirep(&l, &gen_ids, step_i + 1, 2, 1, 0);
                 }
                 let int_reply = tok_ref.decode(&gen_ids);
                 (m1, m5, kl, t_top, q_top, nl_sum, le_sum, int_reply)
@@ -4323,20 +4429,20 @@ fn main() -> ExitCode {
         f.flush().unwrap();
     }
 
-    let student_f32_bin = cache_dir.join("student_f32.bin");
-    let distill_summary_bin = cache_dir.join("distill_summary.bin");
-    let st_dist = Command::new(&cuda_bin_path)
-        .args(["rollout-and-distill"])
-        .arg(&teacher_bin)
-        .arg(&rprompts_bin)
-        .arg(&seed_cfg_bin)
-        .arg(&student_f32_bin)
-        .arg(&distill_summary_bin)
-        .status()
-        .expect("run rollout-and-distill");
-    if !st_dist.success() {
-        eprintln!("[error] GPU rollout-and-distill failed");
-        return ExitCode::FAILURE;
+    if !have_cached_gpu {
+        let st_dist = Command::new(&cuda_bin_path)
+            .args(["rollout-and-distill"])
+            .arg(&teacher_bin)
+            .arg(&rprompts_bin)
+            .arg(&seed_cfg_bin)
+            .arg(&student_f32_bin)
+            .arg(&distill_summary_bin)
+            .status()
+            .expect("run rollout-and-distill");
+        if !st_dist.success() {
+            eprintln!("[error] GPU rollout-and-distill failed");
+            return ExitCode::FAILURE;
+        }
     }
 
     // Read distilled student summary & weights -> pack into compact UORR4V12 (<= 4.5 MiB)
@@ -4426,23 +4532,45 @@ fn main() -> ExitCode {
 
     // Evaluate Compact Seed Pure-Integer OOD replies!
     let mut seed_replies = Vec::with_capacity(ood_list.len());
+    let seed_bos = seed_model.bos_token_id;
+    let seed_eos = seed_model.eos_token_id;
+    let seed_eot = *g2l_map.get(&0).unwrap_or(&0);
     for (idx, (pid, _mode, _prompt)) in ood_list.iter().enumerate() {
         let local_prompt = translate_global_to_local_seq(&ood_tok_seqs[idx], &g2l_map, &tok_byte_map);
         let mut sess = IntegerEvalSession::new(&seed_model);
-        let mut next_local = 2u32;
+        let mut last_logits = Vec::new();
         for (ti, &lt) in local_prompt.iter().enumerate() {
             let (l, _, _) = sess.step(lt, ti + 1 == local_prompt.len());
             if ti + 1 == local_prompt.len() {
-                next_local = l.iter().enumerate().max_by_key(|&(_, &v)| v).map(|(i, _)| i).unwrap_or(2) as u32;
+                last_logits = l;
             }
         }
+        let mut gen_local = Vec::new();
         let mut gen_global = Vec::new();
-        for _ in 0..48 {
+        let mut next_local = pick_next_token_antirep(
+            &last_logits,
+            &gen_local,
+            0,
+            seed_eos,
+            seed_bos,
+            seed_eot,
+        );
+        for step_i in 0..48 {
             let gid = local_to_global[next_local as usize];
-            if gid == 2 || gid == 0 { break; }
+            if gid == 2 || gid == 0 {
+                break;
+            }
+            gen_local.push(next_local);
             gen_global.push(gid);
             let (l, _, _) = sess.step(next_local, true);
-            next_local = l.iter().enumerate().max_by_key(|&(_, &v)| v).map(|(i, _)| i).unwrap_or(2) as u32;
+            next_local = pick_next_token_antirep(
+                &l,
+                &gen_local,
+                step_i + 1,
+                seed_eos,
+                seed_bos,
+                seed_eot,
+            );
         }
         let sreply = tokenizer.decode(&gen_global);
         eprintln!("  [seed {pid}] {}", sreply.replace('\n', " "));

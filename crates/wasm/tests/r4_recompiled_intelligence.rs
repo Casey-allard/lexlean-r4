@@ -455,6 +455,69 @@ fn test_stitch_recovery_and_full_30l_smollm2_ood_and_buggy_code_intelligence() {
         followup_reply, cow_reply,
         "follow-up turn should depend on current turn + history"
     );
+
+    for (label, text) in [
+        ("rust_reply", &rust_reply),
+        ("cow_reply", &cow_reply),
+        ("followup_reply", &followup_reply),
+    ] {
+        assert_no_repetition_loops(label, text);
+    }
+
+    // Verify all 12 official RTX 4090 receipt OOD transcripts are present, zero-float, and loop-free
+    let receipt_raw =
+        fs::read_to_string(workspace_root().join("gpu/rtx4090_r4_recompiled_v12_receipt.json"))
+            .expect("read rtx4090 receipt json");
+    let receipt_val: serde_json::Value =
+        serde_json::from_str(&receipt_raw).expect("parse rtx4090 receipt json");
+    assert_eq!(receipt_val["float_ops"].as_u64(), Some(0));
+    assert_eq!(receipt_val["dense_matmul_ops"].as_u64(), Some(0));
+    let transcripts = receipt_val["ood_12_prompt_transcripts"]
+        .as_array()
+        .expect("ood_12_prompt_transcripts array");
+    assert_eq!(transcripts.len(), 12);
+    for entry in transcripts {
+        let id = entry["id"].as_str().unwrap_or("unknown");
+        let int_reply = entry["integer_30l_reply"].as_str().unwrap_or("");
+        assert!(!int_reply.trim().is_empty(), "empty 30L reply for {id}");
+        assert_no_repetition_loops(id, int_reply);
+    }
+}
+
+fn assert_no_repetition_loops(label: &str, text: &str) {
+    let words: Vec<String> = text
+        .split_whitespace()
+        .map(|w| {
+            w.trim_matches(|c: char| !c.is_alphanumeric())
+                .to_ascii_lowercase()
+        })
+        .filter(|w| !w.is_empty())
+        .collect();
+    for pair in words.windows(2) {
+        if pair[0].chars().any(|c| c.is_alphabetic()) {
+            assert_ne!(
+                pair[0], pair[1],
+                "{label} emitted consecutive duplicate word `{}` in: {text}",
+                pair[0]
+            );
+        }
+    }
+    if words.len() >= 8 {
+        let mut seen_4grams = std::collections::HashSet::new();
+        for quad in words.windows(4) {
+            let inserted = seen_4grams.insert((
+                quad[0].as_str(),
+                quad[1].as_str(),
+                quad[2].as_str(),
+                quad[3].as_str(),
+            ));
+            assert!(
+                inserted,
+                "{label} entered repeated 4-word clause `{}` in: {text}",
+                quad.join(" ")
+            );
+        }
+    }
 }
 
 #[test]
