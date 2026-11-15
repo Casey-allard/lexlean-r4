@@ -70,9 +70,12 @@ fn test_honest_model_routed_plumbing_and_uorc_watchdog_r4_46() {
         "src/R4/HonestPlumbing.lex.tex",
         "R4.HonestPlumbing",
         &[
+            "watchdogStrikeThreshold",
             "admitModelRouting",
+            "admitShardContainerMagic",
             "admitUorcGenerationCapsule",
             "evaluateGenerationWatchdog",
+            "shouldRollbackGenerationWatchdog",
             "optimalBrowserWorkerCount",
         ],
     );
@@ -84,6 +87,8 @@ fn test_honest_model_routed_plumbing_and_uorc_watchdog_r4_46() {
             "recompiledAgentRoutingAdmitted",
             "breaksTemplateHijackInNeuralMode",
             "breaksThreeStrikeWatchdogNoRollback",
+            "watchdogRollsBackAtStrikeThreshold",
+            "watchdogRefusesGenZeroRollback",
         ],
     );
 

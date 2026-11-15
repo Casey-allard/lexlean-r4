@@ -274,12 +274,7 @@ fn serving_rust_files(root: &Path) -> Result<Vec<PathBuf>, Fail> {
         let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
         if matches!(
             name,
-            "lexlean_generated.rs"
-                | "lib.rs"
-                | "api.rs"
-                | "otel.rs"
-                | "assistant.rs"
-                | "glm_weights.rs"
+            "lexlean_generated.rs" | "api.rs" | "otel.rs" | "glm_weights.rs"
         ) {
             continue;
         }

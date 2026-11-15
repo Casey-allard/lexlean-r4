@@ -2,9 +2,9 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2206,
+    "total_functions": 2207,
     "lifted": 1373,
-    "effect": 160,
+    "effect": 161,
     "foreign": 72,
     "residue": 601
   },
@@ -15883,7 +15883,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "3b62a180e9efa3e371a8d34a90b6e749b60850c35502211c332da6ee70ca27b6",
+      "kappa": "d84c012a62242bca271288893f93fcb535b8af1d762fcb5920360daeaa96cfc4",
       "function": "xtask/src/ratchet.rs::serving_rust_files",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -15914,6 +15914,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "2c9ae5b030ba6b8185955426e179d64ec108f21289855b49fe1a0978b70e05dc",
+      "function": "xtask/src/synthesis.rs::WorkspaceMeasurements::load",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "c74301308d4773d2b1761157b7ea9b50f4c9f8a33365687e2f603c517506a5a1",
       "function": "xtask/src/synthesis.rs::admit_pareto_tick_with_hold",
       "status": "residue",
@@ -15937,7 +15944,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0a3b47e6a71e1d7eaed0039cc40aff9c254d638433722b2cce3d431712023d94",
+      "kappa": "e0fbe63cfb89994868bc642b14f64938da0b81c22402bcedd0220fe28fc0cca6",
       "function": "xtask/src/synthesis.rs::evaluate_workspace_holon",
       "status": "foreign",
       "foreign_crate": "repo-model",
@@ -15959,14 +15966,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "023fdd22ddc76b03178896f328afa2ddad47fbe513f43f234a9782365adfb8b3",
+      "kappa": "85ae419cb57a4ab3b74f48af802e2a2204985b40238f7466aeefa993d201a05e",
       "function": "xtask/src/synthesis.rs::measure_model_and_training_facet",
       "status": "lifted",
-      "definition": "R4.FormalBridge",
+      "definition": "R4.GeometricRecompiler",
       "exact_divergence_free": true
     },
     {
-      "kappa": "5708412bcf47616fd9041396190d49e319c796ddb7a3ade79a8ff229fbee17c6",
+      "kappa": "891445f63482526083aaed36643452f491b32f1e0e3287dbe2774f3ce34290af",
       "function": "xtask/src/synthesis.rs::measure_serving_runtime_facet",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -15974,7 +15981,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a32f363d2ee0444acecb34401919f79d0b8a8428034a36d314737389ab6ddc53",
+      "kappa": "507a986608a4a769de1865227f4f7e6e60cce427ce82b7bc509b23f94010ef76",
       "function": "xtask/src/synthesis.rs::measure_ui_and_plumbing_facet",
       "status": "residue",
       "reason": "unlifted-pure-fn",

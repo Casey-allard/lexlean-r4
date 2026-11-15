@@ -88,7 +88,12 @@ fn test_direct_teacher_geometric_recompiler_r4_44() {
         &root,
         "tests/lexlean/GeometricRecompilerControls.lex.tex",
         "GeometricRecompilerControls",
-        &["smolContainerAdmitted", "breaksFloatServingAdmitted"],
+        &[
+            "smolContainerAdmitted",
+            "breaksFloatServingAdmitted",
+            "gqaHead4MapsTo1",
+            "gqaOutOfRangeIsNone",
+        ],
     );
 
     assert_eq!(
