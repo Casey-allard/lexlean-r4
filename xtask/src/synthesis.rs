@@ -391,7 +391,13 @@ impl WorkspaceMeasurements {
                 if let Some(n) = val.get(*key).and_then(|x| x.as_u64()) {
                     return Some(n);
                 }
-                for sub in ["architecture", "config", "header", "embedded_6l_128d"] {
+                for sub in [
+                    "full_30l_container",
+                    "architecture",
+                    "config",
+                    "header",
+                    "embedded_6l_128d",
+                ] {
                     if let Some(n) = val
                         .get(sub)
                         .and_then(|s| s.get(*key))
@@ -408,7 +414,7 @@ impl WorkspaceMeasurements {
                 if let Some(b) = val.get(*key).and_then(|x| x.as_bool()) {
                     return Some(b);
                 }
-                for sub in ["architecture", "config", "header"] {
+                for sub in ["full_30l_container", "architecture", "config", "header"] {
                     if let Some(b) = val
                         .get(sub)
                         .and_then(|s| s.get(*key))
@@ -423,7 +429,8 @@ impl WorkspaceMeasurements {
 
         let v12_receipt = read_json("gpu/rtx4090_r4_recompiled_v12_receipt.json");
         let v11_receipt = read_json("gpu/rtx4090_gllm_v11_receipt.json");
-        let manifest_json = read_json("gpu/weights/manifest.json");
+        let manifest_json = read_json("gpu/weights/v10/manifest.json")
+            .or_else(|| read_json("gpu/weights/manifest.json"));
         let receipt = v12_receipt
             .as_ref()
             .or(v11_receipt.as_ref())
@@ -448,6 +455,12 @@ impl WorkspaceMeasurements {
         let stack_present = !stack_src.is_empty() && stack_src.contains("UORR4V12");
         let container_version = receipt
             .and_then(|v| json_u64(v, &["container_version", "version"]))
+            .or_else(|| {
+                v12_receipt
+                    .as_ref()
+                    .and(manifest_json.as_ref())
+                    .and_then(|m| json_u64(m, &["container_version", "version"]))
+            })
             .unwrap_or(0);
         let layer_count = receipt
             .and_then(|v| json_u64(v, &["layer_count", "n_layers", "layers"]))
@@ -535,8 +548,11 @@ impl WorkspaceMeasurements {
         let full_v12_mounted = !stack_src.is_empty()
             && v12_receipt.is_some()
             && (lib_rs.contains("r4_geometric_stack") || lib_rs.contains("UORR4V12"));
-        let seed_lib_wired =
-            lib_rs.contains("bootstrap_v12_seed.uorr4") || lib_rs.contains("bootstrap_v9.uorgllm");
+        let seed_lib_wired = lib_rs.contains("R4GeometricStackEngine::embedded_seed")
+            || (lib_rs.contains("r4_geometric_stack")
+                && stack_src.contains("bootstrap_v12_seed.uorr4"))
+            || lib_rs.contains("bootstrap_v12_seed.uorr4")
+            || lib_rs.contains("bootstrap_v9.uorgllm");
         let stale_banner_present = html.contains("GLLM v10")
             || html.contains("UORLUT01/8")
             || html.contains("uor-r4.gllm-v11-")
@@ -949,7 +965,7 @@ mod tests {
         let tmp =
             std::env::temp_dir().join(format!("verdant_synthesis_fixture_{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&tmp);
-        std::fs::create_dir_all(tmp.join("gpu")).expect("mkdir gpu");
+        std::fs::create_dir_all(tmp.join("gpu/weights/v10")).expect("mkdir gpu/weights/v10");
         std::fs::create_dir_all(tmp.join("crates/wasm/src")).expect("mkdir crates/wasm/src");
         std::fs::create_dir_all(tmp.join("crates/wasm/js")).expect("mkdir crates/wasm/js");
         std::fs::create_dir_all(tmp.join("public")).expect("mkdir public");
@@ -959,22 +975,29 @@ mod tests {
                 tmp.join("gpu/rtx4090_r4_recompiled_v12_receipt.json"),
                 r#"{
                   "container_version": 12,
-                  "layer_count": 30,
-                  "q_head_count": 9,
-                  "kv_head_count": 3,
-                  "head_dim": 64,
-                  "d_model": 576,
-                  "vocab_size": 49152,
                   "rope_theta": 100000,
                   "tied_lm_head": true,
                   "rms_norm_preserved": true,
-                  "frame_time_micros": 4200
+                  "frame_time_micros": 4200,
+                  "full_30l_container": {
+                    "n_layers": 30,
+                    "n_heads": 9,
+                    "n_kv_heads": 3,
+                    "head_dim": 64,
+                    "d_model": 576,
+                    "vocab_size": 49152
+                  }
                 }"#,
             )
             .expect("write v12 receipt");
             std::fs::write(
+                tmp.join("gpu/weights/v10/manifest.json"),
+                r#"{"version": 12, "format": "UORR4V12"}"#,
+            )
+            .expect("write v10 manifest");
+            std::fs::write(
                 tmp.join("crates/wasm/src/r4_geometric_stack.rs"),
-                "pub const MAGIC: &[u8; 8] = b\"UORR4V12\";\npub const NIBBLE_LUT: [u16; 256] = [0; 256];\npub const Q14_CAP: u64 = 65_536;\npub const UORC_TAG: &[u8; 4] = b\"UORC\";\n",
+                "pub const MAGIC: &[u8; 8] = b\"UORR4V12\";\nstatic SEED: &[u8] = include_bytes!(\"bootstrap_v12_seed.uorr4\");\npub const NIBBLE_LUT: [u16; 256] = [0; 256];\npub const Q14_CAP: u64 = 65_536;\npub const UORC_TAG: &[u8; 4] = b\"UORC\";\n",
             )
             .expect("write r4_geometric_stack");
             std::fs::write(
@@ -984,12 +1007,12 @@ mod tests {
             .expect("write lut_stack_exec");
             std::fs::write(
                 tmp.join("crates/wasm/src/lib.rs"),
-                "mod r4_geometric_stack;\nstatic SEED: &[u8] = include_bytes!(\"bootstrap_v9.uorgllm\");\nfn check_uorc_watchdog() { let _ = (\"UORC\", super::lexlean_generated::r4_honest_plumbing::should_rollback_generation_watchdog(1, 3)); }\n",
+                "mod r4_geometric_stack;\nfn seed() { let _ = R4GeometricStackEngine::embedded_seed(); }\nfn check_uorc_watchdog() { let _ = (\"UORC\", super::lexlean_generated::r4_honest_plumbing::should_rollback_generation_watchdog(1, 3)); }\n",
             )
             .expect("write lib.rs");
             std::fs::write(
-                tmp.join("crates/wasm/src/bootstrap_v9.uorgllm"),
-                b"UORGLLM9\x0b\x00\x00\x00\x00\x10\x00\x00",
+                tmp.join("crates/wasm/src/bootstrap_v12_seed.uorr4"),
+                b"UORR4V12\x0c\x00\x00\x00\x00\x10\x00\x00",
             )
             .expect("write seed");
             std::fs::write(
