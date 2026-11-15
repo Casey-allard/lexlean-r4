@@ -330,7 +330,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "ddc174767c0fb9f9c6a12d46c77e42ec64f006c8432fc57d1ac53f0dc14b408d",
+      "kappa": "dc6bf66e36b507a501c0931f253df1565151c3fdc7dc660e7d505487a4983eeb",
       "function": "crates/wasm/js/worker_host_bridge.js::stream_v10_sharded_weights_to_opfs",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -15759,7 +15759,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "b688c0eec0ff769d079371c43d5298ff33c86b99ac80cdcd2eecf794417272bb",
+      "kappa": "f9402038588c39964e2918e2c08cdde8362fa9dbb6e2ff8e81a92a26b52a8684",
       "function": "xtask/src/engine.rs::audit_codebase_and_inference",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",

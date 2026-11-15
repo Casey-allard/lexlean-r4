@@ -2354,18 +2354,35 @@ export class SpiralCoreHostBridge {
   }
 
   async checkProvenanceUpdate(provenanceUrlInput = '') {
-    const httpOrigin =
-      this.staticOrigin ||
-      (typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
-        ? location.origin.replace(/\/+$/, '')
-        : '');
+    const explicitStaticBase = this.staticOrigin ? this.staticOrigin.replace(/\/+$/, '') : '';
+    let moduleProvUrl = '';
+    try {
+      const modUrl = new URL('provenance.json', import.meta.url);
+      if (/^https?:/i.test(modUrl.protocol)) {
+        moduleProvUrl = modUrl.href;
+      }
+    } catch {
+      moduleProvUrl = '';
+    }
+    let locationDirProvUrl = '';
+    if (!explicitStaticBase && !moduleProvUrl) {
+      if (typeof location !== 'undefined' && location.href && /^https?:/i.test(location.href)) {
+        const hrefBase = location.href.endsWith('/') ? location.href : location.href.replace(/[^/?#]*([?#].*)?$/, '');
+        locationDirProvUrl = new URL('provenance.json', hrefBase).href;
+      } else if (this.locationOrigin && /^https?:/i.test(this.locationOrigin)) {
+        const optBase = this.locationOrigin.endsWith('/') ? this.locationOrigin : `${this.locationOrigin}/`;
+        locationDirProvUrl = new URL('provenance.json', optBase).href;
+      }
+    }
     const rawInput = String(provenanceUrlInput || '').trim();
     const normalizedInput = rawInput
       ? (/\.json(?:[?#].*)?$/i.test(rawInput) ? rawInput : `${rawInput.replace(/\/+$/, '')}/provenance.json`)
       : '';
     const provUrl =
       normalizedInput ||
-      (httpOrigin ? `${httpOrigin}/provenance.json` : new URL('provenance.json', import.meta.url).href);
+      (explicitStaticBase
+        ? `${explicitStaticBase}/provenance.json`
+        : moduleProvUrl || locationDirProvUrl || new URL('provenance.json', import.meta.url).href);
     // Strict R4-39 rule: NEVER attach Host Secrets to non-GitHub provenance origins
     const validated = this.validateTransportUrl(provUrl, false);
     if (!validated.ok) return validated;
@@ -3269,12 +3286,37 @@ export class SpiralCoreHostBridge {
         if (targetProvUrl) {
           provRes = await this.checkProvenanceUpdate(targetProvUrl);
         }
+        const classicBuildStatus = buildRes.ok && buildRes.json ? String(buildRes.json.status || '') : '';
+        let workflowStatus = '';
+        let workflowSha = '';
+        if (pagesRes.ok && pagesRes.json && !pagesRes.json.status && !classicBuildStatus) {
+          const depRes = await this.#githubRestJson(coords, 'deployments?environment=github-pages&per_page=1').catch(() => ({ ok: false, json: null }));
+          const latestDep = depRes.ok && Array.isArray(depRes.json) && depRes.json.length > 0 ? depRes.json[0] : null;
+          if (latestDep) {
+            workflowSha = String(latestDep.sha || '');
+            if (latestDep.id != null) {
+              const stRes = await this.#githubRestJson(coords, `deployments/${latestDep.id}/statuses?per_page=1`).catch(() => ({ ok: false, json: null }));
+              const latestSt = stRes.ok && Array.isArray(stRes.json) && stRes.json.length > 0 ? stRes.json[0] : null;
+              const rawDepState = String((latestSt && latestSt.state) || '').toLowerCase();
+              if (rawDepState === 'success') workflowStatus = 'built';
+              else if (rawDepState === 'failure' || rawDepState === 'error') workflowStatus = 'errored';
+              else if (rawDepState === 'in_progress' || rawDepState === 'queued' || rawDepState === 'pending' || rawDepState === 'waiting') workflowStatus = 'building';
+            }
+          }
+          if (!workflowStatus && provRes && provRes.ok) {
+            workflowStatus = 'built';
+          }
+        }
+        const resolvedPagesStatus =
+          pagesRes.ok && pagesRes.json
+            ? (pagesRes.json.status || classicBuildStatus || workflowStatus || (provRes && provRes.ok ? 'built' : 'unknown'))
+            : 'unconfigured';
         const data = {
           repo: repoSlug,
-          pages_status: pagesRes.ok && pagesRes.json ? (pagesRes.json.status || (buildRes.json && buildRes.json.status) || 'built') : 'unconfigured',
+          pages_status: resolvedPagesStatus,
           pages_url: pagesUrl,
-          build_status: buildRes.ok && buildRes.json ? (buildRes.json.status || 'unknown') : 'unknown',
-          deployment_sha: buildRes.ok && buildRes.json ? (buildRes.json.commit || '') : '',
+          build_status: classicBuildStatus || workflowStatus || 'unknown',
+          deployment_sha: (buildRes.ok && buildRes.json ? String(buildRes.json.commit || '') : '') || workflowSha,
           provenance_url: targetProvUrl,
           provenance: provRes && provRes.ok ? provRes.live : null,
           adapter_wasm_sha256: provRes && provRes.ok ? provRes.adapter_wasm_sha256 : '',
@@ -3308,15 +3350,16 @@ export class SpiralCoreHostBridge {
   async handlePkgFetch(req) {
     const sub = String(req.subcommand || req.action || (req.name || req.pkg_name ? 'install' : 'list')).toLowerCase();
     const pkgName = String(req.pkg_name || req.name || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+    const explicitOrigin = this.staticOrigin ? this.staticOrigin.replace(/\/+$/, '') : '';
     const httpOrigin =
-      this.staticOrigin ||
-      (typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
-        ? location.origin
-        : '');
+      typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
+        ? location.origin.replace(/\/+$/, '')
+        : '';
     const indexCandidates = [
-      ...(httpOrigin ? [`${httpOrigin.replace(/\/+$/, '')}/weights/mvm-pkgs/index.json`] : []),
+      ...(explicitOrigin ? [`${explicitOrigin}/weights/mvm-pkgs/index.json`] : []),
       new URL('weights/mvm-pkgs/index.json', import.meta.url).href,
       new URL('../gpu/weights/mvm-pkgs/index.json', import.meta.url).href,
+      ...(httpOrigin ? [`${httpOrigin}/weights/mvm-pkgs/index.json`] : []),
     ];
 
     let pkgIndex = null;
@@ -3678,10 +3721,10 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
       ? location.origin.replace(/\/+$/, '')
       : '';
   const manifestCandidates = [
-    ...(httpOrigin ? [`${httpOrigin}/weights/v10/manifest.json`] : []),
     new URL('weights/v10/manifest.json', import.meta.url).href,
     new URL('../gpu/weights/v10/manifest.json', import.meta.url).href,
     new URL('weights/v9/manifest.json', import.meta.url).href,
+    ...(httpOrigin ? [`${httpOrigin}/weights/v10/manifest.json`] : []),
   ];
 
   let manifest = null;
@@ -4360,11 +4403,11 @@ function __uorStartDedicatedEngineWorker() {
       startOrAwaitOpfsShardHydration(false);
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {
-        hostBridge.checkProvenanceUpdate(location.origin).catch(() => null);
+        hostBridge.checkProvenanceUpdate('').catch(() => null);
         if (typeof setInterval === 'function') {
           setInterval(() => {
             hostBridge
-              .checkProvenanceUpdate(location.origin)
+              .checkProvenanceUpdate('')
               .then((upd) => {
                 if (upd && upd.update_available) {
                   postEvent('studio_update_available', upd);

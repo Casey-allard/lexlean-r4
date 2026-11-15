@@ -3257,6 +3257,34 @@ fn emit_ci_output(outcome: &str, pushed: bool, tick_branch: &str, tick_title: &s
     }
 }
 
+/// Compute the shrink-only Peirce triadic defect and residue metric for an engine tick.
+///
+/// Summing `total_trajectory_l1_residual` across proved claims grows monotonically when
+/// Stage 4 proves a new claim (`N -> N + 1`). Weight consolidation already enforces
+/// matched-cohort L1 non-regression (`admit_weight_evolution_step`); at the tick boundary
+/// we combine `residue_functions` with structural and behavioral defect counts (`1_000`
+/// weight per defect) so proving claims preserves or shrinks the metric while any new
+/// defect or unlifted residue function strictly increases it.
+pub fn compute_tick_peirce_metric(
+    residue_functions: u64,
+    failure_basins: u64,
+    orphaned_point_rows: u64,
+    radix_unindexed_rows: u64,
+    lexlean_missing_modules: u64,
+    dead_ui_bindings: u64,
+    ratchet_defects: u64,
+) -> u64 {
+    let defects = failure_basins
+        .saturating_add(orphaned_point_rows)
+        .saturating_add(radix_unindexed_rows)
+        .saturating_add(lexlean_missing_modules)
+        .saturating_add(dead_ui_bindings)
+        .saturating_add(ratchet_defects);
+    defects
+        .saturating_mul(1_000)
+        .saturating_add(residue_functions)
+}
+
 /// Execute the full 7-stage autonomous homeostasis tick (`cargo xtask engine tick`).
 /// Execute one complete autonomous homeostasis tick (`R4-28` / Peirce triadic `R4-41`).
 pub fn run_engine_tick(
@@ -3285,19 +3313,38 @@ pub fn run_engine_tick_with_mode(
     }
 
     // Stage 1: build, workflow/model preflight, shrink-only ratchet check & codebase sweep
-    let _ratchet = ratchet::check(root)
+    let pre_ratchet = ratchet::check(root)
         .map_err(|e| format!("engine[ratchet]: shrink-only preflight failed: {e}"))?;
     let (tick_budget, gate_budget) = validate_workflow_homeostasis(root)?;
     let audit = audit_uorlut_synchronization(root)?;
     let pre_frontier = load_frontier(root)?;
     let pre_diag = audit_codebase_and_inference(root, &pre_frontier)?;
+    let pre_ratchet_defects = pre_ratchet
+        .measured
+        .handwritten_bypass_files
+        .saturating_add(pre_ratchet.measured.deferral_markers)
+        .saturating_add(pre_ratchet.measured.ignored_conformance_tests)
+        .saturating_add(pre_ratchet.measured.ungrounded_defs)
+        .saturating_add(pre_ratchet.measured.orphaned_point_rows)
+        .saturating_add(pre_ratchet.measured.float_serving_ops)
+        .saturating_add(pre_ratchet.measured.dense_matmul_ops)
+        .saturating_add(pre_ratchet.measured.unwired_ui_controls);
+    let pre_metric = compute_tick_peirce_metric(
+        pre_ratchet.measured.residue_functions,
+        pre_diag.failure_basins.len() as u64,
+        (pre_diag.orphaned_point_rows as u64).max(audit.orphaned_point_rows as u64),
+        pre_diag.radix_unindexed_rows as u64,
+        pre_diag.lexlean_missing_modules.len() as u64,
+        pre_diag.dead_ui_bindings.len() as u64,
+        pre_ratchet_defects,
+    );
     let expected_ids = repo_model::Model::load(&root.join("model"))
         .map_err(|e| format!("failed to load model/: {e}"))?
         .ids
         .id
         .len();
     println!(
-        "engine[1/7 build]: workflow homeostasis ok (tick={tick_budget}m, gate={gate_budget}m, dry_run={dry_run}), UORLUT01 anchors={} point_rows={} orphans={}, lexlean={}/{expected_ids}, benchmarks={}/{}, failure_basins={}, l1_residual={}",
+        "engine[1/7 build]: workflow homeostasis ok (tick={tick_budget}m, gate={gate_budget}m, dry_run={dry_run}), UORLUT01 anchors={} point_rows={} orphans={}, lexlean={}/{expected_ids}, benchmarks={}/{}, failure_basins={}, l1_residual={}, peirce_metric={}",
         audit.reply_anchor_count,
         audit.point_row_count,
         audit.orphaned_point_rows,
@@ -3305,7 +3352,8 @@ pub fn run_engine_tick_with_mode(
         pre_diag.benchmark_prompts_passed,
         pre_diag.benchmark_prompts_tested,
         pre_diag.failure_basins.len(),
-        pre_diag.total_trajectory_l1_residual
+        pre_diag.total_trajectory_l1_residual,
+        pre_metric
     );
 
     // Stage 2 (Peirce Phase 1 — Abduction): Rule-30 discovery & hypothesis generation
@@ -3316,8 +3364,8 @@ pub fn run_engine_tick_with_mode(
         PeircePhase::Abduction,
         true,
         audit.orphaned_point_rows == 0,
-        pre_diag.total_trajectory_l1_residual,
-        pre_diag.total_trajectory_l1_residual,
+        pre_metric,
+        pre_metric,
         engine.rule30_state,
     )?;
 
@@ -3359,8 +3407,8 @@ pub fn run_engine_tick_with_mode(
         PeircePhase::Deduction,
         true,
         check_frontier(&frontier).is_ok(),
-        pre_diag.total_trajectory_l1_residual,
-        pre_diag.total_trajectory_l1_residual,
+        pre_metric,
+        pre_metric,
         engine.rule30_state,
     )?;
     println!(
@@ -3473,7 +3521,29 @@ pub fn run_engine_tick_with_mode(
     println!("engine[7/7 gate]: running repository acceptance checks...");
     let theorem_frontier = if dry_run { &pre_frontier } else { &frontier };
     let post_diag = audit_codebase_and_inference(root, theorem_frontier)?;
-    let gate_ok = if std::env::var_os("SDK_IMAGE").is_some() {
+    let post_matched_diag = audit_codebase_and_inference(root, &pre_frontier)?;
+    let matched_cohort_ok = post_matched_diag.failure_basins.len() <= pre_diag.failure_basins.len();
+    let post_ratchet = ratchet::measure_ratchet_state(root)
+        .map_err(|e| format!("engine[ratchet]: post-tick measurement failed: {e}"))?;
+    let post_ratchet_defects = post_ratchet
+        .handwritten_bypass_files
+        .saturating_add(post_ratchet.deferral_markers)
+        .saturating_add(post_ratchet.ignored_conformance_tests)
+        .saturating_add(post_ratchet.ungrounded_defs)
+        .saturating_add(post_ratchet.orphaned_point_rows)
+        .saturating_add(post_ratchet.float_serving_ops)
+        .saturating_add(post_ratchet.dense_matmul_ops)
+        .saturating_add(post_ratchet.unwired_ui_controls);
+    let post_metric = compute_tick_peirce_metric(
+        post_ratchet.residue_functions,
+        post_diag.failure_basins.len() as u64,
+        post_diag.orphaned_point_rows as u64,
+        post_diag.radix_unindexed_rows as u64,
+        post_diag.lexlean_missing_modules.len() as u64,
+        post_diag.dead_ui_bindings.len() as u64,
+        post_ratchet_defects,
+    );
+    let gate_ok = (if std::env::var_os("SDK_IMAGE").is_some() {
         Command::new("just")
             .current_dir(root)
             .arg("vv")
@@ -3490,13 +3560,13 @@ pub fn run_engine_tick_with_mode(
             && post_diag.radix_unindexed_rows == 0
             && post_diag.orphaned_point_rows == 0
             && post_diag.dead_ui_bindings.is_empty()
-    };
+    }) && matched_cohort_ok;
     ratchet::verify_peirce_triadic_step(
         PeircePhase::Induction,
         true,
         gate_ok,
-        pre_diag.total_trajectory_l1_residual,
-        post_diag.total_trajectory_l1_residual,
+        pre_metric,
+        post_metric,
         engine.rule30_state,
     )?;
 
@@ -7674,5 +7744,118 @@ and establish non-blocking progress guarantees.
         );
         assert_eq!(report.route_verdict, RouteVerdict::Proved);
         assert_eq!(report.receipt_sha256.len(), 64);
+    }
+
+    #[test]
+    fn test_peirce_induction_admits_newly_proved_claim_and_rejects_defect_regression() {
+        use prism_factory_generated::r4_autonomous_engine::PeircePhase;
+
+        let root = repo_model::repo_root();
+        let full_frontier = load_frontier(&root).expect("frontier.toml loads");
+        let last_proved_idx = full_frontier
+            .claim
+            .iter()
+            .rposition(|c| c.status == "proved")
+            .expect("frontier must have at least one proved claim");
+        let mut pre_frontier = full_frontier.clone();
+        pre_frontier.claim[last_proved_idx].status = "observed".to_string();
+
+        let pre_diag = audit_codebase_and_inference(&root, &pre_frontier)
+            .expect("pre_frontier audit succeeds");
+        let post_diag = audit_codebase_and_inference(&root, &full_frontier)
+            .expect("full_frontier audit succeeds");
+        assert!(
+            post_diag.total_trajectory_l1_residual > pre_diag.total_trajectory_l1_residual,
+            "cumulative trajectory L1 grows across N -> N+1 proved claims ({} -> {})",
+            pre_diag.total_trajectory_l1_residual,
+            post_diag.total_trajectory_l1_residual
+        );
+
+        let rat = ratchet::measure_ratchet_state(&root).expect("measure_ratchet_state succeeds");
+        let ratchet_defects = rat
+            .handwritten_bypass_files
+            .saturating_add(rat.deferral_markers)
+            .saturating_add(rat.ignored_conformance_tests)
+            .saturating_add(rat.ungrounded_defs)
+            .saturating_add(rat.orphaned_point_rows)
+            .saturating_add(rat.float_serving_ops)
+            .saturating_add(rat.dense_matmul_ops)
+            .saturating_add(rat.unwired_ui_controls);
+        let pre_metric = compute_tick_peirce_metric(
+            rat.residue_functions,
+            pre_diag.failure_basins.len() as u64,
+            pre_diag.orphaned_point_rows as u64,
+            pre_diag.radix_unindexed_rows as u64,
+            pre_diag.lexlean_missing_modules.len() as u64,
+            pre_diag.dead_ui_bindings.len() as u64,
+            ratchet_defects,
+        );
+        let post_metric = compute_tick_peirce_metric(
+            rat.residue_functions,
+            post_diag.failure_basins.len() as u64,
+            post_diag.orphaned_point_rows as u64,
+            post_diag.radix_unindexed_rows as u64,
+            post_diag.lexlean_missing_modules.len() as u64,
+            post_diag.dead_ui_bindings.len() as u64,
+            ratchet_defects,
+        );
+        assert!(
+            post_metric <= pre_metric,
+            "tick metric must stay non-increasing across N -> N+1 proved claim (pre={pre_metric}, post={post_metric})"
+        );
+        ratchet::verify_peirce_triadic_step(
+            PeircePhase::Induction,
+            true,
+            true,
+            pre_metric,
+            post_metric,
+            rat.rule30_state,
+        )
+        .expect("Peirce Induction must admit N -> N+1 proved claim with zero new defects");
+
+        // Negative checks: planting +1 failure basin, +1 orphaned row, or +1 residue must be refused.
+        for bad_metric in [
+            compute_tick_peirce_metric(
+                rat.residue_functions,
+                (post_diag.failure_basins.len() as u64).saturating_add(1),
+                post_diag.orphaned_point_rows as u64,
+                post_diag.radix_unindexed_rows as u64,
+                post_diag.lexlean_missing_modules.len() as u64,
+                post_diag.dead_ui_bindings.len() as u64,
+                ratchet_defects,
+            ),
+            compute_tick_peirce_metric(
+                rat.residue_functions,
+                post_diag.failure_basins.len() as u64,
+                (post_diag.orphaned_point_rows as u64).saturating_add(1),
+                post_diag.radix_unindexed_rows as u64,
+                post_diag.lexlean_missing_modules.len() as u64,
+                post_diag.dead_ui_bindings.len() as u64,
+                ratchet_defects,
+            ),
+            compute_tick_peirce_metric(
+                rat.residue_functions.saturating_add(1),
+                post_diag.failure_basins.len() as u64,
+                post_diag.orphaned_point_rows as u64,
+                post_diag.radix_unindexed_rows as u64,
+                post_diag.lexlean_missing_modules.len() as u64,
+                post_diag.dead_ui_bindings.len() as u64,
+                ratchet_defects,
+            ),
+        ] {
+            let err = ratchet::verify_peirce_triadic_step(
+                PeircePhase::Induction,
+                true,
+                true,
+                pre_metric,
+                bad_metric,
+                rat.rule30_state,
+            )
+            .expect_err("planted defect or residue increase must fail Peirce Induction");
+            assert!(
+                err.contains("RefusedMetricRegression"),
+                "expected RefusedMetricRegression diagnostic, got: {err}"
+            );
+        }
     }
 }

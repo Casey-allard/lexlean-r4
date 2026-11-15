@@ -94,6 +94,7 @@ async function runSuite() {
 
   let provenanceRevision = 1;
   let pagesStatus = 'built';
+  let workflowPagesMode = false;
 
   const mockServer = http.createServer((req, res) => {
     const reqUrl = new URL(req.url || '/', 'http://127.0.0.1');
@@ -147,7 +148,12 @@ async function runSuite() {
       }
 
       // Pages provenance.json endpoint (must never receive Bearer secret)
-      if (reqUrl.pathname === '/pages/provenance.json' || reqUrl.pathname === '/provenance.json') {
+      if (reqUrl.pathname === '/acme-pages/provenance.json') {
+        res.writeHead(404, { 'content-type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Root subpath-stripped provenance.json must 404 on subpath Pages' }));
+        return;
+      }
+      if (reqUrl.pathname === '/acme-pages/any-repo/provenance.json' || reqUrl.pathname === '/provenance.json') {
         res.writeHead(200, { 'content-type': 'application/json' });
         res.end(JSON.stringify({
           adapter_wasm_sha256: `wasm_digest_rev_${provenanceRevision}`,
@@ -340,15 +346,40 @@ async function runSuite() {
       }
       if (req.method === 'GET' && reqUrl.pathname === `${prefix}/pages`) {
         res.writeHead(200, { 'content-type': 'application/json' });
-        res.end(JSON.stringify({
-          status: pagesStatus,
-          html_url: 'https://acme.github.io/any-repo/',
-        }));
+        if (workflowPagesMode) {
+          res.end(JSON.stringify({
+            status: null,
+            build_type: 'workflow',
+            html_url: 'https://acme.github.io/any-repo/',
+          }));
+        } else {
+          res.end(JSON.stringify({
+            status: pagesStatus,
+            html_url: 'https://acme.github.io/any-repo/',
+          }));
+        }
         return;
       }
       if (req.method === 'GET' && reqUrl.pathname === `${prefix}/pages/builds/latest`) {
+        if (workflowPagesMode) {
+          res.writeHead(404, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ message: 'Not Found', status: '404' }));
+        } else {
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ status: pagesStatus, commit: 'merge_sha_003', updated_at: '2026-11-14T18:50:00Z' }));
+        }
+        return;
+      }
+      if (req.method === 'GET' && reqUrl.pathname === `${prefix}/deployments`) {
         res.writeHead(200, { 'content-type': 'application/json' });
-        res.end(JSON.stringify({ status: pagesStatus, commit: 'merge_sha_003', updated_at: '2026-11-14T18:50:00Z' }));
+        res.end(JSON.stringify([
+          { id: 77, sha: 'workflow_sha_777', environment: 'github-pages' },
+        ]));
+        return;
+      }
+      if (req.method === 'GET' && reqUrl.pathname === `${prefix}/deployments/77/statuses`) {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify([{ state: 'success' }]));
         return;
       }
 
@@ -367,7 +398,7 @@ async function runSuite() {
     const headers = { ...(init.headers || {}), 'x-logical-host': parsed.hostname };
     let targetPath = `${parsed.pathname}${parsed.search}`;
     if (parsed.hostname === 'acme.github.io') {
-      targetPath = `/pages/provenance.json${parsed.search}`;
+      targetPath = `/acme-pages${parsed.pathname}${parsed.search}`;
     } else if (parsed.hostname === 'evil.example.com') {
       targetPath = `/evil${parsed.pathname}${parsed.search}`;
     }
@@ -514,10 +545,29 @@ async function runSuite() {
       assert.equal(watch2.ok, true);
       assert.equal(watch2.update_available, true);
 
+      // Workflow-built GitHub Pages (build_type='workflow', status=null, pages/builds/latest=404)
+      workflowPagesMode = true;
+      const watchWorkflow = await bridge.handleGitBridge({ op: 'git', subcommand: 'watch_deploy', repo: 'acme/any-repo' });
+      workflowPagesMode = false;
+      assert.equal(watchWorkflow.ok, true);
+      assert.equal(watchWorkflow.pages_status, 'built', 'workflow Pages must never report 404 from pages/builds/latest error JSON');
+      assert.equal(watchWorkflow.deployment_sha, 'workflow_sha_777');
+
+      // Unconnected watch_deploy on subpath-hosted GitHub Pages without explicit staticOrigin
+      const subpathBridge = new BridgeCtor({
+        fetchImpl: routedFetch,
+        relayUrl: '',
+        staticOrigin: '',
+        locationOrigin: 'https://acme.github.io/any-repo/',
+      });
+      const watchSubpath = await subpathBridge.handleGitBridge({ op: 'git', subcommand: 'watch_deploy' });
+      assert.equal(watchSubpath.ok, true, `subpath watch_deploy must resolve /any-repo/provenance.json: ${watchSubpath.message || ''}`);
+      assert.equal(watchSubpath.adapter_wasm_sha256, 'wasm_digest_rev_2');
+
       // Verify Bearer token was NEVER transmitted to Pages / provenance host!
       const pagesAuthLeaks = authHeadersSeenByHost.filter((h) => h.host === 'acme.github.io' || h.path.includes('provenance.json'));
       assert.equal(pagesAuthLeaks.length, 0, 'Bearer token must NEVER be attached to provenance/Pages host');
-      console.log(`  ✓ [${label}] Full arbitrary-repo loop (detect -> connect -> clone(50/lazy) -> read_blob -> branch -> commit_push -> PR -> CI -> merge -> watch_deploy)`);
+      console.log(`  ✓ [${label}] Full arbitrary-repo loop (detect -> connect -> clone(50/lazy) -> read_blob -> branch -> commit_push -> PR -> CI -> merge -> watch_deploy[classic+workflow+subpath])`);
     }
 
     // 2. Test Live WebSocket Relay Path through relay/local-relay.mjs
