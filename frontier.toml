@@ -3695,3 +3695,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f235_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging ence and shake across PointKey row 2820 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect ence and shake across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects ence and shake by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F236"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:dialogue-stem:determ-write:r8247:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f236_pointkey_resonance"
+statement = "Verify compact PointKey paraphrase routing for conversational stems determ and write at manifold row 8247."
+prompt = "How does PointKey routing resolve conversational prompts about determ and write?"
+target_reply = "PointKey routing matches conversational stems determ and write directly to their canonical reply anchor without token loops."
