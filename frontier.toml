@@ -3740,3 +3740,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f238_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems ating and read at row_idx=1648 (anchor_id=0x8000014c)."
 prompt = "How does Q12 writer refinement encode ating and read at row_idx=1648?"
 target_reply = "At row_idx=1648 with anchor_id=0x8000014c, Q12 writer refinement aligns the 256D L1 PointKey prototype for ating and read with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F239"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:poin-numbers:r2977:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f239_corpus_induction"
+statement = "Verify cross-basin geodesic synthesis bridging poin and numbers across PointKey row 2977 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect poin and numbers across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects poin and numbers by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
