@@ -1,0 +1,173 @@
+{
+  "schema": "uor-r4.recompiled-v12-receipt/1",
+  "container_schema": "uor-r4.geometric-vector-stack/12",
+  "teacher_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "hardware": "NVIDIA GeForce RTX 4090",
+  "zero_python": true,
+  "float_ops": 0,
+  "dense_matmul_ops": 0,
+  "huggingface_source_sha256": {
+    "config_json": "8eb740e8bbe4cff95ea7b4588d17a2432deb16e8075bc5828ff7ba9be94d982a",
+    "tokenizer_json": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c",
+    "model_safetensors": "5af571cbf074e6d21a03528d2330792e532ca608f24ac70a143f6b369968ab8c"
+  },
+  "full_30l_container": {
+    "sha256": "fa4d31131213309bcadae0155067a86c7ef15d6383cc4bce5d23953a7dad30c3",
+    "total_bytes": 75684407,
+    "total_mib": 72.1783,
+    "shard_count": 73,
+    "stitch_parity_groups": 37,
+    "vocab_size": 49152,
+    "d_model": 576,
+    "n_layers": 30,
+    "n_heads": 9,
+    "n_kv_heads": 3,
+    "quantization": "block32-wht+group32-dyadic-4bit-per-row-exp+conway-sloane-e8-audit",
+    "mean_weight_rel_rms_error": 0.085768,
+    "conway_sloane_e8_mean_rel_rmse": 0.267862,
+    "hamming_signature_bits": 576
+  },
+  "compact_distilled_seed": {
+    "sha256": "31dfbeb82ea14ed4218f0ab5445f5e4e3a246e808c8f400ea72eec0ba7fa8fa5",
+    "total_bytes": 4433277,
+    "total_mib": 4.2279,
+    "vocab_size": 6144,
+    "d_model": 256,
+    "n_layers": 8,
+    "n_heads": 4,
+    "n_kv_heads": 2,
+    "teacher_rollout_tokens": 13136,
+    "distillation_steps": 3000,
+    "final_ema_kl_ce_loss": 0.076445
+  },
+  "teacher_parity_metrics": {
+    "prompt_count": 12,
+    "top1_logit_parity_pct": 75.00,
+    "top5_logit_parity_pct": 100.00,
+    "mean_kl_divergence": 0.635270,
+    "total_nibble_lut_lookups": 81738989568,
+    "total_lorentz_geodesic_evals": 22543380
+  },
+  "ood_12_prompt_transcripts": [
+    {
+      "id": "ood_01_capitals_science",
+      "prompt": "Explain briefly how ATP powers muscle contraction in human skeletal muscle.",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 1.354463,
+      "float_teacher_reply": "In human skeletal muscle, ATP (adenosine triphosphate) is the primary energy source for muscle contraction. It is the primary energy source for the contraction of skeletal muscles, which is necessary for movement and maintaining posture. ATP is generated through",
+      "integer_30l_reply": "In human skeletal muscle, ATP is the primary energy source for muscle contraction. It is a molecule that is a key component of muscle contraction and is the primary energy source for muscle contraction and is the primary energy source for muscle contraction and is the",
+      "compact_seed_reply": "In an operating system, a process and a thread are the predictions and computing a small piece of ca"
+    },
+    {
+      "id": "ood_02_algorithm_big_o",
+      "prompt": "Why does a binary heap support push and pop in O(log n) while find-min is O(1)?",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.498553,
+      "float_teacher_reply": "The reason for this difference lies in the way the heap data structure is implemented.\n\nIn a binary heap, the maximum element is always at the top of the heap, and the smallest element is always at the bottom. This means that",
+      "integer_30l_reply": "The reason is that the binary heap is implemented as a binary tree and has a worst-case and average-case complexity of O(n) and O(n), respectively.\n\nThe reason is that the binary heap is implemented as",
+      "compact_seed_reply": "The issue with your fixed-point integers avoid it."
+    },
+    {
+      "id": "ood_03_systems_cow",
+      "prompt": "How does copy-on-write fork reduce memory usage before execve in Unix kernels?",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.501233,
+      "float_teacher_reply": "In Unix kernels, copying the entire file to the kernel's memory area before executing the code can significantly reduce memory usage. This is because the kernel allocates a block of memory for the file, and copying the entire file to the kernel",
+      "integer_30l_reply": "In Unix kernels, copy-on-write fork is used to reduce memory usage before execve.\n\nWhen you run a program using the `-p` flag, it executes the program in the background and saves the program's state",
+      "compact_seed_reply": "The eigenvection is a 32-bit integer overflow happens because the sign bit of the result is not"
+    },
+    {
+      "id": "ood_04_math_bayes",
+      "prompt": "State Bayes' theorem and give a concise numerical example involving a medical test.",
+      "top1_match": false,
+      "top5_match": true,
+      "kl_divergence": 2.132537,
+      "float_teacher_reply": "Bayes' theorem is a mathematical formula used to update the probability of a hypothesis based on new evidence. It is a fundamental concept in probability theory and is used to calculate the likelihood of a hypothesis given a sample of evidence.\n\nThe",
+      "integer_30l_reply": "State Bayes' theorem and give a concise numerical example:\n\nThe statement of the law of total probability of a random variable is:\n\nThe statement of the law of total probability of a random variable is:\n\nThe statement",
+      "compact_seed_reply": "The primary cause of a stack overflow error in C or Rust occurs when a function attempts to access an array or memory"
+    },
+    {
+      "id": "ood_05_buggy_rust",
+      "prompt": "Find and fix the bug in this Rust function:\n```rust\nfn sum_pairs(xs: &[i32]) -> Vec<i32> {\n    let mut out = Vec::new();\n    for i in 0..xs.len() {\n        out.push(xs[i] + xs[i + 1]);\n    }\n    out\n}\n```",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.310244,
+      "float_teacher_reply": "The bug in this Rust function is in the `sum_pairs` function. The function is supposed to sum up all the elements in the input list `xs`, but it's returning an empty vector instead.\n\nTo fix this,",
+      "integer_30l_reply": "The bug is in the following part of the code:\n```rust\nlet mut out = Vec::new();\n    for i in 0..xs.len() {\n        out.push(xs[i] + xs[",
+      "compact_seed_reply": "The issue here is that the loop variable `s to use a single element of statedictional.rs to integersu"
+    },
+    {
+      "id": "ood_06_buggy_python",
+      "prompt": "Explain what goes wrong in this Python snippet and write the fixed version:\n```python\ndef append_item(item, bucket=[]):\n    bucket.append(item)\n    return bucket\n```",
+      "top1_match": false,
+      "top5_match": true,
+      "kl_divergence": 0.218979,
+      "float_teacher_reply": "The issue in this snippet is that the `append_item` function is not properly handling the `append` method. The `append` method is used to add an item to a list, but it does not modify the list itself.",
+      "integer_30l_reply": "This is a Python code snippet that takes a list of items and adds them to a list using the `append` method. It's a simple example of a \"fixed\" version of the \"in-place\" operation.\n\nThe",
+      "compact_seed_reply": "Here's a corrections using a suberative approach in Rust."
+    },
+    {
+      "id": "ood_07_buggy_js",
+      "prompt": "Why does this JavaScript loop print 3 three times with var, and how do you fix it?\n```js\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 10);\n}\n```",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.130793,
+      "float_teacher_reply": "The issue with this JavaScript loop is that it's using a `for` loop, which is not the correct syntax for printing numbers.\n\nThe correct syntax for printing numbers in JavaScript is:\n\n```javascript\n",
+      "integer_30l_reply": "The issue is that the JavaScript interpreter is not able to execute the code because it is not a synchronous program. The reason is that the JavaScript interpreter is not able to execute the code because it is not a synchronous program.\n\n",
+      "compact_seed_reply": "The issue lies in the `reverse` method, which is not working as expected. It should swap the first and last elements of the seture. The `/"
+    },
+    {
+      "id": "ood_08_rust_borrowing",
+      "prompt": "Fix the borrow checker error in this Rust snippet:\n```rust\nlet mut nums = vec![1, 2, 3];\nlet first = &nums[0];\nnums.push(4);\nprintln!(\"{first}\");\n```",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.357790,
+      "float_teacher_reply": "The borrow checker error occurs when the borrow checker is not properly implemented. Here's the corrected code:\n\n```rust\nlet mut nums = vec![1, 2, 3];\nlet first = &nums[0];",
+      "integer_30l_reply": "The issue is that the `&` operator is not used in Rust. The `::` operator is used for vector initialization and is used for vector initialization.\n\nTo fix this error, you should use the vector initialization operator `::",
+      "compact_seed_reply": "The issue with this loop is that it's using a conditional expression (`x % 2 == 0`prinds."
+    },
+    {
+      "id": "ood_09_sql_query",
+      "prompt": "Write a PostgreSQL query to return the top 3 departments by average employee salary where count >= 5.",
+      "top1_match": false,
+      "top5_match": true,
+      "kl_divergence": 0.554825,
+      "float_teacher_reply": "Here's a PostgreSQL query that returns the top 3 departments by average employee salary where the count is greater than or equal to 5:\n\n```sql\nSELECT department, AVG(salary) AS average_sal",
+      "integer_30l_reply": "To write a PostgreSQL query to return the top 3 departments by average employee salary where count >= 5, we can use the following steps:\n\n1. First, we need to select the columns from the table and then select",
+      "compact_seed_reply": "```rust\nfn is_palindrome(s: &str) -> bool {\n    s == s.reple[dependepheme"
+    },
+    {
+      "id": "ood_10_physics_doppler",
+      "prompt": "Explain the Doppler effect using an ambulance siren moving toward and away from an observer.",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.828735,
+      "float_teacher_reply": "The Doppler effect is a fundamental phenomenon in physics that describes the change in the frequency of a wave as it moves towards or away from an observer. In the context of an ambulance siren, the Doppler effect can be observed when the siren",
+      "integer_30l_reply": "The Doppler effect is a fundamental concept in classical mechanics and is a crucial aspect of the motion of objects and of the sun's atmosphere. To illustrate this, consider the following scenario:\n\nAn ambulance siren is moving towards and away from",
+      "compact_seed_reply": "To vertion Rustl complement arithmetic, entropy is a"
+    },
+    {
+      "id": "ood_11_agent_tool",
+      "prompt": "List all Rust source files in /workspace/src and explain what module handles verification.",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.465210,
+      "float_teacher_reply": "Here are the Rust source files in the /workspace/src directory:\n\n```rust\n#[derive(Debug, Inherit)]\n#[derive(Debug, Inherit)]\n#[derive(",
+      "integer_30l_reply": "Here is the list of Rust source files and their explanation:\n\n```\n/README.md - 1.0.0-beta1.md - 1.0.0-beta1.md - 1",
+      "compact_seed_reply": "The issue with the `flal` function is a simple and effective way to check if the current element is synchrond, but it's a function ritermi"
+    },
+    {
+      "id": "ood_12_uor_geometry",
+      "prompt": "In hyperbolic Lorentz geometry, how does the Minkowski inner product relate to geodesic distance on a hyperboloid?",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.269880,
+      "float_teacher_reply": "In hyperbolic Lorentz geometry, the Minkowski inner product is closely related to the geodesic distance on a hyperboloid. The Minkowski inner product is defined as:\n\n(x, y, z)",
+      "integer_30l_reply": "In hyperbolic geometry, the Minkowski inner product and the geodesic distance on a hyperboloid are closely related. The Minkowski inner product is a measure of the curvature of a surface in Euclidean space, and it is",
+      "compact_seed_reply": "The issue with the directioning the dessent minimizes the contents of the"
+    }
+  ]
+}

@@ -188,6 +188,8 @@ pub const LEGACY_V9_FULL_SHA256: &str =
     "ff3021c04bde6b1e0a65d7a7390eea61a6a2f73a86bc1f232a8732dd84448a60";
 
 /// Embedded 6-layer 128D 16H `UORGLLM9` bootstrap checkpoint trained on RTX 4090 (`gpu/train_gllm_v10.cu`).
+/// On `wasm32`, `r4_geometric_stack` embeds the `UORR4V12` distilled seed instead so `.wasm` stays < 15 MiB.
+#[cfg(not(target_arch = "wasm32"))]
 static EMBEDDED_BOOTSTRAP_V9: &[u8] = include_bytes!("bootstrap_v9.uorgllm");
 
 /// Typed errors emitted by the `UOR-R4-GLLM v9` parser and runtime (`R5`).
@@ -535,14 +537,68 @@ impl GllmV9Model {
     pub fn default_embedded() -> Arc<Self> {
         static CELL: OnceLock<Arc<GllmV9Model>> = OnceLock::new();
         Arc::clone(CELL.get_or_init(|| {
-            Arc::new(
-                Self::parse_with_label(
-                    EMBEDDED_BOOTSTRAP_V9,
-                    "bootstrap_v9.uorgllm (WASM embedded)",
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                Arc::new(
+                    Self::parse_with_label(
+                        EMBEDDED_BOOTSTRAP_V9,
+                        "bootstrap_v9.uorgllm (WASM embedded)",
+                    )
+                    .expect("embedded bootstrap_v9.uorgllm is valid UORGLLM9"),
                 )
-                .expect("embedded bootstrap_v9.uorgllm is valid UORGLLM9"),
-            )
+            }
+            #[cfg(target_arch = "wasm32")]
+            {
+                Arc::new(Self::minimal_wasm_fallback())
+            }
         }))
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    fn minimal_wasm_fallback() -> Self {
+        let payload_sha = sha256_bytes_arr(b"uor-r4.gllm-v9.wasm-runtime-placeholder/0");
+        let hdr = GllmV9Header {
+            magic: UORGLLM9_MAGIC,
+            version: 9,
+            vocab_size: GLLM_V9_VOCAB as u32,
+            d_model: 64,
+            n_layers: 4,
+            n_heads: 8,
+            lut_groups: 16,
+            turn_memory_entries: 0,
+            dense_matmul_ops: 0,
+            softmax_ops: 0,
+            quant_bits: 8,
+            payload_sha256: payload_sha,
+        };
+        let layers = (0..4)
+            .map(|_| LayerTables {
+                head_tau: vec![1; 8],
+                head_slope: vec![1; 8],
+                head_shift: vec![0; 8],
+                head_copy_b: vec![0; 8],
+                head_copy_gate_trits: vec![40; 8 * 16],
+                q_lut: vec![0; 16 * 256 * 16],
+                k_lut: vec![0; 16 * 256 * 16],
+                v_lut: vec![0; 16 * 256 * 16],
+                ffn_lut: vec![0; 16 * 256 * 64],
+            })
+            .collect();
+        Self {
+            header: hdr,
+            raw_bytes: Vec::new(),
+            container_sha256: hex_32(&payload_sha),
+            source_label: "gllm-v9 (wasm deferred to UORR4V12 seed)".to_string(),
+            e_tok: vec![0; GLLM_V9_VOCAB * 64],
+            e_pos: vec![0; 256 * 64],
+            layers,
+            tmac_readout_hi: vec![40; GLLM_V9_VOCAB * 16],
+            tmac_readout_lo: vec![40; GLLM_V9_VOCAB * 16],
+            copy_tok_gate: vec![0; GLLM_V9_VOCAB],
+            p_out: vec![0; GLLM_V9_VOCAB * 64],
+            p_sk: vec![0; GLLM_V9_VOCAB],
+            b_out: vec![0; GLLM_V9_VOCAB],
+        }
     }
 
     /// Parse and formally verify a `UORGLLM9` binary container.
