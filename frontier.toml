@@ -3725,3 +3725,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f237_reply_4gram_deduction"
 statement = "Verify causal four gram deduction over stems gener and ject from manifold row 8926 without symbolic drift."
 prompt = "Why does causal four gram continuation preserve reasoning over gener and ject?"
 target_reply = "Causal four gram continuation preserves reasoning over gener and ject because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."
+
+[[claim]]
+id = "R4-F238"
+status = "proved"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:code-synthesis:ating-read:r1648:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f238_bvgk_writer_refinement"
+statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems ating and read at row_idx=1648 (anchor_id=0x8000014c)."
+prompt = "How does Q12 writer refinement encode ating and read at row_idx=1648?"
+target_reply = "At row_idx=1648 with anchor_id=0x8000014c, Q12 writer refinement aligns the 256D L1 PointKey prototype for ating and read with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
