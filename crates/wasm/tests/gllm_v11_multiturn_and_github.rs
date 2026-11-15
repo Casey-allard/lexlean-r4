@@ -277,17 +277,19 @@ fn test_v11_multiturn_four_turn_continuity_embedded_and_hosted() {
         );
     }
 
-    // Part B: Hosted 16L x 256D shards from gpu/weights/v10/
+    // Part B: Hosted 30L x 576D UORR4V12 shards from gpu/weights/v10/
     let weights_dir = workspace_root().join("gpu/weights/v10");
     let manifest_str =
         std::fs::read_to_string(weights_dir.join("manifest.json")).expect("read manifest.json");
     let manifest: serde_json::Value =
         serde_json::from_str(&manifest_str).expect("parse manifest.json");
+    assert_eq!(manifest["format"], "UORR4V12");
+    assert_eq!(manifest["total_bytes"], 75_684_407);
     let shard_meta = manifest["shards"].as_array().expect("manifest shards");
     assert_eq!(
         shard_meta.len(),
-        79,
-        "expected 79 1MiB shards for 16L x 256D"
+        73,
+        "expected 73 1MiB shards for 30L x 576D UORR4V12"
     );
 
     let mut shard_blobs = Vec::with_capacity(shard_meta.len());
@@ -308,16 +310,18 @@ fn test_v11_multiturn_four_turn_continuity_embedded_and_hosted() {
     let loaded_val: serde_json::Value =
         serde_json::from_str(&loaded_raw).expect("parse gllm_load_v10_shards status");
     assert_eq!(loaded_val["status"], "ok");
+    assert_eq!(loaded_val["format"], "UORR4V12");
+    assert_eq!(loaded_val["full_recompiled_mounted"], true);
     assert_eq!(loaded_val["container_sha256"], manifest["container_sha256"]);
 
     let hosted_status: serde_json::Value =
-        serde_json::from_str(&hosted.gllm_v9_status_json()).expect("hosted status");
-    assert_eq!(hosted_status["version"], 11);
-    assert_eq!(hosted_status["n_layers"], 16);
-    assert_eq!(hosted_status["d_model"], 256);
-    assert_eq!(hosted_status["turn_memory_entries"], 0);
+        serde_json::from_str(&hosted.r4_stack_status_json()).expect("hosted r4 stack status");
+    assert_eq!(hosted_status["format"], "UORR4V12");
+    assert_eq!(hosted_status["full_recompiled_mounted"], true);
+    assert_eq!(hosted_status["n_layers"], 30);
+    assert_eq!(hosted_status["d_model"], 576);
+    assert_eq!(hosted_status["float_ops"], 0);
     assert_eq!(hosted_status["dense_matmul_ops"], 0);
-    assert_eq!(hosted_status["softmax_ops"], 0);
 
     for (idx, p) in prompts.iter().enumerate() {
         let resp: serde_json::Value =
@@ -328,20 +332,35 @@ fn test_v11_multiturn_four_turn_continuity_embedded_and_hosted() {
         assert!(!reply.trim().is_empty(), "hosted turn {idx} reply empty");
     }
 
-    // Verify 16L x 256D deterministic generation via gllm_v9_generate_json
-    let g1: serde_json::Value = serde_json::from_str(&hosted.gllm_v9_generate_json(
-        "{\"prompt\":\"What is our updated codename?\",\"max_new_tokens\":48}",
-    ))
-    .expect("gen json 1");
-    let g2: serde_json::Value = serde_json::from_str(&hosted.gllm_v9_generate_json(
-        "{\"prompt\":\"What is our updated codename?\",\"max_new_tokens\":48}",
-    ))
-    .expect("gen json 2");
-    assert_eq!(g1["layers_executed"], 16);
-    assert_eq!(g1["turn_memory_hits"], 0);
-    assert_eq!(g1["prll_mass_conserved"], true);
-    assert_eq!(g1["reply"], g2["reply"]);
-    assert_eq!(g1["model_sha256"], hosted_status["container_sha256"]);
+    // Verify 30L x 576D deterministic generation via selected_model = "uor-r4.recompiled-v12-agent"
+    let det_req = serde_json::json!({
+        "prompt": "What is our updated codename?",
+        "composer_mode": "agentic",
+        "selected_model": "uor-r4.recompiled-v12-agent",
+    })
+    .to_string();
+    let mut g1_engine = StudioEngine::new_default();
+    g1_engine
+        .gllm_load_v10_shards(&manifest_str, &shard_refs)
+        .expect("mount g1");
+    let mut g2_engine = StudioEngine::new_default();
+    g2_engine
+        .gllm_load_v10_shards(&manifest_str, &shard_refs)
+        .expect("mount g2");
+    let g1: serde_json::Value =
+        serde_json::from_str(&g1_engine.chat_assistant_json(&det_req)).expect("gen json 1");
+    let g2: serde_json::Value =
+        serde_json::from_str(&g2_engine.chat_assistant_json(&det_req)).expect("gen json 2");
+    assert_eq!(g1["status"], "ok");
+    assert_eq!(g1["geometric_metrics"]["n_layers"], 30);
+    assert_eq!(g1["geometric_metrics"]["d_model"], 576);
+    assert_eq!(g1["geometric_metrics"]["float_ops"], 0);
+    assert_eq!(g1["geometric_metrics"]["dense_matmul_ops"], 0);
+    assert_eq!(g1["assistant_reply"], g2["assistant_reply"]);
+    assert_eq!(
+        hosted_status["container_sha256"],
+        manifest["container_sha256"]
+    );
 }
 
 #[test]
@@ -351,6 +370,8 @@ fn test_v11_stitch_xor_2of3_shard_recovery_and_load() {
         std::fs::read_to_string(weights_dir.join("manifest.json")).expect("read manifest.json");
     let manifest: serde_json::Value =
         serde_json::from_str(&manifest_str).expect("parse manifest.json");
+    assert_eq!(manifest["format"], "UORR4V12");
+    assert_eq!(manifest["total_bytes"], 75_684_407);
 
     let stitch_str = std::fs::read_to_string(weights_dir.join("manifest.stitch.json"))
         .expect("read manifest.stitch.json");
@@ -360,9 +381,9 @@ fn test_v11_stitch_xor_2of3_shard_recovery_and_load() {
     let n_data = stitch["data_shard_count"]
         .as_u64()
         .expect("data_shard_count") as usize;
-    assert_eq!(n_data, 79);
+    assert_eq!(n_data, 73);
     let groups = stitch["groups"].as_array().expect("stitch groups");
-    assert_eq!(groups.len(), 40);
+    assert_eq!(groups.len(), 37);
     assert_eq!(stitch["parity_shard_count"], groups.len());
 
     let data_arr = manifest["shards"].as_array().expect("data shards");
@@ -404,17 +425,17 @@ fn test_v11_stitch_xor_2of3_shard_recovery_and_load() {
     );
     data_shards[17] = rec_17;
 
-    // Case 3: Drop unpaired tail shard (`shard_078.bin`, recovered against zeros + `parity_039`)
-    let orig_78 = data_shards[78].clone();
-    let rec_78 = xor_recover_shard(&[], &parity_shards[39], orig_78.len());
-    assert_eq!(rec_78, orig_78, "XOR recovery failed on tail shard_078");
+    // Case 3: Drop unpaired tail shard (`shard_072.bin`, recovered against zeros + `parity_036`)
+    let orig_72 = data_shards[72].clone();
+    let rec_72 = xor_recover_shard(&[], &parity_shards[36], orig_72.len());
+    assert_eq!(rec_72, orig_72, "XOR recovery failed on tail shard_072");
     assert_eq!(
-        sha256_hex(&rec_78),
-        data_arr[78]["sha256"].as_str().unwrap()
+        sha256_hex(&rec_72),
+        data_arr[72]["sha256"].as_str().unwrap()
     );
-    data_shards[78] = rec_78;
+    data_shards[72] = rec_72;
 
-    // Load XOR-recovered shards into StudioEngine and verify identical SHA-256
+    // Load XOR-recovered shards into StudioEngine and verify identical SHA-256 + 30L mount
     let refs: Vec<&[u8]> = data_shards.iter().map(|b| b.as_slice()).collect();
     let mut engine = StudioEngine::new_default();
     let rec_raw = engine
@@ -423,6 +444,10 @@ fn test_v11_stitch_xor_2of3_shard_recovery_and_load() {
     let rec_val: serde_json::Value =
         serde_json::from_str(&rec_raw).expect("parse recovered status json");
     assert_eq!(rec_val["status"], "ok");
+    assert_eq!(rec_val["format"], "UORR4V12");
+    assert_eq!(rec_val["full_recompiled_mounted"], true);
+    assert_eq!(rec_val["n_layers"], 30);
+    assert_eq!(rec_val["d_model"], 576);
     assert_eq!(rec_val["container_sha256"], manifest["container_sha256"]);
 }
 

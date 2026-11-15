@@ -3309,6 +3309,17 @@ select.composer-model-select {
   line-height: 1.5;
 }
 
+.frontier-summary-banner .paper-actions {
+  margin-top: 0.55rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+#verdant-synthesis-kpi-grid {
+  margin-bottom: 0.75rem;
+}
+
 .frontier-claims-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

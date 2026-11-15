@@ -47,28 +47,28 @@ export interface ComposerModelOption {
 
 export const COMPOSER_MODELS: readonly ComposerModelOption[] = [
   {
-    id: 'uor-r4.gllm-v11-agent',
-    name: 'UOR-R4 GLLM v11 Agent (uor-r4.lut-stack/8)',
+    id: 'uor-r4.recompiled-v12-agent',
+    name: 'UOR-R4 v12 Recompiled Agent (30L 576D SmolLM2-135M)',
     contextWindow: '256k',
-    badge: 'ReAct + R4-32 Verifier',
+    badge: 'Zero-Float Agent + Watchdog',
   },
   {
-    id: 'uor-r4.gllm-v11-chat',
-    name: 'UOR-R4 GLLM v11 Chat (uor-r4.lut-stack/8)',
+    id: 'uor-r4.recompiled-v12-chat',
+    name: 'UOR-R4 v12 Recompiled Chat (30L Geometric Stack)',
     contextWindow: '256k',
-    badge: 'Rolling 256D Carry',
+    badge: 'Neural Geometric Chat',
   },
   {
-    id: 'uor-r4.gllm-v11-code',
-    name: 'UOR-R4 GLLM v11 Code (uor-r4.lut-stack/8)',
+    id: 'uor-r4.seed-fast',
+    name: 'UOR-R4 Embedded Seed Fast (0-Download 8L 256D)',
     contextWindow: '256k',
-    badge: 'Multi-File Patch',
+    badge: 'Embedded Seed Fallback',
   },
   {
-    id: 'uor-r4.opfs-large',
-    name: 'UOR-R4 OPFS Large (uor-r4.lut-stack/8)',
+    id: 'uor-r4.lut-symbolic',
+    name: 'UOR-R4 Symbolic LUT (uor-r4.lut-stack/8 + MVM)',
     contextWindow: '256k',
-    badge: '79 Shards + Stitch 2-of-3',
+    badge: 'Symbolic LUT + MVM',
   },
 ];
 
@@ -160,7 +160,7 @@ export class AgenticTypeScriptComposer {
     this.state = {
       rawText: '',
       mode: 'agentic',
-      selectedModel: 'uor-r4.gllm-v11-agent',
+      selectedModel: 'uor-r4.recompiled-v12-agent',
       savedDraft: null,
       attachments: [],
       history: [],

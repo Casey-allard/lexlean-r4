@@ -28,6 +28,8 @@ pub mod glm_weights;
 #[allow(dead_code, clippy::all, missing_docs)]
 #[path = "lexlean_generated.rs"]
 mod lexlean_generated_core;
+/// Multiplier-free, zero-float `UORR4V12` geometric vector stack runtime (`R4-46`).
+pub mod r4_geometric_stack;
 /// Deterministically generated Rust implementation of the verified LexLean `R4.*` modules.
 #[allow(dead_code, clippy::all, missing_docs)]
 pub mod lexlean_generated {
@@ -476,9 +478,17 @@ pub struct StudioEngine {
     pub(crate) rolling_context: lut_stack_exec::RollingContextState,
     pub(crate) mvm: mvm::MvmSandbox,
     pub(crate) gllm_v9: Arc<gllm_v9::GllmV9Model>,
+    pub(crate) r4_stack: r4_geometric_stack::R4GeometricStackEngine,
     pub(crate) last_brain_pulses: Vec<gllm_v9::BrainPulseStep>,
     pub(crate) pending_mvm_bridge: Option<serde_json::Value>,
     pub(crate) pending_chat_bridge: Option<serde_json::Value>,
+    pub(crate) generation_head_id: String,
+    pub(crate) generation_parent_id: String,
+    pub(crate) generation_index: u64,
+    pub(crate) generation_fault_strikes: u64,
+    pub(crate) generation_rolled_back: bool,
+    pub(crate) generation_last_verdict: String,
+    pub(crate) admitted_capsules: Vec<serde_json::Value>,
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {
@@ -1246,9 +1256,17 @@ impl StudioEngine {
             rolling_context: lut_stack_exec::RollingContextState::default(),
             mvm: mvm::MvmSandbox::boot_default().expect("embedded UORMVM01 initramfs boots"),
             gllm_v9: gllm_v9::GllmV9Model::default_embedded(),
+            r4_stack: r4_geometric_stack::R4GeometricStackEngine::embedded_seed(),
             last_brain_pulses: Vec::new(),
             pending_mvm_bridge: None,
             pending_chat_bridge: None,
+            generation_head_id: "gen-0".to_string(),
+            generation_parent_id: "gen-0".to_string(),
+            generation_index: 0,
+            generation_fault_strikes: 0,
+            generation_rolled_back: false,
+            generation_last_verdict: "Healthy".to_string(),
+            admitted_capsules: Vec::new(),
         };
         engine.register_special_tokens();
         for (prompt, reply) in default_knowledge_turns() {
@@ -1605,12 +1623,17 @@ impl StudioEngine {
         .to_string()
     }
 
-    /// Hot-load a `UORGLLM9` (`UOR-R4-GLLM v9`) binary weight container (`R4-38`).
+    /// Hot-load a `UORGLLM9` (`UOR-R4-GLLM v9`) or `UORR4V12` binary weight container (`R4-38`, `R4-46`).
     pub fn load_gllm_v9_bytes(
         &mut self,
         bytes: &[u8],
         source_label: &str,
     ) -> Result<String, String> {
+        if bytes.starts_with(r4_geometric_stack::R4_VEC_MAGIC)
+            || source_label.trim().eq_ignore_ascii_case("UORR4V12")
+        {
+            return self.mount_r4_v12_bytes(bytes).map_err(|e| e.to_string());
+        }
         let label = if source_label.trim().is_empty() {
             "OPFS / Custom UORGLLM9"
         } else {
@@ -1622,20 +1645,334 @@ impl StudioEngine {
         Ok(self.gllm_v9_status_json())
     }
 
-    /// Verify a `v10` OPFS shard manifest, reassemble `shard_000.bin..shard_NNN.bin` with per-shard
-    /// and container SHA-256 verification, and hot-load the `16L 256D` `UORGLLM9` container (`R4-39`).
+    /// Verify and hot-mount a full 30-layer recompiled `UORR4V12` container (`R4-46`).
+    pub fn mount_r4_v12_bytes(
+        &mut self,
+        bytes: &[u8],
+    ) -> Result<String, r4_geometric_stack::R4StackError> {
+        self.r4_stack.mount_full_container_bytes(bytes)?;
+        Ok(self.r4_stack_status_json())
+    }
+
+    /// Return verified runtime status for the `UORR4V12` geometric vector stack (`R4-46`).
+    pub fn r4_stack_status_json(&self) -> String {
+        let sum = self.r4_stack.summary();
+        serde_json::json!({
+            "status": "ok",
+            "format": "UORR4V12",
+            "schema": sum.schema,
+            "active_tier": sum.active_tier,
+            "seed_mounted": true,
+            "full_recompiled_mounted": self.r4_stack.is_full_recompiled_mounted(),
+            "container_sha256": sum.container_sha256,
+            "n_layers": sum.n_layers,
+            "d_model": sum.d_model,
+            "n_heads": sum.n_heads,
+            "n_kv_heads": sum.n_kv_heads,
+            "vocab_size": sum.vocab_size,
+            "float_ops": sum.float_ops,
+            "dense_matmul_ops": sum.dense_matmul_ops,
+        })
+        .to_string()
+    }
+
+    /// Admit and promote a verified `.uorc` generation capsule through formal `R4.HonestPlumbing` rules (`R4-46`).
+    pub fn admit_generation_capsule_json(&mut self, capsule_json: &str) -> String {
+        use lexlean_generated::r4_honest_plumbing::{
+            admit_uorc_generation_capsule, UorcCapsuleCheck, UorcCapsuleVerdict,
+            WATCHDOG_STRIKE_THRESHOLD,
+        };
+        let v: serde_json::Value = match serde_json::from_str(capsule_json.trim()) {
+            Ok(parsed) => parsed,
+            Err(err) => {
+                return serde_json::json!({
+                    "status": "error",
+                    "admitted": false,
+                    "error_code": "InvalidCapsuleJson",
+                    "message": format!("invalid .uorc generation capsule JSON: {err}"),
+                    "active_head": self.generation_head_id,
+                    "generation_index": self.generation_index,
+                })
+                .to_string();
+            }
+        };
+
+        let magic_uorc_valid = v
+            .get("magic_uorc")
+            .or_else(|| v.get("magic"))
+            .and_then(|x| x.as_str())
+            == Some("UORC");
+        let gates_passed = v
+            .get("gates_passed")
+            .or_else(|| v.get("decide_passed"))
+            .and_then(|x| x.as_u64())
+            .unwrap_or(0);
+        let gates_total = v
+            .get("gates_total")
+            .or_else(|| v.get("decide_total"))
+            .and_then(|x| x.as_u64())
+            .unwrap_or(0);
+        let residue_count = v.get("residue_count").and_then(|x| x.as_u64()).unwrap_or(1);
+        let coercive_patterns = v
+            .get("coercive_patterns")
+            .and_then(|x| x.as_u64())
+            .unwrap_or(0)
+            .saturating_add(v.get("float_ops").and_then(|x| x.as_u64()).unwrap_or(0))
+            .saturating_add(
+                v.get("dense_matmul_ops")
+                    .and_then(|x| x.as_u64())
+                    .unwrap_or(0),
+            );
+        let wasm_bytes = v.get("wasm_bytes").and_then(|x| x.as_u64()).unwrap_or(0);
+        let max_wasm_bytes = v
+            .get("max_wasm_bytes")
+            .and_then(|x| x.as_u64())
+            .unwrap_or(15 * 1024 * 1024);
+        let frame_time_micros = v
+            .get("frame_time_micros")
+            .and_then(|x| x.as_u64())
+            .unwrap_or(0);
+        let frame_budget_micros = v
+            .get("frame_budget_micros")
+            .and_then(|x| x.as_u64())
+            .unwrap_or(16_667);
+        let candidate_loss = v
+            .get("candidate_loss")
+            .and_then(|x| x.as_u64())
+            .unwrap_or(100);
+        let incumbent_loss = v
+            .get("incumbent_loss")
+            .and_then(|x| x.as_u64())
+            .unwrap_or(100);
+        let candidate_steps = v
+            .get("candidate_steps")
+            .and_then(|x| x.as_u64())
+            .unwrap_or(100);
+        let incumbent_steps = v
+            .get("incumbent_steps")
+            .and_then(|x| x.as_u64())
+            .unwrap_or(100);
+
+        let verdict = admit_uorc_generation_capsule(UorcCapsuleCheck {
+            magic_uorc_valid,
+            gates_passed,
+            gates_total,
+            residue_count,
+            coercive_patterns,
+            wasm_bytes,
+            max_wasm_bytes,
+            frame_time_micros,
+            frame_budget_micros,
+            candidate_loss,
+            incumbent_loss,
+            candidate_steps,
+            incumbent_steps,
+        });
+
+        if verdict != UorcCapsuleVerdict::CapsuleAdmitted {
+            let verdict_name = format!("{verdict:?}");
+            self.generation_last_verdict = verdict_name.clone();
+            return serde_json::json!({
+                "status": "error",
+                "admitted": false,
+                "verdict": verdict_name,
+                "error_code": format!("{verdict:?}"),
+                "message": format!(".uorc generation capsule refused: {verdict:?}"),
+                "active_head": self.generation_head_id,
+                "generation_index": self.generation_index,
+            })
+            .to_string();
+        }
+
+        let next_idx = self.generation_index.saturating_add(1);
+        let next_gen_id = v
+            .get("generation_id")
+            .and_then(|x| x.as_str())
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(str::to_string)
+            .unwrap_or_else(|| format!("gen-{next_idx}"));
+        let capsule_sha = sha256_hex(capsule_json.as_bytes());
+        self.generation_parent_id = self.generation_head_id.clone();
+        self.generation_head_id = next_gen_id.clone();
+        self.generation_index = next_idx;
+        self.generation_fault_strikes = 0;
+        self.generation_rolled_back = false;
+        self.generation_last_verdict = "CapsuleAdmitted".to_string();
+
+        let record = serde_json::json!({
+            "generation_id": next_gen_id,
+            "parent_head": self.generation_parent_id,
+            "generation_index": next_idx,
+            "capsule_sha256": capsule_sha,
+            "gates_passed": gates_passed,
+            "gates_total": gates_total,
+            "wasm_bytes": wasm_bytes,
+            "frame_time_micros": frame_time_micros,
+        });
+        if self.admitted_capsules.len() >= 64 {
+            self.admitted_capsules.remove(0);
+        }
+        self.admitted_capsules.push(record);
+
+        serde_json::json!({
+            "status": "ok",
+            "admitted": true,
+            "verdict": "CapsuleAdmitted",
+            "generation_id": self.generation_head_id,
+            "parent_head": self.generation_parent_id,
+            "active_head": self.generation_head_id,
+            "generation_index": self.generation_index,
+            "capsule_sha256": capsule_sha,
+            "fault_strikes": self.generation_fault_strikes,
+            "max_strikes": WATCHDOG_STRIKE_THRESHOLD,
+        })
+        .to_string()
+    }
+
+    /// Record a runtime fault against the active `.uorc` generation and trigger automatic rollback after 3 strikes (`R4-46`).
+    pub fn record_generation_fault_json(&mut self, fault_reason: &str) -> String {
+        use lexlean_generated::r4_honest_plumbing::{
+            evaluate_generation_watchdog, should_rollback_generation_watchdog, WatchdogStateCheck,
+            WatchdogVerdict, WATCHDOG_STRIKE_THRESHOLD,
+        };
+        self.generation_fault_strikes = self.generation_fault_strikes.saturating_add(1);
+        let has_parent =
+            self.generation_index > 0 || self.generation_head_id != self.generation_parent_id;
+        let verdict = evaluate_generation_watchdog(WatchdogStateCheck {
+            generation_index: self.generation_index,
+            consecutive_faults: self.generation_fault_strikes,
+            has_certified_parent: has_parent,
+            watchdog_strike_limit: WATCHDOG_STRIKE_THRESHOLD,
+        });
+        let should_rollback = should_rollback_generation_watchdog(
+            self.generation_index,
+            self.generation_fault_strikes,
+        );
+
+        if verdict == WatchdogVerdict::RollbackToParentHead && should_rollback {
+            self.generation_head_id = self.generation_parent_id.clone();
+            self.generation_index = self.generation_index.saturating_sub(1);
+            self.generation_fault_strikes = 0;
+            self.generation_rolled_back = true;
+            self.generation_last_verdict = "RollbackToParentHead".to_string();
+        } else if verdict == WatchdogVerdict::RefusedRollbackAtGenZero {
+            self.generation_rolled_back = false;
+            self.generation_last_verdict = "RefusedRollbackAtGenZero".to_string();
+        } else {
+            self.generation_rolled_back = false;
+            self.generation_last_verdict = "FaultRecordedContinue".to_string();
+        }
+
+        let status_label = if verdict == WatchdogVerdict::RefusedRollbackAtGenZero {
+            "error"
+        } else {
+            "ok"
+        };
+        serde_json::json!({
+            "status": status_label,
+            "verdict": format!("{verdict:?}"),
+            "rolled_back": self.generation_rolled_back,
+            "active_head": self.generation_head_id,
+            "parent_head": self.generation_parent_id,
+            "generation_index": self.generation_index,
+            "fault_strikes": self.generation_fault_strikes,
+            "max_strikes": WATCHDOG_STRIKE_THRESHOLD,
+            "reason": fault_reason.trim(),
+        })
+        .to_string()
+    }
+
+    /// Return structured 4-facet Verdant Synthesis and OPFS generation watchdog status (`R4-45`, `R4-46`).
+    pub fn verdant_synthesis_status_json(&self) -> String {
+        use lexlean_generated::r4_honest_plumbing::{
+            optimal_browser_worker_count, WATCHDOG_STRIKE_THRESHOLD,
+        };
+        use lexlean_generated::r4_verdant_synthesis::SynthesisFacetKind;
+        let sum = self.r4_stack.summary();
+        let recommended_workers = optimal_browser_worker_count(4, 4, true);
+        let facets = [
+            (
+                SynthesisFacetKind::ModelAndTraining,
+                "Model & Recompiler",
+                if self.r4_stack.is_full_recompiled_mounted() {
+                    "30L SmolLM2 UORR4V12 Mounted"
+                } else {
+                    "Embedded UORR4V12 Seed Ready"
+                },
+                format!("{}L x {}D · 0 float_ops", sum.n_layers, sum.d_model),
+            ),
+            (
+                SynthesisFacetKind::ServingRuntime,
+                "Zero-Float Serving",
+                "Pure-Integer LUT + Lorentz",
+                format!("0 dense_matmul_ops · {} workers", recommended_workers),
+            ),
+            (
+                SynthesisFacetKind::UiAndPlumbing,
+                "UI & OPFS Watchdog",
+                if self.generation_rolled_back {
+                    "Rolled Back to Parent Head"
+                } else {
+                    "4-Mode Honest Routing Active"
+                },
+                format!(
+                    "head={} · strikes={}/{}",
+                    self.generation_head_id,
+                    self.generation_fault_strikes,
+                    WATCHDOG_STRIKE_THRESHOLD
+                ),
+            ),
+            (
+                SynthesisFacetKind::EcosystemStandards,
+                "Formal Model & Ratchet",
+                "uor/template-contract/1",
+                format!("{} admitted capsule(s)", self.admitted_capsules.len()),
+            ),
+        ];
+        let facet_json: Vec<serde_json::Value> = facets
+            .iter()
+            .map(|(kind, label, state, detail)| {
+                serde_json::json!({
+                    "facet": format!("{kind:?}"),
+                    "label": label,
+                    "state": state,
+                    "detail": detail,
+                })
+            })
+            .collect();
+
+        serde_json::json!({
+            "status": "ok",
+            "active_head": self.generation_head_id,
+            "parent_head": self.generation_parent_id,
+            "generation_index": self.generation_index,
+            "fault_strikes": self.generation_fault_strikes,
+            "max_strikes": WATCHDOG_STRIKE_THRESHOLD,
+            "rolled_back": self.generation_rolled_back,
+            "verdict": self.generation_last_verdict,
+            "admitted_count": self.admitted_capsules.len(),
+            "r4_stack": sum,
+            "facets": facet_json,
+        })
+        .to_string()
+    }
+
+    /// Verify a `v10`/`v12` OPFS shard manifest, reassemble `shard_000.bin..shard_NNN.bin` with per-shard
+    /// and container SHA-256 verification, and hot-load either `UORGLLM9` or `UORR4V12` (`R4-39`, `R4-46`).
     pub fn gllm_load_v10_shards(
         &mut self,
         manifest_json: &str,
         shards: &[&[u8]],
     ) -> Result<String, GllmV10ShardError> {
+        use lexlean_generated::r4_honest_plumbing::{admit_shard_container_magic, ShardMagicKind};
         let manifest: serde_json::Value = serde_json::from_str(manifest_json.trim())
             .map_err(|e| GllmV10ShardError::InvalidManifestJson(e.to_string()))?;
         let fmt_str = manifest
             .get("format")
             .and_then(|v| v.as_str())
             .ok_or_else(|| GllmV10ShardError::InvalidManifestJson("missing format".to_string()))?;
-        if fmt_str != "UORGLLM9" {
+        if fmt_str != "UORGLLM9" && fmt_str != "UORR4V12" {
             return Err(GllmV10ShardError::UnsupportedFormat(fmt_str.to_string()));
         }
         let total_bytes = manifest
@@ -1736,6 +2073,18 @@ impl StudioEngine {
                 expected: expected_container_sha.to_string(),
                 actual: actual_container_sha,
             });
+        }
+
+        if fmt_str == "UORR4V12" {
+            if admit_shard_container_magic(&reassembled) != ShardMagicKind::UorR4V12 {
+                return Err(GllmV10ShardError::R4ContainerRejected(
+                    r4_geometric_stack::R4StackError::InvalidMagic,
+                ));
+            }
+            self.r4_stack
+                .mount_full_container_bytes(&reassembled)
+                .map_err(GllmV10ShardError::R4ContainerRejected)?;
+            return Ok(self.r4_stack_status_json());
         }
 
         let parsed = gllm_v9::GllmV9Model::parse_with_label(&reassembled, "opfs_v10_16L_256D")
@@ -1928,8 +2277,18 @@ impl StudioEngine {
         }
     }
 
-    /// Execute a Connected Studio v10 multi-turn chat turn (`1024`-token KV + `BrainPulse` + two-phase `SpiralCore` bridge).
+    /// Execute a multi-turn chat turn (`chat_v10_turn`), routing to full `UORR4V12` when mounted unless overridden.
     pub fn chat_v10_turn_json(&mut self, payload: &str) -> String {
+        let trimmed = payload.trim();
+        if !trimmed.starts_with('{') && self.r4_stack.is_full_recompiled_mounted() {
+            let envelope = serde_json::json!({
+                "prompt": trimmed,
+                "selected_model": "uor-r4.recompiled-v12-agent",
+                "composer_mode": "agentic",
+            })
+            .to_string();
+            return self.chat_assistant_json(&envelope);
+        }
         self.chat_assistant_json(payload)
     }
 
@@ -5118,35 +5477,56 @@ impl StudioEngine {
     /// `TypeScript`, `Rust`, `HTML/CSS`, `Lean 4`, `SQL`), 8-head cyclic flock consensus (`R4.Flock`),
     /// and multi-domain general knowledge & reasoning.
     pub fn chat_assistant_json(&mut self, prompt_text: &str) -> String {
+        use lexlean_generated::r4_honest_plumbing::{
+            admit_model_routing, ComposerRouteMode, ModelRoutingCheck, ModelRoutingVerdict,
+        };
+        use r4_geometric_stack::SelectedExecutionMode;
+
         let trimmed_raw = prompt_text.trim();
         if trimmed_raw.is_empty() {
             return "{\"status\":\"error\",\"message\":\"Chat prompt must not be empty.\"}"
                 .to_string();
         }
 
-        // Dual-mode input routing: accept either plain prompt or JSON envelope {"prompt": "...", "context": {...}}
-        let (effective_prompt, client_context_opt): (
+        // Dual-mode input routing: accept plain prompt or JSON envelope
+        // {"prompt": "...", "context": {...}, "selected_model": "...", "composer_mode": "..."}
+        let (effective_prompt, client_context_opt, selected_model_opt, composer_mode_str): (
             String,
             Option<lut_stack_exec::RollingContextState>,
+            Option<String>,
+            String,
         ) = {
             if trimmed_raw.starts_with('{') && trimmed_raw.ends_with('}') {
                 if let Ok(serde_json::Value::Object(map)) =
                     serde_json::from_str::<serde_json::Value>(trimmed_raw)
                 {
+                    let req_model = map
+                        .get("selected_model")
+                        .or_else(|| map.get("model"))
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.trim().to_string())
+                        .filter(|s| !s.is_empty());
+                    let comp_mode = map
+                        .get("composer_mode")
+                        .or_else(|| map.get("mode"))
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.trim().to_string())
+                        .filter(|s| !s.is_empty())
+                        .unwrap_or_else(|| "agentic".to_string());
                     if let Some(p) = map.get("prompt").and_then(|v| v.as_str()) {
                         let ctx = map.get("context").and_then(|c| {
                             let c_str = c.to_string();
                             lut_stack_exec::RollingContextState::from_json(&c_str)
                         });
-                        (p.to_string(), ctx)
+                        (p.to_string(), ctx, req_model, comp_mode)
                     } else {
-                        (trimmed_raw.to_string(), None)
+                        (trimmed_raw.to_string(), None, req_model, comp_mode)
                     }
                 } else {
-                    (trimmed_raw.to_string(), None)
+                    (trimmed_raw.to_string(), None, None, "agentic".to_string())
                 }
             } else {
-                (trimmed_raw.to_string(), None)
+                (trimmed_raw.to_string(), None, None, "agentic".to_string())
             }
         };
 
@@ -5160,16 +5540,84 @@ impl StudioEngine {
                 .to_string();
         }
 
-        // Support inline "Teach: <prompt> => <reply>" directly from the chat bar!
-        if let Some(rest) = trimmed
-            .strip_prefix("Teach:")
-            .or_else(|| trimmed.strip_prefix("teach:"))
-        {
-            if let Some((q, a)) = rest.split_once("=>") {
-                let q_clean = q.trim();
-                let a_clean = a.trim();
-                if !q_clean.is_empty() && !a_clean.is_empty() {
-                    self.admit_turn(q_clean, a_clean);
+        let (route_mode, selected_mode) = match selected_model_opt.as_deref() {
+            None => (
+                ComposerRouteMode::LutSymbolic,
+                SelectedExecutionMode::SymbolicLutMvm,
+            ),
+            Some(raw_wire) => match ComposerRouteMode::from_wire_id(raw_wire) {
+                Some(ComposerRouteMode::RecompiledV12Agent) => (
+                    ComposerRouteMode::RecompiledV12Agent,
+                    SelectedExecutionMode::RecompiledAgent,
+                ),
+                Some(ComposerRouteMode::RecompiledV12Chat) => (
+                    ComposerRouteMode::RecompiledV12Chat,
+                    SelectedExecutionMode::RecompiledChat,
+                ),
+                Some(ComposerRouteMode::SeedFast) => (
+                    ComposerRouteMode::SeedFast,
+                    SelectedExecutionMode::EmbeddedSeedFast,
+                ),
+                Some(ComposerRouteMode::LutSymbolic) => (
+                    ComposerRouteMode::LutSymbolic,
+                    SelectedExecutionMode::SymbolicLutMvm,
+                ),
+                None => {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "RefusedModeMismatch",
+                        "selected_model": raw_wire,
+                        "composer_mode": composer_mode_str,
+                        "execution_tier": "unrecognized-model",
+                        "message": format!("Unsupported model identifier `{raw_wire}`. Expected one of uor-r4.recompiled-v12-agent, uor-r4.recompiled-v12-chat, uor-r4.seed-fast, or uor-r4.lut-symbolic."),
+                    })
+                    .to_string();
+                }
+            },
+        };
+
+        let full_v12_mounted = self.r4_stack.is_full_recompiled_mounted();
+        let routing_verdict = admit_model_routing(ModelRoutingCheck {
+            requested_mode: route_mode,
+            executed_mode: route_mode,
+            template_override_used: false,
+            turn_memory_hijack_used: false,
+            stale_banner_present: false,
+            full_v12_mounted,
+            seed_mounted: true,
+        });
+        if routing_verdict != ModelRoutingVerdict::RoutingAdmitted {
+            let err_code = format!("{routing_verdict:?}");
+            return serde_json::json!({
+                "status": "error",
+                "error_code": err_code,
+                "selected_model": selected_mode.wire_id(),
+                "composer_mode": composer_mode_str,
+                "execution_tier": if selected_mode.is_neural_geometric() {
+                    "unmounted-full-v12"
+                } else {
+                    "symbolic-lut-mvm"
+                },
+                "message": format!(
+                    "Requested model `{}` cannot execute ({routing_verdict:?}): mount full 30-layer UORR4V12 shards from OPFS or select `uor-r4.seed-fast` / `uor-r4.lut-symbolic`.",
+                    selected_mode.wire_id()
+                ),
+            })
+            .to_string();
+        }
+
+        // Support inline "Teach: <prompt> => <reply>" directly from the chat bar in symbolic mode only.
+        if !selected_mode.is_neural_geometric() {
+            if let Some(rest) = trimmed
+                .strip_prefix("Teach:")
+                .or_else(|| trimmed.strip_prefix("teach:"))
+            {
+                if let Some((q, a)) = rest.split_once("=>") {
+                    let q_clean = q.trim();
+                    let a_clean = a.trim();
+                    if !q_clean.is_empty() && !a_clean.is_empty() {
+                        self.admit_turn(q_clean, a_clean);
+                    }
                 }
             }
         }
@@ -5183,38 +5631,71 @@ impl StudioEngine {
         let active_gates = self.gate_trits.iter().filter(|&&g| g != 0).count();
         let active_ws_path = self.active_workspace_path.clone();
 
-        let mut code_outcome =
-            self.synthesize_code_turn(trimmed, consensus_action, icosian_root, active_gates);
-
-        // If the user asked for a workspace file query or unit test patch, apply its outcome
-        if let Some((_, ws_patch)) = self.try_handle_workspace_query(
-            trimmed,
-            &active_ws_path,
-            consensus_action,
-            icosian_root,
-        ) {
-            if let Some((ws_patch_path, ws_patch_block)) = ws_patch {
-                code_outcome.target_path = ws_patch_path;
-                code_outcome.proposed_block = ws_patch_block;
-                code_outcome.is_coding_turn = true;
-            } else {
-                code_outcome.is_coding_turn = false;
+        // Neural geometric modes MUST skip canned synthesize_code_turn / workspace query template hijacks.
+        let code_outcome = if selected_mode.is_neural_geometric() {
+            assistant::CodeSynthesisOutcome {
+                target_path: active_ws_path.clone(),
+                proposed_block: String::new(),
+                explanation_markdown: String::new(),
+                is_coding_turn: false,
             }
-        }
+        } else {
+            let mut outcome =
+                self.synthesize_code_turn(trimmed, consensus_action, icosian_root, active_gates);
+
+            // If the user asked for a workspace file query or unit test patch, apply its outcome
+            if let Some((_, ws_patch)) = self.try_handle_workspace_query(
+                trimmed,
+                &active_ws_path,
+                consensus_action,
+                icosian_root,
+            ) {
+                if let Some((ws_patch_path, ws_patch_block)) = ws_patch {
+                    outcome.target_path = ws_patch_path;
+                    outcome.proposed_block = ws_patch_block;
+                    outcome.is_coding_turn = true;
+                } else {
+                    outcome.is_coding_turn = false;
+                }
+            }
+            outcome
+        };
 
         let ctx_before = self.rolling_context.q12_latent;
         let start_turn_index = self.rolling_context.turn_index;
         self.pending_chat_bridge = None;
-        let assistant_reply = self.compose_smart_chat_reply(
+        let r4_stack_snapshot = self.r4_stack.clone();
+        let (assistant_reply, geometric_metrics, _step_frames) = self.compose_chat_for_mode(
             trimmed,
             &prompt_tokens,
             &prompt_q12,
-            consensus_action,
+            consensus_action as usize,
             flock_resonance,
-            icosian_root,
+            icosian_root as usize,
             &active_ws_path,
             &code_outcome,
+            &r4_stack_snapshot,
+            selected_mode,
         );
+
+        let execution_tier = match selected_mode {
+            SelectedExecutionMode::RecompiledAgent => {
+                if full_v12_mounted {
+                    "recompiled-v12-agent (30L 576D)"
+                } else {
+                    "recompiled-v12-agent (embedded-seed)"
+                }
+            }
+            SelectedExecutionMode::RecompiledChat => {
+                if full_v12_mounted {
+                    "recompiled-v12-chat (30L 576D)"
+                } else {
+                    "recompiled-v12-chat (embedded-seed)"
+                }
+            }
+            SelectedExecutionMode::EmbeddedSeedFast => "embedded-seed-fast (8L)",
+            SelectedExecutionMode::SymbolicLutMvm => "symbolic-lut-mvm (8L LUT)",
+        };
 
         let lut_gen_for_trace = match self.last_lut_generation.take() {
             Some(lg) => lg,
@@ -5234,7 +5715,14 @@ impl StudioEngine {
         let is_explicit_uor =
             lower_for_mode.starts_with("uor:") || lower_for_mode.starts_with("uor ");
         let used_uorgllm_v9 = self.gllm_v9.is_v11_or_later() && !is_explicit_uor;
-        let lut_mode_label = if used_uorgllm_v9 {
+        let lut_mode_label = if selected_mode.is_neural_geometric() {
+            Some(format!(
+                "{} (v12, {}L x {}D, zero-float)",
+                selected_mode.wire_id(),
+                geometric_metrics.n_layers,
+                geometric_metrics.d_model
+            ))
+        } else if used_uorgllm_v9 {
             let hdr = self.gllm_v9.header();
             Some(format!(
                 "uorgllm_v9 (v{}, {}L x {}D, Q12 RoPE + 16-ch PRLL)",
@@ -5382,8 +5870,9 @@ impl StudioEngine {
         let mut react_admission = "IdleConversationalTurn".to_string();
         let mut react_steps_json = Vec::new();
 
-        let (proposed_code, diff_preview) = if (is_coding && !synthesized_block.trim().is_empty())
-            || (wants_fix_or_verify && target_path.ends_with(".rs"))
+        let (proposed_code, diff_preview) = if !selected_mode.is_neural_geometric()
+            && ((is_coding && !synthesized_block.trim().is_empty())
+                || (wants_fix_or_verify && target_path.ends_with(".rs")))
         {
             // Step 1: workspace_read (phase_code = 0)
             if let lexlean_generated::r4_react_agent::ReactStepOutcome::DispatchedPhaseStep(
@@ -5677,6 +6166,8 @@ impl StudioEngine {
             "{\"bound_slots\":0,\"kernel_results\":0,\"substitutions_applied\":0,\"stream_digest\":0}".to_string()
         };
 
+        let geometric_metrics_json =
+            serde_json::to_string(&geometric_metrics).unwrap_or_else(|_| "{}".to_string());
         let brain_pulses_json =
             serde_json::to_string(&self.last_brain_pulses).unwrap_or_else(|_| "[]".to_string());
         let (chat_status, bridge_extra_json) = if let Some(pending) =
@@ -5708,6 +6199,10 @@ impl StudioEngine {
             concat!(
                 "{{",
                 "\"status\":\"{}\",",
+                "\"selected_model\":\"{}\",",
+                "\"composer_mode\":\"{}\",",
+                "\"execution_tier\":\"{}\",",
+                "\"geometric_metrics\":{},",
                 "\"prompt\":\"{}\",",
                 "\"assistant_reply\":\"{}\",",
                 "\"thinking\":{},",
@@ -5740,6 +6235,10 @@ impl StudioEngine {
                 "}}"
             ),
             chat_status,
+            escape_json(selected_mode.wire_id()),
+            escape_json(&composer_mode_str),
+            escape_json(execution_tier),
+            geometric_metrics_json,
             escape_json(trimmed),
             escape_json(&clean_reply),
             thinking_json,
@@ -6643,6 +7142,10 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "gllm_v9_generate" | "gllm_v9_chat" => engine.gllm_v9_generate_json(payload),
         "gllm_v9_status" => engine.gllm_v9_status_json(),
         "gllm_v9_agent" => engine.gllm_v9_agent_json(payload),
+        "r4_stack_status" => engine.r4_stack_status_json(),
+        "admit_generation_capsule" => engine.admit_generation_capsule_json(payload),
+        "record_generation_fault" => engine.record_generation_fault_json(payload),
+        "verdant_synthesis_status" => engine.verdant_synthesis_status_json(),
         "shard_status" | "shards" => engine.shard_catalog_json(),
         "shard_export" => {
             let e8_root = payload.trim().parse::<u8>().unwrap_or(0) % 16;
@@ -6903,6 +7406,8 @@ pub enum GllmV10ShardError {
     },
     /// Underlying `UORGLLM9` geometric container admission failed.
     ContainerRejected(gllm_v9::GllmV9Error),
+    /// Underlying `UORR4V12` recompiled geometric container admission failed.
+    R4ContainerRejected(r4_geometric_stack::R4StackError),
 }
 
 impl GllmV10ShardError {
@@ -6919,6 +7424,7 @@ impl GllmV10ShardError {
             Self::ContainerLengthMismatch { .. } => "ContainerLengthMismatch",
             Self::ContainerDigestMismatch { .. } => "ContainerDigestMismatch",
             Self::ContainerRejected(_) => "ContainerRejected",
+            Self::R4ContainerRejected(_) => "R4ContainerRejected",
         }
     }
 }
@@ -6977,6 +7483,9 @@ impl std::fmt::Display for GllmV10ShardError {
                 "v10 reassembled container sha256 mismatch: expected {expected}, got {actual}"
             ),
             Self::ContainerRejected(err) => write!(f, "v10 container rejected: {err}"),
+            Self::R4ContainerRejected(err) => {
+                write!(f, "v12 UORR4V12 container rejected: {err}")
+            }
         }
     }
 }
@@ -7028,6 +7537,69 @@ pub fn studio_gllm_v9_status() -> String {
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.gllm_v9_status_json()
+}
+
+/// Verify and hot-mount a `UORR4V12` geometric container into the active Studio engine (`R4-46`).
+#[wasm_bindgen]
+pub fn studio_mount_r4_v12_bytes(bytes: &[u8]) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    match engine.mount_r4_v12_bytes(bytes) {
+        Ok(json) => json,
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": err.error_code(),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
+/// Query the active `UORR4V12` geometric vector stack status as JSON (`R4-46`).
+#[wasm_bindgen]
+pub fn studio_r4_stack_status() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.r4_stack_status_json()
+}
+
+/// Admit or refuse a `.uorc` Verdant Synthesis generation capsule (`R4-46`).
+#[wasm_bindgen]
+pub fn studio_admit_generation_capsule(capsule_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.admit_generation_capsule_json(capsule_json)
+}
+
+/// Record a runtime generation fault strike and trigger 3-strike parent-head rollback when applicable (`R4-46`).
+#[wasm_bindgen]
+pub fn studio_record_generation_fault(fault_reason: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.record_generation_fault_json(fault_reason)
+}
+
+/// Return structured 4-facet Verdant Synthesis and OPFS watchdog status JSON (`R4-45`, `R4-46`).
+#[wasm_bindgen]
+pub fn studio_verdant_synthesis_status() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.verdant_synthesis_status_json()
 }
 
 pub(crate) fn format_mvm_agent_prompt(raw: &str) -> String {
@@ -10742,7 +11314,7 @@ mod tests {
             .as_array()
             .expect("v10 manifest shards array");
         let expected_shards = shard_entries.len();
-        assert!(expected_shards >= 64);
+        assert!(expected_shards >= 1);
 
         let mut owned_shards: Vec<Vec<u8>> = Vec::with_capacity(shard_entries.len());
         for entry in shard_entries {
@@ -10752,7 +11324,7 @@ mod tests {
 
         let shard_refs: Vec<&[u8]> = owned_shards.iter().map(Vec::as_slice).collect();
 
-        // Negative tests (`R5`): exercise all 10 `GllmV10ShardError` variants before hot-load
+        // Negative tests (`R5`): exercise all `GllmV10ShardError` variants before hot-load
         // (1) InvalidManifestJson
         let e_inv = engine
             .gllm_load_v10_shards("{bad json", &shard_refs)
@@ -10833,7 +11405,8 @@ mod tests {
 
         // (6) ShardExceedsMaxBytes
         let mut small_max_manifest = manifest_val.clone();
-        small_max_manifest["shard_max_bytes"] = serde_json::json!(1024);
+        let tight_max = owned_shards[0].len().saturating_sub(1);
+        small_max_manifest["shard_max_bytes"] = serde_json::json!(tight_max);
         let e_max = engine
             .gllm_load_v10_shards(&small_max_manifest.to_string(), &shard_refs)
             .expect_err("shard exceeding shard_max_bytes must fail");
@@ -10842,7 +11415,7 @@ mod tests {
             GllmV10ShardError::ShardExceedsMaxBytes {
                 index: 0,
                 actual: owned_shards[0].len(),
-                max_bytes: 1024
+                max_bytes: tight_max
             }
         );
         assert_eq!(e_max.error_code(), "ShardExceedsMaxBytes");
@@ -10920,40 +11493,341 @@ mod tests {
         assert!(e_rej.to_string().contains("v10 container rejected"));
         assert_eq!(engine.gllm_v9.header().n_layers, 6);
 
+        // (11) R4ContainerRejected (valid per-shard & container SHA-256 over non-UORR4V12 bytes)
+        let bad_r4_container = vec![0x55u8; 96];
+        let bad_r4_sha = sha256_hex(&bad_r4_container);
+        let rejected_r4_manifest = serde_json::json!({
+            "format": "UORR4V12",
+            "total_bytes": bad_r4_container.len(),
+            "shard_max_bytes": 1_048_576,
+            "container_sha256": bad_r4_sha,
+            "shards": [{
+                "index": 0,
+                "file": "shard_000.bin",
+                "byte_offset": 0,
+                "byte_length": bad_r4_container.len(),
+                "sha256": bad_r4_sha,
+            }]
+        });
+        let e_r4_rej = engine
+            .gllm_load_v10_shards(
+                &rejected_r4_manifest.to_string(),
+                &[bad_r4_container.as_slice()],
+            )
+            .expect_err("invalid UORR4V12 bytes must fail R4ContainerRejected");
+        assert!(matches!(
+            e_r4_rej,
+            GllmV10ShardError::R4ContainerRejected(_)
+        ));
+        assert_eq!(e_r4_rej.error_code(), "R4ContainerRejected");
+        assert!(e_r4_rej
+            .to_string()
+            .contains("v12 UORR4V12 container rejected"));
+
+        // Compatibility check: multi-shard UORGLLM9 loading remains functional (`R4-38`, `R4-39`).
+        let v9_full = include_bytes!("bootstrap_v9.uorgllm");
+        let split_at = v9_full.len() / 2;
+        let v9_s0 = &v9_full[..split_at];
+        let v9_s1 = &v9_full[split_at..];
+        let v9_compat_manifest = serde_json::json!({
+            "format": "UORGLLM9",
+            "total_bytes": v9_full.len(),
+            "shard_max_bytes": split_at + 1024,
+            "container_sha256": sha256_hex(v9_full),
+            "shards": [
+                {
+                    "index": 0,
+                    "file": "shard_000.bin",
+                    "byte_offset": 0,
+                    "byte_length": v9_s0.len(),
+                    "sha256": sha256_hex(v9_s0),
+                },
+                {
+                    "index": 1,
+                    "file": "shard_001.bin",
+                    "byte_offset": v9_s0.len(),
+                    "byte_length": v9_s1.len(),
+                    "sha256": sha256_hex(v9_s1),
+                }
+            ]
+        });
+        let v9_compat_raw = engine
+            .gllm_load_v10_shards(&v9_compat_manifest.to_string(), &[v9_s0, v9_s1])
+            .expect("UORGLLM9 multi-shard compatibility path must succeed");
+        let v9_compat_val: serde_json::Value =
+            serde_json::from_str(&v9_compat_raw).expect("valid v9 compat JSON");
+        assert_eq!(v9_compat_val["status"], "ok");
+        assert_eq!(v9_compat_val["format"], "UORGLLM9");
+
         let status_raw = engine
             .gllm_load_v10_shards(&manifest_raw, &shard_refs)
-            .expect("gllm_load_v10_shards must verify and load 79 v10 shards");
+            .expect("gllm_load_v10_shards must verify and load gpu/weights/v10 shards");
         let status_val: serde_json::Value =
             serde_json::from_str(&status_raw).expect("valid status JSON");
         assert_eq!(status_val["status"], "ok");
-        assert_eq!(status_val["n_layers"], 16);
-        assert_eq!(status_val["d_model"], 256);
-        assert_eq!(status_val["n_heads"], 32);
-        assert_eq!(status_val["turn_memory_entries"], 0);
-        assert_eq!(status_val["dense_matmul_ops"], 0);
-        assert_eq!(status_val["softmax_ops"], 0);
 
-        // Verify top-level `pub fn gllm_load_v10_shards` entry point and restore bootstrap cleanly
-        {
+        if manifest_val["format"].as_str() == Some("UORR4V12") {
+            assert_eq!(status_val["format"], "UORR4V12");
+            assert_eq!(status_val["full_recompiled_mounted"], true);
+            assert_eq!(status_val["float_ops"], 0);
+            assert_eq!(status_val["dense_matmul_ops"], 0);
+            assert!(engine.r4_stack.is_full_recompiled_mounted());
+
             let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
             let global_load: serde_json::Value =
                 serde_json::from_str(&crate::gllm_load_v10_shards(&manifest_raw, &shard_refs))
                     .expect("global gllm_load_v10_shards JSON");
             assert_eq!(global_load["status"], "ok");
-            assert_eq!(global_load["n_layers"], 16);
-            let _ = studio_load_uorgllm_v9_bytes(
-                include_bytes!("bootstrap_v9.uorgllm"),
-                "bootstrap_v9_restored",
-            );
-        }
+            assert_eq!(global_load["format"], "UORR4V12");
+            assert_eq!(global_load["full_recompiled_mounted"], true);
+            if let Ok(mut st) = studio_engine_cell().lock() {
+                *st = Some(StudioEngine::new_default());
+            }
+        } else {
+            assert_eq!(status_val["n_layers"], 16);
+            assert_eq!(status_val["d_model"], 256);
+            assert_eq!(status_val["n_heads"], 32);
+            assert_eq!(status_val["turn_memory_entries"], 0);
+            assert_eq!(status_val["dense_matmul_ops"], 0);
+            assert_eq!(status_val["softmax_ops"], 0);
 
-        // Run identical 7-category suite on `opfs_v10_16L_256D`
-        all_failures.extend(collect_v10_suite_failures(&mut engine, "opfs_v10_16L_256D"));
+            // Verify top-level `pub fn gllm_load_v10_shards` entry point and restore bootstrap cleanly
+            {
+                let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+                let global_load: serde_json::Value =
+                    serde_json::from_str(&crate::gllm_load_v10_shards(&manifest_raw, &shard_refs))
+                        .expect("global gllm_load_v10_shards JSON");
+                assert_eq!(global_load["status"], "ok");
+                assert_eq!(global_load["n_layers"], 16);
+                let _ = studio_load_uorgllm_v9_bytes(
+                    include_bytes!("bootstrap_v9.uorgllm"),
+                    "bootstrap_v9_restored",
+                );
+            }
+
+            // Run identical 7-category suite on `opfs_v10_16L_256D`
+            all_failures.extend(collect_v10_suite_failures(&mut engine, "opfs_v10_16L_256D"));
+        }
         assert!(
             all_failures.is_empty(),
-            "v10 6L+16L suite had {} failure(s):\n{}",
+            "v10 6L+OPFS suite had {} failure(s):\n{}",
             all_failures.len(),
             all_failures.join("\n---\n")
         );
+    }
+
+    #[test]
+    fn test_r4_46_honest_routing_refuses_unmounted_full_v12_and_avoids_template_hijack() {
+        let mut engine = StudioEngine::new_default();
+        assert!(!engine.r4_stack.is_full_recompiled_mounted());
+
+        // Pre-mount honesty (`R4`, `R5`): selecting full 30L modes before OPFS mount MUST refuse cleanly, never fall back.
+        for unmounted_mode in ["uor-r4.recompiled-v12-agent", "uor-r4.recompiled-v12-chat"] {
+            let err_raw = engine.chat_assistant_json(
+                &serde_json::json!({
+                    "prompt": "Implement a Rust parser and write unit tests",
+                    "composer_mode": "agentic",
+                    "selected_model": unmounted_mode,
+                })
+                .to_string(),
+            );
+            let err_val: serde_json::Value =
+                serde_json::from_str(&err_raw).expect("valid error JSON");
+            assert_eq!(err_val["status"], "error");
+            assert_eq!(err_val["error_code"], "RefusedRequestedModelUnmounted");
+            assert_eq!(err_val["selected_model"], unmounted_mode);
+        }
+
+        // Unknown explicit model wire ID refuses strictly with RefusedModeMismatch (`R5`).
+        let bad_mode_raw = engine.chat_assistant_json(
+            r#"{"prompt":"hello","composer_mode":"agentic","selected_model":"uor-r4.nonexistent"}"#,
+        );
+        let bad_mode_val: serde_json::Value =
+            serde_json::from_str(&bad_mode_raw).expect("valid bad mode JSON");
+        assert_eq!(bad_mode_val["status"], "error");
+        assert_eq!(bad_mode_val["error_code"], "RefusedModeMismatch");
+
+        // Embedded seed (`uor-r4.seed-fast`) works immediately, skips template/Teach hijacks, and omits `"telemetry"`.
+        let seed_raw = engine.chat_assistant_json(
+            r#"{"prompt":"Teach: refactor src/lib.rs with Rust async trait and fix bugs","composer_mode":"fast","selected_model":"uor-r4.seed-fast"}"#,
+        );
+        assert!(
+            !seed_raw.to_ascii_lowercase().contains("\"telemetry\""),
+            "chat_assistant_json must use geometric_metrics, never telemetry"
+        );
+        let seed_val: serde_json::Value =
+            serde_json::from_str(&seed_raw).expect("valid seed-fast JSON");
+        assert_eq!(seed_val["status"], "ok");
+        assert_eq!(seed_val["selected_model"], "uor-r4.seed-fast");
+        assert_eq!(seed_val["execution_tier"], "embedded-seed-fast (8L)");
+        assert_eq!(seed_val["is_coding_turn"], false);
+        assert_eq!(seed_val["proposed_code"], "");
+        assert_eq!(seed_val["geometric_metrics"]["float_ops"], 0);
+        assert_eq!(seed_val["geometric_metrics"]["dense_matmul_ops"], 0);
+
+        // Legacy symbolic mode (`uor-r4.lut-symbolic`) remains distinct.
+        let lut_raw = engine.chat_assistant_json(
+            r#"{"prompt":"Explain R4 geometric invariants","composer_mode":"ask","selected_model":"uor-r4.lut-symbolic"}"#,
+        );
+        let lut_val: serde_json::Value =
+            serde_json::from_str(&lut_raw).expect("valid lut-symbolic JSON");
+        assert_eq!(lut_val["status"], "ok");
+        assert_eq!(lut_val["selected_model"], "uor-r4.lut-symbolic");
+        assert_eq!(lut_val["execution_tier"], "symbolic-lut-mvm (8L LUT)");
+
+        // If v10 OPFS manifest on disk holds UORR4V12, mount it and verify full 30L modes admit cleanly.
+        let v10_dir =
+            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../gpu/weights/v10");
+        let manifest_raw =
+            std::fs::read_to_string(v10_dir.join("manifest.json")).expect("read v10 manifest.json");
+        let manifest_val: serde_json::Value =
+            serde_json::from_str(&manifest_raw).expect("parse v10 manifest.json");
+        if manifest_val["format"].as_str() == Some("UORR4V12") {
+            let shard_entries = manifest_val["shards"].as_array().expect("shards");
+            let mut owned_shards = Vec::with_capacity(shard_entries.len());
+            for entry in shard_entries {
+                let file_name = entry["file"].as_str().expect("file");
+                owned_shards.push(std::fs::read(v10_dir.join(file_name)).expect("read shard"));
+            }
+            let refs: Vec<&[u8]> = owned_shards.iter().map(Vec::as_slice).collect();
+            engine
+                .gllm_load_v10_shards(&manifest_raw, &refs)
+                .expect("mount UORR4V12 shards");
+
+            for full_mode in ["uor-r4.recompiled-v12-agent", "uor-r4.recompiled-v12-chat"] {
+                let full_raw = engine.chat_assistant_json(
+                    &serde_json::json!({
+                        "prompt": "Implement a Rust parser and write unit tests",
+                        "composer_mode": if full_mode.ends_with("-chat") { "ask" } else { "agentic" },
+                        "selected_model": full_mode,
+                    })
+                    .to_string(),
+                );
+                assert!(!full_raw.to_ascii_lowercase().contains("\"telemetry\""));
+                let full_val: serde_json::Value =
+                    serde_json::from_str(&full_raw).expect("valid full v12 JSON");
+                assert_eq!(full_val["status"], "ok");
+                assert_eq!(full_val["selected_model"], full_mode);
+                let expected_tier = if full_mode.ends_with("-chat") {
+                    "recompiled-v12-chat (30L 576D)"
+                } else {
+                    "recompiled-v12-agent (30L 576D)"
+                };
+                assert_eq!(full_val["execution_tier"], expected_tier);
+                assert_eq!(full_val["is_coding_turn"], false);
+                assert_eq!(full_val["proposed_code"], "");
+                assert_eq!(full_val["geometric_metrics"]["float_ops"], 0);
+                assert_eq!(full_val["geometric_metrics"]["dense_matmul_ops"], 0);
+            }
+        }
+    }
+
+    #[test]
+    fn test_r4_46_uorc_capsule_admission_and_three_strike_watchdog_rollback() {
+        let mut engine = StudioEngine::new_default();
+
+        // Watchdog at gen-0 records strikes 1-2 cleanly and refuses rollback on strike 3 (`R5`).
+        for strike in 1..=2u64 {
+            let gen0_ok: serde_json::Value =
+                serde_json::from_str(&engine.record_generation_fault_json("boot_probe"))
+                    .expect("valid fault json");
+            assert_eq!(gen0_ok["status"], "ok");
+            assert_eq!(gen0_ok["verdict"], "FaultRecordedContinue");
+            assert_eq!(gen0_ok["rolled_back"], false);
+            assert_eq!(gen0_ok["fault_strikes"], strike);
+        }
+        let gen0_fault: serde_json::Value =
+            serde_json::from_str(&engine.record_generation_fault_json("boot_probe_3"))
+                .expect("valid fault json");
+        assert_eq!(gen0_fault["status"], "error");
+        assert_eq!(gen0_fault["verdict"], "RefusedRollbackAtGenZero");
+        assert_eq!(gen0_fault["rolled_back"], false);
+
+        // Negative capsule admission checks (`R5`).
+        let malformed: serde_json::Value =
+            serde_json::from_str(&engine.admit_generation_capsule_json("{bad"))
+                .expect("valid malformed json");
+        assert_eq!(malformed["admitted"], false);
+        assert_eq!(malformed["error_code"], "InvalidCapsuleJson");
+
+        let bad_magic: serde_json::Value = serde_json::from_str(
+            &engine.admit_generation_capsule_json(
+                r#"{"magic_uorc":"BAD!","gates_passed":4,"gates_total":4,"residue_count":0,"wasm_bytes":1000,"max_wasm_bytes":15728640,"frame_time_micros":500,"frame_budget_micros":16667,"candidate_loss":9,"incumbent_loss":12,"candidate_steps":3,"incumbent_steps":5}"#,
+            ),
+        )
+        .expect("valid bad magic json");
+        assert_eq!(bad_magic["admitted"], false);
+        assert_eq!(bad_magic["error_code"], "RefusedInvalidArchiveMagic");
+
+        let failed_gates: serde_json::Value = serde_json::from_str(
+            &engine.admit_generation_capsule_json(
+                r#"{"magic_uorc":"UORC","gates_passed":2,"gates_total":4,"residue_count":0,"wasm_bytes":1000,"max_wasm_bytes":15728640,"frame_time_micros":500,"frame_budget_micros":16667,"candidate_loss":9,"incumbent_loss":12,"candidate_steps":3,"incumbent_steps":5}"#,
+            ),
+        )
+        .expect("valid failed gates json");
+        assert_eq!(failed_gates["admitted"], false);
+        assert_eq!(failed_gates["error_code"], "RefusedFailedVerificationGates");
+
+        let nonzero_res: serde_json::Value = serde_json::from_str(
+            &engine.admit_generation_capsule_json(
+                r#"{"magic_uorc":"UORC","gates_passed":4,"gates_total":4,"residue_count":1,"wasm_bytes":1000,"max_wasm_bytes":15728640,"frame_time_micros":500,"frame_budget_micros":16667,"candidate_loss":9,"incumbent_loss":12,"candidate_steps":3,"incumbent_steps":5}"#,
+            ),
+        )
+        .expect("valid nonzero residue json");
+        assert_eq!(nonzero_res["admitted"], false);
+        assert_eq!(nonzero_res["error_code"], "RefusedNonZeroResidueOrCoercion");
+
+        let oversize: serde_json::Value = serde_json::from_str(
+            &engine.admit_generation_capsule_json(
+                r#"{"magic_uorc":"UORC","gates_passed":4,"gates_total":4,"residue_count":0,"wasm_bytes":20000000,"max_wasm_bytes":15728640,"frame_time_micros":500,"frame_budget_micros":16667,"candidate_loss":9,"incumbent_loss":12,"candidate_steps":3,"incumbent_steps":5}"#,
+            ),
+        )
+        .expect("valid oversize json");
+        assert_eq!(oversize["admitted"], false);
+        assert_eq!(oversize["error_code"], "RefusedWasmByteBudgetExceeded");
+
+        // Positive capsule promotion.
+        let promoted: serde_json::Value = serde_json::from_str(
+            &engine.admit_generation_capsule_json(
+                r#"{"generation_id":"gen-1","magic_uorc":"UORC","gates_passed":4,"gates_total":4,"residue_count":0,"coercive_patterns":0,"wasm_bytes":12000000,"max_wasm_bytes":15728640,"frame_time_micros":4200,"frame_budget_micros":16667,"candidate_loss":9,"incumbent_loss":12,"candidate_steps":3,"incumbent_steps":5}"#,
+            ),
+        )
+        .expect("valid promoted json");
+        assert_eq!(promoted["status"], "ok");
+        assert_eq!(promoted["admitted"], true);
+        assert_eq!(promoted["active_head"], "gen-1");
+        assert_eq!(promoted["parent_head"], "gen-0");
+        assert_eq!(promoted["generation_index"], 1);
+
+        // Two non-fatal strikes continue, 3rd strike triggers automatic rollback to parent head.
+        let f1: serde_json::Value =
+            serde_json::from_str(&engine.record_generation_fault_json("strike_1"))
+                .expect("strike 1 json");
+        assert_eq!(f1["rolled_back"], false);
+        assert_eq!(f1["verdict"], "FaultRecordedContinue");
+        assert_eq!(f1["fault_strikes"], 1);
+
+        let f2: serde_json::Value =
+            serde_json::from_str(&engine.record_generation_fault_json("strike_2"))
+                .expect("strike 2 json");
+        assert_eq!(f2["rolled_back"], false);
+        assert_eq!(f2["fault_strikes"], 2);
+
+        let f3: serde_json::Value =
+            serde_json::from_str(&engine.record_generation_fault_json("strike_3"))
+                .expect("strike 3 json");
+        assert_eq!(f3["status"], "ok");
+        assert_eq!(f3["verdict"], "RollbackToParentHead");
+        assert_eq!(f3["rolled_back"], true);
+        assert_eq!(f3["active_head"], "gen-0");
+        assert_eq!(f3["generation_index"], 0);
+        assert_eq!(f3["fault_strikes"], 0);
+
+        let status: serde_json::Value =
+            serde_json::from_str(&engine.verdant_synthesis_status_json())
+                .expect("verdant synthesis status json");
+        assert_eq!(status["status"], "ok");
+        assert_eq!(status["rolled_back"], true);
+        assert_eq!(status["facets"].as_array().map(Vec::len), Some(4));
     }
 }

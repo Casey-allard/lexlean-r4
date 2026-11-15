@@ -135,12 +135,12 @@ fn test_empirical_chatbox_model_selector_and_history_contracts() {
     let index_html =
         std::fs::read_to_string(root.join("public/index.html")).expect("read index.html");
 
-    // All 4 GLLM v11 models in COMPOSER_MODELS
+    // All 4 honest UOR-R4 v12 execution modes in COMPOSER_MODELS
     let models = [
-        "uor-r4.gllm-v11-agent",
-        "uor-r4.gllm-v11-chat",
-        "uor-r4.gllm-v11-code",
-        "uor-r4.opfs-large",
+        "uor-r4.recompiled-v12-agent",
+        "uor-r4.recompiled-v12-chat",
+        "uor-r4.seed-fast",
+        "uor-r4.lut-symbolic",
     ];
 
     for m in &models {

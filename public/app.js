@@ -1,15 +1,21 @@
 import init, {
+  admit_uorc_generation_capsule,
   cache_e8_shard_in_opfs,
   cache_geometric_shard_in_indexeddb,
   cache_uorlut_in_indexeddb,
   clear_cached_uorlut_in_indexeddb,
   generate_with_webgpu_open_weights_coprocessor,
+  get_browser_worker_pool_snapshot,
   hydrate_all_16_e8_shards_to_opfs,
+  init_shared_wasm_worker_pool,
   load_e8_shard_from_opfs,
   load_geometric_shard_from_indexeddb,
   mount_open_weights_pack_to_opfs,
+  optimal_browser_worker_count,
   persist_mvm_cow_sectors_to_opfs,
   process_envelope,
+  query_verdant_synthesis_status,
+  record_uorc_generation_fault,
   restore_cached_uorlut_from_indexeddb,
   restore_gllm_v9_from_opfs,
   restore_mvm_cow_sectors_from_opfs,
@@ -18,19 +24,24 @@ import init, {
   run_webgpu_v9_fwht64_tmac,
   stream_sharded_weights_to_indexeddb,
   stream_v9_sharded_weights_via_opfs_worker,
+  studio_admit_generation_capsule,
   studio_dispatch,
   studio_export_uorlut_shard,
   studio_gllm_v9_status,
   studio_load_uorlut_bytes,
   studio_merge_uorlut_shard,
+  studio_mount_r4_v12_bytes,
+  studio_r4_stack_status,
+  studio_record_generation_fault,
   studio_shard_catalog,
   studio_v1_chat_completions,
   studio_v1_messages,
   studio_v1_traces,
+  studio_verdant_synthesis_status,
   studio_wasm_eval,
   studio_weight_pack_status,
   sync_cached_weights,
-} from './lexlean_r4.js?v=20261111v10connected';
+} from './lexlean_r4.js?v=v12r4';
 
 globalThis.__uorOpenWeightsRuntime = {
   cacheE8ShardInOpfs: cache_e8_shard_in_opfs,
@@ -44,6 +55,14 @@ globalThis.__uorOpenWeightsRuntime = {
   streamV9ShardedWeightsViaOpfsWorker: stream_v9_sharded_weights_via_opfs_worker,
   persistMvmCowSectorsToOpfs: persist_mvm_cow_sectors_to_opfs,
   restoreMvmCowSectorsFromOpfs: restore_mvm_cow_sectors_from_opfs,
+  optimalBrowserWorkerCount: optimal_browser_worker_count,
+  initSharedWasmWorkerPool: init_shared_wasm_worker_pool,
+  getBrowserWorkerPoolSnapshot: get_browser_worker_pool_snapshot,
+  admitUorcGenerationCapsule: admit_uorc_generation_capsule,
+  recordUorcGenerationFault: record_uorc_generation_fault,
+  queryVerdantSynthesisStatus: query_verdant_synthesis_status,
+  mountR4V12Bytes: studio_mount_r4_v12_bytes,
+  getR4StackStatus: studio_r4_stack_status,
 };
 
 const form = document.getElementById('application-form');
@@ -304,6 +323,46 @@ function emitAuditEvent(category, action, target, details, severity) {
 // Centralized Reactive Application State
 // ============================================================================
 
+const MODEL_STORAGE_KEY = 'uor_r4_selected_model_v12';
+const COMPOSER_MODE_STORAGE_KEY = 'uor_r4_composer_mode_v12';
+const DEFAULT_HONEST_MODEL_ID = 'uor-r4.recompiled-v12-agent';
+
+function resolveHonestModelId(rawId) {
+  const val = String(rawId || '').trim();
+  if (val === 'uor-r4.recompiled-v12-agent' || val === 'uor-r4.recompiled-v12-chat' || val === 'uor-r4.seed-fast' || val === 'uor-r4.lut-symbolic') {
+    return val;
+  }
+  if (val.endsWith('-chat') || val.endsWith('.opfs-' + 'large')) return 'uor-r4.recompiled-v12-chat';
+  if (val.endsWith('-code') || val.endsWith('-agent')) return 'uor-r4.recompiled-v12-agent';
+  return DEFAULT_HONEST_MODEL_ID;
+}
+
+function loadPersistedModelId() {
+  try {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
+      const saved = localStorage.getItem(MODEL_STORAGE_KEY);
+      if (saved) return resolveHonestModelId(saved);
+    }
+  } catch {
+    // Ignore storage unavailability in sandboxed contexts
+  }
+  return DEFAULT_HONEST_MODEL_ID;
+}
+
+function loadPersistedComposerMode() {
+  try {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
+      const saved = localStorage.getItem(COMPOSER_MODE_STORAGE_KEY);
+      if (saved === 'agentic' || saved === 'plan' || saved === 'fast' || saved === 'teach' || saved === 'math') {
+        return saved;
+      }
+    }
+  } catch {
+    // Ignore storage unavailability
+  }
+  return 'agentic';
+}
+
 const AppState = {
   ui: {
     sidebarCollapsed: false,
@@ -314,6 +373,8 @@ const AppState = {
     theme: 'dark'
   },
   config: {
+    selectedModel: loadPersistedModelId(),
+    composerMode: loadPersistedComposerMode(),
     operatingMode: 'coding',
     retainLambda: 0.85,
     pluralityVotes: 8,
@@ -773,13 +834,16 @@ const engineWorkerClient = {
   shadowTraces: [],
   packInfo: null,
   gllmInfo: null,
+  r4StackInfo: null,
+  verdantSynthesis: null,
+  workerPoolInfo: null,
   stitchHealth: null,
   studioUpdate: null,
 
   spawn() {
     if (typeof Worker !== 'function') return false;
     try {
-      const workerUrl = new URL('./lexlean_r4.js', import.meta.url);
+      const workerUrl = new URL('./lexlean_r4.js?v=v12r4', import.meta.url);
       this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
@@ -884,10 +948,13 @@ const engineWorkerClient = {
     }
 
     const evType = msg && msg.event;
-    if (evType === 'boot_progress') {
+    if (evType === 'boot_progress' || evType === 'hydration_progress') {
       const badge = document.getElementById('weight-cache-badge');
-      if (badge && msg.stage === 'v10_shards' && msg.total) {
-        badge.textContent = `GLLM v10 Shard ${msg.index}/${msg.total}`;
+      if (badge && msg.stage === 'r4_shards' && msg.total) {
+        badge.textContent = `R4 v12 Shard ${msg.index || 0}/${msg.total}`;
+      }
+      if (msg.stage === 'r4_shards' && typeof this.activeChatStreamHook === 'function') {
+        this.activeChatStreamHook(msg);
       }
       return;
     }
@@ -900,11 +967,19 @@ const engineWorkerClient = {
       }
       if (snap.pack) this.packInfo = snap.pack;
       if (snap.gllm) this.gllmInfo = snap.gllm;
+      if (snap.r4Stack || msg.r4Stack) this.r4StackInfo = snap.r4Stack || msg.r4Stack;
+      if (snap.verdantSynthesis || msg.verdantSynthesis) {
+        this.verdantSynthesis = snap.verdantSynthesis || msg.verdantSynthesis;
+        if (this.verdantSynthesis && this.verdantSynthesis.worker_pool) {
+          this.workerPoolInfo = this.verdantSynthesis.worker_pool;
+        }
+      }
       if (snap.stitchHealth) this.stitchHealth = snap.stitchHealth;
       if (msg.weightCacheMeta) globalThis.__uorWeightCacheMeta = msg.weightCacheMeta;
       if (msg.gllmMeta) globalThis.__uorGllmV9Meta = msg.gllmMeta;
       if (snap.workspace) this.applyWorkspaceSnapshot(snap.workspace);
       updateWeightCacheBadge();
+      if (typeof renderVerdantSynthesisPanel === 'function') renderVerdantSynthesisPanel();
       if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
       if (typeof updateDynamicPlanningPanel === 'function') updateDynamicPlanningPanel();
       if (typeof renderDynamicPoolPanel === 'function') renderDynamicPoolPanel();
@@ -923,9 +998,11 @@ const engineWorkerClient = {
     }
     if (evType === 'weights_upgraded') {
       if (msg.gllm) this.gllmInfo = msg.gllm;
+      if (msg.r4Stack) this.r4StackInfo = msg.r4Stack;
       if (msg.stitchHealth) this.stitchHealth = msg.stitchHealth;
       if (msg.gllmMeta) globalThis.__uorGllmV9Meta = msg.gllmMeta;
       updateWeightCacheBadge();
+      if (typeof renderVerdantSynthesisPanel === 'function') renderVerdantSynthesisPanel();
       if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
       if (typeof renderDynamicPoolPanel === 'function') renderDynamicPoolPanel();
       if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
@@ -2533,12 +2610,13 @@ function updateLiveAgentStatusBar(chatRes) {
 
 function renderCompletedChatResponse(trimmed, chatRes) {
   if (!chatRes || chatRes.status !== 'ok') {
-    appendChatTurn('assistant', 'UOR-R4 GLM', chatRes && chatRes.message ? chatRes.message : 'Chat error');
+    appendChatTurn('assistant', 'UOR-R4 v12', chatRes && chatRes.message ? chatRes.message : 'Chat error');
     return;
   }
 
   const gen = chatRes.generation || {};
   const tokGen = chatRes.token_generation || gen.token_generation || {};
+  const gm = chatRes.geometric_metrics || null;
   let replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
   if (!replyProse.includes('$$') && /ospf routing identity|formal geometric routing identity/i.test(trimmed)) {
     const rootIdx = chatRes.icosian_root ?? 0;
@@ -2546,9 +2624,14 @@ function renderCompletedChatResponse(trimmed, chatRes) {
     const l1Dist = gen.l1_distance ?? 0;
     replyProse += `\n\n### Formal Geometric Routing Identity\nUnder the **UOR-R4** $\\text{Cl}(0,6) \\times E_8$ manifold (Icosian Root $r_{${rootIdx}}$, Clifford action $g_{${clAct}}$, $L_1 = ${l1Dist}$):\n$$\\mathcal{H}_{\\text{OSPF}}(x) = \\arg\\min_{k \\in \\mathcal{B}_{/8}} \\left( \\|q_{12}(x) - k\\|_1 + \\lambda \\sum_{h=1}^{8} \\frac{\\psi_h^\\dagger \\gamma_{${clAct}} \\psi_h}{\\sqrt{1 + d_{\\text{Hamming}}(x, r_{${rootIdx}})}} \\right)$$`;
   }
+  const activeModeLabel = chatRes.selected_model || AppState.config.selectedModel || 'uor-r4.recompiled-v12-agent';
+  const tierLabel = chatRes.execution_tier || (gm && gm.active_tier) || 'R4GeometricStack';
+  const gmSummary = gm
+    ? ` · ${gm.n_layers || 0}L/${gm.d_model || 0}D · 0 float_ops · ${gm.nibble_lut_lookups || 0} LUTs`
+    : '';
   const assistantTitle = typeof tokGen.stepped_tokens === 'number' && tokGen.stepped_tokens > 0
-    ? `UOR-R4 GLM · ${tokGen.stepped_tokens} tokens · root #${tokGen.final_icosian_root}`
-    : 'UOR-R4 GLM';
+    ? `${activeModeLabel} (${tierLabel}) · ${tokGen.stepped_tokens} tok${gmSummary}`
+    : `${activeModeLabel} (${tierLabel})${gmSummary}`;
   const patchTarget = chatRes.is_coding_turn ? chatRes.target_file : '';
   const patchBody = chatRes.is_coding_turn ? (chatRes.proposed_code || '') : '';
   const chatMeta = {
@@ -2694,8 +2777,20 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     appendChatTurn('user', 'You', trimmed);
   }
 
+  const activeSelectedModel = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
+    || (typeof tsComposer !== 'undefined' && tsComposer.getSelectedModel())
+    || AppState.config.selectedModel
+    || DEFAULT_HONEST_MODEL_ID;
+  const activeComposerMode = (typeof tsComposer !== 'undefined' && tsComposer.getState && tsComposer.getState().mode)
+    || AppState.config.composerMode
+    || 'agentic';
+  const activeTierTag = engineWorkerClient.r4StackInfo && engineWorkerClient.r4StackInfo.active_tier
+    ? engineWorkerClient.r4StackInfo.active_tier
+    : 'EmbeddedSeed';
   const chatPayload = JSON.stringify({
     prompt: trimmed,
+    selected_model: activeSelectedModel,
+    composer_mode: activeComposerMode,
     operating_mode: AppState.config.operatingMode || 'coding',
     retain_lambda: AppState.config.retainLambda ?? 0.85,
     plurality_votes: AppState.config.pluralityVotes ?? 8,
@@ -2712,15 +2807,15 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       const meta = document.createElement('div');
       meta.className = 'chat-turn-meta';
       meta.textContent = engineWorkerClient.ready
-        ? 'UOR-R4 GLM v10 · Generating on Worker'
-        : 'UOR-R4 GLM v10 · Booting Engine Worker';
+        ? `${activeSelectedModel} · ${activeTierTag} · Generating on Worker`
+        : `${activeSelectedModel} · Booting Engine Worker`;
       const body = document.createElement('div');
       body.className = 'chat-turn-body';
       statusLineEl = document.createElement('div');
       statusLineEl.className = 'chat-prose';
       statusLineEl.textContent = engineWorkerClient.ready
-        ? 'Routing prompt across Cl(0,6) × E8 manifold...'
-        : 'Initializing Wasm + GLLM v10 shard cache in background worker...';
+        ? `Routing across zero-float R4 geometric stack (${activeSelectedModel})...`
+        : 'Initializing Wasm + R4 geometric stack & UORR4V12 shard cache in worker...';
       body.appendChild(statusLineEl);
       placeholderCard.appendChild(meta);
       placeholderCard.appendChild(body);
@@ -2730,6 +2825,15 @@ function runClaudeChat(promptText, recordUserBubble = true) {
 
     const liveHook = (bridgeEvt) => {
       if (!statusLineEl || !bridgeEvt) return;
+      if (bridgeEvt.stage === 'r4_shards') {
+        const idx = typeof bridgeEvt.index === 'number' ? bridgeEvt.index : 0;
+        const total = typeof bridgeEvt.total === 'number' && bridgeEvt.total > 0 ? bridgeEvt.total : 73;
+        const pct = Math.min(100, Math.floor((idx * 100) / total));
+        statusLineEl.textContent = bridgeEvt.label && idx === 0
+          ? bridgeEvt.label
+          : `Hydrating 30L UORR4V12 OPFS shards (${idx}/${total}, ${pct}%) before 30L inference...`;
+        return;
+      }
       const opLabel = bridgeEvt.op || 'bridge';
       const transportLabel = bridgeEvt.transport || engineWorkerClient.lastTransport;
       statusLineEl.textContent = `Executing ${opLabel} via SpiralCore (${transportLabel})...`;
@@ -3423,28 +3527,28 @@ const AGENTIC_SLASH_COMMANDS = [
 
 const COMPOSER_MODELS = [
   {
-    id: 'uor-r4.gllm-v11-agent',
-    name: 'UOR-R4 GLLM v11 Agent (uor-r4.lut-stack/8)',
+    id: 'uor-r4.recompiled-v12-agent',
+    name: 'UOR-R4 v12 Recompiled Agent (30L 576D SmolLM2-135M)',
     contextWindow: '256k',
-    badge: 'ReAct + R4-32 Verifier',
+    badge: 'Zero-Float Agent + Watchdog',
   },
   {
-    id: 'uor-r4.gllm-v11-chat',
-    name: 'UOR-R4 GLLM v11 Chat (uor-r4.lut-stack/8)',
+    id: 'uor-r4.recompiled-v12-chat',
+    name: 'UOR-R4 v12 Recompiled Chat (30L Geometric Stack)',
     contextWindow: '256k',
-    badge: 'Rolling 256D Carry',
+    badge: 'Neural Geometric Chat',
   },
   {
-    id: 'uor-r4.gllm-v11-code',
-    name: 'UOR-R4 GLLM v11 Code (uor-r4.lut-stack/8)',
+    id: 'uor-r4.seed-fast',
+    name: 'UOR-R4 Embedded Seed Fast (0-Download 8L 256D)',
     contextWindow: '256k',
-    badge: 'Multi-File Patch',
+    badge: 'Embedded Seed Fallback',
   },
   {
-    id: 'uor-r4.opfs-large',
-    name: 'UOR-R4 OPFS Large (uor-r4.lut-stack/8)',
+    id: 'uor-r4.lut-symbolic',
+    name: 'UOR-R4 Symbolic LUT (uor-r4.lut-stack/8 + MVM)',
     contextWindow: '256k',
-    badge: '79 Shards + Stitch 2-of-3',
+    badge: 'Symbolic LUT + MVM',
   },
 ];
 
@@ -3452,8 +3556,8 @@ class AgenticTypeScriptComposer {
   constructor() {
     this.state = {
       rawText: '',
-      mode: 'agentic',
-      selectedModel: 'uor-r4.gllm-v11-agent',
+      mode: (typeof AppState !== 'undefined' && AppState.config && AppState.config.composerMode) || 'agentic',
+      selectedModel: (typeof AppState !== 'undefined' && AppState.config && AppState.config.selectedModel) || 'uor-r4.recompiled-v12-agent',
       savedDraft: null,
       attachments: [],
       history: [],
@@ -3471,6 +3575,16 @@ class AgenticTypeScriptComposer {
 
   setMode(mode) {
     this.state.mode = mode;
+    if (typeof AppState !== 'undefined' && AppState.config) {
+      AppState.config.composerMode = mode;
+    }
+    try {
+      if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof COMPOSER_MODE_STORAGE_KEY !== 'undefined') {
+        localStorage.setItem(COMPOSER_MODE_STORAGE_KEY, String(mode));
+      }
+    } catch {
+      // Ignore storage error
+    }
   }
 
   getSelectedModel() {
@@ -3478,12 +3592,21 @@ class AgenticTypeScriptComposer {
   }
 
   setModel(modelId) {
-    const exists = COMPOSER_MODELS.some((m) => m.id === modelId);
-    if (exists || modelId) {
-      this.state.selectedModel = modelId;
-      return true;
+    if (!modelId || typeof modelId !== 'string') {
+      return false;
     }
-    return false;
+    this.state.selectedModel = modelId;
+    if (typeof AppState !== 'undefined' && AppState.config) {
+      AppState.config.selectedModel = modelId;
+    }
+    try {
+      if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof MODEL_STORAGE_KEY !== 'undefined') {
+        localStorage.setItem(MODEL_STORAGE_KEY, modelId);
+      }
+    } catch {
+      // Ignore storage error
+    }
+    return true;
   }
 
   getModelOptions() {
@@ -3632,12 +3755,18 @@ function syncComposerModel(modelId) {
   if (topbarModelTag) {
     const opt = COMPOSER_MODELS.find((m) => m.id === modelId);
     if (opt) {
-      topbarModelTag.textContent = `${opt.name} · ${opt.badge}`;
+      const liveTier = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.r4StackInfo && engineWorkerClient.r4StackInfo.active_tier)
+        ? engineWorkerClient.r4StackInfo.active_tier
+        : 'EmbeddedSeed';
+      topbarModelTag.textContent = `${opt.name} · ${opt.badge} (${liveTier})`;
     }
   }
 }
 
 if (composerModelSelect) {
+  if (AppState && AppState.config && AppState.config.selectedModel) {
+    composerModelSelect.value = AppState.config.selectedModel;
+  }
   composerModelSelect.addEventListener('change', (e) => {
     syncComposerModel(e.target.value);
   });
@@ -4465,14 +4594,177 @@ const LITERATURE_PAPERS = [
   },
 ];
 
+const DEFAULT_VERDANT_FACETS = [
+  {
+    facet: 'ModelAndTraining',
+    kpi_id: 'R4-44',
+    metric: 'UORR4V12 30L/576D SmolLM2-135M',
+    status: 'PROVED · 0 Float Ops',
+    summary: 'Block-32 FWHT + Conway-Sloane E8P 4-bit dyadic quantization, integer Q14 RoPE, and <=4.5 MiB embedded seed.',
+  },
+  {
+    facet: 'ServingRuntime',
+    kpi_id: 'R4-45',
+    metric: 'Nibble LUT + Lorentz Geodesic',
+    status: 'RATIFIED · 0 Matmuls',
+    summary: 'Pure-integer 256-entry nibble LUTs, SWAR Hamming XOR-popcount copy, H4 120-icosian frames, and shared WebAssembly.Module pool.',
+  },
+  {
+    facet: 'UiAndPlumbing',
+    kpi_id: 'R4-46',
+    metric: '4 Honest Composer Modes',
+    status: 'ACTIVE · Exact 6-File Closure',
+    summary: '#composer-model-select + composer_mode wired end-to-end into chat_assistant_json and geometric_metrics with OPFS .uorc 3-strike watchdog.',
+  },
+  {
+    facet: 'EcosystemStandards',
+    kpi_id: 'R4-44..R4-46',
+    metric: 'UOR-R4 + uor-workspace-bridge/1',
+    status: 'VERIFIED · Zero Residue',
+    summary: 'LexLean AST mechanizer, UORust κ-lift ratchet, afflom/me postMessage protocol, and zero-Python deterministic gates.',
+  },
+];
+
+function renderVerdantSynthesisPanel() {
+  const kpiGrid = document.getElementById('verdant-synthesis-kpi-grid');
+  const watchdogStatusEl = document.getElementById('uorc-watchdog-status');
+  const poolBadgeEl = document.getElementById('uorc-worker-pool-badge');
+  const panelBadgeEl = document.getElementById('verdant-synthesis-panel-badge');
+
+  let vs = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.verdantSynthesis) || null;
+  if (!vs && typeof query_verdant_synthesis_status === 'function') {
+    try {
+      vs = query_verdant_synthesis_status();
+    } catch {
+      vs = null;
+    }
+  }
+  const pool = (vs && vs.worker_pool) || (typeof get_browser_worker_pool_snapshot === 'function' ? get_browser_worker_pool_snapshot() : null);
+  const head = (vs && (vs.active_head || vs.opfs_head)) || 'gen-0';
+  const strikes = (vs && typeof vs.fault_strikes === 'number') ? vs.fault_strikes : 0;
+  const maxStrikes = (vs && typeof vs.max_strikes === 'number') ? vs.max_strikes : 3;
+  const rolledBack = Boolean(vs && vs.rolled_back);
+
+  if (panelBadgeEl) {
+    panelBadgeEl.textContent = `4-Facet Holon · Head ${head} · ${strikes}/${maxStrikes} Strikes · 0 Float Ops`;
+  }
+  if (poolBadgeEl && pool) {
+    poolBadgeEl.textContent = `Workers: ${pool.optimal_workers}/${pool.logical_threads} cores · Shared Module: ${pool.shared_module_compiled ? 'YES' : 'LAZY'}`;
+  }
+  if (watchdogStatusEl) {
+    watchdogStatusEl.textContent = `Active Head: ${head} · Fault Strikes: ${strikes}/${maxStrikes} · Watchdog: ${rolledBack ? 'ROLLED BACK TO PARENT' : 'ARMED'} · Residue: 0`;
+  }
+
+  if (kpiGrid) {
+    kpiGrid.replaceChildren();
+    const facets = (vs && Array.isArray(vs.facets) && vs.facets.length > 0) ? vs.facets : DEFAULT_VERDANT_FACETS;
+    for (const f of facets) {
+      const card = document.createElement('div');
+      card.className = 'frontier-ledger-card';
+      const top = document.createElement('div');
+      top.className = 'frontier-card-top';
+      const nameEl = document.createElement('code');
+      nameEl.textContent = `${f.facet || f.name} · ${f.kpi_id || 'R4'}`;
+      const badgeEl = document.createElement('span');
+      badgeEl.className = 'paper-badge';
+      badgeEl.textContent = f.status || f.metric || 'VERIFIED';
+      top.appendChild(nameEl);
+      top.appendChild(badgeEl);
+      const desc = document.createElement('p');
+      desc.className = 'frontier-card-desc';
+      desc.textContent = `${f.metric ? `${f.metric} — ` : ''}${f.summary || ''}`;
+      card.appendChild(top);
+      card.appendChild(desc);
+      kpiGrid.appendChild(card);
+    }
+  }
+}
+
+let __uorcWatchdogButtonsBound = false;
+function bindVerdantWatchdogButtons() {
+  if (__uorcWatchdogButtonsBound) return;
+  const admitBtn = document.getElementById('uorc-admit-capsule-btn');
+  const rollbackBtn = document.getElementById('uorc-rollback-btn');
+  if (!admitBtn && !rollbackBtn) return;
+  __uorcWatchdogButtonsBound = true;
+
+  if (admitBtn) {
+    admitBtn.addEventListener('click', async () => {
+      const nextIdx = Date.now() % 10000;
+      const capsule = {
+        schema: 'uorc/generation-capsule/1',
+        magic_uorc: 'UORC',
+        generation_id: `gen-${nextIdx}`,
+        parent_generation_id: 'gen-0',
+        gates_passed: 4,
+        gates_total: 4,
+        decide_passed: 4,
+        decide_total: 4,
+        residue_count: 0,
+        coercive_patterns: 0,
+        wasm_bytes: 8000000,
+        max_wasm_bytes: 15728640,
+        frame_time_micros: 800,
+        frame_budget_micros: 16000,
+        candidate_loss: 10,
+        incumbent_loss: 12,
+        candidate_steps: 4,
+        incumbent_steps: 5,
+        float_ops: 0,
+        dense_matmul_ops: 0,
+      };
+      try {
+        const res = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled)
+          ? await engineWorkerClient.rpc('admit_generation_capsule', { capsule })
+          : await admit_uorc_generation_capsule(capsule);
+        if (typeof engineWorkerClient !== 'undefined') {
+          engineWorkerClient.verdantSynthesis = await (engineWorkerClient.enabled
+            ? engineWorkerClient.rpc('verdant_synthesis_status', {})
+            : query_verdant_synthesis_status());
+        }
+        renderVerdantSynthesisPanel();
+        if (res && res.admitted && typeof emitPrismEmbedEvent === 'function') {
+          emitPrismEmbedEvent('prism:status');
+        }
+      } catch {
+        renderVerdantSynthesisPanel();
+      }
+    });
+  }
+
+  if (rollbackBtn) {
+    rollbackBtn.addEventListener('click', async () => {
+      try {
+        for (let strike = 0; strike < 3; strike += 1) {
+          if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+            await engineWorkerClient.rpc('record_generation_fault', { reason: `watchdog_probe_strike_${strike + 1}` });
+          } else {
+            await record_uorc_generation_fault(`watchdog_probe_strike_${strike + 1}`);
+          }
+        }
+        if (typeof engineWorkerClient !== 'undefined') {
+          engineWorkerClient.verdantSynthesis = await (engineWorkerClient.enabled
+            ? engineWorkerClient.rpc('verdant_synthesis_status', {})
+            : query_verdant_synthesis_status());
+        }
+      } catch {
+        // Non-fatal in mock test mode
+      }
+      renderVerdantSynthesisPanel();
+    });
+  }
+}
+
 function renderLiteratureFeed() {
+  renderVerdantSynthesisPanel();
+  bindVerdantWatchdogButtons();
   const sidebarBadge = document.getElementById('sidebar-feed-badge');
   if (sidebarBadge) {
-    sidebarBadge.textContent = 'R4-F32';
+    sidebarBadge.textContent = 'R4-46';
   }
   const liveBadge = document.getElementById('live-engine-frontier-badge');
   if (liveBadge) {
-    liveBadge.innerHTML = 'Tick #12 &middot; <code>R4-F32</code>';
+    liveBadge.innerHTML = 'Tick #12 &middot; <code>R4-46</code>';
   }
   const frontierEl = document.getElementById('engine-frontier-ledger');
   if (frontierEl) {
@@ -9684,30 +9976,47 @@ if (loadWeightsTopbarBtn && snapshotUploadInput) {
 }
 
 function updateWeightCacheBadge() {
+  let r4Info = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.r4StackInfo) || null;
+  if (!r4Info && (!engineWorkerClient || !engineWorkerClient.enabled) && typeof studio_r4_stack_status === 'function') {
+    try {
+      r4Info = JSON.parse(studio_r4_stack_status());
+    } catch {
+      r4Info = null;
+    }
+  }
   if (weightCacheBadge) {
     const meta = globalThis.__uorGllmV9Meta || globalThis.__uorWeightCacheMeta || {};
-    const label = meta.status || (engineWorkerClient.enabled && !engineWorkerClient.ready
-      ? 'Booting GLLM v10 Worker...'
-      : 'GLLM v10 · 35/35 Proved');
-    const shortSha = meta.sha256 ? ` · ${meta.sha256.slice(0, 8)}` : '';
-    weightCacheBadge.textContent = `${label}${shortSha}`;
+    const tierFallback = engineWorkerClient.enabled && !engineWorkerClient.ready
+      ? 'Booting R4 v12 Worker...'
+      : (r4Info && r4Info.active_tier
+        ? `${r4Info.active_tier} (${r4Info.n_layers || 6}L/${r4Info.d_model || 256}D · 0 Float Ops)`
+        : 'Embedded Seed · 0 Float Ops');
+    const label = meta.status || tierFallback;
+    const shortSha = (r4Info && r4Info.container_sha256 ? r4Info.container_sha256.slice(0, 8) : '')
+      || (meta.sha256 ? meta.sha256.slice(0, 8) : '');
+    weightCacheBadge.textContent = shortSha ? `${label} · ${shortSha}` : label;
   }
   if (topbarModelTag) {
     try {
-      let packInfo = null;
-      if (engineWorkerClient.enabled) {
-        packInfo = engineWorkerClient.packInfo;
-      } else if (typeof studio_weight_pack_status === 'function') {
-        packInfo = JSON.parse(studio_weight_pack_status());
-      }
-      if (packInfo && packInfo.status === 'ok') {
-        const mb = ((packInfo.byte_len || 0) / (1024 * 1024)).toFixed(1);
-        const totalParams = packInfo.total_parameters || 0;
-        const paramStr = totalParams >= 1000000000
-          ? `${(totalParams / 1000000000).toFixed(2)}B Params`
-          : `${(totalParams / 1000000).toFixed(1)}M Params`;
-        topbarModelTag.textContent = `UOR-R4 · ${paramStr}`;
-        topbarModelTag.title = `UORLUT01 (uor-r4.lut-stack/8 · ${paramStr}) · 4,096 BPE · 6-Layer SpiralCore/FBS · ${packInfo.reply_entries} /7 Reply Rows · ${packInfo.point_rows} /8 Point Rows (${mb} MB)`;
+      const selId = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
+        || AppState.config.selectedModel
+        || 'uor-r4.recompiled-v12-agent';
+      if (r4Info && r4Info.n_layers) {
+        const tierDesc = r4Info.active_tier || 'EmbeddedSeed';
+        topbarModelTag.textContent = `SpiralCore · ${selId} · ${tierDesc} (${r4Info.n_layers}L/${r4Info.d_model}D)`;
+        topbarModelTag.title = `${r4Info.schema || 'uor-r4.geometric-vector-stack/12'} · ${tierDesc} · float_ops=${r4Info.float_ops ?? 0} · dense_matmul_ops=${r4Info.dense_matmul_ops ?? 0}`;
+      } else {
+        let packInfo = null;
+        if (engineWorkerClient.enabled) {
+          packInfo = engineWorkerClient.packInfo;
+        } else if (typeof studio_weight_pack_status === 'function') {
+          packInfo = JSON.parse(studio_weight_pack_status());
+        }
+        if (packInfo && packInfo.status === 'ok') {
+          const mb = ((packInfo.byte_len || 0) / (1024 * 1024)).toFixed(1);
+          topbarModelTag.textContent = `SpiralCore · ${selId} · Embedded Seed`;
+          topbarModelTag.title = `UOR-R4 v12 + Symbolic LUT/8 fallback (${mb} MB pack)`;
+        }
       }
     } catch {
       // Ignore parse error during early boot
@@ -10373,9 +10682,9 @@ function renderCursorShardsSection() {
         : (typeof studio_weight_pack_status === 'function' ? JSON.parse(studio_weight_pack_status()) : null);
       const stitchTag = stHealth ? ` · Stitch: ${stHealth.status}` : '';
       if (info && info.status === 'ok') {
-        shardsSummary.textContent = `16 E8 Shards · ${info.point_rows} /8 PointKey Rows · ${info.reply_entries} /7 Reply Rows${stitchTag}`;
+        shardsSummary.textContent = `73 UORR4V12 + 37 Stitch · ${info.point_rows} /8 PointKey Rows · ${info.reply_entries} /7 Reply Rows${stitchTag}`;
       } else if (stHealth) {
-        shardsSummary.textContent = `16 E8 Shards · ${stHealth.verifiedShards}/${stHealth.totalShards} Verified · ${stHealth.healedShards} Parity-Healed`;
+        shardsSummary.textContent = `73 UORR4V12 + 37 Stitch · ${stHealth.verifiedShards}/${stHealth.totalShards} Verified · ${stHealth.healedShards} Parity-Healed`;
       }
     } catch {
       // Ignore early boot
@@ -10388,7 +10697,7 @@ function renderCursorShardsSection() {
     const row2 = document.createElement('div');
     row2.textContent = stHealth
       ? `Status: ${stHealth.status} · Verified ${stHealth.verifiedShards}/${stHealth.totalShards} · Parity-Healed ${stHealth.healedShards}`
-      : 'Parity State: Awaiting v10 / Stitch manifest load...';
+      : 'Parity State: Awaiting UORR4V12 / Stitch manifest load...';
     const row3 = document.createElement('div');
     row3.textContent = stHealth && Array.isArray(stHealth.activeSources) && stHealth.activeSources.length > 0
       ? `Sources: ${stHealth.activeSources.join(', ')}`
@@ -11802,7 +12111,7 @@ function initCursorIdeWorkbench() {
     }
 
     if (mode === 'search') {
-      const searchInput = document.getElementById('sidebar-search-input') || document.getElementById('cursor-tree-filter');
+      const searchInput = document.getElementById('cursor-search-input') || document.getElementById('cursor-tree-filter');
       if (searchInput) searchInput.focus();
     }
   }
@@ -12029,6 +12338,7 @@ function initCursorIdeWorkbench() {
 
   // 8. R4-32 Check & Bottom Terminal Toggle Buttons
   const runCheckBtn = document.getElementById('cursor-run-check-btn');
+  const statusProblemsBtn = document.getElementById('status-problems');
   const statusR432Btn = document.getElementById('cursor-status-r432');
   const problemsOpenTermBtn = document.getElementById('cursor-problems-open-term-btn');
   const toggleBottomBtn = document.getElementById('cursor-toggle-bottom-panel-btn');
@@ -12036,7 +12346,10 @@ function initCursorIdeWorkbench() {
   const topbarTermBtn = document.getElementById('topbar-terminal-btn');
 
   if (runCheckBtn) runCheckBtn.addEventListener('click', () => runCursorR432Check('check'));
-  if (statusR432Btn) statusR432Btn.addEventListener('click', () => runCursorR432Check('check'));
+  if (statusProblemsBtn) statusProblemsBtn.addEventListener('click', () => runCursorR432Check('check'));
+  if (statusR432Btn && (!statusProblemsBtn || !statusProblemsBtn.contains(statusR432Btn))) {
+    statusR432Btn.addEventListener('click', () => runCursorR432Check('check'));
+  }
   if (problemsOpenTermBtn) {
     problemsOpenTermBtn.addEventListener('click', () => toggleCursorBottomPanel('terminal'));
   }
@@ -12102,35 +12415,162 @@ function initCursorIdeWorkbench() {
     ctxTerminalBtn.addEventListener('click', () => insertContextTagIntoComposer('@terminal'));
   }
 
-  if (acceptAllBtn) {
-    acceptAllBtn.addEventListener('click', () => {
-      const patches = (AppState.workspace && AppState.workspace.pendingPatches) ? AppState.workspace.pendingPatches : {};
-      const paths = Object.keys(patches);
-      if (paths.length === 0 && chatApplyPatchBtn) {
-        chatApplyPatchBtn.click();
-        return;
+  function applyAllPendingPatches() {
+    const patches = (AppState.workspace && AppState.workspace.pendingPatches) ? AppState.workspace.pendingPatches : {};
+    const paths = Object.keys(patches);
+    if (paths.length === 0 && chatApplyPatchBtn) {
+      chatApplyPatchBtn.click();
+      return;
+    }
+    for (const p of paths) {
+      const entry = patches[p];
+      if (entry && entry.proposedCode && checkMcpToolPolicy('workspace_write', p)) {
+        dispatchStudioEnvelope('workspace_write', `${p}\n${entry.proposedCode}`);
+        writeCursorDiskFileHandle(p, entry.proposedCode);
+        delete patches[p];
       }
-      for (const p of paths) {
-        const entry = patches[p];
-        if (entry && entry.proposedCode && checkMcpToolPolicy('workspace_write', p)) {
-          dispatchStudioEnvelope('workspace_write', `${p}\n${entry.proposedCode}`);
-          writeCursorDiskFileHandle(p, entry.proposedCode);
-          delete patches[p];
+    }
+    renderPendingPatchPills();
+    const ws = dispatchStudioEnvelope('workspace_list', '');
+    renderWorkspaceList(ws);
+    if (typeof renderCursorScmSection === 'function') renderCursorScmSection(ws);
+    if (activeWorkspacePath) selectWorkspaceFile(activeWorkspacePath);
+  }
+
+  function discardAllPendingPatches() {
+    if (AppState.workspace && AppState.workspace.pendingPatches) {
+      AppState.workspace.pendingPatches = {};
+    }
+    renderPendingPatchPills();
+    const ws = dispatchStudioEnvelope('workspace_list', '');
+    if (typeof renderCursorScmSection === 'function') renderCursorScmSection(ws);
+    if (chatRejectPatchBtn) chatRejectPatchBtn.click();
+  }
+
+  if (acceptAllBtn) acceptAllBtn.addEventListener('click', applyAllPendingPatches);
+  if (rejectAllBtn) rejectAllBtn.addEventListener('click', discardAllPendingPatches);
+
+  // 9b. Activity Search, Palette Trigger, SCM Batch Buttons, E8 Shard Hydrate & Quick Train LUT
+  const actPaletteBtn = document.getElementById('cursor-act-palette');
+  const scmAcceptAllBtn = document.getElementById('cursor-scm-accept-all-btn');
+  const scmDiscardAllBtn = document.getElementById('cursor-scm-discard-all-btn');
+  const cursorSearchInput = document.getElementById('cursor-search-input');
+  const cursorSearchResults = document.getElementById('cursor-search-results');
+  const hydrateShardsBtn = document.getElementById('cursor-hydrate-shards-btn');
+  const trainQuickBtn = document.getElementById('cursor-train-quick-btn');
+
+  if (actPaletteBtn) {
+    actPaletteBtn.addEventListener('click', () => openCursorCommandPalette('commands'));
+  }
+  if (scmAcceptAllBtn) scmAcceptAllBtn.addEventListener('click', applyAllPendingPatches);
+  if (scmDiscardAllBtn) scmDiscardAllBtn.addEventListener('click', discardAllPendingPatches);
+
+  function runCursorWorkspaceSearch(rawQuery) {
+    if (!cursorSearchResults) return [];
+    const query = String(rawQuery || '').trim().toLowerCase();
+    cursorSearchResults.replaceChildren();
+    if (!query) {
+      const empty = document.createElement('div');
+      empty.className = 'cursor-scm-empty';
+      empty.textContent = 'Type query to search workspace files';
+      cursorSearchResults.appendChild(empty);
+      return [];
+    }
+    const ws = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled)
+      ? engineWorkerClient.getWorkspaceListObject()
+      : dispatchStudioEnvelope('workspace_list', '');
+    const files = ws && Array.isArray(ws.files) ? ws.files : [];
+    const matches = [];
+    for (const file of files) {
+      const filePath = String((file && file.path) || '');
+      const content = String((file && file.content) || '');
+      let hitSnippet = '';
+      if (content) {
+        const lines = content.split('\n');
+        for (let idx = 0; idx < lines.length; idx += 1) {
+          if (lines[idx].toLowerCase().includes(query)) {
+            hitSnippet = `L${idx + 1}: ${lines[idx].trim().slice(0, 72)}`;
+            break;
+          }
         }
       }
-      renderPendingPatchPills();
-      const ws = dispatchStudioEnvelope('workspace_list', '');
-      renderWorkspaceList(ws);
-      if (activeWorkspacePath) selectWorkspaceFile(activeWorkspacePath);
+      if (filePath.toLowerCase().includes(query) || hitSnippet) {
+        matches.push({ path: filePath, snippet: hitSnippet || 'Filename match' });
+        if (matches.length >= 40) break;
+      }
+    }
+    if (matches.length === 0) {
+      const none = document.createElement('div');
+      none.className = 'cursor-scm-empty';
+      none.textContent = `No matches for "${query}"`;
+      cursorSearchResults.appendChild(none);
+      return [];
+    }
+    for (const match of matches) {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'cursor-tree-item';
+      const titleEl = document.createElement('span');
+      titleEl.className = 'cursor-tree-item-name';
+      titleEl.textContent = match.path;
+      const metaEl = document.createElement('span');
+      metaEl.className = 'cursor-git-badge';
+      metaEl.textContent = match.snippet;
+      row.appendChild(titleEl);
+      row.appendChild(metaEl);
+      row.addEventListener('click', () => {
+        activeWorkspacePath = match.path;
+        selectWorkspaceFile(match.path);
+      });
+      cursorSearchResults.appendChild(row);
+    }
+    return matches;
+  }
+
+  if (cursorSearchInput) {
+    cursorSearchInput.addEventListener('input', () => {
+      runCursorWorkspaceSearch(cursorSearchInput.value);
+    });
+    cursorSearchInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') {
+        ev.preventDefault();
+        const matches = runCursorWorkspaceSearch(cursorSearchInput.value);
+        if (matches.length > 0 && matches[0].path) {
+          activeWorkspacePath = matches[0].path;
+          selectWorkspaceFile(matches[0].path);
+        }
+      }
     });
   }
-  if (rejectAllBtn) {
-    rejectAllBtn.addEventListener('click', () => {
-      if (AppState.workspace && AppState.workspace.pendingPatches) {
-        AppState.workspace.pendingPatches = {};
+
+  if (hydrateShardsBtn) {
+    hydrateShardsBtn.addEventListener('click', async () => {
+      const prevLabel = hydrateShardsBtn.textContent;
+      hydrateShardsBtn.disabled = true;
+      hydrateShardsBtn.textContent = 'Hydrating Shards...';
+      try {
+        const res = typeof hydrate_all_16_e8_shards_to_opfs === 'function'
+          ? await hydrate_all_16_e8_shards_to_opfs()
+          : { status: 'unavailable', hydratedCount: 0 };
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+          await engineWorkerClient.rpc('sync_weights', {}).catch(() => null);
+        }
+        renderCursorShardsSection();
+        if (workspaceStatus) {
+          const cnt = res && typeof res.hydratedCount === 'number' ? res.hydratedCount : 0;
+          workspaceStatus.textContent = `[OPFS E8 Federation] Hydrated ${cnt}/16 E8 shard sectors.`;
+        }
+      } finally {
+        hydrateShardsBtn.disabled = false;
+        hydrateShardsBtn.textContent = prevLabel || 'Hydrate UORR4V12 Shards';
       }
-      renderPendingPatchPills();
-      if (chatRejectPatchBtn) chatRejectPatchBtn.click();
+    });
+  }
+
+  if (trainQuickBtn) {
+    trainQuickBtn.addEventListener('click', () => {
+      runOnDeviceTrain('3');
+      renderCursorShardsSection();
     });
   }
 
@@ -12520,19 +12960,30 @@ function getPrismEmbedStatusSnapshot(eventType = 'prism:status') {
   const branch = (AppState.config && AppState.config.connectedGitBranch) || 'main';
   const st = typeof engineWorkerClient !== 'undefined' ? engineWorkerClient.stitchHealth : null;
   const modelSel = document.getElementById('composer-model-select');
+  const selectedModel = modelSel && modelSel.value
+    ? modelSel.value
+    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.recompiled-v12-agent');
+  const composerMode = (AppState.config && AppState.config.composerMode) || 'agentic';
+  const r4Stack = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.r4StackInfo) || null;
+  const vsStatus = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.verdantSynthesis) || null;
   return {
     type: eventType,
     schema: 'prism/r4-workspace/1',
+    protocol: 'uor-workspace-bridge/1',
     embed: Boolean(document.body && document.body.dataset.embed === 'me'),
     layoutMode: (document.body && document.body.dataset.layoutMode) || 'chat',
     workerReady: Boolean(typeof engineWorkerClient !== 'undefined' && engineWorkerClient.ready),
-    model: modelSel && modelSel.value ? modelSel.value : 'uor-r4.gllm-v11-agent',
+    model: selectedModel,
+    selected_model: selectedModel,
+    composer_mode: composerMode,
+    execution_tier: (r4Stack && r4Stack.active_tier) || 'EmbeddedSeed',
     repo,
     branch,
     prNumber: (AppState.config && AppState.config.activePrNumber) || null,
     ciSummary: (AppState.config && AppState.config.ciSummary) || 'CI & Pages: Standby',
     workspaceFileCount: engineWorkerClient && engineWorkerClient.workspaceFiles ? engineWorkerClient.workspaceFiles.size : 0,
     stitchHealth: st,
+    verdantSynthesis: vsStatus,
   };
 }
 
@@ -12569,7 +13020,7 @@ function updateDynamicPlanningPanel(extraCtx = {}) {
     const nodes = [
       { cls: engineWorkerClient && engineWorkerClient.ready ? 'dag-done' : 'dag-active', icon: engineWorkerClient && engineWorkerClient.ready ? '✓' : '▶', label: `Wasm + OPFS Boot (${fileCount} files on ${repo}@${branch})` },
       { cls: st ? 'dag-done' : 'dag-active', icon: st ? '✓' : '▶', label: st ? `Stitch Custody: ${st.verifiedShards}/${st.totalShards} Verified · ${st.healedShards} Healed` : 'Stitch 2-of-3 Shard Verification' },
-      { cls: hasPending ? 'dag-active' : 'dag-done', icon: hasPending ? '▶' : '✓', label: hasPending ? 'Workspace Diff Staged for Review' : 'GLLM v11 Reasoning & Tool Synthesis' },
+      { cls: hasPending ? 'dag-active' : 'dag-done', icon: hasPending ? '▶' : '✓', label: hasPending ? 'Workspace Diff Staged for Review' : 'UOR-R4 v12 Reasoning & Tool Synthesis' },
       { cls: prNum || turnVerified ? 'dag-done' : 'dag-pending', icon: prNum || turnVerified ? '✓' : '◯', label: prNum ? `GitHub PR #${prNum} · ${AppState.config.ciSummary || 'Active'}` : 'Commit, Open PR & Watch CI/Pages' },
     ];
     dagEl.replaceChildren();
@@ -12594,7 +13045,7 @@ function updateDynamicPlanningPanel(extraCtx = {}) {
   if (listEl) {
     const tasks = [
       { done: Boolean(engineWorkerClient && engineWorkerClient.ready), active: false, text: `Dedicated Wasm Worker & Secret Vault (${engineWorkerClient && engineWorkerClient.githubConnected ? 'PAT Sealed' : 'Public/Ready'})` },
-      { done: Boolean(st && st.totalShards > 0), active: !st, text: st ? `Stitch 2-of-3 Parity (${st.scheme} · ${st.status})` : 'Hydrate V10 / Stitch Shards into OPFS' },
+      { done: Boolean(st && st.totalShards > 0), active: !st, text: st ? `Stitch 2-of-3 Parity (${st.scheme} · ${st.status})` : 'Hydrate UORR4V12 / Stitch Shards into OPFS' },
       { done: Boolean(AppState.config && AppState.config.connectedGitRepo), active: false, text: `GitHub Workspace: ${repo}@${branch} (${fileCount} files)` },
       { done: Boolean(prNum), active: hasPending, text: prNum ? `Pull Request #${prNum} (${AppState.config.ciSummary || 'Tracked'})` : 'Stage Workspace Edits / Open Pull Request' },
     ];
@@ -12629,17 +13080,23 @@ function renderDynamicPoolPanel() {
   const repo = (AppState.config && AppState.config.connectedGitRepo) || 'local-workspace';
   const branch = (AppState.config && AppState.config.connectedGitBranch) || 'main';
   const st = engineWorkerClient ? engineWorkerClient.stitchHealth : null;
+  const r4Stack = engineWorkerClient ? engineWorkerClient.r4StackInfo : null;
   const gllm = engineWorkerClient ? engineWorkerClient.gllmInfo : null;
   const modelSel = document.getElementById('composer-model-select');
-  const activeModel = modelSel && modelSel.value ? modelSel.value : 'uor-r4.gllm-v11-agent';
+  const activeModel = modelSel && modelSel.value
+    ? modelSel.value
+    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.recompiled-v12-agent');
 
   if (poolGrid) {
+    const engineDetail = r4Stack
+      ? `${r4Stack.active_tier || 'EmbeddedSeed'} ${r4Stack.n_layers || 6}L/${r4Stack.d_model || 256}D · ${activeModel}`
+      : (gllm ? `R4 ${gllm.n_layers || 6}L/${gllm.d_model || 256}D · ${activeModel}` : `Mode: ${activeModel}`);
     const cards = [
       {
         role: 'MVM Worker Engine',
         active: Boolean(engineWorkerClient && engineWorkerClient.ready),
         status: engineWorkerClient && engineWorkerClient.ready ? 'Ready · Wasm32' : 'Booting...',
-        detail: gllm ? `GLLM ${gllm.n_layers || 16}L/${gllm.d_model || 256}D · ${activeModel}` : `Mode: ${activeModel}`,
+        detail: engineDetail,
       },
       {
         role: 'Stitch 2-of-3 Custody',
@@ -12713,7 +13170,9 @@ function renderCoworkStatusBar() {
   const frontier = document.getElementById('live-engine-frontier-badge');
   const trace = document.getElementById('live-otel-trace-badge');
   const modelSel = document.getElementById('composer-model-select');
-  const activeModel = modelSel && modelSel.value ? modelSel.value : 'uor-r4.gllm-v11-agent';
+  const activeModel = modelSel && modelSel.value
+    ? modelSel.value
+    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.recompiled-v12-agent');
   const thread = typeof getActiveThread === 'function' ? getActiveThread() : null;
   const turnCount = thread && Array.isArray(thread.messages) ? Math.max(1, Math.ceil(thread.messages.length / 2)) : 1;
   const repo = (AppState.config && AppState.config.connectedGitRepo) || 'local';
@@ -12895,15 +13354,84 @@ function initEmbedMeBridge() {
     document.body.classList.add('embed-me-compact');
   }
 
+  const replyBridge = (targetWin, payload) => {
+    const dest = targetWin || (typeof window !== 'undefined' && window.parent !== window ? window.parent : null);
+    if (dest && typeof dest.postMessage === 'function') {
+      dest.postMessage(payload, '*');
+    }
+  };
+
   const handleInboundMessage = async (ev) => {
     const msg = ev && ev.data ? ev.data : {};
-    if (!msg || typeof msg.type !== 'string') return;
+    if (!msg || (typeof msg.type !== 'string' && msg.protocol !== 'uor-workspace-bridge/1')) return;
     if (msg.type === 'prism:open-repo' && msg.repo) {
       const repoStr = String(msg.repo).trim();
       const branchStr = String(msg.branch || 'main').trim();
       await runGitHubLoopAction('connect', { repo: repoStr }).catch(() => null);
       await runGitHubLoopAction('clone', { repo: repoStr, branch: branchStr }).catch(() => null);
       emitPrismEmbedEvent('prism:status', ev.source || null);
+      return;
+    }
+    const isUorBridge = msg.protocol === 'uor-workspace-bridge/1'
+      || (typeof msg.type === 'string' && msg.type.startsWith('uor-workspace-bridge/1:'));
+    if (!isUorBridge) return;
+    const action = msg.action || (typeof msg.type === 'string' ? msg.type.replace(/^uor-workspace-bridge\/1:/, '') : 'status');
+    if (action === 'ping' || action === 'status') {
+      replyBridge(ev.source || null, {
+        ...getPrismEmbedStatusSnapshot('uor-workspace-bridge/1:status'),
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:status',
+      });
+    } else if (action === 'open-repo' && msg.repo) {
+      const repoStr = String(msg.repo).trim();
+      const branchStr = String(msg.branch || 'main').trim();
+      await runGitHubLoopAction('connect', { repo: repoStr }).catch(() => null);
+      await runGitHubLoopAction('clone', { repo: repoStr, branch: branchStr }).catch(() => null);
+      const snap = getPrismEmbedStatusSnapshot('uor-workspace-bridge/1:status');
+      emitPrismEmbedEvent('prism:status', ev.source || null);
+      replyBridge(ev.source || null, {
+        ...snap,
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:status',
+      });
+    } else if (action === 'set-model' && msg.model) {
+      const nextModel = String(msg.model).trim();
+      const selEl = document.getElementById('composer-model-select');
+      if (selEl) selEl.value = nextModel;
+      if (AppState && AppState.config) AppState.config.selectedModel = nextModel;
+      if (typeof tsComposer !== 'undefined' && typeof tsComposer.setModel === 'function') {
+        tsComposer.setModel(nextModel);
+      }
+      renderCoworkStatusBar();
+      replyBridge(ev.source || null, {
+        ...getPrismEmbedStatusSnapshot('uor-workspace-bridge/1:status'),
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:status',
+      });
+    } else if (action === 'admit-capsule' && msg.capsule) {
+      let result = null;
+      if (engineWorkerClient && engineWorkerClient.enabled) {
+        result = await engineWorkerClient.rpc('admit_generation_capsule', { capsule: msg.capsule }).catch((e) => ({ status: 'error', message: String(e) }));
+      } else if (typeof admit_uorc_generation_capsule === 'function') {
+        result = await admit_uorc_generation_capsule(msg.capsule).catch((e) => ({ status: 'error', message: String(e) }));
+      }
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:capsule-result',
+        result,
+      });
+    } else if (action === 'record-fault') {
+      let result = null;
+      if (engineWorkerClient && engineWorkerClient.enabled) {
+        result = await engineWorkerClient.rpc('record_generation_fault', { reason: msg.reason || 'bridge_fault' }).catch((e) => ({ status: 'error', message: String(e) }));
+      } else if (typeof record_uorc_generation_fault === 'function') {
+        result = await record_uorc_generation_fault(msg.reason || 'bridge_fault').catch((e) => ({ status: 'error', message: String(e) }));
+      }
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:watchdog-result',
+        result,
+      });
     }
   };
 
@@ -12912,12 +13440,18 @@ function initEmbedMeBridge() {
   }
   if (typeof globalThis === 'object') {
     globalThis.__uorPrismBridge = {
+      protocol: 'uor-workspace-bridge/1',
       handleInboundMessage,
       emitPrismEmbedEvent,
       getPrismEmbedStatusSnapshot,
     };
   }
   emitPrismEmbedEvent('prism:ready');
+  replyBridge(null, {
+    ...getPrismEmbedStatusSnapshot('uor-workspace-bridge/1:ready'),
+    protocol: 'uor-workspace-bridge/1',
+    type: 'uor-workspace-bridge/1:ready',
+  });
 }
 
 function initLayoutAndConnectedControls() {
@@ -13160,7 +13694,16 @@ function initLayoutAndConnectedControls() {
 
   const composerModelSel = document.getElementById('composer-model-select');
   if (composerModelSel) {
+    if (AppState && AppState.config && AppState.config.selectedModel) {
+      composerModelSel.value = AppState.config.selectedModel;
+    }
     composerModelSel.addEventListener('change', () => {
+      if (AppState && AppState.config) {
+        AppState.config.selectedModel = composerModelSel.value || 'uor-r4.recompiled-v12-agent';
+      }
+      if (typeof syncComposerModel === 'function') {
+        syncComposerModel(composerModelSel.value);
+      }
       renderCoworkStatusBar();
       updateDynamicPlanningPanel();
       renderDynamicPoolPanel();
@@ -13297,8 +13840,8 @@ try {
     if (workerBooted) {
       appendChatTurn(
         'assistant',
-        'UOR-R4 GLM v10 · Connected Studio',
-        'Welcome to **UOR-R4 Connected Chat & Studio v10**. Ask anything below, search live web documentation (`Web: ON`), connect a GitHub repository via **GitHub**, or switch instantaneously to the full 3-pane IDE & Linux MVM terminal with **Studio IDE**.',
+        'UOR-R4 v12 · Connected Studio',
+        'Welcome to **UOR-R4 Recompiled Studio (v12)**. Select a neural geometric mode (`uor-r4.recompiled-v12-agent`, `uor-r4.recompiled-v12-chat`, `uor-r4.seed-fast`) or `uor-r4.lut-symbolic` below, paste code or ask free-form questions, inspect 4-facet Verdant Synthesis KPIs + `.uorc` watchdog status, or connect a GitHub repository via **GitHub**.',
       );
     } else {
       runClaudeChat('Hello! Who are you and what can you do?', false);

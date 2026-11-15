@@ -293,17 +293,17 @@ for (const { name, ComposerClass, models } of implementations) {
   console.log('    ✓ Uncommitted draft restoration passed across all test payloads.');
 
   // =========================================================================
-  // SUITE 3: RAPID MODEL SWITCHING (All 4 GLLM v11 models)
+  // SUITE 3: RAPID MODEL SWITCHING (All 4 honest UOR-R4 v12 modes)
   // =========================================================================
-  console.log('  Suite 3: Rapid Model Switching Across All 4 GLLM v11 Models');
+  console.log('  Suite 3: Rapid Model Switching Across All 4 UOR-R4 v12 Modes');
 
   {
     const composer = new ComposerClass();
     const expectedModelIds = [
-      'uor-r4.gllm-v11-agent',
-      'uor-r4.gllm-v11-chat',
-      'uor-r4.gllm-v11-code',
-      'uor-r4.opfs-large',
+      'uor-r4.recompiled-v12-agent',
+      'uor-r4.recompiled-v12-chat',
+      'uor-r4.seed-fast',
+      'uor-r4.lut-symbolic',
     ];
 
     // Verify model inventory
@@ -317,7 +317,7 @@ for (const { name, ComposerClass, models } of implementations) {
     }
 
     // Default model
-    assert.equal(composer.getSelectedModel(), 'uor-r4.gllm-v11-agent');
+    assert.equal(composer.getSelectedModel(), 'uor-r4.recompiled-v12-agent');
 
     // 1,000 rapid switches in round-robin and random sequence
     for (let iter = 0; iter < 1000; iter++) {
@@ -570,15 +570,15 @@ inputEl.addEventListener('input', () => {
 });
 
 // TEST 5.1: Model selection change event
-syncComposerModel('uor-r4.gllm-v11-chat');
-assert.equal(domComposer.getSelectedModel(), 'uor-r4.gllm-v11-chat');
-assert.equal(selectEl.value, 'uor-r4.gllm-v11-chat');
-assert.equal(topbarTag.textContent, 'UOR-R4 GLLM v11 Chat (uor-r4.lut-stack/8) · Rolling 256D Carry');
+syncComposerModel('uor-r4.recompiled-v12-chat');
+assert.equal(domComposer.getSelectedModel(), 'uor-r4.recompiled-v12-chat');
+assert.equal(selectEl.value, 'uor-r4.recompiled-v12-chat');
+assert.equal(topbarTag.textContent, 'UOR-R4 v12 Recompiled Chat (30L Geometric Stack) · Neural Geometric Chat');
 
-syncComposerModel('uor-r4.opfs-large');
-assert.equal(domComposer.getSelectedModel(), 'uor-r4.opfs-large');
-assert.equal(selectEl.value, 'uor-r4.opfs-large');
-assert.equal(topbarTag.textContent, 'UOR-R4 OPFS Large (uor-r4.lut-stack/8) · 79 Shards + Stitch 2-of-3');
+syncComposerModel('uor-r4.lut-symbolic');
+assert.equal(domComposer.getSelectedModel(), 'uor-r4.lut-symbolic');
+assert.equal(selectEl.value, 'uor-r4.lut-symbolic');
+assert.equal(topbarTag.textContent, 'UOR-R4 Symbolic LUT (uor-r4.lut-stack/8 + MVM) · Symbolic LUT + MVM');
 console.log('  ✓ DOM model select synchronization works as expected.');
 
 // TEST 5.2: Textarea input and auto-expansion
