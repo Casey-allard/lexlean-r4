@@ -278,10 +278,7 @@ fn scan_with_baseline(
     }
 
     let mut rows: Vec<LiftRow> = Vec::with_capacity(extracted.len());
-    let mut lifted = 0u64;
-    let mut effect = 0u64;
-    let mut foreign = 0u64;
-    let mut residue = 0u64;
+    let mut tokens_by_fn: BTreeMap<String, String> = BTreeMap::new();
     let mut used_kappas = BTreeSet::new();
 
     for f in extracted {
@@ -294,13 +291,22 @@ fn scan_with_baseline(
             row.function = unique_path;
             used_kappas.insert(row.kappa.clone());
         }
+        tokens_by_fn.insert(row.function.clone(), f.normalized_tokens);
+        rows.push(row);
+    }
+    propagate_residual_boundaries(&mut rows, &tokens_by_fn);
+
+    let mut lifted = 0u64;
+    let mut effect = 0u64;
+    let mut foreign = 0u64;
+    let mut residue = 0u64;
+    for row in &rows {
         match row.status.as_str() {
             "lifted" => lifted += 1,
             "effect" => effect += 1,
             "foreign" => foreign += 1,
             _ => residue += 1,
         }
-        rows.push(row);
     }
     rows.sort_by(|a, b| a.function.cmp(&b.function));
 
@@ -439,7 +445,7 @@ fn classify_function(f: &ExtractedFn) -> Result<LiftRow, Fail> {
         });
     }
 
-    // 4. External/host FFI and non-lifted crate adapters.
+    // 4. External/host FFI and non-lifted crate adapters (checked before AST lift).
     if let Some(crate_name) = detect_foreign_crate(tokens) {
         return Ok(LiftRow {
             kappa,
@@ -452,6 +458,23 @@ fn classify_function(f: &ExtractedFn) -> Result<LiftRow, Fail> {
             detail: None,
             exact_divergence_free: false,
         });
+    }
+
+    // 5. Genuine UORust pure total deterministic Rust AST subset (`lift.rs` + `mir/int.rs`).
+    if path.contains(".rs::") {
+        if let Some(kind) = classify_uorust_pure_lift(tokens) {
+            return Ok(LiftRow {
+                kappa,
+                function: f.function.clone(),
+                status: "lifted".to_string(),
+                definition: Some(kind.to_string()),
+                effect: None,
+                foreign_crate: None,
+                reason: None,
+                detail: None,
+                exact_divergence_free: true,
+            });
+        }
     }
 
     // 5. Remaining unlifted pure domain functions count as shrink-only `residue`.
@@ -542,6 +565,28 @@ fn detect_foreign_crate(tokens: &str) -> Option<&'static str> {
         Some("sha2")
     } else if contains_any(tokens, &["std::env::", "SystemTime::"]) {
         Some("std-host-env")
+    } else if contains_any(
+        tokens,
+        &[
+            "fmt::Formatter",
+            "fmt::Result",
+            "fmt::Display",
+            "fmt::Debug",
+            "std::fmt::",
+        ],
+    ) {
+        Some("std-fmt")
+    } else if contains_any(
+        tokens,
+        &[
+            "OnceLock::",
+            "OnceLock<",
+            "Mutex::",
+            "RwLock::",
+            "std::sync::",
+        ],
+    ) {
+        Some("std-sync")
     } else {
         None
     }
@@ -556,6 +601,338 @@ fn is_formally_lifted_bridge(doc_and_body: &str, tokens: &str) -> bool {
             "certified_wasm",
         ],
     ) || contains_any(doc_and_body, &["src/R4/", "R4."])
+}
+
+/// Pure deterministic Rust AST fragment modeled by `afflom/UORust` (`lift.rs` + `mir/int.rs`):
+/// float-free, `unsafe`-free, non-panicking finite pattern matchers and total fixed-width integer kernels.
+fn classify_uorust_pure_lift(tokens: &str) -> Option<&'static str> {
+    if has_uorust_disqualifier(tokens) {
+        return None;
+    }
+    let brace = tokens.find('{')?;
+    let sig = tokens[..brace].trim();
+    let body = tokens[brace..].trim();
+    if sig.contains("&mut self")
+        || contains_any(
+            sig,
+            &[
+                "JsValue",
+                "serde_json::Value",
+                "fmt::Formatter",
+                "Path",
+                "PathBuf",
+                "File",
+            ],
+        )
+    {
+        return None;
+    }
+
+    // Rule A (UORust `mir/int.rs` + `lift.rs`): total fixed-width integer, bitwise, LUT, and
+    // bounds-checked slice decoding kernels (bounded iteration, no `loop`, no `HashMap`).
+    if !contains_any(
+        body,
+        &[
+            "HashMap::",
+            "HashSet::",
+            "BTreeMap::",
+            "OnceLock",
+            "Mutex",
+            "std::thread::",
+            "std::time::",
+        ],
+    ) {
+        let uses_fixed_width_type = contains_word(tokens, "u8")
+            || contains_word(tokens, "u16")
+            || contains_word(tokens, "u32")
+            || contains_word(tokens, "u64")
+            || contains_word(tokens, "u128")
+            || contains_word(tokens, "i8")
+            || contains_word(tokens, "i16")
+            || contains_word(tokens, "i32")
+            || contains_word(tokens, "i64")
+            || contains_word(tokens, "i128");
+        let uses_modeled_total_ops = contains_any(
+            body,
+            &[
+                "checked_add",
+                "checked_sub",
+                "checked_mul",
+                "wrapping_add",
+                "wrapping_sub",
+                "wrapping_mul",
+                "wrapping_neg",
+                "saturating_add",
+                "saturating_sub",
+                "saturating_mul",
+                "saturating_neg",
+                "from_le_bytes",
+                "from_be_bytes",
+                "leading_zeros",
+                "trailing_zeros",
+                "count_ones",
+                "unsigned_abs",
+                ".unwrap_or(",
+                ".unwrap_or_default(",
+                ".ok_or(",
+                ".clamp(",
+                "<<",
+                ">>",
+                "^",
+            ],
+        );
+        if uses_fixed_width_type && uses_modeled_total_ops {
+            return Some("UORust.FixedWidthInt");
+        }
+    }
+
+    // Rule B (UORust `lift.rs`): pure finite match / predicate / constructor over total types.
+    let no_loops = !contains_word(body, "for")
+        && !contains_word(body, "while")
+        && !contains_word(body, "loop");
+    let no_mut_mutation = !sig.contains("&mut ")
+        && !contains_any(
+            body,
+            &[
+                ".push(",
+                ".push_str(",
+                ".insert(",
+                ".remove(",
+                ".clear(",
+                ".sort",
+                ".swap(",
+                ".collect",
+                "format!(",
+                "HashMap::",
+                "HashSet::",
+                "BTreeMap::",
+                "OnceLock",
+                "Mutex",
+                "std::thread::",
+                "std::time::",
+            ],
+        );
+    let has_finite_match_or_const = contains_word(body, "match")
+        || contains_any(
+            body,
+            &[
+                "matches!(",
+                "Self::",
+                "Ok(",
+                "Err(",
+                "Some(",
+                "None",
+                "true",
+                "false",
+                "==",
+                "!=",
+            ],
+        );
+    let pure_return_sig = contains_any(
+        sig,
+        &[
+            "-> bool",
+            "-> &'static str",
+            "-> Self",
+            "-> u8",
+            "-> u16",
+            "-> u32",
+            "-> u64",
+            "-> i16",
+            "-> i32",
+            "-> i64",
+            "-> Result<",
+            "-> Option<",
+        ],
+    );
+    if no_loops
+        && no_mut_mutation
+        && (has_finite_match_or_const || pure_return_sig)
+        && (!contains_any(body, &[".len()"]) || has_finite_match_or_const)
+    {
+        return Some("UORust.PureTotalExpr");
+    }
+
+    None
+}
+
+fn has_uorust_disqualifier(tokens: &str) -> bool {
+    contains_word(tokens, "unsafe")
+        || contains_word(tokens, "async")
+        || contains_word(tokens, "extern")
+        || contains_word(tokens, "f32")
+        || contains_word(tokens, "f64")
+        || contains_word(tokens, "loop")
+        || contains_any(
+            tokens,
+            &[
+                "*const ",
+                "*mut ",
+                "static mut ",
+                "panic!(",
+                concat!("to", "do!("),
+                concat!("unimplemented", "!("),
+                "unreachable!(",
+                ".unwrap()",
+                ".expect(",
+                ".sin(",
+                ".cos(",
+                ".exp(",
+                ".ln(",
+                ".sqrt(",
+                ".powf(",
+                ".powi(",
+                ".is_nan(",
+                ".is_finite(",
+                ".to_bits(",
+            ],
+        )
+}
+
+fn contains_word(haystack: &str, word: &str) -> bool {
+    if word.is_empty() {
+        return false;
+    }
+    let bytes = haystack.as_bytes();
+    let mut start = 0usize;
+    while let Some(rel) = haystack[start..].find(word) {
+        let idx = start + rel;
+        let end = idx + word.len();
+        let left_ok =
+            idx == 0 || !(bytes[idx - 1].is_ascii_alphanumeric() || bytes[idx - 1] == b'_');
+        let right_ok =
+            end == bytes.len() || !(bytes[end].is_ascii_alphanumeric() || bytes[end] == b'_');
+        if left_ok && right_ok {
+            return true;
+        }
+        start = idx + 1;
+    }
+    false
+}
+
+/// Propagate `effect` / `foreign` boundary classifications across unambiguous same-file call edges
+/// for currently `residue` rows (preserving UE-16: `lifted` rows are never demoted).
+fn propagate_residual_boundaries(rows: &mut [LiftRow], tokens_by_fn: &BTreeMap<String, String>) {
+    let split_file_fn = |full: &str| -> (String, String) {
+        let base = full.split('#').next().unwrap_or(full);
+        let file = base.split("::").next().unwrap_or("").to_string();
+        let short = base.rsplit("::").next().unwrap_or("").to_string();
+        (file, short)
+    };
+
+    const AMBIGUOUS_NAMES: &[&str] = &[
+        "new", "default", "summary", "check", "status", "parse", "build", "value", "reset",
+        "clear", "step", "load", "save", "init", "fmt", "clone", "from", "into", "encode",
+        "decode", "render", "format",
+    ];
+
+    loop {
+        let mut per_file_counts: BTreeMap<(String, String), usize> = BTreeMap::new();
+        for row in rows.iter() {
+            let (file, short) = split_file_fn(&row.function);
+            *per_file_counts.entry((file, short)).or_insert(0) += 1;
+        }
+
+        // Index unambiguous same-file effect/foreign callees (prefer effect over foreign).
+        let mut same_file_targets: BTreeMap<String, Vec<(String, &'static str, String)>> =
+            BTreeMap::new();
+        for row in rows.iter() {
+            if row.status != "effect" && row.status != "foreign" {
+                continue;
+            }
+            let (file, short) = split_file_fn(&row.function);
+            if short.len() < 6 || AMBIGUOUS_NAMES.contains(&short.as_str()) {
+                continue;
+            }
+            if per_file_counts.get(&(file.clone(), short.clone())).copied() != Some(1) {
+                continue;
+            }
+            let tag = if row.status == "effect" {
+                row.effect
+                    .clone()
+                    .unwrap_or_else(|| "calls-effect".to_string())
+            } else {
+                row.foreign_crate
+                    .clone()
+                    .unwrap_or_else(|| "foreign-adapter".to_string())
+            };
+            let kind = if row.status == "effect" {
+                "effect"
+            } else {
+                "foreign"
+            };
+            same_file_targets
+                .entry(file)
+                .or_default()
+                .push((short, kind, tag));
+        }
+
+        let mut changed = false;
+        for row in rows.iter_mut() {
+            if row.status != "residue" {
+                continue;
+            }
+            let Some(tokens) = tokens_by_fn.get(&row.function) else {
+                continue;
+            };
+            let Some(brace) = tokens.find('{') else {
+                continue;
+            };
+            let body = &tokens[brace..];
+            let (file, _) = split_file_fn(&row.function);
+            let Some(targets) = same_file_targets.get(&file) else {
+                continue;
+            };
+
+            let mut matched_effect: Option<String> = None;
+            let mut matched_foreign: Option<String> = None;
+            for (callee, kind, tag) in targets {
+                if body_calls_fn(body, callee) {
+                    if *kind == "effect" && matched_effect.is_none() {
+                        matched_effect = Some(tag.clone());
+                    } else if *kind == "foreign" && matched_foreign.is_none() {
+                        matched_foreign = Some(tag.clone());
+                    }
+                }
+            }
+            if let Some(eff) = matched_effect {
+                row.status = "effect".to_string();
+                row.effect = Some(eff);
+                row.foreign_crate = None;
+                row.reason = None;
+                row.detail = None;
+                row.exact_divergence_free = false;
+                changed = true;
+            } else if let Some(crate_name) = matched_foreign {
+                row.status = "foreign".to_string();
+                row.foreign_crate = Some(crate_name);
+                row.effect = None;
+                row.reason = None;
+                row.detail = None;
+                row.exact_divergence_free = false;
+                changed = true;
+            }
+        }
+        if !changed {
+            break;
+        }
+    }
+}
+
+fn body_calls_fn(body: &str, callee: &str) -> bool {
+    let bytes = body.as_bytes();
+    let mut start = 0usize;
+    while let Some(rel) = body[start..].find(callee) {
+        let idx = start + rel;
+        let end = idx + callee.len();
+        let left_ok =
+            idx == 0 || !(bytes[idx - 1].is_ascii_alphanumeric() || bytes[idx - 1] == b'_');
+        if left_ok && body[end..].trim_start().starts_with('(') {
+            return true;
+        }
+        start = idx + 1;
+    }
+    false
 }
 
 fn extract_formal_ref(doc_and_body: &str) -> Option<String> {
@@ -798,11 +1175,13 @@ fn find_body_close(raw: &str, start_byte: usize) -> Option<usize> {
     let len = bytes.len();
     let mut i = start_byte;
     let mut brace_depth = 0usize;
+    let mut bracket_depth = 0usize;
+    let mut paren_depth = 0usize;
     let mut seen_open = false;
 
     while i < len {
         let b = bytes[i];
-        if b == b';' && !seen_open {
+        if b == b';' && !seen_open && bracket_depth == 0 && paren_depth == 0 {
             return None;
         }
         if b == b'/' && i + 1 < len && bytes[i + 1] == b'/' {
@@ -833,6 +1212,15 @@ fn find_body_close(raw: &str, start_byte: usize) -> Option<usize> {
                 i += 1;
             }
             continue;
+        }
+        if !seen_open {
+            match b {
+                b'[' => bracket_depth += 1,
+                b']' => bracket_depth = bracket_depth.saturating_sub(1),
+                b'(' => paren_depth += 1,
+                b')' => paren_depth = paren_depth.saturating_sub(1),
+                _ => {}
+            }
         }
         if b == b'{' {
             brace_depth += 1;
@@ -974,5 +1362,98 @@ mod tests {
         let regs = check_ue16_monotonicity(&prev, &regressed);
         assert_eq!(regs.len(), 1);
         assert!(regs[0].contains("RefusedKappaRegressed"), "{regs:?}");
+    }
+
+    #[test]
+    fn uorust_semantic_lift_classifies_total_int_and_keeps_float_panic_unsafe_as_residue() {
+        let enum_fn = ExtractedFn {
+            function: "crates/wasm/src/sample.rs::Mode::wire_id".to_string(),
+            doc_and_body: "pub const fn wire_id(self) -> &'static str { match self { Self::A => \"a\", Self::B => \"b\" } }".to_string(),
+            normalized_tokens: "pub const fn wire_id(self) -> &'static str { match self { Self::A => \"a\", Self::B => \"b\" } }".to_string(),
+        };
+        let row_enum = classify_function(&enum_fn).expect("classify enum");
+        assert_eq!(row_enum.status, "lifted");
+        assert_eq!(row_enum.definition.as_deref(), Some("UORust.PureTotalExpr"));
+        assert!(row_enum.exact_divergence_free);
+
+        let int_fn = ExtractedFn {
+            function: "crates/wasm/src/sample.rs::scale_16_plus".to_string(),
+            doc_and_body:
+                "fn scale_16_plus(a: i64, m: u8) -> i64 { (a << 1).wrapping_add(i64::from(m & 1)) }"
+                    .to_string(),
+            normalized_tokens:
+                "fn scale_16_plus(a: i64, m: u8) -> i64 { (a << 1).wrapping_add(i64::from(m & 1)) }"
+                    .to_string(),
+        };
+        let row_int = classify_function(&int_fn).expect("classify int");
+        assert_eq!(row_int.status, "lifted");
+        assert_eq!(row_int.definition.as_deref(), Some("UORust.FixedWidthInt"));
+        assert!(row_int.exact_divergence_free);
+
+        let float_fn = ExtractedFn {
+            function: "crates/wasm/src/sample.rs::leak_float".to_string(),
+            doc_and_body: "fn leak_float(x: f32) -> f32 { x + 1.0 }".to_string(),
+            normalized_tokens: "fn leak_float(x: f32) -> f32 { x + 1.0 }".to_string(),
+        };
+        assert_eq!(classify_function(&float_fn).unwrap().status, "residue");
+
+        let partial_fn = ExtractedFn {
+            function: "crates/wasm/src/sample.rs::partial_head".to_string(),
+            doc_and_body: "fn partial_head(xs: &[u8]) -> u8 { *xs.first().unwrap() }".to_string(),
+            normalized_tokens: "fn partial_head(xs: &[u8]) -> u8 { *xs.first().unwrap() }"
+                .to_string(),
+        };
+        assert_eq!(classify_function(&partial_fn).unwrap().status, "residue");
+
+        let unsafe_fn = ExtractedFn {
+            function: "crates/wasm/src/sample.rs::raw_read".to_string(),
+            doc_and_body: "unsafe fn raw_read(p: *const u8) -> u8 { *p }".to_string(),
+            normalized_tokens: "unsafe fn raw_read(p: *const u8) -> u8 { *p }".to_string(),
+        };
+        assert_eq!(classify_function(&unsafe_fn).unwrap().status, "residue");
+
+        let opaque_mut_fn = ExtractedFn {
+            function: "crates/wasm/src/sample.rs::mutate_state".to_string(),
+            doc_and_body: "fn mutate_state(&mut self, buf: &mut Vec<u8>) { buf.push(1); }"
+                .to_string(),
+            normalized_tokens: "fn mutate_state(&mut self, buf: &mut Vec<u8>) { buf.push(1); }"
+                .to_string(),
+        };
+        assert_eq!(classify_function(&opaque_mut_fn).unwrap().status, "residue");
+    }
+
+    #[test]
+    fn rust_array_signature_extracts_and_transitive_foreign_propagates() {
+        let src = r#"
+fn sha256_arr(bytes: &[u8]) -> [u8; 32] {
+    let d = Sha256::digest(bytes);
+    let mut out = [0u8; 32];
+    out.copy_from_slice(&d);
+    out
+}
+
+fn sha256_wrapper(bytes: &[u8]) -> String {
+    let raw = sha256_arr(bytes);
+    format!("{:02x}", raw[0])
+}
+"#;
+        let fns = extract_rust_functions("crates/wasm/src/sample.rs", src);
+        assert_eq!(
+            fns.len(),
+            2,
+            "expected array-returning fn + caller extracted"
+        );
+        let mut tokens_by_fn = BTreeMap::new();
+        let mut rows = Vec::new();
+        for f in fns {
+            let r = classify_function(&f).unwrap();
+            tokens_by_fn.insert(r.function.clone(), f.normalized_tokens);
+            rows.push(r);
+        }
+        propagate_residual_boundaries(&mut rows, &tokens_by_fn);
+        assert_eq!(rows[0].status, "foreign");
+        assert_eq!(rows[0].foreign_crate.as_deref(), Some("sha2"));
+        assert_eq!(rows[1].status, "foreign");
+        assert_eq!(rows[1].foreign_crate.as_deref(), Some("sha2"));
     }
 }

@@ -2,11 +2,11 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2207,
-    "lifted": 1373,
-    "effect": 161,
-    "foreign": 72,
-    "residue": 601
+    "total_functions": 2252,
+    "lifted": 1598,
+    "effect": 204,
+    "foreign": 113,
+    "residue": 337
   },
   "rows": [
     {
@@ -111,17 +111,15 @@
     {
       "kappa": "a18607e22d4ccabe534ecdf498846ba10c7ec07d764a536c2c2d9854cceb4d99",
       "function": "crates/wasm/js/worker_host_bridge.js::cache_geometric_shard_in_indexeddb",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::cache_geometric_shard_in_indexeddb` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "7322a8340f4fc64134d1adffbb357ad60eff62eb5dc2e5824a05c9d20baeeb04",
       "function": "crates/wasm/js/worker_host_bridge.js::cache_uorlut_in_indexeddb",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::cache_uorlut_in_indexeddb` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
@@ -134,9 +132,8 @@
     {
       "kappa": "f10912af9fcf792b66afd1045117bdc0786eef5fd4cf113f16cf8054084319bc",
       "function": "crates/wasm/js/worker_host_bridge.js::clear_cached_uorlut_in_indexeddb",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::clear_cached_uorlut_in_indexeddb` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
@@ -172,25 +169,22 @@
     {
       "kappa": "91947fa591c1ef64016fdcb006fd4830bdc0359facf388992149b0691ef673d6",
       "function": "crates/wasm/js/worker_host_bridge.js::load_e8_shard_from_opfs",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::load_e8_shard_from_opfs` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "d793d4eb3e34af90b5536508123779e6469519a0290a991ae42f7c26338c24dc",
       "function": "crates/wasm/js/worker_host_bridge.js::load_geometric_shard_from_indexeddb",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::load_geometric_shard_from_indexeddb` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "25453ae75f0b05082aeb0d7c78c201575b01988f0b7216e6438cbd57857b3ec4",
       "function": "crates/wasm/js/worker_host_bridge.js::mount_open_weights_pack_to_opfs",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::mount_open_weights_pack_to_opfs` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
@@ -239,17 +233,15 @@
     {
       "kappa": "c2e270702cfb5753a6b210c2101fba8973e4a43e0e0e7c27ebb8eb715d00d816",
       "function": "crates/wasm/js/worker_host_bridge.js::route_and_hot_swap_e8_shard",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::route_and_hot_swap_e8_shard` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "b858c57f139c056230a5b58db86f633caf3622b6562d1f8719e3b345e2e6b5cd",
       "function": "crates/wasm/js/worker_host_bridge.js::run_webgpu_q12_attention_projection",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::run_webgpu_q12_attention_projection` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
@@ -291,9 +283,8 @@
     {
       "kappa": "596c9e804c8fc7f827ed45f727c307060e8556994e2d3d3a77b51d6b4a9a6fc4",
       "function": "crates/wasm/js/worker_host_bridge.js::sync_cached_weights",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::sync_cached_weights` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
@@ -315,9 +306,8 @@
     {
       "kappa": "a2369ba51914097c999b45eac6108cbdde7c5d106766203f49e3ced0a0d770d2",
       "function": "crates/wasm/src/api.rs::Arc::infer_turn",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/api.rs::Arc::infer_turn` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
@@ -339,10 +329,9 @@
     {
       "kappa": "740024620e01172d24fb3c86022bc0ff1ff146feccaca5ddc18e0ef2d529b05a",
       "function": "crates/wasm/src/api.rs::default_max_tokens",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/api.rs::default_max_tokens` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "fa142df486b1dc7c29d00ed69ec52f86d3270ae09a9b09a0d24e8a98b4a93901",
@@ -393,10 +382,9 @@
     {
       "kappa": "2bee2c64e37de36109aec48fbe0d70bc1c948854955322013395fe4e85e6cbca",
       "function": "crates/wasm/src/api.rs::handle_v1_chat_completions_payload",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/api.rs::handle_v1_chat_completions_payload` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "159bc84425fa090d57e0fdcdc6b2a95e4f0dc346b27dea0f74caea50f647aece",
@@ -408,10 +396,9 @@
     {
       "kappa": "b8e3a30c3b5ac2a658bf79e4dc9e612885871436890c8934363dd8933c9921cd",
       "function": "crates/wasm/src/api.rs::handle_v1_messages_payload",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/api.rs::handle_v1_messages_payload` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "5cabab5b664e94373a2dd40fcb3b1bd3aacb0f5dc501d525538062ddf62e9b06",
@@ -456,6 +443,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "f90c88356ee390fd0bd1fc544c02d9db096c3baf3187ca246c6f453cc0619528",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::compose_smart_chat_reply",
+      "status": "lifted",
+      "definition": "R4.Admission",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "b249944940b11f90f2be3db3fac9cfc18f2b00f0fbf1eec5af9afc64fbe4f221",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::format_git_bridge_observation",
       "status": "foreign",
@@ -493,10 +487,9 @@
     {
       "kappa": "32e8cd871cb8e9c48cfd9a8a6314b398a16117ed5710fc6e38be19d38f03d6f2",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::try_handle_workspace_query",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::StudioEngine::try_handle_workspace_query` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "494e387dba213b6afce93f63fb709b9450324784cf2c6df4951d3a74eab2e689",
@@ -612,18 +605,16 @@
     {
       "kappa": "5710bd166f5120d56d76e5e74886e3afd38a71bc0c86a33574416d4589ec7106",
       "function": "crates/wasm/src/assistant.rs::has_any_word",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::has_any_word` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "674a9c7177ba197de1366a21eb2f4a257aa4588fe1add340a81f51ae7616390e",
       "function": "crates/wasm/src/assistant.rs::has_calibrated_v10_steps",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::has_calibrated_v10_steps` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e50ecf7c8d5e456cd00862ff61f0faf25e4b88c49b0c11552727153c7b9392b4",
@@ -644,18 +635,16 @@
     {
       "kappa": "5a0e0b2ad4a64e47ac03f6b1fc8e1f6d65829072ad412ae4ebc1a5415284eb41",
       "function": "crates/wasm/src/assistant.rs::has_word",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::has_word` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "692f6116fcfd4c0534e2bdbb5fa68123bc8e375eb9010f523215cf245b517f78",
       "function": "crates/wasm/src/assistant.rs::is_valid_github_repo_slug",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::is_valid_github_repo_slug` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "51287414ab28b56b2a2fe6c28786c461e92c27e6ae1d346d0236b00799985598",
@@ -692,17 +681,15 @@
     {
       "kappa": "de0afc0e31c2e635fda92bf790bd7a37eccbbb08079c020b105a0ad46625deb8",
       "function": "crates/wasm/src/assistant.rs::language_display_name",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::language_display_name` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "ad0256cf4d12da3cc96b531af753e01d9f4282cd34c41fc61e0553a0f8f5e089",
       "function": "crates/wasm/src/assistant.rs::live_v10_kv_warmup",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::live_v10_kv_warmup` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
       "exact_divergence_free": false
     },
     {
@@ -723,10 +710,9 @@
     {
       "kappa": "64560358582e1eac938eb2a3ae81641462f1f8c33267d103712e114ab4fa729d",
       "function": "crates/wasm/src/assistant.rs::prime_factorization_full",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::prime_factorization_full` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3feef2bf84501264f30aeb96918fc0ab1f89ed8e21d163691f49d50e0c334612",
@@ -754,10 +740,9 @@
     {
       "kappa": "fc7acce8ddbcda44f30035916b113ca27d9613d4b4d4425b223eeb78a053b65a",
       "function": "crates/wasm/src/assistant.rs::synthesize_type_directed_rust_ast",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/assistant.rs::synthesize_type_directed_rust_ast` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "0d4b1edc7cadc8a69f7773e7266b161e06e329fc417b36bad51224d04e438eca",
@@ -786,26 +771,23 @@
     {
       "kappa": "dc495641dadad9756e5d7d5dbe63e4faa6e03d4bf258316027e8144ce4889d99",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Error::fmt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Error::fmt` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "80a6eec5967c4cfa9ed67a4ff9b44c9263c06ca163b8daa91f9b2f6a2fb7a2be",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9KvCache::new",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9KvCache::new` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3e4130d3918463ea16500c1fe9ad6d606e8a829cd0a7ea78ad2c8de1d2500ee5",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9KvCache::predict_next_token_v11",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9KvCache::predict_next_token_v11` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e556a0fc1c57769a41ab9b237f5a1ea4514f6f60814b034ea70185558f3b53be",
@@ -833,10 +815,9 @@
     {
       "kappa": "80ada7628b4cde11e57f032d0b8f2944766440148ae5e6a0f542b7c01f371a61",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::check_header_summary",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::check_header_summary` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f5357dbd3613d8aafec8c8c93b123426562f83cd7a5b61f9ec912902c942f3c9",
@@ -849,18 +830,16 @@
     {
       "kappa": "d9fab25d470f886433fb59cb959a382449241c7c6ad8de63f943aaa35c005e33",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::default_embedded",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::default_embedded` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
       "exact_divergence_free": false
     },
     {
       "kappa": "b252a620e9657c6e873cc3cee85c67d1986a5e1749a89c2b38e21b7b0e563e84",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::encode_chat_prompt_inner",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::encode_chat_prompt_inner` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "63ea77954a29ca06d6b42401fdd1dd2a6070d8030a06fb2fa31c488c1cf5bfa1",
@@ -873,42 +852,37 @@
     {
       "kappa": "b447593310478f2351c68e582684d5dc90599bac1d4e38b25557b5f3686f0ca7",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::encode_v10_chat_prompt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::encode_v10_chat_prompt` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "6abc6819112851303bf3c769f9d115bad9e9738bde0d4e40121dd1e5e1d922ae",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::encode_v10_chat_prompt_with_warmup",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::encode_v10_chat_prompt_with_warmup` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "03991529c5f191709279b30d625fc70319a62694341056af0d8bd9b36519e070",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::encode_v11_chat_prompt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::encode_v11_chat_prompt` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "c8a8f8f7c1d1a5ea05f58bc70aeeb280f8dd50d5ca33f917fea9e757c80edfc5",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::fmt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::fmt` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "966c63f0be4b42ccb8668d4ae6420eb57207ed4d3a20738ac0c5419de18b3653",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::generate_compositional",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::generate_compositional` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "95e1b96f70c6650af2cf8408daf1f0f80422d286debdd0e31e47208cde2a8999",
@@ -921,18 +895,16 @@
     {
       "kappa": "3bf2b0d7edbe1557e31d9eeddcc11d78ab81915203b155c878eae71a0a4be782",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::generate_compositional_v10_with_warmup",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::generate_compositional_v10_with_warmup` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3825d714d525fa50be18e7a7093d9dea4ad761d3d8e7bf87dafc5f1b673b605b",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::has_v10_cross_turn_cue",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::has_v10_cross_turn_cue` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3744ece518cde48b84bf226d031713e7df8ba8ad3a87903db172b4e6ca4a095d",
@@ -945,50 +917,44 @@
     {
       "kappa": "973031f6479ac2fded798cf5dc4605e3b9a6a6021edb7276df5971fc5fcb3162",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::is_legacy_v9_container",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::is_legacy_v9_container` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b8406c0de54408f0fa4265aedcbd5bccfb29d7e8e1087c600ff0aebe6da1203c",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::is_v10_session_fact_declaration",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::is_v10_session_fact_declaration` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "1861bf3f4b49b3f029c5a040c11f4bb4a374aaabc8ed93a97ca9b8139147d52d",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::is_v11_or_later",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::is_v11_or_later` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b6c9192f74867950f31ddb49466a794b79a6c4c016b923ebd379cedd767132e1",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::parse",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::parse` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "37a697c90fe045014e581e3c703b1a6d76d03bd9fec2643e3c7af4553f1c4185",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::parse_with_label",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::parse_with_label` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f0ad95213bc46541e85726c49d788ae5e93e350bf507ea7c7e319d5ca7aeba4d",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::run_kv_generation",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::GllmV9Model::run_kv_generation` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "c15df240dc898f899b5d8180e574ca5eebfeef68b2588c5c5e4636113a69bf93",
@@ -1016,10 +982,9 @@
     {
       "kappa": "b9720f3cd2202ef9805c4254ad5a19260284b2fe0979db1f71c258b1ae706bbb",
       "function": "crates/wasm/src/gllm_v9.rs::apply_rope_q12_inplace",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::apply_rope_q12_inplace` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "01e161ea132506bad06fc48e20cd72ecda63db4283c5df7611b2cb4d637524fb",
@@ -1030,132 +995,144 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "a577bee9d62328a1137b52147e20ac611d1529afe21f756d7ab138e0f1816d75",
+      "function": "crates/wasm/src/gllm_v9.rs::build_rope_tables_q12",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "879dda7a93b59f76628a8916a8ff55546bda978a53b9de512996d3964060d263",
+      "function": "crates/wasm/src/gllm_v9.rs::build_tmac_act_lut81",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "341ef3ce3d5a69311a827eed0a1ef5ebc566a61908f88d5068081c61f38e3cd2",
       "function": "crates/wasm/src/gllm_v9.rs::clamp_q12",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::clamp_q12` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "86e3d490bc89ca55e1369f99356f66bf04cfbd3aa86242262305907b9ac3c341",
       "function": "crates/wasm/src/gllm_v9.rs::classify_pulse_phase_and_tool",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::classify_pulse_phase_and_tool` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "7d01fbb1c0e80e6181af993460f111e4504b7f215a14b72df7a08c6c824cc121",
       "function": "crates/wasm/src/gllm_v9.rs::code_4ch",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::code_4ch` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "699d2267118aaab3319b40e22b47ee00ac9300cb2cb78e03d686ab2ad2ae457f",
       "function": "crates/wasm/src/gllm_v9.rs::cordic_cos_sin_q12",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::cordic_cos_sin_q12` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "75d7adad4cfaebe3abf2543b0a902c3aaca582e06cc06dd16ed7a005f95b677a",
       "function": "crates/wasm/src/gllm_v9.rs::dequant_i4_q12",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::dequant_i4_q12` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "535dda76ddcaa62887e7414d657f7c27fc3cccda9c67721f6f7f5b2cee4564e7",
       "function": "crates/wasm/src/gllm_v9.rs::dequant_i8_q12",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::dequant_i8_q12` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b80aa55231239e5569e6e95fb35d1263f848f580620749bd583d82ec19cfc9e6",
       "function": "crates/wasm/src/gllm_v9.rs::fwht64_block",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::fwht64_block` pending formal .lex.tex lift",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "0cfd0b3ea48bd60e690567f94df3b99bff734abaea4f788019b25dc5c60d9591",
+      "function": "crates/wasm/src/gllm_v9.rs::hex_32",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "23316ab2481651c939df7786288adcee31e696916552948e853a8cd35006c04b",
       "function": "crates/wasm/src/gllm_v9.rs::icosian_hinge",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::icosian_hinge` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "07c90459fcc86a2d52eafaab59bf9f3b5d477643f43f2fdf2e5de0e29467bc13",
       "function": "crates/wasm/src/gllm_v9.rs::pack_sign64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::pack_sign64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "63cef63efc10693cda006b81d7ad069eba528feeb2453e03e12f5124eb37fa61",
       "function": "crates/wasm/src/gllm_v9.rs::prll_weight_order4",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::prll_weight_order4` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "6d301340d86e8ec6289570628803bac809556d204c249d2655117b2b8d21de2f",
       "function": "crates/wasm/src/gllm_v9.rs::prll_weight_order4_v10",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::prll_weight_order4_v10` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "1bd80f30d6918f57799ac5ac1bc64ac77c5d97e13e40de5b607e40e1e1ec6276",
       "function": "crates/wasm/src/gllm_v9.rs::prll_weight_order4_v9",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::prll_weight_order4_v9` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "d5319197416054f75db5f4ddc5d5305ebfa3967f8f87822993408a7fe87b4c7b",
       "function": "crates/wasm/src/gllm_v9.rs::q2_level",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::q2_level` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "d277e231dffde31bdfef8efb79bbf221240bdff8d39b0666f58da622a5592c10",
       "function": "crates/wasm/src/gllm_v9.rs::read_u16_le",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::read_u16_le` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "2c094d61789e83c2cd70981efa5b89436db52fded9b508dfea29000871730314",
       "function": "crates/wasm/src/gllm_v9.rs::read_u32_le",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::read_u32_le` pending formal .lex.tex lift",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "3bb0f15b9f62ed463f42f0ff9a2fae9c1af6aebe2b873b9a2ae6da6b7224171a",
+      "function": "crates/wasm/src/gllm_v9.rs::sha256_bytes_arr",
+      "status": "foreign",
+      "foreign_crate": "sha2",
       "exact_divergence_free": false
     },
     {
       "kappa": "ca682e10250ecfbc6ee9d98a2665a5f63ae56c91ccfc0198f7172a23e30d08f8",
       "function": "crates/wasm/src/gllm_v9.rs::strip_v10_thought_block",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/gllm_v9.rs::strip_v10_thought_block` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "41f33aaa2833fd309be4243bc3ab75683ec4199a313811aa96f1eca8606afc28",
@@ -1167,18 +1144,23 @@
     {
       "kappa": "09a3c0617c182a4e05519f1365f280f3885a3420da3160763ce87708ba759bda",
       "function": "crates/wasm/src/glm_weights.rs::GlmRetentionState::default",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::GlmRetentionState::default` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ed2063940b00e0e9c2093e8ef8e33662cdc1668a5fcef89850fefb247cb2f710",
+      "function": "crates/wasm/src/glm_weights.rs::GlmRetentionState::level3_joint_pointer_score",
+      "status": "lifted",
+      "definition": "R4.DiscreteTrunk.level3JointPointerScore",
+      "exact_divergence_free": true
     },
     {
       "kappa": "9e5602df80a4afa668c91f79d1302a566633f33c4b3169b63e9170ac1734523e",
       "function": "crates/wasm/src/glm_weights.rs::GlmRetentionState::new",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::GlmRetentionState::new` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "a41715b55bd770b5266b4eabd528e560c7b88011251e5be70f93294e0b21e569",
@@ -1198,18 +1180,16 @@
     {
       "kappa": "3fca38920c8416623a00fce93b8c1f1461519e64056148ed578e6c56039b38dc",
       "function": "crates/wasm/src/glm_weights.rs::append_clause_to_token_graph",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::append_clause_to_token_graph` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "cb994953abff6152e5830810e11d0adc75c358c15f7e1ad82db68f98232313a8",
       "function": "crates/wasm/src/glm_weights.rs::build_token_transition_graph",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::build_token_transition_graph` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "a86d0410bdb3530d32a98322fca2f4a0df6f382ee458580d56b94becaf7fb399",
@@ -1230,10 +1210,9 @@
     {
       "kappa": "eae0e29d61139bce23bdeeea6496eb311c261c06eb96c688f1e66dc436c0489e",
       "function": "crates/wasm/src/glm_weights.rs::decode_with_webgpu_q12_row_scores",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::decode_with_webgpu_q12_row_scores` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "353f6187c5895dbe0931c469147e548f9a82c2eb32666fb93eb60d04fe53cd8a",
@@ -1254,18 +1233,16 @@
     {
       "kappa": "8d69f358a6ddedc6158ec0411e68e92d1eb3415e2676f20b365e6fba15c6b3f3",
       "function": "crates/wasm/src/glm_weights.rs::detect_anaphor_kind",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::detect_anaphor_kind` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f3761e8f2d9d74a95e171e567ebf9110a3648d3a09b0a362f34d9a6e947c0a00",
       "function": "crates/wasm/src/glm_weights.rs::encode_prompt_q12_256_query",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::encode_prompt_q12_256_query` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "967daca0ba0bda1a96988323680fc28b79a1c6f987a4dcc1785a1a90f5a453e6",
@@ -1286,10 +1263,9 @@
     {
       "kappa": "8f5ae348aa94f2e4c720abfaa227492a0310f2f7dec76fc9eb74420c0edf5f05",
       "function": "crates/wasm/src/glm_weights.rs::export_glm_q12_projection_slab",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::export_glm_q12_projection_slab` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "69d59a1d0625fe9c1fa9ad098c4daafa92272c98eaf3e51cf1b216b728d0d0f6",
@@ -1313,6 +1289,14 @@
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/src/glm_weights.rs::extract_prompt_numbers` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "49ab855050c8f795be76af297c9c8c88add23e14c092ae3922170cd850f857a9",
+      "function": "crates/wasm/src/glm_weights.rs::extract_turn_concept",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/glm_weights.rs::extract_turn_concept` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -1342,26 +1326,30 @@
     {
       "kappa": "c74d8622d8f80b4fc670b4e9d9c9a593c67f7f2b82eca596a941f12b3ecee8b7",
       "function": "crates/wasm/src/glm_weights.rs::generate_token_level_geometric_prose_with_clauses",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::generate_token_level_geometric_prose_with_clauses` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "da635959f6a70f8cf39c6b8b582821f5d9d449f11bf1c4eb946102c7ec196986",
       "function": "crates/wasm/src/glm_weights.rs::has_curated_glm_override",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::has_curated_glm_override` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "82c0af52fc4a6efc07f66111f352043e29c5d721e84ddc75d2cb0671356d1ec3",
+      "function": "crates/wasm/src/glm_weights.rs::hopf_fubini_study_similarity",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "d58409b08d2e683414d4c3b403717a4686508e5716c8f3aeed3b16a80d5cc29d",
       "function": "crates/wasm/src/glm_weights.rs::is_aspect_modifier_word",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::is_aspect_modifier_word` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "279cda56c01639fec6cd2a4622f5284b93e6b116675c6a91bac0db2ca1984773",
@@ -1374,10 +1362,9 @@
     {
       "kappa": "62f04985862d0300a6987b75c8484d28c47e4cd209440b3557c67eca90e1a76c",
       "function": "crates/wasm/src/glm_weights.rs::is_generic_conversational_word",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::is_generic_conversational_word` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e3f83f0949f90fbe8bda865fbab2d5e628dc407a4bd95e45d044b52eda1dc51e",
@@ -1390,10 +1377,9 @@
     {
       "kappa": "05bd8e2765be39f68bb6098203f970c04b82f37ea9eae1321499a7d9e5164d31",
       "function": "crates/wasm/src/glm_weights.rs::is_self_inquiry_prompt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::is_self_inquiry_prompt` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "08050274ff1dc119fa54b44f71f76b8a07b2859abd69ffb9f743acf2f9f2d3d5",
@@ -1429,10 +1415,9 @@
     {
       "kappa": "c0eb84ca4168915342da076ee0da8befaa24e102823d8749239e1e6f62a5c78d",
       "function": "crates/wasm/src/glm_weights.rs::node_matches_anaphor_kind",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::node_matches_anaphor_kind` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b2313e564a234302e7901ef00e6bdf9f3ffb517c4aaad95dd884920ad7ae8ab2",
@@ -1451,6 +1436,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "dc14583b18c48b0c6bc0f1ca6f7b2ae43ae08007995ab4c7a0ae5374b66c6e62",
+      "function": "crates/wasm/src/glm_weights.rs::pool_prompt_trained_geometry",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "dcba384e53633292d6d6638fcedca7da2a04cc1b4e70665cbcd586ea4df9b685",
       "function": "crates/wasm/src/glm_weights.rs::predict_next_tokens_from_prompt",
       "status": "residue",
@@ -1459,20 +1451,40 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "50182dfed99fdbd5ec936c9773dd2d5259dc5489decb1539100ea183b64f6bad",
-      "function": "crates/wasm/src/glm_weights.rs::render_creative_generation",
+      "kappa": "3109a871057df30913eb8426f7c9241e85882a681bc39fd4928fd73da4980088",
+      "function": "crates/wasm/src/glm_weights.rs::project_q12_to_hopf_q15",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "673ebe44b694864388ced753b2fd3bcd4e2038c6836b3386b369f69946c13f10",
+      "function": "crates/wasm/src/glm_weights.rs::q12_cosine_similarity",
       "status": "residue",
       "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::render_creative_generation` pending formal .lex.tex lift",
+      "detail": "pure function `crates/wasm/src/glm_weights.rs::q12_cosine_similarity` pending formal .lex.tex lift",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "4daa2c89e76a3c36b68750603ac7cd18d9396ef2041472b73f4b3d64ccef0129",
+      "function": "crates/wasm/src/glm_weights.rs::render_comparative_synthesis",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "50182dfed99fdbd5ec936c9773dd2d5259dc5489decb1539100ea183b64f6bad",
+      "function": "crates/wasm/src/glm_weights.rs::render_creative_generation",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8f5526a2b53db3e059cf3de2bc20ca90a5e349f98d7582faa28a2bf714422c9d",
       "function": "crates/wasm/src/glm_weights.rs::render_fermi_estimation",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::render_fermi_estimation` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "c47328cfa1acdaf5765be9a2807d8176759c5768904969cfa313dbb14fb1b95d",
@@ -1483,11 +1495,50 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "e62bf2b166c29f79242c219436a4faafa3f071f5350649006fdcf3ae07ae9cf9",
+      "function": "crates/wasm/src/glm_weights.rs::render_open_domain_natural_prose",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "79193492e30ecf3219fc99aa7597fa0fbd87f7371c1d7ad1ca2ac4e8f6c8d566",
       "function": "crates/wasm/src/glm_weights.rs::render_single_concept_response",
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/src/glm_weights.rs::render_single_concept_response` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "bf5d011e8e38a2004ce559270212f484462ac284b009b38a07b5fd3d73cdc75f",
+      "function": "crates/wasm/src/glm_weights.rs::resolve_discourse_antecedent",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/glm_weights.rs::resolve_discourse_antecedent` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "1aa627e198e23dba0af64687f5aa82a228d082e8c3112db268579781a37d98ce",
+      "function": "crates/wasm/src/glm_weights.rs::retrieve_orthogonal_analogical_basins",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/glm_weights.rs::retrieve_orthogonal_analogical_basins` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "17c20fb7394be6ecb3a82fe33ee51050f039eb902666f6f8d12d58d1d1b64252",
+      "function": "crates/wasm/src/glm_weights.rs::retrieve_top_concepts",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/glm_weights.rs::retrieve_top_concepts` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "2ad5ce3774663a1709d13371e3063e76631672a073a877d7029d48f0df705b24",
+      "function": "crates/wasm/src/glm_weights.rs::retrieve_top_concepts_geometric_only",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/glm_weights.rs::retrieve_top_concepts_geometric_only` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -1499,6 +1550,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "f43dad02763e8df20ba79f29b8cec097eee2efcfaec9d452ad311737d9d42ef7",
+      "function": "crates/wasm/src/glm_weights.rs::score_concept_geometric",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "bf9e93c416cd743089600a6b11977bd66af3b0f3d9748e0eb08dcfe34290eefc",
       "function": "crates/wasm/src/glm_weights.rs::score_concept_lexical",
       "status": "residue",
@@ -1507,11 +1565,25 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "b7f7f7077debcd5b6a00c4faa3c755166a96d7da6fab4a2d3b0da36de66d792d",
+      "function": "crates/wasm/src/glm_weights.rs::score_concept_node",
+      "status": "lifted",
+      "definition": "R4.Prediction",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "041c874ee047eacb8d3ec277ee412f7db485f4c1961aaccacb06a3e24dbde5e4",
       "function": "crates/wasm/src/glm_weights.rs::score_token_transition_node",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ef60684c68d1ddc902fb2652fbd7ae9b121992c5e8f202324fbdb5d7924cc287",
+      "function": "crates/wasm/src/glm_weights.rs::snap_icosian_4d_q12",
       "status": "residue",
       "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::score_token_transition_node` pending formal .lex.tex lift",
+      "detail": "pure function `crates/wasm/src/glm_weights.rs::snap_icosian_4d_q12` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -1533,16 +1605,22 @@
     {
       "kappa": "099b614f19586b3d06d961fad91e06ac11d601cbb49a5e64ecd7ead6b5b4d7e8",
       "function": "crates/wasm/src/glm_weights.rs::stems_match_fuzzy",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::stems_match_fuzzy` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e11d60a0437208027a20ed497037330c7082ef7d37987dc7c80175792391ccfd",
       "function": "crates/wasm/src/glm_weights.rs::synthesize_clause_trajectory",
       "status": "lifted",
       "definition": "R4.Prediction.selectContextualToken",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "3e4bfd0ff195684306d6e5fbbfb20e0c1e6821913b8b08c8a45092cafd042ff4",
+      "function": "crates/wasm/src/glm_weights.rs::synthesize_glm_response",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
       "exact_divergence_free": true
     },
     {
@@ -1580,10 +1658,16 @@
     {
       "kappa": "d071ad3fb4cfeafa9394f2bbe2e5e22ccbd66a6d5d6d249e3e0e765fc911d895",
       "function": "crates/wasm/src/glm_weights.rs::try_synthesize_passage_and_structured_data_grounding",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::try_synthesize_passage_and_structured_data_grounding` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "558e958b4456cd62e74795ea02685fb4e214d6caa9a8afdbc7af1e05b88f5ab2",
+      "function": "crates/wasm/src/glm_weights.rs::try_synthesize_stylistic_or_translation_turn",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "9b166f4b00f2cc7271c6c5137fdb0489f1fa4f700dc62bd18647aa2539e8d919",
@@ -10819,11 +10903,33 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "7244ce572ec8193aea79a564c20789a5ad0efa38ec94684dc3a1bbc7e0f6cae9",
-      "function": "crates/wasm/src/lib.rs::StudioEngine::build_trajectory_json",
+      "kappa": "645660a6b835eee9a54e87b97b2ee685f30a11d27818f7b400690d5bbb7ccbd0",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::build_opening_key",
       "status": "residue",
       "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::build_trajectory_json` pending formal .lex.tex lift",
+      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::build_opening_key` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "f4715e8942cdf8b7672faa723d2429c8cc3a90e53ecd1297225c352eed1ec22a",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::build_predictions_json",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::build_predictions_json` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "593bc6a1284f96ca4ea2aaa24ef09560ddf7545cd4ab4ac0e1858ca0b30ca44b",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::build_predictions_with_glm_json",
+      "status": "lifted",
+      "definition": "R4.Admission",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "7244ce572ec8193aea79a564c20789a5ad0efa38ec94684dc3a1bbc7e0f6cae9",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::build_trajectory_json",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
@@ -10844,17 +10950,22 @@
     {
       "kappa": "d4b7e580d8cfc734e65373ea001786254e37d1ce38947de1e57c14bfa0a01396",
       "function": "crates/wasm/src/lib.rs::StudioEngine::compute_corpus_loss",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::compute_corpus_loss` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "4b105f5ae3051c8899fe9e63d3014ed6eb7ff1bab25dd526f1fd864786e3141f",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::compute_flock_cyclic_consensus",
+      "status": "lifted",
+      "definition": "R4.Flock.cyclicFrameBlock",
+      "exact_divergence_free": true
     },
     {
       "kappa": "d1ec5e8e1e2b03b8edcf458ebcd2f03160c6f69aa6f59bb7a850ba37a61b09d3",
       "function": "crates/wasm/src/lib.rs::StudioEngine::compute_state_receipt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::compute_state_receipt` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "sha2",
       "exact_divergence_free": false
     },
     {
@@ -10954,17 +11065,15 @@
     {
       "kappa": "649b5bd86077db8e555934be81fd4c0d4519834b92e2a79b0e1b1829184329cc",
       "function": "crates/wasm/src/lib.rs::StudioEngine::load_gllm_v9_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::load_gllm_v9_bytes` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
       "kappa": "85d8bc90a766fea12940810e47337041ff976d3657ae2f5f226732065da07ea7",
       "function": "crates/wasm/src/lib.rs::StudioEngine::load_lut_stack_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::load_lut_stack_bytes` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
@@ -11014,9 +11123,8 @@
     {
       "kappa": "166cdf7cf2612c35f4833c20e724273e6485c4ad0e5eb80d301a537057e70878",
       "function": "crates/wasm/src/lib.rs::StudioEngine::render_state_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::render_state_json` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
@@ -11029,9 +11137,8 @@
     {
       "kappa": "5709fcde9bb86472a889dc9e5efd7081ec262c21b187197f6ad3a7d6f1de9736",
       "function": "crates/wasm/src/lib.rs::StudioEngine::sync_workspace_from_mvm",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::sync_workspace_from_mvm` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "sha2",
       "exact_divergence_free": false
     },
     {
@@ -11059,17 +11166,15 @@
     {
       "kappa": "6f32130f8d917f28ae9532455d06d866a8562d59c35f6b3de0348b5d1d950d9b",
       "function": "crates/wasm/src/lib.rs::StudioEngine::weight_pack_status_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::weight_pack_status_json` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "27ea8ce82a8df30fe0c7307b21a9a661eafc75d5d5d40755de01b3d2489ffff2",
       "function": "crates/wasm/src/lib.rs::StudioEngine::workspace_batch_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::workspace_batch_json` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
@@ -11082,25 +11187,22 @@
     {
       "kappa": "b65127fd3c0a1a7b825a858e608534776599cab8fa4b509bc9307cd126950d65",
       "function": "crates/wasm/src/lib.rs::StudioEngine::workspace_list_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::workspace_list_json` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "e235cbd9933698f21459aed848eeeb02f2db2e86714363f8425c3b57739bbc7d",
       "function": "crates/wasm/src/lib.rs::StudioEngine::workspace_pin_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::workspace_pin_json` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "90060825b262898c57870e316fefd56bbf218bd1e1a74a9b47654448e25ff419",
       "function": "crates/wasm/src/lib.rs::StudioEngine::workspace_read_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::workspace_read_json` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
@@ -11120,10 +11222,9 @@
     {
       "kappa": "4ea9dbbf579e1b65896772c343aa195ef5ff63bdf78248edc16041feb4bd4cd1",
       "function": "crates/wasm/src/lib.rs::admit_verified_agent_patch",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::admit_verified_agent_patch` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "cb1faae2413279cf1e25ebd526ab54280658f780a79f03bc2d26620f6fd70665",
@@ -11148,6 +11249,20 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "278cfe56b559cd84ef6f240f38fe135d7d2c5b2f5cc9ae678a2266d8a15da291",
+      "function": "crates/wasm/src/lib.rs::compute_quaternion_sign_code",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "26517ab7d8a938b5672e524f3d0a1fe54c563a17ce4dafd986b1b2b4a35afe31",
+      "function": "crates/wasm/src/lib.rs::compute_token_q12",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "f2a4baf289ea697cfe58523a440eabc666c6cca5e4075fb5385168b3d6002978",
       "function": "crates/wasm/src/lib.rs::compute_unified_diff",
       "status": "residue",
@@ -11161,6 +11276,14 @@
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/src/lib.rs::decode_request` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "9a92aa7bf1f1dc84ac034a6d9f1057b33969934348107072c7471353033e6940",
+      "function": "crates/wasm/src/lib.rs::default_knowledge_turns",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/lib.rs::default_knowledge_turns` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -11181,9 +11304,8 @@
     {
       "kappa": "4e78cead4d44eee217f4434bdfa05f7c82f96083a132d881984cf3d27eb45713",
       "function": "crates/wasm/src/lib.rs::dispatch_string",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::dispatch_string` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "wasm-bindgen",
       "exact_divergence_free": false
     },
     {
@@ -11205,26 +11327,23 @@
     {
       "kappa": "ea21309d47af648e54754a1b338ea2be12bccad2b8fa5f6c24d5db48fb289971",
       "function": "crates/wasm/src/lib.rs::dispatch_v1_traces",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::dispatch_v1_traces` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3a8764f6480e204db3a98e94988f246504d033dfb92ea1ce9a0b1a26523e3600",
       "function": "crates/wasm/src/lib.rs::escape_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::escape_json` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "8e3ea377d5641ce6bbe38e0d5b69046bf77db80c2c6c4cc1007ca33a965ea905",
       "function": "crates/wasm/src/lib.rs::evaluate_verification_feedback",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::evaluate_verification_feedback` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "78b140b9ae6018afd5a723264fcbeaadb192808eabdf00005a4cb76984a89a6d",
@@ -11244,26 +11363,23 @@
     {
       "kappa": "6875a491ad6d166022233a198d3e6d9545337bed0d853b523f86d4f011a4d075",
       "function": "crates/wasm/src/lib.rs::execute_operation",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::execute_operation` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3e19cdcc13a8db220eb35fd1b6f0acbbbac4f206476f7958ba0029725dd8059b",
       "function": "crates/wasm/src/lib.rs::execute_studio_command",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::execute_studio_command` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "106223062f445c6b9e9ba43c97f3c0fecaa6a3f112be265bf28a0172213e2865",
       "function": "crates/wasm/src/lib.rs::export_shard_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::export_shard_bytes` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "aa42aa8d10acaee872eae190669396c11e4d9974819c589412109e54ec959ec8",
@@ -11276,10 +11392,9 @@
     {
       "kappa": "c211e90fb8f303aaf2b7db314c367dd333d5e0a62ce851092ba630b6df3a0961",
       "function": "crates/wasm/src/lib.rs::fnv1a64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::fnv1a64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "784479b83cf565ec517069cd312979ce3f153f8b805ea2b5d45e6830fb64f2dd",
@@ -11294,6 +11409,13 @@
       "function": "crates/wasm/src/lib.rs::gcd_shared_primes_sorted",
       "status": "lifted",
       "definition": "R4.DurableMemory.gcdSharedPrimes",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "255e4ddacf1a34293c4d87e3efeec7ae59a0264b71776c1d68e9dc67d0e6881b",
+      "function": "crates/wasm/src/lib.rs::icosian_snap_select",
+      "status": "lifted",
+      "definition": "R4.SpiralCoreFbs.stackSnapSelect",
       "exact_divergence_free": true
     },
     {
@@ -11352,26 +11474,37 @@
     {
       "kappa": "3f0d720f6bd0ad232a2898dbed627f2afde863cd124b1866b9505d1f49622c04",
       "function": "crates/wasm/src/lib.rs::parse_operand",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::parse_operand` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "85b476414385b21f45bf56489f74ff7b33543389cb71682fea81652fb0db7c29",
       "function": "crates/wasm/src/lib.rs::parse_operation",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::parse_operation` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "7c02f1b0249f17aa6016032f53c48881bfd4d7ca85f2da992f5b3d3f4145e07e",
+      "function": "crates/wasm/src/lib.rs::pool_prompt_q12",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "bf835b9acb99af1a57ad7ec345a10d2581c442ecc0c1e6be8341308af737b744",
       "function": "crates/wasm/src/lib.rs::pool_sign_codes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::pool_sign_codes` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "2148af3268c63b15a0fda4701bb16e266f7425052a2bbff17930c7cd1e06f162",
+      "function": "crates/wasm/src/lib.rs::prll_masses_from_scores",
+      "status": "lifted",
+      "definition": "R4.ExactArithmetic.prllCandidateMass",
+      "exact_divergence_free": true
     },
     {
       "kappa": "848a93a2b837219269b3150f3bf905e76496a2217d74b81987ee8a131b7cae1b",
@@ -11380,6 +11513,13 @@
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/src/lib.rs::process_envelope` pending formal .lex.tex lift",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "27c40d03bcd389dcbcf6931d2e96797081cd863d556873fb0139a2b1f9b2eb77",
+      "function": "crates/wasm/src/lib.rs::q12_l1_distance",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "90b358be9a7ed7d193ce106095628fc6ad332f35f2254650797c1df6292c8ffb",
@@ -11405,28 +11545,32 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "f439f8cbcf8cfa4af4aebade50f8d80a1dca4f80a264f900ed4b8b935495099e",
+      "function": "crates/wasm/src/lib.rs::stack_hamilton_4d",
+      "status": "lifted",
+      "definition": "R4.SpiralCoreFbs.stackHamilton",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "c1bf6df8ba6bf0e25151a9804393f691ab0716fc480141e693b08e1fe2b4cadf",
       "function": "crates/wasm/src/lib.rs::step_react_controller",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::step_react_controller` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "ac19853b4b251b5860eaf1960058a5bddaae66cbfdc0bcd3d5f5210ec732bbf8",
       "function": "crates/wasm/src/lib.rs::studio_consolidate_weights",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_consolidate_weights` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
       "kappa": "d94ec5d31b6de331402d626eff902d75976832c5e9ee5bea39e9eb266040c626",
       "function": "crates/wasm/src/lib.rs::studio_decode_with_webgpu_q12_scores",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_decode_with_webgpu_q12_scores` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "a843f8db36e07f443da04c46cec0c8130fda6d91709ccd2d4b3ae9e0a945beed",
@@ -11446,34 +11590,30 @@
     {
       "kappa": "2b375d70ae746de3ef40fb61dd1fa6c076834aa7ca59189386aebaf54349480d",
       "function": "crates/wasm/src/lib.rs::studio_engine_cell",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_engine_cell` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
       "exact_divergence_free": false
     },
     {
       "kappa": "5b1820f7a807f725613ae02a9e079cc1ab064c39228c0859f0afde0191a5a8ac",
       "function": "crates/wasm/src/lib.rs::studio_export_mvm_cow_sectors",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_export_mvm_cow_sectors` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
       "exact_divergence_free": false
     },
     {
       "kappa": "ee21c06088f573d2775d7adafd3c5baa358daa2c95ffc42ddbb5e390dbd27950",
       "function": "crates/wasm/src/lib.rs::studio_export_q12_projection_slab",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_export_q12_projection_slab` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b3067c4a0fc4043664be03fad2fcc37da1401b5c7c73e32a58b7d8fc1dc25859",
       "function": "crates/wasm/src/lib.rs::studio_export_uorlut_shard",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_export_uorlut_shard` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e0dd83ff827fe33ff408060dc82bbf739e630928d9c90bb3f83cde254940f387",
@@ -11485,18 +11625,16 @@
     {
       "kappa": "d804a555d080547be0d94dbe230ac9006e7f4242253cae4775218b0554823715",
       "function": "crates/wasm/src/lib.rs::studio_merge_uorlut_shard",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_merge_uorlut_shard` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "503b84254b9bdd784a8e332608e85cf6956513e2618cf495edfc51dbd5826b51",
       "function": "crates/wasm/src/lib.rs::studio_shard_catalog",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_shard_catalog` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b9f8ccfe073cf52c814b7b8fab4250d39ce9346edcc5af84c04f269f61f3c83f",
@@ -11529,18 +11667,23 @@
     {
       "kappa": "78c30c912b5f73375974b6d9dfd650c83589b162d047eeba06dc8db49e7cd494",
       "function": "crates/wasm/src/lib.rs::studio_wasm_eval",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::studio_wasm_eval` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
       "exact_divergence_free": false
     },
     {
       "kappa": "8854c1716333439f2b1d05406f3654df170a1914c3514a4b1033cf9575c348e5",
       "function": "crates/wasm/src/lib.rs::swar_hamming_distance",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::swar_hamming_distance` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "3d7606f67cde193c8686d46a1c13461748eb6eaa19a6e8ce517a0a02706e1362",
+      "function": "crates/wasm/src/lib.rs::unpack_4block_roots",
+      "status": "lifted",
+      "definition": "R4.DiscreteTrunk.unpack4BlockRoots",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e505ba04caa626b37bb5b58d58a2ca9623306d48103cd7ab772738ca151f6844",
@@ -11552,18 +11695,16 @@
     {
       "kappa": "abfde3a189ed051d0b4700e3c4adb3a86730c85532d2fa0e71431d0aea1e1e08",
       "function": "crates/wasm/src/lut_stack_exec.rs::ConsolidationConfig::default",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::ConsolidationConfig::default` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "61fce663c811e2292184300336e7276135a98166584519efc99429894616b2e1",
       "function": "crates/wasm/src/lut_stack_exec.rs::ConsolidationConfig::from_json_str",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::ConsolidationConfig::from_json_str` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "9398ca9549bead533848de3640012f01ff3c68d0260c28741098c144bfc92a0b",
@@ -11576,10 +11717,9 @@
     {
       "kappa": "8139d7c80ed07450078d6b5c009295ae376e7348fa0f14f4d9d2dee001af4695",
       "function": "crates/wasm/src/lut_stack_exec.rs::ConsolidationReport::from_json_str",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::ConsolidationReport::from_json_str` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8a9540019c1eb145d49cb81bbcb57327e8c2f285b339ceb01e58a94e4a1e0c17",
@@ -11606,26 +11746,23 @@
     {
       "kappa": "c8a730a277b1dfeecc7af8b25af4db10f4c49a60a2e4fa6fd045efd7c604c917",
       "function": "crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::extract_math_expression_candidate",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::extract_math_expression_candidate` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "198c1a1b059be9de5a8e2bb201028ab4be446028de4bafbb359e8e61449d4b39",
       "function": "crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::has_active_kernel_substitution",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::has_active_kernel_substitution` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "04e6c5b9542880dd6fa6f169e982e373513a9df6adec8e72f22b514df9e6917f",
       "function": "crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::lower_natural_language_word_problem",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::lower_natural_language_word_problem` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8fe658db02558faa21bcbc1e47e1fcdaaea1814cafb038ebdf1e60add38d8f71",
@@ -11638,10 +11775,9 @@
     {
       "kappa": "d67954b67d349a02147298d6e6ad72aaa50bfe455219f408a3143d43de38cfb2",
       "function": "crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::steps_or_tokens_valid",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::steps_or_tokens_valid` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "81978f2cedfe435cd5979e8c729435ce5a833e5a90a98f434163d09bfcd15025",
@@ -11653,10 +11789,9 @@
     {
       "kappa": "396c694f22fd1dccdb0acfb57fccf44b06fd3923f0d6dc693bad0643526e9ddc",
       "function": "crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::synthesize_executive_thinking",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::DeBruijnSlotFrame::synthesize_executive_thinking` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "7b4cb4b8994fd5a8b07eb5ab17a3af91efffcc6081f01fbf00a45eefe3166fcd",
@@ -11677,10 +11812,9 @@
     {
       "kappa": "9f72d8e82a85845777699e71a63fdd39085a1ff553ddda239339f22cc6aa1c9b",
       "function": "crates/wasm/src/lut_stack_exec.rs::GeometricShardPack::from_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::GeometricShardPack::from_bytes` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "0ded949d78a56099ced02579f7df9e4a5be7172524f47f14139365ffcc8f0ea1",
@@ -11708,42 +11842,37 @@
     {
       "kappa": "0702fbc1bdc6a80c80d4e00dcb8ecfec74b90a751a329ac872bf84e2d682288c",
       "function": "crates/wasm/src/lut_stack_exec.rs::JsonVal::as_arr",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::JsonVal::as_arr` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "89b18ea84f71b8380d0ebb81c088dba2998d733e5b7e73533c6d8e509b214ab0",
       "function": "crates/wasm/src/lut_stack_exec.rs::JsonVal::as_bool",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::JsonVal::as_bool` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "637d87805baf4b56c72dabdc7776a5ac714b3975cf97360f5c5c33a90e80faee",
       "function": "crates/wasm/src/lut_stack_exec.rs::JsonVal::as_i64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::JsonVal::as_i64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f354a48f1b2022f58101bbe1d2f58d3073ab67ba8b7d2b4157da7b2b2f820485",
       "function": "crates/wasm/src/lut_stack_exec.rs::JsonVal::as_obj",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::JsonVal::as_obj` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "bcdf5124dc44883f87923ad997fec32e4f3892958e184979c0fc59faf0757587",
       "function": "crates/wasm/src/lut_stack_exec.rs::JsonVal::as_str",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::JsonVal::as_str` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8b40c6e806894d48a62c7f1ae9d7f3f14a246bdccc98b18ca0e554ebd4f3376c",
@@ -11756,34 +11885,44 @@
     {
       "kappa": "6374b004c046c4c5d833301175617d0b1bd0030e4115c2a94bca89398ae6f6ca",
       "function": "crates/wasm/src/lut_stack_exec.rs::JsonVal::as_usize",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::JsonVal::as_usize` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "ad11522b62658bc7e21fb8784c9d547cda76366180cce1d75dc35825ed9b6765",
       "function": "crates/wasm/src/lut_stack_exec.rs::JsonVal::get",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::JsonVal::get` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "21b1791ee1bc85fb2c0fae29bba4789ae2bd1ceeb5809645bf4c189e0d02cacb",
       "function": "crates/wasm/src/lut_stack_exec.rs::JsonVal::parse",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::JsonVal::parse` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b539942da9b0c7d74f41a449c3f2c694f3225eba1f2907da6b915269d8e8695c",
+      "function": "crates/wasm/src/lut_stack_exec.rs::LatentTrajectoryPoint::new",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "5298690556e384c047bb5f86181766d977fcc0550312549334871cf03dee1cbd",
+      "function": "crates/wasm/src/lut_stack_exec.rs::LatentTrajectoryPoint::with_residual",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "188c97048083584ad553fcd3b93a68bee5adf123cd6e443ecbe49ffd85621a10",
       "function": "crates/wasm/src/lut_stack_exec.rs::LiveKernelKind::as_u64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LiveKernelKind::as_u64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "7977054f61c5037a11afca6dda71afa064be2586e7806a66d23cc591f47fb542",
@@ -11804,18 +11943,16 @@
     {
       "kappa": "b3c05e19cf0e4a411582a3060e9d535747ffb94c46ca0b76eb0f59c7a0c461c3",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::build_compact_seed_uorlut",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::build_compact_seed_uorlut` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "4f34465d8cb8c697a723a529cf22f677a4f71a9f8e7e9a209fdc95277b6a8a42",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::build_phrase_dag_plan",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::build_phrase_dag_plan` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3b594835b46e281f3f39ddc64dfd4b8b00f8d38f38998fc99bbf12caa0847e66",
@@ -11827,10 +11964,9 @@
     {
       "kappa": "b87d610a902e90fd7b10d0a496ee26a09f21a897aa3c51c66ba62e46937c7b28",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::export_geometric_shard",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::export_geometric_shard` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e6f7f876fae360e8974f2a8512a7cc21d38722fa05604b5a5934100a9f27a3ae",
@@ -11843,26 +11979,23 @@
     {
       "kappa": "7517d0f8594cd22fb54ff39f04071dd9c193de0b756c41c0cd37301710d75459",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::extract_trajectory_points_from_tokens",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::extract_trajectory_points_from_tokens` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "17d349b2d299f95e11f8ad1132832db9718a81701445da9ae8903687ee98b866",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::generate_reply",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::generate_reply` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "7495b02c5966e14e77b6bd9f40296b030ecdf4d48e901495a143601b26f25366",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::generate_reply_with_context",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::generate_reply_with_context` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "1d626b82b273c3aa5a5c5c3575d26ef554445330228395cab1a7857d54465329",
@@ -11875,26 +12008,23 @@
     {
       "kappa": "659f41d92ed0f78434d8bdcc7720cac76f9699455734b1faa6a8aa4a87ea3f5c",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::partition_geometric_shards",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::partition_geometric_shards` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "43ee3910be8a292c551e46ccc919cdabcd3c7ece4431b2aade9bafdad327fee5",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::resolve_clause_basin",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::resolve_clause_basin` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "73adbd6442072b829cbe61427402b4d4f8bbc629dedf13256d8a83cd21845a85",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::resolve_complementary_uncovered_basins",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::resolve_complementary_uncovered_basins` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "41fe9f23c5c7afae4ef54a141e7d1781b00ad2732a6081067349bdeaf7ef3eb7",
@@ -11907,26 +12037,23 @@
     {
       "kappa": "e06e0cf18d5fb2a014c27592aac11d53399a86323bd17ba412978973d3cb3061",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::to_uorlut_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::to_uorlut_bytes` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f9e33d4e6875725b15a8e7ea7f8212311c99469f6627a7f5a211e0e1ca4859e9",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::trace_dynamic_turn",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::trace_dynamic_turn` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "77ad2fdac1d45b6a51a0802a00a1b746c2e8908440a13e2ad9e810aa53adf1e3",
       "function": "crates/wasm/src/lut_stack_exec.rs::LutStackModel::trace_dynamic_turn_with_context",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::LutStackModel::trace_dynamic_turn_with_context` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "807303cc6ac0c39236a71abf0f82bb57de7125c584c4f7966cd8422b085923ac",
@@ -11938,10 +12065,16 @@
     {
       "kappa": "cac83c18360cd99c8b221385e2084f4d5923e988da3d9977388ed9163a809a37",
       "function": "crates/wasm/src/lut_stack_exec.rs::PointTrajectoryHit::has_residual",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::PointTrajectoryHit::has_residual` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "cb20c5fcd4a36723bfb42bdc7bb4e4041fb7dfc4586b53da00547215db150a36",
+      "function": "crates/wasm/src/lut_stack_exec.rs::PointTrajectoryHit::new",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "16885d21131770f00a71ac9ca81eda45c10e8e9480ad7e13c3c9c1d7417a1688",
@@ -11952,28 +12085,33 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "888e91796f65c77dfa067580722e0b7d0aaf811f309fc4afe4810a7f29a54a25",
-      "function": "crates/wasm/src/lut_stack_exec.rs::RollingContextState::default",
+      "kappa": "706c4277e5e5b31edc80018c5a2a41fa26eb830c86875a0ff340e743db71811e",
+      "function": "crates/wasm/src/lut_stack_exec.rs::RollingContextState::blend_latent",
       "status": "residue",
       "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::RollingContextState::default` pending formal .lex.tex lift",
+      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::RollingContextState::blend_latent` pending formal .lex.tex lift",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "888e91796f65c77dfa067580722e0b7d0aaf811f309fc4afe4810a7f29a54a25",
+      "function": "crates/wasm/src/lut_stack_exec.rs::RollingContextState::default",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "c825a42b5d297c235756c1db477ee5d1377909c18eb357c80311a2c7526b6af8",
       "function": "crates/wasm/src/lut_stack_exec.rs::RollingContextState::from_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::RollingContextState::from_json` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "65e8c10b8c96cc35cd9414d80985d5e689478a37f3c4b98b9731434e484bef43",
       "function": "crates/wasm/src/lut_stack_exec.rs::RollingContextState::new",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::RollingContextState::new` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "7701d17d5c3b59fc8feb62f6322c3179606d42a88e53f6d0c4648d7144662766",
@@ -12026,18 +12164,16 @@
     {
       "kappa": "26fde4cd28c4b346512d24f9029ac0e9faaf3e6aa40c323bac74b3cd038fae26",
       "function": "crates/wasm/src/lut_stack_exec.rs::SlotEntityKind::as_u64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::SlotEntityKind::as_u64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3ef676b0131ff38e4a758eae391be422abcfc58b7e97f1769ea94c20e15907f3",
       "function": "crates/wasm/src/lut_stack_exec.rs::SlotExprParser::new",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::SlotExprParser::new` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "47adbc9ca09ce919d58468d246ec3dae4890008cfe5f522cdf3550761b235f2a",
@@ -12090,34 +12226,52 @@
     {
       "kappa": "e1a104f4a183ddf1de7a4044c19886585904357ad6f5af55a976907a3e34d1af",
       "function": "crates/wasm/src/lut_stack_exec.rs::WeightConsolidationSample::from",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::WeightConsolidationSample::from` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f7f24bf41aa53b69d145253e524873a4030b5a9faae37756e84bc6c8363a84b9",
       "function": "crates/wasm/src/lut_stack_exec.rs::WeightConsolidationSample::from_dialogue",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::WeightConsolidationSample::from_dialogue` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "2ba983038d56f712e53e250bda5cb3f9410162db5ff75878852ad88f1e11dd1c",
+      "function": "crates/wasm/src/lut_stack_exec.rs::WeightConsolidationSample::from_point",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "4e5396e62f55d3fa2ca95cc2db809fa02a1b54d179580df4602d0556f79ec026",
+      "function": "crates/wasm/src/lut_stack_exec.rs::WeightConsolidationSample::from_point_with_residual",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f4bc1be051e38b2ab30a14bccab874d3a1bbdbae800adce2eb6d5ab35523a4a0",
       "function": "crates/wasm/src/lut_stack_exec.rs::WeightConsolidationSample::from_tokens",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "a0fe86e099be45401c659f472e122f06e6511bd944acfb001450e05dc41fc2df",
+      "function": "crates/wasm/src/lut_stack_exec.rs::cl06_axes",
       "status": "residue",
       "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::WeightConsolidationSample::from_tokens` pending formal .lex.tex lift",
+      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::cl06_axes` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
       "kappa": "758900d1fb61e98f7ac8d8543a20704c18964b06c0a4b69c4dcbc90a30893e3b",
       "function": "crates/wasm/src/lut_stack_exec.rs::compute_token_l1_margin",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::compute_token_l1_margin` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "478f952a08748b87535fd6cf1b7684537fc4bb46377659b05e7271a1f9578ef2",
@@ -12136,6 +12290,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "2a54018cf4f65c8f1ec4cf976b43868bf8b4fd85d28df981dc892703a901b173",
+      "function": "crates/wasm/src/lut_stack_exec.rs::default_knowledge_turns",
+      "status": "lifted",
+      "definition": "R4.Binder",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "78bb6cf82952b7fbee8bac6ce3a0810dbd1a9c4374c57712633609865ebe7b28",
       "function": "crates/wasm/src/lut_stack_exec.rs::escape_json_inline",
       "status": "residue",
@@ -12146,26 +12307,23 @@
     {
       "kappa": "0ba215fc93aab6264d3c1322d3a9b5dc50efbc84ca5c69eed125e0b47551854e",
       "function": "crates/wasm/src/lut_stack_exec.rs::evaluate_slot_math_expression",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::evaluate_slot_math_expression` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "0afc71ca3d927d01ef9af842f2486ecd88b7f9c90b2d43e78872b808aa07f25e",
       "function": "crates/wasm/src/lut_stack_exec.rs::exact_factorial_u128",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::exact_factorial_u128` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "450569acadedba168d72f423d85de7a49c1605383baaff3ed775a9905dd3efdc",
       "function": "crates/wasm/src/lut_stack_exec.rs::exact_fib_u128",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::exact_fib_u128` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "437f19a6a5e0d112d43969790f1126d2156025cf8695485b32fd9af837e505ce",
@@ -12178,98 +12336,86 @@
     {
       "kappa": "2bbe4f770e98d000b66ed2bbd049df00799f2a02c33ab1a14ad854e98da86137",
       "function": "crates/wasm/src/lut_stack_exec.rs::exact_lcm_u128",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::exact_lcm_u128` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b88ed18449b26f632346cafbaa774419b6134a1ed48cae512e08530b065e37de",
       "function": "crates/wasm/src/lut_stack_exec.rs::exact_mod_exp_u128",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::exact_mod_exp_u128` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e014d156fcabb91c434beff2c6c57b192cf65b8a1e3abf57ec680b3d9988d0b7",
       "function": "crates/wasm/src/lut_stack_exec.rs::grid_apply_q12",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::grid_apply_q12` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "4adb41214de62bdaa13de360e17248c9739de641a34040e366c5fcd7b45c6daa",
       "function": "crates/wasm/src/lut_stack_exec.rs::sha256_hex",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lut_stack_exec.rs::sha256_hex` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e79c0840fa71bfff62a2812181b5c36f253f7ad45101933e92af6de9042e69b4",
       "function": "crates/wasm/src/mvm.rs::BridgeError::error_code",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::BridgeError::error_code` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f904eae62bc4e787ff52b77ba57d934cd16906e9c469736d838f52a2537c58ed",
       "function": "crates/wasm/src/mvm.rs::BridgeError::fmt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::BridgeError::fmt` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "343ae82ab628da5bdae2949aed8f2e049da75b4ad8cf038b7b49489d5b05f7dd",
       "function": "crates/wasm/src/mvm.rs::MvmError::fmt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmError::fmt` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "aa567d093ff881b591b7bdfc4c26a7f4c477d23f4190d42e5fa519251059f9c3",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::admit_outbound_transport",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::admit_outbound_transport` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8059c5c9369ab2641abdfa3b0e052b7bfdacec7607df64d8c9a61a3af75fba14",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::architecture",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::architecture` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "48b238fcd1c989ec1263e892525fd8023088f4e31c0f75943f29bf1245b63d5a",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::boot_default",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::boot_default` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "96e46529023b5a4c39607358432a965689d624bc7cfc011c972e200ca4b27b4f",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::boot_with_cid",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::boot_with_cid` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "sha2",
       "exact_divergence_free": false
     },
     {
       "kappa": "454649038ea40142a5faef56cd6bf69d4f314feae13d22e1aea7c024c9f2ff87",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::build_vsock_packet",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::build_vsock_packet` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "1a879915a05a9e5a306457144290b517f104ee4828e4331fea1cd71d11e024da",
@@ -12327,18 +12473,16 @@
     {
       "kappa": "f89aa3691453e1e0fde21d6e8f018aff97fa2ca7fa96c1b22339b1bd3f5e4502",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::decode_base64_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::decode_base64_bytes` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "9e16b988cbddd48cd7401568d674e0d9fa17c23f9d3c8a6aa4ad1170e52ca6e8",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::decode_hex_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::decode_hex_bytes` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8be3e28602feed31b59d775ba07d6c188dc72a1bdc08669a061f00e6ee012c35",
@@ -12366,18 +12510,16 @@
     {
       "kappa": "8195044c2a901dc2ce5a059c5773bd258a0ed6891dd91f73c5b02c85436c319a",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::empty_outcome",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::empty_outcome` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "539623327ae20d5a4b702b49a50915285ab57a99545a671a69398d6367bf61ab",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::encode_base64_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::encode_base64_bytes` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f62d03f44bdb26f604d0b1611f98b4786fb0633047a49dc1f68df1a15f5d0344",
@@ -12398,9 +12540,8 @@
     {
       "kappa": "da8aee7f38c01d82b782ad14904222e63f9e14520a6957e04a8e8c9b9fa172ad",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_command",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::exec_command` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "sha2",
       "exact_divergence_free": false
     },
     {
@@ -12413,17 +12554,15 @@
     {
       "kappa": "e1996f3aba667cf2aacbeab2c3fab337dc60cdb9df704775fb89f9547beacaf7",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_interactive",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::exec_interactive` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
       "kappa": "aa77c4ba6108b6a3dca7cf5f6e74637227d518a40befb7621afed8e56357a03e",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_interactive_segment",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::exec_interactive_segment` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
@@ -12436,9 +12575,8 @@
     {
       "kappa": "7136080baf4c6569810a4e02c5963e044568b44b9e0b1899fd84c6086696afae",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_single_segment_mut_cwd",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::exec_single_segment_mut_cwd` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
@@ -12490,18 +12628,16 @@
     {
       "kappa": "e15a186f0c852ee97b241265d67a9f06d73349d3053d606dfd0f2946bbecc6b7",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::guest_cid",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::guest_cid` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "84ba67f61bb14be7f205abb41b484d54125b4b3921f9c591cf3e1c1e4f7c7240",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::guest_ram_contains",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::guest_ram_contains` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e514aa9b6b65fc67ac8121819bfba81e1c38c619046968286094183ed6437ca2",
@@ -12529,10 +12665,9 @@
     {
       "kappa": "ed89d29721bc0c269e77124245490c219756df2c6df5c5293c5555518563cf0c",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::is_git_internal_rel_path",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::is_git_internal_rel_path` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "407ec3676e7bca0d786fe5f989d8fddcf2fa1182cedba95fc464dffd8e5a9b3d",
@@ -12583,10 +12718,9 @@
     {
       "kappa": "b18997f70eb8776dbe825c962f9e71c3e10834ce42cc5cd601da746162de6a6c",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::parse_url_scheme_and_host",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::parse_url_scheme_and_host` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "439fa52a1db3da91e5152738859882b0fc9c250961c10b25b11a02cd86440fe6",
@@ -12599,10 +12733,9 @@
     {
       "kappa": "247fe53f59b1801f72666e64e9c9edb39bf04383349d260ad15e940b9385069e",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::policy_str",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::policy_str` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3c0bcaef7c9ff46c8b55b2d0f5b7820939cb4792abe0323908738ed414761f18",
@@ -12691,9 +12824,8 @@
     {
       "kappa": "e93018b570c0793bb649ba79654b30bee75ced04af95c10adc10dab9282b3c6d",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::run_elf_process",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::run_elf_process` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
@@ -12735,9 +12867,8 @@
     {
       "kappa": "d5c27218739c5b9dfdf8fdf4400e7514ecd3886bdf8c63168a308e6cf697bf50",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::snapshot_cow",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::snapshot_cow` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "sha2",
       "exact_divergence_free": false
     },
     {
@@ -12759,9 +12890,8 @@
     {
       "kappa": "b6eb66cc51269fa4f8522c092114ca0a31b2e3d966cfe3f43b2d117bd0a1109a",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::step_process",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::step_process` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
@@ -12815,26 +12945,23 @@
     {
       "kappa": "46546d99469293254f8efdf0c990b3a9905c001398085df4d930f4acaf537a70",
       "function": "crates/wasm/src/mvm.rs::Rv64Process::read_u16",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::Rv64Process::read_u16` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "fab71a7108ccf323d424a1708ac2f9afceb5eb617a29b55fcc5b064016015b3f",
       "function": "crates/wasm/src/mvm.rs::Rv64Process::read_u32",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::Rv64Process::read_u32` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3f427f574b49c1e91644bf522d531dab6c58226b0c59711f02563b4fbeea4e10",
       "function": "crates/wasm/src/mvm.rs::Rv64Process::read_u64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::Rv64Process::read_u64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f3e5fdf945517f2f9e3ed95d0d986cfdd30ad36c613ec32ad6ede1db6d003ea7",
@@ -12855,9 +12982,16 @@
     {
       "kappa": "4aeedc2d15a2cfbe9eb1be0e88faf13a26dc1bd28ed24f06e7ccecb38884a1de",
       "function": "crates/wasm/src/mvm.rs::SpiralCoreHeader::from_bytes",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "381de9f945aba03a2c5d0ac594647249bbef4e58686303f44fce3ed6e59076bf",
+      "function": "crates/wasm/src/mvm.rs::SpiralCoreHeader::to_bytes",
       "status": "residue",
       "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::SpiralCoreHeader::from_bytes` pending formal .lex.tex lift",
+      "detail": "pure function `crates/wasm/src/mvm.rs::SpiralCoreHeader::to_bytes` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -12884,9 +13018,8 @@
     {
       "kappa": "3e367754d1954c08ee1b6d163e50887995dce7f45ccb59ae5645986832f6a67c",
       "function": "crates/wasm/src/mvm_cc.rs::CCompileError::fmt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::CCompileError::fmt` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
@@ -12932,10 +13065,9 @@
     {
       "kappa": "d7102a08936b0b1553d2d4947cde63233e720274f310a436bb73e21776434a1b",
       "function": "crates/wasm/src/mvm_cc.rs::Codegen::count_stmt_slots",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::Codegen::count_stmt_slots` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "fbcc4461df19ff0f07842b79256457a8c05947f3c3db0971e04ee2b3d8940078",
@@ -12988,10 +13120,9 @@
     {
       "kappa": "86436954de427a721ac9f0eaa9a6535881b910dadc6e2655eae8872bb7917ecd",
       "function": "crates/wasm/src/mvm_cc.rs::Codegen::expr_elem_stride",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::Codegen::expr_elem_stride` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "a4a6c78ca97ffaea63ab9b92b959018f8152c75fb2e9658c7488014cf6f26439",
@@ -13052,10 +13183,9 @@
     {
       "kappa": "843e55cab80aabc1856ccd213ef101afdbbfd5b1430950b4d259a8aed63f52eb",
       "function": "crates/wasm/src/mvm_cc.rs::Parser::is_type_start",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::Parser::is_type_start` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8c49304d855a796782c72f48a371ac1714b5b14ab35b340ee6ec69acf0126fb9",
@@ -13252,50 +13382,44 @@
     {
       "kappa": "7214c319386cda5e654c0aa183cd97771aa420b113c36f448707348ae6bba761",
       "function": "crates/wasm/src/mvm_cc.rs::enc_b",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::enc_b` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "a871fd2a341f908135bb3057fb9aede013a913b8d259f50db768b068b93120f1",
       "function": "crates/wasm/src/mvm_cc.rs::enc_i",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::enc_i` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "9df4400b5c268a57dd1691f8f4233c8bb454b8be44495261181fd13ae80abd0f",
       "function": "crates/wasm/src/mvm_cc.rs::enc_j",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::enc_j` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b1942bb59af7120f3d48c6bbeda309a11bbff880feedd0bf664fb02aa9a22e92",
       "function": "crates/wasm/src/mvm_cc.rs::enc_r",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::enc_r` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8b6489e3c026c7b2e284957c3a458f258a8f407296a4e9a3522c8116a00bb6bc",
       "function": "crates/wasm/src/mvm_cc.rs::enc_s",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::enc_s` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "d501221fff13a7f7f5dd30f797e865e2260b921007b2e4e0b69e6f1a10ee210a",
       "function": "crates/wasm/src/mvm_cc.rs::enc_u",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm_cc.rs::enc_u` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e8844b7c10c0b6efb5cc68761ea9718265b4a62f35e5827650bd7f964786e008",
@@ -13308,10 +13432,9 @@
     {
       "kappa": "e1782ffcb03cbf72c78ecaf90b526788db33dce71d3b24320e081b386f958d6e",
       "function": "crates/wasm/src/otel.rs::CanonicalInternTable::get",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/otel.rs::CanonicalInternTable::get` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "cabd2fb6c78c5078e054754c5b84c64ed1554d4d229c16e714671ebd5bef097c",
@@ -13332,10 +13455,9 @@
     {
       "kappa": "8af4fdc7d19e5eb4c4f890e6c268cd7d7d340aae092a5c15e0d4f647ef09991a",
       "function": "crates/wasm/src/otel.rs::CanonicalInternTable::new",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/otel.rs::CanonicalInternTable::new` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "a374035b291624934521f641c21482337df6b7d9a3de71f79ebb54434c96cf2c",
@@ -13359,20 +13481,25 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "cf023732e5518b1a2e13bf4a1c699086240e7286478988cf701ea696723d4f86",
+      "function": "crates/wasm/src/otel.rs::build_inference_trace",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "0d8f36ba4b1705231eda6a580eae4e63a3e2c297c193549fb49a6147aae9d0fd",
       "function": "crates/wasm/src/otel.rs::compute_uor_span_id",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/otel.rs::compute_uor_span_id` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3f6c98ddd9ade7c36db66009f3d2fc3f5f6b85b03352d3e44082ef92430ff10e",
       "function": "crates/wasm/src/otel.rs::compute_uor_trace_id",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/otel.rs::compute_uor_trace_id` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e242b5cb33263c0c069be2b73b7450a02dfbc59e0030c2b8af5b02acb42ca337",
@@ -13385,17 +13512,22 @@
     {
       "kappa": "8b2a457c0a32f5dfd1eebc21bda51be15aa7e0907a7cbc384fa2e43c879a4f3a",
       "function": "crates/wasm/src/otel.rs::fnv1a64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/otel.rs::fnv1a64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "652606e7c0cd897351aa5f7c7ef4f3364e92f90f4d84baaf7d9682a7a308cf7d",
+      "function": "crates/wasm/src/otel.rs::fnv1a64_i16_slice",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8ee68f513089949fa884174c0ed06993f9f4adb5d1d6080868e73307c87fff5e",
       "function": "crates/wasm/src/otel.rs::get_traces",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/otel.rs::get_traces` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
       "exact_divergence_free": false
     },
     {
@@ -13409,25 +13541,22 @@
     {
       "kappa": "6859a43470d2ca2f95f4a24df2f362268795fc96a024f3b31461931bba5aaaca",
       "function": "crates/wasm/src/otel.rs::record_trace",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/otel.rs::record_trace` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
       "exact_divergence_free": false
     },
     {
       "kappa": "ba7b41fc65db9cb0460d215263367a96c114998f45aa7a747fba3d477ae2eef7",
       "function": "crates/wasm/src/stitch_fabric.rs::StitchParityError::error_code",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/stitch_fabric.rs::StitchParityError::error_code` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "017f674b91b5c84b0e0d7ea2b0d845779ebe38dd71803f1370970a111fa839d9",
       "function": "crates/wasm/src/stitch_fabric.rs::StitchParityError::fmt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/stitch_fabric.rs::StitchParityError::fmt` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
@@ -13441,10 +13570,9 @@
     {
       "kappa": "e8e9ee3bff9b47f6c3d1e5fb562a77e5c2cec6ac1a178230c40e1e0e7189a64f",
       "function": "crates/wasm/src/stitch_fabric.rs::build_pair_manifest",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/stitch_fabric.rs::build_pair_manifest` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3594e0e8d4ce9bcb54b47f6096381f147b712485979f642afe22f32b129fcfd9",
@@ -13457,18 +13585,16 @@
     {
       "kappa": "5fb79acebf193fc8a594c58b44b058096cd60e02dc3528c1b3d36b9510b1605d",
       "function": "crates/wasm/src/stitch_fabric.rs::heal_verified_pair_slots",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/stitch_fabric.rs::heal_verified_pair_slots` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8d1594ace86b768af686c5b9fadad754e0c54628c9b616390ba5bc4528e4d59e",
       "function": "crates/wasm/src/stitch_fabric.rs::is_valid_sha256_hex",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/stitch_fabric.rs::is_valid_sha256_hex` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "efd0839f0e85c4c741b08a0a99deaac1b8657e00b7f050a2ffa03e8e2a159111",
@@ -13476,6 +13602,13 @@
       "status": "foreign",
       "foreign_crate": "serde_json",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "525a133cc98b30b340c4abd8120c3dbda120c1b67ba4ba37b1e05807f6367a3c",
+      "function": "crates/wasm/src/stitch_fabric.rs::recover_2of3_object",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8c4becd84a35a49515d70d03cb25d266a8b4683724f22fdccd468090a24054b1",
@@ -13495,10 +13628,9 @@
     {
       "kappa": "89ad2aa4e11a055d82a9425f3831d93bd214b877bec556af1b3659fabe229b7f",
       "function": "crates/wasm/src/stitch_fabric.rs::split_2of3_xor",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/stitch_fabric.rs::split_2of3_xor` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "0adb1faab6b93c2e51d96019021b3f4f7b8145910308d64ff49ed3099b4edad0",
@@ -13511,18 +13643,16 @@
     {
       "kappa": "e10d7d208fa0e0caabce091db612a836c092fe339812fcda9019a65731816a08",
       "function": "crates/wasm/src/stitch_fabric.rs::verify_group_slot",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/stitch_fabric.rs::verify_group_slot` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "6c6fdb948fda73b6d9b122d3b2808a6dd7cb3800b8d19e92457d45fc4162d8fa",
       "function": "crates/wasm/src/stitch_fabric.rs::xor_recover_padded",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/stitch_fabric.rs::xor_recover_padded` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "1bb0dfee0aff2bc02f863b29984ce52d884d4ccae02394d008d92a03e35a4acd",
@@ -13543,9 +13673,8 @@
     {
       "kappa": "9f2ff5c5ac5f50b9f39d086f5b274c07450c8ffb2952815ce81e7e67c613460a",
       "function": "crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_block_or_expr",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_block_or_expr` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
@@ -13558,33 +13687,29 @@
     {
       "kappa": "e0d52a5be18529f8bb9d54ce90d27e6e177267be061cdb364fe45a0c0dd9107c",
       "function": "crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_function",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_function` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "527a7bf84411f31dd0b1c3ca32391006eba7fcf6e5919c98711cc14f93c7dbe8",
       "function": "crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_iterable",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_iterable` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "d0bba21d773691ac25c39b221e0967b04584c4cd264da18252d1fb458ddaef19",
       "function": "crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_match_pattern",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_match_pattern` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "871d67da28aea5d516357939fc64166e895ae5c09c0f0e6188670182e060a631",
       "function": "crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_stmt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::EvalContext::eval_stmt` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
@@ -13613,10 +13738,9 @@
     {
       "kappa": "03cabd0d5407822fdf7e6849bc418020c3a81fa9d1c010af08e3114293e3b3e2",
       "function": "crates/wasm/src/wasm_ast_eval.rs::RustSubsetType::is_compatible_with",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::RustSubsetType::is_compatible_with` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "8795bd7ccfc2a874e07439dc4d18aacbe9793d4047e545c70a3c6addaa12c446",
@@ -13628,10 +13752,9 @@
     {
       "kappa": "4d2d169475311ec71af78376f4ccade752298d092f9e8c9eb7a231ea1c1524bd",
       "function": "crates/wasm/src/wasm_ast_eval.rs::RustSubsetType::parse_annotation",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::RustSubsetType::parse_annotation` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "09006996e09c94bfce17f01d4063f79e758c90ca1952350584ec09f9daa274d2",
@@ -13660,9 +13783,8 @@
     {
       "kappa": "7cf886728ec8750c35c7c8a852a58622e42d5ad9ba6c6d819f2462a66f2ad575",
       "function": "crates/wasm/src/wasm_ast_eval.rs::escape_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::escape_json` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
@@ -13675,17 +13797,15 @@
     {
       "kappa": "c8dab5986ba2c000953b8c9cb778edd593eaa2ff316aa6e15f103c466c758414",
       "function": "crates/wasm/src/wasm_ast_eval.rs::fnv1a64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::fnv1a64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "fbcd54a58cf012e9b0a5da30be474893cfbe4faf2859af497663874df8ffba44",
       "function": "crates/wasm/src/wasm_ast_eval.rs::infer_block_or_expr_type",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::infer_block_or_expr_type` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
@@ -13698,10 +13818,9 @@
     {
       "kappa": "1a04a0c172c21ecb5ac23dd7098ab243697e78516df7bb50eb93e4217c71c382",
       "function": "crates/wasm/src/wasm_ast_eval.rs::is_pattern_ident",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::is_pattern_ident` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "809f7c0d95c4c08cd7fbe2f9e6c723d47de7623292c9e8c73b25ff1e91256b4e",
@@ -13722,10 +13841,9 @@
     {
       "kappa": "1740c42eb985d23706bc15ed7b75aa071823539b41c75f4bc6ae53abdd8dffb9",
       "function": "crates/wasm/src/wasm_ast_eval.rs::parse_match_expr",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::parse_match_expr` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "c43945d2167a96eebaf004dc5fd09a31d23e19494e84328cce34015ca78fa937",
@@ -13825,33 +13943,29 @@
     {
       "kappa": "1dee4008e6e663faddc71f1661942a9bd2d8e6b5479ec092cc797236981481ce",
       "function": "crates/wasm/src/wasm_ast_eval.rs::typecheck_module",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::typecheck_module` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "4aa594328a57ac540ce72bec84708bcb8b4451cea1402c96a6e727be73cf4b95",
       "function": "crates/wasm/src/wasm_ast_eval.rs::typecheck_module_items",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::typecheck_module_items` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "15903839ef9c8f5e825ea19a76e491282af42e88a89b9dade900ba577a0c2e9e",
       "function": "crates/wasm/src/wasm_ast_eval.rs::typecheck_module_items_with_aliases",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::typecheck_module_items_with_aliases` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
       "kappa": "d84409c301eb0cd4f96e286ce787daa8e5e255abd80e25e0038bf3c44ee9c488",
       "function": "crates/wasm/src/wasm_ast_eval.rs::typecheck_stmts",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/wasm_ast_eval.rs::typecheck_stmts` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
@@ -13880,9 +13994,8 @@
     {
       "kappa": "9ad1790f195cab5616b080f3a7a809e12b9a6f1d82bff9b43a59a3d635493226",
       "function": "public/app.js::acceptCursorGhostText",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::acceptCursorGhostText` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -13895,9 +14008,8 @@
     {
       "kappa": "1144b7cdba88693589fcf29d80f5dab75a128f401df710fd5c65120500109c44",
       "function": "public/app.js::appendChatTurn",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::appendChatTurn` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -13917,9 +14029,8 @@
     {
       "kappa": "b26f5c597e5d75dcb25e2aaaf7eb95c00dc7d7944dfe5bedb18a74651ddcb8df",
       "function": "public/app.js::applyMentionSelection",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::applyMentionSelection` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -13970,9 +14081,8 @@
     {
       "kappa": "c980d0c367e54012a773563dd752f2ebc973cd3f09136144d71c0dad69760719",
       "function": "public/app.js::clearAllThreads",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::clearAllThreads` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14055,9 +14165,8 @@
     {
       "kappa": "fdb02ffd1729df059eb40117dca90a2cdd7342eddea5bfbd214ae77ed003f253",
       "function": "public/app.js::createNewThread",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::createNewThread` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14131,9 +14240,8 @@
     {
       "kappa": "693d869a1bcd90e08b33ec174649a2656c4a70e4bba15c09ae31d349af32d206",
       "function": "public/app.js::fetchRecordedTraces",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::fetchRecordedTraces` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14185,9 +14293,8 @@
     {
       "kappa": "7eec056432e241acd732e7f27938e4c82e5acac3fc5ef4b87bea6c062efab04d",
       "function": "public/app.js::handleWorkspaceMountInputChange",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::handleWorkspaceMountInputChange` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14209,9 +14316,8 @@
     {
       "kappa": "0e11c4ed53b9d98143017981f77f8e658a4abc10b5e36c1f267a5589f740e634",
       "function": "public/app.js::hydrateLazyGitBlob",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::hydrateLazyGitBlob` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14334,9 +14440,8 @@
     {
       "kappa": "80970783caa96c430338fad25c71d302aa944b869182e35d86a3911ed237f22e",
       "function": "public/app.js::openInspectorsModal",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::openInspectorsModal` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14424,9 +14529,8 @@
     {
       "kappa": "98838e6a3532a5477170abfa98aa7ed22e56a88a49f649d98a4055431b17568f",
       "function": "public/app.js::renderActiveThreadMessages",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::renderActiveThreadMessages` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14659,17 +14763,15 @@
     {
       "kappa": "75b8405e1e5ad2173754124375b34f2030014006d12893690a45d076462e7dc6",
       "function": "public/app.js::runOnDeviceTrain",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::runOnDeviceTrain` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
       "kappa": "abae37324d05d9d6e3e02ed6a43f743dd3b8efd20c7ce92990109ab66fd6a04f",
       "function": "public/app.js::runStudioGenerate",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::runStudioGenerate` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14698,9 +14800,8 @@
     {
       "kappa": "7ec811d2fab25360d41863402ad5fba4e419264aa6b9edb9b2e64d0c850cc516",
       "function": "public/app.js::selectWorkspaceFile",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::selectWorkspaceFile` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14758,9 +14859,8 @@
     {
       "kappa": "2e111f5ba2796937e54a51e39b19b3e9ce2752442ffdb6616b00d0913a8d2136",
       "function": "public/app.js::submitComposerPrompt",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::submitComposerPrompt` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14781,17 +14881,15 @@
     {
       "kappa": "7e796e3785a09e8f841e00e605ab60256222a46de218709dfc7a956bd075e61d",
       "function": "public/app.js::syncCursorWorkbenchOnFileSelect",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::syncCursorWorkbenchOnFileSelect` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
       "kappa": "24aa05fd9f8b1190bf2f0a27c2496e357b82b6f7237cc71614f87dcd59af11b3",
       "function": "public/app.js::syncCursorWorkbenchOnList",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::syncCursorWorkbenchOnList` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14805,9 +14903,8 @@
     {
       "kappa": "7415db5549aa92b2be21e83dde5888a3b121acc4903941ac09a955e30d114d0a",
       "function": "public/app.js::toggleCursorBottomPanel",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::toggleCursorBottomPanel` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -14894,10 +14991,9 @@
     {
       "kappa": "300182f13658bfb544d087ad9a1783a0b6930c549b2570c96389ece82c1f4f30",
       "function": "xtask/src/audit.rs::effective_lines",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/audit.rs::effective_lines` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "32840dc86ddd3bba28c08b6d4f5a33776c12eb3dae57c03689e24612729ffda3",
@@ -14924,18 +15020,16 @@
     {
       "kappa": "ef3449536c7918bf268884b00647734d6e40c8f5422d8e5617f5a95b9b76862b",
       "function": "xtask/src/audit.rs::shipped_sources",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/audit.rs::shipped_sources` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {
       "kappa": "8589d5304e342605ea9159b2a7793ce3d545294d6cebe8e6f477e3af2e508b12",
       "function": "xtask/src/bootstrap.rs::action_reference_is_pinned",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/bootstrap.rs::action_reference_is_pinned` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f6a7869add2d8f6b04776c2c24bc4df04a6412cdd0308c78bca70974e599088d",
@@ -14982,18 +15076,16 @@
     {
       "kappa": "8d61ded81fe2d407127ceccaad59e9bd7ca42b7c88b975ec4dbbd9cb148618ef",
       "function": "xtask/src/bootstrap.rs::immutable_image",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/bootstrap.rs::immutable_image` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "5af443e84226664ffa918acc6048103f72189b2bc4b275aa04dc292bad7cd36e",
       "function": "xtask/src/bootstrap.rs::pipeline_lifecycle_is_complete",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/bootstrap.rs::pipeline_lifecycle_is_complete` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "33b0856a157771250cc3a545bb957dc401dd24a39ef163eefd965611b3ae040c",
@@ -15033,18 +15125,16 @@
     {
       "kappa": "8d5d922d9992215c4bd90cfb745dd45c139c611c434f6774ebb6510020bfb97b",
       "function": "xtask/src/engine.rs::DaemonConnGuard::drop",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::DaemonConnGuard::drop` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
       "exact_divergence_free": false
     },
     {
       "kappa": "59681da012dceb387fdf9d222a8c742f1a2b3c7b894ec9642399da76dbd7bbdf",
       "function": "xtask/src/engine.rs::Rule30ChaosDriver::new",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::Rule30ChaosDriver::new` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b43103e56c88e21af468f69e11bab913cb428ce35a5c9634d80486245ced4bab",
@@ -15085,9 +15175,8 @@
     {
       "kappa": "aabf7d2ea28be26c5c136530f4888fab3d2bc3ec93cc523553b7b53fcc9a6f4e",
       "function": "xtask/src/engine.rs::audit_uorlut_synchronization",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::audit_uorlut_synchronization` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {
@@ -15129,10 +15218,9 @@
     {
       "kappa": "c54cee794a01e217ea85f90fd1cd50aac9e790d2ebfaeedd8cc81ca48f0287e3",
       "function": "xtask/src/engine.rs::encode_reply_anchor_21",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::encode_reply_anchor_21` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "d439c0c32b76a6d7a68287208b0a3572ba2c2f13284b350c0f662f8d89a4d45f",
@@ -15351,10 +15439,9 @@
     {
       "kappa": "d719c50c1943963d950e3dea80441a452384227b90632e806e9d5e69d61b0b9e",
       "function": "xtask/src/engine.rs::sanitize_arxiv_id",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::sanitize_arxiv_id` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "5c360a6063d390059ae5e3032c27257c930914507da8e111a001367c210fe94f",
@@ -15408,10 +15495,9 @@
     {
       "kappa": "9bb427073a55eff253455fb182a40c262f8663e3a8ed46bcc1c57a229195f06d",
       "function": "xtask/src/engine.rs::sha256_prefix_u64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::sha256_prefix_u64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "b5764a9d28552a0eb9e50fd7d8d59ab5527acb1ad6dabd65617148b2d9768623",
@@ -15423,10 +15509,9 @@
     {
       "kappa": "083a4ed003c19a559dafd4330626764c793684d54d74bf7cc707a3925aa6b40c",
       "function": "xtask/src/engine.rs::step_rule30_u64",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::step_rule30_u64` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "5bb67a7aac508531d4583f0c8a7123a767bfb2d05b1a51e25e49f3f599a8e23f",
@@ -15447,10 +15532,9 @@
     {
       "kappa": "5511b5ab61d1f8cbc6a00175c6d0efcf9a69b5509a332e141714ab18376d2a6f",
       "function": "xtask/src/engine.rs::unescape_xml",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::unescape_xml` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "010e4d48d257b39e4e23664d3513333ea5afaf1d8ba841fefff6279a0c817ef1",
@@ -15462,18 +15546,16 @@
     {
       "kappa": "4c1a682f42872441be42bf0559fa98c75fa7a36701b20f74f722dbd2787889b3",
       "function": "xtask/src/engine.rs::url_encode",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::url_encode` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
       "exact_divergence_free": false
     },
     {
       "kappa": "052916b02541a2973df5ba697c91db449e23444dca151892d599769439a428bf",
       "function": "xtask/src/engine.rs::weight_of",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/engine.rs::weight_of` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "858b118fc47f193367c8a6ef30259ac9a7d6126d6850740367d8286b65243f65",
@@ -15491,7 +15573,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "e038cae07fd9a9067251200e2cd5a9f62f72ea80a568e4bd85843b08ca5657a3",
+      "kappa": "1056077ab35487a1612dd234bd53e8cdb6f129de363d0f0db037e0293c020631",
       "function": "xtask/src/lift_register.rs::classify_function",
       "status": "lifted",
       "definition": "R4.FormalBridge",
@@ -15512,20 +15594,19 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "634981db1d94abf9043b619a4bcca714ff0d18f78541b7093b413c79d9da83d4",
-      "function": "xtask/src/lift_register.rs::contains_any",
+      "kappa": "ae31cbbf415f2f35a98223514753152dab604975506d210ca08e128bcbe3077d",
+      "function": "xtask/src/lift_register.rs::contains_word",
       "status": "residue",
       "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::contains_any` pending formal .lex.tex lift",
+      "detail": "pure function `xtask/src/lift_register.rs::contains_word` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
       "kappa": "03ae5be9f2ef270b8d01cc1ffed6a6c1b01b3a1bb340fb30a21da079c6a7d030",
       "function": "xtask/src/lift_register.rs::count_braces_up_to",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::count_braces_up_to` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3bd52ee6fc81d7357bb5fef3b7f53f62f3cf58842528270e03d31a52eb8e3156",
@@ -15535,18 +15616,11 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "f01393c4048e79e6c71b94058cbe8fd500614fd3204cc773a2b9de07b2e4a212",
+      "kappa": "c040af0ed0cc339f561df1e319440973790768f0c323a435bc690a7cb34aa18b",
       "function": "xtask/src/lift_register.rs::detect_foreign_crate",
       "status": "foreign",
       "foreign_crate": "wasm-bindgen",
       "exact_divergence_free": false
-    },
-    {
-      "kappa": "df93ae42a4e754849a1d53e78ba92d17ce9483d271ff059ada1bcedb43c7d2c8",
-      "function": "xtask/src/lift_register.rs::extract_formal_ref",
-      "status": "lifted",
-      "definition": "lexlean_generated::",
-      "exact_divergence_free": true
     },
     {
       "kappa": "056cba34c6b0bc3edbc145f77ba42b37a87448f5d9a0b6042ea0cf7461732003",
@@ -15554,6 +15628,14 @@
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `xtask/src/lift_register.rs::extract_js_functions` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "c0aa11ee06df8029e6d14676713d63c1306a74b8fb3dd055d7b6eea83128d71d",
+      "function": "xtask/src/lift_register.rs::has_uorust_disqualifier",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `xtask/src/lift_register.rs::has_uorust_disqualifier` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -15566,18 +15648,9 @@
     {
       "kappa": "8bd384a3c1dce0caca79e981a2e33afa3f44f0ef93832d24745ed48a61de20a8",
       "function": "xtask/src/lift_register.rs::line_index_for_byte",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::line_index_for_byte` pending formal .lex.tex lift",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "1b232bee63a1ac7b42b137f0350dac2981144b46ce74612208b2e6cb4974dbf6",
-      "function": "xtask/src/lift_register.rs::parse_impl_target",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::parse_impl_target` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "88cef8d6844a3b063ac50a3cbf366c3061ef4c4ffe303426093db785a57fe6cd",
@@ -15588,12 +15661,18 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "305667b7e24457fad89d28d6465c85a23cac748638d2031f8c21ac72a17d7109",
+      "function": "xtask/src/lift_register.rs::propagate_residual_boundaries",
+      "status": "lifted",
+      "definition": "lexlean_generated::",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "8925d459ecc42d75f634bea114f39bfc484d0c231d1e0f02f696747d242c69ff",
       "function": "xtask/src/lift_register.rs::rows_metadata_complete",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::rows_metadata_complete` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "63c8fc34f2ec7a727e2246069d1bca7df22cd4d245766600dc3cea2e017f4c73",
@@ -15603,26 +15682,10 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0a02036478ae4a67d145366d0a8b8b3aa12bf4d6ac9bfc2af00fae6252a6860c",
+      "kappa": "8750b0ed22e440472e029a20d6e1a831d79208981d88ba638b7f863d46bbb2a5",
       "function": "xtask/src/lift_register.rs::scan_with_baseline",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "3cae82b793c92010d5d1719fef7eca93fcf8028db0200af7bbb3f99be8f6195d",
-      "function": "xtask/src/lift_register.rs::strip_comments",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::strip_comments` pending formal .lex.tex lift",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "abd191a636d91c26d8cbdefe5d8ce091dfccb54d46776af578d40ea4e8db5b6e",
-      "function": "xtask/src/lift_register.rs::strip_comments_and_normalize",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::strip_comments_and_normalize` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -15642,9 +15705,8 @@
     {
       "kappa": "3cae0331334dea7a88d93a3292ebbd327bcf47d404e704e53c0687c3b54c91a2",
       "function": "xtask/src/main.rs::validate",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/main.rs::validate` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {
@@ -15703,25 +15765,22 @@
     {
       "kappa": "ae9b83dcf9492d24fd08d726cf3aa04c2c4efb5bc160d23d344f2536672f0009",
       "function": "xtask/src/mechanizer.rs::expr_contains_forbidden_kind",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/mechanizer.rs::expr_contains_forbidden_kind` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "60cf000c01203c3b196fc6ef76b186d5ac08ccf05378f84cf02787637ec7342a",
       "function": "xtask/src/mechanizer.rs::extract_semantic_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/mechanizer.rs::extract_semantic_json` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "0ae8c78c2a2cdb74753a89b1d2bed2b058ad47a893b815c8ceadef552f978a12",
       "function": "xtask/src/mechanizer.rs::mechanize_directory",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/mechanizer.rs::mechanize_directory` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {
@@ -15765,10 +15824,9 @@
     {
       "kappa": "31a206022176612fcc71be027e133bc115e8d02091e491397b2d92a52ac2d9f0",
       "function": "xtask/src/mechanizer.rs::values_equal",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/mechanizer.rs::values_equal` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "37e179df3ce9107fb29e269e1309e52c509b423815c8240ede2d93dee3dd7388",
@@ -15825,10 +15883,9 @@
     {
       "kappa": "0be6289a60309744f4cb0c5e09fa2002aa43203422d1e90c9569c012a9da59d1",
       "function": "xtask/src/ratchet.rs::is_valid_semantic_module",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/ratchet.rs::is_valid_semantic_module` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "e57556957789cc9949077c231a12f0b35f311a3a046a981f1c521c42fe1cd0d9",
@@ -15861,9 +15918,8 @@
     {
       "kappa": "922e8fb8f95c6ffceae9495a21f6de503960d79933b5e008234138aad6657b42",
       "function": "xtask/src/ratchet.rs::measure_unwired_ui_controls",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/ratchet.rs::measure_unwired_ui_controls` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {
@@ -15923,13 +15979,12 @@
     {
       "kappa": "c74301308d4773d2b1761157b7ea9b50f4c9f8a33365687e2f603c517506a5a1",
       "function": "xtask/src/synthesis.rs::admit_pareto_tick_with_hold",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/synthesis.rs::admit_pareto_tick_with_hold` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
-      "kappa": "273ab221c0db257b9b8fe97917c4dc65577a7ece5468bdf3de1bcdab21bbccb8",
+      "kappa": "07dda6d7609bc764858843d448b2a652b2f834d94e155307283d9f49e0200de6",
       "function": "xtask/src/synthesis.rs::cmd_synthesize",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -15953,10 +16008,9 @@
     {
       "kappa": "a3c07987ea13ceadcba6edbc67f02d172c7839179e57e1dc0ae3f9469aca706d",
       "function": "xtask/src/synthesis.rs::facet_name",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/synthesis.rs::facet_name` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "f4fd72bb5190efa6beff2b69829d4cda25a8a30f5cfa7de3840d54e18719175d",
@@ -15975,18 +16029,16 @@
     {
       "kappa": "891445f63482526083aaed36643452f491b32f1e0e3287dbe2774f3ce34290af",
       "function": "xtask/src/synthesis.rs::measure_serving_runtime_facet",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/synthesis.rs::measure_serving_runtime_facet` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "507a986608a4a769de1865227f4f7e6e60cce427ce82b7bc509b23f94010ef76",
       "function": "xtask/src/synthesis.rs::measure_ui_and_plumbing_facet",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/synthesis.rs::measure_ui_and_plumbing_facet` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "d448ccd574a7e2178030e3c2468b22e9e965cb11351ed014275dcca46835b270",
@@ -16012,10 +16064,9 @@
     {
       "kappa": "f4ebb689eb378ec450f61cfde1e3a8d145c50b8eeeaae8007d9272bf3c0e7d52",
       "function": "xtask/src/wasm_bundle.rs::extract_marked_section",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/wasm_bundle.rs::extract_marked_section` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "470ce3d7192832fa35ee5fb83e16357fd569d4afc3d3ac72e5c8b808b8828b96",

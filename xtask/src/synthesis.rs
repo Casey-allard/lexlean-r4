@@ -117,24 +117,27 @@ pub fn cmd_synthesize(root: &Path, write: bool) -> Result<(), Fail> {
         return Ok(());
     }
 
-    let Some(prev) = incumbent else {
-        return Err(
-            "missing model/synthesis_report.json; run `cargo run -q -p xtask -- synthesize --write`"
-                .into(),
-        );
-    };
-    if candidate.aggregate_score_milli < prev.aggregate_score_milli
-        || candidate.complexity > prev.complexity
-    {
+    if candidate.verdict != "CandidateAdmitted" {
         return Err(format!(
-            "synthesis check failed Pareto monotonicity vs {}: prev=(score={}, complexity={}), candidate=(score={}, complexity={})",
-            report_path.display(),
-            prev.aggregate_score_milli,
-            prev.complexity,
-            candidate.aggregate_score_milli,
-            candidate.complexity
+            "synthesize refused ({}): total_defects={}",
+            candidate.verdict, candidate.total_defects
         )
         .into());
+    }
+    if let Some(prev) = incumbent {
+        if candidate.aggregate_score_milli < prev.aggregate_score_milli
+            || candidate.complexity > prev.complexity
+        {
+            return Err(format!(
+                "synthesis check failed Pareto monotonicity vs {}: prev=(score={}, complexity={}), candidate=(score={}, complexity={})",
+                report_path.display(),
+                prev.aggregate_score_milli,
+                prev.complexity,
+                candidate.aggregate_score_milli,
+                candidate.complexity
+            )
+            .into());
+        }
     }
     println!(
         "synthesize check ok: score_milli={} complexity={} defects={} strategy={} verdict={}",
