@@ -230,6 +230,12 @@ impl JsonVal {
             _ => None,
         }
     }
+    fn as_bool(&self) -> Option<bool> {
+        match self {
+            JsonVal::Bool(b) => Some(*b),
+            _ => None,
+        }
+    }
     fn as_i64(&self) -> Option<i64> {
         match self {
             JsonVal::Int(v) => Some(*v),
@@ -4064,6 +4070,10 @@ fn main() -> ExitCode {
     let ffn = cfg_val.get("intermediate_size").and_then(JsonVal::as_usize).unwrap();
     let rms_eps = cfg_val.get("rms_norm_eps").and_then(JsonVal::as_f64).unwrap_or(1e-5);
     let rope_theta = cfg_val.get("rope_theta").and_then(JsonVal::as_f64).unwrap_or(100000.0);
+    let tied_lm_head = cfg_val
+        .get("tie_word_embeddings")
+        .and_then(JsonVal::as_bool)
+        .unwrap_or(true);
     let head_dim = d_model / n_heads;
 
     eprintln!("[recompiler] SmolLM2-135M-Instruct config: vocab={vocab} d={d_model} layers={n_layers} heads={n_heads} kv={n_kv_heads} head_dim={head_dim} ffn={ffn} theta={rope_theta}");
@@ -4580,21 +4590,29 @@ fn main() -> ExitCode {
     // Write comprehensive verification receipt JSON
     let mean_w_rmse = layer_rms_errs.iter().sum::<f64>() / layer_rms_errs.len().max(1) as f64;
     let mean_e8_rmse = (e8_embed_rmse + e8_layer_rmses.iter().sum::<f64>()) / (1 + e8_layer_rmses.len()) as f64;
+    let rope_theta_u64 = rope_theta.round() as u64;
+    let rms_norm_preserved =
+        teacher_final_norm.len() == d_model && full_model.final_norm_codes.len() == d_model;
     let mut r_json = String::new();
     r_json.push_str("{\n");
     r_json.push_str("  \"schema\": \"uor-r4.recompiled-v12-receipt/1\",\n");
     r_json.push_str("  \"container_schema\": \"uor-r4.geometric-vector-stack/12\",\n");
+    r_json.push_str("  \"container_version\": 12,\n");
     r_json.push_str("  \"teacher_model\": \"HuggingFaceTB/SmolLM2-135M-Instruct\",\n");
     r_json.push_str("  \"hardware\": \"NVIDIA GeForce RTX 4090\",\n");
     r_json.push_str("  \"zero_python\": true,\n");
     r_json.push_str("  \"float_ops\": 0,\n");
     r_json.push_str("  \"dense_matmul_ops\": 0,\n");
+    r_json.push_str(&format!("  \"rope_theta\": {rope_theta_u64},\n"));
+    r_json.push_str(&format!("  \"tied_lm_head\": {tied_lm_head},\n"));
+    r_json.push_str(&format!("  \"rms_norm_preserved\": {rms_norm_preserved},\n"));
     r_json.push_str("  \"huggingface_source_sha256\": {\n");
     r_json.push_str(&format!("    \"config_json\": \"{cfg_sha}\",\n"));
     r_json.push_str(&format!("    \"tokenizer_json\": \"{tok_sha}\",\n"));
     r_json.push_str(&format!("    \"model_safetensors\": \"{safetensors_sha}\"\n"));
     r_json.push_str("  },\n");
     r_json.push_str("  \"full_30l_container\": {\n");
+    r_json.push_str("    \"container_version\": 12,\n");
     r_json.push_str(&format!("    \"sha256\": \"{full_sha}\",\n"));
     r_json.push_str(&format!("    \"total_bytes\": {},\n", full_bytes.len()));
     r_json.push_str(&format!("    \"total_mib\": {:.4},\n", full_mib));
@@ -4605,6 +4623,9 @@ fn main() -> ExitCode {
     r_json.push_str(&format!("    \"n_layers\": {n_layers},\n"));
     r_json.push_str(&format!("    \"n_heads\": {n_heads},\n"));
     r_json.push_str(&format!("    \"n_kv_heads\": {n_kv_heads},\n"));
+    r_json.push_str(&format!("    \"rope_theta\": {rope_theta_u64},\n"));
+    r_json.push_str(&format!("    \"tied_lm_head\": {tied_lm_head},\n"));
+    r_json.push_str(&format!("    \"rms_norm_preserved\": {rms_norm_preserved},\n"));
     r_json.push_str("    \"quantization\": \"block32-wht+group32-dyadic-4bit-per-row-exp+conway-sloane-e8-audit\",\n");
     r_json.push_str(&format!("    \"mean_weight_rel_rms_error\": {:.6},\n", mean_w_rmse));
     r_json.push_str(&format!("    \"conway_sloane_e8_mean_rel_rmse\": {:.6},\n", mean_e8_rmse));

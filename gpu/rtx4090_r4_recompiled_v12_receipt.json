@@ -1,17 +1,22 @@
 {
   "schema": "uor-r4.recompiled-v12-receipt/1",
   "container_schema": "uor-r4.geometric-vector-stack/12",
+  "container_version": 12,
   "teacher_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
   "hardware": "NVIDIA GeForce RTX 4090",
   "zero_python": true,
   "float_ops": 0,
   "dense_matmul_ops": 0,
+  "rope_theta": 100000,
+  "tied_lm_head": true,
+  "rms_norm_preserved": true,
   "huggingface_source_sha256": {
     "config_json": "8eb740e8bbe4cff95ea7b4588d17a2432deb16e8075bc5828ff7ba9be94d982a",
     "tokenizer_json": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c",
     "model_safetensors": "5af571cbf074e6d21a03528d2330792e532ca608f24ac70a143f6b369968ab8c"
   },
   "full_30l_container": {
+    "container_version": 12,
     "sha256": "fa4d31131213309bcadae0155067a86c7ef15d6383cc4bce5d23953a7dad30c3",
     "total_bytes": 75684407,
     "total_mib": 72.1783,
@@ -22,6 +27,9 @@
     "n_layers": 30,
     "n_heads": 9,
     "n_kv_heads": 3,
+    "rope_theta": 100000,
+    "tied_lm_head": true,
+    "rms_norm_preserved": true,
     "quantization": "block32-wht+group32-dyadic-4bit-per-row-exp+conway-sloane-e8-audit",
     "mean_weight_rel_rms_error": 0.085768,
     "conway_sloane_e8_mean_rel_rmse": 0.267862,

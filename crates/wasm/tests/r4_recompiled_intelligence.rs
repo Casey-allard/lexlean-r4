@@ -472,6 +472,21 @@ fn test_stitch_recovery_and_full_30l_smollm2_ood_and_buggy_code_intelligence() {
         serde_json::from_str(&receipt_raw).expect("parse rtx4090 receipt json");
     assert_eq!(receipt_val["float_ops"].as_u64(), Some(0));
     assert_eq!(receipt_val["dense_matmul_ops"].as_u64(), Some(0));
+    assert_eq!(receipt_val["container_version"].as_u64(), Some(12));
+    assert!(
+        receipt_val["rope_theta"].as_u64().unwrap_or(0) > 0,
+        "receipt must record non-zero measured rope_theta"
+    );
+    assert_eq!(receipt_val["tied_lm_head"].as_bool(), Some(true));
+    assert_eq!(receipt_val["rms_norm_preserved"].as_bool(), Some(true));
+    let full_obj = &receipt_val["full_30l_container"];
+    assert_eq!(full_obj["container_version"].as_u64(), Some(12));
+    assert_eq!(
+        full_obj["rope_theta"].as_u64(),
+        receipt_val["rope_theta"].as_u64()
+    );
+    assert_eq!(full_obj["tied_lm_head"].as_bool(), Some(true));
+    assert_eq!(full_obj["rms_norm_preserved"].as_bool(), Some(true));
     let transcripts = receipt_val["ood_12_prompt_transcripts"]
         .as_array()
         .expect("ood_12_prompt_transcripts array");
