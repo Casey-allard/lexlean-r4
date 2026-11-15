@@ -972,6 +972,136 @@ impl StudioEngine {
 
     /// Compose a generalized, helpful, natural-language conversational response across
     /// world knowledge, science, history, math, programming, workspace analysis, and everyday chat.
+    /// Route a composer turn strictly according to the selected execution mode (`uor-r4.recompiled-v12-*`,
+    /// `uor-r4.seed-fast`, or `uor-r4.lut-symbolic`).
+    ///
+    /// Neural geometric modes NEVER override model replies with `code_outcome.explanation_markdown`,
+    /// canned `UORLUT08` retrieval templates, or `Teach:` turn-memory hijacks.
+    #[allow(clippy::too_many_arguments, dead_code)]
+    pub(crate) fn compose_chat_for_mode(
+        &mut self,
+        prompt: &str,
+        prompt_tokens: &[TokenAtom],
+        prompt_q12: &[i16; POINT_KEY_DIM],
+        consensus_action: usize,
+        flock_resonance: u64,
+        icosian_root: usize,
+        active_ws_path: &str,
+        code_outcome: &CodeSynthesisOutcome,
+        r4_stack: &crate::r4_geometric_stack::R4GeometricStackEngine,
+        selected_mode: crate::r4_geometric_stack::SelectedExecutionMode,
+    ) -> (
+        String,
+        crate::r4_geometric_stack::GeometricTurnMetrics,
+        Vec<[i16; 8]>,
+    ) {
+        use crate::r4_geometric_stack::{
+            GeometricTurnMetrics, SelectedExecutionMode, R4_VEC_SCHEMA,
+        };
+
+        if !selected_mode.is_neural_geometric() {
+            let reply = self.compose_smart_chat_reply(
+                prompt,
+                prompt_tokens,
+                prompt_q12,
+                consensus_action as u8,
+                flock_resonance,
+                icosian_root as u8,
+                active_ws_path,
+                code_outcome,
+            );
+            let metrics = GeometricTurnMetrics {
+                schema: R4_VEC_SCHEMA,
+                active_tier: "lut-symbolic",
+                ..GeometricTurnMetrics::default()
+            };
+            return (reply, metrics, Vec::new());
+        }
+
+        let trimmed = prompt.trim();
+        let (mut reply, mut metrics, mut frames) =
+            r4_stack.generate_reply(trimmed, &self.chat_history, selected_mode, 160);
+
+        let mut pulses: Vec<crate::gllm_v9::BrainPulseStep> = frames
+            .iter()
+            .enumerate()
+            .map(|(step, fr)| crate::gllm_v9::BrainPulseStep {
+                step: step as u32,
+                phase: if selected_mode == SelectedExecutionMode::RecompiledAgent {
+                    "agent"
+                } else {
+                    "reply"
+                },
+                token_id: step as u32,
+                active_layer: (metrics.n_layers.saturating_sub(1)) as u8,
+                winning_head: (fr[0].unsigned_abs() % 9) as u8,
+                e8_orbit: (metrics.icosian_frame_id & 15),
+                cl06_grade: (metrics.icosian_frame_id % 7),
+                kv_copy_dist: metrics.hamming_xor_copy_hits.min(u16::MAX as usize) as u16,
+                prll_top_mass: 1_000_000,
+                tool_kind: if selected_mode == SelectedExecutionMode::RecompiledAgent {
+                    "mvm"
+                } else {
+                    "none"
+                },
+            })
+            .collect();
+
+        if selected_mode == SelectedExecutionMode::RecompiledAgent {
+            let extra_metrics = &mut metrics;
+            let extra_frames = &mut frames;
+            if let Some(tool_reply) = self.try_execute_tool_call_with_step2(
+                trimmed,
+                &reply,
+                &mut pulses,
+                |engine, user_prompt, full_cmd, obs, step_pulses| {
+                    let obs_prompt = format!(
+                        "Summarize the verified tool output for `{user_prompt}` (command `{full_cmd}`):\n<tool_response>{obs}</tool_response>"
+                    );
+                    let (step2_text, step2_m, step2_fr) = r4_stack.generate_reply(
+                        &obs_prompt,
+                        &engine.chat_history,
+                        selected_mode,
+                        128,
+                    );
+                    extra_metrics.generated_tokens += step2_m.generated_tokens;
+                    extra_metrics.nibble_lut_lookups += step2_m.nibble_lut_lookups;
+                    extra_metrics.lorentz_geodesic_evals += step2_m.lorentz_geodesic_evals;
+                    extra_metrics.flock_attended_positions += step2_m.flock_attended_positions;
+                    extra_metrics.flock_total_positions += step2_m.flock_total_positions;
+                    extra_metrics.hamming_xor_copy_hits += step2_m.hamming_xor_copy_hits;
+                    extra_metrics.icosian_frame_id = step2_m.icosian_frame_id;
+                    extra_metrics.zeta_phase_checksum ^= step2_m.zeta_phase_checksum;
+                    for fr in step2_fr {
+                        step_pulses.push(crate::gllm_v9::BrainPulseStep {
+                            step: step_pulses.len() as u32,
+                            phase: "tool_obs",
+                            token_id: step_pulses.len() as u32,
+                            active_layer: (extra_metrics.n_layers.saturating_sub(1)) as u8,
+                            winning_head: (fr[0].unsigned_abs() % 9) as u8,
+                            e8_orbit: (extra_metrics.icosian_frame_id & 15),
+                            cl06_grade: (extra_metrics.icosian_frame_id % 7),
+                            kv_copy_dist: 0,
+                            prll_top_mass: 1_000_000,
+                            tool_kind: "mvm",
+                        });
+                        extra_frames.push(fr);
+                    }
+                    if step2_text.trim().is_empty() {
+                        None
+                    } else {
+                        Some(step2_text)
+                    }
+                },
+            ) {
+                reply = tool_reply;
+            }
+        }
+
+        self.last_brain_pulses = pulses;
+        (reply, metrics, frames)
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn compose_smart_chat_reply(
         &mut self,
@@ -1510,6 +1640,47 @@ impl StudioEngine {
         generated_text: &str,
         pulses: &mut Vec<crate::gllm_v9::BrainPulseStep>,
     ) -> Option<String> {
+        self.try_execute_tool_call_with_step2(
+            user_prompt,
+            generated_text,
+            pulses,
+            |engine, prompt_txt, _cmd, obs, step_pulses| {
+                let step2 = engine.gllm_v9.generate_compositional_v10(
+                    &format!(
+                        "Summarize the verified tool output for `{prompt_txt}`:\n<tool_response> {obs}</tool_response>"
+                    ),
+                    &[],
+                    256,
+                );
+                for mut p in step2.brain_pulses.clone() {
+                    p.step = step_pulses.len() as u32;
+                    step_pulses.push(p);
+                }
+                if is_well_formed_v10_step2(&step2, obs) {
+                    Some(step2.text)
+                } else {
+                    None
+                }
+            },
+        )
+    }
+
+    fn try_execute_tool_call_with_step2<F>(
+        &mut self,
+        user_prompt: &str,
+        generated_text: &str,
+        pulses: &mut Vec<crate::gllm_v9::BrainPulseStep>,
+        mut summarize_mvm_obs: F,
+    ) -> Option<String>
+    where
+        F: FnMut(
+            &mut Self,
+            &str,
+            &str,
+            &str,
+            &mut Vec<crate::gllm_v9::BrainPulseStep>,
+        ) -> Option<String>,
+    {
         let resolved = resolve_v10_tool_invocation(user_prompt, generated_text)?;
 
         match resolved.tool_name.as_str() {
@@ -1574,19 +1745,10 @@ impl StudioEngine {
                         } else {
                             joined_stdout
                         };
-                        let step2 = self.gllm_v9.generate_compositional_v10(
-                            &format!(
-                                "Summarize the verified tool output for `{user_prompt}`:\n<tool_response> {obs}</tool_response>"
-                            ),
-                            &[],
-                            256,
-                        );
-                        for mut p in step2.brain_pulses.clone() {
-                            p.step = pulses.len() as u32;
-                            pulses.push(p);
-                        }
-                        if is_well_formed_v10_step2(&step2, &obs) {
-                            Some(step2.text)
+                        if let Some(summary) =
+                            summarize_mvm_obs(self, user_prompt, &full_cmd, &obs, pulses)
+                        {
+                            Some(summary)
                         } else {
                             Some(format!(
                                 "Executed `{full_cmd}` in MVM-Wasm:\n```\n{obs}\n```"
@@ -5822,5 +5984,91 @@ mod tests {
         )
         .expect_err("error bridge payload must fail cleanly");
         assert!(err.contains("PlainHttpRefused"));
+    }
+
+    #[test]
+    fn test_compose_chat_for_mode_isolation_and_pure_integer_invariants() {
+        use crate::r4_geometric_stack::{
+            R4GeometricStackEngine, SelectedExecutionMode, R4_VEC_SCHEMA,
+        };
+
+        let mut engine = StudioEngine::new_default();
+        let r4_stack = R4GeometricStackEngine::embedded_seed();
+        let dummy_q12 = [0i16; POINT_KEY_DIM];
+        let sentinel_code = CodeSynthesisOutcome {
+            target_path: "src/lib.rs".to_string(),
+            proposed_block: "fn sentinel() {}".to_string(),
+            explanation_markdown: "SENTINEL_CODE_OUTCOME_HIJACK".to_string(),
+            is_coding_turn: true,
+        };
+
+        for mode in [
+            SelectedExecutionMode::EmbeddedSeedFast,
+            SelectedExecutionMode::RecompiledChat,
+            SelectedExecutionMode::RecompiledAgent,
+        ] {
+            let (reply, metrics, frames) = engine.compose_chat_for_mode(
+                "Explain why deterministic integer arithmetic prevents drift in browser runtimes.",
+                &[],
+                &dummy_q12,
+                0,
+                0,
+                0,
+                "/workspace",
+                &sentinel_code,
+                &r4_stack,
+                mode,
+            );
+            assert!(!reply.trim().is_empty(), "empty reply for {mode:?}");
+            assert!(
+                !reply.contains("SENTINEL_CODE_OUTCOME_HIJACK"),
+                "code_outcome hijacked {mode:?}: {reply}"
+            );
+            assert!(
+                !reply.contains("UORLUT08"),
+                "UORLUT08 hijacked {mode:?}: {reply}"
+            );
+            assert_eq!(metrics.schema, R4_VEC_SCHEMA);
+            assert_eq!(metrics.float_ops, 0);
+            assert_eq!(metrics.dense_matmul_ops, 0);
+            assert!(metrics.nibble_lut_lookups > 0);
+            assert!(metrics.lorentz_geodesic_evals > 0);
+            assert!(!frames.is_empty());
+        }
+
+        // Verify Teach: does not hijack neural modes into string-echo memory
+        let (teach_reply, teach_metrics, _) = engine.compose_chat_for_mode(
+            "Teach: magic -> 999",
+            &[],
+            &dummy_q12,
+            0,
+            0,
+            0,
+            "/workspace",
+            &sentinel_code,
+            &r4_stack,
+            SelectedExecutionMode::RecompiledChat,
+        );
+        assert!(!teach_reply.contains("SENTINEL_CODE_OUTCOME_HIJACK"));
+        assert_eq!(teach_metrics.float_ops, 0);
+        assert_eq!(teach_metrics.dense_matmul_ops, 0);
+
+        // Verify legacy SymbolicLutMvm still routes explicitly
+        let (_sym_reply, sym_metrics, sym_frames) = engine.compose_chat_for_mode(
+            "uor: prime-lattice 42",
+            &[],
+            &dummy_q12,
+            0,
+            0,
+            0,
+            "/workspace",
+            &sentinel_code,
+            &r4_stack,
+            SelectedExecutionMode::SymbolicLutMvm,
+        );
+        assert_eq!(sym_metrics.active_tier, "lut-symbolic");
+        assert_eq!(sym_metrics.float_ops, 0);
+        assert_eq!(sym_metrics.dense_matmul_ops, 0);
+        assert!(sym_frames.is_empty());
     }
 }

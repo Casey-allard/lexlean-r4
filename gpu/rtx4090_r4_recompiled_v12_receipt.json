@@ -1,0 +1,181 @@
+{
+  "schema": "uor-r4.recompiled-v12-receipt/1",
+  "container_schema": "uor-r4.geometric-vector-stack/12",
+  "container_version": 12,
+  "teacher_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "hardware": "NVIDIA GeForce RTX 4090",
+  "zero_python": true,
+  "float_ops": 0,
+  "dense_matmul_ops": 0,
+  "rope_theta": 100000,
+  "tied_lm_head": true,
+  "rms_norm_preserved": true,
+  "huggingface_source_sha256": {
+    "config_json": "8eb740e8bbe4cff95ea7b4588d17a2432deb16e8075bc5828ff7ba9be94d982a",
+    "tokenizer_json": "9ca9acddb6525a194ec8ac7a87f24fbba7232a9a15ffa1af0c1224fcd888e47c",
+    "model_safetensors": "5af571cbf074e6d21a03528d2330792e532ca608f24ac70a143f6b369968ab8c"
+  },
+  "full_30l_container": {
+    "container_version": 12,
+    "sha256": "fa4d31131213309bcadae0155067a86c7ef15d6383cc4bce5d23953a7dad30c3",
+    "total_bytes": 75684407,
+    "total_mib": 72.1783,
+    "shard_count": 73,
+    "stitch_parity_groups": 37,
+    "vocab_size": 49152,
+    "d_model": 576,
+    "n_layers": 30,
+    "n_heads": 9,
+    "n_kv_heads": 3,
+    "rope_theta": 100000,
+    "tied_lm_head": true,
+    "rms_norm_preserved": true,
+    "quantization": "block32-wht+group32-dyadic-4bit-per-row-exp+conway-sloane-e8-audit",
+    "mean_weight_rel_rms_error": 0.085768,
+    "conway_sloane_e8_mean_rel_rmse": 0.267862,
+    "hamming_signature_bits": 576
+  },
+  "compact_distilled_seed": {
+    "sha256": "31dfbeb82ea14ed4218f0ab5445f5e4e3a246e808c8f400ea72eec0ba7fa8fa5",
+    "total_bytes": 4433277,
+    "total_mib": 4.2279,
+    "vocab_size": 6144,
+    "d_model": 256,
+    "n_layers": 8,
+    "n_heads": 4,
+    "n_kv_heads": 2,
+    "teacher_rollout_tokens": 13136,
+    "distillation_steps": 3000,
+    "final_ema_kl_ce_loss": 0.076445
+  },
+  "teacher_parity_metrics": {
+    "prompt_count": 12,
+    "top1_logit_parity_pct": 75.00,
+    "top5_logit_parity_pct": 100.00,
+    "mean_kl_divergence": 0.635270,
+    "total_nibble_lut_lookups": 81738989568,
+    "total_lorentz_geodesic_evals": 22543380
+  },
+  "ood_12_prompt_transcripts": [
+    {
+      "id": "ood_01_capitals_science",
+      "prompt": "Explain briefly how ATP powers muscle contraction in human skeletal muscle.",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 1.354463,
+      "float_teacher_reply": "In human skeletal muscle, ATP (adenosine triphosphate) is the primary energy source for muscle contraction. It is the primary energy source for the contraction of skeletal muscles, which is necessary for movement and maintaining posture. ATP is generated through",
+      "integer_30l_reply": "In human skeletal muscle, ATP is the primary energy source for muscle contraction. It is a molecule that can be broken down into two forms: 10-phosphol and 20-hexadecanoyl phosphate. The ",
+      "compact_seed_reply": "In an operating system, a process and a thread are the network of miserved in the most common divistring and 2. The C"
+    },
+    {
+      "id": "ood_02_algorithm_big_o",
+      "prompt": "Why does a binary heap support push and pop in O(log n) while find-min is O(1)?",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.498553,
+      "float_teacher_reply": "The reason for this difference lies in the way the heap data structure is implemented.\n\nIn a binary heap, the maximum element is always at the top of the heap, and the smallest element is always at the bottom. This means that",
+      "integer_30l_reply": "The reason is that the binary heap has a simple and efficient data structure design. It's not a tree, but it's still a sorted array. The key difference is that it doesn't have any middle element (the \"middle\" part",
+      "compact_seed_reply": "The issue with your fixed-point integers avoid it."
+    },
+    {
+      "id": "ood_03_systems_cow",
+      "prompt": "How does copy-on-write fork reduce memory usage before execve in Unix kernels?",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.501233,
+      "float_teacher_reply": "In Unix kernels, copying the entire file to the kernel's memory area before executing the code can significantly reduce memory usage. This is because the kernel allocates a block of memory for the file, and copying the entire file to the kernel",
+      "integer_30l_reply": "In Unix kernels, copy-on-write fork is used to reduce memory usage before execve.\n```bash\necho 1 > file.txt | copy -v -n 1024 > file_copy.txt",
+      "compact_seed_reply": "The eigenvalues and execution times the blood.\n-rich is a fundamental concept in the call it-containe"
+    },
+    {
+      "id": "ood_04_math_bayes",
+      "prompt": "State Bayes' theorem and give a concise numerical example involving a medical test.",
+      "top1_match": false,
+      "top5_match": true,
+      "kl_divergence": 2.132537,
+      "float_teacher_reply": "Bayes' theorem is a mathematical formula used to update the probability of a hypothesis based on new evidence. It is a fundamental concept in probability theory and is used to calculate the likelihood of a hypothesis given a sample of evidence.\n\nThe",
+      "integer_30l_reply": "State Bayes' theorem and give a concise numerical example:\nThe state-based approach is the most commonly used method of updating beliefs in a Bayesian model. It is widely used in medical testing to update the probability of a particular outcome based",
+      "compact_seed_reply": "The primary cause of a stack overflow error in C or Rust occurs when the `algorithm is a fundamental al"
+    },
+    {
+      "id": "ood_05_buggy_rust",
+      "prompt": "Find and fix the bug in this Rust function:\n```rust\nfn sum_pairs(xs: &[i32]) -> Vec<i32> {\n    let mut out = Vec::new();\n    for i in 0..xs.len() {\n        out.push(xs[i] + xs[i + 1]);\n    }\n    out\n}\n```",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.310244,
+      "float_teacher_reply": "The bug in this Rust function is in the `sum_pairs` function. The function is supposed to sum up all the elements in the input list `xs`, but it's returning an empty vector instead.\n\nTo fix this,",
+      "integer_30l_reply": "The bug is in the following part of the code:\n```rust\nlet mut out = Vec::new();\n    for i in 0..xs.len() {\n        out.push(xs[i] + xs[",
+      "compact_seed_reply": "The issue here is that the lockspr or fixed-size\n```rust\nfnevsention 1.32 Coun"
+    },
+    {
+      "id": "ood_06_buggy_python",
+      "prompt": "Explain what goes wrong in this Python snippet and write the fixed version:\n```python\ndef append_item(item, bucket=[]):\n    bucket.append(item)\n    return bucket\n```",
+      "top1_match": false,
+      "top5_match": true,
+      "kl_divergence": 0.218979,
+      "float_teacher_reply": "The issue in this snippet is that the `append_item` function is not properly handling the `append` method. The `append` method is used to add an item to a list, but it does not modify the list itself.",
+      "integer_30l_reply": "This is a Python code snippet that takes a list of items and adds them to the end of the list using `append()` method. It's not error-prone and can be used for any type of data input.\nThe issue",
+      "compact_seed_reply": "Here's a corgeved algorithm is a fundamental concept in geometry that descributs"
+    },
+    {
+      "id": "ood_07_buggy_js",
+      "prompt": "Why does this JavaScript loop print 3 three times with var, and how do you fix it?\n```js\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 10);\n}\n```",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.130793,
+      "float_teacher_reply": "The issue with this JavaScript loop is that it's using a `for` loop, which is not the correct syntax for printing numbers.\n\nThe correct syntax for printing numbers in JavaScript is:\n\n```javascript\n",
+      "integer_30l_reply": "The issue is that the JavaScript interpreter is not able to execute a loop statement because it only executes statements after the current value of the current time.\nTo fix this, you need to set up and execute a program manually. Here's",
+      "compact_seed_reply": "The issue lies in the `reverse` method, which is not working as expected. It should swap the first and last elements of the slice, then re"
+    },
+    {
+      "id": "ood_08_rust_borrowing",
+      "prompt": "Fix the borrow checker error in this Rust snippet:\n```rust\nlet mut nums = vec![1, 2, 3];\nlet first = &nums[0];\nnums.push(4);\nprintln!(\"{first}\");\n```",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.357790,
+      "float_teacher_reply": "The borrow checker error occurs when the borrow checker is not properly implemented. Here's the corrected code:\n\n```rust\nlet mut nums = vec![1, 2, 3];\nlet first = &nums[0];",
+      "integer_30l_reply": "The issue is that the `&` operator in Rust is not used for comparison and assignment. It's supposed to be used for pointer and reference comparison, but it's actually used for value comparison.\nTo fix this error, you should",
+      "compact_seed_reply": "The issue with this lonear algests/ncompleminalindrome(s: &str) -> boradi"
+    },
+    {
+      "id": "ood_09_sql_query",
+      "prompt": "Write a PostgreSQL query to return the top 3 departments by average employee salary where count >= 5.",
+      "top1_match": false,
+      "top5_match": true,
+      "kl_divergence": 0.554825,
+      "float_teacher_reply": "Here's a PostgreSQL query that returns the top 3 departments by average employee salary where the count is greater than or equal to 5:\n\n```sql\nSELECT department, AVG(salary) AS average_sal",
+      "integer_30l_reply": "To write a PostgreSQL query to return the top 3 departments by average employee salary where count >= 5, we can use the following steps:\n\n1. First, we need to select and filter the data for average employee salaries",
+      "compact_seed_reply": "```rust\nfn is_palindrome(s: &str) -> borkents, you can use the following:\n```\nThis function to handle float"
+    },
+    {
+      "id": "ood_10_physics_doppler",
+      "prompt": "Explain the Doppler effect using an ambulance siren moving toward and away from an observer.",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.828735,
+      "float_teacher_reply": "The Doppler effect is a fundamental phenomenon in physics that describes the change in the frequency of a wave as it moves towards or away from an observer. In the context of an ambulance siren, the Doppler effect can be observed when the siren",
+      "integer_30l_reply": "The Doppler effect is a fundamental concept in classical mechanics and is a crucial aspect of the motion of objects. To illustrate this, consider an ambulance siren moving toward and away from an observer.\nIn this scenario, the speed of sound in",
+      "compact_seed_reply": "To vertion is a 32-bit integer in the late 1940s by John Bardex, Nort"
+    },
+    {
+      "id": "ood_11_agent_tool",
+      "prompt": "List all Rust source files in /workspace/src and explain what module handles verification.",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.465210,
+      "float_teacher_reply": "Here are the Rust source files in the /workspace/src directory:\n\n```rust\n#[derive(Debug, Inherit)]\n#[derive(Debug, Inherit)]\n#[derive(",
+      "integer_30l_reply": "Here is the list of Rust source files and their explanation:\n```\n/README.md - 1024 characters long summary of the book's content. \n- /README - 5678 characters",
+      "compact_seed_reply": "The issue with the `flacke` and relyzers a bythemalgorithm for Propund"
+    },
+    {
+      "id": "ood_12_uor_geometry",
+      "prompt": "In hyperbolic Lorentz geometry, how does the Minkowski inner product relate to geodesic distance on a hyperboloid?",
+      "top1_match": true,
+      "top5_match": true,
+      "kl_divergence": 0.269880,
+      "float_teacher_reply": "In hyperbolic Lorentz geometry, the Minkowski inner product is closely related to the geodesic distance on a hyperboloid. The Minkowski inner product is defined as:\n\n(x, y, z)",
+      "integer_30l_reply": "In hyperbolic geometry, the Minkowski inner product and geodesic distance are closely related. The key insight is that they are not equivalent in this context.\nThe Minky-hyperbolic plane is a 2-dimensional",
+      "compact_seed_reply": "The issue with the directioning a �alanes, and then use the probability of the current element."
+    }
+  ]
+}

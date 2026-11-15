@@ -1236,8 +1236,8 @@ export async function stream_v9_sharded_weights_via_opfs_worker(onProgress, forc
               return;
             }
             const manifest = await mResp.json();
-            if (!manifest || manifest.format !== 'UORGLLM9' || !Array.isArray(manifest.shards)) {
-              self.postMessage({ type: 'error', message: 'Invalid UORGLLM9 manifest' });
+            if (!manifest || (manifest.format !== 'UORGLLM9' && manifest.format !== 'UORR4V12') || !Array.isArray(manifest.shards)) {
+              self.postMessage({ type: 'error', message: 'Invalid UORGLLM9/UORR4V12 manifest' });
               return;
             }
             const totalBytes = manifest.total_bytes >>> 0;
@@ -1326,7 +1326,7 @@ export async function stream_v9_sharded_weights_via_opfs_worker(onProgress, forc
         const parsed = JSON.parse(studio_load_uorgllm_v9_bytes(new Uint8Array(workerResult.buffer), 'opfs_sync_worker_v9_8L_128D'));
         if (parsed && parsed.status === 'ok') {
           globalThis.__uorGllmV9Meta = {
-            status: 'OPFS SyncWorker UORGLLM9 (' + parsed.n_layers + 'L ' + parsed.d_model + 'D)',
+            status: 'OPFS SyncWorker ' + (parsed.format || 'UORR4V12') + ' (' + parsed.n_layers + 'L ' + parsed.d_model + 'D)',
             sha256: workerResult.sha256,
             mode: workerResult.mode
           };
@@ -3322,16 +3322,19 @@ export class SpiralCoreHostBridge {
     let pkgIndex = null;
     let basePkgUrl = '';
     for (const idxUrl of indexCandidates) {
-      try {
-        const r = await fetch(idxUrl, { cache: 'no-cache' });
-        if (r.ok) {
-          pkgIndex = await r.json();
-          basePkgUrl = idxUrl.slice(0, idxUrl.lastIndexOf('/') + 1);
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          const r = await fetch(idxUrl, { cache: 'no-cache' });
+          if (r.ok) {
+            pkgIndex = await r.json();
+            basePkgUrl = idxUrl.slice(0, idxUrl.lastIndexOf('/') + 1);
+          }
           break;
+        } catch {
+          // Retry once on transient socket error (e.g. pooled keep-alive ECONNRESET after sync Wasm work).
         }
-      } catch {
-        // Try next candidate
       }
+      if (pkgIndex) break;
     }
 
     if (!pkgIndex || !Array.isArray(pkgIndex.packages)) {
@@ -3688,7 +3691,7 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
       const resp = await fetch(mUrl, { cache: 'no-cache' });
       if (resp.ok) {
         const parsed = await resp.json();
-        if (parsed && parsed.format === 'UORGLLM9' && Array.isArray(parsed.shards)) {
+        if (parsed && (parsed.format === 'UORGLLM9' || parsed.format === 'UORR4V12') && Array.isArray(parsed.shards)) {
           manifest = parsed;
           baseUrl = mUrl.slice(0, mUrl.lastIndexOf('/') + 1);
           break;
@@ -3727,10 +3730,15 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
       const root = await navigator.storage.getDirectory();
       const mfh = await root.getFileHandle(OPFS_V10_META_FILE, { create: false });
       const meta = JSON.parse(await (await mfh.getFile()).text());
-      if (meta && meta.sha256 === expectedSha) {
+      if (meta && meta.sha256 === expectedSha && (!meta.format || meta.format === manifest.format)) {
         const wfh = await root.getFileHandle(OPFS_V10_WEIGHT_FILE, { create: false });
         const bytes = new Uint8Array(await (await wfh.getFile()).arrayBuffer());
-        const loaded = JSON.parse(studio_load_uorgllm_v9_bytes(bytes, 'opfs_cached_v10_16L_256D'));
+        const isR4V12 = manifest.format === 'UORR4V12' || (bytes.byteLength >= 8 && cachedTextDecoder.decode(bytes.subarray(0, 8)) === 'UORR4V12');
+        const loadLabel = isR4V12 ? 'opfs_cached_r4_v12_30L_576D' : 'opfs_cached_v10_16L_256D';
+        const rawLoaded = (isR4V12 && typeof studio_mount_r4_v12_bytes === 'function')
+          ? studio_mount_r4_v12_bytes(bytes)
+          : studio_load_uorgllm_v9_bytes(bytes, loadLabel);
+        const loaded = JSON.parse(rawLoaded);
         if (loaded && loaded.status === 'ok') {
           const stitchHealth = {
             scheme: stitchManifest ? 'stitch/xor-2-of-3/1' : 'opfs-cached-verified',
@@ -3745,11 +3753,15 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
             status: 'Healthy (OPFS Cached)',
             updatedAt: new Date().toISOString(),
           };
+          const fmtLabel = loaded.format || manifest.format || (isR4V12 ? 'UORR4V12' : 'UORGLLM9');
+          const statusStr = `OPFS ${fmtLabel} (${loaded.n_layers}L ${loaded.d_model}D)`;
           globalThis.__uorStitchHealth = stitchHealth;
           globalThis.__uorGllmV9Meta = {
-            status: `OPFS UORGLLM v10 (${loaded.n_layers}L ${loaded.d_model}D)`,
+            status: statusStr,
+            format: fmtLabel,
+            tier: loaded.active_tier || (isR4V12 ? 'Full30LRecompiled' : 'LegacyV9'),
             sha256: expectedSha,
-            mode: 'opfs-v10-cached',
+            mode: isR4V12 ? 'opfs-r4v12-cached' : 'opfs-v10-cached',
             stitchHealth,
           };
           return loaded;
@@ -3776,7 +3788,7 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
 
   const fullSha = await __uorSha256HexBytes(fullBuf);
   if (expectedSha && fullSha !== expectedSha) {
-    throw new Error('UORGLLM v10 container SHA-256 mismatch');
+    throw new Error(`${manifest.format || 'UORR4V12'} container SHA-256 mismatch`);
   }
 
   if (hasOpfs) {
@@ -3795,7 +3807,7 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
         await w.close();
       }
       const mfh = await root.getFileHandle(OPFS_V10_META_FILE, { create: true });
-      const metaBytes = cachedTextEncoder.encode(JSON.stringify({ sha256: fullSha, totalBytes }));
+      const metaBytes = cachedTextEncoder.encode(JSON.stringify({ sha256: fullSha, totalBytes, format: manifest.format || 'UORR4V12' }));
       if (typeof mfh.createSyncAccessHandle === 'function') {
         const msh = await mfh.createSyncAccessHandle();
         msh.truncate(metaBytes.byteLength);
@@ -3812,12 +3824,20 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
     }
   }
 
-  const parsed = JSON.parse(studio_load_uorgllm_v9_bytes(fullBuf, 'opfs_streamed_v10_16L_256D'));
+  const isStreamedR4V12 = manifest.format === 'UORR4V12' || (fullBuf.byteLength >= 8 && cachedTextDecoder.decode(fullBuf.subarray(0, 8)) === 'UORR4V12');
+  const streamLabel = isStreamedR4V12 ? 'opfs_streamed_r4_v12_30L_576D' : 'opfs_streamed_v10_16L_256D';
+  const rawParsed = (isStreamedR4V12 && typeof studio_mount_r4_v12_bytes === 'function')
+    ? studio_mount_r4_v12_bytes(fullBuf)
+    : studio_load_uorgllm_v9_bytes(fullBuf, streamLabel);
+  const parsed = JSON.parse(rawParsed);
   if (parsed && parsed.status === 'ok') {
+    const fmtLabel = parsed.format || manifest.format || (isStreamedR4V12 ? 'UORR4V12' : 'UORGLLM9');
     globalThis.__uorGllmV9Meta = {
-      status: `OPFS UORGLLM v10 (${parsed.n_layers}L ${parsed.d_model}D)`,
+      status: `OPFS ${fmtLabel} (${parsed.n_layers}L ${parsed.d_model}D)`,
+      format: fmtLabel,
+      tier: parsed.active_tier || (isStreamedR4V12 ? 'Full30LRecompiled' : 'LegacyV9'),
       sha256: fullSha,
-      mode: 'opfs-v10-streamed',
+      mode: isStreamedR4V12 ? 'opfs-r4v12-streamed' : 'opfs-v10-streamed',
     };
     return parsed;
   }
@@ -3872,10 +3892,44 @@ function __uorStartDedicatedEngineWorker() {
   const hostBridge = new SpiralCoreHostBridge();
   let wasmReady = false;
   let bootPromise = null;
+  let activeHydrationPromise = null;
+  let lastHydrationProgress = null;
   const earlyMessages = [];
 
   const postEvent = (event, data = {}) => {
     self.postMessage({ event, ...data });
+  };
+
+  const startOrAwaitOpfsShardHydration = (forceReload = false) => {
+    if (activeHydrationPromise && !forceReload) {
+      return activeHydrationPromise;
+    }
+    const run = stream_v10_sharded_weights_to_opfs((prog) => {
+      lastHydrationProgress = { stage: 'r4_shards', ...prog };
+      postEvent('boot_progress', lastHydrationProgress);
+      postEvent('hydration_progress', lastHydrationProgress);
+    }, forceReload)
+      .then((v10Info) => {
+        postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+        if (v10Info) {
+          const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
+          postEvent('weights_upgraded', {
+            gllm: v10Info,
+            r4Stack,
+            gllmMeta: globalThis.__uorGllmV9Meta || null,
+            stitchHealth: globalThis.__uorStitchHealth || null,
+          });
+        }
+        return v10Info;
+      })
+      .catch(() => null)
+      .finally(() => {
+        if (activeHydrationPromise === run) {
+          activeHydrationPromise = null;
+        }
+      });
+    activeHydrationPromise = run;
+    return run;
   };
 
   const applyClonedFilesToWorkspace = (files) => {
@@ -3977,7 +4031,44 @@ function __uorStartDedicatedEngineWorker() {
     const { id, op, payload } = msg || {};
     try {
       if (op === 'studio_dispatch') {
-        const res = await dispatchWithConnectedBridge(String(payload || ''));
+        const envelopeStr = String(payload || '');
+        if (envelopeStr.includes('\tchat\t') || envelopeStr.includes('\tchat_v10_turn\t')) {
+          let needsFullV12 = false;
+          try {
+            const parts = envelopeStr.split('\t');
+            const bodyRaw = parts.length >= 4 ? parts.slice(3).join('\t').trim() : '';
+            if (bodyRaw.startsWith('{')) {
+              const reqObj = JSON.parse(bodyRaw);
+              const sel = String(reqObj && reqObj.selected_model || '');
+              needsFullV12 = sel === 'uor-r4.recompiled-v12-agent' || sel === 'uor-r4.recompiled-v12-chat';
+            }
+          } catch {
+            // Leave needsFullV12 false on non-JSON envelopes
+          }
+          if (needsFullV12 && typeof studio_r4_stack_status === 'function') {
+            let mountedFull = false;
+            try {
+              const r4Now = JSON.parse(studio_r4_stack_status());
+              mountedFull = Boolean(r4Now && r4Now.full_recompiled_mounted);
+            } catch {
+              mountedFull = false;
+            }
+            if (!mountedFull) {
+              postEvent('hydration_progress', {
+                stage: 'r4_shards',
+                awaiting: true,
+                ...(lastHydrationProgress || {
+                  index: 0,
+                  total: 73,
+                  healedCount: 0,
+                  label: 'Hydrating 30L UORR4V12 OPFS shards before 30L inference...',
+                }),
+              });
+              await startOrAwaitOpfsShardHydration(false);
+            }
+          }
+        }
+        const res = await dispatchWithConnectedBridge(envelopeStr);
         self.postMessage({ id, ok: true, result: res });
         return;
       }
@@ -4114,13 +4205,12 @@ function __uorStartDedicatedEngineWorker() {
         return;
       }
       if (op === 'sync_weights') {
-        const v10 = await stream_v10_sharded_weights_to_opfs((prog) => {
-          postEvent('boot_progress', { stage: 'v10_shards', ...prog });
-        }, true).catch(() => null);
+        const v10 = await startOrAwaitOpfsShardHydration(true);
         const lut = await sync_cached_weights((prog) => {
           postEvent('boot_progress', { stage: 'uorlut_sync', ...prog });
         });
-        self.postMessage({ id, ok: true, result: { v10, lut } });
+        const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
+        self.postMessage({ id, ok: true, result: { v10, lut, r4Stack, gllmMeta: globalThis.__uorGllmV9Meta || null } });
         return;
       }
       if (op === 'snapshot') {
@@ -4128,6 +4218,8 @@ function __uorStartDedicatedEngineWorker() {
         const workspace = __uorCollectWorkspaceSnapshot();
         const pack = JSON.parse(studio_weight_pack_status());
         const gllm = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
+        const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
+        const verdantSynthesis = query_verdant_synthesis_status();
         self.postMessage({
           id,
           ok: true,
@@ -4136,6 +4228,8 @@ function __uorStartDedicatedEngineWorker() {
             workspace,
             pack,
             gllm,
+            r4Stack,
+            verdantSynthesis,
             stitchHealth: globalThis.__uorStitchHealth || null,
           },
         });
@@ -4143,6 +4237,31 @@ function __uorStartDedicatedEngineWorker() {
       }
       if (op === 'stitch_health') {
         self.postMessage({ id, ok: true, result: globalThis.__uorStitchHealth || null });
+        return;
+      }
+      if (op === 'admit_generation_capsule') {
+        const res = await admit_uorc_generation_capsule(payload && payload.capsule ? payload.capsule : payload);
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'record_generation_fault') {
+        const reason = payload && typeof payload.reason === 'string' ? payload.reason : 'runtime_fault';
+        const res = await record_uorc_generation_fault(reason);
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'verdant_synthesis_status') {
+        self.postMessage({ id, ok: true, result: query_verdant_synthesis_status() });
+        return;
+      }
+      if (op === 'r4_stack_status') {
+        const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
+        self.postMessage({ id, ok: true, result: r4Stack });
+        return;
+      }
+      if (op === 'init_worker_pool') {
+        const pool = await init_shared_wasm_worker_pool();
+        self.postMessage({ id, ok: true, result: pool });
         return;
       }
       if (op === 'check_studio_update') {
@@ -4221,10 +4340,14 @@ function __uorStartDedicatedEngineWorker() {
       const workspace = __uorCollectWorkspaceSnapshot();
       const pack = JSON.parse(studio_weight_pack_status());
       const gllm = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
+      const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
+      const verdantSynthesis = query_verdant_synthesis_status();
       postEvent('ready', {
-        snapshot: { state, workspace, pack, gllm },
+        snapshot: { state, workspace, pack, gllm, r4Stack, verdantSynthesis },
         weightCacheMeta: globalThis.__uorWeightCacheMeta || null,
         gllmMeta: globalThis.__uorGllmV9Meta || null,
+        r4Stack,
+        verdantSynthesis,
       });
 
       while (earlyMessages.length > 0) {
@@ -4232,21 +4355,9 @@ function __uorStartDedicatedEngineWorker() {
         await handleWorkerMessage(queued);
       }
 
-      // Stream v10 sharded weights into OPFS in background without delaying early turns
-      stream_v10_sharded_weights_to_opfs((prog) => {
-        postEvent('boot_progress', { stage: 'v10_shards', ...prog });
-      }, false)
-        .then((v10Info) => {
-          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-          if (v10Info) {
-            postEvent('weights_upgraded', {
-              gllm: v10Info,
-              gllmMeta: globalThis.__uorGllmV9Meta || null,
-              stitchHealth: globalThis.__uorStitchHealth || null,
-            });
-          }
-        })
-        .catch(() => {});
+      // Eagerly stream UORR4V12 / sharded weights into OPFS on Worker startup;
+      // full 30L chat turns await this in-flight promise before dispatching.
+      startOrAwaitOpfsShardHydration(false);
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {
         hostBridge.checkProvenanceUpdate(location.origin).catch(() => null);
@@ -4272,6 +4383,298 @@ function __uorStartDedicatedEngineWorker() {
   };
 
   startBoot();
+}
+
+// === VERDANT RESONANCE WORKER SATURATION, WASM MODULE POOL & OPFS .uorc CAPSULE WATCHDOG ===
+const UORC_GENERATIONS_DIR = 'generations';
+const UORC_HEAD_FILE = 'HEAD';
+const UORC_FRONTIER_FILE = 'FRONTIER.json';
+const UOR_SELFHOST_SYNC_CHANNEL = 'uor-r4-selfhost-sync';
+
+let __uorSharedWasmModule = null;
+let __uorSharedWasmBytes = null;
+const __uorSharedWorkerPool = [];
+let __uorSharedWorkerBlobUrl = null;
+const __uorMemGenerationStore = {
+  head: 'gen-0',
+  frontier: ['gen-0'],
+  capsules: new Map([
+    [
+      'gen-0',
+      {
+        generation_id: 'gen-0',
+        parent_generation_id: null,
+        schema: 'uorc/generation-capsule/1',
+        strikes: 0,
+        status: 'baseline',
+      },
+    ],
+  ]),
+};
+
+export function optimal_browser_worker_count(logicalThreads) {
+  const detected =
+    typeof logicalThreads === 'number' && Number.isFinite(logicalThreads) && logicalThreads > 0
+      ? Math.floor(logicalThreads)
+      : typeof navigator !== 'undefined' && typeof navigator.hardwareConcurrency === 'number'
+        ? Math.max(1, Math.floor(navigator.hardwareConcurrency))
+        : 4;
+  if (detected <= 2) return 1;
+  const candidate = detected - 1;
+  return candidate > 8 ? 8 : candidate;
+}
+
+async function __uorWithWebLock(lockName, task) {
+  if (
+    typeof navigator !== 'undefined' &&
+    navigator.locks &&
+    typeof navigator.locks.request === 'function'
+  ) {
+    return navigator.locks.request(lockName, () => task());
+  }
+  return task();
+}
+
+function __uorBroadcastGenSync(generationId, digestSha256, eventKind) {
+  if (typeof BroadcastChannel === 'undefined') return false;
+  try {
+    const ch = new BroadcastChannel(UOR_SELFHOST_SYNC_CHANNEL);
+    ch.postMessage({
+      protocol: 'uor-workspace-bridge/1',
+      type: 'uor-r4:generation-sync',
+      event: eventKind || 'admitted',
+      generation_id: generationId,
+      digest_sha256: digestSha256 || '',
+      timestamp_ms: Date.now(),
+    });
+    ch.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function init_shared_wasm_worker_pool(wasmBytesOrModule = null) {
+  const logicalThreads =
+    typeof navigator !== 'undefined' && typeof navigator.hardwareConcurrency === 'number'
+      ? Math.max(1, Math.floor(navigator.hardwareConcurrency))
+      : 4;
+  const targetWorkers = optimal_browser_worker_count(logicalThreads);
+
+  if (wasmBytesOrModule instanceof WebAssembly.Module) {
+    __uorSharedWasmModule = wasmBytesOrModule;
+  } else if (wasmBytesOrModule && wasmBytesOrModule.byteLength > 0) {
+    __uorSharedWasmBytes = wasmBytesOrModule instanceof ArrayBuffer
+      ? wasmBytesOrModule
+      : wasmBytesOrModule.buffer.slice(
+          wasmBytesOrModule.byteOffset,
+          wasmBytesOrModule.byteOffset + wasmBytesOrModule.byteLength,
+        );
+    if (!__uorSharedWasmModule && typeof WebAssembly !== 'undefined' && typeof WebAssembly.compile === 'function') {
+      __uorSharedWasmModule = await WebAssembly.compile(__uorSharedWasmBytes);
+    }
+  } else if (!__uorSharedWasmModule && typeof globalThis !== 'undefined' && globalThis.__uorWasmBytesBuffer) {
+    __uorSharedWasmBytes = globalThis.__uorWasmBytesBuffer;
+    if (typeof WebAssembly !== 'undefined' && typeof WebAssembly.compile === 'function') {
+      __uorSharedWasmModule = await WebAssembly.compile(__uorSharedWasmBytes);
+    }
+  } else if (!__uorSharedWasmModule && typeof fetch === 'function') {
+    try {
+      const wasmUrl = new URL('lexlean_r4_bg.wasm', import.meta.url);
+      const cached = await __uor_resolve_cached_wasm(wasmUrl, false);
+      if (cached && typeof cached.arrayBuffer === 'function') {
+        __uorSharedWasmBytes = await cached.arrayBuffer();
+        __uorSharedWasmModule = await WebAssembly.compile(__uorSharedWasmBytes);
+      }
+    } catch {
+      // Optional compile in offline/mocked Node test harnesses
+    }
+  }
+
+  if (
+    __uorSharedWorkerPool.length === 0 &&
+    typeof Worker !== 'undefined' &&
+    typeof Blob !== 'undefined' &&
+    typeof URL !== 'undefined' &&
+    typeof URL.createObjectURL === 'function'
+  ) {
+    const poolWorkerCode = [
+      'let sharedModule = null;',
+      'self.onmessage = async (ev) => {',
+      '  const msg = ev && ev.data ? ev.data : {};',
+      '  if (msg.type === "INIT_MODULE" && (msg.module || msg.wasmBytes)) {',
+      '    sharedModule = msg.module || await WebAssembly.compile(msg.wasmBytes);',
+      '    self.postMessage({ type: "READY", workerIndex: msg.workerIndex, hasModule: Boolean(sharedModule) });',
+      '  }',
+      '};',
+    ].join('\n');
+    if (!__uorSharedWorkerBlobUrl) {
+      __uorSharedWorkerBlobUrl = URL.createObjectURL(new Blob([poolWorkerCode], { type: 'text/javascript' }));
+    }
+    for (let i = 0; i < targetWorkers; i += 1) {
+      try {
+        const worker = new Worker(__uorSharedWorkerBlobUrl);
+        __uorSharedWorkerPool.push({ index: i, worker, ready: false });
+        if (__uorSharedWasmModule || __uorSharedWasmBytes) {
+          worker.postMessage({
+            type: 'INIT_MODULE',
+            workerIndex: i,
+            module: __uorSharedWasmModule,
+            wasmBytes: __uorSharedWasmBytes,
+          });
+        }
+      } catch {
+        break;
+      }
+    }
+  }
+
+  return get_browser_worker_pool_snapshot();
+}
+
+export function get_browser_worker_pool_snapshot() {
+  const logicalThreads =
+    typeof navigator !== 'undefined' && typeof navigator.hardwareConcurrency === 'number'
+      ? Math.max(1, Math.floor(navigator.hardwareConcurrency))
+      : 4;
+  return {
+    logical_threads: logicalThreads,
+    optimal_workers: optimal_browser_worker_count(logicalThreads),
+    pool_size: __uorSharedWorkerPool.length,
+    shared_module_compiled: Boolean(__uorSharedWasmModule),
+    zero_refetch_sharing: true,
+    active_head: __uorMemGenerationStore.head,
+    frontier_count: __uorMemGenerationStore.frontier.length,
+  };
+}
+
+async function __uorWriteOpfsGenerationRecord(generationId, manifestObj, capsuleBytes) {
+  __uorMemGenerationStore.capsules.set(generationId, manifestObj);
+  __uorMemGenerationStore.head = generationId;
+  if (!__uorMemGenerationStore.frontier.includes(generationId)) {
+    __uorMemGenerationStore.frontier.push(generationId);
+  }
+  const hasOpfs = typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.getDirectory === 'function';
+  if (!hasOpfs) return 'memory';
+  try {
+    const root = await navigator.storage.getDirectory();
+    const gensDir = await root.getDirectoryHandle(UORC_GENERATIONS_DIR, { create: true });
+    const genDir = await gensDir.getDirectoryHandle(generationId, { create: true });
+    const mf = await genDir.getFileHandle('manifest.json', { create: true });
+    const mw = await mf.createWritable();
+    await mw.write(cachedTextEncoder.encode(JSON.stringify(manifestObj, null, 2)));
+    await mw.close();
+    const cf = await genDir.getFileHandle('capsule.uorc', { create: true });
+    const cw = await cf.createWritable();
+    await cw.write(capsuleBytes);
+    await cw.close();
+    const hf = await root.getFileHandle(UORC_HEAD_FILE, { create: true });
+    const hw = await hf.createWritable();
+    await hw.write(cachedTextEncoder.encode(generationId));
+    await hw.close();
+    const ff = await root.getFileHandle(UORC_FRONTIER_FILE, { create: true });
+    const fw = await ff.createWritable();
+    await fw.write(cachedTextEncoder.encode(JSON.stringify(__uorMemGenerationStore.frontier)));
+    await fw.close();
+    return 'opfs';
+  } catch {
+    return 'memory';
+  }
+}
+
+async function __uorWriteOpfsHead(generationId) {
+  __uorMemGenerationStore.head = generationId;
+  const hasOpfs = typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.getDirectory === 'function';
+  if (!hasOpfs) return 'memory';
+  try {
+    const root = await navigator.storage.getDirectory();
+    const hf = await root.getFileHandle(UORC_HEAD_FILE, { create: true });
+    const hw = await hf.createWritable();
+    await hw.write(cachedTextEncoder.encode(generationId));
+    await hw.close();
+    return 'opfs';
+  } catch {
+    return 'memory';
+  }
+}
+
+export async function admit_uorc_generation_capsule(capsuleInput) {
+  const payloadStr = typeof capsuleInput === 'string' ? capsuleInput : JSON.stringify(capsuleInput || {});
+  let admission = null;
+  if (typeof studio_admit_generation_capsule === 'function') {
+    admission = JSON.parse(studio_admit_generation_capsule(payloadStr));
+  } else {
+    throw new Error('Wasm studio_admit_generation_capsule export unavailable');
+  }
+  if (!admission || admission.status !== 'ok' || admission.admitted !== true) {
+    return { ...admission, persisted: false };
+  }
+  const genId = admission.active_head || admission.generation_id || `gen-${__uorMemGenerationStore.frontier.length}`;
+  const rawBytes = cachedTextEncoder.encode(payloadStr);
+  const storageBackend = await __uorWithWebLock('uor-r4-generations-head', () =>
+    __uorWriteOpfsGenerationRecord(genId, admission, rawBytes),
+  );
+  __uorBroadcastGenSync(genId, admission.capsule_sha256 || '', 'admitted');
+  return {
+    ...admission,
+    persisted: true,
+    storage_backend: storageBackend,
+    head: __uorMemGenerationStore.head,
+  };
+}
+
+export async function record_uorc_generation_fault(faultReason) {
+  if (typeof studio_record_generation_fault !== 'function') {
+    throw new Error('Wasm studio_record_generation_fault export unavailable');
+  }
+  const result = JSON.parse(studio_record_generation_fault(String(faultReason || 'runtime_fault')));
+  let storageBackend = 'memory';
+  if (result && result.rolled_back === true && result.active_head) {
+    storageBackend = await __uorWithWebLock('uor-r4-generations-head', () =>
+      __uorWriteOpfsHead(result.active_head),
+    );
+    __uorBroadcastGenSync(result.active_head, '', 'rollback');
+  }
+  return {
+    ...result,
+    storage_backend: storageBackend,
+    head: __uorMemGenerationStore.head,
+  };
+}
+
+export function query_verdant_synthesis_status() {
+  let wasmStatus = {
+    status: 'ok',
+    active_head: __uorMemGenerationStore.head,
+    fault_strikes: 0,
+    max_strikes: 3,
+    rolled_back: false,
+    facets: [],
+  };
+  if (typeof studio_verdant_synthesis_status === 'function') {
+    try {
+      wasmStatus = JSON.parse(studio_verdant_synthesis_status());
+    } catch {
+      // Keep fallback status before Wasm init
+    }
+  }
+  return {
+    ...wasmStatus,
+    opfs_head: __uorMemGenerationStore.head,
+    frontier: [...__uorMemGenerationStore.frontier],
+    worker_pool: get_browser_worker_pool_snapshot(),
+  };
+}
+
+if (typeof globalThis === 'object' && globalThis) {
+  globalThis.__uorSelfHostRuntime = {
+    optimalBrowserWorkerCount: optimal_browser_worker_count,
+    initSharedWasmWorkerPool: init_shared_wasm_worker_pool,
+    getBrowserWorkerPoolSnapshot: get_browser_worker_pool_snapshot,
+    admitUorcGenerationCapsule: admit_uorc_generation_capsule,
+    recordUorcGenerationFault: record_uorc_generation_fault,
+    queryVerdantSynthesisStatus: query_verdant_synthesis_status,
+  };
 }
 
 if (

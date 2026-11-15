@@ -563,7 +563,14 @@ impl WorkspaceMeasurements {
             || app_js.contains("Booting GLLM v10");
         let template_override_used = app_js.contains("templateOverride")
             || app_js.contains("cannedReply")
-            || app_js.contains("canned_reply");
+            || app_js.contains("canned_reply")
+            || lib_rs.lines().any(|line| {
+                let trimmed = line.trim();
+                !trimmed.starts_with("//")
+                    && (trimmed.contains("template_override_used: true")
+                        || trimmed.contains("template_override_used:true")
+                        || trimmed.contains("template_override = true"))
+            });
         let turn_memory_hijack_used = lib_rs.lines().any(|line| {
             let trimmed = line.trim();
             !trimmed.starts_with("//")
@@ -1141,6 +1148,19 @@ mod tests {
             "mod r4_geometric_stack;\nfn seed() { let _ = R4GeometricStackEngine::embedded_seed(); }\nfn route_guard() { let _ = ModelRoutingCheck { turn_memory_hijack_used: true }; }\nfn check_uorc_watchdog() { let _ = (\"UORC\", super::lexlean_generated::r4_honest_plumbing::should_rollback_generation_watchdog(1, 3)); }\n",
         )
         .expect("plant turn_memory_hijack_used: true");
+        assert!(
+            measure_ui_and_plumbing_facet(&WorkspaceMeasurements::load(&tmp), 0, 6, 6, 0, None, 10)
+                .1
+                > 0
+        );
+        write_clean_fixture();
+
+        // Plant defect 8: active template_override_used: true in lib.rs
+        std::fs::write(
+            tmp.join("crates/wasm/src/lib.rs"),
+            "mod r4_geometric_stack;\nfn seed() { let _ = R4GeometricStackEngine::embedded_seed(); }\nfn route_guard() { let _ = ModelRoutingCheck { template_override_used: true, turn_memory_hijack_used: false }; }\nfn check_uorc_watchdog() { let _ = (\"UORC\", super::lexlean_generated::r4_honest_plumbing::should_rollback_generation_watchdog(1, 3)); }\n",
+        )
+        .expect("plant template_override_used: true");
         assert!(
             measure_ui_and_plumbing_facet(&WorkspaceMeasurements::load(&tmp), 0, 6, 6, 0, None, 10)
                 .1

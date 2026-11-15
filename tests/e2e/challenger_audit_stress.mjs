@@ -166,7 +166,7 @@ const discoveredDefects = [];
 console.log('--- Audit 1: 2,000 Rapid Model Switching Cycles ---');
 {
   const composer = new AgenticTypeScriptComposer();
-  const models = ['uor-r4.gllm-v11-agent', 'uor-r4.gllm-v11-chat', 'uor-r4.gllm-v11-code', 'uor-r4.opfs-large'];
+  const models = ['uor-r4.recompiled-v12-agent', 'uor-r4.recompiled-v12-chat', 'uor-r4.seed-fast', 'uor-r4.lut-symbolic'];
 
   // Seed history and uncommitted draft
   composer.pushHistory('initial prompt 1');

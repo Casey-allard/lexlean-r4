@@ -7,7 +7,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* ws://127.0.0.1:*; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';">
   <title>LexLean-R4 Universal Reference Engine</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="app.css?v=20261113v10sidebar">
+  <link rel="stylesheet" href="app.css?v=v12r4">
 </head>
 <body data-layout-mode="chat">
   <main>
@@ -31,7 +31,7 @@
           <span class="sr-only">Source Control</span>
           <span id="activity-btn-scm" hidden></span>
         </button>
-        <button id="cursor-act-shards" type="button" class="activity-bar-btn cursor-act-btn" data-view="shards" title="16 E8 Shards &amp; Weights" aria-label="UOR-R4 Shards">
+        <button id="cursor-act-shards" type="button" class="activity-bar-btn cursor-act-btn" data-view="shards" title="73 UORR4V12 + 37 Stitch Shards &amp; Weights" aria-label="UOR-R4 Shards">
           <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
           <span class="sr-only">Shards</span>
           <span id="activity-btn-shards" hidden></span>
@@ -57,7 +57,7 @@
             <div class="brand-badge">R4</div>
             <div class="brand-text">
               <strong>UOR-R4 Connected</strong>
-              <span>GLLM v10 &middot; uor-r4.lut-stack/8</span>
+              <span>Recompiled v12 &middot; Zero-Float Stack</span>
             </div>
             <button id="close-sidebar-btn" type="button" class="sidebar-action-icon-btn" title="Hide sidebar" aria-label="Hide sidebar">&times;</button>
           </div>
@@ -155,7 +155,7 @@
               <div><strong>Parity State:</strong> Bootstrapping multi-source verification...</div>
             </div>
             <div class="cursor-scm-actions">
-              <button id="cursor-hydrate-shards-btn" type="button" class="cursor-mini-btn">Hydrate 16 E8 Shards</button>
+              <button id="cursor-hydrate-shards-btn" type="button" class="cursor-mini-btn">Hydrate UORR4V12 Shards</button>
               <button id="cursor-train-quick-btn" type="button" class="cursor-mini-btn">Train LUT</button>
             </div>
           </div>
@@ -217,28 +217,19 @@
         </details>
 
         <details class="sidebar-collapsible" open>
-          <summary class="sidebar-heading sidebar-summary">Starter Missions (7)</summary>
+          <summary class="sidebar-heading sidebar-summary">Workflow Prompts (4)</summary>
           <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
-              Agentic Patch: src/attention.rs
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Lorentz geodesic attention and integer E8 quantization avoid floating-point drift over long context.">
+              Free-Form: Geometric Reasoning
             </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="How does Direct Preference Optimization align language models without reinforcement learning?">
-              ArXiv 2403.05530: DPO Synthesis
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Review and fix any edge-case panic in this Rust snippet:\nfn median_pair(xs: &[i32]) -> i32 { xs[xs.len() / 2] + xs[xs.len() / 2 - 1] }">
+              Debug Pasted Rust Code
             </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Transformers work vs UOR-R4">
-              Transformers vs. UOR-R4 GLLM
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Inspect workspace files, identify concrete improvements, and draft a GitHub PR checklist.">
+              GitHub PR &amp; Workspace Review
             </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a Python quicksort algorithm">
-              Python 3-Way Ternary Quicksort
-            </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Write a binary search in Rust">
-              Rust Zero-Float Binary Search
-            </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="What is (144 * 25) + 89?">
-              Exact M6 Place-Value Math
-            </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Summarize the files in this workspace">
-              Audit Workspace Architecture
+            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Evaluate the 4-facet Verdant Synthesis KPIs and report active .uorc generation watchdog status.">
+              Verdant Synthesis &amp; .uorc Audit
             </button>
           </div>
         </details>
@@ -354,7 +345,7 @@
           <button id="toggle-sidebar-btn" type="button" class="topbar-btn" title="Toggle Conversations &amp; Explorer Sidebar" aria-label="Toggle Left Sidebar">&#9776;</button>
           <h1 id="heading-claude-desktop">UOR-R4 Connected Chat</h1>
           <canvas id="header-brain-pulse-canvas" class="header-brain-pulse-canvas" width="88" height="24" title="Live 3D Brain Activity (Click to open 3D Holographic Brain)" aria-label="Live Neural Activity Indicator"></canvas>
-          <span id="topbar-model-tag" class="model-tag">UORLUT01/8 &middot; GLLM v10</span>
+          <span id="topbar-model-tag" class="model-tag">UOR-R4 v12 &middot; SpiralCore Embedded Seed</span>
           <span id="weight-cache-badge" class="topbar-context-pill">Worker Ready</span>
           <span id="chat-target-badge" class="topbar-context-pill">src/attention.rs</span>
         </div>
@@ -427,20 +418,17 @@
 
       <div class="gpt-composer-dock">
         <div class="starter-chips" role="group" aria-label="Suggested Prompts" hidden>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Upgrade multi-head cyclic flock attention in src/attention.rs">
-            Agentic Patch: src/attention.rs
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Explain how Lorentz geodesic attention and integer E8 quantization avoid floating-point drift over long context.">
+            Free-Form: Geometric Reasoning
           </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="How does Direct Preference Optimization align language models without reinforcement learning?">
-            ArXiv DPO Hypothesis (2403.05530)
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Debug and fix the integer overflow or bounds bug in this Rust function:\nfn pair_sum(xs: &[i32]) -> i32 { xs[0] + xs[xs.len()] }">
+            Debug Pasted Rust Code
           </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Write a function in Python to reverse a string">
-            Python reverse string + diff
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Inspect workspace diffs, stage clean edits, and draft a GitHub PR verification plan.">
+            GitHub PR &amp; Workspace Workflow
           </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Explain distributed systems and the CAP theorem">
-            CAP theorem &amp; Raft consensus
-          </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Teach: What is Multi-Head Latent Attention? => <thinking>Compress KV cache into low-rank latent vector and project into 256D Q12 coordinates</thinking>Multi-Head Latent Attention (MLA) compresses keys and values into a shared low-rank latent vector, matching UOR-R4 RollingContextState 256D Q12 carry-forward.">
-            Teach MLA with &lt;thinking&gt; Trace
+          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Evaluate the 4-facet Verdant Synthesis KPIs and report active .uorc generation watchdog state.">
+            Verdant Synthesis &amp; .uorc Audit
           </button>
         </div>
 
@@ -461,10 +449,10 @@
                 <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
                 <label for="composer-model-select" class="sr-only">Select Local UOR-R4 Execution Mode</label>
                 <select id="composer-model-select" class="composer-model-select" aria-label="Select Model">
-                  <option value="uor-r4.gllm-v11-agent" selected>uor-r4.lut-stack/8 &middot; GLLM v11 Agent (ReAct + R4-32 Verifier)</option>
-                  <option value="uor-r4.gllm-v11-chat">uor-r4.lut-stack/8 &middot; GLLM v11 Chat (Rolling Context Carry)</option>
-                  <option value="uor-r4.gllm-v11-code">uor-r4.lut-stack/8 &middot; GLLM v11 Code (Multi-File Workspace Patch)</option>
-                  <option value="uor-r4.opfs-large">uor-r4.lut-stack/8 &middot; OPFS Large Weights (79 Shards + Stitch 2-of-3)</option>
+                  <option value="uor-r4.recompiled-v12-agent" selected>UOR-R4 v12 Recompiled Agent (30L 576D SmolLM2-135M)</option>
+                  <option value="uor-r4.recompiled-v12-chat">UOR-R4 v12 Recompiled Chat (30L Geometric Stack)</option>
+                  <option value="uor-r4.seed-fast">UOR-R4 Embedded Seed Fast (0-Download 8L 256D)</option>
+                  <option value="uor-r4.lut-symbolic">UOR-R4 Symbolic LUT (uor-r4.lut-stack/8 + MVM)</option>
                 </select>
                 <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands (/think, /teach, /patch, /arxiv, /math)" aria-label="Slash Commands">/</button>
                 <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
@@ -878,11 +866,27 @@
           </div>
         </div>
 
-        <!-- Tab 3: Live Self-Improvement & Codebase Diagnostics Panel -->
+        <!-- Tab 3: Live Verdant Synthesis 4-Facet KPIs & .uorc Watchdog Panel -->
         <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
           <div class="feed-header">
-            <h3>Autonomous Self-Improvement &amp; Codebase Diagnostics</h3>
-            <span class="panel-badge">30/30 LexLean &middot; 32/32 Benchmarks &middot; 0 Failure Basins</span>
+            <h3>Verdant Synthesis 4-Facet KPIs &amp; <code>.uorc</code> Watchdog</h3>
+            <span id="verdant-synthesis-panel-badge" class="panel-badge">4-Facet Holon &middot; 0 Residue &middot; 0 Float Ops</span>
+          </div>
+          <div id="uorc-watchdog-banner" class="frontier-summary-banner">
+            <div class="frontier-banner-top">
+              <strong>OPFS <code>/generations/</code> <code>.uorc</code> Capsule &amp; 3-Strike Watchdog</strong>
+              <span id="uorc-worker-pool-badge" class="paper-badge">Worker Pool: Probing</span>
+            </div>
+            <p id="uorc-watchdog-status" class="frontier-banner-desc">
+              Active Head: <code>gen-0</code> &middot; Fault Strikes: <code>0/3</code> &middot; Zero-Float Serving Ratchet Armed
+            </p>
+            <div class="paper-actions">
+              <button id="uorc-admit-capsule-btn" type="button" class="paper-test-btn">Admit Verified .uorc Capsule</button>
+              <button id="uorc-rollback-btn" type="button" class="paper-test-btn">Simulate 3-Strike Watchdog Rollback</button>
+            </div>
+          </div>
+          <div id="verdant-synthesis-kpi-grid" class="frontier-claims-grid">
+            <!-- Rendered dynamically with ModelAndTraining, ServingRuntime, UiAndPlumbing, EcosystemStandards KPIs -->
           </div>
           <div id="engine-frontier-ledger" class="frontier-ledger-section">
             <!-- Rendered dynamically with codebase audit, runtime inference benchmarks & proved frontier ledger -->
@@ -1438,6 +1442,6 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
-  <script type="module" src="app.js?v=20261113v10sidebar"></script>
+  <script type="module" src="app.js?v=v12r4"></script>
 </body>
 </html>

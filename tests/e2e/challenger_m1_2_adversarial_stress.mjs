@@ -616,6 +616,9 @@ const staticServer = createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': ct });
   res.end(body);
 });
+// Keep keep-alive sockets open across synchronous 30L UORR4V12 Wasm turns (>5s).
+staticServer.keepAliveTimeout = 60_000;
+staticServer.headersTimeout = 65_000;
 
 await new Promise((resolveListen) => staticServer.listen(0, '127.0.0.1', resolveListen));
 const srvAddr = staticServer.address();
@@ -625,7 +628,7 @@ try {
   const v10ManifestResp = await fetch(`${staticOrigin}/weights/v10/manifest.json`);
   assert.equal(v10ManifestResp.status, 200, 'Static server must map /weights/v10/manifest.json -> gpu/weights/v10/manifest.json');
   const v10Manifest = await v10ManifestResp.json();
-  assert.equal(v10Manifest.format, 'UORGLLM9');
+  assert.ok(v10Manifest.format === 'UORR4V12' || v10Manifest.format === 'UORGLLM9', `Unexpected manifest format: ${v10Manifest.format}`);
   const fullV10 = new Uint8Array(v10Manifest.total_bytes);
   for (const s of v10Manifest.shards) {
     const sResp = await fetch(`${staticOrigin}/weights/v10/${s.file}`);
@@ -635,8 +638,13 @@ try {
   }
   const loadedV10 = JSON.parse(studio_load_uorgllm_v9_bytes(fullV10, 'e2e_static_weights_v10'));
   assert.equal(loadedV10.status, 'ok');
-  assert.equal(loadedV10.n_layers, 16);
-  assert.equal(loadedV10.d_model, 256);
+  if (v10Manifest.format === 'UORR4V12') {
+    assert.equal(loadedV10.n_layers, 30);
+    assert.equal(loadedV10.d_model, 576);
+  } else {
+    assert.equal(loadedV10.n_layers, 16);
+    assert.equal(loadedV10.d_model, 256);
+  }
 
   // Verify chat_v10_turn returns ok + brain_pulses
   const chatTurn = JSON.parse(studio_dispatch('1\tstudio\tchat_v10_turn\thi'));
@@ -667,7 +675,9 @@ try {
   assert.equal(jqPipeRes.exit_code, 0);
   assert.equal(String(jqPipeRes.mvm_stdout || '').trim(), '42');
   localBridge.close();
-  console.log('  ✓ 7.3 Static /weights/ mapping, <15 MiB Wasm v10 16L 256D hydration, chat_v10_turn brain_pulses, and RV64IMAC pkg install jq + pipe verified.');
+  console.log(
+    `  ✓ 7.3 Static /weights/ mapping, <15 MiB Wasm ${v10Manifest.format} ${loadedV10.n_layers}L ${loadedV10.d_model}D hydration, chat_v10_turn brain_pulses, and RV64IMAC pkg install jq + pipe verified.`,
+  );
 } finally {
   await new Promise((resolveClose) => staticServer.close(resolveClose));
 }

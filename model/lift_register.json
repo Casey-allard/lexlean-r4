@@ -2,11 +2,11 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2252,
-    "lifted": 1598,
-    "effect": 204,
-    "foreign": 113,
-    "residue": 337
+    "total_functions": 2337,
+    "lifted": 1644,
+    "effect": 214,
+    "foreign": 130,
+    "residue": 349
   },
   "rows": [
     {
@@ -15,6 +15,13 @@
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/js/worker_host_bridge.js::__uorBase64ToBytes` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "e63b76c2fd3b2b6aeedb604cf277f4d9f84e46e0fc75ebd53d11f0d388dbbe00",
+      "function": "crates/wasm/js/worker_host_bridge.js::__uorBroadcastGenSync",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
@@ -49,13 +56,6 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "299a2aa2970c6961deafd79126d517f1fd69861dbf33febbe9b003c8fbe3514e",
-      "function": "crates/wasm/js/worker_host_bridge.js::__uorStartDedicatedEngineWorker",
-      "status": "effect",
-      "effect": "browser-opfs-worker-gpu-effect",
-      "exact_divergence_free": false
-    },
-    {
       "kappa": "e39236f2535a9d7fdb5475991c2b759412f9e2e88b5d58031fa994ce210f1074",
       "function": "crates/wasm/js/worker_host_bridge.js::__uorStitchXorPairRecoverJs",
       "status": "foreign",
@@ -79,6 +79,27 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "59239cf85388e7ae1e2ef323e78d082dfbb42fccb6a873e8d242688a0d92052b",
+      "function": "crates/wasm/js/worker_host_bridge.js::__uorWithWebLock",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "497635a41d309c78292615a76403f453d814012ab771b8dcbc2f2ada51734b4c",
+      "function": "crates/wasm/js/worker_host_bridge.js::__uorWriteOpfsGenerationRecord",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "dc0e17527d79dd2e49b89f5188102311f40bcd129746687448076abcdcda00f8",
+      "function": "crates/wasm/js/worker_host_bridge.js::__uorWriteOpfsHead",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "f5819a652297789b493323cc17cc00a606cd3d6a2f37b7d986f1017b166ffbf7",
       "function": "crates/wasm/js/worker_host_bridge.js::__uor_cpu_fwht64_tmac",
       "status": "residue",
@@ -98,6 +119,13 @@
       "function": "crates/wasm/js/worker_host_bridge.js::__uor_resolve_cached_wasm",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "30506ecea2f77609a64128a5dd5d6112c4724e0daf2d2eec85167fa4d8f14fa9",
+      "function": "crates/wasm/js/worker_host_bridge.js::admit_uorc_generation_capsule",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
@@ -152,11 +180,25 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "c3ec0f7fc5fcdac8b452ea9cc6451e591cd855f677a50cec008e0c2dda46b823",
+      "function": "crates/wasm/js/worker_host_bridge.js::get_browser_worker_pool_snapshot",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "c63a80911e55dc2d1e40073fb5e7890834bdd16f7681eeb3004a30648cc44a94",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_all_16_e8_shards_to_opfs",
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/js/worker_host_bridge.js::hydrate_all_16_e8_shards_to_opfs` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "eeb508f61f32f49906d20cda4d2ec544dcabe073cec409347631f644f49ad90b",
+      "function": "crates/wasm/js/worker_host_bridge.js::init_shared_wasm_worker_pool",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
@@ -188,6 +230,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "b7f8003031663d1b8079f68d1eecee4eeb06e6d3e9e9e218df37850c3ebe7c1d",
+      "function": "crates/wasm/js/worker_host_bridge.js::optimal_browser_worker_count",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "e0a4e938a72318c43730d4f7ef48745966004d2449e57de6bacfac88a3d39bc1",
       "function": "crates/wasm/js/worker_host_bridge.js::parse_gguf_v3_header_and_tensors",
       "status": "residue",
@@ -200,6 +249,20 @@
       "function": "crates/wasm/js/worker_host_bridge.js::persist_mvm_cow_sectors_to_opfs",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "30e1f53d2f8858ab1bfba02d777d7edebdef55ac4bc67b432b9e7c27ff01f26d",
+      "function": "crates/wasm/js/worker_host_bridge.js::query_verdant_synthesis_status",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "899092ea4253a1d4c88ebe5af8579ca23522abf2a4c06146a5c8986db7e225b9",
+      "function": "crates/wasm/js/worker_host_bridge.js::record_uorc_generation_fault",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
@@ -267,14 +330,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a3559803fc7c03d7286791811122eb26605c461848e4ed9cc15eb1bf41ed183d",
+      "kappa": "ddc174767c0fb9f9c6a12d46c77e42ec64f006c8432fc57d1ac53f0dc14b408d",
       "function": "crates/wasm/js/worker_host_bridge.js::stream_v10_sharded_weights_to_opfs",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
-      "kappa": "9396d7dd4eaf35c2c06f67ea887d62dc5aa8d1de6568dc3736268b770439e265",
+      "kappa": "68ff69b4a31bd91832618e1aeefc1a9344cb1649652c27411da7477b7349df40",
       "function": "crates/wasm/js/worker_host_bridge.js::stream_v9_sharded_weights_via_opfs_worker",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -443,6 +506,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "8004a8e7608d2a412c6641d5b263649e5d64a8a33df84aa0c8e4a35341399a69",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::compose_chat_for_mode",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "f90c88356ee390fd0bd1fc544c02d9db096c3baf3187ca246c6f453cc0619528",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::compose_smart_chat_reply",
       "status": "lifted",
@@ -478,7 +548,14 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "3eb6edc2d98b0780d99acc7123cfdd92274ceeed2f57cffcde8e5e9f16095121",
+      "kappa": "a42c3c09d5f12f8f193e52926c4e9de8396fa5575506ace88bdf2c692319ff76",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::try_execute_tool_call_with_step2",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "7fb0766057968fc921e524a448bf06d58fb2c64b25eb9058c6a8b049ae70266b",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::try_execute_v10_tool_call",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -828,7 +905,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "d9fab25d470f886433fb59cb959a382449241c7c6ad8de63f943aaa35c005e33",
+      "kappa": "b89c20c80fc17b030dec1c8de1128cc0c03955512a83b3fdbb24e340cc380b8a",
       "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::default_embedded",
       "status": "foreign",
       "foreign_crate": "std-sync",
@@ -934,6 +1011,13 @@
       "status": "lifted",
       "definition": "UORust.PureTotalExpr",
       "exact_divergence_free": true
+    },
+    {
+      "kappa": "8aa73350fd6f22e944a709c9ca328df69c59b0de9e1fb6515756eed26c0ae5e4",
+      "function": "crates/wasm/src/gllm_v9.rs::GllmV9Model::minimal_wasm_fallback",
+      "status": "foreign",
+      "foreign_crate": "sha2",
+      "exact_divergence_free": false
     },
     {
       "kappa": "b6c9192f74867950f31ddb49466a794b79a6c4c016b923ebd379cedd767132e1",
@@ -10889,6 +10973,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "e1bef3b1bf65c7f8de4235a5a36d4767132ff92737f1272d117ae62b6a234af3",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::admit_generation_capsule_json",
+      "status": "lifted",
+      "definition": "R4.HonestPlumbing",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "871d359c06ab8ae10dbd159eceaed1c7503efab5f379d40e31131753e9f23d19",
       "function": "crates/wasm/src/lib.rs::StudioEngine::admit_turn",
       "status": "lifted",
@@ -10933,18 +11024,17 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "7f8a0f57ed87f1c9391c69db9e7d5eb4a8d88eff9f847476f4101a0d4d312be5",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::chat_assistant_json",
+      "status": "lifted",
+      "definition": "R4.Binder",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "52d08b73b37a423e0504bf5e05e28a7a14f6112731da638a4a4569566ee81ffb",
       "function": "crates/wasm/src/lib.rs::StudioEngine::chat_complete_bridge_json",
       "status": "foreign",
       "foreign_crate": "serde_json",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "26dd2e082e1a455be40c9461970972cf03cad7c11bb99413b387ea5bcb5877c4",
-      "function": "crates/wasm/src/lib.rs::StudioEngine::chat_v10_turn_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::chat_v10_turn_json` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -10977,6 +11067,44 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "0632b1d399cc72aa2d458761d90f3d52be8682ad7f31c540f6f4913c16ad97df",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::dispatch_v1_chat_completions",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::dispatch_v1_chat_completions` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "c4ce20c7cde95045452fe68ee0aa11cb6e9c326d2ecc9f33775e6cc14676398f",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::dispatch_v1_messages",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::dispatch_v1_messages` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "f9d0728ee9421e05375b9c3302ca4cd2dd786a5cbe8cf0fc830eb5088649ce30",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::dispatch_v1_traces",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ce9a0f15a8253d650357071449f71b876ae4dc3256aee4099f2ff1a18c5cc7bf",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::execute_cargo_json",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::execute_cargo_json` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "a676c0ae1d6fb7bd8c43d97b3580157526ed955a4a6716eefcf53af7182f1b8b",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::export_shard_bytes",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "4396eac7f543fca3ed0d1b82a371e0bba703b8edc6fba5690bd170082a113b85",
       "function": "crates/wasm/src/lib.rs::StudioEngine::export_snapshot_json",
       "status": "lifted",
@@ -11005,11 +11133,11 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "1cacfcfee7bd0032bfad3ecea4d1cfbbf67213ba4a869b73ed44e85b077ed7fc",
+      "kappa": "1815a1d2bf809ecffeca8da6035163bfda00439213ff78e492015d5d0f43947b",
       "function": "crates/wasm/src/lib.rs::StudioEngine::gllm_load_v10_shards",
-      "status": "foreign",
-      "foreign_crate": "serde_json",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "lexlean_generated::r4_honest_plumbing::",
+      "exact_divergence_free": true
     },
     {
       "kappa": "ff0a112cb758729e0f74c09a11fe824c73182857bf88efa001841a59d4fde10a",
@@ -11063,7 +11191,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "649b5bd86077db8e555934be81fd4c0d4519834b92e2a79b0e1b1829184329cc",
+      "kappa": "e9819a6b3bdcc22d3cd1e49458bc994510ac4d33a9aebb5dfbfff0decb1b2ead",
       "function": "crates/wasm/src/lib.rs::StudioEngine::load_gllm_v9_bytes",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -11074,6 +11202,21 @@
       "function": "crates/wasm/src/lib.rs::StudioEngine::load_lut_stack_bytes",
       "status": "foreign",
       "foreign_crate": "std-fmt",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "9919266cb1eb44b61cebacabf41485ae3e1258bc7ea2d01844b6bbd0ea09b127",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::merge_shard_bytes",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::merge_shard_bytes` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "deea67d51880044c18cc8681456547e7234d5e6627a81771907bed1e8f696597",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::mount_r4_v12_bytes",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
@@ -11105,12 +11248,26 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "28522e1d5933049f5964fa92e062117400fac0316e7a7f8060b89b2211455e72",
+      "kappa": "bb7fd0ffca767083651ac0086590abdb37060e02bebe9ea3f65c8d96fad09d23",
       "function": "crates/wasm/src/lib.rs::StudioEngine::new_default",
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::new_default` pending formal .lex.tex lift",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "58456287b4e37cd8b85cda1044532a615e88e02242a97347bf6d950362a71aeb",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::r4_stack_status_json",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "5ad3acae4b0597fe91ca7882142e7de43dbf78ac46fa7cdeb3df532a638d582d",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::record_generation_fault_json",
+      "status": "lifted",
+      "definition": "lexlean_generated::r4_honest_plumbing::",
+      "exact_divergence_free": true
     },
     {
       "kappa": "380421835f9cbc01128293940a4a14e15d1be7bf23530e9e0a886873ed8ae7d7",
@@ -11133,6 +11290,14 @@
       "status": "lifted",
       "definition": "lexlean_generated::r4_discrete_trunk::level3_joint_pointer_score",
       "exact_divergence_free": true
+    },
+    {
+      "kappa": "b29b8962345479f5d2036986054ae7cd118dcca52bda98269c2ea0db5593cd06",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::shard_catalog_json",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::shard_catalog_json` pending formal .lex.tex lift",
+      "exact_divergence_free": false
     },
     {
       "kappa": "5709fcde9bb86472a889dc9e5efd7081ec262c21b187197f6ad3a7d6f1de9736",
@@ -11161,6 +11326,20 @@
       "function": "crates/wasm/src/lib.rs::StudioEngine::uorlut_inspect_json",
       "status": "lifted",
       "definition": "R4.SpiralCoreFbs.probeModelSource",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "50dc513aebf03abb09901c0484a8d423febb346b0f0793294e81f1c25b74e76b",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::update_binder_memory",
+      "status": "lifted",
+      "definition": "R4.Binder",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "d4d1d94013af725ac327c9e93c3c8a2ff96f3987056c9f27ef29bc566f2d4a53",
+      "function": "crates/wasm/src/lib.rs::StudioEngine::verdant_synthesis_status_json",
+      "status": "lifted",
+      "definition": "lexlean_generated::r4_honest_plumbing::",
       "exact_divergence_free": true
     },
     {
@@ -11242,13 +11421,6 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "77b1207148e8991bb179c39cdd55c9097d07960c1a386464e26f1e9098aee495",
-      "function": "crates/wasm/src/lib.rs::chat_assistant_json",
-      "status": "lifted",
-      "definition": "R4.Binder",
-      "exact_divergence_free": true
-    },
-    {
       "kappa": "278cfe56b559cd84ef6f240f38fe135d7d2c5b2f5cc9ae678a2266d8a15da291",
       "function": "crates/wasm/src/lib.rs::compute_quaternion_sign_code",
       "status": "lifted",
@@ -11309,29 +11481,6 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "6b04024e61223b609dbc5ba6ef4c5e59f1f6dcaa2cc04bcca7e0d1a11eea90b0",
-      "function": "crates/wasm/src/lib.rs::dispatch_v1_chat_completions",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::dispatch_v1_chat_completions` pending formal .lex.tex lift",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "f760a1fff85f65f441b3dfc695b9883ff397b19a917ece7d2d9743ac37ac53de",
-      "function": "crates/wasm/src/lib.rs::dispatch_v1_messages",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::dispatch_v1_messages` pending formal .lex.tex lift",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "ea21309d47af648e54754a1b338ea2be12bccad2b8fa5f6c24d5db48fb289971",
-      "function": "crates/wasm/src/lib.rs::dispatch_v1_traces",
-      "status": "lifted",
-      "definition": "UORust.PureTotalExpr",
-      "exact_divergence_free": true
-    },
-    {
       "kappa": "3a8764f6480e204db3a98e94988f246504d033dfb92ea1ce9a0b1a26523e3600",
       "function": "crates/wasm/src/lib.rs::escape_json",
       "status": "foreign",
@@ -11353,14 +11502,6 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "6c63ace05523177b886a8a0d2cee401fcb0298a7fe90fb5d643e0cefd2c8c605",
-      "function": "crates/wasm/src/lib.rs::execute_cargo_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::execute_cargo_json` pending formal .lex.tex lift",
-      "exact_divergence_free": false
-    },
-    {
       "kappa": "6875a491ad6d166022233a198d3e6d9545337bed0d853b523f86d4f011a4d075",
       "function": "crates/wasm/src/lib.rs::execute_operation",
       "status": "lifted",
@@ -11368,18 +11509,11 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "3e19cdcc13a8db220eb35fd1b6f0acbbbac4f206476f7958ba0029725dd8059b",
+      "kappa": "a0da59464352d63f3dc3cb5381ca303b7fb054e8cfe8010f9c90a46e48cca9c4",
       "function": "crates/wasm/src/lib.rs::execute_studio_command",
       "status": "foreign",
       "foreign_crate": "std-fmt",
       "exact_divergence_free": false
-    },
-    {
-      "kappa": "106223062f445c6b9e9ba43c97f3c0fecaa6a3f112be265bf28a0172213e2865",
-      "function": "crates/wasm/src/lib.rs::export_shard_bytes",
-      "status": "lifted",
-      "definition": "UORust.FixedWidthInt",
-      "exact_divergence_free": true
     },
     {
       "kappa": "aa42aa8d10acaee872eae190669396c11e4d9974819c589412109e54ec959ec8",
@@ -11439,14 +11573,6 @@
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/src/lib.rs::merge_rust_code_surgically` pending formal .lex.tex lift",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "1c5851e2d34365baaa575024dbaf467959178fc384c995c03e059a9090bdcea8",
-      "function": "crates/wasm/src/lib.rs::merge_shard_bytes",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::merge_shard_bytes` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -11537,14 +11663,6 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "99341f7900b267f2bb8e99969cd2d4ea144fbebfc17c0fc645b7e382bca9b555",
-      "function": "crates/wasm/src/lib.rs::shard_catalog_json",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::shard_catalog_json` pending formal .lex.tex lift",
-      "exact_divergence_free": false
-    },
-    {
       "kappa": "f439f8cbcf8cfa4af4aebade50f8d80a1dca4f80a264f900ed4b8b935495099e",
       "function": "crates/wasm/src/lib.rs::stack_hamilton_4d",
       "status": "lifted",
@@ -11573,7 +11691,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "a843f8db36e07f443da04c46cec0c8130fda6d91709ccd2d4b3ae9e0a945beed",
+      "kappa": "f631563f443f5f1619501b25f79ffb97d312eb442263711318eed7705cda11b2",
       "function": "crates/wasm/src/lib.rs::studio_dispatch",
       "status": "foreign",
       "foreign_crate": "wasm-bindgen",
@@ -11683,13 +11801,6 @@
       "function": "crates/wasm/src/lib.rs::unpack_4block_roots",
       "status": "lifted",
       "definition": "R4.DiscreteTrunk.unpack4BlockRoots",
-      "exact_divergence_free": true
-    },
-    {
-      "kappa": "e505ba04caa626b37bb5b58d58a2ca9623306d48103cd7ab772738ca151f6844",
-      "function": "crates/wasm/src/lib.rs::update_binder_memory",
-      "status": "lifted",
-      "definition": "R4.Binder",
       "exact_divergence_free": true
     },
     {
@@ -13546,6 +13657,466 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "bfdca8eae24858136012f9480b73ea0f25f53fedcde07da93d7bb483d9fe494f",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4GeometricStackEngine::embedded_seed",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "12e97b4e70de41ef5c9a6e0f5744db2414a4187de094b331a92fe79794e28aa8",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4GeometricStackEngine::fmt",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "5a41599ad3663856e9c3aa9cceb8e61988f7861f60041d9e0d33dbcb9aeb3a1d",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4GeometricStackEngine::generate_reply",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "af77d2d3a1374cb8700f775d8aee57b7f68994ca58d34e1661bdc5e4e6b8621a",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4GeometricStackEngine::is_full_recompiled_mounted",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "f9d6ff125aa2f85e6eaa6f2e4f0f3e49af9223fda457bbf45f4ff48fb3976e7c",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4GeometricStackEngine::mount_full_container_bytes",
+      "status": "foreign",
+      "foreign_crate": "sha2",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "3c0239677b3c491c1ff87d2d6e9ac7aed31ddaa3222ba99af9aa769677570f2e",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4GeometricStackEngine::summary",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "06f451b3d8115527d99b32dc0d6dba3a6d3a2b4b9da53cb59b5bb16c4c7034b2",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4InferenceSession::new",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "84c37d1e271878a80af7928058ce1f3005d5bed35f1367b7fd5d2b85630d2ab3",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4InferenceSession::select_flock_positions",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ed4b16fa88d46707631f19f698586161729c306e62bc40c3beb25c240e1edb46",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4InferenceSession::step",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::R4InferenceSession::step` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "b2dc94e3a423320891638ffe5a680e88e23998d3014a79cf02dc3382143e0623",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4StackError::error_code",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "20373e5e4c2349345d3d925f81b165df0cad2e0bae7afff21cd77d1e084544a1",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::R4StackError::fmt",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "853f9519bee227ad9582c2e3df99e1c94d890f295e09e6f60dd63d78692ca781",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::ScratchWorkspace::new",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "df252695bc535da75e170f4ce3d7e43d367842d8ba5cbd543a152c5cf2b93654",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SelectedExecutionMode::from_wire_id",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "7bb6f06e8071261cda6122b7118ea1a85b8ac0e6f8dcec890678f93f73eb881f",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SelectedExecutionMode::is_neural_geometric",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e2a4ee7d43fdd8189ae64bb298de19dbcd98d7a42c4203a9d5498f1ebaeefd7d",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SelectedExecutionMode::wire_id",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "4b734c1d7d2c854464f7d1577d989091c39079391aecd93216229976dd365241",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::bpe_piece",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "07edc981f017d26742e621766a5c0aac5654cf54fec501d4643867d1936b5351",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::decode_global",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::decode_global` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "59ddb47095e48601b622da86cb06cafd26e3956fa184372a4d7a4976fa2dd962",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::encode_global",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::encode_global` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "78e98bc35281d87c59ec06fc5d25b8eb49063af6eb0f7f7a5b6ae73ca8eda715",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::from_json_str",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "c672983da278fb63aef4df344e9a4775fc0918718d742d594321078f544c5f06",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::map_to_model_vocab",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::map_to_model_vocab` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "3726825976a5b2ff5f67edd87b2a1a8e47bbd68d2c67a788961b2cae3a664be1",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::pretokenize_spans",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::pretokenize_spans` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "2ba4ca06f174678855a3aa5f778acf18e89e3e24f54896230a5dcae8ec2c1593",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::decode_model_tokens",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::decode_model_tokens` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "08a5217131a94bacd945e0174ee4dcdf72730f30964e0b741642cac10ad57132",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::digit_isqrt",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "35cee4ef828f444d6183609b4bf0cc1c5ec9ddceb4afa5414a21091a71d588be",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::format_chatml_prompt",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::format_chatml_prompt` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "aab00b5995666c4cac6a4c126945e0ece8c5c69734b0fbc0272876c59ea62686",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::grid_apply",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "a894f910f7973734689bc981293b1200e7b960e91b1d1800d7f81b3736026e77",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::h4_120_icosians_q12",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "f49e924f8d515b5f0af3fea9ff2c8b1531372345264ae973997239eed5689090",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::hamilton_mul_q12",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "c0b75a05a46d807bd2e8ded97ad7ef75b255a292a007f2665efdc3a0fa330de8",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::hamming_distance_576",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "8f877f8b793e8f2606d34d33e06242de12d6fe7170176fb9d810d1807fbccae7",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_activation_tables",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::int_activation_tables` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "270f094c2c84401923c6f49b7772ce23fc0d7cfbdb69aa1a7e6b9d893e8715e3",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_arcosh1p_q24",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b28750c4643c520aff33fcd2daa43c4ee538f660f8f84a9ed9c5ecdcc4e7124f",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_dequant_row",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::int_dequant_row` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "0c86cb67eb7da192af8f27f872ccc7cd0e521c80fe482350d3af36d013511b06",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_exp_neg",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "1ea2d5192ab5dcc8751a26bc138fa2f21d53f9aafcec1ee858471837033af865",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_fwht32",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ee84ce35d4237f56163b4e0da899e7c6c38d591c6bad7d244820db122db683f9",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_gemv_pairs",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::int_gemv_pairs` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "a23211354be1227ac90c2b4cdc1bfbc7aefb0b108336dbb00f01e13e4c1a9c3d",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_lorentz_lift",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "f9f696c974f4a3665dad01fc5dff71f943169abf6a3070bc6afe0d36f6b208fe",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_pair_tables",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::int_pair_tables` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "eaefc0e53901917d4b61393448c861aa311c4f85649604f35e9a48b529c90062",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_quantize16",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "5c465fbc6a8d92bf53fa3d92cf06c3dcf5c005f8c852b703240b68d7481d53b8",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_rms_norm_fine",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "cb3a1f878ed70a7e5b02084357cbc4bc68a512906d8251855badcaebabf9c411",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::int_silu",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "209a60e82892e9b7a7c59b6ee36255e65ab6991dde530dec9e05268e40f60d2c",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::long_division_u128",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e7fc56c76e85a9b199547f7a397f96c04c39df7a4a14da71f9a890aa5e9e66c1",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::multiples_i64",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "6125da33967a925ce099f98047b047fd0a9b104cbd569c8b88da82a84a029305",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::parse_uorr4v12",
+      "status": "foreign",
+      "foreign_crate": "sha2",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "b881c675e7f2e7b4a58d81b7d87f69eb28553585fd25f085d7375138a6f737b5",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::pick_next_token",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "7755cb9bdbd1a0266f94b8a395dbefbd6e4ed21591f34a414cb1f04cf87326d3",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::popcount_swar64",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "0514cf5f1263474dc2d6794a6fa7151d844cc2defb77625df518ae7ef512d50d",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::project_norm_to_icosian_step",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "19ecd5074df3c2008f0ba4466cacd8b8787c8811317f71c1683a696f2e23b658",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::read_i16",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "df7f8fe35cd7b768ef9b374ea60be872762b4321a431cb0166498522dfce987d",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::read_i32",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "21b839afd621fd71a4cb23bce6b16fb8dbd627a76589dc45e412ea622aa58ed8",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::read_i64",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "0be1b017ab789625c2f298e8480bbd486da43015e25d960438a422fbc0655088",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::read_packed_matrix",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ecd18b2d6205ad274a2a02f023048eba955018117127120c2f66e28338f38d78",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::read_u32",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "f95f40e6836de3600d871b4e46f148680dbce66866a45c8c47169f1185a1bdc3",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::read_u64",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "9afdd70f094494617ec1ba68f8ac75b33e261465b1ffb2ce91e3e2893ef3c7a9",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::read_u8",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/r4_geometric_stack.rs::read_u8` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "4c1f740de9da8bcab7128f829e903f021b3b4b99b0a66b2f914015067870a884",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::rht_signs_bits",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "295f208957bf2198ef0a4794cf81781dae10f03c5fdd8653ac4c401df82badcb",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::scale_16_plus",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "070588e78d1b38913ce45a183ccb7ef15463c987fcb3c7747a0f0deba23f1ef9",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::sha256_arr",
+      "status": "foreign",
+      "foreign_crate": "sha2",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "42cc9308eeb5dba44eb653051a13593a9aeb86f1e850d8004d102f2bed8785da",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::sha256_hex",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "b1997e560bc52b69bfabf5733919ca1d30b97c894589da236ee85c12957a8c28",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::shared_tokenizer",
+      "status": "foreign",
+      "foreign_crate": "std-sync",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "8a2862c9d1bcb314fa5cf151cf43387c41887d0aadb9a3389f2434562d096f11",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::shift_round",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "8511532f891512870030d027c73847246907c45609da0710031c63054d63da81",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::shift_wide",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "39b5911679d0ac4c371fe0a524067f14f694f13b8a3959804b064fbd935047c2",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::table_mul_i128",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b5355903db5bf4a8d3ae5604fb0abf960796ccfd8e8e538232f9183406e70975",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::table_mul_i64",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "422818ce502f19bf7d49c512513d056c927cbb92355244626a48de9e3ea5f1eb",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::take_bytes",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "60a94f9f56d0a2f3ef17abefc806dc17d27491e5864ef49254ef5c3123679e87",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::to_exp_i32",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "aa96818d69f13c70b562d955f798407bdd167c931d37d15a5b72bf8a1c643bee",
+      "function": "crates/wasm/src/r4_geometric_stack.rs::xorshift64",
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "ba7b41fc65db9cb0460d215263367a96c114998f45aa7a747fba3d477ae2eef7",
       "function": "crates/wasm/src/stitch_fabric.rs::StitchParityError::error_code",
       "status": "lifted",
@@ -14048,6 +14619,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "189cd3f60f12e7d666a7762586d30062e0f954e9625a0fd0f0d753e1d28d318a",
+      "function": "public/app.js::bindVerdantWatchdogButtons",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "a1bea3e3cfc79fed751ffb1442ef212e021ce03888dc29fe8935bbbb25337ec6",
       "function": "public/app.js::bytesToHex",
       "status": "residue",
@@ -14269,7 +14847,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "d87e0ebb3660c24eb776ba0c0856347f2906c149e3998eab2ae4d4733ce4f1c9",
+      "kappa": "dddb3e3f91f40dc2bd4f85ebbd30650d5540b0a3a3fba6a84c95794d412e0003",
       "function": "public/app.js::getPrismEmbedStatusSnapshot",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -14328,7 +14906,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "53ebeaa820334275d9523759f7669dbaca950f3df884f960c91df21b67f1e7e8",
+      "kappa": "374d95d354669d9ddb4163fae327bf926eff5b6bd92ebf2a235c36702636677f",
       "function": "public/app.js::initCursorIdeWorkbench",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -14349,14 +14927,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "95431ae7d0be48f172932d4eaba3e1159c2de8e912c9aae71f0b8b9b2c475154",
+      "kappa": "cd5c5a078a8f0a461ceac80b6eb53e86cc0eab882333cc55a3b4cf34695dd732",
       "function": "public/app.js::initEmbedMeBridge",
       "status": "effect",
-      "effect": "dom-browser-environment-io",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
-      "kappa": "03da9f06cf67329e5c52cfedef51237504d2a4a334195dc727b6ad0b132bc23d",
+      "kappa": "7adef737abd72729bc69e16dcce254e9acc7aa0ceadfdaaa5c45a04588b6ff51",
       "function": "public/app.js::initLayoutAndConnectedControls",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -14365,6 +14943,20 @@
     {
       "kappa": "7312d2666c2030100a4e6bb8cb512c23827fcd91db6fdf320fe1a4bbe54d50bd",
       "function": "public/app.js::initSidebarViews",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "ac4f053ac0ce4d988cc093c3b03f06b8a7cde8d40b5cb7bfaf00a7b3e1b11dfa",
+      "function": "public/app.js::loadPersistedComposerMode",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "1a2cdfabd307ef82717e9aba23175746c4158061e3892509f1fd29cc9237291b",
+      "function": "public/app.js::loadPersistedModelId",
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
@@ -14541,7 +15133,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a2b4b8394078f0dbcd96ff2a76facdcd615a71da48e742fc68834fabcab83656",
+      "kappa": "385c36eb0321282632c1953aca53147379d50854bcc5d54a0ff06873b826d612",
       "function": "public/app.js::renderCompletedChatResponse",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -14570,7 +15162,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2e023dcf79aec672608d09e5859ec59280846f26433341a4e4987470a2b99c57",
+      "kappa": "ed62471c3ca4be03e7603ca8f6d3d71eecfb04b0402540326eeb9ccd3022ab40",
       "function": "public/app.js::renderCoworkStatusBar",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -14612,14 +15204,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "80c115b4028f337db848c580e800a043efb00edfd0590c7e74cb8cff5007f720",
+      "kappa": "f8ab96faf3455c6fbcda9af708b54a770771b4e217de5d42363271fac43c118a",
       "function": "public/app.js::renderCursorShardsSection",
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
-      "kappa": "e0778e7cd1d3eb6472c010ae1d64cdafd1c033c889a150db65e0f67a8bace65e",
+      "kappa": "9ffe22123e3198ba71d338da96f86dfc217391f0f7687b2be6c79a9116c61879",
       "function": "public/app.js::renderDynamicPoolPanel",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -14718,10 +15310,25 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "1b12c915a1d0df2b63aaa9ec9eae8ba9bdf4b8d0d2837870dc26228765e1bb68",
+      "function": "public/app.js::renderVerdantSynthesisPanel",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "94b51d676b11dee23f342e699f48d5484e0bba9fdfdc2fcc7a5e12da271c1258",
       "function": "public/app.js::renderWorkspaceList",
       "status": "effect",
       "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "1b9d044ac88ba55019d7906594ca67f0d2846e8ce6a2b09a104729fdfd65afef",
+      "function": "public/app.js::resolveHonestModelId",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `public/app.js::resolveHonestModelId` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -14732,7 +15339,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "10e54f286a5197608de5af040fabfa113c43e1d25641742d5af4264ce4e9a792",
+      "kappa": "b3b9aa09e0a507a96596f3e622dd62991749ea1764ead25de7d38cc2eab727da",
       "function": "public/app.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -14864,7 +15471,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "ea7fa39d483aabeac18958fadf3097d69c7842fdffd45c0787f8436066fafc39",
+      "kappa": "5576f88dc5d346dc3dddb77f0774c1cc61165d6a07c23f55a2e58ff8b65346b0",
       "function": "public/app.js::syncComposerModel",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -14953,7 +15560,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a9e3e73a3c5f9deda45214d7f999fc44e0457a37f006ed97cabf4f2681fbd86c",
+      "kappa": "37b0cc2e1f50b68ff029c9a0ee0c4629769c701c39f72900947d5323d2a62361",
       "function": "public/app.js::updateWeightCacheBadge",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -15970,7 +16577,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "83c7428c1891cb463fe145d6205d0fe078519aa31fa69e7e6623720e32d2a1ba",
+      "kappa": "ddd13e864a7d3fe0bd5a72ffd728a0ab59a3ef2485b7b5e1ceda02b2f88437b0",
       "function": "xtask/src/synthesis.rs::WorkspaceMeasurements::load",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",

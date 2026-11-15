@@ -1,0 +1,40 @@
+{
+  "schema": "verdant/reflexive-holon/1",
+  "facets": [
+    {
+      "facet": "ModelAndTraining",
+      "score_milli": 1000,
+      "defects": 0,
+      "evidence": "r4_44_registered=true, container_verdict=Admitted, version=12, layers=30, q_heads=9, kv_heads=3, gqa_ok=true, stack_present=true"
+    },
+    {
+      "facet": "ServingRuntime",
+      "score_milli": 1000,
+      "defects": 0,
+      "evidence": "float_serving_ops=0, dense_matmul_ops=0, layer_count=30, lut_table_len=256, q14_abs_sum=7680, max_q14_bound=65536, nibble_lut_admitted=true, seed_magic=UorR4V12"
+    },
+    {
+      "facet": "UiAndPlumbing",
+      "score_milli": 1000,
+      "defects": 0,
+      "evidence": "unwired_ui_controls=0, route_verdict=RoutingAdmitted, uorc_verdict=CapsuleAdmitted, wasm_bytes=9375758, stale_banner=false, watchdog_ok=true"
+    },
+    {
+      "facet": "EcosystemStandards",
+      "score_milli": 940,
+      "defects": 0,
+      "evidence": "model_errors=0, mechanizer_ok=true (279 mods), lifted=1644/2337 residue=349"
+    }
+  ],
+  "aggregate_score_milli": 985,
+  "total_defects": 0,
+  "complexity": 349,
+  "bandit_weights": {
+    "ecosystem-lift-ratchet": 8,
+    "geometric-recompilation": 8,
+    "honest-studio-plumbing": 8,
+    "pure-integer-lut-serving": 10
+  },
+  "active_strategy": "pure-integer-lut-serving",
+  "verdict": "CandidateAdmitted"
+}

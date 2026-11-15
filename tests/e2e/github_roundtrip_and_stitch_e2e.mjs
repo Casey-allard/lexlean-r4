@@ -594,7 +594,7 @@ async function runSuite() {
       assert.equal(rawHtml.includes(legacyId), false, `index.html must not contain legacy model ${legacyId}`);
       assert.equal(rawJs.includes(legacyId), false, `app.js must not contain legacy model ${legacyId}`);
     }
-    for (const honestId of ['uor-r4.gllm-v11-agent', 'uor-r4.gllm-v11-chat', 'uor-r4.gllm-v11-code', 'uor-r4.opfs-large']) {
+    for (const honestId of ['uor-r4.recompiled-v12-agent', 'uor-r4.recompiled-v12-chat', 'uor-r4.seed-fast', 'uor-r4.lut-symbolic']) {
       assert.ok(rawHtml.includes(`value="${honestId}"`), `index.html missing ${honestId}`);
       assert.ok(rawJs.includes(`id: '${honestId}'`), `app.js COMPOSER_MODELS missing ${honestId}`);
     }
@@ -661,7 +661,7 @@ async function runSuite() {
       ];
       const byId = new Map(ids.map((id) => [id, new MiniEl(id)]));
       byId.get('studio-update-banner').setAttribute('hidden', '');
-      byId.get('composer-model-select').value = 'uor-r4.gllm-v11-agent';
+      byId.get('composer-model-select').value = 'uor-r4.recompiled-v12-agent';
       const bodyEl = new MiniEl('body');
       const winListeners = {};
       const postedMessages = [];
@@ -801,7 +801,7 @@ async function runSuite() {
       assert.ok(byId.get('plan-checklist').children.length >= 4);
       assert.equal(byId.get('pool-status-grid').children.length, 4);
       assert.equal(byId.get('cursor-shards-grid').children.length, 16);
-      assert.ok(byId.get('live-context-turn-digest').textContent.includes('uor-r4.gllm-v11-agent'));
+      assert.ok(byId.get('live-context-turn-digest').textContent.includes('uor-r4.recompiled-v12-agent'));
       assert.ok(byId.get('stitch-custody-health-card').children[1].textContent.includes('Parity-Healed 1'));
 
       // Test watch_deploy provenance update banner -> click Refresh & Reload Now -> force_refresh_reload + location.reload()

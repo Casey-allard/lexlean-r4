@@ -3,7 +3,7 @@
   "name": "LexLean-R4 Universal Workspace",
   "shortName": "prism-r4",
   "tagline": "In-browser WebAssembly UOR-R4 GLLM & Prism Agentic Studio with Zero-NIC Secret Vault and 2-of-3 Stitch Parity Custody",
-  "purpose": "Connect any GitHub repository into a sandboxed browser workspace backed by local UOR-R4 GLLM v11 execution, Stitch 2-of-3 XOR parity weight custody, and host-vaulted GitHub branch/commit/PR/CI loops where bearer credentials never enter guest RAM.",
+  "purpose": "Connect any GitHub repository into a sandboxed browser workspace backed by local UOR-R4 v12 geometric execution, Stitch 2-of-3 XOR parity weight custody, and host-vaulted GitHub branch/commit/PR/CI loops where bearer credentials never enter guest RAM.",
   "inputLabel": "Prompt or Workspace Command",
   "placeholder": "Plan, edit, test, commit, open PR, or switch branch on any GitHub repository...",
   "submitLabel": "Run",
@@ -17,6 +17,7 @@
     "supported": true,
     "queryParam": "embed=me",
     "metaTag": "prism/r4-workspace/1",
+    "bridgeProtocol": "uor-workspace-bridge/1",
     "compactMode": true,
     "postMessage": {
       "outbound": [
@@ -31,13 +32,13 @@
   "custody": {
     "scheme": "stitch/xor-2-of-3/1",
     "parity": "2-of-3 XOR + SHA-256",
-    "weightsFormat": "UORGLLM9"
+    "weightsFormat": "UORR4V12"
   },
   "models": [
-    "uor-r4.gllm-v11-agent",
-    "uor-r4.gllm-v11-chat",
-    "uor-r4.gllm-v11-code",
-    "uor-r4.opfs-large"
+    "uor-r4.recompiled-v12-agent",
+    "uor-r4.recompiled-v12-chat",
+    "uor-r4.seed-fast",
+    "uor-r4.lut-symbolic"
   ],
   "capabilities": [
     "detect_repo",
