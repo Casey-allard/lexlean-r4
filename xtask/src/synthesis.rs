@@ -561,7 +561,14 @@ impl WorkspaceMeasurements {
         let template_override_used = app_js.contains("templateOverride")
             || app_js.contains("cannedReply")
             || app_js.contains("canned_reply");
-        let turn_memory_hijack_used = lib_rs.contains("turn_memory_hijack");
+        let turn_memory_hijack_used = lib_rs.lines().any(|line| {
+            let trimmed = line.trim();
+            !trimmed.starts_with("//")
+                && (trimmed.contains("turn_memory_hijack_used: true")
+                    || trimmed.contains("turn_memory_hijack_used:true")
+                    || trimmed.contains("turn_memory_hijack(")
+                    || trimmed.contains("turn_memory_hijack = true"))
+        });
 
         let mut uorc_archive_magic_found = false;
         for dir in ["public", "gpu"] {
@@ -1007,7 +1014,7 @@ mod tests {
             .expect("write lut_stack_exec");
             std::fs::write(
                 tmp.join("crates/wasm/src/lib.rs"),
-                "mod r4_geometric_stack;\nfn seed() { let _ = R4GeometricStackEngine::embedded_seed(); }\nfn check_uorc_watchdog() { let _ = (\"UORC\", super::lexlean_generated::r4_honest_plumbing::should_rollback_generation_watchdog(1, 3)); }\n",
+                "mod r4_geometric_stack;\nfn seed() { let _ = R4GeometricStackEngine::embedded_seed(); }\nfn route_guard() { let _ = ModelRoutingCheck { turn_memory_hijack_used: false }; }\nfn check_uorc_watchdog() { let _ = (\"UORC\", super::lexlean_generated::r4_honest_plumbing::should_rollback_generation_watchdog(1, 3)); }\n",
             )
             .expect("write lib.rs");
             std::fs::write(
@@ -1118,6 +1125,19 @@ mod tests {
             vec![0u8; 16 * 1024 * 1024],
         )
         .expect("plant huge wasm");
+        assert!(
+            measure_ui_and_plumbing_facet(&WorkspaceMeasurements::load(&tmp), 0, 6, 6, 0, None, 10)
+                .1
+                > 0
+        );
+        write_clean_fixture();
+
+        // Plant defect 7: active turn_memory_hijack_used: true in lib.rs
+        std::fs::write(
+            tmp.join("crates/wasm/src/lib.rs"),
+            "mod r4_geometric_stack;\nfn seed() { let _ = R4GeometricStackEngine::embedded_seed(); }\nfn route_guard() { let _ = ModelRoutingCheck { turn_memory_hijack_used: true }; }\nfn check_uorc_watchdog() { let _ = (\"UORC\", super::lexlean_generated::r4_honest_plumbing::should_rollback_generation_watchdog(1, 3)); }\n",
+        )
+        .expect("plant turn_memory_hijack_used: true");
         assert!(
             measure_ui_and_plumbing_facet(&WorkspaceMeasurements::load(&tmp), 0, 6, 6, 0, None, 10)
                 .1

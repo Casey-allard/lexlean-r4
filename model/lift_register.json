@@ -15914,7 +15914,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "e0ff234baa4911f647f850fad60d758f9380186d3d8eb4fa6af46c0fe4725c9a",
+      "kappa": "83c7428c1891cb463fe145d6205d0fe078519aa31fa69e7e6623720e32d2a1ba",
       "function": "xtask/src/synthesis.rs::WorkspaceMeasurements::load",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
