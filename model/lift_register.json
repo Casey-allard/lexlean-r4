@@ -2,9 +2,9 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2373,
+    "total_functions": 2374,
     "lifted": 1672,
-    "effect": 224,
+    "effect": 225,
     "foreign": 131,
     "residue": 346
   },
@@ -16094,7 +16094,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "bfcacfdba2cb151c34c60ebea8388fc51d7d0a2c8f96cd4af6dc844b692b1da1",
+      "kappa": "51ab4c739d1087eed904bbd5686d300ddf738ed91617548517a968cfb4d2fb03",
       "function": "xtask/src/engine.rs::handle_http_connection",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -16230,7 +16230,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0b5e886a72dcc1f23dbfb01d4d32ca2b9edfc88d1d7e213c8278cc51be51a6f1",
+      "kappa": "14c97612624c374a2ae427ebc293b2390a3c9b37f8204df6294ae6f3969b989c",
       "function": "xtask/src/engine.rs::run_api_serve_cmd",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -16337,6 +16337,13 @@
     {
       "kappa": "417e8f4839a71bce9fb96eaddca12f60f95cadfac7e39a9bda19f9f12c0151c0",
       "function": "xtask/src/engine.rs::send_http_response",
+      "status": "effect",
+      "effect": "stdio-console-effect",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "4aaeb79e02ee80333d8f61b7aacb5a7420488e0592978655c2be0a5660e1d0e4",
+      "function": "xtask/src/engine.rs::serve_listener_until_stopped",
       "status": "effect",
       "effect": "stdio-console-effect",
       "exact_divergence_free": false
