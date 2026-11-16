@@ -12,10 +12,10 @@ Authoritative verification evidence for **Track 1** (`Qwen/Qwen3-0.6B` and `Qwen
 
 ## Build & Normative Gate Measurements (`v0.13.0`)
 
-- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `10,468,818` bytes / `9.98 MiB` < `15 MiB`, `provenance.json`), `wasm=779ad60e6158`, `js=83d557d2fe03`, `core=6647c48416a6`.
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `10,468,818` bytes / `9.98 MiB` < `15 MiB`, `provenance.json`), `wasm=bda49a033e3b`, `js=7e359e57142f`, `core=6647c48416a6`.
 - **`check-model`**: `CONFORMANCE.md` equals `model/`, `53` conformance IDs (`R4-01..R4-53`).
 - **`lift-register`**: `total=2498`, `lifted=1778`, `effect=236`, `foreign=140`, `residue=344` (`<= 355`).
-- **`ratchet-check`**: shrink-only + Peirce triadic admitted (`r30_gen=221`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=344`, `float=0`, `matmul=0`, `unwired_ui=0`).
+- **`ratchet-check`**: shrink-only + Peirce triadic admitted (`r30_gen=222`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=344`, `float=0`, `matmul=0`, `unwired_ui=0`).
 - **`check-routes`**: `9` routes and `12` test vectors checked under `uorust/routes/1`.
 - **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=344`, `routes=9`, `provenance_sources=22`).
 - **`synthesize`**: `score_milli=986`, `complexity=344`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.

@@ -3114,11 +3114,11 @@ const holoHydrationInflight = new Map();
 
 /** Formal R4.HoloKappaStore stream HTTP response while holding `HOLD_TAIL_BYTES` (64 KiB) pending SHA-256 check. */
 async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null) {
-  const headers = { 'Cache-Control': 'no-cache' };
-  if (byteRange && Number.isFinite(byteRange.start) && Number.isFinite(byteRange.end)) {
-    headers.Range = `bytes=${byteRange.start}-${byteRange.end}`;
-  }
-  const resp = await fetch(url, { headers, cache: 'no-store' });
+  const init =
+    byteRange && Number.isFinite(byteRange.start) && Number.isFinite(byteRange.end)
+      ? { headers: { Range: `bytes=${byteRange.start}-${byteRange.end}` } }
+      : undefined;
+  const resp = init ? await fetch(url, init) : await fetch(url);
   if (byteRange && resp.status !== 206 && resp.status !== 200) {
     throw new Error(`HTTP ${resp.status} for ${url}`);
   }
@@ -3194,8 +3194,8 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         : '';
     const slug = key.includes('1.7b') ? 'v13_qwen3_1_7b' : 'v13_qwen3_0_6b';
     const candidates = [
-      ...(httpOrigin ? [`${httpOrigin}/weights/${slug}/`] : []),
       ...spec.mirrors.map((m) => (m.startsWith('http') ? m : new URL(m, import.meta.url).href)),
+      ...(httpOrigin ? [`${httpOrigin}/weights/${slug}/`] : []),
     ];
     let manifest = null;
     let baseUrl = '';
@@ -3203,7 +3203,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       const norm = cBase.endsWith('/') ? cBase : `${cBase}/`;
       if (sharedKappaStore.liarMirrors.has(norm)) continue;
       try {
-        const resp = await fetch(`${norm}manifest.json`, { cache: 'no-store' });
+        const resp = await fetch(`${norm}manifest.json`);
         if (resp.ok) {
           const parsed = await resp.json();
           if (parsed && parsed.format === 'UORR4V13' && Array.isArray(parsed.pieces)) {
@@ -3226,7 +3226,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     let stitchManifest = null;
     if (baseUrl.startsWith('http')) {
       try {
-        const sr = await fetch(`${baseUrl}manifest.stitch.json`, { cache: 'no-store' });
+        const sr = await fetch(`${baseUrl}manifest.stitch.json`);
         if (sr.ok) stitchManifest = await sr.json();
       } catch {}
     }
@@ -3257,6 +3257,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         }
       }
       // Attempt 2-of-3 Stitch XOR parity recovery cleanly
+      const pieceMirrorBase = urls[0] || baseUrl;
       if (stitchManifest && Array.isArray(stitchManifest.groups)) {
         const gIdx = Math.floor(pieceMeta.index / 2);
         const grp = stitchManifest.groups[gIdx];
@@ -3265,10 +3266,10 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
           const peerMeta = isLeft ? grp.right : grp.left;
           const peerBytes = peerMeta
             ? ((await sharedKappaStore.getVerifiedPiece(peerMeta.sha256, peerMeta.byte_length)) ||
-               (baseUrl.startsWith('http') ? await holoFetchWithHoldTail(`${baseUrl}${peerMeta.file}`, peerMeta.sha256).catch(() => null) : null))
+               (pieceMirrorBase.startsWith('http') ? await holoFetchWithHoldTail(`${pieceMirrorBase}${peerMeta.file}`, peerMeta.sha256).catch(() => null) : null))
             : new Uint8Array(0);
-          const parityBytes = baseUrl.startsWith('http')
-            ? await holoFetchWithHoldTail(`${baseUrl}${grp.parity.file}`, grp.parity.sha256).catch(() => null)
+          const parityBytes = pieceMirrorBase.startsWith('http')
+            ? await holoFetchWithHoldTail(`${pieceMirrorBase}${grp.parity.file}`, grp.parity.sha256).catch(() => null)
             : null;
           if (parityBytes && (peerMeta === null || peerBytes)) {
             const rec = new Uint8Array(expectedLen);

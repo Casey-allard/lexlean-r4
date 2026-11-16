@@ -231,7 +231,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2798ce73774c9855db13a38e326d79a4422d97c230d17deca391c69bd2be1a6a",
+      "kappa": "f914c20889d853af673ed6e63e304190d6ccbf3c031df2c40bff3f9d85681b4f",
       "function": "crates/wasm/js/worker_host_bridge.js::holoFetchWithHoldTail",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -267,7 +267,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "46775f69d3da9fe965fc6a05f1193cb5b8adeb03a0eea05125ae0613d2df6166",
+      "kappa": "92b1084af200240d4f489b69eab9a0fa0bc0ae0bb539f5370536418169d4f739",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -16377,7 +16377,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "31955e08661606a5fdb21dc60478b8074df762fb5eddc4c74253a8a860ea9463",
+      "kappa": "7733ac849591be2123e26ab1609be657098fc83e60a733197a935b4d65b61d91",
       "function": "public/app.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",

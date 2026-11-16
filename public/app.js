@@ -2840,7 +2840,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     if (typeof syncComposerModel === 'function') syncComposerModel('uor-r4.hf-repo-holo');
     engineWorkerClient.rpc('load_hf_repo_holo', { repoId })
       .then((res) => {
-        const mounted = res && res.holo && res.holo.mounted;
+        const mounted = Boolean(res && res.holo && (res.holo.mounted || res.holo.hf_repo_mounted || res.holo.status === 'ok'));
         appendChatTurn(
           'assistant',
           'uor-r4.hf-repo-holo',
@@ -2988,7 +2988,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
         if (placeholderCard && placeholderCard.parentNode) {
           placeholderCard.parentNode.removeChild(placeholderCard);
         }
-        appendChatTurn('assistant', 'UOR-R4 GLM', err && err.message ? err.message : 'Worker chat error');
+        appendChatTurn('assistant', selectedModel || DEFAULT_HONEST_MODEL_ID, err && err.message ? err.message : 'Worker chat error');
       });
     return;
   }
