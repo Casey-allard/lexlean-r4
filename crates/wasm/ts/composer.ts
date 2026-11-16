@@ -47,28 +47,28 @@ export interface ComposerModelOption {
 
 export const COMPOSER_MODELS: readonly ComposerModelOption[] = [
   {
-    id: 'uor-r4.recompiled-v12-agent',
-    name: 'UOR-R4 v12 Recompiled Agent (30L 576D SmolLM2-135M)',
+    id: 'uor-r4.qwen3-0.6b-holo',
+    name: 'Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)',
     contextWindow: '256k',
-    badge: 'Zero-Float Agent + Watchdog',
+    badge: 'Int4 OPFS · simd128',
   },
   {
-    id: 'uor-r4.recompiled-v12-chat',
-    name: 'UOR-R4 v12 Recompiled Chat (30L Geometric Stack)',
+    id: 'uor-r4.qwen3-1.7b-holo',
+    name: 'Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)',
     contextWindow: '256k',
-    badge: 'Neural Geometric Chat',
+    badge: 'Int4 OPFS · 1.7B',
   },
   {
-    id: 'uor-r4.seed-fast',
-    name: 'UOR-R4 Embedded Seed Fast (0-Download 8L 256D)',
+    id: 'uor-r4.native-q31-d85',
+    name: 'UOR-R4 Native Q31 D85 (0-Download 4L 256D)',
     contextWindow: '256k',
-    badge: 'Embedded Seed Fallback',
+    badge: 'Q31 · Instant',
   },
   {
-    id: 'uor-r4.lut-symbolic',
-    name: 'UOR-R4 Symbolic LUT (uor-r4.lut-stack/8 + MVM)',
+    id: 'uor-r4.hf-repo-holo',
+    name: 'HuggingFace Safetensors Stream (Range 206 -> Holo v13)',
     contextWindow: '256k',
-    badge: 'Symbolic LUT + MVM',
+    badge: 'HF Range 206',
   },
 ];
 
@@ -160,7 +160,7 @@ export class AgenticTypeScriptComposer {
     this.state = {
       rawText: '',
       mode: 'agentic',
-      selectedModel: 'uor-r4.recompiled-v12-agent',
+      selectedModel: 'uor-r4.qwen3-0.6b-holo',
       savedDraft: null,
       attachments: [],
       history: [],

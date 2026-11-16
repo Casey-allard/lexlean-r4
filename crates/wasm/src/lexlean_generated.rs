@@ -46945,46 +46945,61 @@ pub mod r4_honest_plumbing {
     /// Maximum consecutive browser runtime/generation faults before watchdog rollback.
     pub const WATCHDOG_STRIKE_THRESHOLD: u64 = 3;
 
-    /// Inductive `R4.HonestPlumbing.ComposerRouteMode`.
+    /// Inductive `R4.HonestPlumbing.ComposerRouteMode` (v0.13.0 non-scaffold clean routes).
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum ComposerRouteMode {
-        /// Recompiled `UORR4V12` geometric stack configured for agent tool turns.
-        RecompiledV12Agent,
-        /// Recompiled `UORR4V12` geometric stack configured for chat responses.
-        RecompiledV12Chat,
-        /// Fast embedded geometric seed stack (`gllm_v9` / compact stack).
-        SeedFast,
-        /// Symbolic LUT-only mode without neural transformer sampling.
-        LutSymbolic,
+        /// Sealed `UORR4V13` Qwen3-0.6B Holo geometric stack (fast default).
+        Qwen306bHolo,
+        /// Sealed `UORR4V13` Qwen3-1.7B Holo reasoning geometric stack.
+        Qwen317bHolo,
+        /// Native `D85` pure-from-scratch `Q31` SpiralCore/FBS `Cl(0,6)`/`E8` neural lane.
+        NativeQ31D85,
+        /// Direct browser HuggingFace repo `HTTP 206` Range safetensors-to-Holo loader.
+        HfRepoHolo,
     }
 
     impl ComposerRouteMode {
-        /// Canonical wire identifier exchanged between UI controls and Wasm router.
+        /// Canonical wire identifier exchanged between UI controls and Wasm Worker router.
         pub const fn wire_id(self) -> &'static str {
             match self {
-                Self::RecompiledV12Agent => "uor-r4.recompiled-v12-agent",
-                Self::RecompiledV12Chat => "uor-r4.recompiled-v12-chat",
-                Self::SeedFast => "uor-r4.seed-fast",
-                Self::LutSymbolic => "uor-r4.lut-symbolic",
+                Self::Qwen306bHolo => "uor-r4.qwen3-0.6b-holo",
+                Self::Qwen317bHolo => "uor-r4.qwen3-1.7b-holo",
+                Self::NativeQ31D85 => "uor-r4.native-q31-d85",
+                Self::HfRepoHolo => "uor-r4.hf-repo-holo",
             }
         }
 
-        /// Parse a canonical wire identifier into a `ComposerRouteMode`, rejecting legacy names.
+        /// Parse a canonical wire identifier into a `ComposerRouteMode`, rejecting retired or unknown names.
         pub fn from_wire_id(wire: &str) -> Option<Self> {
             match wire.trim() {
-                "uor-r4.recompiled-v12-agent" => Some(Self::RecompiledV12Agent),
-                "uor-r4.recompiled-v12-chat" => Some(Self::RecompiledV12Chat),
-                "uor-r4.seed-fast" => Some(Self::SeedFast),
-                "uor-r4.lut-symbolic" => Some(Self::LutSymbolic),
+                "uor-r4.qwen3-0.6b-holo" => Some(Self::Qwen306bHolo),
+                "uor-r4.qwen3-1.7b-holo" => Some(Self::Qwen317bHolo),
+                "uor-r4.native-q31-d85" => Some(Self::NativeQ31D85),
+                "uor-r4.hf-repo-holo" => Some(Self::HfRepoHolo),
                 _ => None,
             }
         }
 
-        /// Whether this mode executes pure neural geometric inference rather than template LUTs.
+        /// Whether a wire string identifies a retired v12/seed/symbolic scaffold mode.
+        pub fn is_retired_scaffold_wire(wire: &str) -> bool {
+            matches!(
+                wire.trim(),
+                "uor-r4.seed-fast"
+                    | "uor-r4.lut-symbolic"
+                    | "uor-r4.recompiled-v12-agent"
+                    | "uor-r4.recompiled-v12-chat"
+                    | "uor-r4.gllm-v10"
+                    | "uor-r4.gllm-v11-agent"
+                    | "uor-r4.gllm-v11-chat"
+            )
+        }
+
+        /// Whether this mode executes pure-integer neural inference rather than canned retrieval.
         pub const fn is_neural_geometric(self) -> bool {
             match self {
-                Self::RecompiledV12Agent | Self::RecompiledV12Chat | Self::SeedFast => true,
-                Self::LutSymbolic => false,
+                Self::Qwen306bHolo | Self::Qwen317bHolo | Self::NativeQ31D85 | Self::HfRepoHolo => {
+                    true
+                }
             }
         }
     }
@@ -46994,18 +47009,18 @@ pub mod r4_honest_plumbing {
     pub struct ModelRoutingCheck {
         /// Model mode selected by the UI composer.
         pub requested_mode: ComposerRouteMode,
-        /// Model mode actually executed by Wasm runtime.
+        /// Model mode actually executed by Wasm Worker runtime.
         pub executed_mode: ComposerRouteMode,
+        /// Whether caller attempted to route a retired scaffold wire ID.
+        pub retired_scaffold_requested: bool,
         /// Whether a canned template override intercepted the response.
         pub template_override_used: bool,
         /// Whether turn-memory retrieval hijacked neural token generation.
         pub turn_memory_hijack_used: bool,
         /// Whether a stale version banner/badge is displayed.
         pub stale_banner_present: bool,
-        /// Whether the full `UORR4V12` shard bundle is mounted in OPFS/RAM.
-        pub full_v12_mounted: bool,
-        /// Whether the fast geometric seed weights are mounted.
-        pub seed_mounted: bool,
+        /// Whether the requested model's backing weights are mounted in OPFS/RAM.
+        pub requested_weights_mounted: bool,
     }
 
     /// Inductive `R4.HonestPlumbing.ModelRoutingVerdict`.
@@ -47015,9 +47030,11 @@ pub mod r4_honest_plumbing {
         RoutingAdmitted,
         /// Executed mode silently diverged from requested UI selection.
         RefusedModeMismatch,
+        /// Caller requested a retired non-coherent scaffold mode (`seed-fast`, `lut-symbolic`, `v12`).
+        RefusedRetiredScaffoldMode,
         /// Template or turn-memory override intercepted a neural geometric mode.
         RefusedTemplateHijackInNeuralMode,
-        /// UI presents a stale model version label (`v9`/`v10` mismatch).
+        /// UI presents a stale model version label (`v9`/`v10`/`v12` mismatch).
         RefusedStaleVersionBanner,
         /// Requested neural model has not mounted its backing weights.
         RefusedRequestedModelUnmounted,
@@ -47026,9 +47043,11 @@ pub mod r4_honest_plumbing {
     /// Inductive `R4.HonestPlumbing.ShardMagicKind`.
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum ShardMagicKind {
-        /// Direct-recompiled geometric stack container (`UORR4V12`).
+        /// Direct-recompiled Qwen3 Holo κ-container (`UORR4V13`).
+        UorR4V13,
+        /// Legacy `UORR4V12` container header.
         UorR4V12,
-        /// Legacy `UORGLLM9` container header accepted for backward seed compatibility.
+        /// Legacy `UORGLLM9` container header.
         UorGllm9,
         /// Unrecognized or corrupt container header.
         Unknown,
@@ -47112,7 +47131,9 @@ pub mod r4_honest_plumbing {
 
     /// Function `R4.HonestPlumbing.admitModelRouting`.
     pub fn admit_model_routing(c: ModelRoutingCheck) -> ModelRoutingVerdict {
-        if c.requested_mode != c.executed_mode {
+        if c.retired_scaffold_requested {
+            ModelRoutingVerdict::RefusedRetiredScaffoldMode
+        } else if c.requested_mode != c.executed_mode {
             ModelRoutingVerdict::RefusedModeMismatch
         } else if c.requested_mode.is_neural_geometric()
             && (c.template_override_used || c.turn_memory_hijack_used)
@@ -47120,25 +47141,18 @@ pub mod r4_honest_plumbing {
             ModelRoutingVerdict::RefusedTemplateHijackInNeuralMode
         } else if c.stale_banner_present {
             ModelRoutingVerdict::RefusedStaleVersionBanner
+        } else if !c.requested_weights_mounted {
+            ModelRoutingVerdict::RefusedRequestedModelUnmounted
         } else {
-            let mounted = match c.requested_mode {
-                ComposerRouteMode::RecompiledV12Agent | ComposerRouteMode::RecompiledV12Chat => {
-                    c.full_v12_mounted
-                }
-                ComposerRouteMode::SeedFast => c.seed_mounted,
-                ComposerRouteMode::LutSymbolic => true,
-            };
-            if !mounted {
-                ModelRoutingVerdict::RefusedRequestedModelUnmounted
-            } else {
-                ModelRoutingVerdict::RoutingAdmitted
-            }
+            ModelRoutingVerdict::RoutingAdmitted
         }
     }
 
     /// Function `R4.HonestPlumbing.admitShardContainerMagic`.
     pub fn admit_shard_container_magic(magic_bytes: &[u8]) -> ShardMagicKind {
-        if magic_bytes.starts_with(b"UORR4V12") {
+        if magic_bytes.starts_with(b"UORR4V13") {
+            ShardMagicKind::UorR4V13
+        } else if magic_bytes.starts_with(b"UORR4V12") {
             ShardMagicKind::UorR4V12
         } else if magic_bytes.starts_with(b"UORGLLM9") {
             ShardMagicKind::UorGllm9
@@ -47206,5 +47220,381 @@ pub mod r4_honest_plumbing {
     ) -> u64 {
         let cap = if cross_origin_isolated { 8 } else { 2 };
         hardware_concurrency.min(memory_gib).clamp(1, cap)
+    }
+}
+
+/// Generated module `R4.HoloKappaStore` (`src/R4/HoloKappaStore.lex.tex`, `R4-50`).
+pub mod r4_holo_kappa_store {
+    /// Hold tail size (`64 KiB`) withheld until SHA-256 verification completes.
+    pub const DEFAULT_HOLD_BYTES: u64 = 65_536;
+    /// Default 1 MiB (`1_048_576`-byte) `.holo` `pieces.v1` piece budget.
+    pub const DEFAULT_PIECE_BYTES: u64 = 1_048_576;
+
+    /// Inductive `R4.HoloKappaStore.StoreOperationKind`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum StoreOperationKind {
+        PutVerifiedPiece,
+        StreamRangeSlice,
+        MountSafetensorsHeader,
+        CommitIdbTransaction,
+    }
+
+    /// Inductive `R4.HoloKappaStore.KappaStoreVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum KappaStoreVerdict {
+        PieceAdmitted,
+        RefusedPieceHashMismatch,
+        RefusedHoldBufferUnderrun,
+        RefusedRangeRequestUnsupported,
+        RefusedCorruptSafetensorsHeader,
+        RefusedStorageCommitAbort,
+        RefusedInsufficientParityShards,
+        RefusedPieceBudgetExceeded,
+    }
+
+    /// Structure `R4.HoloKappaStore.KappaStoreCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct KappaStoreCheck {
+        pub operation: StoreOperationKind,
+        pub piece_bytes: u64,
+        pub max_piece_bytes: u64,
+        pub hold_bytes: u64,
+        pub hold_released_before_digest: bool,
+        pub sha256_match: bool,
+        pub range_http_206: bool,
+        pub safetensors_header_valid: bool,
+        pub idb_transaction_completed: bool,
+        pub stitch_available_shards: u64,
+        pub stitch_required_shards: u64,
+    }
+
+    /// Structure `R4.HoloKappaStore.RangeWindowCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct RangeWindowCheck {
+        pub requested_offset: u64,
+        pub requested_length: u64,
+        pub total_file_bytes: u64,
+        pub hold_tail_bytes: u64,
+    }
+
+    /// Function `R4.HoloKappaStore.admitRangeSlice`.
+    pub fn admit_range_slice(r: RangeWindowCheck) -> KappaStoreVerdict {
+        let Some(end) = r.requested_offset.checked_add(r.requested_length) else {
+            return KappaStoreVerdict::RefusedRangeRequestUnsupported;
+        };
+        if r.requested_length == 0 || end > r.total_file_bytes {
+            KappaStoreVerdict::RefusedRangeRequestUnsupported
+        } else if r.requested_length > DEFAULT_HOLD_BYTES && r.hold_tail_bytes < DEFAULT_HOLD_BYTES
+        {
+            KappaStoreVerdict::RefusedHoldBufferUnderrun
+        } else {
+            KappaStoreVerdict::PieceAdmitted
+        }
+    }
+
+    /// Function `R4.HoloKappaStore.admitHoloKappaPiece`.
+    pub fn admit_holo_kappa_piece(c: KappaStoreCheck) -> KappaStoreVerdict {
+        if c.piece_bytes == 0 || c.max_piece_bytes == 0 || c.piece_bytes > c.max_piece_bytes {
+            KappaStoreVerdict::RefusedPieceBudgetExceeded
+        } else if c.hold_released_before_digest
+            || (c.piece_bytes > DEFAULT_HOLD_BYTES && c.hold_bytes < DEFAULT_HOLD_BYTES)
+        {
+            KappaStoreVerdict::RefusedHoldBufferUnderrun
+        } else if !c.sha256_match {
+            KappaStoreVerdict::RefusedPieceHashMismatch
+        } else if !c.range_http_206 {
+            KappaStoreVerdict::RefusedRangeRequestUnsupported
+        } else if !c.safetensors_header_valid {
+            KappaStoreVerdict::RefusedCorruptSafetensorsHeader
+        } else if !c.idb_transaction_completed {
+            KappaStoreVerdict::RefusedStorageCommitAbort
+        } else if c.stitch_available_shards < c.stitch_required_shards {
+            KappaStoreVerdict::RefusedInsufficientParityShards
+        } else {
+            KappaStoreVerdict::PieceAdmitted
+        }
+    }
+}
+
+/// Generated module `R4.HoloGeometricRuntime` (`src/R4/HoloGeometricRuntime.lex.tex`, `R4-51`).
+pub mod r4_holo_geometric_runtime {
+    /// Inductive `R4.HoloGeometricRuntime.HoloQuantFormat`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HoloQuantFormat {
+        SymmetricGroup32Int8,
+        DyadicGptqInt4Group32,
+        PreRopeHeadRmsNorm128,
+    }
+
+    /// Inductive `R4.HoloGeometricRuntime.HoloRuntimeVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HoloRuntimeVerdict {
+        RuntimeAdmitted,
+        RefusedInvalidHoloV13Magic,
+        RefusedHeadDimMisaligned,
+        RefusedRoPEBeforeQkNorm,
+        RefusedFloatOrMatmulOp,
+        RefusedMainThreadWasmDispatch,
+        RefusedInvalidShortlistBounds,
+    }
+
+    /// Inductive `R4.HoloGeometricRuntime.ParityVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ParityVerdict {
+        ParityAdmitted,
+        RefusedKlDivergenceExceeded,
+        RefusedTop1ParityTooLow,
+        RefusedIncompleteEvalSuite,
+    }
+
+    /// Structure `R4.HoloGeometricRuntime.AttentionOrderCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct AttentionOrderCheck {
+        pub hidden_dim: u64,
+        pub num_q_heads: u64,
+        pub num_kv_heads: u64,
+        pub head_dim: u64,
+        pub group_size: u64,
+        pub q_norm_before_rope: bool,
+        pub k_norm_before_rope: bool,
+        pub float_ops_count: u64,
+        pub dense_matmul_ops_count: u64,
+        pub worker_rpc_dispatched: bool,
+        pub main_thread_wasm_call: bool,
+        pub hamming_shortlist_k: u64,
+        pub vocab_size: u64,
+    }
+
+    /// Structure `R4.HoloGeometricRuntime.ParityCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct ParityCheck {
+        pub mean_kl_milli: u64,
+        pub max_kl_milli: u64,
+        pub top1_percent: u64,
+        pub min_top1_percent: u64,
+        pub verified_out_of_domain_prompts: u64,
+        pub required_prompts: u64,
+    }
+
+    /// Function `R4.HoloGeometricRuntime.admitHoloGeometricRuntime`.
+    pub fn admit_holo_geometric_runtime(c: AttentionOrderCheck) -> HoloRuntimeVerdict {
+        if c.main_thread_wasm_call || !c.worker_rpc_dispatched {
+            HoloRuntimeVerdict::RefusedMainThreadWasmDispatch
+        } else if !c.q_norm_before_rope || !c.k_norm_before_rope {
+            HoloRuntimeVerdict::RefusedRoPEBeforeQkNorm
+        } else if c.float_ops_count > 0 || c.dense_matmul_ops_count > 0 {
+            HoloRuntimeVerdict::RefusedFloatOrMatmulOp
+        } else if c.group_size != 32
+            || c.head_dim != 128
+            || c.hidden_dim < 64
+            || c.num_q_heads == 0
+            || c.num_kv_heads == 0
+            || c.num_q_heads % c.num_kv_heads != 0
+            || c.num_q_heads.saturating_mul(c.head_dim) < c.hidden_dim
+        {
+            HoloRuntimeVerdict::RefusedHeadDimMisaligned
+        } else if c.hamming_shortlist_k == 0 || c.hamming_shortlist_k > c.vocab_size {
+            HoloRuntimeVerdict::RefusedInvalidShortlistBounds
+        } else {
+            HoloRuntimeVerdict::RuntimeAdmitted
+        }
+    }
+
+    /// Function `R4.HoloGeometricRuntime.admitParityEvaluation`.
+    pub fn admit_parity_evaluation(p: ParityCheck) -> ParityVerdict {
+        if p.required_prompts == 0 || p.verified_out_of_domain_prompts < p.required_prompts {
+            ParityVerdict::RefusedIncompleteEvalSuite
+        } else if p.mean_kl_milli > p.max_kl_milli {
+            ParityVerdict::RefusedKlDivergenceExceeded
+        } else if p.top1_percent < p.min_top1_percent {
+            ParityVerdict::RefusedTop1ParityTooLow
+        } else {
+            ParityVerdict::ParityAdmitted
+        }
+    }
+
+    /// Function `R4.HoloGeometricRuntime.computeShortlistBudget`.
+    pub fn compute_shortlist_budget(
+        shortlist_k: u64,
+        guaranteed_tokens: u64,
+        vocab_size: u64,
+    ) -> u64 {
+        shortlist_k
+            .saturating_add(guaranteed_tokens)
+            .min(vocab_size)
+    }
+}
+
+/// Generated module `R4.NativeQ31Train` (`src/R4/NativeQ31Train.lex.tex`, `R4-52`).
+pub mod r4_native_q31_train {
+    /// Inductive `R4.NativeQ31Train.NativeQ31Verdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum NativeQ31Verdict {
+        Q31LaneAdmitted,
+        RefusedInvalidQ31Magic,
+        RefusedOutOfDomainQ31Config,
+        RefusedQ31ChecksumMismatch,
+        RefusedCudaWasmParityDrift,
+        RefusedNonIntegerTrainingOp,
+    }
+
+    /// Structure `R4.NativeQ31Train.NativeQ31LaneCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct NativeQ31LaneCheck {
+        pub magic_q31_valid: bool,
+        pub d_model: u64,
+        pub n_heads: u64,
+        pub n_layers: u64,
+        pub vocab_size: u64,
+        pub orbital_states: u64,
+        pub e8_root_count: u64,
+        pub spin_dimension: u64,
+        pub sha256_match: bool,
+        pub blake3_match: bool,
+        pub cuda_logit_checksum: u64,
+        pub wasm_logit_checksum: u64,
+        pub float_ops_in_step: u64,
+    }
+
+    /// Function `R4.NativeQ31Train.admitNativeQ31Lane`.
+    pub fn admit_native_q31_lane(c: NativeQ31LaneCheck) -> NativeQ31Verdict {
+        if !c.magic_q31_valid {
+            NativeQ31Verdict::RefusedInvalidQ31Magic
+        } else if c.float_ops_in_step > 0 {
+            NativeQ31Verdict::RefusedNonIntegerTrainingOp
+        } else if !c.sha256_match || !c.blake3_match {
+            NativeQ31Verdict::RefusedQ31ChecksumMismatch
+        } else if c.cuda_logit_checksum != c.wasm_logit_checksum {
+            NativeQ31Verdict::RefusedCudaWasmParityDrift
+        } else if c.d_model == 0
+            || c.n_heads == 0
+            || c.n_layers == 0
+            || c.vocab_size < 256
+            || c.orbital_states != 64
+            || c.e8_root_count != 16
+            || c.spin_dimension != 8
+            || c.d_model % 8 != 0
+            || c.d_model % c.n_heads != 0
+        {
+            NativeQ31Verdict::RefusedOutOfDomainQ31Config
+        } else {
+            NativeQ31Verdict::Q31LaneAdmitted
+        }
+    }
+
+    /// Function `R4.NativeQ31Train.stepD85SpinOrbit`.
+    pub fn step_d85_spin_orbit(state_idx: u64, action_idx: u64, modulus: u64) -> u64 {
+        if modulus == 0 {
+            0
+        } else {
+            state_idx.wrapping_add(action_idx) % modulus
+        }
+    }
+}
+
+/// Generated module `R4.UorustPrismDevrel` (`src/R4/UorustPrismDevrel.lex.tex`, `R4-53`).
+pub mod r4_uorust_prism_devrel {
+    /// Inductive `R4.UorustPrismDevrel.MeasureDirection`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum MeasureDirection {
+        AtMost,
+        AtLeast,
+        InvalidDirection,
+    }
+
+    /// Inductive `R4.UorustPrismDevrel.PrismFacet`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PrismFacet {
+        Arch,
+        Features,
+        Behavior,
+        Design,
+        Sec,
+        Qual,
+        Release,
+    }
+
+    /// Inductive `R4.UorustPrismDevrel.RouteAdmissionVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum RouteAdmissionVerdict {
+        RouteAdmitted,
+        RefusedUnknownRouteFact,
+        RefusedAmbiguousRoute,
+        RefusedInvalidMeasureDirection,
+        RefusedMissingProvenanceSource,
+        RefusedMeasureThresholdViolated,
+    }
+
+    /// Structure `R4.UorustPrismDevrel.RouteAndMeasureCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct RouteAndMeasureCheck {
+        pub known_fact_match: bool,
+        pub matched_route_count: u64,
+        pub direction: MeasureDirection,
+        pub measured_value: u64,
+        pub threshold_value: u64,
+        pub missing_provenance_sources: u64,
+    }
+
+    /// Function `R4.UorustPrismDevrel.uncoveredRecords`.
+    pub fn uncovered_records(declared_count: u64, covered_count: u64) -> u64 {
+        declared_count.saturating_sub(covered_count)
+    }
+
+    /// Function `R4.UorustPrismDevrel.undeclaredReferences`.
+    pub fn undeclared_references(total_refs: u64, declared_refs: u64) -> u64 {
+        total_refs.saturating_sub(declared_refs)
+    }
+
+    /// Function `R4.UorustPrismDevrel.floatServingOps`.
+    pub const fn float_serving_ops(observed: u64) -> u64 {
+        observed
+    }
+
+    /// Function `R4.UorustPrismDevrel.denseMatmulOps`.
+    pub const fn dense_matmul_ops(observed: u64) -> u64 {
+        observed
+    }
+
+    /// Function `R4.UorustPrismDevrel.kappaResidue`.
+    pub const fn kappa_residue(observed: u64) -> u64 {
+        observed
+    }
+
+    /// Function `R4.UorustPrismDevrel.routeTableTotalCount`.
+    pub const fn route_table_total_count(count: u64) -> u64 {
+        count
+    }
+
+    /// Function `R4.UorustPrismDevrel.evaluateMeasureCriterion`.
+    pub fn evaluate_measure_criterion(
+        direction: MeasureDirection,
+        measured: u64,
+        threshold: u64,
+    ) -> bool {
+        match direction {
+            MeasureDirection::AtMost => measured <= threshold,
+            MeasureDirection::AtLeast => threshold <= measured,
+            MeasureDirection::InvalidDirection => false,
+        }
+    }
+
+    /// Function `R4.UorustPrismDevrel.admitRouteAndMeasures`.
+    pub fn admit_route_and_measures(c: RouteAndMeasureCheck) -> RouteAdmissionVerdict {
+        if !c.known_fact_match {
+            RouteAdmissionVerdict::RefusedUnknownRouteFact
+        } else if c.matched_route_count == 0 {
+            RouteAdmissionVerdict::RefusedUnknownRouteFact
+        } else if c.matched_route_count != 1 {
+            RouteAdmissionVerdict::RefusedAmbiguousRoute
+        } else if matches!(c.direction, MeasureDirection::InvalidDirection) {
+            RouteAdmissionVerdict::RefusedInvalidMeasureDirection
+        } else if c.missing_provenance_sources > 0 {
+            RouteAdmissionVerdict::RefusedMissingProvenanceSource
+        } else if !evaluate_measure_criterion(c.direction, c.measured_value, c.threshold_value) {
+            RouteAdmissionVerdict::RefusedMeasureThresholdViolated
+        } else {
+            RouteAdmissionVerdict::RouteAdmitted
+        }
     }
 }

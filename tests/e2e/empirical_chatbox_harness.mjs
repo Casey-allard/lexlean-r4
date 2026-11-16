@@ -293,17 +293,17 @@ for (const { name, ComposerClass, models } of implementations) {
   console.log('    ✓ Uncommitted draft restoration passed across all test payloads.');
 
   // =========================================================================
-  // SUITE 3: RAPID MODEL SWITCHING (All 4 honest UOR-R4 v12 modes)
+  // SUITE 3: RAPID MODEL SWITCHING (All 4 honest UOR-R4 v0.13.0 modes)
   // =========================================================================
-  console.log('  Suite 3: Rapid Model Switching Across All 4 UOR-R4 v12 Modes');
+  console.log('  Suite 3: Rapid Model Switching Across All 4 UOR-R4 v0.13.0 Modes');
 
   {
     const composer = new ComposerClass();
     const expectedModelIds = [
-      'uor-r4.recompiled-v12-agent',
-      'uor-r4.recompiled-v12-chat',
-      'uor-r4.seed-fast',
-      'uor-r4.lut-symbolic',
+      'uor-r4.qwen3-0.6b-holo',
+      'uor-r4.qwen3-1.7b-holo',
+      'uor-r4.native-q31-d85',
+      'uor-r4.hf-repo-holo',
     ];
 
     // Verify model inventory
@@ -317,7 +317,7 @@ for (const { name, ComposerClass, models } of implementations) {
     }
 
     // Default model
-    assert.equal(composer.getSelectedModel(), 'uor-r4.recompiled-v12-agent');
+    assert.equal(composer.getSelectedModel(), 'uor-r4.qwen3-0.6b-holo');
 
     // 1,000 rapid switches in round-robin and random sequence
     for (let iter = 0; iter < 1000; iter++) {
@@ -570,15 +570,15 @@ inputEl.addEventListener('input', () => {
 });
 
 // TEST 5.1: Model selection change event
-syncComposerModel('uor-r4.recompiled-v12-chat');
-assert.equal(domComposer.getSelectedModel(), 'uor-r4.recompiled-v12-chat');
-assert.equal(selectEl.value, 'uor-r4.recompiled-v12-chat');
-assert.equal(topbarTag.textContent, 'UOR-R4 v12 Recompiled Chat (30L Geometric Stack) · Neural Geometric Chat');
+syncComposerModel('uor-r4.qwen3-1.7b-holo');
+assert.equal(domComposer.getSelectedModel(), 'uor-r4.qwen3-1.7b-holo');
+assert.equal(selectEl.value, 'uor-r4.qwen3-1.7b-holo');
+assert.equal(topbarTag.textContent, 'Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4) · Int4 OPFS · 1.7B');
 
-syncComposerModel('uor-r4.lut-symbolic');
-assert.equal(domComposer.getSelectedModel(), 'uor-r4.lut-symbolic');
-assert.equal(selectEl.value, 'uor-r4.lut-symbolic');
-assert.equal(topbarTag.textContent, 'UOR-R4 Symbolic LUT (uor-r4.lut-stack/8 + MVM) · Symbolic LUT + MVM');
+syncComposerModel('uor-r4.native-q31-d85');
+assert.equal(domComposer.getSelectedModel(), 'uor-r4.native-q31-d85');
+assert.equal(selectEl.value, 'uor-r4.native-q31-d85');
+assert.equal(topbarTag.textContent, 'UOR-R4 Native Q31 D85 (0-Download 4L 256D) · Q31 · Instant');
 console.log('  ✓ DOM model select synchronization works as expected.');
 
 // TEST 5.2: Textarea input and auto-expansion

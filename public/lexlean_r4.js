@@ -112,6 +112,63 @@ export function studio_dispatch(input) {
     }
 }
 
+/**
+ * Admit or refuse a `.uorc` Verdant Synthesis generation capsule (`R4-46`).
+ * @param {string} capsule_json
+ * @returns {string}
+ */
+export function studio_admit_generation_capsule(capsule_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(capsule_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_admit_generation_capsule(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Record a runtime generation fault strike and trigger 3-strike parent-head rollback when applicable (`R4-46`).
+ * @param {string} fault_reason
+ * @returns {string}
+ */
+export function studio_record_generation_fault(fault_reason) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(fault_reason, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_record_generation_fault(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Return structured 4-facet Verdant Synthesis and OPFS watchdog status JSON (`R4-45`, `R4-46`).
+ * @returns {string}
+ */
+export function studio_verdant_synthesis_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_verdant_synthesis_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
 function passArray8ToWasm0(arg, malloc) {
     const ptr = malloc(arg.length * 1, 1) >>> 0;
     getUint8ArrayMemory0().set(arg, ptr / 1);
@@ -119,39 +176,10 @@ function passArray8ToWasm0(arg, malloc) {
     return ptr;
 }
 
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_2.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
-
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
 }
-/**
- * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
- *
- * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
- * Returns the updated `UORLUT01` container bytes, or an error string on failure.
- * @param {Uint8Array} weights_bytes
- * @param {string} config_json
- * @returns {Uint8Array}
- */
-export function studio_consolidate_weights(weights_bytes, config_json) {
-    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
-    if (ret[3]) {
-        throw takeFromExternrefTable0(ret[2]);
-    }
-    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v3;
-}
-
 /**
  * WebAssembly entrypoint processing a versioned byte envelope.
  * @param {Uint8Array} input
@@ -166,6 +194,11 @@ export function process_envelope(input) {
     return v2;
 }
 
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_2.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
 /**
  * WebAssembly entrypoint executing an application request with JsValue representation.
  * @param {Uint8Array} input_bytes
@@ -364,83 +397,6 @@ export function studio_stitch_recover_2of3_object(has_frag0, frag0, has_frag1, f
 }
 
 /**
- * Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
- * @param {string} request_json
- * @returns {string}
- */
-export function studio_v1_messages(request_json) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_v1_messages(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Process an OpenAI-compatible `/v1/chat/completions` JSON request in WebAssembly.
- * @param {string} request_json
- * @returns {string}
- */
-export function studio_v1_chat_completions(request_json) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_v1_chat_completions(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Query or export OTel GLLM traces in WebAssembly.
- * @param {string} query_or_payload
- * @returns {string}
- */
-export function studio_v1_traces(query_or_payload) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passStringToWasm0(query_or_payload, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_v1_traces(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Return structured 4-facet Verdant Synthesis and OPFS watchdog status JSON (`R4-45`, `R4-46`).
- * @returns {string}
- */
-export function studio_verdant_synthesis_status() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_verdant_synthesis_status();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-    }
-}
-
-/**
  * Formal R4.CirisLedger Wasm export admitting a causal row and updating the fixed-point cut (`R5`).
  * @param {string} row_json
  * @returns {string}
@@ -581,6 +537,272 @@ export function studio_merge_uorlut_shard(shard_bytes) {
 }
 
 /**
+ * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
+ *
+ * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
+ * Returns the updated `UORLUT01` container bytes, or an error string on failure.
+ * @param {Uint8Array} weights_bytes
+ * @param {string} config_json
+ * @returns {Uint8Array}
+ */
+export function studio_consolidate_weights(weights_bytes, config_json) {
+    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
+    }
+    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v3;
+}
+
+/**
+ * Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
+ * @param {string} request_json
+ * @returns {string}
+ */
+export function studio_v1_messages(request_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_v1_messages(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Process an OpenAI-compatible `/v1/chat/completions` JSON request in WebAssembly.
+ * @param {string} request_json
+ * @returns {string}
+ */
+export function studio_v1_chat_completions(request_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_v1_chat_completions(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Query or export OTel GLLM traces in WebAssembly.
+ * @param {string} query_or_payload
+ * @returns {string}
+ */
+export function studio_v1_traces(query_or_payload) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(query_or_payload, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_v1_traces(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Finalize the streamed `UORR4V13` container mount and verify end-to-end SHA-256 (`R4-51`).
+ * @returns {string}
+ */
+export function studio_finalize_holo_v13_mount() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_finalize_holo_v13_mount();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Query mounted `UORR4V13` Holo runtimes and `NativeQ31` status as JSON (`R4-51`, `R4-52`).
+ * @returns {string}
+ */
+export function studio_holo_runtime_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_holo_runtime_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Query Track 2 `D85` Native `Q31` SpiralCore/FBS status as JSON (`R4-52`).
+ * @returns {string}
+ */
+export function studio_native_q31_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_native_q31_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Run one online browser `q31_hamilton_train_step` update on `D85` Native `Q31` (`R4-52`).
+ * @param {string} text
+ * @returns {string}
+ */
+export function studio_native_q31_train_step(text) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_native_q31_train_step(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Parse & validate a streamed HuggingFace Safetensors header slice (`R4-50`, `R4-51`).
+ * @param {string} repo_id
+ * @param {Uint8Array} prefix_bytes
+ * @returns {string}
+ */
+export function studio_hf_repo_parse_safetensors_header(repo_id, prefix_bytes) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(repo_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(prefix_bytes, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_hf_repo_parse_safetensors_header(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Begin in-stream compilation of a HuggingFace Safetensors repo into `UORR4V13` (`R4-51`).
+ * @param {string} repo_id
+ * @param {string} config_json
+ * @param {string} tokenizer_json
+ * @returns {string}
+ */
+export function studio_hf_repo_begin(repo_id, config_json, tokenizer_json) {
+    let deferred4_0;
+    let deferred4_1;
+    try {
+        const ptr0 = passStringToWasm0(repo_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(tokenizer_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_hf_repo_begin(ptr0, len0, ptr1, len1, ptr2, len2);
+        deferred4_0 = ret[0];
+        deferred4_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
+    }
+}
+
+/**
+ * Stream one HTTP `206` Safetensors tensor slice into the active `HfRepoHoloStreamCompiler` (`R4-51`).
+ * @param {string} name
+ * @param {string} dtype
+ * @param {string} shape_json
+ * @param {Uint8Array} raw_bytes
+ * @returns {string}
+ */
+export function studio_hf_repo_push_tensor(name, dtype, shape_json, raw_bytes) {
+    let deferred5_0;
+    let deferred5_1;
+    try {
+        const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(dtype, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(shape_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passArray8ToWasm0(raw_bytes, wasm.__wbindgen_malloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_hf_repo_push_tensor(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
+        deferred5_0 = ret[0];
+        deferred5_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
+    }
+}
+
+/**
+ * Finalize streamed Safetensors compilation and mount `uor-r4.hf-repo-holo` (`R4-51`).
+ * @returns {string}
+ */
+export function studio_hf_repo_finalize() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_hf_repo_finalize();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Query the active `UORR4V12` geometric vector stack status as JSON (`R4-46`).
+ * @returns {string}
+ */
+export function studio_r4_stack_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_r4_stack_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
  * Hot-load a binary `UORLUT01` (`uor-r4.lut-stack/8`) weight artifact directly from JS/IndexedDB bytes.
  * @param {Uint8Array} bytes
  * @param {string} source_label
@@ -681,54 +903,64 @@ export function studio_mount_r4_v12_bytes(bytes) {
 }
 
 /**
- * Query the active `UORR4V12` geometric vector stack status as JSON (`R4-46`).
+ * Mount and verify a complete `UORR4V13` geometric Qwen3 container (`R4-51`).
+ * @param {string} model_id
+ * @param {Uint8Array} bytes
  * @returns {string}
  */
-export function studio_r4_stack_status() {
-    let deferred1_0;
-    let deferred1_1;
+export function studio_mount_holo_v13_bytes(model_id, bytes) {
+    let deferred3_0;
+    let deferred3_1;
     try {
-        const ret = wasm.studio_r4_stack_status();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
+        const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_mount_holo_v13_bytes(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
 /**
- * Admit or refuse a `.uorc` Verdant Synthesis generation capsule (`R4-46`).
- * @param {string} capsule_json
+ * Begin incremental streaming mount of 1 MiB OPFS `.holo` pieces into Wasm (`R4-50`, `R4-51`).
+ * @param {string} model_id
+ * @param {number} expected_pieces
+ * @param {string} expected_sha256
  * @returns {string}
  */
-export function studio_admit_generation_capsule(capsule_json) {
-    let deferred2_0;
-    let deferred2_1;
+export function studio_begin_holo_v13_mount(model_id, expected_pieces, expected_sha256) {
+    let deferred3_0;
+    let deferred3_1;
     try {
-        const ptr0 = passStringToWasm0(capsule_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_admit_generation_capsule(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
+        const ptr1 = passStringToWasm0(expected_sha256, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_begin_holo_v13_mount(ptr0, len0, expected_pieces, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
 /**
- * Record a runtime generation fault strike and trigger 3-strike parent-head rollback when applicable (`R4-46`).
- * @param {string} fault_reason
+ * Stream one SHA-256 verified OPFS `.holo` piece into the active streaming builder (`R4-50`).
+ * @param {Uint8Array} piece
  * @returns {string}
  */
-export function studio_record_generation_fault(fault_reason) {
+export function studio_push_holo_v13_piece(piece) {
     let deferred2_0;
     let deferred2_1;
     try {
-        const ptr0 = passStringToWasm0(fault_reason, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr0 = passArray8ToWasm0(piece, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_record_generation_fault(ptr0, len0);
+        const ret = wasm.studio_push_holo_v13_piece(ptr0, len0);
         deferred2_0 = ret[0];
         deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
@@ -2686,6 +2918,532 @@ async function __wbg_init(module_or_path) {
 // === UOR_CUSTOM_SECTION_2_START ===
 const OPFS_V10_WEIGHT_FILE = 'uor_r4_gllm_v10_weights.bin';
 const OPFS_V10_META_FILE = 'uor_r4_gllm_v10_meta.json';
+const HOLO_HOLD_TAIL_BYTES = 65536;
+const HOLO_PIECE_BUDGET_BYTES = 1048576;
+const HOLO_MODEL_CATALOG = {
+  'uor-r4.qwen3-0.6b-holo': {
+    label: 'Qwen3-0.6B Holo (28L UORR4V13)',
+    mirrors: [
+      'weights/v13_qwen3_0_6b/',
+      'https://raw.githubusercontent.com/Casey-allard/lexlean-r4/weights-v13-qwen3-0.6b/',
+    ],
+  },
+  'uor-r4.qwen3-1.7b-holo': {
+    label: 'Qwen3-1.7B Holo (28L UORR4V13)',
+    mirrors: [
+      'weights/v13_qwen3_1_7b/',
+      'https://raw.githubusercontent.com/Casey-allard/lexlean-r4/weights-v13-qwen3-1.7b/',
+    ],
+  },
+};
+
+/** Formal R4.HoloKappaStore open IndexedDB metadata index for verified `UORR4V13` manifests. */
+async function holoOpenManifestDb() {
+  if (typeof indexedDB === 'undefined') return null;
+  return await new Promise((resolve) => {
+    try {
+      const req = indexedDB.open('uor_holo_kappa_v1', 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains('manifests')) {
+          db.createObjectStore('manifests', { keyPath: 'model_id' });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+/** Formal R4.HoloKappaStore read persisted manifest record by `modelId`. */
+async function holoReadManifestIndex(modelId) {
+  const db = await holoOpenManifestDb();
+  if (!db) return null;
+  return await new Promise((resolve) => {
+    try {
+      const tx = db.transaction(['manifests'], 'readonly');
+      const req = tx.objectStore('manifests').get(modelId);
+      req.onsuccess = () => { db.close(); resolve(req.result || null); };
+      req.onerror = () => { db.close(); resolve(null); };
+    } catch {
+      try { db.close(); } catch {}
+      resolve(null);
+    }
+  });
+}
+
+/** Formal R4.HoloKappaStore write committed manifest metadata into IndexedDB index. */
+async function holoWriteManifestIndex(record) {
+  const db = await holoOpenManifestDb();
+  if (!db) return false;
+  return await new Promise((resolve) => {
+    try {
+      const tx = db.transaction(['manifests'], 'readwrite');
+      tx.objectStore('manifests').put(record);
+      tx.oncomplete = () => { db.close(); resolve(true); };
+      tx.onerror = () => { db.close(); resolve(false); };
+      tx.onabort = () => { db.close(); resolve(false); };
+    } catch {
+      try { db.close(); } catch {}
+      resolve(false);
+    }
+  });
+}
+
+/**
+ * Formal R4.HoloKappaStore persistent content-addressed OPFS store (`sha256/<hh>/<hh>/<hex>`),
+ * using `createSyncAccessHandle()` in Dedicated Worker contexts and `HOLD_TAIL_BYTES = 65536`
+ * trailing buffer gating before SHA-256 verification.
+ */
+export class OpfsKappaStore {
+  constructor() {
+    this.liarMirrors = new Set();
+    this.stitchRecoveries = 0;
+  }
+
+  /** Formal R4.HoloKappaStore derive nested OPFS segments `[hh, hh, hex]` from SHA-256 hex. */
+  static splitKappa(shaHex) {
+    const clean = String(shaHex || '').replace(/^sha256:/i, '').trim().toLowerCase();
+    if (!/^[0-9a-f]{64}$/.test(clean)) {
+      throw new Error(`RefusedPieceHashMismatch: invalid kappa hex "${shaHex}"`);
+    }
+    return { a: clean.slice(0, 2), b: clean.slice(2, 4), full: clean };
+  }
+
+  async _openBucketDir(a, b, create) {
+    if (typeof navigator === 'undefined' || !navigator.storage || typeof navigator.storage.getDirectory !== 'function') {
+      return null;
+    }
+    const root = await navigator.storage.getDirectory();
+    const sDir = await root.getDirectoryHandle('sha256', { create });
+    const aDir = await sDir.getDirectoryHandle(a, { create });
+    return await aDir.getDirectoryHandle(b, { create });
+  }
+
+  /** Formal R4.HoloKappaStore atomically persist verified piece using `createSyncAccessHandle()` when present. */
+  async putPiece(expectedShaHex, bytes) {
+    const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    if (u8.byteLength > HOLO_PIECE_BUDGET_BYTES) {
+      throw new Error(`RefusedPieceBudgetExceeded: ${u8.byteLength} > ${HOLO_PIECE_BUDGET_BYTES}`);
+    }
+    const { a, b, full } = OpfsKappaStore.splitKappa(expectedShaHex);
+    const actual = (await sha256Hex(u8)).toLowerCase();
+    if (actual !== full) {
+      throw new Error(`RefusedPieceHashMismatch: expected ${full}, got ${actual}`);
+    }
+    const dir = await this._openBucketDir(a, b, true);
+    if (!dir) return { sha256: full, persisted: false };
+    const tmpName = `${full}.partial`;
+    const fh = await dir.getFileHandle(tmpName, { create: true });
+    if (typeof fh.createSyncAccessHandle === 'function') {
+      const access = await fh.createSyncAccessHandle();
+      try {
+        access.truncate(0);
+        access.write(u8, { at: 0 });
+        access.flush();
+      } finally {
+        access.close();
+      }
+    } else {
+      const w = await fh.createWritable();
+      await w.write(u8);
+      await w.close();
+    }
+    if (typeof fh.move === 'function') {
+      await fh.move(dir, full);
+    } else {
+      const dst = await dir.getFileHandle(full, { create: true });
+      if (typeof dst.createSyncAccessHandle === 'function') {
+        const access = await dst.createSyncAccessHandle();
+        try {
+          access.truncate(0);
+          access.write(u8, { at: 0 });
+          access.flush();
+        } finally {
+          access.close();
+        }
+      } else {
+        const w = await dst.createWritable();
+        await w.write(u8);
+        await w.close();
+      }
+      try { await dir.removeEntry(tmpName); } catch {}
+    }
+    return { sha256: full, persisted: true };
+  }
+
+  /** Formal R4.HoloKappaStore read and re-verify a cached OPFS piece by SHA-256 kappa address. */
+  async getVerifiedPiece(expectedShaHex, expectedLen = 0) {
+    const { a, b, full } = OpfsKappaStore.splitKappa(expectedShaHex);
+    const dir = await this._openBucketDir(a, b, false).catch(() => null);
+    if (!dir) return null;
+    try {
+      const fh = await dir.getFileHandle(full, { create: false });
+      let u8 = null;
+      if (typeof fh.createSyncAccessHandle === 'function') {
+        const access = await fh.createSyncAccessHandle();
+        try {
+          const sz = access.getSize();
+          if (expectedLen > 0 && sz !== expectedLen) return null;
+          u8 = new Uint8Array(sz);
+          access.read(u8, { at: 0 });
+        } finally {
+          access.close();
+        }
+      } else {
+        const file = await fh.getFile();
+        if (expectedLen > 0 && file.size !== expectedLen) return null;
+        u8 = new Uint8Array(await file.arrayBuffer());
+      }
+      const actual = (await sha256Hex(u8)).toLowerCase();
+      if (actual !== full) {
+        try { await dir.removeEntry(full); } catch {}
+        return null;
+      }
+      return u8;
+    } catch {
+      return null;
+    }
+  }
+}
+
+const sharedKappaStore = new OpfsKappaStore();
+const holoHydrationInflight = new Map();
+
+/** Formal R4.HoloKappaStore stream HTTP response while holding `HOLD_TAIL_BYTES` (64 KiB) pending SHA-256 check. */
+async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null) {
+  const headers = { 'Cache-Control': 'no-cache' };
+  if (byteRange && Number.isFinite(byteRange.start) && Number.isFinite(byteRange.end)) {
+    headers.Range = `bytes=${byteRange.start}-${byteRange.end}`;
+  }
+  const resp = await fetch(url, { headers, cache: 'no-store' });
+  if (byteRange && resp.status !== 206 && resp.status !== 200) {
+    throw new Error(`HTTP ${resp.status} for ${url}`);
+  }
+  if (!resp.ok) {
+    throw new Error(`HTTP ${resp.status} for ${url}`);
+  }
+  if (!resp.body || typeof resp.body.getReader !== 'function') {
+    const raw = new Uint8Array(await resp.arrayBuffer());
+    if (expectedSha) {
+      const got = (await sha256Hex(raw)).toLowerCase();
+      const exp = expectedSha.replace(/^sha256:/i, '').toLowerCase();
+      if (got !== exp) {
+        throw new Error(`RefusedPieceHashMismatch: mirror digest ${got} != ${exp}`);
+      }
+    }
+    return raw;
+  }
+  const reader = resp.body.getReader();
+  const committedChunks = [];
+  let committedLen = 0;
+  let holdBuf = new Uint8Array(0);
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    if (!value || value.byteLength === 0) continue;
+    const merged = new Uint8Array(holdBuf.byteLength + value.byteLength);
+    merged.set(holdBuf, 0);
+    merged.set(value, holdBuf.byteLength);
+    if (merged.byteLength > HOLO_HOLD_TAIL_BYTES) {
+      const relLen = merged.byteLength - HOLO_HOLD_TAIL_BYTES;
+      const relSlice = merged.slice(0, relLen);
+      committedChunks.push(relSlice);
+      committedLen += relSlice.byteLength;
+      holdBuf = merged.slice(relLen);
+    } else {
+      holdBuf = merged;
+    }
+  }
+  const full = new Uint8Array(committedLen + holdBuf.byteLength);
+  let cursor = 0;
+  for (const ch of committedChunks) {
+    full.set(ch, cursor);
+    cursor += ch.byteLength;
+  }
+  full.set(holdBuf, cursor);
+  if (expectedSha) {
+    const got = (await sha256Hex(full)).toLowerCase();
+    const exp = expectedSha.replace(/^sha256:/i, '').toLowerCase();
+    if (got !== exp) {
+      // Discard held unverified payload immediately
+      holdBuf = new Uint8Array(0);
+      committedChunks.length = 0;
+      throw new Error(`RefusedPieceHashMismatch: mirror digest ${got} != ${exp}`);
+    }
+  }
+  return full;
+}
+
+/** Formal R4.HoloKappaStore hydrate `UORR4V13` pieces into `OpfsKappaStore` with Stitch 2-of-3 recovery & stream-mount into Wasm. */
+export async function hydrate_holo_model(modelId, onProgress, forceReload = false) {
+  const key = String(modelId || 'uor-r4.qwen3-0.6b-holo').trim();
+  if (!forceReload && holoHydrationInflight.has(key)) {
+    return await holoHydrationInflight.get(key);
+  }
+  const job = (async () => {
+    const spec = HOLO_MODEL_CATALOG[key];
+    if (!spec) {
+      throw new Error(`Unknown Holo catalog model: ${key}`);
+    }
+    const httpOrigin =
+      typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
+        ? location.origin.replace(/\/+$/, '')
+        : '';
+    const slug = key.includes('1.7b') ? 'v13_qwen3_1_7b' : 'v13_qwen3_0_6b';
+    const candidates = [
+      ...(httpOrigin ? [`${httpOrigin}/weights/${slug}/`] : []),
+      ...spec.mirrors.map((m) => (m.startsWith('http') ? m : new URL(m, import.meta.url).href)),
+    ];
+    let manifest = null;
+    let baseUrl = '';
+    for (const cBase of candidates) {
+      const norm = cBase.endsWith('/') ? cBase : `${cBase}/`;
+      if (sharedKappaStore.liarMirrors.has(norm)) continue;
+      try {
+        const resp = await fetch(`${norm}manifest.json`, { cache: 'no-store' });
+        if (resp.ok) {
+          const parsed = await resp.json();
+          if (parsed && parsed.format === 'UORR4V13' && Array.isArray(parsed.pieces)) {
+            manifest = parsed;
+            baseUrl = norm;
+            break;
+          }
+        }
+      } catch {}
+    }
+    if (!manifest) {
+      const idx = await holoReadManifestIndex(key);
+      if (idx && idx.manifest && Array.isArray(idx.manifest.pieces)) {
+        manifest = idx.manifest;
+        baseUrl = 'opfs://local-kappa';
+      } else {
+        throw new Error(`Unable to fetch UORR4V13 manifest for ${key}`);
+      }
+    }
+    let stitchManifest = null;
+    if (baseUrl.startsWith('http')) {
+      try {
+        const sr = await fetch(`${baseUrl}manifest.stitch.json`, { cache: 'no-store' });
+        if (sr.ok) stitchManifest = await sr.json();
+      } catch {}
+    }
+    const pieceCount = manifest.pieces.length;
+    const containerSha = String(manifest.container_sha256 || '').toLowerCase();
+    studio_begin_holo_v13_mount(key, pieceCount, containerSha);
+
+    const resolveOrRecoverPiece = async (pieceMeta) => {
+      const sha = String(pieceMeta.sha256 || '').toLowerCase();
+      const expectedLen = Number(pieceMeta.byte_length) || 0;
+      if (!forceReload) {
+        const cached = await sharedKappaStore.getVerifiedPiece(sha, expectedLen);
+        if (cached) return { bytes: cached, fromOpfs: true };
+      }
+      const urls = [...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []), baseUrl]
+        .filter((u) => typeof u === 'string' && u.startsWith('http'))
+        .map((u) => (u.endsWith('/') ? u : `${u}/`));
+      for (const mBase of urls) {
+        if (sharedKappaStore.liarMirrors.has(mBase)) continue;
+        try {
+          const buf = await holoFetchWithHoldTail(`${mBase}${pieceMeta.file}`, sha);
+          await sharedKappaStore.putPiece(sha, buf);
+          return { bytes: buf, fromOpfs: false };
+        } catch (err) {
+          if (String(err && err.message).includes('RefusedPieceHashMismatch')) {
+            sharedKappaStore.liarMirrors.add(mBase);
+          }
+        }
+      }
+      // Attempt 2-of-3 Stitch XOR parity recovery cleanly
+      if (stitchManifest && Array.isArray(stitchManifest.groups)) {
+        const gIdx = Math.floor(pieceMeta.index / 2);
+        const grp = stitchManifest.groups[gIdx];
+        if (grp && grp.parity && grp.left) {
+          const isLeft = pieceMeta.index % 2 === 0;
+          const peerMeta = isLeft ? grp.right : grp.left;
+          const peerBytes = peerMeta
+            ? ((await sharedKappaStore.getVerifiedPiece(peerMeta.sha256, peerMeta.byte_length)) ||
+               (baseUrl.startsWith('http') ? await holoFetchWithHoldTail(`${baseUrl}${peerMeta.file}`, peerMeta.sha256).catch(() => null) : null))
+            : new Uint8Array(0);
+          const parityBytes = baseUrl.startsWith('http')
+            ? await holoFetchWithHoldTail(`${baseUrl}${grp.parity.file}`, grp.parity.sha256).catch(() => null)
+            : null;
+          if (parityBytes && (peerMeta === null || peerBytes)) {
+            const rec = new Uint8Array(expectedLen);
+            for (let i = 0; i < expectedLen; i++) {
+              rec[i] = parityBytes[i] ^ (peerBytes && i < peerBytes.byteLength ? peerBytes[i] : 0);
+            }
+            const got = (await sha256Hex(rec)).toLowerCase();
+            if (got === sha) {
+              await sharedKappaStore.putPiece(sha, rec);
+              sharedKappaStore.stitchRecoveries += 1;
+              return { bytes: rec, fromOpfs: false, healed: true };
+            }
+          }
+        }
+      }
+      throw new Error(`RefusedInsufficientParityShards: failed piece ${pieceMeta.index} (${sha})`);
+    };
+
+    let cachedHits = 0;
+    const CONCURRENCY = 6;
+    for (let i = 0; i < pieceCount; i += CONCURRENCY) {
+      const batch = manifest.pieces.slice(i, Math.min(i + CONCURRENCY, pieceCount));
+      const results = await Promise.all(batch.map((pm) => resolveOrRecoverPiece(pm)));
+      for (let j = 0; j < results.length; j++) {
+        const res = results[j];
+        if (res.fromOpfs) cachedHits += 1;
+        const pushOut = JSON.parse(studio_push_holo_v13_piece(res.bytes));
+        if (!pushOut || pushOut.status !== 'ok') {
+          throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
+        }
+        if (typeof onProgress === 'function') {
+          onProgress({
+            modelId: key,
+            index: i + j + 1,
+            total: pieceCount,
+            cachedHits,
+            stitchRecoveries: sharedKappaStore.stitchRecoveries,
+            label: cachedHits === i + j + 1
+              ? `OPFS verified ${key} (${i + j + 1}/${pieceCount})`
+              : `Hydrating ${key} piece ${i + j + 1}/${pieceCount} into OPFS...`,
+          });
+        }
+      }
+    }
+    const fin = JSON.parse(studio_finalize_holo_v13_mount());
+    if (!fin || fin.status !== 'ok') {
+      throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
+    }
+    await holoWriteManifestIndex({
+      model_id: key,
+      container_sha256: containerSha,
+      manifest,
+      updatedAt: new Date().toISOString(),
+    });
+    const stitchHealth = {
+      scheme: 'stitch/xor-2-of-3/1',
+      custodyMode: cachedHits === pieceCount ? 'OPFS SyncAccessHandle Cached' : 'HTTP + OPFS Kappa Verified',
+      totalShards: pieceCount,
+      verifiedShards: pieceCount,
+      healedShards: sharedKappaStore.stitchRecoveries,
+      healedDetails: [],
+      failedSources: Array.from(sharedKappaStore.liarMirrors),
+      mirrorsConfigured: [baseUrl],
+      activeSources: [cachedHits === pieceCount ? 'opfs://sha256' : baseUrl],
+      status: cachedHits === pieceCount ? `Healthy (OPFS ${key})` : `Hydrated (${key})`,
+      updatedAt: new Date().toISOString(),
+    };
+    globalThis.__uorStitchHealth = stitchHealth;
+    globalThis.__uorHoloKappaStatus = {
+      container_format: 'UORR4V13',
+      active_model_id: key,
+      container_sha256: containerSha,
+      piece_count: pieceCount,
+      verified_pieces: pieceCount,
+      cached_hits: cachedHits,
+      hold_tail_bytes: HOLO_HOLD_TAIL_BYTES,
+      stitch_recoveries: sharedKappaStore.stitchRecoveries,
+      liar_mirrors: Array.from(sharedKappaStore.liarMirrors),
+      persisted_ready: true,
+    };
+    return fin;
+  })();
+  holoHydrationInflight.set(key, job);
+  try {
+    return await job;
+  } finally {
+    if (holoHydrationInflight.get(key) === job) {
+      holoHydrationInflight.delete(key);
+    }
+  }
+}
+
+/** Formal R4.HoloGeometricRuntime stream a HuggingFace Safetensors repo via HTTP `206` `Range` slices & compile to `UORR4V13`. */
+export async function load_hf_repo_holo(repoId, onProgress) {
+  const cleanRepo = String(repoId || '').trim().replace(/^https?:\/\/huggingface\.co\//i, '').replace(/\/+$/, '');
+  if (!cleanRepo.includes('/')) {
+    throw new Error('Expected owner/repo HuggingFace identifier (e.g. Qwen/Qwen3-0.6B)');
+  }
+  const base = `https://huggingface.co/${cleanRepo}/resolve/main/`;
+  if (typeof onProgress === 'function') {
+    onProgress({ stage: 'hf_meta', label: `Streaming config & tokenizer from ${cleanRepo}...` });
+  }
+  const [cfgBytes, tokBytes] = await Promise.all([
+    holoFetchWithHoldTail(`${base}config.json`),
+    holoFetchWithHoldTail(`${base}tokenizer.json`),
+  ]);
+  const cfgJson = cachedTextDecoder.decode(cfgBytes);
+  const tokJson = cachedTextDecoder.decode(tokBytes);
+  const beginRes = JSON.parse(studio_hf_repo_begin(cleanRepo, cfgJson, tokJson));
+  if (!beginRes || beginRes.status !== 'ok') {
+    throw new Error((beginRes && beginRes.message) || 'studio_hf_repo_begin failed');
+  }
+
+  // Probe shard index first; fall back to single `model.safetensors`
+  let weightMap = null;
+  try {
+    const idxResp = await fetch(`${base}model.safetensors.index.json`, { cache: 'no-store' });
+    if (idxResp.ok) {
+      const idxJson = await idxResp.json();
+      if (idxJson && idxJson.weight_map) weightMap = idxJson.weight_map;
+    }
+  } catch {}
+
+  const files = weightMap ? Array.from(new Set(Object.values(weightMap))) : ['model.safetensors'];
+  const fileHeaders = new Map();
+  for (const fname of files) {
+    const probe = await holoFetchWithHoldTail(`${base}${fname}`, '', { start: 0, end: 131071 });
+    const dv = new DataView(probe.buffer, probe.byteOffset, 8);
+    const hdrLen = Number(dv.getBigUint64(0, true));
+    let fullPrefix = probe;
+    if (8 + hdrLen > probe.byteLength) {
+      fullPrefix = await holoFetchWithHoldTail(`${base}${fname}`, '', { start: 0, end: 8 + hdrLen - 1 });
+    }
+    const hdrCheck = JSON.parse(studio_hf_repo_parse_safetensors_header(cleanRepo, fullPrefix));
+    if (!hdrCheck || hdrCheck.status !== 'ok') {
+      throw new Error((hdrCheck && hdrCheck.message) || `Corrupt safetensors header in ${fname}`);
+    }
+    const rawMeta = JSON.parse(cachedTextDecoder.decode(fullPrefix.subarray(8, 8 + hdrLen)));
+    fileHeaders.set(fname, { dataStart: 8 + hdrLen, rawMeta });
+  }
+
+  const tensorNames = [];
+  for (const [fname, hInfo] of fileHeaders.entries()) {
+    for (const [tName, tMeta] of Object.entries(hInfo.rawMeta)) {
+      if (tName === '__metadata__' || !tMeta || !Array.isArray(tMeta.data_offsets)) continue;
+      tensorNames.push({ fname, tName, tMeta, dataStart: hInfo.dataStart });
+    }
+  }
+  for (let i = 0; i < tensorNames.length; i++) {
+    const { fname, tName, tMeta, dataStart } = tensorNames[i];
+    const s0 = dataStart + Number(tMeta.data_offsets[0]);
+    const s1 = dataStart + Number(tMeta.data_offsets[1]) - 1;
+    if (s1 >= s0) {
+      const slice = await holoFetchWithHoldTail(`${base}${fname}`, '', { start: s0, end: s1 });
+      const pushRes = JSON.parse(studio_hf_repo_push_tensor(tName, tMeta.dtype, JSON.stringify(tMeta.shape), slice));
+      if (!pushRes || pushRes.status !== 'ok') {
+        throw new Error((pushRes && pushRes.message) || `Failed pushing tensor ${tName}`);
+      }
+    }
+    if (typeof onProgress === 'function' && (i % 12 === 0 || i + 1 === tensorNames.length)) {
+      onProgress({
+        stage: 'hf_tensors',
+        index: i + 1,
+        total: tensorNames.length,
+        label: `Streaming HF 206 Range tensors (${i + 1}/${tensorNames.length}) from ${cleanRepo}...`,
+      });
+    }
+  }
+  const finalStatus = JSON.parse(studio_hf_repo_finalize());
+  if (!finalStatus || finalStatus.status !== 'ok') {
+    throw new Error((finalStatus && finalStatus.message) || 'studio_hf_repo_finalize failed');
+  }
+  return finalStatus;
+}
+
 const OPFS_V12_360M_WEIGHT_FILE = 'uor_r4_gllm_v12_360m_weights.bin';
 const OPFS_V12_360M_META_FILE = 'uor_r4_gllm_v12_360m_meta.json';
 
@@ -5554,38 +6312,41 @@ function __uorStartDedicatedEngineWorker() {
       if (op === 'studio_dispatch') {
         const envelopeStr = String(payload || '');
         if (envelopeStr.includes('\tchat\t') || envelopeStr.includes('\tchat_v10_turn\t')) {
-          let needsFullV12 = false;
+          let reqHoloModel = '';
           try {
             const parts = envelopeStr.split('\t');
             const bodyRaw = parts.length >= 4 ? parts.slice(3).join('\t').trim() : '';
             if (bodyRaw.startsWith('{')) {
               const reqObj = JSON.parse(bodyRaw);
-              const sel = String(reqObj && reqObj.selected_model || '');
-              needsFullV12 = sel === 'uor-r4.recompiled-v12-agent' || sel === 'uor-r4.recompiled-v12-chat';
+              const sel = String((reqObj && (reqObj.selected_model || reqObj.model)) || '');
+              if (sel === 'uor-r4.qwen3-0.6b-holo' || sel === 'uor-r4.qwen3-1.7b-holo') {
+                reqHoloModel = sel;
+              }
             }
           } catch {
-            // Leave needsFullV12 false on non-JSON envelopes
+            // Non-JSON chat envelopes default cleanly
           }
-          if (needsFullV12 && typeof studio_r4_stack_status === 'function') {
-            let mountedFull = false;
+          if (reqHoloModel && typeof studio_holo_runtime_status === 'function') {
+            let mountedHolo = false;
             try {
-              const r4Now = JSON.parse(studio_r4_stack_status());
-              mountedFull = Boolean(r4Now && r4Now.full_recompiled_mounted);
+              const hs = JSON.parse(studio_holo_runtime_status());
+              mountedHolo = reqHoloModel === 'uor-r4.qwen3-1.7b-holo'
+                ? Boolean(hs && hs.qwen3_17b_mounted)
+                : Boolean(hs && hs.qwen3_06b_mounted);
             } catch {
-              mountedFull = false;
+              mountedHolo = false;
             }
-            if (!mountedFull) {
+            if (!mountedHolo) {
               postEvent('hydration_progress', {
-                stage: 'r4_shards',
+                stage: 'holo_v13',
                 awaiting: true,
-                ...(lastHydrationProgress || {
-                  index: 0,
-                  total: 73,
-                  healedCount: 0,
-                  label: 'Hydrating 30L UORR4V12 OPFS shards before 30L inference...',
-                }),
+                modelId: reqHoloModel,
+                label: `Hydrating verified ${reqHoloModel} pieces via OpfsKappaStore...`,
               });
-              await startOrAwaitOpfsShardHydration(false);
+              await hydrate_holo_model(reqHoloModel, (prog) => {
+                postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+                postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+              }, false);
             }
           }
         }
@@ -5723,6 +6484,71 @@ function __uorStartDedicatedEngineWorker() {
             state: JSON.parse(studio_dispatch('1\tstudio\tstate\t')),
           },
         });
+        return;
+      }
+      if (op === 'holo_runtime_status') {
+        const holo = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
+        self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
+        return;
+      }
+      if (op === 'hydrate_holo_model') {
+        const modelId = String((payload && payload.modelId) || 'uor-r4.qwen3-0.6b-holo');
+        const force = Boolean(payload && payload.force);
+        const holo = await hydrate_holo_model(modelId, (prog) => {
+          postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+          postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+        }, force);
+        postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+        self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
+        return;
+      }
+      if (op === 'load_hf_repo_holo') {
+        const repoId = String((payload && payload.repoId) || 'Qwen/Qwen3-0.6B');
+        const holo = await load_hf_repo_holo(repoId, (prog) => {
+          postEvent('boot_progress', prog);
+          postEvent('hydration_progress', prog);
+        });
+        self.postMessage({ id, ok: true, result: { holo, repoId } });
+        return;
+      }
+      if (op === 'native_q31_status') {
+        const res = typeof studio_native_q31_status === 'function' ? JSON.parse(studio_native_q31_status()) : null;
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'native_q31_train_step') {
+        const text = String((payload && payload.text) || '');
+        const res = typeof studio_native_q31_train_step === 'function' ? JSON.parse(studio_native_q31_train_step(text)) : null;
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'weight_pack_status') {
+        const pack = typeof studio_weight_pack_status === 'function' ? JSON.parse(studio_weight_pack_status()) : null;
+        self.postMessage({ id, ok: true, result: pack });
+        return;
+      }
+      if (op === 'shard_catalog') {
+        const cat = typeof studio_shard_catalog === 'function' ? JSON.parse(studio_shard_catalog()) : null;
+        self.postMessage({ id, ok: true, result: cat });
+        return;
+      }
+      if (op === 'export_uorlut_shard') {
+        const rootIdx = Number((payload && payload.e8Root) ?? 0);
+        const bytes = typeof studio_export_uorlut_shard === 'function' ? studio_export_uorlut_shard(rootIdx) : new Uint8Array(0);
+        self.postMessage({ id, ok: true, result: Array.from(bytes) });
+        return;
+      }
+      if (op === 'merge_uorlut_shard') {
+        const u8 = payload && payload.bytes instanceof Uint8Array
+          ? payload.bytes
+          : new Uint8Array((payload && payload.bytes) || (payload && payload.buffer) || 0);
+        const raw = typeof studio_merge_uorlut_shard === 'function' ? studio_merge_uorlut_shard(u8) : '{"status":"error"}';
+        self.postMessage({ id, ok: true, result: JSON.parse(raw) });
+        return;
+      }
+      if (op === 'gllm_v9_status') {
+        const res = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
+        self.postMessage({ id, ok: true, result: res });
         return;
       }
       if (op === 'sync_weights' || op === 'hydrate_v12_360m' || op === 'hydrate_360m') {
@@ -5864,12 +6690,16 @@ function __uorStartDedicatedEngineWorker() {
       const pack = JSON.parse(studio_weight_pack_status());
       const gllm = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
       const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
+      const holoStatus = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
+      const nativeQ31 = typeof studio_native_q31_status === 'function' ? JSON.parse(studio_native_q31_status()) : null;
       const verdantSynthesis = query_verdant_synthesis_status();
       postEvent('ready', {
-        snapshot: { state, workspace, pack, gllm, r4Stack, verdantSynthesis },
+        snapshot: { state, workspace, pack, gllm, r4Stack, holoStatus, nativeQ31, verdantSynthesis },
         weightCacheMeta: globalThis.__uorWeightCacheMeta || null,
         gllmMeta: globalThis.__uorGllmV9Meta || null,
         r4Stack,
+        holoStatus,
+        nativeQ31,
         verdantSynthesis,
       });
 
@@ -5878,9 +6708,14 @@ function __uorStartDedicatedEngineWorker() {
         await handleWorkerMessage(queued);
       }
 
-      // Eagerly stream UORR4V12 / sharded weights into OPFS on Worker startup;
-      // full 30L chat turns await this in-flight promise before dispatching.
-      startOrAwaitOpfsShardHydration(false);
+      // Eagerly hydrate default `uor-r4.qwen3-0.6b-holo` pieces via `OpfsKappaStore` (`createSyncAccessHandle`).
+      hydrate_holo_model('uor-r4.qwen3-0.6b-holo', (prog) => {
+        postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+        postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+      }, false).then((holo) => {
+        postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+        postEvent('holo_ready', { holo, kappaStore: globalThis.__uorHoloKappaStatus || null });
+      }).catch(() => {});
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {
         hostBridge.checkProvenanceUpdate('').catch(() => null);

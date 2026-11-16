@@ -135,12 +135,12 @@ fn test_empirical_chatbox_model_selector_and_history_contracts() {
     let index_html =
         std::fs::read_to_string(root.join("public/index.html")).expect("read index.html");
 
-    // All 4 honest UOR-R4 v12 execution modes in COMPOSER_MODELS
+    // All 4 honest UOR-R4 v0.13.0 execution modes in COMPOSER_MODELS
     let models = [
-        "uor-r4.recompiled-v12-agent",
-        "uor-r4.recompiled-v12-chat",
-        "uor-r4.seed-fast",
-        "uor-r4.lut-symbolic",
+        "uor-r4.qwen3-0.6b-holo",
+        "uor-r4.qwen3-1.7b-holo",
+        "uor-r4.native-q31-d85",
+        "uor-r4.hf-repo-holo",
     ];
 
     for m in &models {

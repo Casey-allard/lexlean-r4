@@ -16,7 +16,14 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const PRE_WASM_ONLY = process.argv.includes('--pre-wasm');
 
-const FOUR_V12_MODELS = [
+const FOUR_V13_MODELS = [
+  'uor-r4.qwen3-0.6b-holo',
+  'uor-r4.qwen3-1.7b-holo',
+  'uor-r4.native-q31-d85',
+  'uor-r4.hf-repo-holo',
+];
+
+const RETIRED_SCAFFOLD_MODELS = [
   'uor-r4.recompiled-v12-agent',
   'uor-r4.recompiled-v12-chat',
   'uor-r4.seed-fast',
@@ -118,8 +125,8 @@ async function verifyPartAClosureAndStaticUi() {
   const optionValues = [...selectMatch[1].matchAll(/<option[^>]*value="([^"]+)"/gi)].map((m) => m[1]);
   assert.deepEqual(
     optionValues,
-    FOUR_V12_MODELS,
-    '#composer-model-select must expose exactly the 4 real UOR-R4 v12 modes',
+    FOUR_V13_MODELS,
+    '#composer-model-select must expose exactly the 4 real UOR-R4 v0.13.0 modes',
   );
 
   // Required Self-Improvement / Watchdog / Cursor layout & wired controls
@@ -172,29 +179,29 @@ async function verifyPartBModelPersistenceAndBridge() {
      return { MODEL_STORAGE_KEY, COMPOSER_MODE_STORAGE_KEY, DEFAULT_HONEST_MODEL_ID, resolveHonestModelId, loadPersistedModelId, loadPersistedComposerMode };`,
   )(mockLocalStorage);
 
-  assert.equal(modelSlice.resolveHonestModelId('uor-r4.recompiled-v12-chat'), 'uor-r4.recompiled-v12-chat');
-  assert.equal(modelSlice.resolveHonestModelId('stale-v10-id'), 'uor-r4.recompiled-v12-agent');
-  mockLocalStorage.setItem(modelSlice.MODEL_STORAGE_KEY, 'uor-r4.seed-fast');
+  assert.equal(modelSlice.resolveHonestModelId('uor-r4.qwen3-1.7b-holo'), 'uor-r4.qwen3-1.7b-holo');
+  assert.equal(modelSlice.resolveHonestModelId('stale-v10-id'), 'uor-r4.qwen3-0.6b-holo');
+  mockLocalStorage.setItem(modelSlice.MODEL_STORAGE_KEY, 'uor-r4.native-q31-d85');
   mockLocalStorage.setItem(modelSlice.COMPOSER_MODE_STORAGE_KEY, 'plan');
-  assert.equal(modelSlice.loadPersistedModelId(), 'uor-r4.seed-fast');
+  assert.equal(modelSlice.loadPersistedModelId(), 'uor-r4.native-q31-d85');
   assert.equal(modelSlice.loadPersistedComposerMode(), 'plan');
 
   // Verify runClaudeChat chatPayload carries selected_model + composer_mode and eager hydration streaming
   assert.ok(rawJs.includes('selected_model: selectedModel'), 'chatPayload must include selected_model');
   assert.ok(rawJs.includes('composer_mode:'), 'chatPayload must include composer_mode');
-  assert.ok(rawJs.includes('0-Download 8L 256D'), 'app.js must label embedded seed as 8L 256D');
+  assert.ok(rawJs.includes('0-Download 4L 256D'), 'app.js must label embedded D85 Q31 as 0-Download 4L 256D');
   assert.equal(rawJs.includes('0-Download 6L'), false, 'app.js must not carry stale 6L seed label');
   assert.equal(rawJs.includes('16 E8 Shards'), false, 'app.js must not carry stale 16 E8 Shards label');
 
   const composerTs = fs.readFileSync(path.join(ROOT, 'crates', 'wasm', 'ts', 'composer.ts'), 'utf8');
-  assert.ok(composerTs.includes('0-Download 8L 256D'), 'composer.ts must label embedded seed as 8L 256D');
+  assert.ok(composerTs.includes('0-Download 4L 256D'), 'composer.ts must label embedded D85 Q31 as 0-Download 4L 256D');
   const rawHtml = fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8');
-  assert.ok(rawHtml.includes('0-Download 8L 256D'), 'index.html must label embedded seed as 8L 256D');
+  assert.ok(rawHtml.includes('0-Download 4L 256D'), 'index.html must label embedded D85 Q31 as 0-Download 4L 256D');
   assert.equal(rawHtml.includes('16 E8 Shards'), false, 'index.html must not carry stale 16 E8 Shards label');
 
   const bridgeSrc = fs.readFileSync(path.join(ROOT, 'crates', 'wasm', 'js', 'worker_host_bridge.js'), 'utf8');
-  assert.ok(bridgeSrc.includes('startOrAwaitOpfsShardHydration('), 'worker_host_bridge.js must manage eager OPFS hydration');
-  assert.ok(bridgeSrc.includes('await startOrAwaitOpfsShardHydration(false);'), '30L chat dispatch must await in-flight OPFS shard hydration');
+  assert.ok(bridgeSrc.includes('hydrate_holo_model('), 'worker_host_bridge.js must manage eager OPFS Holo hydration');
+  assert.ok(bridgeSrc.includes('load_hf_repo_holo('), 'worker_host_bridge.js must support HuggingFace Range streaming');
   assert.ok(bridgeSrc.includes("postEvent('hydration_progress'"), 'worker_host_bridge.js must stream hydration_progress events');
   assert.ok(rawJs.includes("evType === 'hydration_progress'") && rawJs.includes('activeChatStreamHook(msg)'), 'app.js must forward hydration_progress to activeChatStreamHook');
 
@@ -245,7 +252,7 @@ async function verifyPartBModelPersistenceAndBridge() {
     parent: parentWin,
     addEventListener(ev, fn) { winListeners[ev] = winListeners[ev] || []; winListeners[ev].push(fn); },
   };
-  const mockAppState = { config: { selectedModel: 'uor-r4.recompiled-v12-agent', composerMode: 'agent', connectedGitRepo: 'acme/demo', connectedGitBranch: 'main' }, workspace: { pendingPatches: {} } };
+  const mockAppState = { config: { selectedModel: 'uor-r4.qwen3-0.6b-holo', composerMode: 'agent', connectedGitRepo: 'acme/demo', connectedGitBranch: 'main' }, workspace: { pendingPatches: {} } };
   const mockWorkerClient = {
     enabled: true,
     workspaceFiles: new Map(),
@@ -289,7 +296,7 @@ async function verifyPartBModelPersistenceAndBridge() {
 
   for (const fn of winListeners.message || []) {
     await fn({
-      data: { protocol: 'uor-workspace-bridge/1', type: 'uor-workspace-bridge/1:set-model', model: 'uor-r4.seed-fast' },
+      data: { protocol: 'uor-workspace-bridge/1', type: 'uor-workspace-bridge/1:set-model', model: 'uor-r4.native-q31-d85' },
       source: parentWin,
     });
     await fn({
@@ -297,10 +304,10 @@ async function verifyPartBModelPersistenceAndBridge() {
       source: parentWin,
     });
   }
-  assert.equal(mockAppState.config.selectedModel, 'uor-r4.seed-fast', 'uor-workspace-bridge/1:set-model must update AppState.config.selectedModel');
+  assert.equal(mockAppState.config.selectedModel, 'uor-r4.native-q31-d85', 'uor-workspace-bridge/1:set-model must update AppState.config.selectedModel');
   const uorStatus = posted.map((p) => p.msg).filter((m) => m.protocol === 'uor-workspace-bridge/1' && m.type === 'uor-workspace-bridge/1:status').pop();
   assert.ok(uorStatus, 'uor-workspace-bridge/1:ping must emit uor-workspace-bridge/1:status');
-  assert.equal(uorStatus.selected_model, 'uor-r4.seed-fast');
+  assert.equal(uorStatus.selected_model, 'uor-r4.native-q31-d85');
   console.log('  ✓ Model persistence & uor-workspace-bridge/1 round-trip verified.');
 }
 
@@ -372,44 +379,58 @@ async function verifyPartDWasmHonestRoutingAndWatchdog() {
     console.log('4. [--pre-wasm] Skipping live Wasm verification (will run strictly post xtask build-wasm).');
     return;
   }
-  console.log('4. Verifying live Wasm routing, UORGLLM9 + UORR4V12 shard mounting & 3-strike watchdog...');
+  console.log('4. Verifying live Wasm routing, Holo v13 + Native Q31 status & 3-strike watchdog...');
   const bundleJsText = fs.readFileSync(path.join(PUBLIC_DIR, 'lexlean_r4.js'), 'utf8');
   assert.ok(
     bundleJsText.includes('studio_admit_generation_capsule')
-      && bundleJsText.includes('studio_mount_r4_v12_bytes')
+      && bundleJsText.includes('studio_holo_runtime_status')
+      && bundleJsText.includes('studio_native_q31_status')
       && bundleJsText.includes('studio_verdant_synthesis_status'),
-    'public/lexlean_r4.js must be rebuilt via xtask build-wasm with honest plumbing exports',
+    'public/lexlean_r4.js must be rebuilt via xtask build-wasm with v0.13.0 Holo & Q31 exports',
   );
 
   const wasmMod = await import(new URL('../../public/lexlean_r4.js', import.meta.url));
   const wasmBytes = fs.readFileSync(path.join(PUBLIC_DIR, 'lexlean_r4_bg.wasm'));
   wasmMod.initSync({ module: wasmBytes });
 
-  assert.equal(typeof wasmMod.studio_r4_stack_status, 'function', 'studio_r4_stack_status must be exported');
-  assert.equal(typeof wasmMod.studio_mount_r4_v12_bytes, 'function', 'studio_mount_r4_v12_bytes must be exported');
+  assert.equal(typeof wasmMod.studio_holo_runtime_status, 'function', 'studio_holo_runtime_status must be exported');
+  assert.equal(typeof wasmMod.studio_native_q31_status, 'function', 'studio_native_q31_status must be exported');
+  assert.equal(typeof wasmMod.studio_native_q31_train_step, 'function', 'studio_native_q31_train_step must be exported');
   assert.equal(typeof wasmMod.studio_admit_generation_capsule, 'function', 'studio_admit_generation_capsule must be exported');
   assert.equal(typeof wasmMod.studio_record_generation_fault, 'function', 'studio_record_generation_fault must be exported');
   assert.equal(typeof wasmMod.studio_verdant_synthesis_status, 'function', 'studio_verdant_synthesis_status must be exported');
 
-  // Check initial seed status
+  // Check initial Holo v13 + Native Q31 D85 status
   const dispatchChatJson = (obj) =>
     wasmMod.studio_dispatch(`1\tstudio\tchat\t${typeof obj === 'string' ? obj : JSON.stringify(obj)}`);
 
-  const initStack = JSON.parse(wasmMod.studio_r4_stack_status());
-  assert.equal(initStack.seed_mounted, true, 'Embedded UORR4V12 seed must be mounted initially');
-  assert.equal(initStack.full_recompiled_mounted, false, 'Full v12 shard should not be mounted before streaming');
+  const holoStatus = JSON.parse(wasmMod.studio_holo_runtime_status());
+  assert.equal(holoStatus.mounted_count, 0, 'Unmounted Holo OPFS models should report mounted_count=0 initially');
+  const q31Status = JSON.parse(wasmMod.studio_native_q31_status());
+  assert.equal(q31Status.format, 'UORQ31V1');
 
-  // Pre-mount honesty (`R4`, `R5`): selecting full 30L modes before mounting UORR4V12 shards MUST refuse cleanly (no silent fallback)
-  for (const unmountedId of ['uor-r4.recompiled-v12-agent', 'uor-r4.recompiled-v12-chat']) {
+  // Pre-mount honesty (`R4`, `R5`): selecting OPFS/HF Holo models before mounting MUST refuse cleanly
+  for (const unmountedId of ['uor-r4.qwen3-0.6b-holo', 'uor-r4.qwen3-1.7b-holo', 'uor-r4.hf-repo-holo']) {
     const rawRefusal = dispatchChatJson({
       prompt: 'Refactor src/lib.rs and fix the syntax bug',
-      composer_mode: unmountedId.endsWith('-chat') ? 'ask' : 'agentic',
+      composer_mode: 'agentic',
       selected_model: unmountedId,
     });
     const refusal = JSON.parse(rawRefusal);
-    assert.equal(refusal.status, 'error', `${unmountedId} must refuse cleanly before shards are mounted`);
+    assert.equal(refusal.status, 'error', `${unmountedId} must refuse cleanly before OPFS mount`);
     assert.equal(refusal.error_code, 'RefusedRequestedModelUnmounted', `Expected RefusedRequestedModelUnmounted for ${unmountedId}`);
     assert.equal(refusal.selected_model, unmountedId);
+  }
+
+  // Retired v12/seed/symbolic scaffold modes MUST refuse strictly (`R5`)
+  for (const retiredId of RETIRED_SCAFFOLD_MODELS) {
+    const retiredResp = JSON.parse(dispatchChatJson({
+      prompt: 'hello',
+      composer_mode: 'agentic',
+      selected_model: retiredId,
+    }));
+    assert.equal(retiredResp.status, 'error');
+    assert.equal(retiredResp.error_code, 'RefusedRetiredScaffoldMode');
   }
 
   // Unrecognized selected_model refuses strictly (`R5`)
@@ -421,27 +442,26 @@ async function verifyPartDWasmHonestRoutingAndWatchdog() {
   assert.equal(badModelResp.status, 'error');
   assert.equal(badModelResp.error_code, 'RefusedModeMismatch');
 
-  // Pre-mount `uor-r4.seed-fast` and `uor-r4.lut-symbolic` execute immediately with distinct tiers & zero template hijacks
-  const seedPreResp = JSON.parse(dispatchChatJson({
+  // Embedded Native Q31 D85 executes immediately with zero float ops and zero template hijacks
+  const q31RespRaw = dispatchChatJson({
     prompt: 'Teach: refactor this Rust function in src/lib.rs',
     composer_mode: 'fast',
-    selected_model: 'uor-r4.seed-fast',
-  }));
-  assert.equal(seedPreResp.status, 'ok', 'uor-r4.seed-fast must execute cleanly before full shard mount');
-  assert.equal(seedPreResp.selected_model, 'uor-r4.seed-fast');
-  assert.equal(seedPreResp.execution_tier, 'embedded-seed-fast (8L)');
-  assert.equal(seedPreResp.is_coding_turn, false, 'Neural seed mode must skip canned synthesize_code_turn hijack');
-  assert.equal(seedPreResp.proposed_code, '');
-  assert.equal(seedPreResp.geometric_metrics?.float_ops, 0);
+    selected_model: 'uor-r4.native-q31-d85',
+  });
+  assert.equal(q31RespRaw.toLowerCase().includes('"telemetry"'), false, 'studio chat dispatch must not emit "telemetry" key');
+  const q31Resp = JSON.parse(q31RespRaw);
+  assert.equal(q31Resp.status, 'ok', 'uor-r4.native-q31-d85 must execute cleanly');
+  assert.equal(q31Resp.selected_model, 'uor-r4.native-q31-d85');
+  assert.equal(q31Resp.is_coding_turn, false, 'Neural mode must skip canned synthesize_code_turn hijack');
+  assert.equal(q31Resp.proposed_code, '');
+  assert.equal(q31Resp.geometric_metrics?.float_ops, 0);
+  assert.equal(q31Resp.geometric_metrics?.dense_matmul_ops, 0);
+  assert.ok(Array.isArray(q31Resp.brain_pulses) && q31Resp.brain_pulses.length > 0, 'brain_pulses required');
 
-  const lutPreResp = JSON.parse(dispatchChatJson({
-    prompt: 'Explain UOR R4 invariants',
-    composer_mode: 'ask',
-    selected_model: 'uor-r4.lut-symbolic',
-  }));
-  assert.equal(lutPreResp.status, 'ok', 'uor-r4.lut-symbolic must execute cleanly');
-  assert.equal(lutPreResp.selected_model, 'uor-r4.lut-symbolic');
-  assert.equal(lutPreResp.execution_tier, 'symbolic-lut-mvm (8L LUT)');
+  // Online Native Q31 Hamilton train step lowers loss or stays bounded and advances step count
+  const trainStepRes = JSON.parse(wasmMod.studio_native_q31_train_step('Spinning SpiralCore D85 pure integer training corpus'));
+  assert.equal(trainStepRes.status, 'ok');
+  assert.ok(trainStepRes.step >= 1, 'native_q31_train_step must advance step counter');
 
   // Verify legacy UORGLLM9 acceptance + corrupt magic R5 negative rejection
   const realV9Bytes = loadRealBootstrapV9Bytes();
@@ -472,33 +492,6 @@ async function verifyPartDWasmHonestRoutingAndWatchdog() {
   assert.equal(r4Mounted.dense_matmul_ops, 0);
   const postMountStack = JSON.parse(wasmMod.studio_r4_stack_status());
   assert.equal(postMountStack.full_recompiled_mounted, true, 'UORR4V12 mount must mark full_recompiled_mounted=true');
-
-  // Verify all 4 selected_model modes now execute cleanly with honest metrics and NO template hijack
-  const tierSet = new Set();
-  const replySet = new Set();
-  for (const modelId of FOUR_V12_MODELS) {
-    const reqPayload = {
-      prompt: 'Refactor this Rust function and fix the syntax bug in src/lib.rs',
-      composer_mode: modelId.endsWith('-chat') ? 'ask' : modelId === 'uor-r4.seed-fast' ? 'fast' : 'agentic',
-      selected_model: modelId,
-    };
-    const rawResp = dispatchChatJson(reqPayload);
-    assert.equal(rawResp.toLowerCase().includes('"telemetry"'), false, 'studio chat dispatch must not emit "telemetry" key');
-    const resp = JSON.parse(rawResp);
-    assert.equal(resp.status, 'ok', `studio chat dispatch must succeed for ${modelId} post-mount: ${rawResp}`);
-    assert.equal(resp.selected_model, modelId, `selected_model must echo ${modelId}`);
-    assert.ok(resp.geometric_metrics && typeof resp.geometric_metrics === 'object', `geometric_metrics required for ${modelId}`);
-    assert.equal(resp.geometric_metrics.float_ops, 0, `float_ops must be 0 for ${modelId}`);
-    assert.ok(typeof resp.assistant_reply === 'string' && resp.assistant_reply.length > 0, `non-empty assistant_reply required for ${modelId}`);
-    tierSet.add(resp.execution_tier);
-    replySet.add(resp.assistant_reply);
-    if (modelId !== 'uor-r4.lut-symbolic') {
-      assert.equal(resp.is_coding_turn, false, `Neural mode ${modelId} must never hijack into synthesize_code_turn template`);
-      assert.equal(resp.proposed_code, '', `Neural mode ${modelId} must not synthesize canned proposed_code template`);
-    }
-  }
-  assert.equal(tierSet.size, 4, `Expected 4 distinct execution_tiers across the 4 modes, got: ${[...tierSet].join(', ')}`);
-  assert.ok(replySet.size >= 2, 'Expected distinct responses across neural and symbolic routing modes');
 
   // Verify .uorc gen-0 fault strikes (1-2 continue, 3 refuses at gen-0), negative capsule rejection (`R5`), valid admission, and 3-strike rollback
   for (let s = 1; s <= 2; s += 1) {

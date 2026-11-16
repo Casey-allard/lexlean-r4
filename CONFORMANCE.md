@@ -144,6 +144,18 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-11` | `build` | Pure LexLean computes SHA-256 over admitted finite byte sequences and configured twelve-byte BLAKE2b node identities with exact padding, counters, rounds and encoding, rejecting invalid bytes, lengths, scales and caller budgets. Independent digest controls establish no injectivity, production runtime, durable storage or model capability. |
 
+## r4-holo-geometric-runtime
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-51` | `build` | Pure LexLean models pure-integer Holo UORR4V13 geometric inference, Wasm simd128 nibble-unpack kernels, Block-32 RHT Cholesky-GPTQ decoding, per-head QK-norm ordering before RoPE, SWAR 512-bit Hamming shortlist selection, Worker-only RPC routing, and retirement of non-coherent scaffolds (r4-holo-geometric-runtime): pure integer inference over hardware mul/div and CLZ-seeded Newton isqrt (zero floating-point serving ops, zero dense matmuls), symmetric group-32 int8 tied embeddings/lm_head with 4-bit dyadic layer projections, explicit RefusedRetiredScaffoldMode blocking legacy SmolLM2-135M / SeedFast / LutSymbolic chat routes, Worker RPC serialization preventing main-thread __wbindgen_free panics, and explicit tensor/head alignment refusals RefusedInvalidHoloV13Magic, RefusedHeadDimMisaligned, RefusedRoPEBeforeQkNorm, and RefusedMainThreadWasmDispatch. Formal controls establish no offline GPU calibration receipt provenance or external Hugging Face model availability. |
+
+## r4-holo-kappa-store
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-50` | `build` | Pure LexLean models Holo v4 kappa-addressed OPFS piece storage, HOLD-buffered verified byte streaming, Stitch parity healing, and direct HTTP 206 Range Hugging Face safetensors piece loading (r4-holo-kappa-store): UORR4V13 pieces.v1 content-addressed OPFS hierarchy (sha256/<hh>/<hh>/<hex>) backed by Dedicated Worker FileSystemSyncAccessHandle with 64 KiB HOLD-tail digest gate releasing final bytes strictly after piece SHA-256 verification, sparse HTTP Range slice streaming with liar-mirror quarantine and 2-of-3 Stitch XOR recovery, and typed refusals RefusedPieceHashMismatch, RefusedRangeRequestUnsupported, RefusedCorruptSafetensorsHeader, and RefusedStorageCommitAbort. Formal controls establish no remote CDN uptime, CORS header stability, or browser OPFS quota grant. |
+
 ## r4-honest-plumbing
 
 | ID | Level | Statement |
@@ -167,6 +179,12 @@ model does not sanction.
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-08` | `build` | The pure LexLean finite learning-transition model selects from the complete sixteen geometric or three gate candidate inventory, preserves baseline-fixed eligibility and checked batch-loss semantics over explicit read/writer outcomes, and applies only a binding- and epoch-valid strictly improving geometric update while preserving the whole state on refusal. Formal controls do not establish counterfactual read execution, private device proposal authentication, GPU parity, or permission to train. |
+
+## r4-native-q31-train
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-52` | `build` | Pure LexLean models pure-from-scratch Q31 SpiralCore/FBS neural lane codecs, Hamilton G2 quaternion gates, SWAR 64-bit Hamming reads, D19 content-addressed memory, and bit-identical CUDA/Wasm replay (r4-native-q31-train): UORQ31V1 lossless Q31 integer checkpoint codec with magic, dimension bounds, non-negative step counters, and dual sha256/blake3 kappa verification; Q31 Cl(0,6) 64-state SpiralCore actions over 16-root E8 orbits with fixed-point softmax-free integer updates; browser-side online Q31 residual training step with typed refusals RefusedInvalidQ31Magic, RefusedOutOfDomainQ31Config, RefusedQ31ChecksumMismatch, and RefusedCudaWasmParityDrift. Formal controls establish no offline RTX 4090 GPU hardware execution or corpus generalization beyond verified receipts. |
 
 ## r4-object
 
@@ -282,6 +300,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-01` | `build` | The LexLean configuration predicate admits the pinned discrete-engine bounds and rejects boundary violations, verified by eleven independent Lean theorem cases. No model execution or research qualification is claimed. |
 
+## r4-uorust-prism-devrel
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-53` | `build` | Pure LexLean models UORust total fact-to-record route tables, Prism-DevRel ISO 15939 measurement bounds, and W3C PROV-O primary source derivation gates (r4-uorust-prism-devrel): deterministic model/routes.toml mapping Cargo/LexLean/Holo/Q31/Worker/Ratchet/Release facts onto Foundation.{Arch,Feature,Quality,Sec,Release} records across arch, features, behavior, design, sec, qual, and release facets with typed refusals RefusedUnknownRouteFact, RefusedAmbiguousRoute, RefusedInvalidMeasureDirection, and RefusedMissingProvenanceSource; enforcing zero uncovered model records, zero undeclared cross-references, monotonic UORust function-kappa ratchet, and strict primary-source provenance verification in xtask validate and just vv. Formal controls establish no external upstream repository availability or remote CI execution. |
+
 ## r4-verdant-ratchet
 
 | ID | Level | Statement |
@@ -318,6 +342,10 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `UORUST-PRISM-DEVREL` | https://github.com/afflom/UORust (model/routes.toml uorust/routes/1 total classification routing) and https://github.com/afflom/prism-devrel (model/measures.toml prism/measures/1 and W3C PROV-O primary-source ledger); companion src/R4/UorustPrismDevrel.lex.tex | `R4-53` |
+| `NATIVE-Q31-TRAIN` | Sibling workspace /Users/casey.allard/uor-r4 (PLAN.md D80-D85, uor-r4-integer/stack, uor-r4-float-train/spiralcore_fbs); companion src/R4/NativeQ31Train.lex.tex | `R4-52` |
+| `HOLO-GEOMETRIC-RUNTIME` | https://huggingface.co/Qwen/Qwen3-0.6B (config.json, tokenizer_config.json) and /Users/casey.allard/uor-r4 (D80/D81 hardware integer mul/div + CLZ Newton isqrt); companion src/R4/HoloGeometricRuntime.lex.tex | `R4-51` |
+| `HOLO-KAPPA-STORE` | https://github.com/afflom/hologram-live (apps/model-hub/web/public/spaces/runtime/holo-opfs-kappastore.mjs and deploy/verified-bytes.mjs) and https://github.com/afflom/stitch (2-of-3 XOR parity recovery); companion src/R4/HoloKappaStore.lex.tex | `R4-50` |
 | `VERDANT-UORC-PLUMBING` | https://github.com/afflom/verdant-resonance (src/selfhost/browserSelfHostEngine.ts OPFS UORC\x01 generation capsule admission and 3-strike watchdog rollback) and https://github.com/afflom/me (uor-workspace-bridge/1 host bridge contract); companion src/R4/HonestPlumbing.lex.tex | `R4-46` |
 | `VERDANT-UORUST-SYNTHESIS` | https://github.com/afflom/verdant-resonance, https://github.com/afflom/UORust, and https://github.com/afflom/prism-devrel (topological LexLean AST mechanizer, uorust/register/1 SHA-256 function kappa ratchet, W3C PROV-O / ISO 29148 / ISO 15939 fidelity axes, 4-facet holon KPIs, and [1..16] Hebbian Pareto/Lyapunov engine); companion src/R4/VerdantSynthesis.lex.tex | `R4-45` |
 | `UOR-R4-DIRECT-RECOMPILATION` | https://github.com/Casey-allard/uor-r4 and https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct (30 layers, 9 query heads, 3 KV heads, head_dim=64, d_model=576, intermediate_size=1536, vocab_size=49152, tied embeddings, RoPE theta=100000); companion src/R4/GeometricRecompiler.lex.tex | `R4-44` |
@@ -364,6 +392,10 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-UORUST-PRISM-DEVREL` | `some-true` | UORust route-table totality (uorust/routes/1), Prism-DevRel ISO 15939 measurement criteria (prism/measures/1), and W3C PROV-O primary source derivation rules (source-attribution registry) are imported from afflom/UORust and afflom/prism-devrel. Formal LexLean controls do not entail upstream repository state or external runtime environments. |
+| `AUTH-NATIVE-Q31-TRAIN` | `some-true` | Pure Q31 SpiralCore Cl(0,6)/E8 orbital dynamics, Hamilton G2 quaternion gating, SWAR Hamming population reads, and D19 content-addressed associative memory specifications are imported from sibling R4 architecture tracks (uor-r4 D80-D85). Formal LexLean controls do not prove hardware GPU training throughput or corpus loss convergence outside committed receipts. |
+| `AUTH-HOLO-GEOMETRIC-RUNTIME` | `some-true` | Qwen3 grouped-query attention with pre-RoPE per-head RMS normalization, Block-32 Randomized Hadamard Transform Hessian Cholesky-GPTQ quantization bounds, hardware integer arithmetic under uor-r4 D80/D81, and Web Worker isolated Wasm execution contracts are imported from upstream Qwen3 architecture specs and uor-r4 D80-D87. Formal LexLean controls do not replace empirical GPU/Wasm parity measurements. |
+| `AUTH-HOLO-KAPPA-STORE` | `some-true` | Hologram Desktop OPFS KappaStore layout (sha256/<hh>/<hh>/<hex>), 64 KiB HOLD-buffered SHA-256 byte release, HTTP 206 Range safetensors streaming, and Stitch XOR parity healing are imported from afflom/hologram-live and afflom/stitch. Formal LexLean controls do not guarantee remote CDN liveness or browser storage quota grants. |
 | `AUTH-VERDANT-UORC-PLUMBING` | `some-true` | Browser UORC\x01 generation capsule bounds, 3-strike watchdog rollback semantics, Worker concurrency sizing, and workspace bridge framing are imported from the upstream Verdant-Resonance and me specifications. Formal LexLean controls do not entail remote browser persistence or live external host availability. |
 | `AUTH-VERDANT-UORUST-SYNTHESIS` | `some-true` | Topological AST mechanization, function-level SHA-256 kappa monotonicity under uorust/function-kappa/1, multi-axis fidelity scoring, and Pareto/Lyapunov Hebbian synthesis scheduling are imported from the upstream verdant-resonance, UORust, and prism-devrel specifications. Formal LexLean controls do not replace local Rust build or ratchet verification. |
 | `AUTH-R4-DIRECT-RECOMPILATION` | `some-true` | SmolLM2-135M architectural dimensions and multiplier-free integer nibble-pair LUT recompilation structure are imported from the upstream uor-r4 and model config specifications. Formal LexLean controls supply container and dimension admission only and make no benchmark fluency or HuggingFace availability claims. |

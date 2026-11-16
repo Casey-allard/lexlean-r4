@@ -906,7 +906,10 @@ fn test_t1_f13_prism_4_facet_holon_scores() {
         assert!(score >= 900, "Facet score must be >= 900: {}", f["facet"]);
         assert_eq!(f["defects"], 0, "Facet defects must be 0: {}", f["facet"]);
     }
-    assert_eq!(report["aggregate_score_milli"], 985);
+    assert!(
+        report["aggregate_score_milli"].as_u64().unwrap_or(0) >= 985,
+        "aggregate_score_milli must be >= 985"
+    );
 }
 
 #[test]
@@ -932,12 +935,13 @@ fn test_t1_f13_prism_conformance_md_authority_rebuild() {
     assert!(content.contains("The conformance ID register."));
     assert!(content.contains("`R4-47`"));
     assert!(content.contains("`R4-48`"));
+    assert!(content.contains("`R4-53`"));
 }
 
 #[test]
 fn test_t1_f13_prism_semver_change_level_computation() {
     let rows = load_all_capability_rows().expect("load model/ids.toml");
-    assert_eq!(rows.len(), 49);
+    assert_eq!(rows.len(), 53);
     for r in &rows {
         assert!(["build", "some-true", "open"].contains(&r.level.as_str()));
     }

@@ -84,7 +84,8 @@ fn test_honest_model_routed_plumbing_and_uorc_watchdog_r4_46() {
         "tests/lexlean/HonestPlumbingControls.lex.tex",
         "HonestPlumbingControls",
         &[
-            "recompiledAgentRoutingAdmitted",
+            "holoV13RoutingAdmitted",
+            "breaksRetiredScaffoldAdmitted",
             "breaksTemplateHijackInNeuralMode",
             "breaksThreeStrikeWatchdogNoRollback",
             "watchdogRollsBackAtStrikeThreshold",
@@ -92,20 +93,24 @@ fn test_honest_model_routed_plumbing_and_uorc_watchdog_r4_46() {
         ],
     );
 
-    // All four UI/runtime modes round-trip wire IDs honestly.
+    // All four clean v13 UI/runtime modes round-trip wire IDs honestly.
     let modes = [
         (
-            ComposerRouteMode::RecompiledV12Agent,
-            "uor-r4.recompiled-v12-agent",
+            ComposerRouteMode::Qwen306bHolo,
+            "uor-r4.qwen3-0.6b-holo",
             true,
         ),
         (
-            ComposerRouteMode::RecompiledV12Chat,
-            "uor-r4.recompiled-v12-chat",
+            ComposerRouteMode::Qwen317bHolo,
+            "uor-r4.qwen3-1.7b-holo",
             true,
         ),
-        (ComposerRouteMode::SeedFast, "uor-r4.seed-fast", true),
-        (ComposerRouteMode::LutSymbolic, "uor-r4.lut-symbolic", false),
+        (
+            ComposerRouteMode::NativeQ31D85,
+            "uor-r4.native-q31-d85",
+            true,
+        ),
+        (ComposerRouteMode::HfRepoHolo, "uor-r4.hf-repo-holo", true),
     ];
     for (mode, wire, is_neural) in modes {
         assert_eq!(mode.wire_id(), wire);
@@ -115,68 +120,93 @@ fn test_honest_model_routed_plumbing_and_uorc_watchdog_r4_46() {
             admit_model_routing(ModelRoutingCheck {
                 requested_mode: mode,
                 executed_mode: mode,
+                retired_scaffold_requested: false,
                 template_override_used: false,
                 turn_memory_hijack_used: false,
                 stale_banner_present: false,
-                full_v12_mounted: true,
-                seed_mounted: true,
+                requested_weights_mounted: true,
             }),
             ModelRoutingVerdict::RoutingAdmitted
         );
     }
-    assert_eq!(ComposerRouteMode::from_wire_id("uor-r4.gllm-v10"), None);
+    for retired in [
+        "uor-r4.seed-fast",
+        "uor-r4.lut-symbolic",
+        "uor-r4.recompiled-v12-agent",
+        "uor-r4.recompiled-v12-chat",
+        "uor-r4.gllm-v10",
+    ] {
+        assert_eq!(ComposerRouteMode::from_wire_id(retired), None);
+        assert!(ComposerRouteMode::is_retired_scaffold_wire(retired));
+    }
 
     // Typed routing refusals (R5).
     assert_eq!(
         admit_model_routing(ModelRoutingCheck {
-            requested_mode: ComposerRouteMode::RecompiledV12Agent,
-            executed_mode: ComposerRouteMode::LutSymbolic,
+            requested_mode: ComposerRouteMode::Qwen306bHolo,
+            executed_mode: ComposerRouteMode::NativeQ31D85,
+            retired_scaffold_requested: false,
             template_override_used: false,
             turn_memory_hijack_used: false,
             stale_banner_present: false,
-            full_v12_mounted: true,
-            seed_mounted: true,
+            requested_weights_mounted: true,
         }),
         ModelRoutingVerdict::RefusedModeMismatch
     );
     assert_eq!(
         admit_model_routing(ModelRoutingCheck {
-            requested_mode: ComposerRouteMode::RecompiledV12Chat,
-            executed_mode: ComposerRouteMode::RecompiledV12Chat,
+            requested_mode: ComposerRouteMode::Qwen306bHolo,
+            executed_mode: ComposerRouteMode::Qwen306bHolo,
+            retired_scaffold_requested: true,
+            template_override_used: false,
+            turn_memory_hijack_used: false,
+            stale_banner_present: false,
+            requested_weights_mounted: true,
+        }),
+        ModelRoutingVerdict::RefusedRetiredScaffoldMode
+    );
+    assert_eq!(
+        admit_model_routing(ModelRoutingCheck {
+            requested_mode: ComposerRouteMode::Qwen317bHolo,
+            executed_mode: ComposerRouteMode::Qwen317bHolo,
+            retired_scaffold_requested: false,
             template_override_used: true,
             turn_memory_hijack_used: false,
             stale_banner_present: false,
-            full_v12_mounted: true,
-            seed_mounted: true,
+            requested_weights_mounted: true,
         }),
         ModelRoutingVerdict::RefusedTemplateHijackInNeuralMode
     );
     assert_eq!(
         admit_model_routing(ModelRoutingCheck {
-            requested_mode: ComposerRouteMode::SeedFast,
-            executed_mode: ComposerRouteMode::SeedFast,
+            requested_mode: ComposerRouteMode::NativeQ31D85,
+            executed_mode: ComposerRouteMode::NativeQ31D85,
+            retired_scaffold_requested: false,
             template_override_used: false,
             turn_memory_hijack_used: false,
             stale_banner_present: true,
-            full_v12_mounted: true,
-            seed_mounted: true,
+            requested_weights_mounted: true,
         }),
         ModelRoutingVerdict::RefusedStaleVersionBanner
     );
     assert_eq!(
         admit_model_routing(ModelRoutingCheck {
-            requested_mode: ComposerRouteMode::RecompiledV12Agent,
-            executed_mode: ComposerRouteMode::RecompiledV12Agent,
+            requested_mode: ComposerRouteMode::HfRepoHolo,
+            executed_mode: ComposerRouteMode::HfRepoHolo,
+            retired_scaffold_requested: false,
             template_override_used: false,
             turn_memory_hijack_used: false,
             stale_banner_present: false,
-            full_v12_mounted: false,
-            seed_mounted: true,
+            requested_weights_mounted: false,
         }),
         ModelRoutingVerdict::RefusedRequestedModelUnmounted
     );
 
-    // Container magic routing accepts both UORR4V12 and legacy UORGLLM9 while refusing unknown headers.
+    // Container magic routing accepts UORR4V13, UORR4V12, and legacy UORGLLM9 while refusing unknown headers.
+    assert_eq!(
+        admit_shard_container_magic(b"UORR4V13\x00\x00"),
+        ShardMagicKind::UorR4V13
+    );
     assert_eq!(
         admit_shard_container_magic(b"UORR4V12\x00\x00"),
         ShardMagicKind::UorR4V12

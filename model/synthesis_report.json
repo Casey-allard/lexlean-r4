@@ -17,23 +17,23 @@
       "facet": "UiAndPlumbing",
       "score_milli": 1000,
       "defects": 0,
-      "evidence": "unwired_ui_controls=0, route_verdict=RoutingAdmitted, uorc_verdict=CapsuleAdmitted, wasm_bytes=9472346, stale_banner=false, watchdog_ok=true"
+      "evidence": "unwired_ui_controls=0, route_verdict=RoutingAdmitted, uorc_verdict=CapsuleAdmitted, wasm_bytes=10468818, stale_banner=false, watchdog_ok=true"
     },
     {
       "facet": "EcosystemStandards",
-      "score_milli": 941,
+      "score_milli": 944,
       "defects": 0,
-      "evidence": "model_errors=0, mechanizer_ok=true (279 mods), lifted=1672/2374 residue=346"
+      "evidence": "model_errors=0, mechanizer_ok=true (287 mods), lifted=1778/2498 residue=344"
     }
   ],
-  "aggregate_score_milli": 985,
+  "aggregate_score_milli": 986,
   "total_defects": 0,
-  "complexity": 346,
+  "complexity": 344,
   "bandit_weights": {
     "ecosystem-lift-ratchet": 8,
     "geometric-recompilation": 8,
     "honest-studio-plumbing": 8,
-    "pure-integer-lut-serving": 12
+    "pure-integer-lut-serving": 14
   },
   "active_strategy": "pure-integer-lut-serving",
   "verdict": "CandidateAdmitted"

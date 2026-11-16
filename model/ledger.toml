@@ -14,6 +14,30 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-UORUST-PRISM-DEVREL"
+level = "some-true"
+authority = "UORUST-PRISM-DEVREL"
+statement = "UORust route-table totality (uorust/routes/1), Prism-DevRel ISO 15939 measurement criteria (prism/measures/1), and W3C PROV-O primary source derivation rules (source-attribution registry) are imported from afflom/UORust and afflom/prism-devrel. Formal LexLean controls do not entail upstream repository state or external runtime environments."
+
+[[claim]]
+id = "AUTH-NATIVE-Q31-TRAIN"
+level = "some-true"
+authority = "NATIVE-Q31-TRAIN"
+statement = "Pure Q31 SpiralCore Cl(0,6)/E8 orbital dynamics, Hamilton G2 quaternion gating, SWAR Hamming population reads, and D19 content-addressed associative memory specifications are imported from sibling R4 architecture tracks (uor-r4 D80-D85). Formal LexLean controls do not prove hardware GPU training throughput or corpus loss convergence outside committed receipts."
+
+[[claim]]
+id = "AUTH-HOLO-GEOMETRIC-RUNTIME"
+level = "some-true"
+authority = "HOLO-GEOMETRIC-RUNTIME"
+statement = "Qwen3 grouped-query attention with pre-RoPE per-head RMS normalization, Block-32 Randomized Hadamard Transform Hessian Cholesky-GPTQ quantization bounds, hardware integer arithmetic under uor-r4 D80/D81, and Web Worker isolated Wasm execution contracts are imported from upstream Qwen3 architecture specs and uor-r4 D80-D87. Formal LexLean controls do not replace empirical GPU/Wasm parity measurements."
+
+[[claim]]
+id = "AUTH-HOLO-KAPPA-STORE"
+level = "some-true"
+authority = "HOLO-KAPPA-STORE"
+statement = "Hologram Desktop OPFS KappaStore layout (sha256/<hh>/<hh>/<hex>), 64 KiB HOLD-buffered SHA-256 byte release, HTTP 206 Range safetensors streaming, and Stitch XOR parity healing are imported from afflom/hologram-live and afflom/stitch. Formal LexLean controls do not guarantee remote CDN liveness or browser storage quota grants."
+
+[[claim]]
 id = "AUTH-VERDANT-UORC-PLUMBING"
 level = "some-true"
 authority = "VERDANT-UORC-PLUMBING"

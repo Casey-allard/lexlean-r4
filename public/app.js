@@ -49,6 +49,8 @@ import init, {
   withStorageLock,
 } from './lexlean_r4.js?v=v12r4';
 
+let mainThreadWasmReady = false;
+
 globalThis.__uorOpenWeightsRuntime = {
   cacheE8ShardInOpfs: cache_e8_shard_in_opfs,
   loadE8ShardFromOpfs: load_e8_shard_from_opfs,
@@ -67,8 +69,11 @@ globalThis.__uorOpenWeightsRuntime = {
   admitUorcGenerationCapsule: admit_uorc_generation_capsule,
   recordUorcGenerationFault: record_uorc_generation_fault,
   queryVerdantSynthesisStatus: query_verdant_synthesis_status,
-  mountR4V12Bytes: studio_mount_r4_v12_bytes,
-  getR4StackStatus: studio_r4_stack_status,
+  mountHoloV13Bytes: (modelId, bytes) => engineWorkerClient.rpc('mount_holo_v13', { modelId, bytes }),
+  getHoloRuntimeStatus: () => engineWorkerClient.rpc('holo_runtime_status', {}),
+  getNativeQ31Status: () => engineWorkerClient.rpc('native_q31_status', {}),
+  trainNativeQ31Step: (text) => engineWorkerClient.rpc('native_q31_train_step', { text }),
+  loadHfRepoHolo: (repoId) => engineWorkerClient.rpc('load_hf_repo_holo', { repoId }),
 };
 
 globalThis.LexLean = {
@@ -341,17 +346,24 @@ function emitAuditEvent(category, action, target, details, severity) {
 // Centralized Reactive Application State
 // ============================================================================
 
-const MODEL_STORAGE_KEY = 'uor_r4_selected_model_v12';
-const COMPOSER_MODE_STORAGE_KEY = 'uor_r4_composer_mode_v12';
-const DEFAULT_HONEST_MODEL_ID = 'uor-r4.recompiled-v12-agent';
+const MODEL_STORAGE_KEY = 'uor_r4_selected_model_v13';
+const COMPOSER_MODE_STORAGE_KEY = 'uor_r4_composer_mode_v13';
+const DEFAULT_HONEST_MODEL_ID = 'uor-r4.qwen3-0.6b-holo';
 
+/** Formal R4.HonestPlumbing resolve persisted or requested model identifier onto active v0.13.0 lanes. */
 function resolveHonestModelId(rawId) {
   const val = String(rawId || '').trim();
-  if (val === 'uor-r4.recompiled-v12-agent' || val === 'uor-r4.recompiled-v12-chat' || val === 'uor-r4.seed-fast' || val === 'uor-r4.lut-symbolic') {
+  if (
+    val === 'uor-r4.qwen3-0.6b-holo'
+    || val === 'uor-r4.qwen3-1.7b-holo'
+    || val === 'uor-r4.native-q31-d85'
+    || val === 'uor-r4.hf-repo-holo'
+  ) {
     return val;
   }
-  if (val.endsWith('-chat') || val.endsWith('.opfs-' + 'large')) return 'uor-r4.recompiled-v12-chat';
-  if (val.endsWith('-code') || val.endsWith('-agent')) return 'uor-r4.recompiled-v12-agent';
+  if (val.includes('1.7b')) return 'uor-r4.qwen3-1.7b-holo';
+  if (val.includes('q31') || val.includes('d85')) return 'uor-r4.native-q31-d85';
+  if (val.includes('hf')) return 'uor-r4.hf-repo-holo';
   return DEFAULT_HONEST_MODEL_ID;
 }
 
@@ -853,6 +865,8 @@ const engineWorkerClient = {
   packInfo: null,
   gllmInfo: null,
   r4StackInfo: null,
+  holoStatus: null,
+  nativeQ31Info: null,
   verdantSynthesis: null,
   workerPoolInfo: null,
   stitchHealth: null,
@@ -968,10 +982,13 @@ const engineWorkerClient = {
     const evType = msg && msg.event;
     if (evType === 'boot_progress' || evType === 'hydration_progress') {
       const badge = document.getElementById('weight-cache-badge');
-      if (badge && msg.stage === 'r4_shards' && msg.total) {
-        badge.textContent = `R4 v12 Shard ${msg.index || 0}/${msg.total}`;
+      if (badge && (msg.stage === 'holo_v13' || msg.stage === 'hf_stream' || msg.stage === 'r4_shards') && msg.total) {
+        const done = msg.done ?? msg.index ?? 0;
+        badge.textContent = msg.stage === 'hf_stream'
+          ? `HF Stream ${done}/${msg.total}`
+          : `Holo v13 Piece ${done}/${msg.total}`;
       }
-      if (msg.stage === 'r4_shards' && typeof this.activeChatStreamHook === 'function') {
+      if ((msg.stage === 'holo_v13' || msg.stage === 'hf_stream' || msg.stage === 'r4_shards') && typeof this.activeChatStreamHook === 'function') {
         this.activeChatStreamHook(msg);
       }
       return;
@@ -986,6 +1003,8 @@ const engineWorkerClient = {
       if (snap.pack) this.packInfo = snap.pack;
       if (snap.gllm) this.gllmInfo = snap.gllm;
       if (snap.r4Stack || msg.r4Stack) this.r4StackInfo = snap.r4Stack || msg.r4Stack;
+      if (snap.holoStatus || msg.holoStatus) this.holoStatus = snap.holoStatus || msg.holoStatus;
+      if (snap.nativeQ31 || msg.nativeQ31) this.nativeQ31Info = snap.nativeQ31 || msg.nativeQ31;
       if (snap.verdantSynthesis || msg.verdantSynthesis) {
         this.verdantSynthesis = snap.verdantSynthesis || msg.verdantSynthesis;
         if (this.verdantSynthesis && this.verdantSynthesis.worker_pool) {
@@ -1012,6 +1031,20 @@ const engineWorkerClient = {
           else if (tr && typeof tr === 'object') this.shadowTraces = [tr];
         })
         .catch(() => {});
+      return;
+    }
+    if (evType === 'holo_ready') {
+      if (msg.kappaStore) globalThis.__uorHoloKappaStatus = msg.kappaStore;
+      if (msg.holo) {
+        this.rpc('holo_runtime_status', {})
+          .then((hs) => {
+            if (hs) this.holoStatus = hs;
+            updateWeightCacheBadge();
+            if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
+            if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+          })
+          .catch(() => {});
+      }
       return;
     }
     if (evType === 'weights_upgraded') {
@@ -1317,14 +1350,11 @@ function dispatchStudioEnvelope(command, payload) {
     engineWorkerClient.rpc('studio_dispatch', envelope).catch(() => {});
     return { status: 'ok', reply: 'Queued on uor-r4-engine-worker' };
   }
-  if (typeof studio_dispatch === 'function') {
+  if (!engineWorkerClient.enabled && mainThreadWasmReady && typeof studio_dispatch === 'function') {
     const raw = studio_dispatch(envelope);
     return JSON.parse(raw);
   }
-  const reqBytes = encoder.encode(envelope);
-  const respBytes = process_envelope(reqBytes);
-  const respText = decoder.decode(respBytes);
-  return JSON.parse(respText);
+  return engineWorkerClient.shadowState;
 }
 
 function createCell(text, codeStyle = false) {
@@ -2652,7 +2682,7 @@ function renderCompletedChatResponse(trimmed, chatRes) {
     const l1Dist = gen.l1_distance ?? 0;
     replyProse += `\n\n### Formal Geometric Routing Identity\nUnder the **UOR-R4** $\\text{Cl}(0,6) \\times E_8$ manifold (Icosian Root $r_{${rootIdx}}$, Clifford action $g_{${clAct}}$, $L_1 = ${l1Dist}$):\n$$\\mathcal{H}_{\\text{OSPF}}(x) = \\arg\\min_{k \\in \\mathcal{B}_{/8}} \\left( \\|q_{12}(x) - k\\|_1 + \\lambda \\sum_{h=1}^{8} \\frac{\\psi_h^\\dagger \\gamma_{${clAct}} \\psi_h}{\\sqrt{1 + d_{\\text{Hamming}}(x, r_{${rootIdx}})}} \\right)$$`;
   }
-  const activeModeLabel = chatRes.selected_model || AppState.config.selectedModel || 'uor-r4.recompiled-v12-agent';
+  const activeModeLabel = chatRes.selected_model || AppState.config.selectedModel || 'uor-r4.qwen3-0.6b-holo';
   const tierLabel = chatRes.execution_tier || (gm && gm.active_tier) || 'R4GeometricStack';
   const gmSummary = gm
     ? ` · ${gm.n_layers || 0}L/${gm.d_model || 0}D · 0 float_ops · ${gm.nibble_lut_lookups || 0} LUTs`
@@ -2805,19 +2835,61 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     appendChatTurn('user', 'You', trimmed);
   }
 
-  const activeSelectedModel = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
+  if (trimmed.startsWith('/hf ') && engineWorkerClient.enabled) {
+    const repoId = trimmed.slice(4).trim() || 'Qwen/Qwen3-0.6B';
+    if (typeof syncComposerModel === 'function') syncComposerModel('uor-r4.hf-repo-holo');
+    engineWorkerClient.rpc('load_hf_repo_holo', { repoId })
+      .then((res) => {
+        const mounted = res && res.holo && res.holo.mounted;
+        appendChatTurn(
+          'assistant',
+          'uor-r4.hf-repo-holo',
+          `Streamed Safetensors repository \`${repoId}\` via HTTP 206 Range slices into Holo v13 (${mounted ? 'mounted & ready' : 'header staged'}).`,
+        );
+        return engineWorkerClient.rpc('holo_runtime_status', {});
+      })
+      .then((hs) => {
+        if (hs) engineWorkerClient.holoStatus = hs;
+        updateWeightCacheBadge();
+      })
+      .catch((err) => {
+        appendChatTurn('assistant', 'uor-r4.hf-repo-holo', `HF Range stream error: ${err?.message || String(err)}`);
+      });
+    return;
+  }
+
+  if (trimmed.startsWith('/q31-train ') && engineWorkerClient.enabled) {
+    const corpusText = trimmed.slice(11).trim();
+    if (!corpusText) return;
+    engineWorkerClient.rpc('native_q31_train_step', { text: corpusText })
+      .then((res) => {
+        if (res) engineWorkerClient.nativeQ31Info = res;
+        appendChatTurn(
+          'assistant',
+          'uor-r4.native-q31-d85',
+          `Trained D85 Native Q31 Hamilton gate step (${res?.step ?? 0}): accepted=${Boolean(res?.accepted)}, L1 loss \`${res?.loss_before ?? 0}\` -> \`${res?.loss_after ?? 0}\`.`,
+        );
+        updateWeightCacheBadge();
+      })
+      .catch((err) => {
+        appendChatTurn('assistant', 'uor-r4.native-q31-d85', `Native Q31 train error: ${err?.message || String(err)}`);
+      });
+    return;
+  }
+
+  const selectedModel = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
     || (typeof tsComposer !== 'undefined' && tsComposer.getSelectedModel())
     || AppState.config.selectedModel
     || DEFAULT_HONEST_MODEL_ID;
   const activeComposerMode = (typeof tsComposer !== 'undefined' && tsComposer.getState && tsComposer.getState().mode)
     || AppState.config.composerMode
     || 'agentic';
-  const activeTierTag = engineWorkerClient.r4StackInfo && engineWorkerClient.r4StackInfo.active_tier
-    ? engineWorkerClient.r4StackInfo.active_tier
-    : 'EmbeddedSeed';
+  const activeTierTag = engineWorkerClient.holoStatus && engineWorkerClient.holoStatus.mounted_count > 0
+    ? 'Holo v13 Int4'
+    : 'Holo v13 Worker';
   const chatPayload = JSON.stringify({
     prompt: trimmed,
-    selected_model: activeSelectedModel,
+    selected_model: selectedModel,
     composer_mode: activeComposerMode,
     operating_mode: AppState.config.operatingMode || 'coding',
     retain_lambda: AppState.config.retainLambda ?? 0.85,
@@ -2835,15 +2907,15 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       const meta = document.createElement('div');
       meta.className = 'chat-turn-meta';
       meta.textContent = engineWorkerClient.ready
-        ? `${activeSelectedModel} · ${activeTierTag} · Generating on Worker`
-        : `${activeSelectedModel} · Booting Engine Worker`;
+        ? `${selectedModel} · ${activeTierTag} · Generating on Worker`
+        : `${selectedModel} · Booting Engine Worker`;
       const body = document.createElement('div');
       body.className = 'chat-turn-body';
       statusLineEl = document.createElement('div');
       statusLineEl.className = 'chat-prose';
       statusLineEl.textContent = engineWorkerClient.ready
-        ? `Routing across zero-float R4 geometric stack (${activeSelectedModel})...`
-        : 'Initializing Wasm + R4 geometric stack & UORR4V12 shard cache in worker...';
+        ? `Routing across zero-float Holo v13 geometric engine (${selectedModel})...`
+        : 'Initializing Wasm simd128 Worker & OPFS Holo v13 piece cache...';
       body.appendChild(statusLineEl);
       placeholderCard.appendChild(meta);
       placeholderCard.appendChild(body);
@@ -2862,13 +2934,17 @@ function runClaudeChat(promptText, recordUserBubble = true) {
         }
         return;
       }
-      if (bridgeEvt.stage === 'r4_shards') {
-        const idx = typeof bridgeEvt.index === 'number' ? bridgeEvt.index : 0;
-        const total = typeof bridgeEvt.total === 'number' && bridgeEvt.total > 0 ? bridgeEvt.total : 73;
+      if (bridgeEvt.stage === 'holo_v13' || bridgeEvt.stage === 'hf_stream' || bridgeEvt.stage === 'r4_shards') {
+        const idx = typeof bridgeEvt.done === 'number'
+          ? bridgeEvt.done
+          : (typeof bridgeEvt.index === 'number' ? bridgeEvt.index : 0);
+        const total = typeof bridgeEvt.total === 'number' && bridgeEvt.total > 0 ? bridgeEvt.total : 1;
         const pct = Math.min(100, Math.floor((idx * 100) / total));
-        statusLineEl.textContent = bridgeEvt.label && idx === 0
-          ? bridgeEvt.label
-          : `Hydrating UORR4V12 OPFS shards (${idx}/${total}, ${pct}%) before inference...`;
+        statusLineEl.textContent = bridgeEvt.stage === 'hf_stream'
+          ? `Streaming Safetensors HTTP 206 Range (${idx}/${total}, ${pct}%)...`
+          : (bridgeEvt.label && idx === 0
+            ? bridgeEvt.label
+            : `Hydrating Holo v13 OPFS pieces (${idx}/${total}, ${pct}%) before inference...`);
         return;
       }
       const opLabel = bridgeEvt.op || 'bridge';
@@ -3429,7 +3505,7 @@ if (snapshotUploadInput) {
       }
     }
 
-    if (isUorlutHeader && bytes.length > 65536 && (engineWorkerClient.enabled || typeof studio_load_uorlut_bytes === 'function')) {
+    if (isUorlutHeader && bytes.length > 65536 && (engineWorkerClient.enabled || (mainThreadWasmReady && typeof studio_load_uorlut_bytes === 'function'))) {
       const parsed = engineWorkerClient.enabled
         ? await engineWorkerClient.rpc('load_uorlut', { bytes, sourceLabel })
         : JSON.parse(studio_load_uorlut_bytes(bytes, sourceLabel));
@@ -3564,28 +3640,28 @@ const AGENTIC_SLASH_COMMANDS = [
 
 const COMPOSER_MODELS = [
   {
-    id: 'uor-r4.recompiled-v12-agent',
-    name: 'UOR-R4 v12 Recompiled Agent (30L 576D SmolLM2-135M)',
+    id: 'uor-r4.qwen3-0.6b-holo',
+    name: 'Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)',
     contextWindow: '256k',
-    badge: 'Zero-Float Agent + Watchdog',
+    badge: 'Int4 OPFS · simd128',
   },
   {
-    id: 'uor-r4.recompiled-v12-chat',
-    name: 'UOR-R4 v12 Recompiled Chat (30L Geometric Stack)',
+    id: 'uor-r4.qwen3-1.7b-holo',
+    name: 'Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)',
     contextWindow: '256k',
-    badge: 'Neural Geometric Chat',
+    badge: 'Int4 OPFS · 1.7B',
   },
   {
-    id: 'uor-r4.seed-fast',
-    name: 'UOR-R4 Embedded Seed Fast (0-Download 8L 256D)',
+    id: 'uor-r4.native-q31-d85',
+    name: 'UOR-R4 Native Q31 D85 (0-Download 4L 256D)',
     contextWindow: '256k',
-    badge: 'Embedded Seed Fallback',
+    badge: 'Q31 · Instant',
   },
   {
-    id: 'uor-r4.lut-symbolic',
-    name: 'UOR-R4 Symbolic LUT (uor-r4.lut-stack/8 + MVM)',
+    id: 'uor-r4.hf-repo-holo',
+    name: 'HuggingFace Safetensors Stream (Range 206 -> Holo v13)',
     contextWindow: '256k',
-    badge: 'Symbolic LUT + MVM',
+    badge: 'HF Range 206',
   },
 ];
 
@@ -3594,7 +3670,7 @@ class AgenticTypeScriptComposer {
     this.state = {
       rawText: '',
       mode: (typeof AppState !== 'undefined' && AppState.config && AppState.config.composerMode) || 'agentic',
-      selectedModel: (typeof AppState !== 'undefined' && AppState.config && AppState.config.selectedModel) || 'uor-r4.recompiled-v12-agent',
+      selectedModel: (typeof AppState !== 'undefined' && AppState.config && AppState.config.selectedModel) || 'uor-r4.qwen3-0.6b-holo',
       savedDraft: null,
       attachments: [],
       history: [],
@@ -4634,10 +4710,10 @@ const LITERATURE_PAPERS = [
 const DEFAULT_VERDANT_FACETS = [
   {
     facet: 'ModelAndTraining',
-    kpi_id: 'R4-44',
-    metric: 'UORR4V12 30L/576D SmolLM2-135M',
+    kpi_id: 'R4-50..52',
+    metric: 'UORR4V13 28L Qwen3-0.6B/1.7B + Q31 D85',
     status: 'PROVED · 0 Float Ops',
-    summary: 'Block-32 FWHT + Conway-Sloane E8P 4-bit dyadic quantization, integer Q14 RoPE, and <=4.5 MiB embedded seed.',
+    summary: 'Cholesky GPTQ Int4 + Wasm simd128, OPFS SyncAccessHandle 1 MiB pieces, and native Q31 online learning.',
   },
   {
     facet: 'ServingRuntime',
@@ -5337,7 +5413,7 @@ export function runWebWorkerConsolidation(samples = [], config = {}) {
         const sourceLabel = 'WebWorker:Consolidated UORLUT01/8';
         if (engineWorkerClient.enabled) {
           await engineWorkerClient.rpc('load_uorlut', { bytes: updatedBytes, sourceLabel });
-        } else if (typeof studio_load_uorlut_bytes === 'function') {
+        } else if (mainThreadWasmReady && typeof studio_load_uorlut_bytes === 'function') {
           studio_load_uorlut_bytes(updatedBytes, sourceLabel);
         }
         if (typeof cache_uorlut_in_indexeddb === 'function') {
@@ -5473,6 +5549,10 @@ if (runApiRequestBtn && apiResponseOutput) {
         fetchRecordedTraces();
         const st = dispatchStudioEnvelope('state', '');
         renderStudioState(st);
+        return;
+      }
+      if (!mainThreadWasmReady) {
+        apiResponseOutput.textContent = JSON.stringify({ status: 'error', message: 'Engine worker unavailable' }, null, 2);
         return;
       }
       if (mode === 'messages') {
@@ -8446,8 +8526,12 @@ class LexLeanTerminal {
           break;
         }
         const payload = filterArg ? `${sub}\t${filterArg}` : sub;
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+          engineWorkerClient.rpc('studio_wasm_eval', { subcommand: sub, filter: filterArg }).catch(() => {});
+          break;
+        }
         let evalRes = null;
-        if (typeof studio_wasm_eval === 'function') {
+        if (typeof mainThreadWasmReady !== 'undefined' && mainThreadWasmReady && typeof studio_wasm_eval === 'function') {
           try {
             evalRes = JSON.parse(studio_wasm_eval(sub, filterArg));
           } catch (_e) {
@@ -8689,7 +8773,16 @@ class LexLeanTerminal {
         try {
           const st = dispatchStudioEnvelope('state', '');
           if (args.includes('--json')) {
-            this.printAnsi(JSON.stringify(st, null, 2));
+            if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+              engineWorkerClient.rpc('holo_runtime_status', {}).then((hs) => {
+                if (hs) engineWorkerClient.holoStatus = hs;
+                this.printAnsi(JSON.stringify({ state: st, holo: hs, native_q31: engineWorkerClient.nativeQ31Info }, null, 2));
+              }).catch(() => {
+                this.printAnsi(JSON.stringify(st, null, 2));
+              });
+            } else {
+              this.printAnsi(JSON.stringify(st, null, 2));
+            }
           } else {
             this.printAnsi('\x1b[1m\x1b[36m--- UOR-R4 Wasm Engine Status ---\x1b[0m');
             this.printAnsi(`  Schema:         \x1b[32m${st.schema || 'uor-r4.lut-stack/8'}\x1b[0m`);
@@ -8698,7 +8791,21 @@ class LexLeanTerminal {
             this.printAnsi(`  Point Rows:     \x1b[32m${st.point_rows ?? 0}\x1b[0m`);
             this.printAnsi(`  Occupied Cells: \x1b[32m${st.occupied_cells ?? 0}\x1b[0m / 17,408 Basins`);
             this.printAnsi(`  State Receipt:  \x1b[33m${st.state_receipt || '—'}\x1b[0m`);
-            if (typeof studio_weight_pack_status === 'function') {
+            if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+              const hs = engineWorkerClient.holoStatus;
+              const q31 = engineWorkerClient.nativeQ31Info;
+              if (hs) {
+                this.printAnsi(`  Holo v13 Mount: \x1b[35m${hs.mounted_count || 0} models (simd128=${Boolean(hs.simd128)})\x1b[0m`);
+              }
+              if (q31) {
+                this.printAnsi(`  Native Q31 D85: \x1b[32m${q31.n_layers || 4}L/${q31.d_model || 256}D step=${q31.step || 0}\x1b[0m`);
+              }
+              const pack = engineWorkerClient.packInfo;
+              if (pack && pack.status === 'ok' && pack.byte_len) {
+                const mb = (pack.byte_len / (1024 * 1024)).toFixed(1);
+                this.printAnsi(`  Weight Cache:   \x1b[35m${pack.reply_entries || 0} replies (${mb} MB)\x1b[0m`);
+              }
+            } else if (typeof mainThreadWasmReady !== 'undefined' && mainThreadWasmReady && typeof studio_weight_pack_status === 'function') {
               try {
                 const pack = JSON.parse(studio_weight_pack_status());
                 if (pack && pack.status === 'ok') {
@@ -8798,62 +8905,91 @@ class LexLeanTerminal {
           }
         } else if (sub === 'shards' || sub === 'shard-stats') {
           try {
-            const cat = typeof studio_shard_catalog === 'function'
-              ? JSON.parse(studio_shard_catalog())
-              : dispatchStudioEnvelope('shard_status', '');
-            this.printAnsi('\x1b[1m\x1b[36m--- Content-Addressed Geometric .uorlut Shard Catalog (UORSHRD1) ---\x1b[0m');
-            this.printAnsi(
-              `  Shards: ${cat?.shard_count ?? 16} · Point Rows: ${cat?.total_point_rows ?? 0} · Reply Rows: ${cat?.total_reply_entries ?? 0} · Total Bytes: ${cat?.total_byte_len ?? cat?.total_shard_bytes ?? 0}`,
-            );
-            const shards = Array.isArray(cat?.shards) ? cat.shards : [];
-            for (const s of shards) {
+            const renderCatalog = (cat) => {
+              this.printAnsi('\x1b[1m\x1b[36m--- Content-Addressed Geometric Shard Catalog (UORSHRD1) ---\x1b[0m');
               this.printAnsi(
-                `  [e8=${String(s.e8_root).padStart(2, ' ')}] rows=${String(s.point_rows).padStart(5, ' ')} replies=${String(s.reply_entries).padStart(6, ' ')} bytes=${String(s.byte_len).padStart(8, ' ')} sha256=${(s.content_sha256 || '').slice(0, 16)}`,
+                `  Shards: ${cat?.shard_count ?? 16} · Point Rows: ${cat?.total_point_rows ?? 0} · Reply Rows: ${cat?.total_reply_entries ?? 0} · Total Bytes: ${cat?.total_byte_len ?? cat?.total_shard_bytes ?? 0}`,
               );
+              const shards = Array.isArray(cat?.shards) ? cat.shards : [];
+              for (const s of shards) {
+                this.printAnsi(
+                  `  [e8=${String(s.e8_root).padStart(2, ' ')}] rows=${String(s.point_rows).padStart(5, ' ')} replies=${String(s.reply_entries).padStart(6, ' ')} bytes=${String(s.byte_len).padStart(8, ' ')} sha256=${(s.content_sha256 || '').slice(0, 16)}`,
+                );
+              }
+            };
+            if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+              engineWorkerClient.rpc('shard_catalog', {}).then(renderCatalog).catch((err) => {
+                this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Shard catalog error: ${err?.message || String(err)}`);
+              });
+            } else {
+              const cat = typeof mainThreadWasmReady !== 'undefined' && mainThreadWasmReady && typeof studio_shard_catalog === 'function'
+                ? JSON.parse(studio_shard_catalog())
+                : dispatchStudioEnvelope('shard_status', '');
+              renderCatalog(cat);
             }
           } catch (err) {
             this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Shard catalog error: ${err?.message || String(err)}`);
           }
         } else if (sub === 'shard-export' || sub === 'shard-cache') {
           const e8Root = ((+(args[1] || '0')) | 0) & 15;
-          try {
-            const exp = dispatchStudioEnvelope('shard_export', String(e8Root));
-            this.printAnsi(
-              `\x1b[32m[UORSHRD1]\x1b[0m Exported shard e8=${e8Root} (${exp?.point_rows ?? 0} point rows, ${exp?.byte_len ?? 0} B, sha256:${(exp?.shard_sha256 || '').slice(0, 16)})`,
-            );
-            if (typeof studio_export_uorlut_shard === 'function' && typeof cache_geometric_shard_in_indexeddb === 'function') {
-              const rawBytes = studio_export_uorlut_shard(e8Root);
-              cache_geometric_shard_in_indexeddb(e8Root, rawBytes, exp?.shard_sha256 || '')
-                .then(() => {
-                  if (typeof load_geometric_shard_from_indexeddb === 'function' && typeof studio_merge_uorlut_shard === 'function') {
-                    return load_geometric_shard_from_indexeddb(e8Root).then((cachedBytes) => {
-                      if (cachedBytes) {
-                        const merged = JSON.parse(studio_merge_uorlut_shard(cachedBytes));
-                        this.printAnsi(
-                          `\x1b[32m[IndexedDB Hot-Swap]\x1b[0m Merged shard e8=${e8Root}: total_point_rows=${merged?.total_point_rows ?? merged?.total_rows_after ?? 0}, radix_buckets=${merged?.radix_populated_buckets ?? merged?.radix_buckets_indexed ?? 0}`,
-                        );
-                      }
-                    });
-                  }
-                  return null;
-                })
-                .catch(() => {});
+          if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+            engineWorkerClient.rpc('export_uorlut_shard', { e8Root }).then((arr) => {
+              this.printAnsi(`\x1b[32m[UORSHRD1]\x1b[0m Exported shard e8=${e8Root} (${Array.isArray(arr) ? arr.length : 0} B via worker)`);
+            }).catch((err) => {
+              this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Shard export error: ${err?.message || String(err)}`);
+            });
+          } else {
+            try {
+              const exp = dispatchStudioEnvelope('shard_export', String(e8Root));
+              this.printAnsi(
+                `\x1b[32m[UORSHRD1]\x1b[0m Exported shard e8=${e8Root} (${exp?.point_rows ?? 0} point rows, ${exp?.byte_len ?? 0} B, sha256:${(exp?.shard_sha256 || '').slice(0, 16)})`,
+              );
+              if (typeof mainThreadWasmReady !== 'undefined' && mainThreadWasmReady && typeof studio_export_uorlut_shard === 'function' && typeof cache_geometric_shard_in_indexeddb === 'function') {
+                const rawBytes = studio_export_uorlut_shard(e8Root);
+                cache_geometric_shard_in_indexeddb(e8Root, rawBytes, exp?.shard_sha256 || '')
+                  .then(() => {
+                    if (typeof load_geometric_shard_from_indexeddb === 'function' && typeof studio_merge_uorlut_shard === 'function') {
+                      return load_geometric_shard_from_indexeddb(e8Root).then((cachedBytes) => {
+                        if (cachedBytes) {
+                          const merged = JSON.parse(studio_merge_uorlut_shard(cachedBytes));
+                          this.printAnsi(
+                            `\x1b[32m[IndexedDB Hot-Swap]\x1b[0m Merged shard e8=${e8Root}: total_point_rows=${merged?.total_point_rows ?? merged?.total_rows_after ?? 0}, radix_buckets=${merged?.radix_populated_buckets ?? merged?.radix_buckets_indexed ?? 0}`,
+                          );
+                        }
+                      });
+                    }
+                    return null;
+                  })
+                  .catch(() => {});
+              }
+            } catch (err) {
+              this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Shard export error: ${err?.message || String(err)}`);
             }
-          } catch (err) {
-            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Shard export error: ${err?.message || String(err)}`);
           }
         } else {
-          try {
-            const st = dispatchStudioEnvelope('weight_status', '');
-            const v9 = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
-            this.printAnsi('\x1b[1m\x1b[36m--- Model Weights & Container Metadata ---\x1b[0m');
-            if (v9) {
-              this.printAnsi(JSON.stringify({ gllm_v9: v9, uorlut_v8: st }, null, 2));
-            } else {
-              this.printAnsi(JSON.stringify(st, null, 2));
+          if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+            Promise.all([
+              engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null),
+              engineWorkerClient.rpc('native_q31_status', {}).catch(() => null),
+              engineWorkerClient.rpc('weight_pack_status', {}).catch(() => null),
+            ]).then(([holo, nativeQ31, pack]) => {
+              if (holo) engineWorkerClient.holoStatus = holo;
+              if (nativeQ31) engineWorkerClient.nativeQ31Info = nativeQ31;
+              if (pack) engineWorkerClient.packInfo = pack;
+              this.printAnsi('\x1b[1m\x1b[36m--- Holo v13 & Native Q31 Model Metadata (Worker) ---\x1b[0m');
+              this.printAnsi(JSON.stringify({ holo_v13: holo, native_q31_d85: nativeQ31, uorlut_v8: pack }, null, 2));
+            }).catch((err) => {
+              this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Failed: ${err?.message || String(err)}`);
+            });
+          } else {
+            try {
+              const st = dispatchStudioEnvelope('weight_status', '');
+              const v9 = typeof mainThreadWasmReady !== 'undefined' && mainThreadWasmReady && typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
+              this.printAnsi('\x1b[1m\x1b[36m--- Model Weights & Container Metadata ---\x1b[0m');
+              this.printAnsi(JSON.stringify(v9 ? { gllm_v9: v9, uorlut_v8: st } : st, null, 2));
+            } catch (err) {
+              this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Failed: ${err?.message || String(err)}`);
             }
-          } catch (err) {
-            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Failed: ${err?.message || String(err)}`);
           }
         }
         break;
@@ -10020,8 +10156,10 @@ if (loadWeightsTopbarBtn && snapshotUploadInput) {
 }
 
 function updateWeightCacheBadge() {
+  const holoInfo = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.holoStatus) || null;
+  const q31Info = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.nativeQ31Info) || null;
   let r4Info = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.r4StackInfo) || null;
-  if (!r4Info && (!engineWorkerClient || !engineWorkerClient.enabled) && typeof studio_r4_stack_status === 'function') {
+  if (!r4Info && (!engineWorkerClient || !engineWorkerClient.enabled) && mainThreadWasmReady && typeof studio_r4_stack_status === 'function') {
     try {
       r4Info = JSON.parse(studio_r4_stack_status());
     } catch {
@@ -10031,10 +10169,12 @@ function updateWeightCacheBadge() {
   if (weightCacheBadge) {
     const meta = globalThis.__uorGllmV9Meta || globalThis.__uorWeightCacheMeta || {};
     const tierFallback = engineWorkerClient.enabled && !engineWorkerClient.ready
-      ? 'Booting R4 v12 Worker...'
-      : (r4Info && r4Info.active_tier
-        ? `${r4Info.active_tier} (${r4Info.n_layers || 6}L/${r4Info.d_model || 256}D · 0 Float Ops)`
-        : 'Embedded Seed · 0 Float Ops');
+      ? 'Booting Holo v13 Worker...'
+      : (holoInfo && holoInfo.mounted_count > 0
+        ? `Holo v13 Mounted (${holoInfo.mounted_count} · 0 Float Ops)`
+        : (q31Info
+          ? `Native Q31 D85 (${q31Info.n_layers || 4}L/${q31Info.d_model || 256}D · 0 Float Ops)`
+          : 'Holo v13 Ready · 0 Float Ops'));
     const label = meta.status || tierFallback;
     const shortSha = (r4Info && r4Info.container_sha256 ? r4Info.container_sha256.slice(0, 8) : '')
       || (meta.sha256 ? meta.sha256.slice(0, 8) : '');
@@ -10044,23 +10184,29 @@ function updateWeightCacheBadge() {
     try {
       const selId = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
         || AppState.config.selectedModel
-        || 'uor-r4.recompiled-v12-agent';
-      if (r4Info && r4Info.n_layers) {
-        const tierDesc = r4Info.active_tier || 'EmbeddedSeed';
-        topbarModelTag.textContent = `SpiralCore · ${selId} · ${tierDesc} (${r4Info.n_layers}L/${r4Info.d_model}D)`;
-        topbarModelTag.title = `${r4Info.schema || 'uor-r4.geometric-vector-stack/12'} · ${tierDesc} · float_ops=${r4Info.float_ops ?? 0} · dense_matmul_ops=${r4Info.dense_matmul_ops ?? 0}`;
+        || 'uor-r4.qwen3-0.6b-holo';
+      if (holoInfo && Array.isArray(holoInfo.models)) {
+        const mountedEntry = holoInfo.models.find((m) => m.model_id === selId);
+        if (mountedEntry) {
+          topbarModelTag.textContent = `Holo v13 · ${selId} (${mountedEntry.n_layers}L/${mountedEntry.d_model}D)`;
+          topbarModelTag.title = `UORR4V13 · ${selId} · float_ops=0 · dense_matmul_ops=0`;
+          return;
+        }
+      }
+      if (selId === 'uor-r4.native-q31-d85' && q31Info) {
+        topbarModelTag.textContent = `Native Q31 D85 · ${q31Info.n_layers || 4}L/${q31Info.d_model || 256}D (step=${q31Info.step || 0})`;
+        topbarModelTag.title = 'uor-r4.native-q31-d85/1 · float_ops=0 · dense_matmul_ops=0';
       } else {
         let packInfo = null;
         if (engineWorkerClient.enabled) {
           packInfo = engineWorkerClient.packInfo;
-        } else if (typeof studio_weight_pack_status === 'function') {
+        } else if (mainThreadWasmReady && typeof studio_weight_pack_status === 'function') {
           packInfo = JSON.parse(studio_weight_pack_status());
         }
-        if (packInfo && packInfo.status === 'ok') {
-          const mb = ((packInfo.byte_len || 0) / (1024 * 1024)).toFixed(1);
-          topbarModelTag.textContent = `SpiralCore · ${selId} · Embedded Seed`;
-          topbarModelTag.title = `UOR-R4 v12 + Symbolic LUT/8 fallback (${mb} MB pack)`;
-        }
+        topbarModelTag.textContent = `Holo v13 · ${selId}`;
+        topbarModelTag.title = packInfo && packInfo.status === 'ok'
+          ? `UOR-R4 Holo v13 + Native Q31 D85 (${((packInfo.byte_len || 0) / (1024 * 1024)).toFixed(1)} MB cache)`
+          : 'UOR-R4 Holo v13 Pure-Integer Worker';
       }
     } catch {
       // Ignore parse error during early boot
@@ -10721,14 +10867,17 @@ function renderCursorShardsSection() {
   if (shardsSummary) {
     try {
       const hasWorker = typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled;
+      const holoInfo = hasWorker ? engineWorkerClient.holoStatus : null;
       const info = hasWorker
         ? engineWorkerClient.packInfo
-        : (typeof studio_weight_pack_status === 'function' ? JSON.parse(studio_weight_pack_status()) : null);
+        : (mainThreadWasmReady && typeof studio_weight_pack_status === 'function' ? JSON.parse(studio_weight_pack_status()) : null);
       const stitchTag = stHealth ? ` · Stitch: ${stHealth.status}` : '';
-      if (info && info.status === 'ok') {
-        shardsSummary.textContent = `73 UORR4V12 + 37 Stitch · ${info.point_rows} /8 PointKey Rows · ${info.reply_entries} /7 Reply Rows${stitchTag}`;
+      if (holoInfo && holoInfo.mounted_count > 0) {
+        shardsSummary.textContent = `Holo v13 OPFS · ${holoInfo.mounted_count} Mounted · Native Q31 D85 Ready${stitchTag}`;
       } else if (stHealth) {
-        shardsSummary.textContent = `73 UORR4V12 + 37 Stitch · ${stHealth.verifiedShards}/${stHealth.totalShards} Verified · ${stHealth.healedShards} Parity-Healed`;
+        shardsSummary.textContent = `Holo v13 OPFS · ${stHealth.verifiedShards}/${stHealth.totalShards} Verified · ${stHealth.healedShards} Parity-Healed`;
+      } else if (info && info.status === 'ok') {
+        shardsSummary.textContent = `Holo v13 OPFS + Stitch 2-of-3 Parity · ${info.point_rows} /8 PointKey Rows · ${info.reply_entries} /7 Reply Rows${stitchTag}`;
       }
     } catch {
       // Ignore early boot
@@ -10741,7 +10890,7 @@ function renderCursorShardsSection() {
     const row2 = document.createElement('div');
     row2.textContent = stHealth
       ? `Status: ${stHealth.status} · Verified ${stHealth.verifiedShards}/${stHealth.totalShards} · Parity-Healed ${stHealth.healedShards}`
-      : 'Parity State: Awaiting UORR4V12 / Stitch manifest load...';
+      : 'Parity State: Awaiting Holo v13 / Stitch manifest load...';
     const row3 = document.createElement('div');
     row3.textContent = stHealth && Array.isArray(stHealth.activeSources) && stHealth.activeSources.length > 0
       ? `Sources: ${stHealth.activeSources.join(', ')}`
@@ -11076,7 +11225,7 @@ function runCursorCmdKEdit() {
     rejectBtn.disabled = false;
   }
   if (workspaceStatus) {
-    workspaceStatus.textContent = `Cmd+K synthesized inline diff for ${targetPath} (Lines ${sLine}–${eLine}) via local uor-r4.lut-stack/8.`;
+    workspaceStatus.textContent = `Cmd+K synthesized inline diff for ${targetPath} (Lines ${sLine}–${eLine}) via local Holo v13.`;
   }
 }
 
@@ -11693,16 +11842,16 @@ const CURSOR_IDE_COMMANDS = [
     },
   },
   {
-    id: 'uor.hydrate360m',
+    id: 'uor.hydrateHolo17b',
     category: 'UOR-R4 Weights',
-    title: 'Hydrate SmolLM2-360M (32L x 960D) into OPFS',
+    title: 'Hydrate Qwen3-1.7B Holo v13 (28L x 2048D) into OPFS',
     shortcut: '',
-    label: '> UOR-R4 Weights: Hydrate SmolLM2-360M (32L x 960D) into OPFS',
-    meta: 'v12_360m OPFS',
+    label: '> UOR-R4 Weights: Hydrate Qwen3-1.7B Holo v13 (28L x 2048D) into OPFS',
+    meta: 'Qwen3-1.7B OPFS',
     handler: () => {
       if (engineWorkerClient && engineWorkerClient.worker) {
         engineWorkerClient
-          .rpc('hydrate_v12_360m', {})
+          .rpc('hydrate_holo_model', { modelId: 'uor-r4.qwen3-1.7b-holo' })
           .then(() => {
             updateWeightCacheBadge();
           })
@@ -11712,7 +11861,7 @@ const CURSOR_IDE_COMMANDS = [
     run: () => {
       if (engineWorkerClient && engineWorkerClient.worker) {
         engineWorkerClient
-          .rpc('hydrate_v12_360m', {})
+          .rpc('hydrate_holo_model', { modelId: 'uor-r4.qwen3-1.7b-holo' })
           .then(() => {
             updateWeightCacheBadge();
           })
@@ -12071,7 +12220,7 @@ function runCursorR432Check(subcommand = 'check') {
   }
   try {
     let report = null;
-    if (typeof studio_wasm_eval === 'function') {
+    if (mainThreadWasmReady && typeof studio_wasm_eval === 'function') {
       report = JSON.parse(studio_wasm_eval(subcommand, ''));
     }
     applyR432ReportToDom(subcommand, report);
@@ -12619,22 +12768,77 @@ function initCursorIdeWorkbench() {
     hydrateShardsBtn.addEventListener('click', async () => {
       const prevLabel = hydrateShardsBtn.textContent;
       hydrateShardsBtn.disabled = true;
-      hydrateShardsBtn.textContent = 'Hydrating Shards...';
+      hydrateShardsBtn.textContent = 'Hydrating Holo v13...';
       try {
-        const res = typeof hydrate_all_16_e8_shards_to_opfs === 'function'
-          ? await hydrate_all_16_e8_shards_to_opfs()
-          : { status: 'unavailable', hydratedCount: 0 };
+        const sel = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value) || '';
+        const targetHolo = sel === 'uor-r4.qwen3-1.7b-holo' ? 'uor-r4.qwen3-1.7b-holo' : 'uor-r4.qwen3-0.6b-holo';
         if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
-          await engineWorkerClient.rpc('sync_weights', {}).catch(() => null);
+          await engineWorkerClient.rpc('hydrate_holo_model', { modelId: targetHolo, force: true }).catch(() => null);
+          const hs = await engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null);
+          if (hs) engineWorkerClient.holoStatus = hs;
         }
         renderCursorShardsSection();
+        updateWeightCacheBadge();
         if (workspaceStatus) {
-          const cnt = res && typeof res.hydratedCount === 'number' ? res.hydratedCount : 0;
-          workspaceStatus.textContent = `[OPFS E8 Federation] Hydrated ${cnt}/16 E8 shard sectors.`;
+          workspaceStatus.textContent = `[OPFS Holo v13] Hydrated ${targetHolo} pieces with Stitch 2-of-3 parity.`;
         }
       } finally {
         hydrateShardsBtn.disabled = false;
-        hydrateShardsBtn.textContent = prevLabel || 'Hydrate UORR4V12 Shards';
+        hydrateShardsBtn.textContent = prevLabel || 'Hydrate Holo v13 Shards';
+      }
+    });
+  }
+
+  const hfRepoLoadBtn = document.getElementById('hf-repo-load-btn');
+  const hfRepoIdInput = document.getElementById('hf-repo-id-input');
+  if (hfRepoLoadBtn) {
+    hfRepoLoadBtn.addEventListener('click', async () => {
+      const repoId = (hfRepoIdInput && hfRepoIdInput.value.trim()) || 'Qwen/Qwen3-0.6B';
+      const prev = hfRepoLoadBtn.textContent;
+      hfRepoLoadBtn.disabled = true;
+      hfRepoLoadBtn.textContent = 'Streaming HF...';
+      try {
+        if (typeof syncComposerModel === 'function') syncComposerModel('uor-r4.hf-repo-holo');
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+          const res = await engineWorkerClient.rpc('load_hf_repo_holo', { repoId });
+          const hs = await engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null);
+          if (hs) engineWorkerClient.holoStatus = hs;
+          updateWeightCacheBadge();
+          if (workspaceStatus) {
+            workspaceStatus.textContent = `[HF Range 206] Streamed ${repoId}: mounted=${Boolean(res && res.holo && res.holo.mounted)}.`;
+          }
+        }
+      } catch (err) {
+        if (workspaceStatus) {
+          workspaceStatus.textContent = `HF stream error: ${err?.message || String(err)}`;
+        }
+      } finally {
+        hfRepoLoadBtn.disabled = false;
+        hfRepoLoadBtn.textContent = prev || 'Stream HF Repo';
+      }
+    });
+  }
+
+  const nativeQ31TrainBtn = document.getElementById('native-q31-train-btn');
+  if (nativeQ31TrainBtn) {
+    nativeQ31TrainBtn.addEventListener('click', async () => {
+      const activeText = (typeof studioPromptInput !== 'undefined' && studioPromptInput && studioPromptInput.value.trim())
+        || 'Pure integer Hamilton Q31 SpiralCore online learning step.';
+      const prev = nativeQ31TrainBtn.textContent;
+      nativeQ31TrainBtn.disabled = true;
+      nativeQ31TrainBtn.textContent = 'Training Q31...';
+      try {
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+          const res = await engineWorkerClient.rpc('native_q31_train_step', { text: activeText });
+          if (res) engineWorkerClient.nativeQ31Info = res;
+          updateWeightCacheBadge();
+          if (workspaceStatus) {
+            workspaceStatus.textContent = `[Native Q31 D85] Step #${res?.step ?? 0} loss ${res?.loss_before ?? 0} -> ${res?.loss_after ?? 0}.`;
+          }
+        }
+      } finally {
+        nativeQ31TrainBtn.disabled = false;
+        nativeQ31TrainBtn.textContent = prev || 'Train Q31 Step';
       }
     });
   }
@@ -13034,7 +13238,7 @@ function getPrismEmbedStatusSnapshot(eventType = 'prism:status') {
   const modelSel = document.getElementById('composer-model-select');
   const selectedModel = modelSel && modelSel.value
     ? modelSel.value
-    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.recompiled-v12-agent');
+    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.qwen3-0.6b-holo');
   const composerMode = (AppState.config && AppState.config.composerMode) || 'agentic';
   const r4Stack = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.r4StackInfo) || null;
   const vsStatus = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.verdantSynthesis) || null;
@@ -13117,7 +13321,7 @@ function updateDynamicPlanningPanel(extraCtx = {}) {
   if (listEl) {
     const tasks = [
       { done: Boolean(engineWorkerClient && engineWorkerClient.ready), active: false, text: `Dedicated Wasm Worker & Secret Vault (${engineWorkerClient && engineWorkerClient.githubConnected ? 'PAT Sealed' : 'Public/Ready'})` },
-      { done: Boolean(st && st.totalShards > 0), active: !st, text: st ? `Stitch 2-of-3 Parity (${st.scheme} · ${st.status})` : 'Hydrate UORR4V12 / Stitch Shards into OPFS' },
+      { done: Boolean(st && st.totalShards > 0), active: !st, text: st ? `Stitch 2-of-3 Parity (${st.scheme} · ${st.status})` : 'Hydrate Holo v13 / Stitch Pieces into OPFS' },
       { done: Boolean(AppState.config && AppState.config.connectedGitRepo), active: false, text: `GitHub Workspace: ${repo}@${branch} (${fileCount} files)` },
       { done: Boolean(prNum), active: hasPending, text: prNum ? `Pull Request #${prNum} (${AppState.config.ciSummary || 'Tracked'})` : 'Stage Workspace Edits / Open Pull Request' },
     ];
@@ -13157,7 +13361,7 @@ function renderDynamicPoolPanel() {
   const modelSel = document.getElementById('composer-model-select');
   const activeModel = modelSel && modelSel.value
     ? modelSel.value
-    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.recompiled-v12-agent');
+    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.qwen3-0.6b-holo');
 
   if (poolGrid) {
     const engineDetail = r4Stack
@@ -13244,7 +13448,7 @@ function renderCoworkStatusBar() {
   const modelSel = document.getElementById('composer-model-select');
   const activeModel = modelSel && modelSel.value
     ? modelSel.value
-    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.recompiled-v12-agent');
+    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.qwen3-0.6b-holo');
   const thread = typeof getActiveThread === 'function' ? getActiveThread() : null;
   const turnCount = thread && Array.isArray(thread.messages) ? Math.max(1, Math.ceil(thread.messages.length / 2)) : 1;
   const repo = (AppState.config && AppState.config.connectedGitRepo) || 'local';
@@ -13771,7 +13975,7 @@ function initLayoutAndConnectedControls() {
     }
     composerModelSel.addEventListener('change', () => {
       if (AppState && AppState.config) {
-        AppState.config.selectedModel = composerModelSel.value || 'uor-r4.recompiled-v12-agent';
+        AppState.config.selectedModel = composerModelSel.value || 'uor-r4.qwen3-0.6b-holo';
       }
       if (typeof syncComposerModel === 'function') {
         syncComposerModel(composerModelSel.value);
@@ -13872,6 +14076,7 @@ try {
   const workerBooted = engineWorkerClient.spawn();
   if (!workerBooted) {
     await init();
+    mainThreadWasmReady = true;
     await restore_cached_uorlut_from_indexeddb();
   }
 
@@ -13915,8 +14120,8 @@ try {
     if (workerBooted) {
       appendChatTurn(
         'assistant',
-        'UOR-R4 v12 · Connected Studio',
-        'Welcome to **UOR-R4 Recompiled Studio (v12)**. Select a neural geometric mode (`uor-r4.recompiled-v12-agent`, `uor-r4.recompiled-v12-chat`, `uor-r4.seed-fast`) or `uor-r4.lut-symbolic` below, paste code or ask free-form questions, inspect 4-facet Verdant Synthesis KPIs + `.uorc` watchdog status, or connect a GitHub repository via **GitHub**.',
+        'UOR-R4 Holo v13 · Connected Studio',
+        'Welcome to **UOR-R4 Holo v13 Studio**. Select a pure-integer neural model (`uor-r4.qwen3-0.6b-holo`, `uor-r4.qwen3-1.7b-holo`, `uor-r4.native-q31-d85`, or `uor-r4.hf-repo-holo`) below, paste code or use `/hf <repo>` and `/q31-train <text>`, or connect a GitHub repository via **GitHub**.',
       );
     } else {
       runClaudeChat('Hello! Who are you and what can you do?', false);

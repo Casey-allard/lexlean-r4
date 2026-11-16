@@ -1,0 +1,46 @@
+# Prism-DevRel aligned ISO/IEC/IEEE 15939 measurement criteria for LexLean-R4 (`prism/measures/1`).
+# Each measure names a LexLean method inside `src/R4/UorustPrismDevrel.lex.tex` and bounds direction.
+
+spec = "prism/measures/1"
+
+[[measure]]
+record = "Quality::measureUncoveredRecords"
+method = "R4.UorustPrismDevrel.uncoveredRecords"
+source = "src/R4/UorustPrismDevrel.lex.tex"
+direction = "atMost"
+threshold = 0
+
+[[measure]]
+record = "Quality::measureUndeclaredReferences"
+method = "R4.UorustPrismDevrel.undeclaredReferences"
+source = "src/R4/UorustPrismDevrel.lex.tex"
+direction = "atMost"
+threshold = 0
+
+[[measure]]
+record = "Quality::measureFloatServingOps"
+method = "R4.UorustPrismDevrel.floatServingOps"
+source = "src/R4/UorustPrismDevrel.lex.tex"
+direction = "atMost"
+threshold = 0
+
+[[measure]]
+record = "Quality::measureDenseMatmulOps"
+method = "R4.UorustPrismDevrel.denseMatmulOps"
+source = "src/R4/UorustPrismDevrel.lex.tex"
+direction = "atMost"
+threshold = 0
+
+[[measure]]
+record = "Quality::measureKappaResidue"
+method = "R4.UorustPrismDevrel.kappaResidue"
+source = "src/R4/UorustPrismDevrel.lex.tex"
+direction = "atMost"
+threshold = 355
+
+[[measure]]
+record = "Quality::measureRouteTableTotal"
+method = "R4.UorustPrismDevrel.routeTableTotalCount"
+source = "src/R4/UorustPrismDevrel.lex.tex"
+direction = "atLeast"
+threshold = 9

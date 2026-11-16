@@ -1,0 +1,33 @@
+# W3C PROV-O primary source derivation registry for LexLean-R4 (`prism/provenance-sources/1`).
+# Every non-universal claim in CONFORMANCE.md and public/provenance.json derives from these primary artifacts.
+
+spec = "prism/provenance-sources/1"
+sources = [
+  "README.md",
+  "OVERHAUL-VERIFICATION.md",
+  "Cargo.toml",
+  "Justfile",
+  "crates/wasm/Cargo.toml",
+  "crates/model/Cargo.toml",
+  "crates/conformance/Cargo.toml",
+  "xtask/Cargo.toml",
+  "model/ids.toml",
+  "model/ledger.toml",
+  "model/authorities.toml",
+  "model/routes.toml",
+  "model/measures.toml",
+  "model/provenance.toml",
+  "model/ratchet.toml",
+  "model/lift_register.json",
+  "model/synthesis_report.json",
+  "features/suites/*.feature",
+  "src/R4/*.lex.tex",
+  "tests/lexlean/*.lex.tex",
+  "public/provenance.json",
+  ".github/workflows/*.yml",
+]
+
+[[author]]
+name = "LexLean-R4 Engineering"
+kind = "organization"
+attributed = ["model/ids.toml", "model/routes.toml", "model/measures.toml"]

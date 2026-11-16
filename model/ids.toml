@@ -20,6 +20,30 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-53"
+level = "build"
+suite = "r4-uorust-prism-devrel"
+statement = "Pure LexLean models UORust total fact-to-record route tables, Prism-DevRel ISO 15939 measurement bounds, and W3C PROV-O primary source derivation gates (r4-uorust-prism-devrel): deterministic model/routes.toml mapping Cargo/LexLean/Holo/Q31/Worker/Ratchet/Release facts onto Foundation.{Arch,Feature,Quality,Sec,Release} records across arch, features, behavior, design, sec, qual, and release facets with typed refusals RefusedUnknownRouteFact, RefusedAmbiguousRoute, RefusedInvalidMeasureDirection, and RefusedMissingProvenanceSource; enforcing zero uncovered model records, zero undeclared cross-references, monotonic UORust function-kappa ratchet, and strict primary-source provenance verification in xtask validate and just vv. Formal controls establish no external upstream repository availability or remote CI execution."
+
+[[id]]
+id = "R4-52"
+level = "build"
+suite = "r4-native-q31-train"
+statement = "Pure LexLean models pure-from-scratch Q31 SpiralCore/FBS neural lane codecs, Hamilton G2 quaternion gates, SWAR 64-bit Hamming reads, D19 content-addressed memory, and bit-identical CUDA/Wasm replay (r4-native-q31-train): UORQ31V1 lossless Q31 integer checkpoint codec with magic, dimension bounds, non-negative step counters, and dual sha256/blake3 kappa verification; Q31 Cl(0,6) 64-state SpiralCore actions over 16-root E8 orbits with fixed-point softmax-free integer updates; browser-side online Q31 residual training step with typed refusals RefusedInvalidQ31Magic, RefusedOutOfDomainQ31Config, RefusedQ31ChecksumMismatch, and RefusedCudaWasmParityDrift. Formal controls establish no offline RTX 4090 GPU hardware execution or corpus generalization beyond verified receipts."
+
+[[id]]
+id = "R4-51"
+level = "build"
+suite = "r4-holo-geometric-runtime"
+statement = "Pure LexLean models pure-integer Holo UORR4V13 geometric inference, Wasm simd128 nibble-unpack kernels, Block-32 RHT Cholesky-GPTQ decoding, per-head QK-norm ordering before RoPE, SWAR 512-bit Hamming shortlist selection, Worker-only RPC routing, and retirement of non-coherent scaffolds (r4-holo-geometric-runtime): pure integer inference over hardware mul/div and CLZ-seeded Newton isqrt (zero floating-point serving ops, zero dense matmuls), symmetric group-32 int8 tied embeddings/lm_head with 4-bit dyadic layer projections, explicit RefusedRetiredScaffoldMode blocking legacy SmolLM2-135M / SeedFast / LutSymbolic chat routes, Worker RPC serialization preventing main-thread __wbindgen_free panics, and explicit tensor/head alignment refusals RefusedInvalidHoloV13Magic, RefusedHeadDimMisaligned, RefusedRoPEBeforeQkNorm, and RefusedMainThreadWasmDispatch. Formal controls establish no offline GPU calibration receipt provenance or external Hugging Face model availability."
+
+[[id]]
+id = "R4-50"
+level = "build"
+suite = "r4-holo-kappa-store"
+statement = "Pure LexLean models Holo v4 kappa-addressed OPFS piece storage, HOLD-buffered verified byte streaming, Stitch parity healing, and direct HTTP 206 Range Hugging Face safetensors piece loading (r4-holo-kappa-store): UORR4V13 pieces.v1 content-addressed OPFS hierarchy (sha256/<hh>/<hh>/<hex>) backed by Dedicated Worker FileSystemSyncAccessHandle with 64 KiB HOLD-tail digest gate releasing final bytes strictly after piece SHA-256 verification, sparse HTTP Range slice streaming with liar-mirror quarantine and 2-of-3 Stitch XOR recovery, and typed refusals RefusedPieceHashMismatch, RefusedRangeRequestUnsupported, RefusedCorruptSafetensorsHeader, and RefusedStorageCommitAbort. Formal controls establish no remote CDN uptime, CORS header stability, or browser OPFS quota grant."
+
+[[id]]
 id = "R4-49"
 level = "build"
 suite = "r4-browser-persistence"

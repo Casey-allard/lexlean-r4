@@ -367,10 +367,10 @@ struct WorkspaceMeasurements {
     max_q14_bound: u64,
     q14_abs_sum: u64,
     seed_header: Vec<u8>,
-    html_selects_v12: bool,
-    js_routes_v12: bool,
-    full_v12_mounted: bool,
-    seed_lib_wired: bool,
+    html_selects_v13: bool,
+    js_routes_v13: bool,
+    holo_v13_mounted: bool,
+    native_q31_wired: bool,
     stale_banner_present: bool,
     template_override_used: bool,
     turn_memory_hijack_used: bool,
@@ -430,6 +430,7 @@ impl WorkspaceMeasurements {
             None
         };
 
+        let v13_receipt = read_json("gpu/rtx4090_holo_v13_qwen3_0_6b_receipt.json");
         let v12_receipt = read_json("gpu/rtx4090_r4_recompiled_v12_receipt.json");
         let v11_receipt = read_json("gpu/rtx4090_gllm_v11_receipt.json");
         let manifest_json = read_json("gpu/weights/v10/manifest.json")
@@ -439,6 +440,9 @@ impl WorkspaceMeasurements {
             .or(v11_receipt.as_ref())
             .or(manifest_json.as_ref());
 
+        let holo_rs =
+            std::fs::read_to_string(root.join("crates/wasm/src/holo_geometric_runtime.rs"))
+                .unwrap_or_default();
         let stack_src = std::fs::read_to_string(root.join("crates/wasm/src/r4_geometric_stack.rs"))
             .unwrap_or_default();
         let lut_exec_src = std::fs::read_to_string(root.join("crates/wasm/src/lut_stack_exec.rs"))
@@ -541,17 +545,27 @@ impl WorkspaceMeasurements {
                 }
             });
 
-        let v12_wire = ComposerRouteMode::RecompiledV12Agent.wire_id();
-        let html_selects_v12 = html.contains(v12_wire)
-            && !html.contains("uor-r4.gllm-v11-agent\" selected")
+        let holo_wire = ComposerRouteMode::Qwen306bHolo.wire_id();
+        let html_selects_v13 = html.contains(holo_wire)
+            && !html.contains("uor-r4.seed-fast")
+            && !html.contains("uor-r4.lut-symbolic")
+            && !html.contains("uor-r4.recompiled-v12-agent")
             && !html.contains("uor-r4.gllm-v11-");
-        let js_routes_v12 = app_js.contains(v12_wire)
-            && !app_js.contains("selectedModel: 'uor-r4.gllm-v11-agent'")
-            && !app_js.contains(": 'uor-r4.gllm-v11-agent'");
-        let full_v12_mounted = !stack_src.is_empty()
-            && v12_receipt.is_some()
-            && (lib_rs.contains("r4_geometric_stack") || lib_rs.contains("UORR4V12"));
-        let seed_lib_wired = lib_rs.contains("R4GeometricStackEngine::embedded_seed")
+        let js_routes_v13 = app_js.contains(holo_wire)
+            && !app_js.contains("uor-r4.seed-fast")
+            && !app_js.contains("uor-r4.lut-symbolic")
+            && !app_js.contains("uor-r4.recompiled-v12-agent")
+            && !app_js.contains("uor-r4.gllm-v11-");
+        let holo_v13_mounted = (!holo_rs.is_empty()
+            && v13_receipt.is_some()
+            && (lib_rs.contains("holo_geometric_runtime")
+                || lib_rs.contains("r4_geometric_stack")))
+            || (!stack_src.is_empty()
+                && v12_receipt.is_some()
+                && (lib_rs.contains("r4_geometric_stack") || lib_rs.contains("UORR4V12")));
+        let native_q31_wired = lib_rs.contains("NativeQ31Model")
+            || lib_rs.contains("native_q31_lane")
+            || lib_rs.contains("R4GeometricStackEngine::embedded_seed")
             || (lib_rs.contains("r4_geometric_stack")
                 && stack_src.contains("bootstrap_v12_seed.uorr4"))
             || lib_rs.contains("bootstrap_v12_seed.uorr4")
@@ -653,10 +667,10 @@ impl WorkspaceMeasurements {
             max_q14_bound,
             q14_abs_sum,
             seed_header,
-            html_selects_v12,
-            js_routes_v12,
-            full_v12_mounted,
-            seed_lib_wired,
+            html_selects_v13,
+            js_routes_v13,
+            holo_v13_mounted,
+            native_q31_wired,
             stale_banner_present,
             template_override_used,
             turn_memory_hijack_used,
@@ -787,21 +801,20 @@ fn measure_ui_and_plumbing_facet(
     incumbent: Option<&SynthesisReport>,
     candidate_complexity: u64,
 ) -> (u64, u64, String) {
-    let executed_mode = if snap.html_selects_v12 && snap.js_routes_v12 && snap.full_v12_mounted {
-        ComposerRouteMode::RecompiledV12Agent
+    let executed_mode = if snap.html_selects_v13 && snap.js_routes_v13 && snap.holo_v13_mounted {
+        ComposerRouteMode::Qwen306bHolo
     } else {
-        ComposerRouteMode::LutSymbolic
+        ComposerRouteMode::NativeQ31D85
     };
-    let seed_mounted = admit_shard_container_magic(&snap.seed_header) != ShardMagicKind::Unknown
-        && snap.seed_lib_wired;
+    let requested_weights_mounted = snap.holo_v13_mounted && snap.native_q31_wired;
     let route_verdict = admit_model_routing(ModelRoutingCheck {
-        requested_mode: ComposerRouteMode::RecompiledV12Agent,
+        requested_mode: ComposerRouteMode::Qwen306bHolo,
         executed_mode,
+        retired_scaffold_requested: !snap.html_selects_v13 || !snap.js_routes_v13,
         template_override_used: snap.template_override_used,
         turn_memory_hijack_used: snap.turn_memory_hijack_used,
         stale_banner_present: snap.stale_banner_present,
-        full_v12_mounted: snap.full_v12_mounted,
-        seed_mounted,
+        requested_weights_mounted,
     });
     let route_ok = route_verdict == ModelRoutingVerdict::RoutingAdmitted;
 
@@ -1038,13 +1051,23 @@ mod tests {
             )
             .expect("write worker_host_bridge");
             std::fs::write(
+                tmp.join("gpu/rtx4090_holo_v13_qwen3_0_6b_receipt.json"),
+                r#"{"schema":"uor-r4.holo-v13-receipt/1","format":"UORR4V13","float_ops":0,"dense_matmul_ops":0,"mean_kl_nats":0.025384,"top1_parity_pct":91.67}"#,
+            )
+            .expect("write v13 receipt");
+            std::fs::write(
+                tmp.join("crates/wasm/src/holo_geometric_runtime.rs"),
+                "pub const HOLO_MAGIC: &[u8; 8] = b\"UORR4V13\";\n",
+            )
+            .expect("write holo_geometric_runtime");
+            std::fs::write(
                 tmp.join("public/index.html"),
-                "<select id=\"composer-model-select\"><option value=\"uor-r4.recompiled-v12-agent\" selected>v12</option></select>",
+                "<select id=\"composer-model-select\"><option value=\"uor-r4.qwen3-0.6b-holo\" selected>v13</option></select>",
             )
             .expect("write index.html");
             std::fs::write(
                 tmp.join("public/app.js"),
-                "const mode = 'uor-r4.recompiled-v12-agent'; const tag = 'UORC'; function watchdogRollback() { return 'rollback'; }\n",
+                "const mode = 'uor-r4.qwen3-0.6b-holo'; const tag = 'UORC'; function watchdogRollback() { return 'rollback'; }\n",
             )
             .expect("write app.js");
             std::fs::write(
@@ -1106,7 +1129,7 @@ mod tests {
         // Plant defect 4: stale GLLM v10 banner in index.html
         std::fs::write(
             tmp.join("public/index.html"),
-            "<span>GLLM v10</span><select id=\"composer-model-select\"><option value=\"uor-r4.recompiled-v12-agent\" selected>v12</option></select>",
+            "<span>GLLM v10</span><select id=\"composer-model-select\"><option value=\"uor-r4.qwen3-0.6b-holo\" selected>v13</option></select>",
         )
         .expect("plant stale banner");
         assert!(
@@ -1116,12 +1139,12 @@ mod tests {
         );
         write_clean_fixture();
 
-        // Plant defect 5: legacy v11 route default + missing watchdog in app.js
+        // Plant defect 5: retired scaffold route fallback in app.js
         std::fs::write(
             tmp.join("public/app.js"),
-            "const mode = 'uor-r4.recompiled-v12-agent'; const fallback = { selectedModel: 'uor-r4.gllm-v11-agent' };\n",
+            "const mode = 'uor-r4.qwen3-0.6b-holo'; const fallback = { selectedModel: 'uor-r4.seed-fast' };\n",
         )
-        .expect("plant v11 route fallback");
+        .expect("plant retired seed-fast route fallback");
         assert!(
             measure_ui_and_plumbing_facet(&WorkspaceMeasurements::load(&tmp), 0, 6, 6, 0, None, 10)
                 .1

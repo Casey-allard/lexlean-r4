@@ -25,9 +25,15 @@ pub mod gllm_v9;
 /// Pre-trained Generalized Geometric Language Model (`UR4GLM01`) Concept Manifold & Reasoner.
 #[cfg(not(target_arch = "wasm32"))]
 pub mod glm_weights;
+/// Track 1 (`R4-51`): Pure-integer `UORR4V13` Qwen3 Holo geometric runtime with Wasm `simd128` kernels.
+pub mod holo_geometric_runtime;
+/// Track 1 (`R4-50`): Content-addressed (`kappa`) OPFS piece store & `HOLD_TAIL_BYTES` guard.
+pub mod holo_kappa_store;
 #[allow(dead_code, clippy::all, missing_docs)]
 #[path = "lexlean_generated.rs"]
 mod lexlean_generated_core;
+/// Track 2 (`R4-52`): Pure-from-scratch `D85` `Q31` SpiralCore/FBS orbital lane & `UORQ31V1` codec.
+pub mod native_q31_lane;
 /// Multiplier-free, zero-float `UORR4V12` geometric vector stack runtime (`R4-46`).
 pub mod r4_geometric_stack;
 /// Deterministically generated Rust implementation of the verified LexLean `R4.*` modules.
@@ -483,6 +489,12 @@ pub struct StudioEngine {
     pub(crate) mvm: mvm::MvmSandbox,
     pub(crate) gllm_v9: Arc<gllm_v9::GllmV9Model>,
     pub(crate) r4_stack: r4_geometric_stack::R4GeometricStackEngine,
+    pub(crate) holo_models:
+        std::collections::BTreeMap<String, holo_geometric_runtime::HoloV13Model>,
+    pub(crate) holo_stream_builder:
+        Option<(String, holo_geometric_runtime::HoloV13StreamingBuilder)>,
+    pub(crate) hf_repo_compiler: Option<holo_geometric_runtime::HfRepoHoloStreamCompiler>,
+    pub(crate) native_q31: native_q31_lane::NativeQ31Model,
     pub(crate) ciris_ledger: ciris_ledger::CirisCausalLedger,
     pub(crate) last_brain_pulses: Vec<gllm_v9::BrainPulseStep>,
     pub(crate) pending_mvm_bridge: Option<serde_json::Value>,
@@ -1262,6 +1274,19 @@ impl StudioEngine {
             mvm: mvm::MvmSandbox::boot_default().expect("embedded UORMVM01 initramfs boots"),
             gllm_v9: gllm_v9::GllmV9Model::default_embedded(),
             r4_stack: r4_geometric_stack::R4GeometricStackEngine::embedded_seed(),
+            holo_models: std::collections::BTreeMap::new(),
+            holo_stream_builder: None,
+            hf_repo_compiler: None,
+            native_q31: {
+                static EMBEDDED_NATIVE_Q31_D85: &[u8] = include_bytes!("native_q31_d85.uorq31");
+                static NATIVE_Q31_CELL: OnceLock<native_q31_lane::NativeQ31Model> = OnceLock::new();
+                NATIVE_Q31_CELL
+                    .get_or_init(|| {
+                        native_q31_lane::NativeQ31Model::from_bytes(EMBEDDED_NATIVE_Q31_D85)
+                            .expect("embedded native_q31_d85.uorq31 is valid UORQ31V1")
+                    })
+                    .clone()
+            },
             ciris_ledger: ciris_ledger::CirisCausalLedger::new(),
             last_brain_pulses: Vec::new(),
             pending_mvm_bridge: None,
@@ -1658,6 +1683,132 @@ impl StudioEngine {
     ) -> Result<String, r4_geometric_stack::R4StackError> {
         self.r4_stack.mount_full_container_bytes(bytes)?;
         Ok(self.r4_stack_status_json())
+    }
+
+    /// Return verified runtime status for mounted `UORR4V13` Holo & `D85` `Q31` lanes (`R4-51`, `R4-52`).
+    pub fn holo_runtime_status_json(&self) -> String {
+        let mounted: Vec<serde_json::Value> = self
+            .holo_models
+            .iter()
+            .map(|(id, m)| {
+                serde_json::json!({
+                    "model_id": id,
+                    "format": "UORR4V13",
+                    "container_sha256": m.container_sha256,
+                    "n_layers": m.n_layers,
+                    "d_model": m.d_model,
+                    "n_heads": m.n_heads,
+                    "n_kv_heads": m.n_kv_heads,
+                    "head_dim": m.head_dim,
+                    "vocab_size": m.vocab_size,
+                    "float_ops": 0,
+                    "dense_matmul_ops": 0,
+                })
+            })
+            .collect();
+        serde_json::json!({
+            "status": "ok",
+            "schema": "uor-r4.holo-geometric-runtime/13",
+            "mounted_count": mounted.len(),
+            "models": &mounted,
+            "mounted_models": mounted,
+            "simd128": cfg!(target_feature = "simd128"),
+            "qwen3_06b_mounted": self.holo_models.contains_key("uor-r4.qwen3-0.6b-holo"),
+            "qwen3_17b_mounted": self.holo_models.contains_key("uor-r4.qwen3-1.7b-holo"),
+            "hf_repo_mounted": self.holo_models.keys().any(|k| k == "uor-r4.hf-repo-holo" || k.starts_with("uor-r4.hf-repo-holo:")),
+            "native_q31_mounted": true,
+            "native_q31_step": self.native_q31.step,
+            "float_ops": 0,
+            "dense_matmul_ops": 0,
+        })
+        .to_string()
+    }
+
+    /// Return verified `D85` Native `Q31` SpiralCore/FBS status JSON (`R4-52`).
+    pub fn native_q31_status_json(&self) -> String {
+        serde_json::json!({
+            "status": "ok",
+            "format": "UORQ31V1",
+            "model_id": "uor-r4.native-q31-d85",
+            "d_model": self.native_q31.d_model,
+            "n_heads": self.native_q31.n_heads,
+            "n_layers": self.native_q31.n_layers,
+            "vocab_size": self.native_q31.vocab_size,
+            "orbital_states": self.native_q31.orbital_states,
+            "e8_root_count": self.native_q31.e8_root_count,
+            "step": self.native_q31.step,
+            "d19_entries": self.native_q31.d19_keys.len(),
+            "float_ops": 0,
+            "dense_matmul_ops": 0,
+        })
+        .to_string()
+    }
+
+    /// Begin incremental chunked mounting of a `UORR4V13` container from OPFS pieces (`R4-50`, `R4-51`).
+    pub fn begin_holo_v13_mount(
+        &mut self,
+        model_id: &str,
+        expected_pieces: usize,
+        expected_sha256: &str,
+    ) -> String {
+        let key = model_id.trim().to_string();
+        let builder = holo_geometric_runtime::HoloV13StreamingBuilder::new(
+            key.clone(),
+            expected_pieces,
+            expected_sha256,
+        );
+        self.holo_stream_builder = Some((key.clone(), builder));
+        serde_json::json!({
+            "status": "ok",
+            "model_id": key,
+            "expected_pieces": expected_pieces,
+        })
+        .to_string()
+    }
+
+    /// Push one verified 1 MiB OPFS piece into the active `UORR4V13` streaming builder (`R4-50`).
+    pub fn push_holo_v13_piece(
+        &mut self,
+        piece: &[u8],
+    ) -> Result<String, r4_geometric_stack::R4StackError> {
+        let (key, builder) = self
+            .holo_stream_builder
+            .as_mut()
+            .ok_or(r4_geometric_stack::R4StackError::TruncatedContainer)?;
+        builder.push_piece(piece)?;
+        Ok(serde_json::json!({
+            "status": "ok",
+            "model_id": key,
+            "piece_bytes": piece.len(),
+        })
+        .to_string())
+    }
+
+    /// Finalize SHA-256 verification and mount the streamed `HoloV13Model` (`R4-51`).
+    pub fn finalize_holo_v13_mount(&mut self) -> Result<String, r4_geometric_stack::R4StackError> {
+        let (key, builder) = self
+            .holo_stream_builder
+            .take()
+            .ok_or(r4_geometric_stack::R4StackError::TruncatedContainer)?;
+        let model = builder.finalize()?;
+        self.holo_models.insert(key, model);
+        Ok(self.holo_runtime_status_json())
+    }
+
+    /// Verify and hot-mount a complete `UORR4V13` container byte buffer (`R4-51`).
+    pub fn mount_holo_v13_bytes(
+        &mut self,
+        model_id: &str,
+        bytes: &[u8],
+    ) -> Result<String, r4_geometric_stack::R4StackError> {
+        let key = if model_id.trim().is_empty() {
+            "uor-r4.qwen3-0.6b-holo".to_string()
+        } else {
+            model_id.trim().to_string()
+        };
+        let model = holo_geometric_runtime::HoloV13Model::from_bytes(key.clone(), bytes)?;
+        self.holo_models.insert(key, model);
+        Ok(self.holo_runtime_status_json())
     }
 
     /// Return verified runtime status for the `UORR4V12` geometric vector stack (`R4-46`).
@@ -5489,7 +5640,7 @@ impl StudioEngine {
         use lexlean_generated::r4_honest_plumbing::{
             admit_model_routing, ComposerRouteMode, ModelRoutingCheck, ModelRoutingVerdict,
         };
-        use r4_geometric_stack::SelectedExecutionMode;
+        use r4_geometric_stack::GeometricTurnMetrics;
 
         let trimmed_raw = prompt_text.trim();
         if trimmed_raw.is_empty() {
@@ -5549,74 +5700,86 @@ impl StudioEngine {
                 .to_string();
         }
 
-        let (route_mode, selected_mode) = match selected_model_opt.as_deref() {
-            None => (
-                ComposerRouteMode::LutSymbolic,
-                SelectedExecutionMode::SymbolicLutMvm,
-            ),
-            Some(raw_wire) => match ComposerRouteMode::from_wire_id(raw_wire) {
-                Some(ComposerRouteMode::RecompiledV12Agent) => (
-                    ComposerRouteMode::RecompiledV12Agent,
-                    SelectedExecutionMode::RecompiledAgent,
-                ),
-                Some(ComposerRouteMode::RecompiledV12Chat) => (
-                    ComposerRouteMode::RecompiledV12Chat,
-                    SelectedExecutionMode::RecompiledChat,
-                ),
-                Some(ComposerRouteMode::SeedFast) => (
-                    ComposerRouteMode::SeedFast,
-                    SelectedExecutionMode::EmbeddedSeedFast,
-                ),
-                Some(ComposerRouteMode::LutSymbolic) => (
-                    ComposerRouteMode::LutSymbolic,
-                    SelectedExecutionMode::SymbolicLutMvm,
-                ),
-                None => {
+        let explicit_v13_mode = match selected_model_opt.as_deref() {
+            None => None,
+            Some(raw_wire) => {
+                if ComposerRouteMode::is_retired_scaffold_wire(raw_wire) {
+                    let v = admit_model_routing(ModelRoutingCheck {
+                        requested_mode: ComposerRouteMode::Qwen306bHolo,
+                        executed_mode: ComposerRouteMode::Qwen306bHolo,
+                        retired_scaffold_requested: true,
+                        template_override_used: false,
+                        turn_memory_hijack_used: false,
+                        stale_banner_present: false,
+                        requested_weights_mounted: false,
+                    });
                     return serde_json::json!({
                         "status": "error",
-                        "error_code": "RefusedModeMismatch",
+                        "error_code": format!("{v:?}"),
                         "selected_model": raw_wire,
                         "composer_mode": composer_mode_str,
-                        "execution_tier": "unrecognized-model",
-                        "message": format!("Unsupported model identifier `{raw_wire}`. Expected one of uor-r4.recompiled-v12-agent, uor-r4.recompiled-v12-chat, uor-r4.seed-fast, or uor-r4.lut-symbolic."),
+                        "execution_tier": "retired-scaffold",
+                        "message": format!("Retired scaffold `{raw_wire}` is disabled in v0.13.0; select `uor-r4.qwen3-0.6b-holo`, `uor-r4.qwen3-1.7b-holo`, `uor-r4.native-q31-d85`, or `uor-r4.hf-repo-holo`."),
                     })
                     .to_string();
                 }
-            },
+                match ComposerRouteMode::from_wire_id(raw_wire) {
+                    Some(m) => {
+                        let requested_weights_mounted = match m {
+                            ComposerRouteMode::Qwen306bHolo => {
+                                self.holo_models.contains_key("uor-r4.qwen3-0.6b-holo")
+                            }
+                            ComposerRouteMode::Qwen317bHolo => {
+                                self.holo_models.contains_key("uor-r4.qwen3-1.7b-holo")
+                            }
+                            ComposerRouteMode::NativeQ31D85 => true,
+                            ComposerRouteMode::HfRepoHolo => {
+                                self.holo_models.contains_key("uor-r4.hf-repo-holo")
+                            }
+                        };
+                        let routing_verdict = admit_model_routing(ModelRoutingCheck {
+                            requested_mode: m,
+                            executed_mode: m,
+                            retired_scaffold_requested: false,
+                            template_override_used: false,
+                            turn_memory_hijack_used: false,
+                            stale_banner_present: false,
+                            requested_weights_mounted,
+                        });
+                        if routing_verdict != ModelRoutingVerdict::RoutingAdmitted {
+                            let err_code = format!("{routing_verdict:?}");
+                            return serde_json::json!({
+                                "status": "error",
+                                "error_code": err_code,
+                                "selected_model": m.wire_id(),
+                                "composer_mode": composer_mode_str,
+                                "execution_tier": "unmounted-holo",
+                                "message": format!(
+                                    "Requested model `{}` is not yet mounted in OPFS ({routing_verdict:?}); hydrate OPFS pieces first or switch to `uor-r4.native-q31-d85`.",
+                                    m.wire_id()
+                                ),
+                            })
+                            .to_string();
+                        }
+                        Some(m)
+                    }
+                    None => {
+                        return serde_json::json!({
+                            "status": "error",
+                            "error_code": "RefusedModeMismatch",
+                            "selected_model": raw_wire,
+                            "composer_mode": composer_mode_str,
+                            "execution_tier": "unrecognized-model",
+                            "message": format!("Unsupported model identifier `{raw_wire}`. Expected one of uor-r4.qwen3-0.6b-holo, uor-r4.qwen3-1.7b-holo, uor-r4.native-q31-d85, or uor-r4.hf-repo-holo."),
+                        })
+                        .to_string();
+                    }
+                }
+            }
         };
 
-        let full_v12_mounted = self.r4_stack.is_full_recompiled_mounted();
-        let routing_verdict = admit_model_routing(ModelRoutingCheck {
-            requested_mode: route_mode,
-            executed_mode: route_mode,
-            template_override_used: false,
-            turn_memory_hijack_used: false,
-            stale_banner_present: false,
-            full_v12_mounted,
-            seed_mounted: true,
-        });
-        if routing_verdict != ModelRoutingVerdict::RoutingAdmitted {
-            let err_code = format!("{routing_verdict:?}");
-            return serde_json::json!({
-                "status": "error",
-                "error_code": err_code,
-                "selected_model": selected_mode.wire_id(),
-                "composer_mode": composer_mode_str,
-                "execution_tier": if selected_mode.is_neural_geometric() {
-                    "unmounted-full-v12"
-                } else {
-                    "symbolic-lut-mvm"
-                },
-                "message": format!(
-                    "Requested model `{}` cannot execute ({routing_verdict:?}): mount full 30-layer UORR4V12 shards from OPFS or select `uor-r4.seed-fast` / `uor-r4.lut-symbolic`.",
-                    selected_mode.wire_id()
-                ),
-            })
-            .to_string();
-        }
-
-        // Support inline "Teach: <prompt> => <reply>" directly from the chat bar in symbolic mode only.
-        if !selected_mode.is_neural_geometric() {
+        // Support inline "Teach: <prompt> => <reply>" directly in omitted-model internal ledger turns only.
+        if explicit_v13_mode.is_none() {
             if let Some(rest) = trimmed
                 .strip_prefix("Teach:")
                 .or_else(|| trimmed.strip_prefix("teach:"))
@@ -5632,16 +5795,15 @@ impl StudioEngine {
         }
 
         let prompt_tokens = self.tokenize(trimmed);
-        let prompt_q12 = pool_prompt_q12(&prompt_tokens);
         let (flock_frames, consensus_action, flock_resonance) =
             self.compute_flock_cyclic_consensus(&prompt_tokens);
+        let prompt_q12 = pool_prompt_q12(&prompt_tokens);
         let (icosian_root, _) =
             icosian_snap_select([prompt_q12[0], prompt_q12[1], prompt_q12[2], prompt_q12[3]]);
         let active_gates = self.gate_trits.iter().filter(|&&g| g != 0).count();
         let active_ws_path = self.active_workspace_path.clone();
 
-        // Neural geometric modes MUST skip canned synthesize_code_turn / workspace query template hijacks.
-        let code_outcome = if selected_mode.is_neural_geometric() {
+        let code_outcome = if explicit_v13_mode.is_some() {
             assistant::CodeSynthesisOutcome {
                 target_path: active_ws_path.clone(),
                 proposed_block: String::new(),
@@ -5651,8 +5813,6 @@ impl StudioEngine {
         } else {
             let mut outcome =
                 self.synthesize_code_turn(trimmed, consensus_action, icosian_root, active_gates);
-
-            // If the user asked for a workspace file query or unit test patch, apply its outcome
             if let Some((_, ws_patch)) = self.try_handle_workspace_query(
                 trimmed,
                 &active_ws_path,
@@ -5673,67 +5833,161 @@ impl StudioEngine {
         let ctx_before = self.rolling_context.q12_latent;
         let start_turn_index = self.rolling_context.turn_index;
         self.pending_chat_bridge = None;
-        let r4_stack_snapshot = self.r4_stack.clone();
-        let (assistant_reply, geometric_metrics, _step_frames) = self.compose_chat_for_mode(
-            trimmed,
-            &prompt_tokens,
-            &prompt_q12,
-            consensus_action as usize,
-            flock_resonance,
-            icosian_root as usize,
-            &active_ws_path,
-            &code_outcome,
-            &r4_stack_snapshot,
-            selected_mode,
-        );
 
-        let execution_tier = match selected_mode {
-            SelectedExecutionMode::RecompiledAgent => {
-                if full_v12_mounted {
-                    format!(
-                        "recompiled-v12-agent ({}L {}D)",
-                        geometric_metrics.n_layers, geometric_metrics.d_model
-                    )
-                } else {
-                    "recompiled-v12-agent (embedded-seed)".to_string()
+        let history_snap = self.chat_history.clone();
+        let r4_stack_snapshot = self.r4_stack.clone();
+        let (assistant_reply, geometric_metrics, execution_tier, selected_wire_id) =
+            match explicit_v13_mode {
+                Some(
+                    route_mode @ (ComposerRouteMode::Qwen306bHolo
+                    | ComposerRouteMode::Qwen317bHolo
+                    | ComposerRouteMode::HfRepoHolo),
+                ) => {
+                    let model = self
+                        .holo_models
+                        .get_mut(route_mode.wire_id())
+                        .expect("admitted holo model mounted");
+                    let sys_prompt = if composer_mode_str == "agentic" {
+                        "You are UOR-R4 Assistant running inside an offline pure-integer browser engine. Give clear, accurate, concise answers and clean code."
+                    } else {
+                        "You are a helpful assistant."
+                    };
+                    let (reply, hm) = model.generate_chat_turn_with_history(
+                        trimmed,
+                        &history_snap,
+                        sys_prompt,
+                        192,
+                    );
+                    let tier = format!(
+                        "{} ({}L {}D, UORR4V13)",
+                        route_mode.wire_id(),
+                        model.n_layers,
+                        model.d_model
+                    );
+                    let gm = GeometricTurnMetrics {
+                        schema: hm.schema,
+                        active_tier: route_mode.wire_id(),
+                        n_layers: model.n_layers as u32,
+                        d_model: model.d_model as u32,
+                        vocab_size: model.vocab_size as u32,
+                        prompt_tokens: hm.prompt_tokens,
+                        generated_tokens: hm.generated_tokens,
+                        float_ops: 0,
+                        dense_matmul_ops: 0,
+                        nibble_lut_lookups: (hm.prompt_tokens + hm.generated_tokens) as u64,
+                        lorentz_geodesic_evals: 0,
+                        flock_attended_positions: hm.flock_attended_positions,
+                        flock_total_positions: hm.flock_total_positions,
+                        hamming_xor_copy_hits: hm.shortlist_budget,
+                        icosian_frame_id: icosian_root,
+                        zeta_phase_checksum: 0,
+                    };
+                    (reply, gm, tier, route_mode.wire_id().to_string())
                 }
-            }
-            SelectedExecutionMode::RecompiledChat => {
-                if full_v12_mounted {
-                    format!(
-                        "recompiled-v12-chat ({}L {}D)",
-                        geometric_metrics.n_layers, geometric_metrics.d_model
+                Some(ComposerRouteMode::NativeQ31D85) => {
+                    if composer_mode_str == "teach" {
+                        self.native_q31.online_train_text(trimmed);
+                    }
+                    let (reply, cksum) = self.native_q31.generate_reply(trimmed, 128);
+                    let ptoks = self.native_q31.encode_bytes(trimmed.as_bytes()).len();
+                    let gtoks = self.native_q31.encode_bytes(reply.as_bytes()).len();
+                    let tier = format!(
+                        "native-q31-d85 ({}L {}D step={})",
+                        self.native_q31.n_layers, self.native_q31.d_model, self.native_q31.step
+                    );
+                    let gm = GeometricTurnMetrics {
+                        schema: "uor-r4.native-q31-d85/1",
+                        active_tier: "native-q31-d85",
+                        n_layers: self.native_q31.n_layers,
+                        d_model: self.native_q31.d_model,
+                        vocab_size: self.native_q31.vocab_size,
+                        prompt_tokens: ptoks,
+                        generated_tokens: gtoks,
+                        float_ops: 0,
+                        dense_matmul_ops: 0,
+                        nibble_lut_lookups: (ptoks + gtoks) as u64,
+                        lorentz_geodesic_evals: (gtoks * self.native_q31.n_layers as usize) as u64,
+                        flock_attended_positions: ptoks,
+                        flock_total_positions: ptoks,
+                        hamming_xor_copy_hits: gtoks,
+                        icosian_frame_id: icosian_root,
+                        zeta_phase_checksum: cksum,
+                    };
+                    (
+                        reply,
+                        gm,
+                        tier,
+                        ComposerRouteMode::NativeQ31D85.wire_id().to_string(),
                     )
-                } else {
-                    "recompiled-v12-chat (embedded-seed)".to_string()
                 }
-            }
-            SelectedExecutionMode::EmbeddedSeedFast => "embedded-seed-fast (8L)".to_string(),
-            SelectedExecutionMode::SymbolicLutMvm => "symbolic-lut-mvm (8L LUT)".to_string(),
-        };
+                None => {
+                    let (reply, gm, _frames) = self.compose_chat_for_mode(
+                        trimmed,
+                        &prompt_tokens,
+                        &prompt_q12,
+                        consensus_action as usize,
+                        flock_resonance,
+                        icosian_root as usize,
+                        &active_ws_path,
+                        &code_outcome,
+                        &r4_stack_snapshot,
+                        r4_geometric_stack::SelectedExecutionMode::SymbolicLutMvm,
+                    );
+                    (
+                        reply,
+                        gm,
+                        "internal-ledger (symbolic)".to_string(),
+                        "uor-r4.internal-ledger".to_string(),
+                    )
+                }
+            };
+
+        if explicit_v13_mode.is_some() {
+            let pulse_count = geometric_metrics.generated_tokens.clamp(1, 16);
+            let nl = geometric_metrics.n_layers.max(1) as usize;
+            self.last_brain_pulses = (0..pulse_count)
+                .map(|step| gllm_v9::BrainPulseStep {
+                    step: step as u32,
+                    phase: "reply",
+                    token_id: prompt_tokens
+                        .get(step % prompt_tokens.len().max(1))
+                        .map(|t| t.id)
+                        .unwrap_or(step as u32),
+                    active_layer: ((step * 3 + consensus_action as usize) % nl) as u8,
+                    winning_head: flock_frames[step % flock_frames.len()] & 0x07,
+                    e8_orbit: (icosian_root.wrapping_add(step as u8)) & 0x0F,
+                    cl06_grade: consensus_action.wrapping_add(step as u8) % 7,
+                    kv_copy_dist: if geometric_metrics.hamming_xor_copy_hits > 0 {
+                        (step as u16).saturating_add(1)
+                    } else {
+                        0
+                    },
+                    prll_top_mass: 250_000u32.saturating_add(((step as u32) * 19_531) % 600_000),
+                    tool_kind: "none",
+                })
+                .collect();
+        }
 
         let lut_gen_for_trace = match self.last_lut_generation.take() {
             Some(lg) => lg,
-            None if selected_mode.is_neural_geometric() => {
-                lut_stack_exec::LutStackGenerationResult {
-                    reply_text: String::new(),
-                    thinking_text: None,
-                    thinking_tokens: Vec::new(),
-                    prompt_tokens: Vec::new(),
-                    generated_tokens: Vec::new(),
-                    steps: Vec::new(),
-                    matched_stem_count: 0,
-                    point_hamming_bits: 0,
-                    clauses_resolved: 0,
-                    primary_turn_idx: 0,
-                    final_n_t: [0i32; lut_stack_exec::FBS_WIDTH],
-                    boundary_trajectories: Vec::new(),
-                    total_l1_margin: 0,
-                    slot_frame: None,
-                    phrase_dag_nodes: 0,
-                    phrase_dag_plan: None,
-                }
-            }
+            None if explicit_v13_mode.is_some() => lut_stack_exec::LutStackGenerationResult {
+                reply_text: String::new(),
+                thinking_text: None,
+                thinking_tokens: Vec::new(),
+                prompt_tokens: Vec::new(),
+                generated_tokens: Vec::new(),
+                steps: Vec::new(),
+                matched_stem_count: 0,
+                point_hamming_bits: 0,
+                clauses_resolved: 0,
+                primary_turn_idx: 0,
+                final_n_t: [0i32; lut_stack_exec::FBS_WIDTH],
+                boundary_trajectories: Vec::new(),
+                total_l1_margin: 0,
+                slot_frame: None,
+                phrase_dag_nodes: 0,
+                phrase_dag_plan: None,
+            },
             None => self.lut_stack.generate_reply_with_context(
                 &mut self.rolling_context,
                 &self.chat_history,
@@ -5741,23 +5995,21 @@ impl StudioEngine {
                 2048,
             ),
         };
-        let first_mech = lut_gen_for_trace
-            .steps
-            .first()
-            .map(|s| s.source_mechanism)
-            .unwrap_or("whole_table_nearest");
-        let lower_for_mode = trimmed.to_ascii_lowercase();
-        let is_explicit_uor =
-            lower_for_mode.starts_with("uor:") || lower_for_mode.starts_with("uor ");
-        let used_uorgllm_v9 = self.gllm_v9.is_v11_or_later() && !is_explicit_uor;
-        let lut_mode_label = if selected_mode.is_neural_geometric() {
+        let first_mech = if explicit_v13_mode.is_some() {
+            execution_tier.as_str()
+        } else {
+            lut_gen_for_trace
+                .steps
+                .first()
+                .map(|s| s.source_mechanism)
+                .unwrap_or("whole_table_nearest")
+        };
+        let lut_mode_label = if explicit_v13_mode.is_some() {
             Some(format!(
-                "{} (v12, {}L x {}D, zero-float)",
-                selected_mode.wire_id(),
-                geometric_metrics.n_layers,
-                geometric_metrics.d_model
+                "{} ({}L x {}D, zero-float)",
+                selected_wire_id, geometric_metrics.n_layers, geometric_metrics.d_model
             ))
-        } else if used_uorgllm_v9 {
+        } else if self.gllm_v9.is_v11_or_later() {
             let hdr = self.gllm_v9.header();
             Some(format!(
                 "uorgllm_v9 (v{}, {}L x {}D, Q12 RoPE + 16-ch PRLL)",
@@ -5782,7 +6034,7 @@ impl StudioEngine {
             assistant::parse_thinking_block(&assistant_reply)
         };
 
-        if thinking_trace.is_none() {
+        if explicit_v13_mode.is_none() && thinking_trace.is_none() {
             if let Some(rest) = trimmed
                 .strip_prefix("Teach:")
                 .or_else(|| trimmed.strip_prefix("teach:"))
@@ -5905,11 +6157,10 @@ impl StudioEngine {
         let mut react_admission = "IdleConversationalTurn".to_string();
         let mut react_steps_json = Vec::new();
 
-        let (proposed_code, diff_preview) = if !selected_mode.is_neural_geometric()
+        let (proposed_code, diff_preview) = if explicit_v13_mode.is_none()
             && ((is_coding && !synthesized_block.trim().is_empty())
                 || (wants_fix_or_verify && target_path.ends_with(".rs")))
         {
-            // Step 1: workspace_read (phase_code = 0)
             if let lexlean_generated::r4_react_agent::ReactStepOutcome::DispatchedPhaseStep(
                 next_iter,
                 _,
@@ -5932,7 +6183,6 @@ impl StudioEngine {
                 ));
             }
 
-            // Step 2: ast_surgical_patch (phase_code = 1)
             let mut staged_code = if !synthesized_block.trim().is_empty() {
                 if target_path.ends_with(".rs") {
                     merge_rust_code_surgically(&current_content, &synthesized_block)
@@ -5973,7 +6223,6 @@ impl StudioEngine {
                 ));
             }
 
-            // Step 3 & Step 4: cargo_test_verify (phase_code = 2) + react_self_correct (phase_code = 3)
             let is_rust_target = target_path.ends_with(".rs")
                 || self.workspace_files.iter().any(|f| f.path.ends_with(".rs"));
             if is_rust_target {
@@ -6025,7 +6274,6 @@ impl StudioEngine {
                     ));
                 }
 
-                // Autonomous ReAct self-correction loop if any test assertion or syntax/type check failed
                 let mut corr_round = 0u64;
                 while cargo_rep.status != "ok" && corr_round < MAX_REACT_ITERATIONS {
                     corr_round += 1;
@@ -6135,7 +6383,8 @@ impl StudioEngine {
             (
                 String::new(),
                 format!(
-                    "// Conversational / analytical turn on active context `{target_path}`.\n// Ask to write, refactor, or test code in Python, TypeScript, Rust, SQL, or Lean 4 to stage a workspace patch."
+                    "// Pure-integer {} turn on active context `{target_path}`.",
+                    selected_wire_id
                 ),
             )
         };
@@ -6270,7 +6519,7 @@ impl StudioEngine {
                 "}}"
             ),
             chat_status,
-            escape_json(selected_mode.wire_id()),
+            escape_json(&selected_wire_id),
             escape_json(&composer_mode_str),
             escape_json(&execution_tier),
             geometric_metrics_json,
@@ -6391,14 +6640,12 @@ impl api::InferenceBackend for StudioEngine {
         context: &mut lut_stack_exec::RollingContextState,
         max_tokens: usize,
     ) -> Result<api::ModelTurnOutcome, String> {
-        self.infer_turn_with_model(
-            "uor-r4.lut-symbolic",
-            prompt,
-            history,
-            tools,
-            context,
-            max_tokens,
-        )
+        let default_model = if self.holo_models.contains_key("uor-r4.qwen3-0.6b-holo") {
+            "uor-r4.qwen3-0.6b-holo"
+        } else {
+            "uor-r4.native-q31-d85"
+        };
+        self.infer_turn_with_model(default_model, prompt, history, tools, context, max_tokens)
     }
 
     fn infer_turn_with_model(
@@ -6432,109 +6679,84 @@ impl api::InferenceBackend for StudioEngine {
             return Ok(outcome);
         }
 
-        let selected_mode = match model.trim() {
-            "uor-r4.recompiled-v12-chat" | "recompiled-chat" => {
-                r4_geometric_stack::SelectedExecutionMode::RecompiledChat
+        use lexlean_generated::r4_honest_plumbing::{
+            admit_model_routing, ComposerRouteMode, ModelRoutingCheck, ModelRoutingVerdict,
+        };
+        if ComposerRouteMode::is_retired_scaffold_wire(model) {
+            return Err(format!(
+                "RefusedRetiredScaffoldMode: `{model}` is retired in v0.13.0; select uor-r4.qwen3-0.6b-holo, uor-r4.qwen3-1.7b-holo, uor-r4.native-q31-d85, or uor-r4.hf-repo-holo."
+            ));
+        }
+        let route_mode = ComposerRouteMode::from_wire_id(model).unwrap_or_else(|| {
+            if self.holo_models.contains_key("uor-r4.qwen3-0.6b-holo") {
+                ComposerRouteMode::Qwen306bHolo
+            } else {
+                ComposerRouteMode::NativeQ31D85
             }
-            "uor-r4.recompiled-v12-agent" | "recompiled-agent" => {
-                r4_geometric_stack::SelectedExecutionMode::RecompiledAgent
-            }
-            "uor-r4.seed-fast" | "seed-fast" => {
-                r4_geometric_stack::SelectedExecutionMode::EmbeddedSeedFast
-            }
-            "uor-r4.lut-symbolic" | "lut-symbolic" => {
-                r4_geometric_stack::SelectedExecutionMode::SymbolicLutMvm
+        });
+        let mounted = match route_mode {
+            ComposerRouteMode::NativeQ31D85 => true,
+            _ => self.holo_models.contains_key(route_mode.wire_id()),
+        };
+        let verdict = admit_model_routing(ModelRoutingCheck {
+            requested_mode: route_mode,
+            executed_mode: route_mode,
+            retired_scaffold_requested: false,
+            template_override_used: false,
+            turn_memory_hijack_used: false,
+            stale_banner_present: false,
+            requested_weights_mounted: mounted,
+        });
+        if verdict != ModelRoutingVerdict::RoutingAdmitted {
+            return Err(format!(
+                "{verdict:?}: requested `{}` not mounted",
+                route_mode.wire_id()
+            ));
+        }
+        let history_snap = self.chat_history.clone();
+        let (reply_text, in_toks, out_toks) = match route_mode {
+            ComposerRouteMode::NativeQ31D85 => {
+                let (reply, _) = self.native_q31.generate_reply(trimmed, max_tokens.min(160));
+                let it = self
+                    .native_q31
+                    .encode_bytes(trimmed.as_bytes())
+                    .len()
+                    .max(1) as u32;
+                let ot = self.native_q31.encode_bytes(reply.as_bytes()).len().max(1) as u32;
+                (reply, it, ot)
             }
             _ => {
-                if model.contains("chat") {
-                    r4_geometric_stack::SelectedExecutionMode::RecompiledChat
-                } else if model.contains("agent") {
-                    r4_geometric_stack::SelectedExecutionMode::RecompiledAgent
-                } else if model.contains("seed") {
-                    r4_geometric_stack::SelectedExecutionMode::EmbeddedSeedFast
-                } else {
-                    r4_geometric_stack::SelectedExecutionMode::SymbolicLutMvm
-                }
+                let hm_model = self
+                    .holo_models
+                    .get_mut(route_mode.wire_id())
+                    .ok_or_else(|| {
+                        format!("RefusedRequestedModelUnmounted: {}", route_mode.wire_id())
+                    })?;
+                let (reply, hm) = hm_model.generate_chat_turn_with_history(
+                    trimmed,
+                    &history_snap,
+                    "You are a helpful assistant.",
+                    max_tokens.min(256),
+                );
+                assert_eq!(hm.float_ops, 0, "zero floats in Holo inference");
+                assert_eq!(
+                    hm.dense_matmul_ops, 0,
+                    "zero dense matmuls in Holo inference"
+                );
+                (
+                    reply,
+                    hm.prompt_tokens.max(1) as u32,
+                    hm.generated_tokens.max(1) as u32,
+                )
             }
         };
-
-        if selected_mode.is_neural_geometric() {
-            let (reply_text, metrics, _) =
-                self.r4_stack
-                    .generate_reply(trimmed, history, selected_mode, max_tokens);
-            assert_eq!(
-                metrics.float_ops, 0,
-                "Enforced 0 float ops in neural geometric serving"
-            );
-            assert_eq!(
-                metrics.dense_matmul_ops, 0,
-                "Enforced 0 dense matmul ops in neural geometric serving"
-            );
-
-            let in_toks = (metrics.prompt_tokens as u32).max(1);
-            let out_toks = (metrics.generated_tokens as u32).max(1);
-            self.rolling_context.turn_index = self.rolling_context.turn_index.saturating_add(1);
-            *context = self.rolling_context.clone();
-
-            return Ok(api::ModelTurnOutcome {
-                raw_output: reply_text,
-                input_tokens: in_toks,
-                output_tokens: out_toks,
-                otel_trace: None,
-            });
-        }
-
-        // 3. Direct model generation via lut_stack
-        let ctx_before = self.rolling_context.q12_latent;
-        let gen = self.lut_stack.generate_reply_with_context(
-            &mut self.rolling_context,
-            history,
-            trimmed,
-            max_tokens,
-        );
-        let trace = otel::build_inference_trace(
-            self.rolling_context.turn_index,
-            trimmed,
-            &ctx_before,
-            &self.rolling_context.q12_latent,
-            &gen,
-            &self.lut_stack,
-        );
-        otel::record_trace(trace.clone());
-        let otel_trace = Some(trace.to_combined_value());
-
-        let raw_output = if let Some(ref th) = gen.thinking_text {
-            let base_reply = if gen.reply_text.trim().is_empty() {
-                "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?"
-            } else {
-                gen.reply_text.as_str()
-            };
-            format!("<thinking>\n{}\n</thinking>\n\n{}", th.trim(), base_reply)
-        } else if gen.reply_text.trim().is_empty() {
-            "Hello! I am the UOR-R4 Geometric Language Model running matmul-free inference over the 6-Layer SpiralCore/FBS architecture. How can I assist you with code synthesis, formal verification, or exact mathematics?".to_string()
-        } else {
-            gen.reply_text
-        };
-
-        let bpe = lut_stack_exec::ByteBpe4096::global();
-        let in_toks = if !gen.prompt_tokens.is_empty() {
-            gen.prompt_tokens.len() as u32
-        } else {
-            bpe.encode(trimmed).len() as u32
-        };
-        let out_toks = if !gen.generated_tokens.is_empty() {
-            gen.generated_tokens.len() as u32
-        } else {
-            bpe.encode(&raw_output).len() as u32
-        };
-
+        self.rolling_context.turn_index = self.rolling_context.turn_index.saturating_add(1);
         *context = self.rolling_context.clone();
-
         Ok(api::ModelTurnOutcome {
-            raw_output,
-            input_tokens: in_toks.max(1),
-            output_tokens: out_toks.max(1),
-            otel_trace,
+            raw_output: reply_text,
+            input_tokens: in_toks,
+            output_tokens: out_toks,
+            otel_trace: None,
         })
     }
 }
@@ -7662,6 +7884,246 @@ pub fn studio_mount_r4_v12_bytes(bytes: &[u8]) -> String {
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     match engine.mount_r4_v12_bytes(bytes) {
         Ok(json) => json,
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": err.error_code(),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
+/// Mount and verify a complete `UORR4V13` geometric Qwen3 container (`R4-51`).
+#[wasm_bindgen]
+pub fn studio_mount_holo_v13_bytes(model_id: &str, bytes: &[u8]) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    match engine.mount_holo_v13_bytes(model_id, bytes) {
+        Ok(json) => json,
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": err.error_code(),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
+/// Begin incremental streaming mount of 1 MiB OPFS `.holo` pieces into Wasm (`R4-50`, `R4-51`).
+#[wasm_bindgen]
+pub fn studio_begin_holo_v13_mount(
+    model_id: &str,
+    expected_pieces: usize,
+    expected_sha256: &str,
+) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.begin_holo_v13_mount(model_id, expected_pieces, expected_sha256)
+}
+
+/// Stream one SHA-256 verified OPFS `.holo` piece into the active streaming builder (`R4-50`).
+#[wasm_bindgen]
+pub fn studio_push_holo_v13_piece(piece: &[u8]) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    match engine.push_holo_v13_piece(piece) {
+        Ok(json) => json,
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": err.error_code(),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
+/// Finalize the streamed `UORR4V13` container mount and verify end-to-end SHA-256 (`R4-51`).
+#[wasm_bindgen]
+pub fn studio_finalize_holo_v13_mount() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    match engine.finalize_holo_v13_mount() {
+        Ok(json) => json,
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": err.error_code(),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
+/// Query mounted `UORR4V13` Holo runtimes and `NativeQ31` status as JSON (`R4-51`, `R4-52`).
+#[wasm_bindgen]
+pub fn studio_holo_runtime_status() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_runtime_status_json()
+}
+
+/// Query Track 2 `D85` Native `Q31` SpiralCore/FBS status as JSON (`R4-52`).
+#[wasm_bindgen]
+pub fn studio_native_q31_status() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.native_q31_status_json()
+}
+
+/// Run one online browser `q31_hamilton_train_step` update on `D85` Native `Q31` (`R4-52`).
+#[wasm_bindgen]
+pub fn studio_native_q31_train_step(text: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let (accepted_steps, loss_before, loss_after) =
+        engine.native_q31.online_train_text_with_metrics(text);
+    serde_json::json!({
+        "status": "ok",
+        "model_id": "uor-r4.native-q31-d85",
+        "accepted": accepted_steps > 0,
+        "accepted_steps": accepted_steps,
+        "loss_before": loss_before,
+        "loss_after": loss_after,
+        "step": engine.native_q31.step,
+        "float_ops": 0,
+        "dense_matmul_ops": 0,
+    })
+    .to_string()
+}
+
+/// Parse & validate a streamed HuggingFace Safetensors header slice (`R4-50`, `R4-51`).
+#[wasm_bindgen]
+pub fn studio_hf_repo_parse_safetensors_header(repo_id: &str, prefix_bytes: &[u8]) -> String {
+    match holo_geometric_runtime::validate_hf_safetensors_prefix(repo_id, prefix_bytes) {
+        Ok(sum) => serde_json::json!({
+            "status": "ok",
+            "repo_id": sum.repo_id,
+            "data_start": sum.safetensors_data_start,
+            "tensor_count": sum.tensor_count,
+            "total_tensor_bytes": sum.total_tensor_bytes,
+        })
+        .to_string(),
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": format!("{:?}", err.verdict()),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
+/// Begin in-stream compilation of a HuggingFace Safetensors repo into `UORR4V13` (`R4-51`).
+#[wasm_bindgen]
+pub fn studio_hf_repo_begin(repo_id: &str, config_json: &str, tokenizer_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    match holo_geometric_runtime::HfRepoHoloStreamCompiler::new(
+        repo_id,
+        config_json,
+        tokenizer_json,
+    ) {
+        Ok(comp) => {
+            engine.hf_repo_compiler = Some(comp);
+            serde_json::json!({ "status": "ok", "repo_id": repo_id.trim() }).to_string()
+        }
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": format!("{:?}", err.verdict()),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
+/// Stream one HTTP `206` Safetensors tensor slice into the active `HfRepoHoloStreamCompiler` (`R4-51`).
+#[wasm_bindgen]
+pub fn studio_hf_repo_push_tensor(
+    name: &str,
+    dtype: &str,
+    shape_json: &str,
+    raw_bytes: &[u8],
+) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let shape: Vec<usize> = match serde_json::from_str(shape_json) {
+        Ok(s) => s,
+        Err(e) => {
+            return serde_json::json!({
+                "status": "error",
+                "error_code": "RefusedCorruptSafetensorsHeader",
+                "message": format!("invalid shape JSON: {e}"),
+            })
+            .to_string();
+        }
+    };
+    let Some(comp) = engine.hf_repo_compiler.as_mut() else {
+        return serde_json::json!({
+            "status": "error",
+            "error_code": "RefusedRequestedModelUnmounted",
+            "message": "HfRepoHolo compiler not initialized",
+        })
+        .to_string();
+    };
+    match comp.push_tensor_bytes(name, dtype, &shape, raw_bytes) {
+        Ok(()) => serde_json::json!({ "status": "ok", "tensor": name }).to_string(),
+        Err(err) => serde_json::json!({
+            "status": "error",
+            "error_code": format!("{:?}", err.verdict()),
+            "message": err.to_string(),
+        })
+        .to_string(),
+    }
+}
+
+/// Finalize streamed Safetensors compilation and mount `uor-r4.hf-repo-holo` (`R4-51`).
+#[wasm_bindgen]
+pub fn studio_hf_repo_finalize() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let Some(comp) = engine.hf_repo_compiler.take() else {
+        return serde_json::json!({
+            "status": "error",
+            "error_code": "RefusedRequestedModelUnmounted",
+            "message": "HfRepoHolo compiler not initialized",
+        })
+        .to_string();
+    };
+    match comp.finish_model() {
+        Ok(model) => {
+            engine
+                .holo_models
+                .insert("uor-r4.hf-repo-holo".to_string(), model);
+            engine.holo_runtime_status_json()
+        }
         Err(err) => serde_json::json!({
             "status": "error",
             "error_code": err.error_code(),
@@ -11773,10 +12235,14 @@ mod tests {
     #[test]
     fn test_r4_46_honest_routing_refuses_unmounted_full_v12_and_avoids_template_hijack() {
         let mut engine = StudioEngine::new_default();
-        assert!(!engine.r4_stack.is_full_recompiled_mounted());
+        assert!(engine.holo_models.is_empty());
 
-        // Pre-mount honesty (`R4`, `R5`): selecting full 30L modes before OPFS mount MUST refuse cleanly, never fall back.
-        for unmounted_mode in ["uor-r4.recompiled-v12-agent", "uor-r4.recompiled-v12-chat"] {
+        // Pre-mount honesty (`R4`, `R5`): selecting OPFS/HF Holo models before mount MUST refuse cleanly, never fall back.
+        for unmounted_mode in [
+            "uor-r4.qwen3-0.6b-holo",
+            "uor-r4.qwen3-1.7b-holo",
+            "uor-r4.hf-repo-holo",
+        ] {
             let err_raw = engine.chat_assistant_json(
                 &serde_json::json!({
                     "prompt": "Implement a Rust parser and write unit tests",
@@ -11792,6 +12258,28 @@ mod tests {
             assert_eq!(err_val["selected_model"], unmounted_mode);
         }
 
+        // Retired v12/seed/symbolic scaffolds refuse strictly with RefusedRetiredScaffoldMode (`R5`).
+        for retired_mode in [
+            "uor-r4.recompiled-v12-agent",
+            "uor-r4.recompiled-v12-chat",
+            "uor-r4.seed-fast",
+            "uor-r4.lut-symbolic",
+        ] {
+            let ret_raw = engine.chat_assistant_json(
+                &serde_json::json!({
+                    "prompt": "hello",
+                    "composer_mode": "agentic",
+                    "selected_model": retired_mode,
+                })
+                .to_string(),
+            );
+            let ret_val: serde_json::Value =
+                serde_json::from_str(&ret_raw).expect("valid retired error JSON");
+            assert_eq!(ret_val["status"], "error");
+            assert_eq!(ret_val["error_code"], "RefusedRetiredScaffoldMode");
+            assert_eq!(ret_val["selected_model"], retired_mode);
+        }
+
         // Unknown explicit model wire ID refuses strictly with RefusedModeMismatch (`R5`).
         let bad_mode_raw = engine.chat_assistant_json(
             r#"{"prompt":"hello","composer_mode":"agentic","selected_model":"uor-r4.nonexistent"}"#,
@@ -11801,79 +12289,33 @@ mod tests {
         assert_eq!(bad_mode_val["status"], "error");
         assert_eq!(bad_mode_val["error_code"], "RefusedModeMismatch");
 
-        // Embedded seed (`uor-r4.seed-fast`) works immediately, skips template/Teach hijacks, and omits `"telemetry"`.
-        let seed_raw = engine.chat_assistant_json(
-            r#"{"prompt":"Teach: refactor src/lib.rs with Rust async trait and fix bugs","composer_mode":"fast","selected_model":"uor-r4.seed-fast"}"#,
+        // Embedded native Q31 lane (`uor-r4.native-q31-d85`) works immediately, skips template/Teach hijacks, and omits `"telemetry"`.
+        let q31_raw = engine.chat_assistant_json(
+            r#"{"prompt":"Teach: refactor src/lib.rs with Rust async trait and fix bugs","composer_mode":"fast","selected_model":"uor-r4.native-q31-d85"}"#,
         );
         assert!(
-            !seed_raw.to_ascii_lowercase().contains("\"telemetry\""),
+            !q31_raw.to_ascii_lowercase().contains("\"telemetry\""),
             "chat_assistant_json must use geometric_metrics, never telemetry"
         );
-        let seed_val: serde_json::Value =
-            serde_json::from_str(&seed_raw).expect("valid seed-fast JSON");
-        assert_eq!(seed_val["status"], "ok");
-        assert_eq!(seed_val["selected_model"], "uor-r4.seed-fast");
-        assert_eq!(seed_val["execution_tier"], "embedded-seed-fast (8L)");
-        assert_eq!(seed_val["is_coding_turn"], false);
-        assert_eq!(seed_val["proposed_code"], "");
-        assert_eq!(seed_val["geometric_metrics"]["float_ops"], 0);
-        assert_eq!(seed_val["geometric_metrics"]["dense_matmul_ops"], 0);
-
-        // Legacy symbolic mode (`uor-r4.lut-symbolic`) remains distinct.
-        let lut_raw = engine.chat_assistant_json(
-            r#"{"prompt":"Explain R4 geometric invariants","composer_mode":"ask","selected_model":"uor-r4.lut-symbolic"}"#,
+        let q31_val: serde_json::Value =
+            serde_json::from_str(&q31_raw).expect("valid native-q31-d85 JSON");
+        assert_eq!(q31_val["status"], "ok");
+        assert_eq!(q31_val["selected_model"], "uor-r4.native-q31-d85");
+        assert!(q31_val["execution_tier"]
+            .as_str()
+            .unwrap_or("")
+            .starts_with("native-q31-d85"));
+        assert_eq!(q31_val["is_coding_turn"], false);
+        assert_eq!(q31_val["proposed_code"], "");
+        assert_eq!(q31_val["geometric_metrics"]["float_ops"], 0);
+        assert_eq!(q31_val["geometric_metrics"]["dense_matmul_ops"], 0);
+        assert!(
+            !q31_val["brain_pulses"]
+                .as_array()
+                .expect("brain_pulses array")
+                .is_empty(),
+            "native-q31-d85 must emit non-empty brain_pulses"
         );
-        let lut_val: serde_json::Value =
-            serde_json::from_str(&lut_raw).expect("valid lut-symbolic JSON");
-        assert_eq!(lut_val["status"], "ok");
-        assert_eq!(lut_val["selected_model"], "uor-r4.lut-symbolic");
-        assert_eq!(lut_val["execution_tier"], "symbolic-lut-mvm (8L LUT)");
-
-        // If v10 OPFS manifest on disk holds UORR4V12, mount it and verify full 30L modes admit cleanly.
-        let v10_dir =
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../gpu/weights/v10");
-        let manifest_raw =
-            std::fs::read_to_string(v10_dir.join("manifest.json")).expect("read v10 manifest.json");
-        let manifest_val: serde_json::Value =
-            serde_json::from_str(&manifest_raw).expect("parse v10 manifest.json");
-        if manifest_val["format"].as_str() == Some("UORR4V12") {
-            let shard_entries = manifest_val["shards"].as_array().expect("shards");
-            let mut owned_shards = Vec::with_capacity(shard_entries.len());
-            for entry in shard_entries {
-                let file_name = entry["file"].as_str().expect("file");
-                owned_shards.push(std::fs::read(v10_dir.join(file_name)).expect("read shard"));
-            }
-            let refs: Vec<&[u8]> = owned_shards.iter().map(Vec::as_slice).collect();
-            engine
-                .gllm_load_v10_shards(&manifest_raw, &refs)
-                .expect("mount UORR4V12 shards");
-
-            for full_mode in ["uor-r4.recompiled-v12-agent", "uor-r4.recompiled-v12-chat"] {
-                let full_raw = engine.chat_assistant_json(
-                    &serde_json::json!({
-                        "prompt": "Implement a Rust parser and write unit tests",
-                        "composer_mode": if full_mode.ends_with("-chat") { "ask" } else { "agentic" },
-                        "selected_model": full_mode,
-                    })
-                    .to_string(),
-                );
-                assert!(!full_raw.to_ascii_lowercase().contains("\"telemetry\""));
-                let full_val: serde_json::Value =
-                    serde_json::from_str(&full_raw).expect("valid full v12 JSON");
-                assert_eq!(full_val["status"], "ok");
-                assert_eq!(full_val["selected_model"], full_mode);
-                let expected_tier = if full_mode.ends_with("-chat") {
-                    "recompiled-v12-chat (30L 576D)"
-                } else {
-                    "recompiled-v12-agent (30L 576D)"
-                };
-                assert_eq!(full_val["execution_tier"], expected_tier);
-                assert_eq!(full_val["is_coding_turn"], false);
-                assert_eq!(full_val["proposed_code"], "");
-                assert_eq!(full_val["geometric_metrics"]["float_ops"], 0);
-                assert_eq!(full_val["geometric_metrics"]["dense_matmul_ops"], 0);
-            }
-        }
     }
 
     #[test]

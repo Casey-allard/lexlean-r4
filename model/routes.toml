@@ -1,0 +1,132 @@
+# model/routes.toml --- Total UORust-aligned route table for LexLean-R4 (`uorust/routes/1`).
+#
+# Maps repository facts (Rust crates, LexLean semantic modules, Holo OPFS pieces,
+# Wasm simd128 kernels, Q31 SpiralCore/FBS lanes, browser Worker RPC routes, UORust
+# function-kappa ratchets, and PrismPM release packs) onto Foundation.* Prism records
+# and facets (arch, features, behavior, design, sec, qual, release).
+
+spec = "uorust/routes/1"
+max_request_bytes = 330
+
+[[route]]
+id = "R4-UR01"
+rust_fact = "crate-bin-target"
+prism_record = "Foundation.Arch::Component"
+facet = "arch"
+note = "Binary target mapped as an executable release component."
+
+[[route]]
+id = "R4-UR02"
+rust_fact = "crate-lib-target"
+prism_record = "Foundation.Arch::Component"
+facet = "arch"
+note = "Library target mapped as a reusable workspace crate."
+
+[[route]]
+id = "R4-UR03"
+rust_fact = "lexlean-semantic-module"
+prism_record = "Foundation.Behavior::Invariant"
+facet = "behavior"
+note = "Verified LexLean semantic module under src/R4/*.lex.tex."
+
+[[route]]
+id = "R4-UR04"
+rust_fact = "holo-kappa-piece"
+prism_record = "Foundation.Sec::IntegrityObject"
+facet = "sec"
+note = "Content-addressed 1 MiB OPFS piece verified by SHA-256 kappa."
+
+[[route]]
+id = "R4-UR05"
+rust_fact = "simd128-integer-kernel"
+prism_record = "Foundation.Qual::PerformanceKernel"
+facet = "qual"
+note = "Pure-integer Wasm simd128 inference kernel (zero floats, zero dense matmuls)."
+
+[[route]]
+id = "R4-UR06"
+rust_fact = "native-q31-orbital"
+prism_record = "Foundation.Feature::Capability"
+facet = "features"
+note = "D85 pure-from-scratch Q31 SpiralCore/FBS Cl(0,6) E8 orbital lane."
+
+[[route]]
+id = "R4-UR07"
+rust_fact = "browser-worker-rpc"
+prism_record = "Foundation.Design::InteractionSurface"
+facet = "design"
+note = "Dedicated Web Worker RPC boundary keeping UI main thread panic-free."
+
+[[route]]
+id = "R4-UR08"
+rust_fact = "uorust-kappa-ratchet"
+prism_record = "Foundation.Qual::MonotonicityGate"
+facet = "qual"
+note = "UORust function-kappa SHA-256 lift register ratchet."
+
+[[route]]
+id = "R4-UR09"
+rust_fact = "prism-release-pack"
+prism_record = "Foundation.Release::SealedBundle"
+facet = "release"
+note = "Immutable signed PrismPM bundle provenance and release tag closure."
+
+[[vector]]
+case = "route R4-UR01"
+request_hex = "63726174652d62696e2d746172676574"
+response = "route R4-UR01\nfact crate-bin-target\nrecord Foundation.Arch::Component\nfacet arch"
+
+[[vector]]
+case = "route R4-UR02"
+request_hex = "63726174652d6c69622d746172676574"
+response = "route R4-UR02\nfact crate-lib-target\nrecord Foundation.Arch::Component\nfacet arch"
+
+[[vector]]
+case = "route R4-UR03"
+request_hex = "6c65786c65616e2d73656d616e7469632d6d6f64756c65"
+response = "route R4-UR03\nfact lexlean-semantic-module\nrecord Foundation.Behavior::Invariant\nfacet behavior"
+
+[[vector]]
+case = "route R4-UR04"
+request_hex = "686f6c6f2d6b617070612d7069656365"
+response = "route R4-UR04\nfact holo-kappa-piece\nrecord Foundation.Sec::IntegrityObject\nfacet sec"
+
+[[vector]]
+case = "route R4-UR05"
+request_hex = "73696d643132382d696e74656765722d6b65726e656c"
+response = "route R4-UR05\nfact simd128-integer-kernel\nrecord Foundation.Qual::PerformanceKernel\nfacet qual"
+
+[[vector]]
+case = "route R4-UR06"
+request_hex = "6e61746976652d7133312d6f72626974616c"
+response = "route R4-UR06\nfact native-q31-orbital\nrecord Foundation.Feature::Capability\nfacet features"
+
+[[vector]]
+case = "route R4-UR07"
+request_hex = "62726f777365722d776f726b65722d727063"
+response = "route R4-UR07\nfact browser-worker-rpc\nrecord Foundation.Design::InteractionSurface\nfacet design"
+
+[[vector]]
+case = "route R4-UR08"
+request_hex = "756f727573742d6b617070612d72617463686574"
+response = "route R4-UR08\nfact uorust-kappa-ratchet\nrecord Foundation.Qual::MonotonicityGate\nfacet qual"
+
+[[vector]]
+case = "route R4-UR09"
+request_hex = "707269736d2d72656c656173652d7061636b"
+response = "route R4-UR09\nfact prism-release-pack\nrecord Foundation.Release::SealedBundle\nfacet release"
+
+[[vector]]
+case = "error empty"
+request_hex = ""
+response = "error empty"
+
+[[vector]]
+case = "refused unknown fact"
+request_hex = "756e6b6e6f776e2d66616374"
+response = "refused unknown-fact\nfact unknown-fact"
+
+[[vector]]
+case = "refused ambiguous two routes"
+request_hex = "63726174652d62696e2d7461726765740a686f6c6f2d6b617070612d7069656365"
+response = "refused ambiguous\nfact crate-bin-target\nfact holo-kappa-piece"

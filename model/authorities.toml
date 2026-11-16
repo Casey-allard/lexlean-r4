@@ -13,6 +13,42 @@
 spec = "template/1"
 
 [[authority]]
+id = "UORUST-PRISM-DEVREL"
+name = "UORust total route table and Prism-DevRel ISO 15939 measures & W3C PROV-O source registry"
+citation = "https://github.com/afflom/UORust (model/routes.toml uorust/routes/1 total classification routing) and https://github.com/afflom/prism-devrel (model/measures.toml prism/measures/1 and W3C PROV-O primary-source ledger); companion src/R4/UorustPrismDevrel.lex.tex"
+checksum = "none"
+checksum_reason = "Upstream UORust and prism-devrel repositories are cited for route, measurement, and W3C PROV-O source-attribution contracts rather than vendored verbatim; local formal parity and conformance tests live under src/R4/UorustPrismDevrel.lex.tex and model/{routes,measures}.toml."
+statement = "Route table totality across arch/features/behavior/design/sec/qual/release facets, ISO/IEC/IEEE 15939 measurement thresholds, and W3C PROV-O source attribution rules are cited from UORust and prism-devrel specifications; source citations do not entail remote upstream build status."
+realized_by = ["R4-53"]
+
+[[authority]]
+id = "NATIVE-Q31-TRAIN"
+name = "uor-r4 D80-D85 pure-from-scratch Q31 SpiralCore/FBS, G2 Hamilton gate, SWAR Hamming, and D19 associative memory"
+citation = "Sibling workspace /Users/casey.allard/uor-r4 (PLAN.md D80-D85, uor-r4-integer/stack, uor-r4-float-train/spiralcore_fbs); companion src/R4/NativeQ31Train.lex.tex"
+checksum = "none"
+checksum_reason = "Sibling uor-r4 research corpus is cited for pure Q31 SpiralCore Cl(0,6)/E8/G2/D19 lane design; local codec and CUDA/Wasm integer replay parity are enforced in src/R4/NativeQ31Train.lex.tex and gpu/train_native_q31_r4.rs."
+statement = "Pure Q31 fixed-point SpiralCore Cl(0,6) 64-state actions on E8 roots, G2 Hamilton quaternion gates, SWAR 64-bit Hamming reads, and D19 content-addressed memory updates are cited from uor-r4 D80-D85; source citations do not claim hardware CUDA throughput without committed GPU receipts."
+realized_by = ["R4-52"]
+
+[[authority]]
+id = "HOLO-GEOMETRIC-RUNTIME"
+name = "Qwen3 architecture specification, uor-r4 D80/D81 hardware integer arithmetic, RHT-32 Cholesky-GPTQ, and Web Worker RPC boundary"
+citation = "https://huggingface.co/Qwen/Qwen3-0.6B (config.json, tokenizer_config.json) and /Users/casey.allard/uor-r4 (D80/D81 hardware integer mul/div + CLZ Newton isqrt); companion src/R4/HoloGeometricRuntime.lex.tex"
+checksum = "none"
+checksum_reason = "External Qwen3 architecture configuration and sibling uor-r4 integer specifications are cited by URI/path rather than vendored verbatim; local pure-integer kernel parity, tensor shapes, and Worker routing contracts are enforced in src/R4/HoloGeometricRuntime.lex.tex."
+statement = "Qwen3 grouped-query attention dimensions, pre-RoPE q_norm/k_norm ordering, Block-32 Hadamard Cholesky-GPTQ integer decoding, Wasm simd128 execution, and Worker-only RPC isolation are cited from Qwen3 specs and uor-r4 D80/D81; source citations do not establish remote CDN liveness."
+realized_by = ["R4-51"]
+
+[[authority]]
+id = "HOLO-KAPPA-STORE"
+name = "Hologram Desktop OPFS KappaStore, HOLD-64KiB verified byte streaming, and HTTP 206 Range safetensors loader"
+citation = "https://github.com/afflom/hologram-live (apps/model-hub/web/public/spaces/runtime/holo-opfs-kappastore.mjs and deploy/verified-bytes.mjs) and https://github.com/afflom/stitch (2-of-3 XOR parity recovery); companion src/R4/HoloKappaStore.lex.tex"
+checksum = "none"
+checksum_reason = "Upstream hologram-live and stitch repositories are cited for content-addressed OPFS layout, 64 KiB HOLD-tail cryptographic gate, and range recovery contracts; local implementation and negative tests live under src/R4/HoloKappaStore.lex.tex and crates/wasm/js/worker_host_bridge.js."
+statement = "Content-addressed OPFS storage (sha256/<hh>/<hh>/<hex>), 64 KiB HOLD-buffered SHA-256 verification prior to byte release, HTTP 206 Range streaming, and Stitch parity recovery are cited from hologram-live and stitch; source citations do not guarantee external CDN availability or browser storage quotas."
+realized_by = ["R4-50"]
+
+[[authority]]
 id = "VERDANT-UORC-PLUMBING"
 name = "Verdant-Resonance OPFS .uorc organism watchdog and Studio workspace bridge"
 citation = "https://github.com/afflom/verdant-resonance (src/selfhost/browserSelfHostEngine.ts OPFS UORC\\x01 generation capsule admission and 3-strike watchdog rollback) and https://github.com/afflom/me (uor-workspace-bridge/1 host bridge contract); companion src/R4/HonestPlumbing.lex.tex"

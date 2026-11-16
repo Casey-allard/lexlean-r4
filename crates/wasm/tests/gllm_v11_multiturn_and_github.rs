@@ -332,11 +332,23 @@ fn test_v11_multiturn_four_turn_continuity_embedded_and_hosted() {
         assert!(!reply.trim().is_empty(), "hosted turn {idx} reply empty");
     }
 
-    // Verify 30L x 576D deterministic generation via selected_model = "uor-r4.recompiled-v12-agent"
-    let det_req = serde_json::json!({
+    // Verify pure-integer deterministic generation via selected_model = "uor-r4.native-q31-d85"
+    // and strict refusal of retired v12 scaffold wire IDs.
+    let retired_req = serde_json::json!({
         "prompt": "What is our updated codename?",
         "composer_mode": "agentic",
         "selected_model": "uor-r4.recompiled-v12-agent",
+    })
+    .to_string();
+    let retired_resp: serde_json::Value =
+        serde_json::from_str(&hosted.chat_assistant_json(&retired_req)).expect("retired json");
+    assert_eq!(retired_resp["status"], "error");
+    assert_eq!(retired_resp["error_code"], "RefusedRetiredScaffoldMode");
+
+    let det_req = serde_json::json!({
+        "prompt": "What is our updated codename?",
+        "composer_mode": "agentic",
+        "selected_model": "uor-r4.native-q31-d85",
     })
     .to_string();
     let mut g1_engine = StudioEngine::new_default();
@@ -352,8 +364,8 @@ fn test_v11_multiturn_four_turn_continuity_embedded_and_hosted() {
     let g2: serde_json::Value =
         serde_json::from_str(&g2_engine.chat_assistant_json(&det_req)).expect("gen json 2");
     assert_eq!(g1["status"], "ok");
-    assert_eq!(g1["geometric_metrics"]["n_layers"], 30);
-    assert_eq!(g1["geometric_metrics"]["d_model"], 576);
+    assert_eq!(g1["geometric_metrics"]["n_layers"], 4);
+    assert_eq!(g1["geometric_metrics"]["d_model"], 256);
     assert_eq!(g1["geometric_metrics"]["float_ops"], 0);
     assert_eq!(g1["geometric_metrics"]["dense_matmul_ops"], 0);
     assert_eq!(g1["assistant_reply"], g2["assistant_reply"]);

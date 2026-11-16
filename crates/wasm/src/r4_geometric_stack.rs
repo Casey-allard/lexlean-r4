@@ -2502,14 +2502,12 @@ fn format_chatml_prompt(
         || low.contains("workspace");
     let sys = match mode {
         SelectedExecutionMode::RecompiledAgent if wants_agent_tools => {
-            "You are UOR-R4 Agent running on SmolLM2. Use <tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"...\"}}</tool_call> when workspace shell commands help, then answer concisely."
+            "You are UOR-R4 Agent. Use <tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"...\"}}</tool_call> when workspace shell commands help, then answer concisely."
         }
         SelectedExecutionMode::RecompiledAgent
         | SelectedExecutionMode::RecompiledChat
-        | SelectedExecutionMode::EmbeddedSeedFast => {
-            "You are a helpful AI assistant named SmolLM, trained by Hugging Face"
-        }
-        SelectedExecutionMode::SymbolicLutMvm => "You are a helpful AI assistant.",
+        | SelectedExecutionMode::EmbeddedSeedFast
+        | SelectedExecutionMode::SymbolicLutMvm => "You are a helpful assistant.",
     };
     let mut s = String::with_capacity(prompt.len() + 256);
     s.push_str("<|im_start|>system\n");
@@ -2571,15 +2569,22 @@ fn pick_next_token_natural(
         }
     }
 
-    // Block >= 3 consecutive identical non-whitespace tokens and repeated 4-gram cycles.
+    // Block immediate k-gram alphabetic repetition loops (periods 1..=6, plus 4-gram cycles) while leaving punctuation/whitespace intact.
     let n = generated.len();
-    if n >= 3 && generated[n - 1] == generated[n - 2] && generated[n - 2] == generated[n - 3] {
-        let rep = generated[n - 1];
-        let piece = decode_model_tokens(tokenizer, model, &[rep]);
-        if !piece.trim().is_empty() {
-            let slot = rep as usize;
-            if slot < scores.len() {
-                scores[slot] = i64::MIN;
+    for period in 1usize..=6 {
+        let prefix_len = period - 1;
+        if n >= period + prefix_len {
+            let cur_tail = &generated[n - prefix_len..n];
+            let prev_tail = &generated[n - period - prefix_len..n - period];
+            if cur_tail == prev_tail {
+                let blk = generated[n - period];
+                let span_text = decode_model_tokens(tokenizer, model, &generated[n - period..n]);
+                if span_text.chars().any(|c| c.is_ascii_alphabetic()) {
+                    let slot = blk as usize;
+                    if slot < scores.len() {
+                        scores[slot] = i64::MIN;
+                    }
+                }
             }
         }
     }

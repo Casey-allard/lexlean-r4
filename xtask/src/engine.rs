@@ -16,7 +16,7 @@ use repo_model::toml;
 #[path = "../../crates/wasm/src/wasm_ast_eval.rs"]
 mod wasm_ast_eval;
 
-#[allow(dead_code, clippy::all)]
+#[allow(dead_code, clippy::all, missing_docs)]
 #[path = "../../crates/wasm/src/lexlean_generated.rs"]
 pub mod prism_factory_generated;
 

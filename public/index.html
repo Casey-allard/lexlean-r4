@@ -31,7 +31,7 @@
           <span class="sr-only">Source Control</span>
           <span id="activity-btn-scm" hidden></span>
         </button>
-        <button id="cursor-act-shards" type="button" class="activity-bar-btn cursor-act-btn" data-view="shards" title="73 UORR4V12 + 37 Stitch Shards &amp; Weights" aria-label="UOR-R4 Shards">
+        <button id="cursor-act-shards" type="button" class="activity-bar-btn cursor-act-btn" data-view="shards" title="Holo v13 OPFS Shards &amp; Weights" aria-label="UOR-R4 Shards">
           <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
           <span class="sr-only">Shards</span>
           <span id="activity-btn-shards" hidden></span>
@@ -146,17 +146,23 @@
           <div id="cursor-shards-section" class="sidebar-collapsible cursor-shards-section">
             <div class="sidebar-heading sidebar-summary">UOR-R4 SHARDS &middot; 16 E8 OPFS</div>
             <div id="cursor-shards-summary" class="cursor-shards-summary">
-              <div><strong>Model:</strong> <code>uor-r4.lut-stack/8</code></div>
-              <div><strong>Coprocessor:</strong> <code>WebGPU Q12 + Wasm32</code></div>
-              <div><strong>Shards:</strong> <code>16 E8 Product Sectors</code></div>
+              <div><strong>Model:</strong> <code>uor-r4.qwen3-0.6b-holo</code></div>
+              <div><strong>Coprocessor:</strong> <code>Wasm simd128 + Q31 D85</code></div>
+              <div><strong>Storage:</strong> <code>OPFS SyncAccessHandle (1 MiB)</code></div>
             </div>
             <div id="stitch-custody-health-card" class="stitch-health-card" role="status" aria-live="polite">
               <div><strong>Stitch Custody:</strong> <code>stitch/xor-2-of-3/1</code></div>
               <div><strong>Parity State:</strong> Bootstrapping multi-source verification...</div>
             </div>
             <div class="cursor-scm-actions">
-              <button id="cursor-hydrate-shards-btn" type="button" class="cursor-mini-btn">Hydrate UORR4V12 Shards</button>
+              <button id="cursor-hydrate-shards-btn" type="button" class="cursor-mini-btn">Hydrate Holo v13 Shards</button>
+              <button id="native-q31-train-btn" type="button" class="cursor-mini-btn">Train Q31 Step</button>
               <button id="cursor-train-quick-btn" type="button" class="cursor-mini-btn">Train LUT</button>
+            </div>
+            <div class="cursor-scm-actions">
+              <label for="hf-repo-id-input" class="sr-only">HuggingFace Repository ID</label>
+              <input id="hf-repo-id-input" type="text" class="cursor-mini-input" value="Qwen/Qwen3-0.6B" aria-label="HuggingFace Repository ID" placeholder="owner/repo (e.g. Qwen/Qwen3-0.6B)" autocomplete="off" spellcheck="false">
+              <button id="hf-repo-load-btn" type="button" class="cursor-mini-btn">Stream HF Repo</button>
             </div>
           </div>
         </div>
@@ -323,7 +329,7 @@
             <div><strong>Repository:</strong> lexlean-r4</div>
             <div><strong>Branch:</strong> <code class="git-branch-pill">main</code> (0 uncommitted)</div>
             <div><strong>Engine:</strong> <code class="git-branch-pill">wasm32-unknown-unknown</code></div>
-            <div><strong>LUT Stack:</strong> <code>uor-r4.lut-stack/8</code></div>
+            <div><strong>Engine Stack:</strong> <code>UOR-R4 Holo v13 + Q31 D85</code></div>
             <div class="summary-hint">Files are stored in browser memory with SHA-256 state receipts.</div>
           </div>
         </div>
@@ -345,7 +351,7 @@
           <button id="toggle-sidebar-btn" type="button" class="topbar-btn" title="Toggle Conversations &amp; Explorer Sidebar" aria-label="Toggle Left Sidebar">&#9776;</button>
           <h1 id="heading-claude-desktop">UOR-R4 Connected Chat</h1>
           <canvas id="header-brain-pulse-canvas" class="header-brain-pulse-canvas" width="88" height="24" title="Live 3D Brain Activity (Click to open 3D Holographic Brain)" aria-label="Live Neural Activity Indicator"></canvas>
-          <span id="topbar-model-tag" class="model-tag">UOR-R4 v12 &middot; SpiralCore Embedded Seed</span>
+          <span id="topbar-model-tag" class="model-tag">UOR-R4 Holo v13 &middot; Qwen3-0.6B Pure-Integer</span>
           <span id="weight-cache-badge" class="topbar-context-pill">Worker Ready</span>
           <span id="chat-target-badge" class="topbar-context-pill">src/attention.rs</span>
         </div>
@@ -440,7 +446,7 @@
 
             <div class="composer-field">
               <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
-              <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Plan, search, build with local uor-r4.lut-stack/8... (/ commands, @ context, Cmd+K inline)" autocomplete="off" spellcheck="false"></textarea>
+              <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Plan, search, build with Holo v13 pure-integer models... (/hf <repo>, /q31-train <text>, Cmd+K inline)" autocomplete="off" spellcheck="false"></textarea>
             </div>
 
             <div id="composer-send-bar" class="composer-send-bar">
@@ -449,10 +455,10 @@
                 <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
                 <label for="composer-model-select" class="sr-only">Select Local UOR-R4 Execution Mode</label>
                 <select id="composer-model-select" class="composer-model-select" aria-label="Select Model">
-                  <option value="uor-r4.recompiled-v12-agent" selected>UOR-R4 v12 Recompiled Agent (30L 576D SmolLM2-135M)</option>
-                  <option value="uor-r4.recompiled-v12-chat">UOR-R4 v12 Recompiled Chat (30L Geometric Stack)</option>
-                  <option value="uor-r4.seed-fast">UOR-R4 Embedded Seed Fast (0-Download 8L 256D)</option>
-                  <option value="uor-r4.lut-symbolic">UOR-R4 Symbolic LUT (uor-r4.lut-stack/8 + MVM)</option>
+                  <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)</option>
+                  <option value="uor-r4.qwen3-1.7b-holo">Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)</option>
+                  <option value="uor-r4.native-q31-d85">UOR-R4 Native Q31 D85 (0-Download 4L 256D)</option>
+                  <option value="uor-r4.hf-repo-holo">HuggingFace Safetensors Stream (Range 206 -&gt; Holo v13)</option>
                 </select>
                 <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands (/think, /teach, /patch, /arxiv, /math)" aria-label="Slash Commands">/</button>
                 <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
@@ -507,7 +513,7 @@
         </div>
         <div class="cursor-breadcrumb-meta">
           <span id="cursor-file-git-badge" class="cursor-git-pill">HEAD &middot; clean</span>
-          <span class="cursor-local-engine-pill">uor-r4.lut-stack/8 &middot; Local Wasm</span>
+          <span class="cursor-local-engine-pill">Holo v13 &middot; Local Wasm</span>
         </div>
       </div>
 
@@ -546,14 +552,14 @@
               <div id="cursor-cmdk-bar" class="cursor-cmdk-bar" data-testid="cursor-cmdk-floating-bar" role="region" aria-label="Cursor Cmd+K Inline Edit Bar" hidden>
                 <div class="cursor-cmdk-header">
                   <div class="cursor-cmdk-title-group">
-                    <span class="cursor-cmdk-badge">Cmd+K &middot; uor-r4.lut-stack/8</span>
+                    <span class="cursor-cmdk-badge">Cmd+K &middot; Holo v13</span>
                     <code id="cursor-cmdk-range-badge" class="cursor-cmdk-range">src/attention.rs:Ln 1-12</code>
                   </div>
                   <button id="cursor-cmdk-close-btn" type="button" class="cursor-cmdk-close" title="Close Inline Edit (Esc)" aria-label="Close Inline Edit">&times;</button>
                 </div>
                 <div class="cursor-cmdk-form" role="group" aria-label="Inline Edit Controls">
                   <label for="cursor-cmdk-input" class="sr-only">Inline Edit Instruction</label>
-                  <input id="cursor-cmdk-input" type="text" class="cursor-cmdk-input" placeholder="Edit selection or synthesize code with local uor-r4.lut-stack/8... (Enter to generate)" autocomplete="off" spellcheck="false">
+                  <input id="cursor-cmdk-input" type="text" class="cursor-cmdk-input" placeholder="Edit selection or synthesize code in workspace... (Enter to generate)" autocomplete="off" spellcheck="false">
                   <button id="cursor-cmdk-submit-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-generate">Generate Diff &crarr;</button>
                   <button id="cursor-cmdk-accept-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-accept" disabled>Accept (Cmd+Enter)</button>
                   <button id="cursor-cmdk-reject-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-reject" disabled>Reject (Cmd+Backspace)</button>

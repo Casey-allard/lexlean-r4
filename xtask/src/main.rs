@@ -13,7 +13,7 @@ use repo_model::{codegen, Model};
 mod audit;
 mod bootstrap;
 mod engine;
-#[allow(dead_code, clippy::all)]
+#[allow(dead_code, clippy::all, missing_docs)]
 #[path = "../../crates/wasm/src/lexlean_generated.rs"]
 pub mod lexlean_generated;
 #[allow(dead_code, clippy::all)]
@@ -22,6 +22,7 @@ pub mod lut_stack_exec;
 #[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/otel.rs"]
 pub mod otel;
+mod routes_and_measures;
 #[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/wasm_ast_eval.rs"]
 pub mod wasm_ast_eval;
@@ -46,6 +47,8 @@ fn main() -> ExitCode {
         "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
         "build-wasm" => wasm_bundle::run_build_wasm_cmd(&root, rest),
         "check-wasm-sync" => wasm_bundle::run_check_wasm_sync_cmd(&root),
+        "check-routes" => routes_and_measures::check_routes(&root),
+        "check-measures" => routes_and_measures::check_measures(&root),
         "validate" => validate(&root),
         "status" => engine::print_status(&root).map_err(Into::into),
         "brief" => engine::print_brief(&root).map_err(Into::into),
@@ -123,6 +126,8 @@ fn main() -> ExitCode {
                  ratchet-check     R4-41: shrink-only metric ratchet + Peirce triadic cycle\n\
                  build-wasm        compile crates/wasm, inject bridge + cache hook, write provenance.json\n\
                  check-wasm-sync   verify public/ Wasm/JS bundle matches provenance.json\n\
+                 check-routes      R4-53: verify model/routes.toml UORust route table + vectors\n\
+                 check-measures    R4-53: verify model/measures.toml & provenance.toml criteria\n\
                  validate          run every gate above\n\
                  status | brief    print autonomous engine, frontier, and UORLUT01 status\n\
                  frontier          list, check, or update frontier.toml claims\n\
@@ -195,6 +200,8 @@ fn validate(root: &Path) -> Result<(), Fail> {
     audit::audit_deferral(root)?;
     engine::mechanizer::run_mechanizer_gate(root)?;
     engine::ratchet::check(root)?;
+    routes_and_measures::check_routes(root)?;
+    routes_and_measures::check_measures(root)?;
     engine::synthesis::cmd_synthesize(root, false)?;
     bootstrap::audit(root)?;
     Ok(())
