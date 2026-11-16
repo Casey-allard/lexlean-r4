@@ -3528,8 +3528,34 @@ pub fn run_engine_tick_with_mode(
         if needs_wasm_rebuild && wasm_bundle::has_matching_wasm_bindgen(root) {
             wasm_bundle::build_wasm(root, &root.join("public"))
                 .map_err(|e| format!("engine[6g/7 build-wasm]: {e}"))?;
-            crate::run_build_holo_cmd(root, &["--sync-site-manifest".to_string()])
-                .map_err(|e| format!("engine[6h/7 sync-site-manifest]: {e}"))?;
+            let xtask_bin = std::env::current_exe().ok().filter(|p| {
+                p.file_stem()
+                    .and_then(|s| s.to_str())
+                    .is_some_and(|s| s == "xtask")
+            });
+            let status = if let Some(bin) = xtask_bin {
+                std::process::Command::new(bin)
+                    .current_dir(root)
+                    .args(["build-holo", "--sync-site-manifest"])
+                    .status()
+            } else {
+                std::process::Command::new("cargo")
+                    .current_dir(root)
+                    .args([
+                        "run",
+                        "-q",
+                        "-p",
+                        "xtask",
+                        "--",
+                        "build-holo",
+                        "--sync-site-manifest",
+                    ])
+                    .status()
+            }
+            .map_err(|e| format!("engine[6h/7 sync-site-manifest]: {e}"))?;
+            if !status.success() {
+                return Err(format!("engine[6h/7 sync-site-manifest]: exited {status}"));
+            }
         }
     }
 
