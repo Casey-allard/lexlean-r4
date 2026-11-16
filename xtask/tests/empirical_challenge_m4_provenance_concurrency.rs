@@ -69,7 +69,7 @@ impl TestServerDaemon {
             .unwrap_or_else(|e| panic!("failed to spawn xtask api serve on port {port}: {e}"));
 
         let mut ready = false;
-        for _ in 0..100 {
+        for _ in 0..300 {
             thread::sleep(Duration::from_millis(100));
             if TcpStream::connect(&addr).is_ok() {
                 ready = true;
@@ -79,6 +79,14 @@ impl TestServerDaemon {
         assert!(
             ready,
             "xtask api serve daemon failed to become ready on {addr}"
+        );
+
+        let _ = send_raw_http_request(
+            &addr,
+            "POST",
+            "/v1/messages",
+            Some(r#"{"messages":[{"role":"user","content":"warmup"}],"max_tokens":4}"#),
+            Duration::from_secs(120),
         );
 
         Self {

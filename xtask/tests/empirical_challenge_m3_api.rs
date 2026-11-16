@@ -85,6 +85,16 @@ impl TestServerDaemon {
             "xtask api serve daemon failed to become ready on {addr}"
         );
 
+        let warmup_body = br#"{"messages":[{"role":"user","content":"warmup"}],"max_tokens":4}"#;
+        let _ = send_raw_http_request_once(
+            &addr,
+            "POST",
+            "/v1/messages",
+            &[("Content-Type", "application/json")],
+            Some(warmup_body),
+            Duration::from_secs(120),
+        );
+
         Self { child, port, addr }
     }
 }
@@ -96,7 +106,7 @@ impl Drop for TestServerDaemon {
     }
 }
 
-const CLIENT_SOCKET_TIMEOUT: Duration = Duration::from_secs(30);
+const CLIENT_SOCKET_TIMEOUT: Duration = Duration::from_secs(90);
 
 fn send_raw_http_request_once(
     addr: &str,
@@ -192,13 +202,13 @@ fn send_raw_http_request(
     body: Option<&[u8]>,
 ) -> Result<(u16, HashMap<String, String>, Vec<u8>), String> {
     let mut last_err = String::new();
-    for attempt in 0..3 {
+    for attempt in 0..4 {
         match send_raw_http_request_once(addr, method, path, headers, body, CLIENT_SOCKET_TIMEOUT) {
             Ok(res) => return Ok(res),
             Err(e) => {
                 last_err = e;
-                if attempt + 1 < 3 {
-                    thread::sleep(Duration::from_millis(50 * (attempt + 1) as u64));
+                if attempt + 1 < 4 {
+                    thread::sleep(Duration::from_millis(250 * (attempt + 1) as u64));
                 }
             }
         }

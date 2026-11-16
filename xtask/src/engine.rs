@@ -5534,7 +5534,7 @@ fn handle_http_connection(stream: std::net::TcpStream, root: &Path) -> Result<()
     Ok(())
 }
 
-pub const DEFAULT_SOCKET_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
+pub const DEFAULT_SOCKET_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(90);
 const MAX_CONCURRENT_DAEMON_CONNECTIONS: usize = 128;
 static ACTIVE_DAEMON_CONNECTIONS: std::sync::atomic::AtomicUsize =
     std::sync::atomic::AtomicUsize::new(0);
