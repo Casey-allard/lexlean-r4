@@ -25,7 +25,7 @@ pub mod otel;
 #[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/wasm_ast_eval.rs"]
 pub mod wasm_ast_eval;
-mod wasm_bundle;
+use engine::wasm_bundle;
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();

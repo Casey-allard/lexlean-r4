@@ -36,6 +36,10 @@ pub mod ratchet;
 #[path = "synthesis.rs"]
 pub mod synthesis;
 
+#[allow(dead_code)]
+#[path = "wasm_bundle.rs"]
+pub mod wasm_bundle;
+
 /// Minimum Hebbian strategy weight (`R4.AutonomousEngine.inBounds`).
 pub const WEIGHT_MIN: u32 = 1;
 /// Maximum Hebbian strategy weight (`R4.AutonomousEngine.inBounds`).
@@ -3458,6 +3462,27 @@ pub fn run_engine_tick_with_mode(
         &factory_report.receipt_sha256[..16.min(factory_report.receipt_sha256.len())]
     );
 
+    if !dry_run {
+        lift_register::cmd_lift_register(root, true)
+            .map_err(|e| format!("engine[6d/7 lift-register]: {e}"))?;
+        synthesis::cmd_synthesize(root, true)
+            .map_err(|e| format!("engine[6e/7 synthesize]: {e}"))?;
+        let mdl = repo_model::Model::load(&root.join("model"))
+            .map_err(|e| format!("engine[6f/7 check-model]: {e}"))?;
+        mdl.check()
+            .map_err(|e| format!("engine[6f/7 check-model]: {e}"))?;
+        let rendered_conf = repo_model::codegen::render_conformance(&mdl);
+        std::fs::write(
+            root.join(repo_model::codegen::CONFORMANCE_PATH),
+            rendered_conf,
+        )
+        .map_err(|e| format!("engine[6f/7 write CONFORMANCE.md]: {e}"))?;
+        if wasm_bundle::has_matching_wasm_bindgen(root) {
+            wasm_bundle::build_wasm(root, &root.join("public"))
+                .map_err(|e| format!("engine[6g/7 build-wasm]: {e}"))?;
+        }
+    }
+
     let mut consolidation_report = None;
     let should_consolidate = !dry_run && !engine.attempt.is_empty();
     if should_consolidate {
@@ -3561,17 +3586,23 @@ pub fn run_engine_tick_with_mode(
             && post_diag.orphaned_point_rows == 0
             && post_diag.dead_ui_bindings.is_empty()
     }) && matched_cohort_ok;
-    ratchet::verify_peirce_triadic_step(
+    let triadic_res = ratchet::verify_peirce_triadic_step(
         PeircePhase::Induction,
         true,
         gate_ok,
         pre_metric,
         post_metric,
         engine.rule30_state,
-    )?;
+    );
 
-    if !gate_ok {
-        return Err("engine[7/7 gate]: acceptance gate failed; refusing to advance".into());
+    if !gate_ok || triadic_res.is_err() {
+        if !dry_run {
+            let _ = rollback_failed_tick_worktree(root);
+        }
+        triadic_res?;
+        return Err(
+            "engine[7/7 gate]: acceptance gate failed; rolled back and refused to advance".into(),
+        );
     }
 
     let mut pushed = false;
@@ -3605,18 +3636,31 @@ pub fn run_engine_tick_with_mode(
             .current_dir(root)
             .args(["config", "user.email", "r4-engine@users.noreply.github.com"])
             .status();
-        let _ = Command::new("git")
-            .current_dir(root)
-            .args([
-                "add",
-                "frontier.toml",
-                "model/engine.toml",
-                "model/hypotheses.toml",
-                "tests/lexlean/FrontierTheorems.lex.tex",
-                "crates/wasm/src/bootstrap_v8.uorlut",
-                "crates/wasm/src/bootstrap_v8_seed.uorlut",
-            ])
-            .status();
+        let candidate_paths = [
+            "frontier.toml",
+            "model/engine.toml",
+            "model/hypotheses.toml",
+            "tests/lexlean/FrontierTheorems.lex.tex",
+            "crates/wasm/src/bootstrap_v8.uorlut",
+            "crates/wasm/src/bootstrap_v8_seed.uorlut",
+            "CONFORMANCE.md",
+            "model/lift_register.json",
+            "model/synthesis_report.json",
+            "public/app.js",
+            "public/app.css",
+            "public/index.html",
+            "public/lexlean_r4.js",
+            "public/lexlean_r4_bg.wasm",
+            "public/provenance.json",
+        ];
+        for rel in candidate_paths {
+            if root.join(rel).exists() {
+                let _ = Command::new("git")
+                    .current_dir(root)
+                    .args(["add", rel])
+                    .status();
+            }
+        }
 
         let proved_suffix = if deduce_summary.proved_ids.is_empty() {
             String::new()
@@ -3668,6 +3712,35 @@ pub fn run_engine_tick_with_mode(
 
     emit_ci_output(outcome, pushed, &tick_branch, &tick_title);
     println!("engine: tick complete (outcome={outcome}, pushed={pushed})");
+    Ok(())
+}
+
+/// Atomically restore modified tracked files and purge untracked artifacts after a failed tick (`R4-47`).
+pub fn rollback_failed_tick_worktree(root: &Path) -> Result<(), String> {
+    let st_co = Command::new("git")
+        .current_dir(root)
+        .args(["checkout", "--", "."])
+        .status()
+        .map_err(|e| format!("rollback git checkout error: {e}"))?;
+    if !st_co.success() {
+        return Err("rollback git checkout -- . failed".to_string());
+    }
+    let st_reset = Command::new("git")
+        .current_dir(root)
+        .args(["reset", "--hard", "HEAD"])
+        .status()
+        .map_err(|e| format!("rollback git reset error: {e}"))?;
+    if !st_reset.success() {
+        return Err("rollback git reset --hard HEAD failed".to_string());
+    }
+    let st_clean = Command::new("git")
+        .current_dir(root)
+        .args(["clean", "-fd"])
+        .status()
+        .map_err(|e| format!("rollback git clean error: {e}"))?;
+    if !st_clean.success() {
+        return Err("rollback git clean -fd failed".to_string());
+    }
     Ok(())
 }
 

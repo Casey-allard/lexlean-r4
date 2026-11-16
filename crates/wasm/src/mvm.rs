@@ -25,6 +25,14 @@ use crate::mvm_cc::{compile_c_to_rv64_elf, CCompileError};
 
 /// Four-byte magic prefix for 16-byte `SpiralCore` `virtio-vsock` frames.
 pub const SPIRALCORE_MAGIC: [u8; 4] = *b"SPVS";
+/// Canonical `SpiralCore` `virtio-vsock` control and bridge port.
+pub const SPIRALCORE_VSOCK_PORT: u16 = 5257;
+/// Reserved Host bridge Context ID (`CID 2`).
+pub const SPIRALCORE_HOST_CID: u16 = 2;
+/// Default guest MicroVM Context ID (`CID 3`).
+pub const SPIRALCORE_GUEST_CID: u16 = 3;
+/// Reserved filesystem superblock sector ID for instant session resumption.
+pub const MVM_SUPERBLOCK_SECTOR_ID: u32 = 0xFFFF_F000;
 /// Maximum payload bytes admitted in a single `SpiralCore` `virtio-vsock` frame.
 pub const SPIRALCORE_MAX_PAYLOAD: usize = 65_536;
 /// Copy-on-Write virtual block sector size (64 KB).
@@ -378,16 +386,47 @@ pub fn admit_elf64_riscv(bytes: &[u8]) -> ElfAdmission {
     })
 }
 
-#[derive(Debug, Clone)]
-enum InodeKind {
-    Regular { sector_start: u32, byte_len: usize },
-    Symlink { target: String },
+/// Inode classification within guest MicroVM filesystem.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub enum InodeKind {
+    /// Regular file backed by contiguous 64 KB sectors.
+    Regular {
+        /// Initial sector index in CoW store.
+        sector_start: u32,
+        /// Total byte length of stored file.
+        byte_len: usize,
+    },
+    /// Symbolic link pointing to target pathname.
+    Symlink {
+        /// Target path for symlink.
+        target: String,
+    },
 }
 
-#[derive(Debug, Clone)]
-struct GuestInode {
-    mode: u32,
-    kind: InodeKind,
+/// Metadata record for a guest filesystem inode.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct GuestInode {
+    /// File mode bits (permissions and type flags).
+    pub mode: u32,
+    /// Storage kind and sector pointer.
+    pub kind: InodeKind,
+}
+
+/// Filesystem superblock metadata sector payload for session resumption.
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct MvmSuperblockMeta {
+    /// Magic identifier string `MVMSUPER`.
+    pub magic: String,
+    /// Set of directory paths present in guest filesystem.
+    pub dirs: BTreeSet<String>,
+    /// Mapping of absolute file paths to guest inode records.
+    pub inodes: BTreeMap<String, GuestInode>,
+    /// Metadata of packages installed in the guest environment.
+    pub installed_packages: BTreeMap<String, InstalledPackageMeta>,
+    /// Active working directory at state capture.
+    pub current_cwd: String,
+    /// Workspace paths synchronized from host.
+    pub synced_workspace_paths: BTreeSet<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -609,23 +648,64 @@ impl MvmSandbox {
 
     /// Export dirty 64 KB CoW sectors `(sector_id, bytes)` for Worker OPFS persistence.
     pub fn export_dirty_cow_sectors(&self) -> Vec<(u32, Vec<u8>)> {
-        self.dirty_sectors
+        let mut list: Vec<(u32, Vec<u8>)> = self
+            .dirty_sectors
             .iter()
+            .filter(|id| **id != MVM_SUPERBLOCK_SECTOR_ID)
             .filter_map(|id| self.cow_sectors.get(id).map(|b| (*id, b.clone())))
-            .collect()
+            .collect();
+
+        if !list.is_empty() || !self.inodes.is_empty() {
+            let meta = MvmSuperblockMeta {
+                magic: "MVMSUPER".to_string(),
+                dirs: self.dirs.clone(),
+                inodes: self.inodes.clone(),
+                installed_packages: self.installed_packages.clone(),
+                current_cwd: self.current_cwd.clone(),
+                synced_workspace_paths: self.synced_workspace_paths.clone(),
+            };
+            if let Ok(json_str) = serde_json::to_string(&meta) {
+                let json_bytes = json_str.as_bytes();
+                let mut sector = vec![0u8; MVM_COW_SECTOR_BYTES];
+                let copy_len = json_bytes.len().min(MVM_COW_SECTOR_BYTES);
+                sector[..copy_len].copy_from_slice(&json_bytes[..copy_len]);
+                list.push((MVM_SUPERBLOCK_SECTOR_ID, sector));
+            }
+        }
+        list
     }
 
     /// Hydrate 64 KB CoW sectors loaded from OPFS `FileSystemSyncAccessHandle`.
-    pub fn import_cow_sectors(&mut self, sectors: &[(u32, Vec<u8>)]) {
+    pub fn import_cow_sectors(&mut self, sectors: &[(u32, Vec<u8>)]) -> usize {
+        let mut count = 0;
         for (id, data) in sectors {
             if data.len() == MVM_COW_SECTOR_BYTES {
-                self.cow_sectors.insert(*id, data.clone());
-                self.dirty_sectors.insert(*id);
-                if *id >= self.next_sector {
-                    self.next_sector = *id + 1;
+                if *id == MVM_SUPERBLOCK_SECTOR_ID {
+                    let zero_idx = data.iter().position(|&b| b == 0).unwrap_or(data.len());
+                    if let Ok(meta) = serde_json::from_slice::<MvmSuperblockMeta>(&data[..zero_idx])
+                    {
+                        if meta.magic == "MVMSUPER" {
+                            self.dirs.extend(meta.dirs);
+                            self.inodes.extend(meta.inodes);
+                            self.installed_packages.extend(meta.installed_packages);
+                            if !meta.current_cwd.is_empty() {
+                                self.current_cwd = meta.current_cwd;
+                            }
+                            self.synced_workspace_paths
+                                .extend(meta.synced_workspace_paths);
+                        }
+                    }
+                } else {
+                    self.cow_sectors.insert(*id, data.clone());
+                    self.dirty_sectors.insert(*id);
+                    if *id >= self.next_sector {
+                        self.next_sector = *id + 1;
+                    }
+                    count += 1;
                 }
             }
         }
+        count
     }
 
     /// Compute the FIPS 180-4 SHA-256 hex digest of the logical filesystem and CoW state.
@@ -3307,7 +3387,13 @@ impl MvmSandbox {
         } else {
             op_json
         };
-        let wire = self.build_vsock_packet(2, 2048, dig[0] & 63, dig[1] & 15, clamped)?;
+        let wire = self.build_vsock_packet(
+            SPIRALCORE_HOST_CID,
+            SPIRALCORE_VSOCK_PORT,
+            dig[0] & 63,
+            dig[1] & 15,
+            clamped,
+        )?;
         let hdr = SpiralCoreHeader::from_bytes(&wire)
             .ok_or(MvmError::FrameRejected(FrameVerdict::RefusedInvalidCid))?;
         Ok(VsockPacket {

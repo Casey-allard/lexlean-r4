@@ -831,6 +831,35 @@ impl SafetensorsFile {
                     out.push(f32::from_bits(bits));
                 }
             }
+            "F16" => {
+                if raw.len() != count * 2 {
+                    return Err(format!("{name} f16 byte len mismatch"));
+                }
+                for pair in raw.chunks_exact(2) {
+                    let h = u32::from(u16::from_le_bytes([pair[0], pair[1]]));
+                    let sign = (h & 0x8000) << 16;
+                    let exp = (h >> 10) & 0x1f;
+                    let frac = h & 0x03ff;
+                    let bits = if exp == 0 {
+                        if frac == 0 {
+                            sign
+                        } else {
+                            let mut e = 113u32;
+                            let mut m = frac << 13;
+                            while (m & 0x0080_0000) == 0 {
+                                m <<= 1;
+                                e -= 1;
+                            }
+                            sign | (e << 23) | (m & 0x007f_ffff)
+                        }
+                    } else if exp == 31 {
+                        sign | 0x7f80_0000 | (frac << 13)
+                    } else {
+                        sign | ((exp + 112) << 23) | (frac << 13)
+                    };
+                    out.push(f32::from_bits(bits));
+                }
+            }
             "F32" => {
                 if raw.len() != count * 4 {
                     return Err(format!("{name} f32 byte len mismatch"));
@@ -3680,8 +3709,18 @@ fn shard_and_stitch(
     container_bytes: &[u8],
     weights_dir: &Path,
 ) -> Result<(String, usize, usize), String> {
+    shard_and_stitch_with_opts(container_bytes, weights_dir, "weights/v10", &[])
+}
+
+fn shard_and_stitch_with_opts(
+    container_bytes: &[u8],
+    weights_dir: &Path,
+    path_prefix: &str,
+    mirrors: &[String],
+) -> Result<(String, usize, usize), String> {
+    let norm_prefix = path_prefix.trim_matches('/');
     fs::create_dir_all(weights_dir).map_err(|e| e.to_string())?;
-    // Clean old shards and parity files cleanly so zero stale v11 artifacts remain.
+    // Clean old shards and parity files cleanly so zero stale artifacts remain.
     for entry in fs::read_dir(weights_dir).map_err(|e| e.to_string())? {
         let e = entry.map_err(|e| e.to_string())?;
         let name = e.file_name().to_string_lossy().into_owned();
@@ -3714,16 +3753,31 @@ fn shard_and_stitch(
         let fpath = weights_dir.join(&file);
         fs::write(&fpath, &chunk).map_err(|e| e.to_string())?;
         let sha = sha256_hex(&chunk);
+        let shard_rel = if norm_prefix.is_empty() {
+            file.clone()
+        } else {
+            format!("{norm_prefix}/{file}")
+        };
         shards.push(ShardMeta {
             index: idx,
             file: file.clone(),
-            path: format!("weights/v10/{file}"),
+            path: shard_rel,
             byte_offset: s,
             byte_length: chunk.len(),
             sha256: sha,
             data: chunk,
         });
     }
+
+    let mirrors_json = if mirrors.is_empty() {
+        "[]".to_string()
+    } else {
+        let items: Vec<String> = mirrors
+            .iter()
+            .map(|m| format!("\"{}\"", json_escape(m.trim())))
+            .collect();
+        format!("[{}]", items.join(", "))
+    };
 
     // Write manifest.json
     let mut m_json = String::new();
@@ -3735,6 +3789,7 @@ fn shard_and_stitch(
     m_json.push_str(&format!("  \"total_bytes\": {total_bytes},\n"));
     m_json.push_str(&format!("  \"shard_max_bytes\": {SHARD_MAX_BYTES},\n"));
     m_json.push_str(&format!("  \"shard_count\": {shard_count},\n"));
+    m_json.push_str(&format!("  \"mirrors\": {mirrors_json},\n"));
     m_json.push_str("  \"shards\": [\n");
     for (i, s) in shards.iter().enumerate() {
         let comma = if i + 1 < shards.len() { "," } else { "" };
@@ -3780,6 +3835,11 @@ fn shard_and_stitch(
         let pfile = format!("parity_{g:03}.bin");
         fs::write(weights_dir.join(&pfile), &parity).map_err(|e| e.to_string())?;
         let psha = sha256_hex(&parity);
+        let ppath = if norm_prefix.is_empty() {
+            pfile.clone()
+        } else {
+            format!("{norm_prefix}/{pfile}")
+        };
         let right_json = match right_opt {
             Some(right) => format!(
                 "{{\"index\": {}, \"file\": \"{}\", \"path\": \"{}\", \"byte_offset\": {}, \"byte_length\": {}, \"sha256\": \"{}\"}}",
@@ -3793,13 +3853,13 @@ fn shard_and_stitch(
                 "      \"group_index\": {gi},\n",
                 "      \"left\": {{\"index\": {li}, \"file\": \"{lf}\", \"path\": \"{lp}\", \"byte_offset\": {lo}, \"byte_length\": {ll}, \"sha256\": \"{ls}\"}},\n",
                 "      \"right\": {rj},\n",
-                "      \"parity\": {{\"index\": {gi}, \"file\": \"{pf}\", \"path\": \"weights/v10/{pf}\", \"byte_length\": {pl}, \"sha256\": \"{ps}\"}}\n",
+                "      \"parity\": {{\"index\": {gi}, \"file\": \"{pf}\", \"path\": \"{pp}\", \"byte_length\": {pl}, \"sha256\": \"{ps}\"}}\n",
                 "    }}"
             ),
             gi = g,
             li = left.index, lf = left.file, lp = left.path, lo = left.byte_offset, ll = left.byte_length, ls = left.sha256,
             rj = right_json,
-            pf = pfile, pl = plen, ps = psha,
+            pf = pfile, pp = ppath, pl = plen, ps = psha,
         );
         groups_json.push(entry);
     }
@@ -3818,7 +3878,7 @@ fn shard_and_stitch(
             "  \"data_shard_count\": {sc},\n",
             "  \"parity_shard_count\": {gc},\n",
             "  \"groups\": [\n{groups}\n  ],\n",
-            "  \"mirrors\": []\n",
+            "  \"mirrors\": {mirrors_json}\n",
             "}}\n"
         ),
         csha = container_sha,
@@ -3826,14 +3886,15 @@ fn shard_and_stitch(
         sc = shard_count,
         gc = group_count,
         groups = groups_json.join(",\n"),
+        mirrors_json = mirrors_json,
     );
     fs::write(weights_dir.join("manifest.stitch.json"), &stitch_json).map_err(|e| e.to_string())?;
     Ok((container_sha, shard_count, group_count))
 }
 
-fn ensure_hf_cache(cache_dir: &Path) -> Result<(String, String, String), String> {
+fn ensure_hf_cache(cache_dir: &Path, hf_repo: &str) -> Result<(String, String, String), String> {
     fs::create_dir_all(cache_dir).map_err(|e| e.to_string())?;
-    let base = "https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct/resolve/main";
+    let base = format!("https://huggingface.co/{}/resolve/main", hf_repo.trim_matches('/'));
     let mut hashes = Vec::new();
     for file in ["config.json", "tokenizer.json", "model.safetensors"] {
         let p = cache_dir.join(file);
@@ -4019,6 +4080,11 @@ fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     let mut repo_root = PathBuf::from(".");
     let mut cache_dir = PathBuf::from("/var/tmp/r4_teacher_cache");
+    let mut out_dir_opt: Option<PathBuf> = None;
+    let mut hf_repo = String::from("HuggingFaceTB/SmolLM2-135M-Instruct");
+    let mut path_prefix = String::from("weights/v10");
+    let mut mirrors: Vec<String> = Vec::new();
+    let mut quantize_full_only = false;
     let mut reshard_cached = false;
     let mut reuse_gpu_cache = false;
     let mut i = 1;
@@ -4026,11 +4092,24 @@ fn main() -> ExitCode {
         match args[i].as_str() {
             "--repo" if i + 1 < args.len() => { repo_root = PathBuf::from(&args[i + 1]); i += 2; }
             "--cache-dir" if i + 1 < args.len() => { cache_dir = PathBuf::from(&args[i + 1]); i += 2; }
+            "--out-dir" if i + 1 < args.len() => { out_dir_opt = Some(PathBuf::from(&args[i + 1])); i += 2; }
+            "--hf-repo" if i + 1 < args.len() => { hf_repo = args[i + 1].clone(); i += 2; }
+            "--path-prefix" if i + 1 < args.len() => { path_prefix = args[i + 1].clone(); i += 2; }
+            "--mirrors" if i + 1 < args.len() => {
+                mirrors = args[i + 1]
+                    .split(',')
+                    .map(|s| s.trim().to_string())
+                    .filter(|s| !s.is_empty())
+                    .collect();
+                i += 2;
+            }
+            "--quantize-full-only" => { quantize_full_only = true; i += 1; }
             "--reshard-cached" => { reshard_cached = true; i += 1; }
             "--reuse-gpu-cache" => { reuse_gpu_cache = true; i += 1; }
             _ => i += 1,
         }
     }
+    let out_dir = out_dir_opt.unwrap_or_else(|| repo_root.join("gpu/weights/v10"));
 
     if reshard_cached {
         let cached_path = cache_dir.join("full_v12.uorr4");
@@ -4042,7 +4121,7 @@ fn main() -> ExitCode {
             }
         };
         let (full_sha, shard_count, parity_count) =
-            match shard_and_stitch(&full_bytes, &repo_root.join("gpu/weights/v10")) {
+            match shard_and_stitch_with_opts(&full_bytes, &out_dir, &path_prefix, &mirrors) {
                 Ok(v) => v,
                 Err(e) => {
                     eprintln!("[error] reshard_cached failed: {e}");
@@ -4056,7 +4135,7 @@ fn main() -> ExitCode {
         return ExitCode::SUCCESS;
     }
 
-    let (cfg_sha, tok_sha, safetensors_sha) = match ensure_hf_cache(&cache_dir) {
+    let (cfg_sha, tok_sha, safetensors_sha) = match ensure_hf_cache(&cache_dir, &hf_repo) {
         Ok(h) => h,
         Err(e) => { eprintln!("[error] cache prep failed: {e}"); return ExitCode::FAILURE; }
     };
@@ -4076,13 +4155,15 @@ fn main() -> ExitCode {
         .unwrap_or(true);
     let head_dim = d_model / n_heads;
 
-    eprintln!("[recompiler] SmolLM2-135M-Instruct config: vocab={vocab} d={d_model} layers={n_layers} heads={n_heads} kv={n_kv_heads} head_dim={head_dim} ffn={ffn} theta={rope_theta}");
+    eprintln!("[recompiler] {hf_repo} config: vocab={vocab} d={d_model} layers={n_layers} heads={n_heads} kv={n_kv_heads} head_dim={head_dim} ffn={ffn} theta={rope_theta}");
 
     let tok_bytes = fs::read(cache_dir.join("tokenizer.json")).unwrap();
     let tokenizer = SmolTokenizer::from_json_bytes(&tok_bytes).unwrap();
-    // Write tokenizer_v12.json verbatim from verified HF cache (2.0 MiB) so byte-exact vocab/merges match.
-    let tok_out_path = repo_root.join("crates/wasm/src/tokenizer_v12.json");
-    fs::write(&tok_out_path, &tok_bytes).unwrap();
+    if !quantize_full_only {
+        // Write tokenizer_v12.json verbatim from verified HF cache (2.0 MiB) so byte-exact vocab/merges match.
+        let tok_out_path = repo_root.join("crates/wasm/src/tokenizer_v12.json");
+        fs::write(&tok_out_path, &tok_bytes).unwrap();
+    }
 
     // Compile inline CUDA C++ engine via nvcc.
     let cuda_cu_path = cache_dir.join("r4_smollm2_cuda.cu");
@@ -4204,6 +4285,7 @@ fn main() -> ExitCode {
     let mut layers_30 = Vec::with_capacity(n_layers);
     let mut layer_rms_errs = Vec::new();
     let mut e8_layer_rmses = Vec::new();
+    let q_rows = n_heads * head_dim;
     let kv_rows = n_kv_heads * head_dim;
     for l in 0..n_layers {
         let p = format!("model.layers.{l}");
@@ -4229,10 +4311,10 @@ fn main() -> ExitCode {
         }
 
         let seed_base = ((l as u64) + 1) << 16;
-        let q_proj = quantize_matrix_dyadic(&w_q, d_model, d_model, true, seed_base | 1).unwrap();
+        let q_proj = quantize_matrix_dyadic(&w_q, q_rows, d_model, true, seed_base | 1).unwrap();
         let k_proj = quantize_matrix_dyadic(&w_k, kv_rows, d_model, true, seed_base | 2).unwrap();
         let v_proj = quantize_matrix_dyadic(&w_v, kv_rows, d_model, true, seed_base | 3).unwrap();
-        let o_proj = quantize_matrix_dyadic(&w_o, d_model, d_model, true, seed_base | 4).unwrap();
+        let o_proj = quantize_matrix_dyadic(&w_o, d_model, q_rows, true, seed_base | 4).unwrap();
         let gate_proj = quantize_matrix_dyadic(&w_g, ffn, d_model, true, seed_base | 5).unwrap();
         let up_proj = quantize_matrix_dyadic(&w_u, ffn, d_model, true, seed_base | 6).unwrap();
         let down_proj = quantize_matrix_dyadic(&w_d, d_model, ffn, true, seed_base | 7).unwrap();
@@ -4273,13 +4355,29 @@ fn main() -> ExitCode {
 
     let full_bytes = serialize_uorr4v12(&full_model);
     let full_mib = full_bytes.len() as f64 / (1024.0 * 1024.0);
-    eprintln!("[recompiler] Full 30L UORR4V12 size = {} bytes ({:.2} MiB, limit <= 90.0 MiB)", full_bytes.len(), full_mib);
-    assert!(full_bytes.len() <= 90 * 1024 * 1024, "full container exceeds 90 MiB");
+    let max_bytes = if quantize_full_only {
+        400 * 1024 * 1024
+    } else {
+        90 * 1024 * 1024
+    };
+    eprintln!(
+        "[recompiler] Full {}L x {}D UORR4V12 size = {} bytes ({:.2} MiB, limit <= {:.1} MiB)",
+        n_layers,
+        d_model,
+        full_bytes.len(),
+        full_mib,
+        max_bytes as f64 / (1024.0 * 1024.0)
+    );
+    assert!(full_bytes.len() <= max_bytes, "full container exceeds limit");
     fs::write(cache_dir.join("full_v12.uorr4"), &full_bytes).unwrap();
 
-    // Shard & Stitch 2-of-3 parity into gpu/weights/v10
-    let (full_sha, shard_count, parity_count) = shard_and_stitch(&full_bytes, &repo_root.join("gpu/weights/v10")).unwrap();
-    eprintln!("[recompiler] Exported {shard_count} shards + {parity_count} Stitch 2-of-3 parity shards to gpu/weights/v10 (sha256={full_sha})");
+    // Shard & Stitch 2-of-3 parity into target out_dir
+    let (full_sha, shard_count, parity_count) =
+        shard_and_stitch_with_opts(&full_bytes, &out_dir, &path_prefix, &mirrors).unwrap();
+    eprintln!(
+        "[recompiler] Exported {shard_count} shards + {parity_count} Stitch 2-of-3 parity shards to {} (sha256={full_sha})",
+        out_dir.display()
+    );
 
     // Sanity check embed dequantization vs teacher float embed row 1 and 500 before full eval
     {
@@ -4366,7 +4464,37 @@ fn main() -> ExitCode {
     let top1_pct = (top1_hits as f64 / ood_list.len() as f64) * 100.0;
     let top5_pct = (top5_hits as f64 / ood_list.len() as f64) * 100.0;
     let mean_kl = sum_kl / ood_list.len() as f64;
-    eprintln!("[recompiler] Full 30L Integer vs RTX 4090 Teacher: top1={top1_pct:.1}% top5={top5_pct:.1}% mean_KL={mean_kl:.4}");
+    eprintln!("[recompiler] Full {}L Integer vs RTX 4090 Teacher: top1={top1_pct:.1}% top5={top5_pct:.1}% mean_KL={mean_kl:.4}", n_layers);
+
+    if quantize_full_only {
+        let receipt_path = out_dir.join("receipt_v12.json");
+        let mut s_json = String::new();
+        s_json.push_str("{\n");
+        s_json.push_str(&format!("  \"hf_repo\": \"{}\",\n", json_escape(&hf_repo)));
+        s_json.push_str(&format!("  \"container_sha256\": \"{full_sha}\",\n"));
+        s_json.push_str(&format!("  \"total_bytes\": {},\n", full_bytes.len()));
+        s_json.push_str(&format!("  \"shard_count\": {shard_count},\n"));
+        s_json.push_str(&format!("  \"stitch_parity_groups\": {parity_count},\n"));
+        s_json.push_str(&format!("  \"n_layers\": {n_layers},\n"));
+        s_json.push_str(&format!("  \"d_model\": {d_model},\n"));
+        s_json.push_str(&format!("  \"n_heads\": {n_heads},\n"));
+        s_json.push_str(&format!("  \"n_kv_heads\": {n_kv_heads},\n"));
+        s_json.push_str(&format!("  \"top1_logit_parity_pct\": {:.2},\n", top1_pct));
+        s_json.push_str(&format!("  \"top5_logit_parity_pct\": {:.2},\n", top5_pct));
+        s_json.push_str(&format!("  \"mean_kl_divergence\": {:.6},\n", mean_kl));
+        s_json.push_str("  \"ood_samples\": [\n");
+        for (idx, (pid, _, m1, m5, kl, t_rep, i_rep)) in full_int_transcripts.iter().enumerate() {
+            let comma = if idx + 1 < full_int_transcripts.len() { "," } else { "" };
+            s_json.push_str(&format!(
+                "    {{\"id\": \"{}\", \"top1_match\": {}, \"top5_match\": {}, \"kl_divergence\": {:.6}, \"float_teacher_reply\": \"{}\", \"integer_reply\": \"{}\"}}{}\n",
+                json_escape(pid), m1, m5, kl, json_escape(t_rep), json_escape(i_rep), comma
+            ));
+        }
+        s_json.push_str("  ]\n}\n");
+        fs::write(&receipt_path, &s_json).unwrap();
+        eprintln!("[recompiler] --quantize-full-only complete; wrote {}.", receipt_path.display());
+        return ExitCode::SUCCESS;
+    }
 
     // =========================================================================
     // Compact Seed Distillation on RTX 4090 (<= 4.5 MiB: V=6144, D=256, 8L, 4H/2KV, FFN=640)

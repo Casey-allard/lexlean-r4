@@ -142,6 +142,8 @@ pub mod lexlean_generated {
         }
     }
 }
+/// Deterministic `CIRISKernel` content-addressed causal ledger (`R4.CirisLedger`).
+pub mod ciris_ledger;
 /// Native integer execution engine for `uor-r4.lut-stack/7` and `uor-r4.lut-stack/8` (`UORLUT01`).
 pub mod lut_stack_exec;
 /// `MVM-Wasm` RV64IMAC 64-bit Linux MicroVM and `SpiralCore` `virtio-vsock` zero-NIC switch (`R4-37`).
@@ -152,6 +154,8 @@ pub mod mvm_cc;
 pub mod otel;
 /// Stitch 2-of-3 XOR parity encoding, manifest validation, and custody recovery.
 pub mod stitch_fabric;
+/// SpiralCore Zero-NIC virtio-vsock framing and relay wire format.
+pub mod vsock;
 /// In-Wasm Rust AST Parser, Static Typechecker, Fuel-Bounded Interpreter, and Live Test Runner (`R4-32`).
 pub mod wasm_ast_eval;
 
@@ -479,6 +483,7 @@ pub struct StudioEngine {
     pub(crate) mvm: mvm::MvmSandbox,
     pub(crate) gllm_v9: Arc<gllm_v9::GllmV9Model>,
     pub(crate) r4_stack: r4_geometric_stack::R4GeometricStackEngine,
+    pub(crate) ciris_ledger: ciris_ledger::CirisCausalLedger,
     pub(crate) last_brain_pulses: Vec<gllm_v9::BrainPulseStep>,
     pub(crate) pending_mvm_bridge: Option<serde_json::Value>,
     pub(crate) pending_chat_bridge: Option<serde_json::Value>,
@@ -1257,6 +1262,7 @@ impl StudioEngine {
             mvm: mvm::MvmSandbox::boot_default().expect("embedded UORMVM01 initramfs boots"),
             gllm_v9: gllm_v9::GllmV9Model::default_embedded(),
             r4_stack: r4_geometric_stack::R4GeometricStackEngine::embedded_seed(),
+            ciris_ledger: ciris_ledger::CirisCausalLedger::new(),
             last_brain_pulses: Vec::new(),
             pending_mvm_bridge: None,
             pending_chat_bridge: None,
@@ -2625,7 +2631,10 @@ impl StudioEngine {
             }
             _ => {
                 let dst_cid = parsed.get("dst_cid").and_then(|v| v.as_u64()).unwrap_or(2) as u16;
-                let port = parsed.get("port").and_then(|v| v.as_u64()).unwrap_or(1024) as u16;
+                let port = parsed
+                    .get("port")
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or(mvm::SPIRALCORE_VSOCK_PORT as u64) as u16;
                 let spin = parsed.get("spin").and_then(|v| v.as_u64()).unwrap_or(0) as u8;
                 let orbit = parsed.get("orbit").and_then(|v| v.as_u64()).unwrap_or(0) as u8;
                 let body = parsed.get("payload").and_then(|v| v.as_str()).unwrap_or("");
@@ -5681,24 +5690,50 @@ impl StudioEngine {
         let execution_tier = match selected_mode {
             SelectedExecutionMode::RecompiledAgent => {
                 if full_v12_mounted {
-                    "recompiled-v12-agent (30L 576D)"
+                    format!(
+                        "recompiled-v12-agent ({}L {}D)",
+                        geometric_metrics.n_layers, geometric_metrics.d_model
+                    )
                 } else {
-                    "recompiled-v12-agent (embedded-seed)"
+                    "recompiled-v12-agent (embedded-seed)".to_string()
                 }
             }
             SelectedExecutionMode::RecompiledChat => {
                 if full_v12_mounted {
-                    "recompiled-v12-chat (30L 576D)"
+                    format!(
+                        "recompiled-v12-chat ({}L {}D)",
+                        geometric_metrics.n_layers, geometric_metrics.d_model
+                    )
                 } else {
-                    "recompiled-v12-chat (embedded-seed)"
+                    "recompiled-v12-chat (embedded-seed)".to_string()
                 }
             }
-            SelectedExecutionMode::EmbeddedSeedFast => "embedded-seed-fast (8L)",
-            SelectedExecutionMode::SymbolicLutMvm => "symbolic-lut-mvm (8L LUT)",
+            SelectedExecutionMode::EmbeddedSeedFast => "embedded-seed-fast (8L)".to_string(),
+            SelectedExecutionMode::SymbolicLutMvm => "symbolic-lut-mvm (8L LUT)".to_string(),
         };
 
         let lut_gen_for_trace = match self.last_lut_generation.take() {
             Some(lg) => lg,
+            None if selected_mode.is_neural_geometric() => {
+                lut_stack_exec::LutStackGenerationResult {
+                    reply_text: String::new(),
+                    thinking_text: None,
+                    thinking_tokens: Vec::new(),
+                    prompt_tokens: Vec::new(),
+                    generated_tokens: Vec::new(),
+                    steps: Vec::new(),
+                    matched_stem_count: 0,
+                    point_hamming_bits: 0,
+                    clauses_resolved: 0,
+                    primary_turn_idx: 0,
+                    final_n_t: [0i32; lut_stack_exec::FBS_WIDTH],
+                    boundary_trajectories: Vec::new(),
+                    total_l1_margin: 0,
+                    slot_frame: None,
+                    phrase_dag_nodes: 0,
+                    phrase_dag_plan: None,
+                }
+            }
             None => self.lut_stack.generate_reply_with_context(
                 &mut self.rolling_context,
                 &self.chat_history,
@@ -6237,7 +6272,7 @@ impl StudioEngine {
             chat_status,
             escape_json(selected_mode.wire_id()),
             escape_json(&composer_mode_str),
-            escape_json(execution_tier),
+            escape_json(&execution_tier),
             geometric_metrics_json,
             escape_json(trimmed),
             escape_json(&clean_reply),
@@ -6356,6 +6391,25 @@ impl api::InferenceBackend for StudioEngine {
         context: &mut lut_stack_exec::RollingContextState,
         max_tokens: usize,
     ) -> Result<api::ModelTurnOutcome, String> {
+        self.infer_turn_with_model(
+            "uor-r4.lut-symbolic",
+            prompt,
+            history,
+            tools,
+            context,
+            max_tokens,
+        )
+    }
+
+    fn infer_turn_with_model(
+        &mut self,
+        model: &str,
+        prompt: &str,
+        history: &[(String, String)],
+        tools: &[api::ToolDescriptor],
+        context: &mut lut_stack_exec::RollingContextState,
+        max_tokens: usize,
+    ) -> Result<api::ModelTurnOutcome, String> {
         self.rolling_context = context.clone();
         if !history.is_empty() {
             self.chat_history = history.to_vec();
@@ -6376,6 +6430,58 @@ impl api::InferenceBackend for StudioEngine {
             )?;
             *context = self.rolling_context.clone();
             return Ok(outcome);
+        }
+
+        let selected_mode = match model.trim() {
+            "uor-r4.recompiled-v12-chat" | "recompiled-chat" => {
+                r4_geometric_stack::SelectedExecutionMode::RecompiledChat
+            }
+            "uor-r4.recompiled-v12-agent" | "recompiled-agent" => {
+                r4_geometric_stack::SelectedExecutionMode::RecompiledAgent
+            }
+            "uor-r4.seed-fast" | "seed-fast" => {
+                r4_geometric_stack::SelectedExecutionMode::EmbeddedSeedFast
+            }
+            "uor-r4.lut-symbolic" | "lut-symbolic" => {
+                r4_geometric_stack::SelectedExecutionMode::SymbolicLutMvm
+            }
+            _ => {
+                if model.contains("chat") {
+                    r4_geometric_stack::SelectedExecutionMode::RecompiledChat
+                } else if model.contains("agent") {
+                    r4_geometric_stack::SelectedExecutionMode::RecompiledAgent
+                } else if model.contains("seed") {
+                    r4_geometric_stack::SelectedExecutionMode::EmbeddedSeedFast
+                } else {
+                    r4_geometric_stack::SelectedExecutionMode::SymbolicLutMvm
+                }
+            }
+        };
+
+        if selected_mode.is_neural_geometric() {
+            let (reply_text, metrics, _) =
+                self.r4_stack
+                    .generate_reply(trimmed, history, selected_mode, max_tokens);
+            assert_eq!(
+                metrics.float_ops, 0,
+                "Enforced 0 float ops in neural geometric serving"
+            );
+            assert_eq!(
+                metrics.dense_matmul_ops, 0,
+                "Enforced 0 dense matmul ops in neural geometric serving"
+            );
+
+            let in_toks = (metrics.prompt_tokens as u32).max(1);
+            let out_toks = (metrics.generated_tokens as u32).max(1);
+            self.rolling_context.turn_index = self.rolling_context.turn_index.saturating_add(1);
+            *context = self.rolling_context.clone();
+
+            return Ok(api::ModelTurnOutcome {
+                raw_output: reply_text,
+                input_tokens: in_toks,
+                output_tokens: out_toks,
+                otel_trace: None,
+            });
         }
 
         // 3. Direct model generation via lut_stack
@@ -7080,19 +7186,24 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         }
         "chat" => engine.chat_assistant_json(payload),
         "agent" => {
-            let lower_payload = payload.to_ascii_lowercase();
-            let agent_prompt = if lower_payload.contains("[agent_mode]")
-                || lower_payload.contains("<tools>")
-                || lower_payload.contains("\"tools\":")
-                || lower_payload.contains("<tool_call>")
-                || lower_payload.contains("<tool_response>")
-                || lower_payload.contains("<observation>")
-            {
-                payload.to_string()
+            let trimmed_payload = payload.trim();
+            if trimmed_payload.starts_with('{') && trimmed_payload.ends_with('}') {
+                engine.chat_assistant_json(payload)
             } else {
-                format!("[agent_mode] {payload}")
-            };
-            engine.chat_assistant_json(&agent_prompt)
+                let lower_payload = payload.to_ascii_lowercase();
+                let agent_prompt = if lower_payload.contains("[agent_mode]")
+                    || lower_payload.contains("<tools>")
+                    || lower_payload.contains("\"tools\":")
+                    || lower_payload.contains("<tool_call>")
+                    || lower_payload.contains("<tool_response>")
+                    || lower_payload.contains("<observation>")
+                {
+                    payload.to_string()
+                } else {
+                    format!("[agent_mode] {payload}")
+                };
+                engine.chat_assistant_json(&agent_prompt)
+            }
         }
         "admit" => {
             let (prompt_part, reply_part) = if let Some((p, r)) = payload.split_once('\n') {
@@ -7232,6 +7343,8 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
             engine.dispatch_v1_chat_completions(payload)
         }
         "v1/traces" | "/v1/traces" | "traces" => engine.dispatch_v1_traces(payload),
+        "ciris_admit" => engine.ciris_ledger.admit_row_json(payload),
+        "ciris_status" => engine.ciris_ledger.status_json(),
         "reset" => {
             let active_v9 = std::sync::Arc::clone(&engine.gllm_v9);
             *engine = StudioEngine::new_default();
@@ -7602,6 +7715,28 @@ pub fn studio_verdant_synthesis_status() -> String {
     engine.verdant_synthesis_status_json()
 }
 
+/// Formal R4.CirisLedger Wasm export admitting a causal row and updating the fixed-point cut (`R5`).
+#[wasm_bindgen]
+pub fn studio_ciris_admit_row(row_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.ciris_ledger.admit_row_json(row_json)
+}
+
+/// Formal R4.CirisLedger Wasm export querying current causal ledger cut status.
+#[wasm_bindgen]
+pub fn studio_ciris_status() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.ciris_ledger.status_json()
+}
+
 pub(crate) fn format_mvm_agent_prompt(raw: &str) -> String {
     let trimmed = raw.trim();
     if trimmed.contains("<tool_response>") {
@@ -7713,11 +7848,13 @@ pub fn studio_export_mvm_cow_sectors() -> Vec<u8> {
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     let dirty = engine.mvm.export_dirty_cow_sectors();
-    let mut buf = Vec::with_capacity(12 + dirty.len() * (4 + mvm::MVM_COW_SECTOR_BYTES));
+    let mut buf = Vec::with_capacity(16 + dirty.len() * (8 + mvm::MVM_COW_SECTOR_BYTES));
     buf.extend_from_slice(b"MVM_COW1");
     buf.extend_from_slice(&(dirty.len() as u32).to_le_bytes());
+    buf.extend_from_slice(&(mvm::MVM_COW_SECTOR_BYTES as u32).to_le_bytes());
     for (id, sector) in dirty {
         buf.extend_from_slice(&id.to_le_bytes());
+        buf.extend_from_slice(&(sector.len() as u32).to_le_bytes());
         buf.extend_from_slice(&sector);
     }
     buf
@@ -7726,20 +7863,37 @@ pub fn studio_export_mvm_cow_sectors() -> Vec<u8> {
 /// Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`).
 #[wasm_bindgen]
 pub fn studio_import_mvm_cow_sectors(bytes: &[u8]) -> String {
-    if bytes.len() < 12 || &bytes[0..8] != b"MVM_COW1" {
+    if bytes.len() < 16 || &bytes[0..8] != b"MVM_COW1" {
         return "{\"status\":\"error\",\"message\":\"Invalid MVM_COW1 magic.\"}".to_string();
     }
     let count = u32::from_le_bytes([bytes[8], bytes[9], bytes[10], bytes[11]]) as usize;
-    let stride = 4 + mvm::MVM_COW_SECTOR_BYTES;
-    if bytes.len() < 12 + count.saturating_mul(stride) {
+    let sector_size = u32::from_le_bytes([bytes[12], bytes[13], bytes[14], bytes[15]]) as usize;
+    if sector_size != mvm::MVM_COW_SECTOR_BYTES {
+        return format!(
+            "{{\"status\":\"error\",\"message\":\"Unexpected sector size: {sector_size}\"}}"
+        );
+    }
+    let stride = 8 + mvm::MVM_COW_SECTOR_BYTES;
+    if bytes.len() < 16 + count.saturating_mul(stride) {
         return "{\"status\":\"error\",\"message\":\"Truncated MVM_COW1 sector stream.\"}"
             .to_string();
     }
     let mut sectors = Vec::with_capacity(count);
-    let mut cur = 12usize;
+    let mut cur = 16usize;
     for _ in 0..count {
         let id = u32::from_le_bytes([bytes[cur], bytes[cur + 1], bytes[cur + 2], bytes[cur + 3]]);
-        let data = bytes[cur + 4..cur + 4 + mvm::MVM_COW_SECTOR_BYTES].to_vec();
+        let data_len = u32::from_le_bytes([
+            bytes[cur + 4],
+            bytes[cur + 5],
+            bytes[cur + 6],
+            bytes[cur + 7],
+        ]) as usize;
+        if data_len != mvm::MVM_COW_SECTOR_BYTES {
+            return format!(
+                "{{\"status\":\"error\",\"message\":\"Unexpected sector data_len: {data_len}\"}}"
+            );
+        }
+        let data = bytes[cur + 8..cur + 8 + mvm::MVM_COW_SECTOR_BYTES].to_vec();
         sectors.push((id, data));
         cur += stride;
     }
@@ -7748,10 +7902,10 @@ pub fn studio_import_mvm_cow_sectors(bytes: &[u8]) -> String {
         Err(poisoned) => poisoned.into_inner(),
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
-    engine.mvm.import_cow_sectors(&sectors);
+    let imported_count = engine.mvm.import_cow_sectors(&sectors);
     serde_json::json!({
         "status": "ok",
-        "imported_sectors": sectors.len(),
+        "imported_sectors": imported_count,
         "cow_state_sha256": engine.mvm.cow_state_sha256(),
     })
     .to_string()
@@ -7929,7 +8083,7 @@ fn parse_consolidation_payload(
     Ok((config, samples))
 }
 
-/// Dispatch a string envelope and return the encoded response envelope.
+/// Formal R4.ConnectedStudio wire and `1\tstudio\t` string dispatcher.
 pub fn dispatch_string(value: &str) -> String {
     if value.starts_with("1\tstudio\t") {
         return studio_dispatch(value);

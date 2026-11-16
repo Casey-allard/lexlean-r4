@@ -1428,7 +1428,7 @@ fn test_f24_sanctioned_errors_no_raw_panics_in_shipped_crates() {
 fn test_f24_sanctioned_errors_justfile_defines_normative_vv() {
     let root = repo_root();
     let justfile = std::fs::read_to_string(root.join("Justfile")).unwrap();
-    assert!(justfile.contains("vv: template-check fmt-check model lint test features deny"));
+    assert!(justfile.contains("vv: fmt-check template-check model lint test features deny"));
 }
 
 #[test]

@@ -1020,7 +1020,7 @@ impl StudioEngine {
 
         let trimmed = prompt.trim();
         let (mut reply, mut metrics, mut frames) =
-            r4_stack.generate_reply(trimmed, &self.chat_history, selected_mode, 160);
+            r4_stack.generate_reply(trimmed, &self.chat_history, selected_mode, 96);
 
         let mut pulses: Vec<crate::gllm_v9::BrainPulseStep> = frames
             .iter()
@@ -1062,7 +1062,7 @@ impl StudioEngine {
                         &obs_prompt,
                         &engine.chat_history,
                         selected_mode,
-                        128,
+                        80,
                     );
                     extra_metrics.generated_tokens += step2_m.generated_tokens;
                     extra_metrics.nibble_lut_lookups += step2_m.nibble_lut_lookups;

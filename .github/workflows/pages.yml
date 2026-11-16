@@ -28,6 +28,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Restore Cargo target cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: target
+          key: r4-pages-target-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            r4-pages-target-
+
       - name: Run preflight acceptance gate through the locked SDK
         shell: bash
         run: |
@@ -63,6 +71,12 @@ jobs:
               exec just vv
             '
 
+      - name: Prune Cargo incremental cache
+        if: always()
+        shell: bash
+        run: |
+          rm -rf target/debug/incremental target/wasm32-unknown-unknown/release/incremental || true
+
       - name: Verify browser closure and provenance
         shell: bash
         run: |
@@ -97,6 +111,7 @@ jobs:
           if [ -f site/app.json ]; then cp site/app.json public/app.json; fi
           if [ -d gpu/weights ]; then
             cp -R gpu/weights public/weights
+            find public/weights -type f \( -name "*.bin" -o -name "*.part*" \) -delete
           fi
 
       - name: Configure Pages

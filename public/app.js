@@ -4,6 +4,8 @@ import init, {
   cache_geometric_shard_in_indexeddb,
   cache_uorlut_in_indexeddb,
   clear_cached_uorlut_in_indexeddb,
+  decodeSpvsWireFrame,
+  encodeSpvsWireFrame,
   generate_with_webgpu_open_weights_coprocessor,
   get_browser_worker_pool_snapshot,
   hydrate_all_16_e8_shards_to_opfs,
@@ -11,6 +13,8 @@ import init, {
   load_e8_shard_from_opfs,
   load_geometric_shard_from_indexeddb,
   mount_open_weights_pack_to_opfs,
+  opfs_get_blob,
+  opfs_put_blob,
   optimal_browser_worker_count,
   persist_mvm_cow_sectors_to_opfs,
   process_envelope,
@@ -22,6 +26,7 @@ import init, {
   route_and_hot_swap_e8_shard,
   run_webgpu_q12_attention_projection,
   run_webgpu_v9_fwht64_tmac,
+  storageRequest,
   stream_sharded_weights_to_indexeddb,
   stream_v9_sharded_weights_via_opfs_worker,
   studio_admit_generation_capsule,
@@ -41,6 +46,7 @@ import init, {
   studio_wasm_eval,
   studio_weight_pack_status,
   sync_cached_weights,
+  withStorageLock,
 } from './lexlean_r4.js?v=v12r4';
 
 globalThis.__uorOpenWeightsRuntime = {
@@ -63,6 +69,18 @@ globalThis.__uorOpenWeightsRuntime = {
   queryVerdantSynthesisStatus: query_verdant_synthesis_status,
   mountR4V12Bytes: studio_mount_r4_v12_bytes,
   getR4StackStatus: studio_r4_stack_status,
+};
+
+globalThis.LexLean = {
+  ...(globalThis.LexLean || {}),
+  opfs_put_blob,
+  opfs_get_blob,
+  storageRequest,
+  withStorageLock,
+  encodeSpvsWireFrame,
+  decodeSpvsWireFrame,
+  persist_mvm_cow_sectors_to_opfs,
+  restore_mvm_cow_sectors_from_opfs,
 };
 
 const form = document.getElementById('application-form');
@@ -1023,6 +1041,16 @@ const engineWorkerClient = {
     }
     if (evType === 'workspace_sync' && msg.workspace) {
       this.applyWorkspaceSnapshot(msg.workspace);
+      return;
+    }
+    if (evType === 'chat_stream_delta') {
+      if (typeof this.activeChatStreamHook === 'function') {
+        this.activeChatStreamHook({
+          stage: 'chat_stream_delta',
+          text: msg.text || '',
+          step: msg.step || 0,
+        });
+      }
       return;
     }
     if (evType === 'bridge_activity') {
@@ -2823,15 +2851,24 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       chatTranscript.scrollTop = chatTranscript.scrollHeight;
     }
 
+    let streamedReplyText = '';
     const liveHook = (bridgeEvt) => {
       if (!statusLineEl || !bridgeEvt) return;
+      if (bridgeEvt.stage === 'chat_stream_delta') {
+        streamedReplyText += String(bridgeEvt.text || '');
+        if (streamedReplyText) {
+          statusLineEl.textContent = streamedReplyText;
+          if (chatTranscript) chatTranscript.scrollTop = chatTranscript.scrollHeight;
+        }
+        return;
+      }
       if (bridgeEvt.stage === 'r4_shards') {
         const idx = typeof bridgeEvt.index === 'number' ? bridgeEvt.index : 0;
         const total = typeof bridgeEvt.total === 'number' && bridgeEvt.total > 0 ? bridgeEvt.total : 73;
         const pct = Math.min(100, Math.floor((idx * 100) / total));
         statusLineEl.textContent = bridgeEvt.label && idx === 0
           ? bridgeEvt.label
-          : `Hydrating 30L UORR4V12 OPFS shards (${idx}/${total}, ${pct}%) before 30L inference...`;
+          : `Hydrating UORR4V12 OPFS shards (${idx}/${total}, ${pct}%) before inference...`;
         return;
       }
       const opLabel = bridgeEvt.op || 'bridge';
@@ -5171,16 +5208,23 @@ async function getWeightsFromIndexedDB() {
         const tx = db.transaction('uorlut_packs', 'readonly');
         const store = tx.objectStore('uorlut_packs');
         const getReq = store.get('active_uorlut_v8_2b_34259da9');
+        let record = null;
         getReq.onsuccess = () => {
+          record = getReq.result;
+        };
+        tx.oncomplete = () => {
           db.close();
-          const res = getReq.result;
-          if (res && res.bytes) {
-            resolve(res.bytes.buffer ? res.bytes.buffer : res.bytes);
+          if (record && record.bytes) {
+            resolve(record.bytes.buffer ? record.bytes.buffer : record.bytes);
           } else {
             resolve(null);
           }
         };
-        getReq.onerror = () => {
+        tx.onerror = () => {
+          db.close();
+          resolve(null);
+        };
+        tx.onabort = () => {
           db.close();
           resolve(null);
         };
@@ -11649,6 +11693,34 @@ const CURSOR_IDE_COMMANDS = [
     },
   },
   {
+    id: 'uor.hydrate360m',
+    category: 'UOR-R4 Weights',
+    title: 'Hydrate SmolLM2-360M (32L x 960D) into OPFS',
+    shortcut: '',
+    label: '> UOR-R4 Weights: Hydrate SmolLM2-360M (32L x 960D) into OPFS',
+    meta: 'v12_360m OPFS',
+    handler: () => {
+      if (engineWorkerClient && engineWorkerClient.worker) {
+        engineWorkerClient
+          .rpc('hydrate_v12_360m', {})
+          .then(() => {
+            updateWeightCacheBadge();
+          })
+          .catch(() => {});
+      }
+    },
+    run: () => {
+      if (engineWorkerClient && engineWorkerClient.worker) {
+        engineWorkerClient
+          .rpc('hydrate_v12_360m', {})
+          .then(() => {
+            updateWeightCacheBadge();
+          })
+          .catch(() => {});
+      }
+    },
+  },
+  {
     id: 'clear-terminal',
     category: 'Terminal',
     title: 'Clear Integrated Terminal Log',
@@ -13790,6 +13862,9 @@ function initLayoutAndConnectedControls() {
 initCursorIdeWorkbench();
 
 try {
+  if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.persist === 'function') {
+    navigator.storage.persist().catch(() => false);
+  }
   initLayoutAndConnectedControls();
   registerBrowserTerminalBridgeHooks();
   startHeaderBrainPulseCanvas();

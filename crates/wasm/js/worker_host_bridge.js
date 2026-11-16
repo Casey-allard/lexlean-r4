@@ -1120,24 +1120,42 @@ export async function run_webgpu_v9_fwht64_tmac(xIn, lutIn, rows, groups) {
 
 export async function persist_mvm_cow_sectors_to_opfs() {
   if (wasm === undefined || typeof studio_export_mvm_cow_sectors !== 'function') return false;
-  if (typeof navigator === 'undefined' || !navigator.storage || typeof navigator.storage.getDirectory !== 'function') {
-    return false;
-  }
-  try {
-    const bytes = studio_export_mvm_cow_sectors();
-    if (!bytes || bytes.byteLength < 8) return false;
-    const root = await navigator.storage.getDirectory();
-    const fh = await root.getFileHandle(OPFS_MVM_COW_FILE, { create: true });
-    if (typeof fh.createWritable === 'function') {
-      const w = await fh.createWritable();
-      await w.write(bytes);
-      await w.close();
-      return true;
+  return await withStorageLock(async () => {
+    try {
+      const bytes = studio_export_mvm_cow_sectors();
+      if (!bytes || bytes.byteLength < 16) return false;
+      const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+
+      // Persist in CAS DAG
+      await opfs_put_blob(u8).catch(() => null);
+
+      if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.getDirectory === 'function') {
+        const root = await navigator.storage.getDirectory();
+        const partialName = `${OPFS_MVM_COW_FILE}.partial`;
+        const fh = await root.getFileHandle(partialName, { create: true });
+        if (typeof fh.createWritable === 'function') {
+          const w = await fh.createWritable();
+          await w.write(u8);
+          await w.close();
+          if (typeof fh.move === 'function') {
+            await fh.move(root, OPFS_MVM_COW_FILE);
+          } else if (typeof root.renameEntry === 'function') {
+            await root.renameEntry(partialName, OPFS_MVM_COW_FILE);
+          } else {
+            const finalHandle = await root.getFileHandle(OPFS_MVM_COW_FILE, { create: true });
+            const fw = await finalHandle.createWritable();
+            await fw.write(u8);
+            await fw.close();
+            try { await root.removeEntry(partialName); } catch {}
+          }
+          return true;
+        }
+      }
+    } catch {
+      // OPFS unavailable in private/sandboxed browsing
     }
-  } catch {
-    // OPFS unavailable in private/sandboxed browsing
-  }
-  return false;
+    return false;
+  });
 }
 
 export async function restore_mvm_cow_sectors_from_opfs() {
@@ -1149,7 +1167,7 @@ export async function restore_mvm_cow_sectors_from_opfs() {
     const root = await navigator.storage.getDirectory();
     const fh = await root.getFileHandle(OPFS_MVM_COW_FILE, { create: false });
     const file = await fh.getFile();
-    if (!file || file.size < 8) return null;
+    if (!file || file.size < 16) return null;
     const bytes = new Uint8Array(await file.arrayBuffer());
     return JSON.parse(studio_import_mvm_cow_sectors(bytes));
   } catch {
@@ -1340,11 +1358,447 @@ export async function stream_v9_sharded_weights_via_opfs_worker(onProgress, forc
   return null;
 }
 
+// =========================================================================
+// Foundry FA-20 Commit-Boundary IndexedDB Adapter & Web Locks Coordination
+// =========================================================================
+
+export const UOR_STORAGE_LOCK_NAME = 'uor-r4-storage-lock';
+
+class MemoryLockManager {
+  constructor() {
+    this.activeLocks = new Map();
+    this.waitQueues = new Map();
+  }
+
+  async request(name, optionsOrCallback, maybeCallback) {
+    let mode = 'exclusive';
+    let callback = optionsOrCallback;
+    if (typeof optionsOrCallback === 'object' && optionsOrCallback !== null) {
+      mode = optionsOrCallback.mode || 'exclusive';
+      callback = maybeCallback;
+    }
+    return new Promise((resolve, reject) => {
+      const requestEntry = { mode, callback, resolve, reject };
+      if (!this.waitQueues.has(name)) this.waitQueues.set(name, []);
+      this.waitQueues.get(name).push(requestEntry);
+      this.processQueue(name);
+    });
+  }
+
+  processQueue(name) {
+    const queue = this.waitQueues.get(name);
+    if (!queue || queue.length === 0) return;
+    if (this.activeLocks.has(name)) return;
+    const next = queue.shift();
+    const lockInstance = { name, mode: next.mode };
+    this.activeLocks.set(name, lockInstance);
+    (async () => {
+      try {
+        const result = await next.callback(lockInstance);
+        this.activeLocks.delete(name);
+        next.resolve(result);
+      } catch (err) {
+        this.activeLocks.delete(name);
+        next.reject(err);
+      } finally {
+        this.processQueue(name);
+      }
+    })();
+  }
+}
+
+const fallbackLockManager = new MemoryLockManager();
+
+export async function withStorageLock(callback) {
+  if (typeof navigator !== 'undefined' && navigator.locks && typeof navigator.locks.request === 'function') {
+    return await navigator.locks.request(UOR_STORAGE_LOCK_NAME, { mode: 'exclusive' }, callback);
+  }
+  return await fallbackLockManager.request(UOR_STORAGE_LOCK_NAME, { mode: 'exclusive' }, callback);
+}
+
+/**
+ * Foundry FA-20 commit-boundary adapter:
+ * Executes an operation inside a transaction and resolves STRICTLY upon transaction.oncomplete.
+ * Rejects on transaction.onabort or transaction.onerror with typed 'storageTransactionFailed'.
+ */
+export function storageRequest(db, storeName, mode, operation) {
+  return new Promise((resolve, reject) => {
+    let tx;
+    try {
+      tx = db.transaction([storeName], mode);
+    } catch (err) {
+      const wrapped = new Error(`storageTransactionFailed: ${err && err.message ? err.message : String(err)}`);
+      wrapped.code = 'storageTransactionFailed';
+      wrapped.cause = err;
+      reject(wrapped);
+      return;
+    }
+
+    let operationResult = undefined;
+    let operationError = null;
+    let isSettled = false;
+
+    const failWith = (cause) => {
+      if (isSettled) return;
+      isSettled = true;
+      const msg = cause && cause.message ? cause.message : String(cause || 'Transaction failed');
+      const err = new Error(`storageTransactionFailed: ${msg}`);
+      err.code = 'storageTransactionFailed';
+      err.cause = cause;
+      reject(err);
+    };
+
+    tx.oncomplete = () => {
+      if (isSettled) return;
+      isSettled = true;
+      if (operationError) {
+        const msg = operationError.message || String(operationError);
+        const err = new Error(`storageTransactionFailed: ${msg}`);
+        err.code = 'storageTransactionFailed';
+        err.cause = operationError;
+        reject(err);
+      } else {
+        resolve(operationResult);
+      }
+    };
+
+    tx.onabort = (event) => {
+      const cause = event?.target?.error || event?.error || operationError || new Error('Transaction aborted');
+      failWith(cause);
+    };
+
+    tx.onerror = (event) => {
+      const cause = event?.target?.error || event?.error || operationError || new Error('Transaction failed');
+      failWith(cause);
+    };
+
+    let opReturned = false;
+    let doneCalled = false;
+    let committed = false;
+
+    const commitIfReady = () => {
+      if (committed || isSettled || operationError || !opReturned || !doneCalled) return;
+      if (
+        typeof tx.commit === 'function' &&
+        (tx.state === 'active' || (tx.state === undefined && mode === 'readwrite'))
+      ) {
+        committed = true;
+        tx.commit();
+      }
+    };
+
+    (async () => {
+      try {
+        const store = tx.objectStore(storeName);
+        if (typeof operation === 'function') {
+          if (operation.length >= 2) {
+            const onDone = (res) => {
+              doneCalled = true;
+              operationResult = res;
+              commitIfReady();
+            };
+            const onError = (err) => {
+              operationError = err;
+              try { tx.abort(err); } catch {}
+              if (tx.state === undefined) failWith(err);
+            };
+            const maybePromise = operation(store, onDone, onError);
+            if (maybePromise && typeof maybePromise.then === 'function') {
+              const awaited = await maybePromise;
+              if (!doneCalled) {
+                doneCalled = true;
+                if (awaited !== undefined) operationResult = awaited;
+              }
+            }
+          } else {
+            const req = operation(store);
+            if (req && typeof req.onsuccess !== 'undefined') {
+              await new Promise((resReq, rejReq) => {
+                req.onsuccess = () => {
+                  doneCalled = true;
+                  operationResult = req.result;
+                  resReq(operationResult);
+                };
+                req.onerror = (e) => {
+                  const cause = e?.target?.error || req.error || new Error('IDBRequest failed');
+                  operationError = cause;
+                  try { tx.abort(cause); } catch {}
+                  rejReq(cause);
+                };
+              });
+            } else if (req && typeof req.then === 'function') {
+              operationResult = await req;
+              doneCalled = true;
+            } else {
+              operationResult = req;
+              doneCalled = true;
+            }
+          }
+        } else {
+          doneCalled = true;
+        }
+        opReturned = true;
+        commitIfReady();
+      } catch (err) {
+        operationError = err;
+        try { tx.abort(err); } catch {}
+        if (tx.state === undefined) {
+          failWith(err);
+        }
+      }
+    })();
+  });
+}
+
+// =========================================================================
+// OPFS Content-Addressed Storage Subsystem & Chunked IDB Fallback
+// =========================================================================
+
+export async function sha256Hex(bytes) {
+  const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  if (typeof crypto !== 'undefined' && crypto.subtle && typeof crypto.subtle.digest === 'function') {
+    const hashBuf = await crypto.subtle.digest('SHA-256', u8);
+    const hashArr = Array.from(new Uint8Array(hashBuf));
+    return hashArr.map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  const c = await import('node:crypto');
+  return c.default.createHash('sha256').update(u8).digest('hex');
+}
+
+async function getOpfsBlobsDirectory() {
+  if (typeof navigator === 'undefined' || !navigator.storage || typeof navigator.storage.getDirectory !== 'function') {
+    return null;
+  }
+  try {
+    const root = await navigator.storage.getDirectory();
+    const uorDir = await root.getDirectoryHandle('uor-r4', { create: true });
+    return await uorDir.getDirectoryHandle('blobs', { create: true });
+  } catch {
+    return null;
+  }
+}
+
+const CHUNK_SIZE = 65536; // 64 KB
+const IDB_BLOB_DB = 'UOR_R4_BLOBS';
+
+async function openBlobsDb() {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === 'undefined') return reject(new Error('IndexedDB unavailable'));
+    const req = indexedDB.open(IDB_BLOB_DB, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('manifests')) db.createObjectStore('manifests');
+      if (!db.objectStoreNames.contains('chunks')) db.createObjectStore('chunks');
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function chunkedIdbPutBlob(hash, bytes) {
+  const db = await openBlobsDb();
+  const chunkCount = Math.ceil(bytes.length / CHUNK_SIZE) || 1;
+  const manifest = { hash, totalBytes: bytes.length, chunkCount, chunkSize: CHUNK_SIZE };
+
+  await storageRequest(db, 'manifests', 'readwrite', (store, onDone) => {
+    store.put(manifest, hash);
+    onDone(hash);
+  });
+
+  for (let i = 0; i < chunkCount; i++) {
+    const start = i * CHUNK_SIZE;
+    const slice = bytes.subarray(start, Math.min(start + CHUNK_SIZE, bytes.length));
+    const chunkKey = `${hash}#${i}`;
+    await storageRequest(db, 'chunks', 'readwrite', (store, onDone) => {
+      store.put(slice, chunkKey);
+      onDone(chunkKey);
+    });
+  }
+  db.close();
+  return hash;
+}
+
+async function chunkedIdbGetBlob(expectedHash) {
+  const db = await openBlobsDb();
+  let manifest;
+  try {
+    manifest = await storageRequest(db, 'manifests', 'readonly', (store, onDone, onError) => {
+      const req = store.get(expectedHash);
+      req.onsuccess = () => onDone(req.result);
+      req.onerror = () => onError(req.error);
+    });
+  } catch {
+    manifest = null;
+  }
+
+  if (!manifest) {
+    db.close();
+    const error = new Error(`store.missing: blob ${expectedHash} not found`);
+    error.code = 'store.missing';
+    throw error;
+  }
+
+  const out = new Uint8Array(manifest.totalBytes);
+  for (let i = 0; i < manifest.chunkCount; i++) {
+    const chunkKey = `${expectedHash}#${i}`;
+    const chunkData = await storageRequest(db, 'chunks', 'readonly', (store, onDone, onError) => {
+      const req = store.get(chunkKey);
+      req.onsuccess = () => onDone(req.result);
+      req.onerror = () => onError(req.error);
+    });
+    if (!chunkData) {
+      db.close();
+      const error = new Error(`store.missing: chunk ${chunkKey} missing`);
+      error.code = 'store.missing';
+      throw error;
+    }
+    out.set(chunkData, i * manifest.chunkSize);
+  }
+  db.close();
+
+  const actualHash = await sha256Hex(out);
+  if (actualHash !== expectedHash) {
+    const error = new Error(`store.mismatch: expected ${expectedHash}, computed ${actualHash}`);
+    error.code = 'store.mismatch';
+    error.expected = expectedHash;
+    error.actual = actualHash;
+    throw error;
+  }
+  return out;
+}
+
+export async function opfs_put_blob(bytes) {
+  return await withStorageLock(async () => {
+    const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    const hash = await sha256Hex(u8);
+    const blobsDir = await getOpfsBlobsDirectory();
+
+    if (!blobsDir) {
+      return await chunkedIdbPutBlob(hash, u8);
+    }
+
+    try {
+      const existing = await blobsDir.getFileHandle(hash, { create: false });
+      const f = await existing.getFile();
+      if (f.size === u8.byteLength) return hash;
+    } catch {}
+
+    const partialName = `${hash}.partial`;
+    const partialHandle = await blobsDir.getFileHandle(partialName, { create: true });
+    const writable = await partialHandle.createWritable();
+    await writable.write(u8);
+    await writable.close();
+
+    if (typeof partialHandle.move === 'function') {
+      await partialHandle.move(blobsDir, hash);
+    } else if (typeof blobsDir.renameEntry === 'function') {
+      await blobsDir.renameEntry(partialName, hash);
+    } else {
+      const finalHandle = await blobsDir.getFileHandle(hash, { create: true });
+      const fw = await finalHandle.createWritable();
+      await fw.write(u8);
+      await fw.close();
+      try { await blobsDir.removeEntry(partialName); } catch {}
+    }
+    return hash;
+  });
+}
+
+export async function opfs_get_blob(expectedHash) {
+  const blobsDir = await getOpfsBlobsDirectory();
+  if (!blobsDir) {
+    return await chunkedIdbGetBlob(expectedHash);
+  }
+
+  let fileHandle;
+  try {
+    fileHandle = await blobsDir.getFileHandle(expectedHash, { create: false });
+  } catch {
+    const error = new Error(`store.missing: blob ${expectedHash} not found`);
+    error.code = 'store.missing';
+    throw error;
+  }
+
+  const file = await fileHandle.getFile();
+  const arrayBuf = await file.arrayBuffer();
+  const data = new Uint8Array(arrayBuf);
+  const actualHash = await sha256Hex(data);
+
+  if (actualHash !== expectedHash) {
+    const error = new Error(`store.mismatch: expected ${expectedHash}, computed ${actualHash}`);
+    error.code = 'store.mismatch';
+    error.expected = expectedHash;
+    error.actual = actualHash;
+    throw error;
+  }
+  return data;
+}
+
+// =========================================================================
+// SpiralCore AF_VSOCK 16-Byte Binary Framing Helpers
+// =========================================================================
+
+export function encodeSpvsWireFrame(srcCid, dstCid, vsockPort, cl06Spin, e8Orbit, payloadBytes) {
+  const payload = payloadBytes instanceof Uint8Array ? payloadBytes : new Uint8Array(payloadBytes || []);
+  const len = payload.byteLength;
+  const out = new Uint8Array(16 + len);
+  out[0] = 0x53; out[1] = 0x50; out[2] = 0x56; out[3] = 0x53; // "SPVS"
+  out[4] = srcCid & 0xff; out[5] = (srcCid >> 8) & 0xff;
+  out[6] = dstCid & 0xff; out[7] = (dstCid >> 8) & 0xff;
+  out[8] = vsockPort & 0xff; out[9] = (vsockPort >> 8) & 0xff;
+  out[10] = cl06Spin & 0x3f;
+  out[11] = e8Orbit & 0x0f;
+  out[12] = len & 0xff; out[13] = (len >> 8) & 0xff;
+  out[14] = (len >> 16) & 0xff; out[15] = (len >> 24) & 0xff;
+  out.set(payload, 16);
+  return out;
+}
+
+export function decodeSpvsWireFrame(bytes) {
+  if (!bytes || bytes.byteLength < 16) return null;
+  const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  if (u8[0] !== 0x53 || u8[1] !== 0x50 || u8[2] !== 0x56 || u8[3] !== 0x53) return null;
+  const srcCid = u8[4] | (u8[5] << 8);
+  const dstCid = u8[6] | (u8[7] << 8);
+  const vsockPort = u8[8] | (u8[9] << 8);
+  const cl06Spin = u8[10];
+  const e8Orbit = u8[11];
+  const payloadLen = (u8[12] | (u8[13] << 8) | (u8[14] << 16) | (u8[15] << 24)) >>> 0;
+  if (u8.byteLength < 16 + payloadLen) return null;
+  return {
+    magic: 'SPVS',
+    src_cid: srcCid,
+    dst_cid: dstCid,
+    vsock_port: vsockPort,
+    cl06_spin: cl06Spin,
+    e8_orbit: e8Orbit,
+    payload_len: payloadLen,
+    payload: u8.subarray(16, 16 + payloadLen),
+  };
+}
+
 // === UOR_CUSTOM_SECTION_1_END ===
 
 // === UOR_CUSTOM_SECTION_2_START ===
 const OPFS_V10_WEIGHT_FILE = 'uor_r4_gllm_v10_weights.bin';
 const OPFS_V10_META_FILE = 'uor_r4_gllm_v10_meta.json';
+const OPFS_V12_360M_WEIGHT_FILE = 'uor_r4_gllm_v12_360m_weights.bin';
+const OPFS_V12_360M_META_FILE = 'uor_r4_gllm_v12_360m_meta.json';
+
+async function __uorRequestPersistentStorage() {
+  try {
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.storage &&
+      typeof navigator.storage.persist === 'function'
+    ) {
+      return Boolean(await navigator.storage.persist());
+    }
+  } catch {
+    // Storage persistence optional in constrained contexts
+  }
+  return false;
+}
 const DEFAULT_SPIRALCORE_RELAY_WS_URL = 'wss://lexlean-r4-spiralcore-relay.swarm-relay-cloud-8d31a122.workers.dev/spvs';
 const DEFAULT_SPIRALCORE_RELAY_HTTP_URL = 'https://lexlean-r4-spiralcore-relay.swarm-relay-cloud-8d31a122.workers.dev/spvs';
 const LOCAL_SPIRALCORE_RELAY_WS_URL = 'ws://127.0.0.1:8787/spvs';
@@ -1623,6 +2077,9 @@ export class SpiralCoreHostBridge {
   }
 
   async tryRelayRpc(op, params) {
+    if (!this.relayUrl && !this.relayHttpUrl) {
+      return null;
+    }
     const serializedCheck = JSON.stringify(params || {});
     if (serializedCheck.includes('{{MVM_SECRET:')) {
       return null;
@@ -1631,14 +2088,19 @@ export class SpiralCoreHostBridge {
       spvs_magic: 'SPVS',
       src_cid: 3,
       dst_cid: 2,
+      vsock_port: 5257,
       policy: this.mcpPolicy,
       op,
       params: params || {},
     };
 
-    if (typeof WebSocket === 'function' && this.relayUrl) {
-      const candidateUrls = [this.relayUrl];
-      for (const wsUrl of candidateUrls) {
+    if (typeof WebSocket === 'function') {
+      const candidateWsUrls = [];
+      if (this.relayUrl) candidateWsUrls.push(this.relayUrl);
+      if (!candidateWsUrls.includes(LOCAL_SPIRALCORE_RELAY_WS_URL)) {
+        candidateWsUrls.push(LOCAL_SPIRALCORE_RELAY_WS_URL);
+      }
+      for (const wsUrl of candidateWsUrls) {
         const valid = this.validateTransportUrl(wsUrl, true);
         if (!valid.ok) continue;
         try {
@@ -1648,30 +2110,48 @@ export class SpiralCoreHostBridge {
             return result;
           }
         } catch {
-          // Try HTTPS POST relay or direct-HTTPS fallback next
+          // Try next WS or HTTPS POST relay
         }
       }
     }
 
-    if (this.relayUrl === DEFAULT_SPIRALCORE_RELAY_WS_URL && typeof fetch === 'function') {
-      try {
-        const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-        const timer = ctrl ? setTimeout(() => ctrl.abort(), this.relayTimeoutMs) : null;
-        const reqId = `spvs-http-${Date.now()}-${this.#nextReqSeq++}`;
-        const resp = await fetch(DEFAULT_SPIRALCORE_RELAY_HTTP_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ req_id: reqId, ...rpcBody }),
-          signal: ctrl ? ctrl.signal : undefined,
-        });
-        if (timer) clearTimeout(timer);
-        const parsed = await resp.json();
-        if (parsed && typeof parsed.ok === 'boolean') {
-          this.lastTransportMode = 'spvs-cloud-https';
-          return parsed;
+    if (typeof fetch === 'function') {
+      const candidateHttpUrls = [];
+      if (this.relayHttpUrl) candidateHttpUrls.push(this.relayHttpUrl);
+      if (this.relayUrl) {
+        if (this.relayUrl.startsWith('wss://')) {
+          candidateHttpUrls.push('https://' + this.relayUrl.slice(6));
+        } else if (this.relayUrl.startsWith('ws://127.0.0.1')) {
+          candidateHttpUrls.push('http://127.0.0.1' + this.relayUrl.slice(14));
         }
-      } catch {
-        // Fall through to direct-HTTPS fallback
+      }
+      if (!candidateHttpUrls.includes(DEFAULT_SPIRALCORE_RELAY_HTTP_URL)) {
+        candidateHttpUrls.push(DEFAULT_SPIRALCORE_RELAY_HTTP_URL);
+      }
+      if (!candidateHttpUrls.includes('http://127.0.0.1:8787/spvs')) {
+        candidateHttpUrls.push('http://127.0.0.1:8787/spvs');
+      }
+
+      for (const httpUrl of candidateHttpUrls) {
+        try {
+          const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+          const timer = ctrl ? setTimeout(() => ctrl.abort(), this.relayTimeoutMs) : null;
+          const reqId = `spvs-http-${Date.now()}-${this.#nextReqSeq++}`;
+          const resp = await this.#fetchImpl(httpUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ req_id: reqId, ...rpcBody }),
+            signal: ctrl ? ctrl.signal : undefined,
+          });
+          if (timer) clearTimeout(timer);
+          const parsed = await resp.json();
+          if (parsed && typeof parsed.ok === 'boolean') {
+            this.lastTransportMode = httpUrl.includes('127.0.0.1') ? 'spvs-local-http' : 'spvs-cloud-https';
+            return parsed;
+          }
+        } catch {
+          // Try next HTTP candidate
+        }
       }
     }
     return null;
@@ -1962,7 +2442,7 @@ export class SpiralCoreHostBridge {
     }
 
     try {
-      const resp = await fetch(finalValid.url.href, {
+      const resp = await this.#fetchImpl(finalValid.url.href, {
         method: String(req.method || 'GET').toUpperCase(),
         headers: headerSub.headers,
         body: bodyPayload,
@@ -3557,6 +4037,7 @@ export async function stitch_fetch_with_parity_recovery({
         .map((u) => (u.endsWith('/') ? u : `${u}/`))
     )
   );
+  const orderedBases = [...sourceBases];
 
   let verifiedStitch = null;
   if (stitchManifest) {
@@ -3585,7 +4066,9 @@ export async function stitch_fetch_with_parity_recovery({
   }
 
   const fetchVerifiedShard = async (fileName, expectedLength, expectedSha256, failures) => {
-    for (const originBase of sourceBases) {
+    const candidateBases = [...orderedBases];
+    for (let bi = 0; bi < candidateBases.length; bi++) {
+      const originBase = candidateBases[bi];
       const url = `${originBase}${fileName}`;
       try {
         const resp = await fetchImpl(url);
@@ -3606,6 +4089,11 @@ export async function stitch_fetch_with_parity_recovery({
             continue;
           }
         }
+        const idxNow = orderedBases.indexOf(originBase);
+        if (idxNow > 0) {
+          orderedBases.splice(idxNow, 1);
+          orderedBases.unshift(originBase);
+        }
         return { bytes, source: originBase };
       } catch (err) {
         failures.push(`${url}: ${err && err.message ? err.message : String(err)}`);
@@ -3619,12 +4107,15 @@ export async function stitch_fetch_with_parity_recovery({
   const fetchedMap = new Map();
   const failedSources = [];
   const healedShards = [];
+  const healedFiles = new Set();
   const sourcesUsed = new Set();
+  let completedCount = 0;
+  let completedBytes = 0;
 
-  for (let i = 0; i < manifest.shards.length; i++) {
-    const s = manifest.shards[i];
-    const hit = fetchedMap.get(s.file)
-      ? { bytes: fetchedMap.get(s.file), source: normalizedBase }
+  const hydrateOneShard = async (s) => {
+    const existing = fetchedMap.get(s.file);
+    const hit = existing
+      ? { bytes: existing, source: normalizedBase }
       : await fetchVerifiedShard(s.file, s.byte_length, s.sha256, failedSources);
     let shardBytes = hit ? hit.bytes : null;
     if (hit) {
@@ -3677,23 +4168,38 @@ export async function stitch_fetch_with_parity_recovery({
         throw new Error(`Recovered shard SHA-256 mismatch on ${s.file}`);
       }
       fetchedMap.set(s.file, shardBytes);
-      healedShards.push({
-        file: s.file,
-        group: group.group_index,
-        parityFile: group.parity.file,
-        recoveredSha256: recoveredSha,
-      });
+      if (!healedFiles.has(s.file)) {
+        healedFiles.add(s.file);
+        healedShards.push({
+          file: s.file,
+          group: group.group_index,
+          parityFile: group.parity.file,
+          recoveredSha256: recoveredSha,
+        });
+      }
     }
 
     fullBuf.set(shardBytes, s.byte_offset);
+    completedCount += 1;
+    completedBytes += s.byte_length >>> 0;
     if (typeof onProgress === 'function') {
       onProgress({
-        index: i + 1,
+        index: completedCount,
         total: manifest.shards.length,
-        bytes: s.byte_offset + s.byte_length,
+        bytes: Math.min(totalBytes, completedBytes),
         totalBytes,
         healedCount: healedShards.length,
       });
+    }
+  };
+
+  if (manifest.shards.length > 0) {
+    // Probe/warm shard 0 first so a working mirror is promoted to orderedBases[0] before parallel batches
+    await hydrateOneShard(manifest.shards[0]);
+    const batchSize = 6;
+    for (let i = 1; i < manifest.shards.length; i += batchSize) {
+      const slice = manifest.shards.slice(i, Math.min(i + batchSize, manifest.shards.length));
+      await Promise.all(slice.map((s) => hydrateOneShard(s)));
     }
   }
 
@@ -3714,18 +4220,77 @@ export async function stitch_fetch_with_parity_recovery({
   return { fullBuf, stitchHealth };
 }
 
-export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload = false) {
+export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload = false, modelTier = 'auto') {
   if (wasm === undefined || typeof studio_load_uorgllm_v9_bytes !== 'function') return null;
   const httpOrigin =
     typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
       ? location.origin.replace(/\/+$/, '')
       : '';
-  const manifestCandidates = [
-    new URL('weights/v10/manifest.json', import.meta.url).href,
-    new URL('../gpu/weights/v10/manifest.json', import.meta.url).href,
-    new URL('weights/v9/manifest.json', import.meta.url).href,
-    ...(httpOrigin ? [`${httpOrigin}/weights/v10/manifest.json`] : []),
-  ];
+  const hasOpfs =
+    typeof navigator !== 'undefined' &&
+    navigator.storage &&
+    typeof navigator.storage.getDirectory === 'function';
+
+  // Prefer persisted 32L/960D (SmolLM2-360M-Instruct) OPFS container when present unless v10 is forced
+  if (!forceReload && hasOpfs && modelTier !== 'v10' && typeof studio_mount_r4_v12_bytes === 'function') {
+    try {
+      const root = await navigator.storage.getDirectory();
+      const mfh360 = await root.getFileHandle(OPFS_V12_360M_META_FILE, { create: false });
+      const meta360 = JSON.parse(await (await mfh360.getFile()).text());
+      const wfh360 = await root.getFileHandle(OPFS_V12_360M_WEIGHT_FILE, { create: false });
+      const bytes360 = new Uint8Array(await (await wfh360.getFile()).arrayBuffer());
+      if (bytes360.byteLength >= 64) {
+        const loaded360 = JSON.parse(studio_mount_r4_v12_bytes(bytes360));
+        if (loaded360 && loaded360.status === 'ok') {
+          const fmtLabel = loaded360.format || 'UORR4V12';
+          const statusStr = `OPFS ${fmtLabel} (${loaded360.n_layers}L ${loaded360.d_model}D)`;
+          const stitchHealth = {
+            scheme: 'stitch/xor-2-of-3/1',
+            custodyMode: 'OPFS SHA-256 Verified (360M)',
+            totalShards: Number(meta360 && meta360.totalShards) || 0,
+            verifiedShards: Number(meta360 && meta360.totalShards) || 0,
+            healedShards: 0,
+            healedDetails: [],
+            failedSources: [],
+            mirrorsConfigured: ['opfs://local-cache'],
+            activeSources: ['opfs://local-cache'],
+            status: 'Healthy (OPFS 360M Cached)',
+            updatedAt: new Date().toISOString(),
+          };
+          globalThis.__uorStitchHealth = stitchHealth;
+          globalThis.__uorGllmV9Meta = {
+            status: statusStr,
+            format: fmtLabel,
+            tier: loaded360.active_tier || 'Full32LRecompiled',
+            sha256: (meta360 && meta360.sha256) || '',
+            mode: 'opfs-r4v12-360m-cached',
+            stitchHealth,
+          };
+          return loaded360;
+        }
+      }
+    } catch {
+      // Fall through to requested manifest or v10 hydration
+    }
+  }
+
+  const requested360m = modelTier === 'v12_360m';
+  const weightFileName = requested360m ? OPFS_V12_360M_WEIGHT_FILE : OPFS_V10_WEIGHT_FILE;
+  const metaFileName = requested360m ? OPFS_V12_360M_META_FILE : OPFS_V10_META_FILE;
+  const manifestCandidates = requested360m
+    ? [
+        new URL('weights/v12_360m/manifest.json', import.meta.url).href,
+        new URL('../gpu/weights/v12_360m/manifest.json', import.meta.url).href,
+        ...(httpOrigin ? [`${httpOrigin}/weights/v12_360m/manifest.json`] : []),
+        'https://raw.githubusercontent.com/Casey-allard/lexlean-r4/main/gpu/weights/v12_360m/manifest.json',
+      ]
+    : [
+        new URL('weights/v10/manifest.json', import.meta.url).href,
+        new URL('../gpu/weights/v10/manifest.json', import.meta.url).href,
+        new URL('weights/v9/manifest.json', import.meta.url).href,
+        ...(httpOrigin ? [`${httpOrigin}/weights/v10/manifest.json`] : []),
+        'https://raw.githubusercontent.com/Casey-allard/lexlean-r4/main/gpu/weights/v10/manifest.json',
+      ];
 
   let manifest = null;
   let baseUrl = '';
@@ -3745,13 +4310,8 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
     }
   }
 
-  const hasOpfs =
-    typeof navigator !== 'undefined' &&
-    navigator.storage &&
-    typeof navigator.storage.getDirectory === 'function';
-
   if (!manifest) {
-    return restore_gllm_v9_from_opfs('');
+    return requested360m ? null : restore_gllm_v9_from_opfs('');
   }
 
   let stitchManifest = null;
@@ -3771,13 +4331,13 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
   if (!forceReload && hasOpfs && expectedSha) {
     try {
       const root = await navigator.storage.getDirectory();
-      const mfh = await root.getFileHandle(OPFS_V10_META_FILE, { create: false });
+      const mfh = await root.getFileHandle(metaFileName, { create: false });
       const meta = JSON.parse(await (await mfh.getFile()).text());
       if (meta && meta.sha256 === expectedSha && (!meta.format || meta.format === manifest.format)) {
-        const wfh = await root.getFileHandle(OPFS_V10_WEIGHT_FILE, { create: false });
+        const wfh = await root.getFileHandle(weightFileName, { create: false });
         const bytes = new Uint8Array(await (await wfh.getFile()).arrayBuffer());
         const isR4V12 = manifest.format === 'UORR4V12' || (bytes.byteLength >= 8 && cachedTextDecoder.decode(bytes.subarray(0, 8)) === 'UORR4V12');
-        const loadLabel = isR4V12 ? 'opfs_cached_r4_v12_30L_576D' : 'opfs_cached_v10_16L_256D';
+        const loadLabel = isR4V12 ? 'opfs_cached_r4_v12_recompiled' : 'opfs_cached_v10_16L_256D';
         const rawLoaded = (isR4V12 && typeof studio_mount_r4_v12_bytes === 'function')
           ? studio_mount_r4_v12_bytes(bytes)
           : studio_load_uorgllm_v9_bytes(bytes, loadLabel);
@@ -3802,9 +4362,9 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
           globalThis.__uorGllmV9Meta = {
             status: statusStr,
             format: fmtLabel,
-            tier: loaded.active_tier || (isR4V12 ? 'Full30LRecompiled' : 'LegacyV9'),
+            tier: loaded.active_tier || (isR4V12 ? 'FullRecompiled' : 'LegacyV9'),
             sha256: expectedSha,
-            mode: isR4V12 ? 'opfs-r4v12-cached' : 'opfs-v10-cached',
+            mode: requested360m ? 'opfs-r4v12-360m-cached' : (isR4V12 ? 'opfs-r4v12-cached' : 'opfs-v10-cached'),
             stitchHealth,
           };
           return loaded;
@@ -3837,7 +4397,7 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
   if (hasOpfs) {
     try {
       const root = await navigator.storage.getDirectory();
-      const fh = await root.getFileHandle(OPFS_V10_WEIGHT_FILE, { create: true });
+      const fh = await root.getFileHandle(weightFileName, { create: true });
       if (typeof fh.createSyncAccessHandle === 'function') {
         const sh = await fh.createSyncAccessHandle();
         sh.truncate(totalBytes);
@@ -3849,8 +4409,15 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
         await w.write(fullBuf);
         await w.close();
       }
-      const mfh = await root.getFileHandle(OPFS_V10_META_FILE, { create: true });
-      const metaBytes = cachedTextEncoder.encode(JSON.stringify({ sha256: fullSha, totalBytes, format: manifest.format || 'UORR4V12' }));
+      const mfh = await root.getFileHandle(metaFileName, { create: true });
+      const metaBytes = cachedTextEncoder.encode(
+        JSON.stringify({
+          sha256: fullSha,
+          totalBytes,
+          totalShards: manifest.shards.length,
+          format: manifest.format || 'UORR4V12',
+        })
+      );
       if (typeof mfh.createSyncAccessHandle === 'function') {
         const msh = await mfh.createSyncAccessHandle();
         msh.truncate(metaBytes.byteLength);
@@ -3868,7 +4435,7 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
   }
 
   const isStreamedR4V12 = manifest.format === 'UORR4V12' || (fullBuf.byteLength >= 8 && cachedTextDecoder.decode(fullBuf.subarray(0, 8)) === 'UORR4V12');
-  const streamLabel = isStreamedR4V12 ? 'opfs_streamed_r4_v12_30L_576D' : 'opfs_streamed_v10_16L_256D';
+  const streamLabel = isStreamedR4V12 ? 'opfs_streamed_r4_v12_recompiled' : 'opfs_streamed_v10_16L_256D';
   const rawParsed = (isStreamedR4V12 && typeof studio_mount_r4_v12_bytes === 'function')
     ? studio_mount_r4_v12_bytes(fullBuf)
     : studio_load_uorgllm_v9_bytes(fullBuf, streamLabel);
@@ -3878,9 +4445,10 @@ export async function stream_v10_sharded_weights_to_opfs(onProgress, forceReload
     globalThis.__uorGllmV9Meta = {
       status: `OPFS ${fmtLabel} (${parsed.n_layers}L ${parsed.d_model}D)`,
       format: fmtLabel,
-      tier: parsed.active_tier || (isStreamedR4V12 ? 'Full30LRecompiled' : 'LegacyV9'),
+      tier: parsed.active_tier || (isStreamedR4V12 ? 'FullRecompiled' : 'LegacyV9'),
       sha256: fullSha,
-      mode: isStreamedR4V12 ? 'opfs-r4v12-streamed' : 'opfs-v10-streamed',
+      mode: requested360m ? 'opfs-r4v12-360m-streamed' : (isStreamedR4V12 ? 'opfs-r4v12-streamed' : 'opfs-v10-streamed'),
+      stitchHealth,
     };
     return parsed;
   }
@@ -3942,16 +4510,22 @@ function __uorStartDedicatedEngineWorker() {
   const postEvent = (event, data = {}) => {
     self.postMessage({ event, ...data });
   };
+  globalThis.__uorEmitChatDelta = (textChunk, step = 0) => {
+    const chunk = String(textChunk || '');
+    if (chunk.length > 0) {
+      postEvent('chat_stream_delta', { text: chunk, step: Number(step) || 0 });
+    }
+  };
 
-  const startOrAwaitOpfsShardHydration = (forceReload = false) => {
-    if (activeHydrationPromise && !forceReload) {
+  const startOrAwaitOpfsShardHydration = (forceReload = false, modelTier = 'auto') => {
+    if (activeHydrationPromise && !forceReload && modelTier === 'auto') {
       return activeHydrationPromise;
     }
     const run = stream_v10_sharded_weights_to_opfs((prog) => {
       lastHydrationProgress = { stage: 'r4_shards', ...prog };
       postEvent('boot_progress', lastHydrationProgress);
       postEvent('hydration_progress', lastHydrationProgress);
-    }, forceReload)
+    }, forceReload, modelTier)
       .then((v10Info) => {
         postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
         if (v10Info) {
@@ -4247,8 +4821,9 @@ function __uorStartDedicatedEngineWorker() {
         });
         return;
       }
-      if (op === 'sync_weights') {
-        const v10 = await startOrAwaitOpfsShardHydration(true);
+      if (op === 'sync_weights' || op === 'hydrate_v12_360m' || op === 'hydrate_360m') {
+        const tierArg = op === 'sync_weights' ? 'auto' : 'v12_360m';
+        const v10 = await startOrAwaitOpfsShardHydration(true, tierArg);
         const lut = await sync_cached_weights((prog) => {
           postEvent('boot_progress', { stage: 'uorlut_sync', ...prog });
         });
@@ -4374,6 +4949,7 @@ function __uorStartDedicatedEngineWorker() {
     if (bootPromise) return bootPromise;
     bootPromise = (async () => {
       postEvent('boot_progress', { stage: 'wasm_compile', label: 'Compiling UOR-R4 Wasm engine...' });
+      __uorRequestPersistentStorage();
       await __wbg_init();
       await restore_cached_uorlut_from_indexeddb().catch(() => null);
       await restore_mvm_cow_sectors_from_opfs().catch(() => null);
@@ -4717,6 +5293,18 @@ if (typeof globalThis === 'object' && globalThis) {
     admitUorcGenerationCapsule: admit_uorc_generation_capsule,
     recordUorcGenerationFault: record_uorc_generation_fault,
     queryVerdantSynthesisStatus: query_verdant_synthesis_status,
+  };
+
+  globalThis.LexLean = {
+    ...(globalThis.LexLean || {}),
+    opfs_put_blob,
+    opfs_get_blob,
+    storageRequest,
+    withStorageLock,
+    encodeSpvsWireFrame,
+    decodeSpvsWireFrame,
+    persist_mvm_cow_sectors_to_opfs,
+    restore_mvm_cow_sectors_from_opfs,
   };
 }
 

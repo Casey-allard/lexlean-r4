@@ -16,7 +16,7 @@ use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 use std::fmt;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 
 /// Binary container magic bytes (`UORR4V12`).
 pub const R4_VEC_MAGIC: &[u8; 8] = b"UORR4V12";
@@ -218,7 +218,7 @@ struct PackedMatrix {
     rows: u32,
     cols: u32,
     use_rht32: u8,
-    rht_seed: u64,
+    rht_signs: Vec<bool>,
     row_exp_base: Vec<i8>,
     row_min_de: Vec<u8>,
     nibbles: Vec<u8>,
@@ -298,6 +298,7 @@ fn take_bytes<'a>(bytes: &'a [u8], cur: &mut usize, n: usize) -> Result<&'a [u8]
     Ok(slice)
 }
 
+/// Formal R4.GeometricStack little-endian unsigned byte reader.
 #[inline]
 fn read_u8(bytes: &[u8], cur: &mut usize) -> Result<u8, R4StackError> {
     Ok(take_bytes(bytes, cur, 1)?[0])
@@ -366,11 +367,16 @@ fn read_packed_matrix(
         .ok_or(R4StackError::TruncatedContainer)?;
     let nibbles = take_bytes(bytes, cur, nib_len)?.to_vec();
     let scales = take_bytes(bytes, cur, sc_len)?.to_vec();
+    let rht_signs = if use_rht32 != 0 {
+        rht_signs_bits(exp_cols, rht_seed)
+    } else {
+        Vec::new()
+    };
     Ok(PackedMatrix {
         rows,
         cols,
         use_rht32,
-        rht_seed,
+        rht_signs,
         row_exp_base,
         row_min_de,
         nibbles,
@@ -1232,6 +1238,7 @@ fn int_quantize16(src: &[i64], src_exp: i32, out: &mut [i16]) -> i32 {
     src_exp + sh
 }
 
+/// Formal R4.GeometricStack signed 4-bit activation multiple precomputation.
 fn int_activation_tables(x: &[i16], tables: &mut [[i32; 16]]) {
     for (slot, &v) in tables.iter_mut().zip(x) {
         let xv = i32::from(v);
@@ -1243,6 +1250,7 @@ fn int_activation_tables(x: &[i16], tables: &mut [[i32; 16]]) {
     }
 }
 
+/// Formal R4.GeometricStack 256-entry nibble-pair LUT builder.
 fn int_pair_tables(tables: &[[i32; 16]], pairs: &mut [[i32; 256]]) {
     for (pair, cols) in pairs.iter_mut().zip(tables.chunks_exact(2)) {
         let (even, odd) = (&cols[0], &cols[1]);
@@ -1254,6 +1262,7 @@ fn int_pair_tables(tables: &[[i32; 16]], pairs: &mut [[i32; 256]]) {
     }
 }
 
+/// Formal R4.GeometricStack L1-tiled nibble-pair LUT matrix-vector product.
 #[allow(clippy::too_many_arguments)]
 fn int_gemv_pairs(
     m: &PackedMatrix,
@@ -1265,11 +1274,12 @@ fn int_gemv_pairs(
     pairs: &mut [[i32; 256]],
     out: &mut [i32],
 ) -> u64 {
+    const ROW_BLOCK: usize = 256;
+    const GROUP_TILE: usize = 2;
     let cols = m.cols as usize;
     scratch_rht[..cols].copy_from_slice(&norm_in[..cols]);
     if m.use_rht32 != 0 {
-        let signs = rht_signs_bits(cols, m.rht_seed);
-        for (v, s) in scratch_rht[..cols].iter_mut().zip(signs) {
+        for (v, &s) in scratch_rht[..cols].iter_mut().zip(&m.rht_signs) {
             if !s {
                 *v = v.saturating_neg();
             }
@@ -1285,30 +1295,65 @@ fn int_gemv_pairs(
     int_pair_tables(&tables[..cols], &mut pairs[..row_bytes]);
     let groups = cols >> 5;
     let rows = m.rows as usize;
-    for (r, out_slot) in out.iter_mut().enumerate().take(rows) {
-        let nibs = &m.nibbles[r * row_bytes..(r + 1) * row_bytes];
-        let scs = &m.scales[r * groups..(r + 1) * groups];
-        let min_de = m.row_min_de[r];
-        let eb = i32::from(m.row_exp_base[r]);
-        let mut acc = 0i64;
-        for ((bytes, tbls), &s) in nibs
-            .chunks_exact(16)
-            .zip(pairs[..row_bytes].chunks_exact(16))
-            .zip(scs)
-        {
-            let mut a = 0i32;
-            for k in 0..16 {
-                a = a.wrapping_add(tbls[k][usize::from(bytes[k])]);
+    let mut r_block = 0usize;
+    while r_block < rows {
+        let r_end = (r_block + ROW_BLOCK).min(rows);
+        let blk_len = r_end - r_block;
+        let mut block_acc = [0i64; ROW_BLOCK];
+        let mut g_start = 0usize;
+        while g_start < groups {
+            let g_end = (g_start + GROUP_TILE).min(groups);
+            let pair_tile = &pairs[g_start * 16..g_end * 16];
+            for (r_off, acc_slot) in block_acc[..blk_len].iter_mut().enumerate() {
+                let r = r_block + r_off;
+                let min_de = m.row_min_de[r];
+                let nib_off = r * row_bytes + g_start * 16;
+                let nibs = &m.nibbles[nib_off..nib_off + (g_end - g_start) * 16];
+                let scs = &m.scales[r * groups + g_start..r * groups + g_end];
+                let mut acc = *acc_slot;
+                for ((bytes, tbls), &s) in nibs
+                    .chunks_exact(16)
+                    .zip(pair_tile.chunks_exact(16))
+                    .zip(scs)
+                {
+                    let b16: &[u8; 16] = bytes.try_into().unwrap();
+                    let t16: &[[i32; 256]; 16] = tbls.try_into().unwrap();
+                    let a = t16[0][usize::from(b16[0])]
+                        .wrapping_add(t16[1][usize::from(b16[1])])
+                        .wrapping_add(t16[2][usize::from(b16[2])])
+                        .wrapping_add(t16[3][usize::from(b16[3])])
+                        .wrapping_add(t16[4][usize::from(b16[4])])
+                        .wrapping_add(t16[5][usize::from(b16[5])])
+                        .wrapping_add(t16[6][usize::from(b16[6])])
+                        .wrapping_add(t16[7][usize::from(b16[7])])
+                        .wrapping_add(t16[8][usize::from(b16[8])])
+                        .wrapping_add(t16[9][usize::from(b16[9])])
+                        .wrapping_add(t16[10][usize::from(b16[10])])
+                        .wrapping_add(t16[11][usize::from(b16[11])])
+                        .wrapping_add(t16[12][usize::from(b16[12])])
+                        .wrapping_add(t16[13][usize::from(b16[13])])
+                        .wrapping_add(t16[14][usize::from(b16[14])])
+                        .wrapping_add(t16[15][usize::from(b16[15])]);
+                    let de = (s >> 4).saturating_sub(min_de);
+                    acc = acc.wrapping_add(scale_16_plus(i64::from(a), s & 15) << de);
+                }
+                *acc_slot = acc;
             }
-            let de = (s >> 4).saturating_sub(min_de);
-            acc = acc.wrapping_add(scale_16_plus(i64::from(a), s & 15) << de);
+            g_start = g_end;
         }
-        *out_slot = to_exp_i32(acc, eb + i32::from(min_de) - 4 + x_exp, RESIDUAL_EXP);
+        for (r_off, &acc) in block_acc.iter().enumerate().take(blk_len) {
+            let r = r_block + r_off;
+            let eb = i32::from(m.row_exp_base[r]);
+            let min_de = m.row_min_de[r];
+            out[r] = to_exp_i32(acc, eb + i32::from(min_de) - 4 + x_exp, RESIDUAL_EXP);
+        }
+        r_block = r_end;
     }
     (rows * row_bytes) as u64
 }
 
-fn int_dequant_row(m: &PackedMatrix, row: usize, out: &mut [i32]) {
+/// Formal R4.GeometricStack embedding row dequantization reusing caller scratch space.
+fn int_dequant_row(m: &PackedMatrix, row: usize, out: &mut [i32], wide: &mut [i64]) {
     let cols = m.cols as usize;
     let row_bytes = cols >> 1;
     let groups = cols >> 5;
@@ -1316,7 +1361,6 @@ fn int_dequant_row(m: &PackedMatrix, row: usize, out: &mut [i32]) {
     let scs = &m.scales[row * groups..(row + 1) * groups];
     let eb = i32::from(m.row_exp_base[row]);
     if m.use_rht32 != 0 {
-        let mut wide = vec![0i64; cols];
         for (g, &s) in scs.iter().enumerate().take(groups) {
             let e = eb + i32::from(s >> 4);
             let mant = s & 15;
@@ -1333,12 +1377,11 @@ fn int_dequant_row(m: &PackedMatrix, row: usize, out: &mut [i32]) {
                 wide[col] = shift_round(scaled, NORM_FINE_EXP - (e - 4));
             }
         }
-        for blk in wide.chunks_exact_mut(RHT_BLOCK) {
+        for blk in wide[..cols].chunks_exact_mut(RHT_BLOCK) {
             let arr: &mut [i64; RHT_BLOCK] = blk.try_into().unwrap();
             int_fwht32(arr);
         }
-        let signs = rht_signs_bits(cols, m.rht_seed);
-        for ((dst, &val), sign_pos) in out.iter_mut().zip(&wide).zip(signs) {
+        for ((dst, &val), &sign_pos) in out.iter_mut().zip(&wide[..cols]).zip(&m.rht_signs) {
             let signed_val = if sign_pos { val } else { val.saturating_neg() };
             *dst = shift_round(signed_val, RESIDUAL_EXP - NORM_FINE_EXP)
                 .clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32;
@@ -1623,6 +1666,7 @@ struct ScratchWorkspace {
     up: Vec<i32>,
     swiglu: Vec<i64>,
     q_tables: Vec<[i64; 16]>,
+    selected_pos: Vec<usize>,
     scores: Vec<(usize, i64)>,
     weights: Vec<u64>,
     mix: Vec<i128>,
@@ -1654,12 +1698,37 @@ impl ScratchWorkspace {
             up: vec![0; ffn],
             swiglu: vec![0; ffn],
             q_tables: vec![[0; 16]; hd],
+            selected_pos: Vec::with_capacity(max_s.min(321)),
             scores: Vec::with_capacity(max_s.min(128)),
             weights: Vec::with_capacity(max_s.min(128)),
             mix: vec![0; hd],
             logits: vec![0; m.vocab_size as usize],
         }
     }
+}
+
+#[derive(Clone, Copy)]
+struct StepCheckpoint {
+    pos: usize,
+    q_state: [i16; 4],
+    last_icosian_id: u8,
+    zeta_phase_checksum: u64,
+    nibble_lut_lookups: u64,
+    lorentz_geodesic_evals: u64,
+    flock_attended_positions: usize,
+    flock_total_positions: usize,
+    hamming_xor_copy_hits: usize,
+}
+
+#[derive(Clone)]
+struct PrefixKvCache {
+    model_sha: String,
+    tokens: Vec<u32>,
+    k_caches: Vec<Vec<i32>>,
+    v_caches: Vec<Vec<i32>>,
+    klift_caches: Vec<Vec<u64>>,
+    token_sigs: Vec<[u64; 9]>,
+    checkpoints: Vec<StepCheckpoint>,
 }
 
 struct R4InferenceSession<'a> {
@@ -1669,6 +1738,7 @@ struct R4InferenceSession<'a> {
     v_caches: Vec<Vec<i32>>,
     klift_caches: Vec<Vec<u64>>,
     token_sigs: Vec<[u64; 9]>,
+    checkpoints: Vec<StepCheckpoint>,
     pos: usize,
     q_state: [i16; 4],
     last_icosian_id: u8,
@@ -1694,6 +1764,7 @@ impl<'a> R4InferenceSession<'a> {
             v_caches: vec![vec![0; max_s * kv_dim]; nl],
             klift_caches: vec![vec![0; max_s * nkv]; nl],
             token_sigs: Vec::with_capacity(max_s),
+            checkpoints: Vec::with_capacity(max_s),
             pos: 0,
             q_state: [4096, 0, 0, 0],
             last_icosian_id: 0,
@@ -1706,7 +1777,13 @@ impl<'a> R4InferenceSession<'a> {
         }
     }
 
-    fn select_flock_positions(&self, pos: usize, sig: &[u64; 9], out: &mut Vec<usize>) -> usize {
+    /// Formal R4.GeometricStack Starling Flock sparse position selection.
+    fn select_flock_positions_into(
+        pos: usize,
+        token_sigs: &[[u64; 9]],
+        sig: &[u64; 9],
+        out: &mut Vec<usize>,
+    ) -> usize {
         out.clear();
         // Full exact causal attention up to 320 positions; Starling Flock {sink} u top_k u window thereafter.
         if pos <= 320 {
@@ -1723,8 +1800,7 @@ impl<'a> R4InferenceSession<'a> {
             // Rank mid-context positions [sink_end..win_start) via fast 576-bit SWAR Hamming distance.
             let mut ranked: Vec<(u32, usize)> = (sink_end..win_start)
                 .map(|j| {
-                    let dist = self
-                        .token_sigs
+                    let dist = token_sigs
                         .get(j)
                         .map_or(288, |s| hamming_distance_576(sig, s));
                     (dist, j)
@@ -1753,6 +1829,7 @@ impl<'a> R4InferenceSession<'a> {
         hamming_rescues
     }
 
+    /// Formal R4.GeometricStack pure-integer transformer layer and logits step.
     fn step(&mut self, tok: u32, compute_logits: bool) -> Option<[i16; 8]> {
         let m = self.m;
         let d = m.d_model as usize;
@@ -1775,12 +1852,21 @@ impl<'a> R4InferenceSession<'a> {
             }
         }
 
-        int_dequant_row(&m.embed, tok_idx, &mut self.ws.x);
+        int_dequant_row(
+            &m.embed,
+            tok_idx,
+            &mut self.ws.x,
+            &mut self.ws.scratch_rht[..d],
+        );
         let cos_row = &m.rope_cos_q14[pos * half..(pos + 1) * half];
         let sin_row = &m.rope_sin_q14[pos * half..(pos + 1) * half];
-        let mut selected_pos = Vec::with_capacity(pos.min(72) + 1);
         let cur_sig = self.token_sigs.get(pos).copied().unwrap_or([0u64; 9]);
-        self.hamming_xor_copy_hits += self.select_flock_positions(pos, &cur_sig, &mut selected_pos);
+        self.hamming_xor_copy_hits += Self::select_flock_positions_into(
+            pos,
+            &self.token_sigs,
+            &cur_sig,
+            &mut self.ws.selected_pos,
+        );
 
         for l in 0..m.n_layers as usize {
             let layer = &m.layers[l];
@@ -1859,7 +1945,7 @@ impl<'a> R4InferenceSession<'a> {
                 self.ws.scores.clear();
                 let mut max_s = i64::MIN;
                 let mut best_pos = 0usize;
-                for &j in &selected_pos {
+                for &j in &self.ws.selected_pos {
                     let kj = &self.k_caches[l][j * kv_dim + kh * hd..j * kv_dim + (kh + 1) * hd];
                     let mut dot = 0i128;
                     for (qt, &kv) in self.ws.q_tables.iter().zip(kj) {
@@ -1893,7 +1979,7 @@ impl<'a> R4InferenceSession<'a> {
                     }
                 }
 
-                self.flock_attended_positions += selected_pos.len();
+                self.flock_attended_positions += self.ws.selected_pos.len();
                 self.flock_total_positions += pos + 1;
                 let zphase = u64::from(m.zeta_phase_q29[(l + h) & 7]);
                 self.zeta_phase_checksum = (self
@@ -1990,6 +2076,17 @@ impl<'a> R4InferenceSession<'a> {
             self.pos += 1;
         }
         if !compute_logits {
+            self.checkpoints.push(StepCheckpoint {
+                pos: self.pos,
+                q_state: self.q_state,
+                last_icosian_id: self.last_icosian_id,
+                zeta_phase_checksum: self.zeta_phase_checksum,
+                nibble_lut_lookups: self.nibble_lut_lookups,
+                lorentz_geodesic_evals: self.lorentz_geodesic_evals,
+                flock_attended_positions: self.flock_attended_positions,
+                flock_total_positions: self.flock_total_positions,
+                hamming_xor_copy_hits: self.hamming_xor_copy_hits,
+            });
             return None;
         }
 
@@ -2021,6 +2118,17 @@ impl<'a> R4InferenceSession<'a> {
             &mut self.ws.pairs,
             &mut self.ws.logits,
         );
+        self.checkpoints.push(StepCheckpoint {
+            pos: self.pos,
+            q_state: self.q_state,
+            last_icosian_id: self.last_icosian_id,
+            zeta_phase_checksum: self.zeta_phase_checksum,
+            nibble_lut_lookups: self.nibble_lut_lookups,
+            lorentz_geodesic_evals: self.lorentz_geodesic_evals,
+            flock_attended_positions: self.flock_attended_positions,
+            flock_total_positions: self.flock_total_positions,
+            hamming_xor_copy_hits: self.hamming_xor_copy_hits,
+        });
         Some(frame_8d)
     }
 }
@@ -2030,12 +2138,13 @@ impl<'a> R4InferenceSession<'a> {
 // ============================================================================
 
 /// Pure-integer geometric serving runtime holding the embedded compact seed and optional
-/// mounted full 30-layer SmolLM2 `UORR4V12` container.
+/// mounted full SmolLM2 `UORR4V12` container plus deterministic multi-turn prefix KV cache.
 #[derive(Clone)]
 pub struct R4GeometricStackEngine {
     seed: Arc<R4CompiledModel>,
     full: Option<Arc<R4CompiledModel>>,
     tokenizer: Arc<SmolTokenizer>,
+    prefix_cache: Arc<Mutex<Option<PrefixKvCache>>>,
 }
 
 impl fmt::Debug for R4GeometricStackEngine {
@@ -2064,16 +2173,20 @@ impl R4GeometricStackEngine {
             seed,
             full: None,
             tokenizer: Arc::clone(shared_tokenizer()),
+            prefix_cache: Arc::new(Mutex::new(None)),
         }
     }
 
-    /// Verify and mount a reassembled full 30-layer `UORR4V12` container into memory.
+    /// Verify and mount a reassembled full `UORR4V12` container into memory.
     pub fn mount_full_container_bytes(
         &mut self,
         bytes: &[u8],
     ) -> Result<GeometricStackSummary, R4StackError> {
         let model = Arc::new(parse_uorr4v12(bytes)?);
         self.full = Some(model);
+        if let Ok(mut guard) = self.prefix_cache.lock() {
+            *guard = None;
+        }
         Ok(self.summary())
     }
 
@@ -2142,9 +2255,63 @@ impl R4GeometricStackEngine {
         };
 
         let mut session = R4InferenceSession::new(model);
+        let max_seq = model.max_seq as usize;
+        let nl = model.n_layers as usize;
+        let nkv = model.n_kv_heads as usize;
+        let hd = (model.d_model / model.n_heads) as usize;
+        let kv_dim = nkv * hd;
+        let mut prefill_start = 0usize;
+        if !history.is_empty() && prompt_ids.len() > 1 {
+            if let Ok(guard) = self.prefix_cache.lock() {
+                if let Some(cache) = guard.as_ref() {
+                    if cache.model_sha == model.container_sha256 && !cache.checkpoints.is_empty() {
+                        let common = cache
+                            .tokens
+                            .iter()
+                            .zip(prompt_ids.iter())
+                            .take_while(|(a, b)| a == b)
+                            .count();
+                        let lcp = common
+                            .min(prompt_ids.len().saturating_sub(1))
+                            .min(cache.checkpoints.len())
+                            .min(max_seq.saturating_sub(1));
+                        if lcp >= 8 && cache.checkpoints[lcp - 1].pos == lcp {
+                            let kv_elems = lcp * kv_dim;
+                            let lift_elems = lcp * nkv;
+                            for l in 0..nl {
+                                session.k_caches[l][..kv_elems]
+                                    .copy_from_slice(&cache.k_caches[l][..kv_elems]);
+                                session.v_caches[l][..kv_elems]
+                                    .copy_from_slice(&cache.v_caches[l][..kv_elems]);
+                                session.klift_caches[l][..lift_elems]
+                                    .copy_from_slice(&cache.klift_caches[l][..lift_elems]);
+                            }
+                            session
+                                .token_sigs
+                                .extend_from_slice(&cache.token_sigs[..lcp]);
+                            session
+                                .checkpoints
+                                .extend_from_slice(&cache.checkpoints[..lcp]);
+                            let cp = cache.checkpoints[lcp - 1];
+                            session.pos = cp.pos;
+                            session.q_state = cp.q_state;
+                            session.last_icosian_id = cp.last_icosian_id;
+                            session.zeta_phase_checksum = cp.zeta_phase_checksum;
+                            session.nibble_lut_lookups = cp.nibble_lut_lookups;
+                            session.lorentz_geodesic_evals = cp.lorentz_geodesic_evals;
+                            session.flock_attended_positions = cp.flock_attended_positions;
+                            session.flock_total_positions = cp.flock_total_positions;
+                            session.hamming_xor_copy_hits = cp.hamming_xor_copy_hits;
+                            prefill_start = lcp;
+                        }
+                    }
+                }
+            }
+        }
+
         let mut frames = Vec::new();
         let mut last_step_frame = None;
-        for (idx, &tok) in prompt_ids.iter().enumerate() {
+        for (idx, &tok) in prompt_ids.iter().enumerate().skip(prefill_start) {
             let is_last = idx + 1 == prompt_ids.len();
             last_step_frame = session.step(tok, is_last);
         }
@@ -2179,8 +2346,12 @@ impl R4GeometricStackEngine {
         let mut gen_local = Vec::new();
         let cap = max_new_tokens.clamp(1, 256);
         let mut step_idx = 0usize;
+        #[cfg(target_arch = "wasm32")]
+        let mut emitted_bytes = 0usize;
         while step_idx < cap {
-            let next_tok = pick_next_token(
+            let next_tok = pick_next_token_natural(
+                &self.tokenizer,
+                model,
                 &session.ws.logits,
                 &gen_local,
                 step_idx,
@@ -2196,6 +2367,36 @@ impl R4GeometricStackEngine {
             if let Some(fr) = session.step(next_tok, need_next_logits) {
                 frames.push(fr);
             }
+            #[cfg(target_arch = "wasm32")]
+            {
+                let decoded_now = decode_model_tokens(&self.tokenizer, model, &gen_local);
+                let stop_hit =
+                    decoded_now.contains("<|im_end|>") || decoded_now.contains("<|im_start|>");
+                let safe_end = if let Some(cut) = decoded_now
+                    .find("<|im_end|>")
+                    .or_else(|| decoded_now.find("<|im_start|>"))
+                {
+                    cut
+                } else if let Some(partial) = decoded_now.rfind("<|") {
+                    if decoded_now.len().saturating_sub(partial) <= 12 {
+                        partial
+                    } else {
+                        decoded_now.len()
+                    }
+                } else {
+                    decoded_now.len()
+                };
+                if safe_end > emitted_bytes {
+                    if let Some(delta) = decoded_now.get(emitted_bytes..safe_end) {
+                        emit_wasm_stream_delta(delta, step_idx);
+                        emitted_bytes = safe_end;
+                    }
+                }
+                if stop_hit {
+                    break;
+                }
+            }
+            #[cfg(not(target_arch = "wasm32"))]
             if gen_local.len() >= 6 {
                 let decoded_so_far = decode_model_tokens(&self.tokenizer, model, &gen_local);
                 if decoded_so_far.contains("<|im_end|>") || decoded_so_far.contains("<|im_start|>")
@@ -2214,6 +2415,34 @@ impl R4GeometricStackEngine {
             text.truncate(cut);
         }
         text = text.trim().to_string();
+
+        let total_tok_len = prompt_ids.len() + gen_local.len();
+        if total_tok_len == session.checkpoints.len() && total_tok_len < max_seq {
+            if let Ok(mut guard) = self.prefix_cache.lock() {
+                let mut all_toks = Vec::with_capacity(total_tok_len);
+                all_toks.extend_from_slice(prompt_ids);
+                all_toks.extend_from_slice(&gen_local);
+                let mut k_keep = Vec::with_capacity(nl);
+                let mut v_keep = Vec::with_capacity(nl);
+                let mut kl_keep = Vec::with_capacity(nl);
+                let kv_keep_len = total_tok_len * kv_dim;
+                let lift_keep_len = total_tok_len * nkv;
+                for l in 0..nl {
+                    k_keep.push(session.k_caches[l][..kv_keep_len].to_vec());
+                    v_keep.push(session.v_caches[l][..kv_keep_len].to_vec());
+                    kl_keep.push(session.klift_caches[l][..lift_keep_len].to_vec());
+                }
+                *guard = Some(PrefixKvCache {
+                    model_sha: model.container_sha256.clone(),
+                    tokens: all_toks,
+                    k_caches: k_keep,
+                    v_caches: v_keep,
+                    klift_caches: kl_keep,
+                    token_sigs: session.token_sigs,
+                    checkpoints: session.checkpoints,
+                });
+            }
+        }
 
         let metrics = GeometricTurnMetrics {
             schema: R4_VEC_SCHEMA,
@@ -2237,21 +2466,50 @@ impl R4GeometricStackEngine {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
+/// Formal R4.GeometricStack worker streaming callback into `globalThis.__uorEmitChatDelta`.
+fn emit_wasm_stream_delta(delta: &str, step_idx: usize) {
+    use wasm_bindgen::{JsCast, JsValue};
+    if delta.is_empty() {
+        return;
+    }
+    let global = js_sys::global();
+    if let Ok(val) = js_sys::Reflect::get(&global, &JsValue::from_str("__uorEmitChatDelta")) {
+        if let Some(func) = val.dyn_ref::<js_sys::Function>() {
+            let _ = func.call2(
+                &JsValue::NULL,
+                &JsValue::from_str(delta),
+                &JsValue::from(step_idx as u32),
+            );
+        }
+    }
+}
+
+/// Formal R4.GeometricStack ChatML multi-turn prompt formatter.
 fn format_chatml_prompt(
     prompt: &str,
     history: &[(String, String)],
     mode: SelectedExecutionMode,
 ) -> String {
+    let low = prompt.to_ascii_lowercase();
+    let wants_agent_tools = prompt.contains("[agent_mode]")
+        || prompt.contains("<tool_response>")
+        || prompt.contains("<observation>")
+        || prompt.contains("<tools>")
+        || low.contains("mvm_exec")
+        || low.contains("mvm")
+        || low.contains("shell command")
+        || low.contains("workspace");
     let sys = match mode {
-        SelectedExecutionMode::RecompiledAgent => {
+        SelectedExecutionMode::RecompiledAgent if wants_agent_tools => {
             "You are UOR-R4 Agent running on SmolLM2. Use <tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"...\"}}</tool_call> when workspace shell commands help, then answer concisely."
         }
-        SelectedExecutionMode::RecompiledChat | SelectedExecutionMode::EmbeddedSeedFast => {
+        SelectedExecutionMode::RecompiledAgent
+        | SelectedExecutionMode::RecompiledChat
+        | SelectedExecutionMode::EmbeddedSeedFast => {
             "You are a helpful AI assistant named SmolLM, trained by Hugging Face"
         }
-        SelectedExecutionMode::SymbolicLutMvm => {
-            "You are a helpful AI assistant."
-        }
+        SelectedExecutionMode::SymbolicLutMvm => "You are a helpful AI assistant.",
     };
     let mut s = String::with_capacity(prompt.len() + 256);
     s.push_str("<|im_start|>system\n");
@@ -2271,6 +2529,106 @@ fn format_chatml_prompt(
     s
 }
 
+/// Formal R4.GeometricStack syntax-safe token selector preserving punctuation, digits, and spacing.
+#[allow(clippy::too_many_arguments)]
+fn pick_next_token_natural(
+    tokenizer: &SmolTokenizer,
+    model: &R4CompiledModel,
+    logits: &[i32],
+    generated: &[u32],
+    step_idx: usize,
+    eos_local: u32,
+    bos_local: u32,
+    eot_local: u32,
+) -> u32 {
+    if logits.is_empty() {
+        return eos_local;
+    }
+    let mut scores: Vec<i64> = logits.iter().map(|&v| i64::from(v)).collect();
+
+    // Pure-integer syntax-safe gentle repeat penalty over recent lexical tokens (`<= 49_152` Q16).
+    let recent_start = generated.len().saturating_sub(40);
+    let mut counts: HashMap<u32, u32> = HashMap::new();
+    for &prev in &generated[recent_start..] {
+        *counts.entry(prev).or_insert(0) += 1;
+    }
+    for (tok, cnt) in counts {
+        if cnt < 2 {
+            continue;
+        }
+        let slot = tok as usize;
+        if slot >= scores.len() {
+            continue;
+        }
+        let piece = decode_model_tokens(tokenizer, model, &[tok]);
+        let is_syntactic = piece.is_empty()
+            || piece
+                .chars()
+                .all(|c| c.is_ascii_punctuation() || c.is_ascii_whitespace() || c.is_ascii_digit());
+        if !is_syntactic {
+            let penalty = i64::from((cnt - 1).min(3)) * 16_384;
+            scores[slot] = scores[slot].saturating_sub(penalty);
+        }
+    }
+
+    // Block >= 3 consecutive identical non-whitespace tokens and repeated 4-gram cycles.
+    let n = generated.len();
+    if n >= 3 && generated[n - 1] == generated[n - 2] && generated[n - 2] == generated[n - 3] {
+        let rep = generated[n - 1];
+        let piece = decode_model_tokens(tokenizer, model, &[rep]);
+        if !piece.trim().is_empty() {
+            let slot = rep as usize;
+            if slot < scores.len() {
+                scores[slot] = i64::MIN;
+            }
+        }
+    }
+    if n >= 4 {
+        let p0 = generated[n - 3];
+        let p1 = generated[n - 2];
+        let p2 = generated[n - 1];
+        for w in generated.windows(4) {
+            if w[0] == p0 && w[1] == p1 && w[2] == p2 {
+                let blk = w[3] as usize;
+                if blk < scores.len() {
+                    scores[blk] = i64::MIN;
+                }
+            }
+        }
+    }
+
+    // Keep BOS suppressed while allowing natural EOS/EOT completion unpenalized after step 0.
+    let bos = bos_local as usize;
+    if bos < scores.len() {
+        scores[bos] = i64::MIN;
+    }
+    let eos = eos_local as usize;
+    let eot = eot_local as usize;
+    if step_idx == 0 {
+        if eos < scores.len() {
+            scores[eos] = i64::MIN;
+        }
+        if eot < scores.len() {
+            scores[eot] = i64::MIN;
+        }
+    } else {
+        if eos < scores.len() {
+            scores[eos] = i64::from(logits[eos]);
+        }
+        if eot < scores.len() {
+            scores[eot] = i64::from(logits[eot]);
+        }
+    }
+
+    scores
+        .iter()
+        .enumerate()
+        .max_by_key(|&(_, &s)| s)
+        .map(|(idx, _)| idx as u32)
+        .unwrap_or(eos_local)
+}
+
+#[cfg(test)]
 fn pick_next_token(
     logits: &[i32],
     generated: &[u32],
@@ -2370,6 +2728,7 @@ fn pick_next_token(
         .unwrap_or(eos_local)
 }
 
+/// Formal R4.GeometricStack local-to-global BPE token decoder.
 fn decode_model_tokens(tok: &SmolTokenizer, model: &R4CompiledModel, ids: &[u32]) -> String {
     if model.local_to_global.is_empty() {
         tok.decode_global(ids)

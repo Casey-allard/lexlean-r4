@@ -233,5 +233,7 @@
       "parity": {"index": 36, "file": "parity_036.bin", "path": "weights/v10/parity_036.bin", "byte_length": 186935, "sha256": "ccb5a4892b8840ec75fd5b9e3e03e605d8320209d7a3136834f177451bb032f8"}
     }
   ],
-  "mirrors": []
+  "mirrors": [
+    "https://raw.githubusercontent.com/Casey-allard/lexlean-r4/main/gpu/weights/v10/"
+  ]
 }

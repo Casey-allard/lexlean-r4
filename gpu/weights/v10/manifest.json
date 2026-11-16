@@ -6,6 +6,9 @@
   "total_bytes": 75684407,
   "shard_max_bytes": 1048576,
   "shard_count": 73,
+  "mirrors": [
+    "https://raw.githubusercontent.com/Casey-allard/lexlean-r4/main/gpu/weights/v10/"
+  ],
   "shards": [
     {"index": 0, "file": "shard_000.bin", "path": "weights/v10/shard_000.bin", "byte_offset": 0, "byte_length": 1048576, "sha256": "b81d70401cca883506a6e1b3adc53a85b92658b3087352b30e8b76e44929601c"},
     {"index": 1, "file": "shard_001.bin", "path": "weights/v10/shard_001.bin", "byte_offset": 1048576, "byte_length": 1048576, "sha256": "5ba4667f2fb745b3452a855985afb53983b64f368ac3cebade79c13eeb989f89"},

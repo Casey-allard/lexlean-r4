@@ -85,12 +85,12 @@ fn every_id_has_a_scenario_and_a_test_cm_02() {
         report.violations.join("\n\n")
     );
     assert_eq!(
-        report.ids_checked, 46,
-        "CM-02 requires exactly 46 registered conformance IDs"
+        report.ids_checked, 49,
+        "CM-02 requires exactly 49 registered conformance IDs"
     );
     assert_eq!(
-        report.scenarios_checked, 46,
-        "CM-02 requires exactly 46 Gherkin scenarios"
+        report.scenarios_checked, 49,
+        "CM-02 requires exactly 49 Gherkin scenarios"
     );
     eprintln!(
         "CM-02: {} registered IDs, {} scenarios, {} test names",
@@ -113,8 +113,8 @@ fn no_scenario_is_pending_cm_02() {
     let suites = scenarios_in(&root().join("features/suites")).expect("suites read");
     assert_eq!(
         model.ids.id.len(),
-        46,
-        "M2 requires all 46 registered IDs present"
+        49,
+        "M2 requires all 49 registered IDs present"
     );
     assert!(
         suites.files >= 46,
@@ -201,4 +201,133 @@ fn the_meta_gate_is_falsifiable_cm_02() {
     // A test list that covers everything passes, which is the control.
     let full = workspace_test_names(&root);
     assert!(check_honesty(&root, &full).expect("runs").is_clean());
+}
+
+/// R4-48: CI/CD workflow and publishing turnaround optimization.
+#[test]
+fn test_workflow_optimization_r4_48() {
+    let root = root();
+
+    // 1. Verify .github/workflows/pages.yml references target caching and pruning
+    let pages_yml = std::fs::read_to_string(root.join(".github/workflows/pages.yml"))
+        .expect("pages.yml must exist");
+    assert!(
+        pages_yml.contains("r4-pages-target-") || pages_yml.contains("actions/cache"),
+        "pages.yml must configure layered target caching"
+    );
+    assert!(
+        pages_yml.contains("Prune Cargo incremental cache"),
+        "pages.yml must configure incremental cache pruning"
+    );
+
+    // 2. Verify Justfile recipe vv orders fmt-check before lint and test
+    let justfile = std::fs::read_to_string(root.join("Justfile")).expect("Justfile must exist");
+    let vv_line = justfile
+        .lines()
+        .find(|line| line.starts_with("vv:"))
+        .expect("Justfile must define recipe vv");
+    let fmt_pos = vv_line
+        .find("fmt-check")
+        .expect("vv must include fmt-check");
+    let lint_pos = vv_line.find("lint").expect("vv must include lint");
+    let test_pos = vv_line.find("test").expect("vv must include test");
+    assert!(
+        fmt_pos < lint_pos && lint_pos < test_pos,
+        "vv must evaluate fast zero-cost checks first: fmt-check before lint and test"
+    );
+
+    // 3. Verify public/weights/manifest.json is structurally valid if present,
+    // and gpu/weights/manifest.json exists
+    assert!(
+        root.join("gpu/weights/manifest.json").exists(),
+        "gpu/weights/manifest.json must exist"
+    );
+    let manifest_path = root.join("public/weights/manifest.json");
+    if manifest_path.exists() {
+        let text = std::fs::read_to_string(&manifest_path).expect("manifest.json must be readable");
+        let parsed: serde_json::Value =
+            serde_json::from_str(&text).expect("manifest.json must be valid JSON");
+        assert!(parsed.is_object() || parsed.is_array());
+    }
+
+    // 4. Verify R4-48 Gherkin feature exists in features/suites/
+    let feature_exists = root
+        .join("features/suites/r4_48_workflow_optimization.feature")
+        .exists()
+        || root
+            .join("features/suites/r4-workflow-optimization.feature")
+            .exists();
+    assert!(feature_exists, "R4-48 feature suite file must exist");
+}
+
+/// R4-49: In-browser storage tier, MicroVM CoW persistence, and SpiralCore zero-NIC vsock relay.
+#[test]
+fn test_browser_persistence_and_networking_r4_49() {
+    let root = root();
+
+    // 1. Verify MicroVM CoW persistence constants (64 KB sectors) in crates/wasm/src/mvm.rs
+    let mvm_rs = std::fs::read_to_string(root.join("crates/wasm/src/mvm.rs"))
+        .expect("crates/wasm/src/mvm.rs must exist");
+    assert!(
+        mvm_rs.contains("MVM_COW_SECTOR_BYTES: usize = 65_536"),
+        "mvm.rs must declare MVM_COW_SECTOR_BYTES = 65_536"
+    );
+
+    // 2. Verify SpiralCore 16-byte vsock framing contracts (SPVS magic, CID 3 <-> CID 2, port 5257)
+    assert!(
+        mvm_rs.contains("SPIRALCORE_MAGIC: [u8; 4] = *b\"SPVS\""),
+        "mvm.rs must declare SPIRALCORE_MAGIC = SPVS"
+    );
+    assert!(
+        mvm_rs.contains("SPIRALCORE_VSOCK_PORT: u16 = 5257"),
+        "mvm.rs must declare SPIRALCORE_VSOCK_PORT = 5257"
+    );
+    assert!(
+        mvm_rs.contains("SPIRALCORE_HOST_CID: u16 = 2"),
+        "mvm.rs must declare SPIRALCORE_HOST_CID = 2"
+    );
+    assert!(
+        mvm_rs.contains("SPIRALCORE_GUEST_CID: u16 = 3"),
+        "mvm.rs must declare SPIRALCORE_GUEST_CID = 3"
+    );
+    assert!(
+        mvm_rs.contains("MVM_SUPERBLOCK_SECTOR_ID: u32 = 0xFFFF_F000"),
+        "mvm.rs must declare MVM_SUPERBLOCK_SECTOR_ID"
+    );
+
+    // 3. Verify R4-49 Gherkin feature exists in features/suites/
+    let feature_exists = root
+        .join("features/suites/r4_49_browser_persistence.feature")
+        .exists()
+        || root
+            .join("features/suites/r4-browser-persistence.feature")
+            .exists();
+    assert!(feature_exists, "R4-49 feature suite file must exist");
+}
+
+/// R4-47: Autonomous 7-stage engine application synthesis and atomic worktree rollback.
+#[test]
+fn test_r4_engine_synthesis_r4_47() {
+    let root = root();
+    let model = Model::load(&root.join("model")).expect("model loads");
+    assert!(
+        model.ids.id.iter().any(|row| row.id == "R4-47"),
+        "R4-47 must be registered in model/ids.toml"
+    );
+    let feature_exists = root
+        .join("features/suites/r4_47_engine_app_synthesis.feature")
+        .exists();
+    assert!(feature_exists, "R4-47 feature suite file must exist");
+
+    let engine_rs = std::fs::read_to_string(root.join("xtask/src/engine.rs"))
+        .expect("xtask/src/engine.rs must exist");
+    assert!(
+        engine_rs.contains("pub fn rollback_failed_tick_worktree"),
+        "engine.rs must expose rollback_failed_tick_worktree"
+    );
+    assert!(
+        engine_rs.contains("lift_register::cmd_lift_register")
+            && engine_rs.contains("synthesis::cmd_synthesize"),
+        "engine.rs Stage 6 must execute application synthesis helpers"
+    );
 }

@@ -3,7 +3,7 @@
 default: vv
 
 # The whole gate.
-vv: template-check fmt-check model lint test features deny
+vv: fmt-check template-check model lint test features deny
     @echo "vv: the acceptance gate passed"
 
 # R1, R4, R5 --- the repository gates, each falsifiable.

@@ -42,6 +42,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-15` | `build` | Pure LexLean computes complete unkeyed BLAKE3-256 over admitted finite byte sequences and incremental updates, preserving full block, chunk, tree and ROOT semantics with exact length and budget admission. Formal known-answer controls establish neither tokenizer composition nor cryptographic injectivity or production acceptance. |
 
+## r4-browser-persistence
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-49` | `build` | Pure LexLean models in-browser storage tier, MicroVM CoW persistence, SmolLM2 model serving, and SpiralCore zero-NIC vsock relay integration (r4-browser-persistence): four-tier storage subsystem with OPFS content-addressed DAG blob store (uor-r4/blobs/<sha256>) using atomic .partial rename and SHA-256 verification, Foundry FA-20 IndexedDB commit-boundary adapter resolving strictly on transaction.oncomplete, multi-tab Web Locks synchronization (uor-r4-storage-lock), MicroVM 64 KB Copy-on-Write dirty sector persistence (MVM_COW1), in-browser distilled SmolLM2-135M geometric model serving interfacing with MVM guest, and SpiralCore 16-byte virtio-vsock framing (SPVS, CID 3 <-> CID 2, port 5257) with seamless WebSocket and HTTP edge relay failover. Formal controls establish no external browser OPFS hardware durability, Web Locks availability, or remote network liveness. |
+
 ## r4-codebook-words
 
 | ID | Level | Statement |
@@ -83,6 +89,12 @@ model does not sanction.
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-12` | `build` | Pure LexLean composes exact seeded state construction, occurrence encoding, canonical causal windows, full binding and epoch admission, all read modes, paired virtual reader and writer candidates, complete loss production and atomic guarded geometric transitions. Formal controls do not establish generated runtime custody, GPU parity, training permission or language capability. |
+
+## r4-engine-synthesis
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-47` | `build` | Pure LexLean models autonomous 7-stage engine application and standard synthesis ticks with atomic worktree rollback (r4-engine-synthesis): Stage 6 Verdant-Resonance application synthesis updating model/lift_register.json, model/verdant_synthesis.json, CONFORMANCE.md, and browser Wasm artifacts when matching pinned wasm-bindgen is available alongside Stage 7 shrink-only ratchet verification, extended synthesis allowlist commits, and rollback_failed_tick_worktree (git checkout, reset, clean) restoring clean repository state upon gate refusal. Formal controls establish no external GitHub remote availability, CI runner hardware speed, or host OS filesystem durability. |
 
 ## r4-evidence
 
@@ -293,6 +305,12 @@ model does not sanction.
 | ID | Level | Statement |
 | --- | --- | --- |
 | `R4-09` | `build` | Pure LexLean fixed-shape 32/64-bit word algebra preserves wrapping addition, Boolean operations, bounded rotation/shifts and exact endian codecs, rejecting malformed bytes, lengths and amounts. Formal word controls do not establish hashing or runtime acceptance. |
+
+## r4-workflow-optimization
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-48` | `build` | Pure LexLean models CI/CD workflow and publishing turnaround optimization (r4-workflow-optimization): layered Cargo target and registry caching in GitHub Pages deployment workflows (.github/workflows/pages.yml) keyed on Cargo.lock content digests with container mount isolation, normative acceptance gate fast-fail sub-target reordering (Justfile recipe vv sequencing fmt-check -> template-check -> model -> lint -> test -> features -> deny) executing zero-cost static verifications before compilation passes, and decoupled static weight shard distribution (public/weights/manifest.json) replacing monolithic static payload deployments with lightweight content-addressed manifest pointers. Formal controls establish no external GitHub Actions runner hardware performance, network bandwidth guarantees, or remote service availability. |
 
 ## Cited authorities
 

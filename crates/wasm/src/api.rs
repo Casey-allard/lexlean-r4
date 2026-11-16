@@ -741,6 +741,20 @@ pub trait InferenceBackend {
         context: &mut crate::lut_stack_exec::RollingContextState,
         max_tokens: usize,
     ) -> Result<ModelTurnOutcome, String>;
+
+    /// Execute one reasoning turn producing model turn outcome with model specification.
+    fn infer_turn_with_model(
+        &mut self,
+        model: &str,
+        prompt: &str,
+        history: &[(String, String)],
+        tools: &[ToolDescriptor],
+        context: &mut crate::lut_stack_exec::RollingContextState,
+        max_tokens: usize,
+    ) -> Result<ModelTurnOutcome, String> {
+        let _ = model;
+        self.infer_turn(prompt, history, tools, context, max_tokens)
+    }
 }
 
 /// Extract candidate filesystem path from prompt tokens dynamically.
@@ -1342,7 +1356,8 @@ pub fn handle_v1_messages_payload_with_backend<B: InferenceBackend + ?Sized>(
     };
 
     let outcome = backend
-        .infer_turn(
+        .infer_turn_with_model(
+            &req.model,
             effective_prompt,
             &dialogue.history,
             &tools,
@@ -1394,8 +1409,8 @@ pub fn handle_v1_messages_payload_with_backend<B: InferenceBackend + ?Sized>(
             input: tc.arguments_value.clone(),
         });
     }
-    if let Some(txt) = parsed_turn.clean_text {
-        content_blocks.push(AnthropicContentBlock::Text { text: txt });
+    if let Some(ref txt) = parsed_turn.clean_text {
+        content_blocks.push(AnthropicContentBlock::Text { text: txt.clone() });
     }
 
     let stop_reason = if !parsed_turn.tool_calls.is_empty() {
@@ -1417,6 +1432,75 @@ pub fn handle_v1_messages_payload_with_backend<B: InferenceBackend + ?Sized>(
         "recent_turn_rows": context.recent_turn_rows,
         "emitted_4grams": context.emitted_4grams,
     });
+
+    if req.stream == Some(true) {
+        let mut sse = String::new();
+        let msg_start = serde_json::json!({
+            "type": "message_start",
+            "message": {
+                "id": msg_id,
+                "type": "message",
+                "role": "assistant",
+                "model": req.model,
+                "content": [],
+                "stop_reason": serde_json::Value::Null,
+                "stop_sequence": serde_json::Value::Null,
+                "usage": { "input_tokens": outcome.input_tokens, "output_tokens": 0 }
+            }
+        });
+        sse.push_str(&format!(
+            "event: message_start\ndata: {}\n\n",
+            serde_json::to_string(&msg_start).unwrap_or_default()
+        ));
+
+        let block_start = serde_json::json!({
+            "type": "content_block_start",
+            "index": 0,
+            "content_block": { "type": "text", "text": "" }
+        });
+        sse.push_str(&format!(
+            "event: content_block_start\ndata: {}\n\n",
+            serde_json::to_string(&block_start).unwrap_or_default()
+        ));
+
+        let text_content = parsed_turn.clean_text.as_deref().unwrap_or("");
+        let words: Vec<&str> = text_content.split_inclusive(' ').collect();
+        for word in words {
+            let delta = serde_json::json!({
+                "type": "content_block_delta",
+                "index": 0,
+                "delta": { "type": "text_delta", "text": word }
+            });
+            sse.push_str(&format!(
+                "event: content_block_delta\ndata: {}\n\n",
+                serde_json::to_string(&delta).unwrap_or_default()
+            ));
+        }
+
+        let block_stop = serde_json::json!({ "type": "content_block_stop", "index": 0 });
+        sse.push_str(&format!(
+            "event: content_block_stop\ndata: {}\n\n",
+            serde_json::to_string(&block_stop).unwrap_or_default()
+        ));
+
+        let msg_delta = serde_json::json!({
+            "type": "message_delta",
+            "delta": { "stop_reason": stop_reason, "stop_sequence": serde_json::Value::Null },
+            "usage": { "output_tokens": outcome.output_tokens }
+        });
+        sse.push_str(&format!(
+            "event: message_delta\ndata: {}\n\n",
+            serde_json::to_string(&msg_delta).unwrap_or_default()
+        ));
+
+        let msg_stop = serde_json::json!({ "type": "message_stop" });
+        sse.push_str(&format!(
+            "event: message_stop\ndata: {}\n\n",
+            serde_json::to_string(&msg_stop).unwrap_or_default()
+        ));
+
+        return Ok((200, sse));
+    }
 
     let response = AnthropicMessagesResponse {
         id: msg_id,
@@ -1541,7 +1625,8 @@ pub fn handle_v1_chat_completions_payload_with_backend<B: InferenceBackend + ?Si
     };
 
     let outcome = backend
-        .infer_turn(
+        .infer_turn_with_model(
+            &req.model,
             effective_prompt,
             &dialogue.history,
             &tools,
@@ -1626,6 +1711,50 @@ pub fn handle_v1_chat_completions_payload_with_backend<B: InferenceBackend + ?Si
         .as_secs();
     #[cfg(target_arch = "wasm32")]
     let created = 1_700_000_000_u64.saturating_add(context.turn_index as u64);
+
+    if req.stream == Some(true) {
+        let mut sse = String::new();
+        let content = parsed_turn.clean_text.clone().unwrap_or_default();
+        let chunks: Vec<&str> = if content.is_empty() {
+            vec![]
+        } else {
+            content.split_inclusive(' ').collect()
+        };
+        for chunk in chunks {
+            let chunk_json = serde_json::json!({
+                "id": msg_id,
+                "object": "chat.completion.chunk",
+                "created": created,
+                "model": req.model,
+                "choices": [{
+                    "index": 0,
+                    "delta": { "content": chunk },
+                    "finish_reason": serde_json::Value::Null
+                }]
+            });
+            sse.push_str(&format!(
+                "data: {}\n\n",
+                serde_json::to_string(&chunk_json).unwrap_or_default()
+            ));
+        }
+        let stop_json = serde_json::json!({
+            "id": msg_id,
+            "object": "chat.completion.chunk",
+            "created": created,
+            "model": req.model,
+            "choices": [{
+                "index": 0,
+                "delta": {},
+                "finish_reason": finish_reason
+            }]
+        });
+        sse.push_str(&format!(
+            "data: {}\n\n",
+            serde_json::to_string(&stop_json).unwrap_or_default()
+        ));
+        sse.push_str("data: [DONE]\n\n");
+        return Ok((200, sse));
+    }
 
     let response = OpenAiChatCompletionResponse {
         id: msg_id,

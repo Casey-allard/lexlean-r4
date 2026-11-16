@@ -1708,6 +1708,21 @@ export async function handleSpvsEnvelope(envelope, options = {}) {
     );
   }
 
+  const vsockPort = envelope.vsock_port !== undefined ? envelope.vsock_port : 5257;
+  if (
+    typeof vsockPort !== "number" ||
+    !Number.isInteger(vsockPort) ||
+    vsockPort < 1024 ||
+    vsockPort > 65_535
+  ) {
+    return makeErrorResponse(
+      reqId,
+      400,
+      "InvalidVsockPort",
+      `SPVS frame rejected: invalid port ${String(vsockPort)} (expected 5257 or 1024..65535)`,
+    );
+  }
+
   const srcCid = envelope.src_cid;
   const dstCid = envelope.dst_cid;
   if (

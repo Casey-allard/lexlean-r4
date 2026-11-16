@@ -10,7 +10,7 @@ use std::process::Command;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use crate::Fail;
+type Fail = Box<dyn std::error::Error>;
 
 /// Provenance JSON schema identifier verified by `pages.yml` and conformance tests.
 pub const PROVENANCE_SCHEMA: &str = "prismpm/browser-provenance/1";
@@ -219,6 +219,22 @@ pub fn build_provenance_manifest(root: &Path, out_dir: &Path) -> Result<Provenan
     })
 }
 
+/// True when a `wasm-bindgen` binary matching `Cargo.lock`'s pinned version is available.
+#[allow(dead_code)]
+pub fn has_matching_wasm_bindgen(root: &Path) -> bool {
+    let Ok(bindgen) = find_wasm_bindgen() else {
+        return false;
+    };
+    let Some(expected_ver) = pinned_wasm_bindgen_version(root) else {
+        return true;
+    };
+    Command::new(&bindgen)
+        .arg("--version")
+        .output()
+        .map(|o| String::from_utf8_lossy(&o.stdout).contains(&expected_ver))
+        .unwrap_or(false)
+}
+
 /// Compile `crates/wasm`, splice `worker_host_bridge.js`, and emit `lexlean_r4.js`,
 /// `lexlean_r4_bg.wasm`, and `provenance.json` into `out_dir`.
 pub fn build_wasm(root: &Path, out_dir: &Path) -> Result<ProvenanceManifest, Fail> {
@@ -243,8 +259,17 @@ pub fn build_wasm(root: &Path, out_dir: &Path) -> Result<ProvenanceManifest, Fai
         }
     }
 
+    let mut rustflags = std::env::var("RUSTFLAGS").unwrap_or_default();
+    if !rustflags.contains("simd128") {
+        if !rustflags.is_empty() {
+            rustflags.push(' ');
+        }
+        rustflags.push_str("-C target-feature=+simd128");
+    }
+
     let status = Command::new("cargo")
         .current_dir(root)
+        .env("RUSTFLAGS", &rustflags)
         .args([
             "build",
             "-p",
