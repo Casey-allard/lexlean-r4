@@ -2,8 +2,8 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-05T19:58:21Z"
-query = "cat:cs.AI"
+synced_at = "2026-11-16T10:26:26Z"
+query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
 
 [[paper]]
 arxiv_id = "2403.05530"
@@ -132,3 +132,99 @@ statement = "Verify that polynomial quotient identities in succinct non-interact
 prompt = "How do succinct non-interactive arguments verify polynomial quotient identities without revealing secret witness evaluation points?"
 target_reply = "Succinct arguments verify polynomial quotient identities by testing evaluation equations at random challenge points chosen by the verifier where Schwartz Zippel lemma guarantees that distinct polynomials agree with negligible probability across the entire cryptographic field."
 
+[[paper]]
+arxiv_id = "2611.18563"
+title = "Pairing AIS with RF: Analysis of a Markovian Approach for Maritime Data Fusion"
+authors = [
+    "Daniel Grimm",
+    "Kyra Jongman",
+    "Renato Cordeiro Ferreira",
+    "Giuseppe Cascavilla",
+    "Alfredo Cuzzocrea",
+    "Willem-Jan Van Den Heuvel",
+]
+published = "2026-11-13T18:59:43Z"
+updated = "2026-11-13T18:59:43Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.CR",
+]
+abstract = "Monitoring maritime activities is important for safety and security, particularly for detecting illegal activities, but remains challenging due to the size and complexity of the maritime domain. The Automatic Identification System (AIS) is commonly used for this purpose, despite its known vulnerabilities. In contrast, space-based radio frequency (RF) observations provide an independent source of vessel activity but lack ship identification and therefore cannot identify vessels on their own. Following the CRISP-DM process, this study applies a Pair Hidden Markov Model (PHMM) to align individual RF detections with AIS trajectories, using temporal and spatial information while modeling noise and timing discrepancies. We evaluate it on NOAA AIS data with synthetic RF detections against nearest-neighbor baselines and analyze its errors with bias tests on trajectory length, sampling density, stationarity and AIS--RF distance. The length-corrected Forward score reaches a top-1 precision of $0.7776$ on the validation split of multi-candidate detections, where errors are possible, and an AUC of $0.637$ for detecting dark vessels among the detections that pass the prefilter. With a single RF detection, the score mostly reflects the AIS trajectory itself, and its errors favor longer and more stationary trajectories. A log-odds score, which compares the full model with a null model without match transitions, raises precision to $0.8580$ and AUC to $0.852$. Its length-corrected variant no longer shows a significant bias towards stationary trajectories and short inter-message distances, but still favors candidates farther from the RF detection. A time-weighted nearest-neighbor baseline without fitting remains ahead (precision $0.9013$, AUC $0.904$), so this single-detection, hand-designed PHMM formulation approaches but does not beat it."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.18553"
+title = "WeightBench: Evaluating Language Models as Weight-Space Programmers"
+authors = [
+    "Aayush Marasini",
+    "Barsat Khadka",
+    "Nick Rahimi",
+]
+published = "2026-11-13T18:58:08Z"
+updated = "2026-11-13T18:58:08Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.AI",
+]
+abstract = "Recent work shows that large language models (LLMs) can operate directly on the parameters of other neural networks. They can read what a network was trained to do, fix a network that fails, and write working networks from scratch, all without gradient descent. This capability has been termed Weight-Space Programming (WSP). Exploring this new paradigm systematically requires a robust benchmark. We introduce WEIGHTBENCH, a benchmark that evaluates LLMs of increasing capability on 42 WSP tasks across five tracks: reading, fixing and writing weights, recognizing edits that are impossible, and data-free compression. The networks whose weights the LLMs read and edit range from 2K-parameter control policies to 7B-parameter language models. Experimental benchmark results show that frontier agents can already read small networks and write working control policies without ever running them, but cannot yet patch language models, compress them without data, or tell an impossible edit from a hard one. On all 42 tasks, Claude Opus 5.5 reaches a macro score of 0.535 (Sonnet 5.5 0.466, Haiku 5.5 0.402, DeepSeek v4-flash 0.215); on the 38 tasks it was run on, GPT-6.1-sol reaches 0.568 against Opus's 0.546. Code, the task registry, our OS-level sandbox harness, and the live leaderboard are publicly available at https://github.com/Aayush-Marasini/WeightBench."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.18543"
+title = "Imitation Bootstrapped Multi-Agent Reinforcement Learning"
+authors = [
+    "Tony H. Zhang",
+    "Connor Mattson",
+    "Daniel S. Brown",
+]
+published = "2026-11-13T18:50:05Z"
+updated = "2026-11-13T18:50:05Z"
+primary_category = "cs.AI"
+categories = [
+    "cs.AI",
+    "cs.MA",
+]
+abstract = 'Demonstrations are an effective way to accelerate single-agent reinforcement learning (RL), but extending this idea to multi-agent reinforcement learning (MARL) is non-trivial as it is difficult and often impossible for a single person to teleoperate multiple agents simultaneously. Round-Robin Behavior Cloning (R2BC) addresses this by letting a single demonstrator control one agent at a time while the others execute their current policies. However, the resulting imitation policies are limited by the quality of the demonstrations. We propose Imitation Bootstrapped Multi-Agent Reinforcement Learning (IBMARL), a framework that extends Imitation Bootstrapped Reinforcement Learning (IBRL) to cooperative teams and uses R2BC to train the imitation policies. At each time step, every agent receives one action proposal from its imitation policy and one from its RL policy, and an ensemble of centralized critics selects among the per-agent combinations of the two. A gated imitation penalty, a soft Q-filtered behavior cloning loss, regularizes each RL policy toward its imitation policy only where the critics value the imitation action more, so that after training each agent executes its RL policy alone, without the centralized critics. On four cooperative multi-agent RL benchmarks, IBMARL surpasses its imitation policies $2.6$-$4.2\times$ faster than demonstration-based baselines on two tasks, is the only method to surpass it on the other two, and exceeds the demonstrator itself on two of the four. With real human demonstrations IBMARL still surpasses imitation learning alone, and does so more than twice as fast as the best baseline.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.18542"
+title = "Elliptic Sampling: Optimal Interpolant Schedules for Gaussians and Beyond"
+authors = [
+    "Cole Becker",
+    "Taylan Kargin",
+    "Kimia Hassibi",
+    "Asuman Ozdaglar",
+    "Pablo A. Parrilo",
+]
+published = "2026-11-13T18:49:36Z"
+updated = "2026-11-13T18:49:36Z"
+primary_category = "stat.ML"
+categories = [
+    "stat.ML",
+    "cs.AI",
+    "cs.LG",
+]
+abstract = '''Generative modeling based on stochastic interpolants requires specifying two key choices: an interpolant schedule bridging the initial and target distributions, and an efficient discretization of the resulting probability-flow ODE. In this work, we introduce a new framework for joint schedule/discretization design based on the analyticity properties of the (complexified) ODE trajectories, which in turn ensure good numerical behavior. Our formulation can be solved exactly via conformal mapping, yielding a natural family of variance-preserving elliptic schedules, parametrized by Jacobi elliptic functions. Pairing an elliptic schedule with a tailored discretization, we obtain Zoloflow, a new sampling algorithm closely connected to Zolotarev's optimal rational function approximants. Crucially, both the elliptic schedule and Zoloflow explicitly incorporate the condition number $κ$ of the target distribution and reduce to the classical trig schedule in the limit $κ\rightarrow 1$. For Gaussian targets, Zoloflow achieves minimax optimality among all oblivious score-span algorithms, attaining total-variation error $\varepsilon$ using $Θ(\logκ\,\log(\sqrt d/\varepsilon))$ (exact) score queries. For the log-concave case, the elliptic schedule allows sampling with at most $\varepsilon$ 2-Wasserstein-error by requiring merely $\widetilde{O}(\sqrt{d} \, \mathrm{polylog}(κ, 1/\varepsilon))$ score evaluations. Complementing these theoretical results, we empirically evaluate the elliptic schedule on general (non-log-concave) target distributions, including detailed comparisons with alternative schedule proposals on both synthetic benchmarks and existing image generation datasets.'''
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.18541"
+title = "No free lattice contains an infinite ascending chain of copies of FL(3)"
+authors = [
+    "William DeMeo",
+    "Ralph Freese",
+]
+published = "2026-11-13T18:49:26Z"
+updated = "2026-11-13T18:49:26Z"
+primary_category = "math.RA"
+categories = [
+    "math.RA",
+    "cs.LO",
+    "math.GR",
+    "math.LO",
+]
+abstract = '''No free lattice contains an infinite strictly ascending chain of sublattices isomorphic to FL(3), the free lattice on three generators; this answers a question that R. A. Dean asked and the second author's 1997 notes on the problem left open. Every such chain would yield, inside FL(3), a coherent chain of proper self-embeddings $Θ_0, Θ_1, Θ_2, \dots$ with $Θ_k \circ Θ_j = Θ_j$ for $j < k$, so that each later embedding fixes the image of each earlier one pointwise. Every proper self-embedding of FL(3) whose fixed sublattice contains a free generating triple fixes one of the three generators, say $z$, because a power of it or of its dual lies above the identity, and a self-embedding that moves every generator and lies above the identity fixes at most eleven elements. Up to duality, a proper self-embedding fixing the image of such a $Θ_1$ pointwise fixes only elements above $z \wedge (x \vee y)$, where no free generating triple containing $z$ can lie. We also verify the one-step example of the 1997 notes, prove that no step toward such a chain is self-similar, and show that the configuration the argument rules out at length three does occur at length two. Without freeness the answer reverses: FL(3) contains an infinite strictly ascending chain of 3-generated sublattices, so the lattice analogue of Takahasi's chain condition for free groups fails. The theorem itself is checked by the Agda proof assistant under its safe flags, for free lattices over generators with decidable equality, and its formal proof uses no classical principle: finite searches and an induction on a finite set replace the infinite pigeonhole principle by which a chain yields a coherent chain.'''
+hypothesis = []
