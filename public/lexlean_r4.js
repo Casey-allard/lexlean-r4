@@ -113,59 +113,28 @@ export function studio_dispatch(input) {
 }
 
 /**
- * Admit or refuse a `.uorc` Verdant Synthesis generation capsule (`R4-46`).
- * @param {string} capsule_json
+ * Begin in-stream compilation of a HuggingFace Safetensors repo into `UORR4V13` (`R4-51`).
+ * @param {string} repo_id
+ * @param {string} config_json
+ * @param {string} tokenizer_json
  * @returns {string}
  */
-export function studio_admit_generation_capsule(capsule_json) {
-    let deferred2_0;
-    let deferred2_1;
+export function studio_hf_repo_begin(repo_id, config_json, tokenizer_json) {
+    let deferred4_0;
+    let deferred4_1;
     try {
-        const ptr0 = passStringToWasm0(capsule_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr0 = passStringToWasm0(repo_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_admit_generation_capsule(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
+        const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(tokenizer_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_hf_repo_begin(ptr0, len0, ptr1, len1, ptr2, len2);
+        deferred4_0 = ret[0];
+        deferred4_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Record a runtime generation fault strike and trigger 3-strike parent-head rollback when applicable (`R4-46`).
- * @param {string} fault_reason
- * @returns {string}
- */
-export function studio_record_generation_fault(fault_reason) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passStringToWasm0(fault_reason, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_record_generation_fault(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Return structured 4-facet Verdant Synthesis and OPFS watchdog status JSON (`R4-45`, `R4-46`).
- * @returns {string}
- */
-export function studio_verdant_synthesis_status() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_verdant_synthesis_status();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
     }
 }
 
@@ -175,11 +144,133 @@ function passArray8ToWasm0(arg, malloc) {
     WASM_VECTOR_LEN = arg.length;
     return ptr;
 }
+/**
+ * Stream one HTTP `206` Safetensors tensor slice into the active `HfRepoHoloStreamCompiler` (`R4-51`).
+ * @param {string} name
+ * @param {string} dtype
+ * @param {string} shape_json
+ * @param {Uint8Array} raw_bytes
+ * @returns {string}
+ */
+export function studio_hf_repo_push_tensor(name, dtype, shape_json, raw_bytes) {
+    let deferred5_0;
+    let deferred5_1;
+    try {
+        const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(dtype, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(shape_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passArray8ToWasm0(raw_bytes, wasm.__wbindgen_malloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_hf_repo_push_tensor(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
+        deferred5_0 = ret[0];
+        deferred5_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
+    }
+}
+
+/**
+ * Finalize streamed Safetensors compilation and mount `uor-r4.hf-repo-holo` (`R4-51`).
+ * @returns {string}
+ */
+export function studio_hf_repo_finalize() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_hf_repo_finalize();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
+ * @returns {string}
+ */
+export function studio_shard_catalog() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_shard_catalog();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
 
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
 }
+/**
+ * Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
+ * @param {number} e8_root
+ * @returns {Uint8Array}
+ */
+export function studio_export_uorlut_shard(e8_root) {
+    const ret = wasm.studio_export_uorlut_shard(e8_root);
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
+}
+
+/**
+ * Merge a content-addressed `UORSHRD1` binary shard into the resident `LutStackModel` and rebuild its Radix `/8` index.
+ * @param {Uint8Array} shard_bytes
+ * @returns {string}
+ */
+export function studio_merge_uorlut_shard(shard_bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(shard_bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_merge_uorlut_shard(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_2.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
+/**
+ * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
+ *
+ * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
+ * Returns the updated `UORLUT01` container bytes, or an error string on failure.
+ * @param {Uint8Array} weights_bytes
+ * @param {string} config_json
+ * @returns {Uint8Array}
+ */
+export function studio_consolidate_weights(weights_bytes, config_json) {
+    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
+    }
+    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v3;
+}
+
 /**
  * WebAssembly entrypoint processing a versioned byte envelope.
  * @param {Uint8Array} input
@@ -194,11 +285,6 @@ export function process_envelope(input) {
     return v2;
 }
 
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_2.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
 /**
  * WebAssembly entrypoint executing an application request with JsValue representation.
  * @param {Uint8Array} input_bytes
@@ -290,6 +376,171 @@ export function studio_decode_with_webgpu_q12_scores(prompt, gpu_row_scores, max
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Query the active `UORR4V12` geometric vector stack status as JSON (`R4-46`).
+ * @returns {string}
+ */
+export function studio_r4_stack_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_r4_stack_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Admit or refuse a `.uorc` Verdant Synthesis generation capsule (`R4-46`).
+ * @param {string} capsule_json
+ * @returns {string}
+ */
+export function studio_admit_generation_capsule(capsule_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(capsule_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_admit_generation_capsule(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Record a runtime generation fault strike and trigger 3-strike parent-head rollback when applicable (`R4-46`).
+ * @param {string} fault_reason
+ * @returns {string}
+ */
+export function studio_record_generation_fault(fault_reason) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(fault_reason, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_record_generation_fault(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Return structured 4-facet Verdant Synthesis and OPFS watchdog status JSON (`R4-45`, `R4-46`).
+ * @returns {string}
+ */
+export function studio_verdant_synthesis_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_verdant_synthesis_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Formal R4.CirisLedger Wasm export admitting a causal row and updating the fixed-point cut (`R5`).
+ * @param {string} row_json
+ * @returns {string}
+ */
+export function studio_ciris_admit_row(row_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(row_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_ciris_admit_row(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Formal R4.CirisLedger Wasm export querying current causal ledger cut status.
+ * @returns {string}
+ */
+export function studio_ciris_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_ciris_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
+ * @param {string} subcommand
+ * @param {string} filter
+ * @returns {string}
+ */
+export function studio_wasm_eval(subcommand, filter) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(subcommand, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(filter, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+ * Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
+ * @returns {Uint8Array}
+ */
+export function studio_export_mvm_cow_sectors() {
+    const ret = wasm.studio_export_mvm_cow_sectors();
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
+}
+
+/**
+ * Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`).
+ * @param {Uint8Array} bytes
+ * @returns {string}
+ */
+export function studio_import_mvm_cow_sectors(bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_import_mvm_cow_sectors(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
@@ -394,169 +645,6 @@ export function studio_stitch_recover_2of3_object(has_frag0, frag0, has_frag1, f
     var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
     return v5;
-}
-
-/**
- * Formal R4.CirisLedger Wasm export admitting a causal row and updating the fixed-point cut (`R5`).
- * @param {string} row_json
- * @returns {string}
- */
-export function studio_ciris_admit_row(row_json) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passStringToWasm0(row_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_ciris_admit_row(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Formal R4.CirisLedger Wasm export querying current causal ledger cut status.
- * @returns {string}
- */
-export function studio_ciris_status() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_ciris_status();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-    }
-}
-
-/**
- * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
- * @param {string} subcommand
- * @param {string} filter
- * @returns {string}
- */
-export function studio_wasm_eval(subcommand, filter) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(subcommand, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(filter, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
-        deferred3_0 = ret[0];
-        deferred3_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
-}
-
-/**
- * Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
- * @returns {Uint8Array}
- */
-export function studio_export_mvm_cow_sectors() {
-    const ret = wasm.studio_export_mvm_cow_sectors();
-    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v1;
-}
-
-/**
- * Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`).
- * @param {Uint8Array} bytes
- * @returns {string}
- */
-export function studio_import_mvm_cow_sectors(bytes) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_import_mvm_cow_sectors(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
- * @returns {string}
- */
-export function studio_shard_catalog() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_shard_catalog();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-    }
-}
-
-/**
- * Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
- * @param {number} e8_root
- * @returns {Uint8Array}
- */
-export function studio_export_uorlut_shard(e8_root) {
-    const ret = wasm.studio_export_uorlut_shard(e8_root);
-    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v1;
-}
-
-/**
- * Merge a content-addressed `UORSHRD1` binary shard into the resident `LutStackModel` and rebuild its Radix `/8` index.
- * @param {Uint8Array} shard_bytes
- * @returns {string}
- */
-export function studio_merge_uorlut_shard(shard_bytes) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passArray8ToWasm0(shard_bytes, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_merge_uorlut_shard(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
- *
- * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
- * Returns the updated `UORLUT01` container bytes, or an error string on failure.
- * @param {Uint8Array} weights_bytes
- * @param {string} config_json
- * @returns {Uint8Array}
- */
-export function studio_consolidate_weights(weights_bytes, config_json) {
-    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
-    if (ret[3]) {
-        throw takeFromExternrefTable0(ret[2]);
-    }
-    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v3;
 }
 
 /**
@@ -705,6 +793,85 @@ export function studio_v1_traces(query_or_payload) {
 }
 
 /**
+ * Formal R4.HoloGeometricRuntime adjust shortlist K and Starling Flock window dynamically (`R4-51`, `R4-55`).
+ * @param {number} shortlist_k
+ * @param {number} flock_window
+ * @returns {string}
+ */
+export function studio_set_holo_budgets(shortlist_k, flock_window) {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_set_holo_budgets(shortlist_k, flock_window);
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Formal R4.HoloGeometricRuntime query OPFS stationary layout + MVM CoW dirty sectors + RHT vocab clusters.
+ * @param {string} model_id
+ * @returns {string}
+ */
+export function studio_holo_storage_geometry_json(model_id) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_holo_storage_geometry_json(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Formal R4.OntologicalTelos execute one verified parametric coordinate-descent self-improvement tick (`R4-55`).
+ * @param {string} payload
+ * @returns {string}
+ */
+export function studio_run_telos_self_improvement_tick(payload) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(payload, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_run_telos_self_improvement_tick(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Stream one SHA-256 verified OPFS `.holo` piece into the active streaming builder (`R4-50`).
+ * @param {Uint8Array} piece
+ * @returns {string}
+ */
+export function studio_push_holo_v13_piece(piece) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(piece, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_push_holo_v13_piece(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
  * Finalize the streamed `UORR4V13` container mount and verify end-to-end SHA-256 (`R4-51`).
  * @returns {string}
  */
@@ -795,95 +962,6 @@ export function studio_hf_repo_parse_safetensors_header(repo_id, prefix_bytes) {
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
-}
-
-/**
- * Begin in-stream compilation of a HuggingFace Safetensors repo into `UORR4V13` (`R4-51`).
- * @param {string} repo_id
- * @param {string} config_json
- * @param {string} tokenizer_json
- * @returns {string}
- */
-export function studio_hf_repo_begin(repo_id, config_json, tokenizer_json) {
-    let deferred4_0;
-    let deferred4_1;
-    try {
-        const ptr0 = passStringToWasm0(repo_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passStringToWasm0(tokenizer_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len2 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_hf_repo_begin(ptr0, len0, ptr1, len1, ptr2, len2);
-        deferred4_0 = ret[0];
-        deferred4_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred4_0, deferred4_1, 1);
-    }
-}
-
-/**
- * Stream one HTTP `206` Safetensors tensor slice into the active `HfRepoHoloStreamCompiler` (`R4-51`).
- * @param {string} name
- * @param {string} dtype
- * @param {string} shape_json
- * @param {Uint8Array} raw_bytes
- * @returns {string}
- */
-export function studio_hf_repo_push_tensor(name, dtype, shape_json, raw_bytes) {
-    let deferred5_0;
-    let deferred5_1;
-    try {
-        const ptr0 = passStringToWasm0(name, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(dtype, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passStringToWasm0(shape_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len2 = WASM_VECTOR_LEN;
-        const ptr3 = passArray8ToWasm0(raw_bytes, wasm.__wbindgen_malloc);
-        const len3 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_hf_repo_push_tensor(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3);
-        deferred5_0 = ret[0];
-        deferred5_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred5_0, deferred5_1, 1);
-    }
-}
-
-/**
- * Finalize streamed Safetensors compilation and mount `uor-r4.hf-repo-holo` (`R4-51`).
- * @returns {string}
- */
-export function studio_hf_repo_finalize() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_hf_repo_finalize();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-    }
-}
-
-/**
- * Query the active `UORR4V12` geometric vector stack status as JSON (`R4-46`).
- * @returns {string}
- */
-export function studio_r4_stack_status() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_r4_stack_status();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
 }
 
@@ -1011,7 +1089,7 @@ export function studio_mount_holo_v13_bytes(model_id, bytes) {
 }
 
 /**
- * Begin incremental streaming mount of 1 MiB OPFS `.holo` pieces into Wasm (`R4-50`, `R4-51`).
+ * Formal R4.HoloGeometricRuntime begin incremental streaming mount of 1 MiB OPFS `.holo` pieces into Wasm (`R4-50`, `R4-51`).
  * @param {string} model_id
  * @param {number} expected_pieces
  * @param {string} expected_sha256
@@ -1035,22 +1113,27 @@ export function studio_begin_holo_v13_mount(model_id, expected_pieces, expected_
 }
 
 /**
- * Stream one SHA-256 verified OPFS `.holo` piece into the active streaming builder (`R4-50`).
- * @param {Uint8Array} piece
+ * Formal R4.HoloGeometricRuntime begin incremental streaming mount with verified SHA-256 skip-rehash flag.
+ * @param {string} model_id
+ * @param {number} expected_pieces
+ * @param {string} expected_sha256
+ * @param {boolean} skip_rehash
  * @returns {string}
  */
-export function studio_push_holo_v13_piece(piece) {
-    let deferred2_0;
-    let deferred2_1;
+export function studio_begin_holo_v13_mount_verified(model_id, expected_pieces, expected_sha256, skip_rehash) {
+    let deferred3_0;
+    let deferred3_1;
     try {
-        const ptr0 = passArray8ToWasm0(piece, wasm.__wbindgen_malloc);
+        const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_push_holo_v13_piece(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
+        const ptr1 = passStringToWasm0(expected_sha256, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_begin_holo_v13_mount_verified(ptr0, len0, expected_pieces, ptr1, len1, skip_rehash);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
@@ -1090,6 +1173,10 @@ function __wbg_get_imports() {
     imports.wbg = {};
     imports.wbg.__wbg_call_672a4d21634d4a24 = function() { return handleError(function (arg0, arg1) {
         const ret = arg0.call(arg1);
+        return ret;
+    }, arguments) };
+    imports.wbg.__wbg_call_7cccdd69e0791ae2 = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = arg0.call(arg1, arg2);
         return ret;
     }, arguments) };
     imports.wbg.__wbg_call_833bed5770ea2041 = function() { return handleError(function (arg0, arg1, arg2, arg3) {
@@ -1259,6 +1346,32 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 }
 `;
 
+const UOR_WEBGPU_HAMMING512_WGSL = `
+/* Formal R4.HoloGeometricRuntime pure u32/countOneBits 512-bit Hamming shortlist kernel (zero f32/f16) */
+struct HammingParams {
+  vocab_size: u32,
+  words_per_sig: u32,
+};
+@group(0) @binding(0) var<storage, read> q_sig_u32: array<u32>;
+@group(0) @binding(1) var<storage, read> vocab_sigs_u32: array<u32>;
+@group(0) @binding(2) var<storage, read_write> distances_u32: array<u32>;
+@group(0) @binding(3) var<uniform> params: HammingParams;
+
+@compute @workgroup_size(128)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+  let row = gid.x;
+  if (row >= params.vocab_size) {
+    return;
+  }
+  let base = row * params.words_per_sig;
+  var d_ham: u32 = 0u;
+  for (var w: u32 = 0u; w < params.words_per_sig; w = w + 1u) {
+    d_ham = d_ham + countOneBits(q_sig_u32[w] ^ vocab_sigs_u32[base + w]);
+  }
+  distances_u32[row] = d_ham;
+}
+`;
+
 globalThis.__uorOpenWeightsTier = {
     webgpuAvailable: false,
     webgpuReady: false,
@@ -1268,7 +1381,8 @@ globalThis.__uorOpenWeightsTier = {
     openWeightsFormat: 'UORLUT01/8',
     openWeightsTensorCount: 6,
     device: null,
-    pipeline: null
+    pipeline: null,
+    hammingPipeline: null,
 };
 
 export async function cache_weights_in_opfs(fileName, bytes, metaObj) {
@@ -1352,13 +1466,79 @@ export async function init_webgpu_open_weights_tier() {
             layout: 'auto',
             compute: { module: shaderModule, entryPoint: 'main' }
         });
+        const hamModule = device.createShaderModule({ code: UOR_WEBGPU_HAMMING512_WGSL });
+        const hammingPipeline = device.createComputePipeline({
+            layout: 'auto',
+            compute: { module: hamModule, entryPoint: 'main' }
+        });
         globalThis.__uorOpenWeightsTier.device = device;
         globalThis.__uorOpenWeightsTier.pipeline = pipeline;
+        globalThis.__uorOpenWeightsTier.hammingPipeline = hammingPipeline;
         globalThis.__uorOpenWeightsTier.webgpuReady = true;
     } catch (_ge) {
         globalThis.__uorOpenWeightsTier.webgpuReady = false;
     }
     return globalThis.__uorOpenWeightsTier;
+}
+
+/** Formal R4.HoloGeometricRuntime evaluate pure-integer 512-bit XOR Hamming distance on WebGPU or Wasm/CPU fallback. */
+export async function run_webgpu_hamming512_shortlist(qSigU32, vocabSigsU32, vocabSize) {
+    /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+    const rows = Math.max(1, vocabSize | 0);
+    const words = 16;
+    const qArr = qSigU32 instanceof Uint32Array ? qSigU32 : new Uint32Array(qSigU32);
+    const vArr = vocabSigsU32 instanceof Uint32Array ? vocabSigsU32 : new Uint32Array(vocabSigsU32);
+    const tier = await init_webgpu_open_weights_tier();
+    if (tier && tier.webgpuReady && tier.device && tier.hammingPipeline && typeof GPUBufferUsage !== 'undefined') {
+        try {
+            const device = tier.device;
+            const qBuf = device.createBuffer({ size: Math.max(64, qArr.byteLength), usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+            const vBuf = device.createBuffer({ size: Math.max(64, vArr.byteLength), usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST });
+            const outBytes = rows * 4;
+            const outBuf = device.createBuffer({ size: outBytes, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC });
+            const readBuf = device.createBuffer({ size: outBytes, usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST });
+            const pBuf = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+            device.queue.writeBuffer(qBuf, 0, qArr);
+            device.queue.writeBuffer(vBuf, 0, vArr);
+            device.queue.writeBuffer(pBuf, 0, new Uint32Array([rows, words, 0, 0]));
+            const bg = device.createBindGroup({
+                layout: tier.hammingPipeline.getBindGroupLayout(0),
+                entries: [
+                    { binding: 0, resource: { buffer: qBuf } },
+                    { binding: 1, resource: { buffer: vBuf } },
+                    { binding: 2, resource: { buffer: outBuf } },
+                    { binding: 3, resource: { buffer: pBuf } },
+                ],
+            });
+            const enc = device.createCommandEncoder();
+            const pass = enc.beginComputePass();
+            pass.setPipeline(tier.hammingPipeline);
+            pass.setBindGroup(0, bg);
+            pass.dispatchWorkgroups(Math.ceil(rows / 128));
+            pass.end();
+            enc.copyBufferToBuffer(outBuf, 0, readBuf, 0, outBytes);
+            device.queue.submit([enc.finish()]);
+            await readBuf.mapAsync(1);
+            const dists = new Uint32Array(readBuf.getMappedRange().slice(0));
+            readBuf.unmap();
+            return { backend: 'webgpu-wgsl', distances: dists };
+        } catch {
+            // Fall through cleanly to integer Wasm/JS path
+        }
+    }
+    const out = new Uint32Array(rows);
+    for (let r = 0; r < rows; r += 1) {
+        const base = r * words;
+        let d = 0;
+        for (let w = 0; w < words; w += 1) {
+            let x = (qArr[w] ^ vArr[base + w]) >>> 0;
+            x = x - ((x >>> 1) & 0x55555555);
+            x = (x & 0x33333333) + ((x >>> 2) & 0x33333333);
+            d += (((x + (x >>> 4)) & 0x0f0f0f0f) * 0x01010101) >>> 24;
+        }
+        out[r] = d;
+    }
+    return { backend: 'wasm-simd128', distances: out };
 }
 
 const E8_SHARD_LRU_CAPACITY = 2;
@@ -3262,7 +3442,32 @@ async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null) {
   return full;
 }
 
-/** Formal R4.HoloKappaStore hydrate `UORR4V13` pieces into `OpfsKappaStore` with Stitch 2-of-3 recovery & stream-mount into Wasm. */
+/** Formal R4.HoloGeometricRuntime select the highest-capability Qwen3 boot lane (warm 1.7B immediate or 0.6B->1.7B idle promotion). */
+export async function selectOptimalInitialHoloModel() {
+  /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  const idx17b = await holoReadManifestIndex('uor-r4.qwen3-1.7b-holo').catch(() => null);
+  const warm17b = Boolean(idx17b && idx17b.manifest && Array.isArray(idx17b.manifest.pieces));
+  const memGb = typeof navigator !== 'undefined' && Number(navigator.deviceMemory) > 0 ? Number(navigator.deviceMemory) : 8;
+  const cores = typeof navigator !== 'undefined' && Number(navigator.hardwareConcurrency) > 0 ? Number(navigator.hardwareConcurrency) : 4;
+  let quotaBytes = 4 * 1024 * 1024 * 1024;
+  if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.estimate === 'function') {
+    try {
+      const est = await navigator.storage.estimate();
+      if (est && Number(est.quota) > 0) quotaBytes = Number(est.quota);
+    } catch {
+      // Optional storage estimate
+    }
+  }
+  const capableDesktop17b = (memGb >= 8 || cores >= 8) && quotaBytes >= 2 * 1024 * 1024 * 1024;
+  return {
+    warm17b,
+    capableDesktop17b,
+    initialModel: warm17b ? 'uor-r4.qwen3-1.7b-holo' : 'uor-r4.qwen3-0.6b-holo',
+    promoteTarget: !warm17b && capableDesktop17b ? 'uor-r4.qwen3-1.7b-holo' : null,
+  };
+}
+
+/** Formal R4.HoloKappaStore hydrate `UORR4V13` pieces into `OpfsKappaStore` with Stitch 2-of-3 recovery & verified skip-rehash mount into Wasm. */
 export async function hydrate_holo_model(modelId, onProgress, forceReload = false) {
   const key = String(modelId || 'uor-r4.qwen3-0.6b-holo').trim();
   if (!forceReload && holoHydrationInflight.has(key)) {
@@ -3317,7 +3522,11 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     }
     const pieceCount = manifest.pieces.length;
     const containerSha = String(manifest.container_sha256 || '').toLowerCase();
-    studio_begin_holo_v13_mount(key, pieceCount, containerSha);
+    if (typeof studio_begin_holo_v13_mount_verified === 'function') {
+      studio_begin_holo_v13_mount_verified(key, pieceCount, containerSha, true);
+    } else {
+      studio_begin_holo_v13_mount(key, pieceCount, containerSha);
+    }
 
     const resolveOrRecoverPiece = async (pieceMeta) => {
       const sha = String(pieceMeta.sha256 || '').toLowerCase();
@@ -3385,16 +3594,17 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         if (!pushOut || pushOut.status !== 'ok') {
           throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
         }
-        if (typeof onProgress === 'function') {
+        const stepNum = i + j + 1;
+        if (typeof onProgress === 'function' && (stepNum === 1 || stepNum === pieceCount || stepNum % 16 === 0)) {
           onProgress({
             modelId: key,
-            index: i + j + 1,
+            index: stepNum,
             total: pieceCount,
             cachedHits,
             stitchRecoveries: sharedKappaStore.stitchRecoveries,
-            label: cachedHits === i + j + 1
-              ? `OPFS verified ${key} (${i + j + 1}/${pieceCount})`
-              : `Hydrating ${key} piece ${i + j + 1}/${pieceCount} into OPFS...`,
+            label: cachedHits === stepNum
+              ? `OPFS verified ${key} (${stepNum}/${pieceCount})`
+              : `Hydrating ${key} piece ${stepNum}/${pieceCount} into OPFS...`,
           });
         }
       }
@@ -6310,6 +6520,17 @@ function __uorStartDedicatedEngineWorker() {
       postEvent('chat_stream_delta', { text: chunk, step: Number(step) || 0 });
     }
   };
+  globalThis.__uorEmitHoloTraceFrame = (frameJson) => {
+    /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+    try {
+      const frame = typeof frameJson === 'string' ? JSON.parse(frameJson) : frameJson;
+      if (frame && (frame.phase !== 'prefill' || frame.top_candidates?.length > 0 || (Number(frame.step_idx) % 8 === 0))) {
+        postEvent('holo_trace_frame', { frame });
+      }
+    } catch {
+      // Ignore malformed frame payload cleanly
+    }
+  };
 
   const startOrAwaitOpfsShardHydration = (forceReload = false, modelTier = 'auto') => {
     if (activeHydrationPromise && !forceReload && modelTier === 'auto') {
@@ -6427,6 +6648,13 @@ function __uorStartDedicatedEngineWorker() {
     }
 
     const isChatTurn = envelope.includes('\tchat\t') || envelope.includes('\tchat_v10_turn\t');
+    if (isChatTurn && parsed && Array.isArray(parsed.holo_observatory_frames) && parsed.holo_observatory_frames.length > 0) {
+      postEvent('holo_observatory_batch', {
+        frames: parsed.holo_observatory_frames,
+        prefixReused: Number(parsed.holo_prefix_reused_tokens) || 0,
+        selectedModel: parsed.selected_model || '',
+      });
+    }
     if (isChatTurn || envelope.includes('\tmvm_exec\t')) {
       const pulses = __uorSynthesizeBrainPulsesFromReply(parsed, lastToolKind);
       postEvent('brain_pulse', { pulses });
@@ -6637,6 +6865,26 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
         return;
       }
+      if (op === 'holo_storage_geometry') {
+        /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+        const reqId = String((payload && payload.modelId) || '');
+        const raw = typeof studio_holo_storage_geometry_json === 'function'
+          ? studio_holo_storage_geometry_json(reqId)
+          : studio_dispatch(`1\tstudio\tholo_storage_geometry\t${reqId}`);
+        self.postMessage({ id, ok: true, result: JSON.parse(raw) });
+        return;
+      }
+      if (op === 'telos_self_improvement_tick') {
+        /* Formal R4.OntologicalTelos (src/R4/OntologicalTelos.lex.tex) */
+        const body = JSON.stringify(payload || {});
+        const raw = typeof studio_run_telos_self_improvement_tick === 'function'
+          ? studio_run_telos_self_improvement_tick(body)
+          : studio_dispatch(`1\tstudio\ttelos_tick\t${body}`);
+        const parsedTick = JSON.parse(raw);
+        postEvent('telos_tick', parsedTick);
+        self.postMessage({ id, ok: true, result: parsedTick });
+        return;
+      }
       if (op === 'load_hf_repo_holo') {
         const repoId = String((payload && payload.repoId) || 'Qwen/Qwen3-0.6B');
         const holo = await load_hf_repo_holo(repoId, (prog) => {
@@ -6833,6 +7081,7 @@ function __uorStartDedicatedEngineWorker() {
         return;
       }
       if (op === 'inprism_r4_turn') {
+        /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
         const prompt = String((payload && payload.prompt) || '').trim();
         if (!prompt) {
           self.postMessage({ id, ok: false, error: 'Prompt must not be empty for inprism_r4_turn' });
@@ -6840,16 +7089,41 @@ function __uorStartDedicatedEngineWorker() {
         }
         const preferred = String((payload && payload.preferredModel) || '').trim();
         const idState = await stitch_prism_identity_ensure().catch(() => null);
-        const hs = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
-        const mountedList = hs && Array.isArray(hs.models) ? hs.models : [];
-        let activeModel = 'uor-r4.native-q31-d85';
-        if (preferred && mountedList.some((m) => m && m.model_id === preferred)) {
+        let hs = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
+        let mountedList = hs && Array.isArray(hs.models) ? hs.models : [];
+        let activeModel = '';
+        if (preferred && (preferred === 'uor-r4.qwen3-1.7b-holo' || preferred === 'uor-r4.qwen3-0.6b-holo' || preferred === 'uor-r4.native-q31-d85')) {
           activeModel = preferred;
+        } else if (hs && hs.qwen3_17b_mounted) {
+          activeModel = 'uor-r4.qwen3-1.7b-holo';
         } else if (hs && hs.qwen3_06b_mounted) {
           activeModel = 'uor-r4.qwen3-0.6b-holo';
+        } else {
+          const opt = await selectOptimalInitialHoloModel().catch(() => null);
+          activeModel = (opt && opt.initialModel) || 'uor-r4.qwen3-0.6b-holo';
+        }
+        if ((activeModel === 'uor-r4.qwen3-1.7b-holo' || activeModel === 'uor-r4.qwen3-0.6b-holo')
+            && !mountedList.some((m) => m && m.model_id === activeModel)) {
+          try {
+            await hydrate_holo_model(activeModel, (prog) => {
+              postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+              postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+            }, false);
+            hs = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : hs;
+            mountedList = hs && Array.isArray(hs.models) ? hs.models : mountedList;
+          } catch {
+            activeModel = hs && hs.qwen3_06b_mounted ? 'uor-r4.qwen3-0.6b-holo' : 'uor-r4.native-q31-d85';
+          }
         }
         const mountedMeta = mountedList.find((m) => m && m.model_id === activeModel) || null;
-        const chatReq = JSON.stringify({ prompt, selected_model: activeModel, composer_mode: 'chat', operating_mode: 'chat' });
+        const chatReq = JSON.stringify({
+          prompt,
+          selected_model: activeModel,
+          composer_mode: 'chat',
+          operating_mode: 'chat',
+          connected_repo: (payload && payload.repo) || '',
+          connected_branch: (payload && payload.branch) || 'main',
+        });
         const chatRes = JSON.parse(studio_dispatch(`1\tstudio\tchat\t${chatReq}`));
         const weightsSha = (mountedMeta && mountedMeta.container_sha256) || chatRes.receipt_sha256 || '';
         const weightsKappa = weightsSha ? `sha256:${weightsSha}` : '';
@@ -6936,13 +7210,31 @@ function __uorStartDedicatedEngineWorker() {
         await handleWorkerMessage(queued);
       }
 
-      // Eagerly hydrate default `uor-r4.qwen3-0.6b-holo` pieces via `OpfsKappaStore` (`createSyncAccessHandle`).
-      hydrate_holo_model('uor-r4.qwen3-0.6b-holo', (prog) => {
-        postEvent('boot_progress', { stage: 'holo_v13', ...prog });
-        postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-      }, false).then((holo) => {
-        postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-        postEvent('holo_ready', { holo, kappaStore: globalThis.__uorHoloKappaStatus || null });
+      // Boot on optimal Qwen3 lane (`1.7b-holo` if already warm in OPFS, else fast `0.6b-holo` + background `1.7b-holo` promotion).
+      selectOptimalInitialHoloModel().then((plan) => {
+        const emitProg = (prog) => {
+          postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+          postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+        };
+        return hydrate_holo_model(plan.initialModel, emitProg, false).then((holo) => {
+          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+          postEvent('holo_ready', {
+            holo,
+            recommendedModel: plan.initialModel,
+            promoted: false,
+            kappaStore: globalThis.__uorHoloKappaStatus || null,
+          });
+          if (plan.promoteTarget) {
+            hydrate_holo_model(plan.promoteTarget, emitProg, false).then((holo17) => {
+              postEvent('holo_ready', {
+                holo: holo17,
+                recommendedModel: plan.promoteTarget,
+                promoted: true,
+                kappaStore: globalThis.__uorHoloKappaStatus || null,
+              });
+            }).catch(() => {});
+          }
+        });
       }).catch(() => {});
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {
@@ -7119,6 +7411,7 @@ export async function init_shared_wasm_worker_pool(wasmBytesOrModule = null) {
 }
 
 export function get_browser_worker_pool_snapshot() {
+  /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
   const logicalThreads =
     typeof navigator !== 'undefined' && typeof navigator.hardwareConcurrency === 'number'
       ? Math.max(1, Math.floor(navigator.hardwareConcurrency))
@@ -7127,8 +7420,10 @@ export function get_browser_worker_pool_snapshot() {
     logical_threads: logicalThreads,
     optimal_workers: optimal_browser_worker_count(logicalThreads),
     pool_size: __uorSharedWorkerPool.length,
+    ready_workers: __uorSharedWorkerPool.filter((w) => Boolean(w && w.ready)).length,
     shared_module_compiled: Boolean(__uorSharedWasmModule),
     zero_refetch_sharing: true,
+    striped_int8_ready: Boolean(__uorSharedWorkerPool.length > 0 || __uorSharedWasmModule),
     active_head: __uorMemGenerationStore.head,
     frontier_count: __uorMemGenerationStore.frontier.length,
   };
@@ -7554,7 +7849,7 @@ export function __uorEncodeHoloviewV1(entry, filesMap) {
 async function __uorReplayCoreWasmVectors(guestBytes) {
   /* Formal R4.PrismHoloIdentity (src/R4/PrismHoloIdentity.lex.tex) */
   const pairs = [
-    ['1\tping\t', '1\tok\tlexlean-r4\tv0.13.0'],
+    ['1\tping\t', '1\tok\tlexlean-r4\tv0.14.0'],
     ['1\troute\tqwen3-0.6b-holo', '1\tok\tuor-r4.qwen3-0.6b-holo\tsimd128-int4-rht32'],
     ['1\tidentity\tprism/genesis/1', '1\tok\tstitch-prism-id\tuor-addr/sha256'],
     ['1\tselect\tuor-foundation/foundry', '1\tok\tholo://lexlean-r4\tfoundry/inprism/1'],
@@ -7678,7 +7973,7 @@ export async function build_afflom_me_app_descriptor(originHref = '') {
     address: 'lexlean-r4',
     holoAddress: 'holo://lexlean-r4',
     name: 'LexLean-R4 Universal Workspace',
-    version: '0.13.0',
+    version: '0.14.0',
     live: baseLive,
     holoUrl: `${baseLive}app.holo`,
     appJsonUrl: `${baseLive}app.json`,

@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-VERDANT-ONTOLOGICAL-TELOS"
+level = "some-true"
+authority = "VERDANT-ONTOLOGICAL-TELOS"
+statement = "Verdant-Resonance VR-70..83 Ontological Telos loss decomposition (epistemic opacity debt, sensory legibility gap, observer dissonance, host ceiling excess), 5W+H certificate verification, and non-coercive parametric coordinate stepping are imported from afflom/verdant-resonance. Formal LexLean controls do not replace local integer verification or browser host benchmarks."
+
+[[claim]]
 id = "AUTH-PRISM-HOLO-IDENTITY"
 level = "some-true"
 authority = "PRISM-HOLO-IDENTITY"

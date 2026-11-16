@@ -17,13 +17,13 @@
       "facet": "UiAndPlumbing",
       "score_milli": 1000,
       "defects": 0,
-      "evidence": "unwired_ui_controls=0, route_verdict=RoutingAdmitted, uorc_verdict=CapsuleAdmitted, wasm_bytes=10623517, stale_banner=false, watchdog_ok=true"
+      "evidence": "unwired_ui_controls=0, route_verdict=RoutingAdmitted, uorc_verdict=CapsuleAdmitted, wasm_bytes=10724669, stale_banner=false, watchdog_ok=true"
     },
     {
       "facet": "EcosystemStandards",
-      "score_milli": 946,
+      "score_milli": 947,
       "defects": 0,
-      "evidence": "model_errors=0, mechanizer_ok=true (289 mods), lifted=1833/2565 residue=344"
+      "evidence": "model_errors=0, mechanizer_ok=true (291 mods), lifted=1868/2605 residue=344"
     }
   ],
   "aggregate_score_milli": 986,
@@ -36,5 +36,17 @@
     "pure-integer-lut-serving": 14
   },
   "active_strategy": "pure-integer-lut-serving",
-  "verdict": "CandidateAdmitted"
+  "verdict": "CandidateAdmitted",
+  "ontological_telos": {
+    "total_telos_loss": 0,
+    "epistemic_opacity_debt": 0,
+    "sensory_legibility_gap": 0,
+    "observer_dissonance": 0,
+    "host_ceiling_excess": 0,
+    "w5h_verified_count": 6,
+    "w5h_orphan_count": 0,
+    "shortlist_coord": 2,
+    "flock_coord": 2,
+    "telos_verdict": "TelosAdmitted"
+  }
 }

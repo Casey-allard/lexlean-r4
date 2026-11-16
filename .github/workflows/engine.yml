@@ -113,6 +113,9 @@ jobs:
             --env PRISMPM_EPHEMERAL_HOME=1 \
             --env SDK_IMAGE="$image" \
             --env GITHUB_TOKEN="$GITHUB_TOKEN" \
+            --env CARGO_INCREMENTAL=0 \
+            --env CARGO_PROFILE_DEV_DEBUG=0 \
+            --env CARGO_PROFILE_TEST_DEBUG=0 \
             --env R4_ENGINE_OUTPUT_FILE=".r4-engine-output.env" \
             "$image" bash -c '
               set -euo pipefail

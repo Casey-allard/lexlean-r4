@@ -9,7 +9,7 @@ use crate::lexlean_generated::r4_holo_geometric_runtime::{
 };
 use crate::r4_geometric_stack::R4StackError;
 use sha2::{Digest, Sha256};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 /// Canonical header magic for Holo v4 Qwen3 containers (`UORR4V13`).
 pub const HOLO_V13_MAGIC: &[u8; 8] = b"UORR4V13";
@@ -26,7 +26,32 @@ const EXP_RANGE: i32 = 32;
 const SILU_STEP_LOG2: i32 = -8;
 const SILU_RANGE_LOG2: i32 = 4;
 const SIG_WORDS: usize = 8;
-const DEFAULT_SHORTLIST_K: usize = 16_384;
+const DEFAULT_SHORTLIST_K: usize = 4_096;
+const DEFAULT_FLOCK_WINDOW: usize = 256;
+
+/// Formal R4.HoloGeometricRuntime pre-pack immutable xorshift64 RHT sign bits into `u32` masks (`cols / 32`).
+#[inline]
+pub fn rht_signs_packed_u32(cols: usize, seed: u64) -> Vec<u32> {
+    let groups = cols >> 5;
+    let mut out = vec![0u32; groups];
+    let mut s = seed ^ 0x9e37_79b9_7f4a_7c15;
+    if s == 0 {
+        s = 0x853c_49e6_748f_ea9b;
+    }
+    for word in &mut out {
+        let mut mask = 0u32;
+        for bit in 0..32u32 {
+            s ^= s << 13;
+            s ^= s >> 7;
+            s ^= s << 17;
+            if (s & 1) == 1 {
+                mask |= 1u32 << bit;
+            }
+        }
+        *word = mask;
+    }
+    out
+}
 
 /// Formal R4.HoloGeometricRuntime immutable xorshift64 sign stream for Block-32 RHT.
 #[inline(always)]
@@ -43,6 +68,195 @@ pub fn rht_signs_bits(cols: usize, seed: u64) -> Vec<bool> {
         out.push((s & 1) == 1);
     }
     out
+}
+
+/// Formal R4.HoloGeometricRuntime pure-integer 32-point Walsh-Hadamard butterfly (`int_fwht32_i32`)
+/// vectorized over `wasm32` `simd128` `i32x4` lanes with exact scalar fallback.
+#[inline(always)]
+pub fn int_fwht32_i32(chunk: &mut [i32; 32]) {
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    // SAFETY: `chunk` is `&mut [i32; 32]`, providing 8 aligned-compatible 16-byte loads/stores.
+    unsafe {
+        use core::arch::wasm32::*;
+        let ptr = chunk.as_mut_ptr();
+        let mut v0 = v128_load(ptr as *const v128);
+        let mut v1 = v128_load(ptr.add(4) as *const v128);
+        let mut v2 = v128_load(ptr.add(8) as *const v128);
+        let mut v3 = v128_load(ptr.add(12) as *const v128);
+        let mut v4 = v128_load(ptr.add(16) as *const v128);
+        let mut v5 = v128_load(ptr.add(20) as *const v128);
+        let mut v6 = v128_load(ptr.add(24) as *const v128);
+        let mut v7 = v128_load(ptr.add(28) as *const v128);
+
+        macro_rules! stage1_2_pair {
+            ($a:expr, $b:expr) => {{
+                let ev = i32x4_shuffle::<0, 2, 4, 6>($a, $b);
+                let od = i32x4_shuffle::<1, 3, 5, 7>($a, $b);
+                let s1 = i32x4_add(ev, od);
+                let d1 = i32x4_sub(ev, od);
+                let u0 = i32x4_shuffle::<0, 4, 1, 5>(s1, d1);
+                let u1 = i32x4_shuffle::<2, 6, 3, 7>(s1, d1);
+
+                let p0 = i32x4_shuffle::<0, 1, 4, 5>(u0, u1);
+                let p1 = i32x4_shuffle::<2, 3, 6, 7>(u0, u1);
+                let s2 = i32x4_add(p0, p1);
+                let d2 = i32x4_sub(p0, p1);
+                $a = i32x4_shuffle::<0, 1, 4, 5>(s2, d2);
+                $b = i32x4_shuffle::<2, 3, 6, 7>(s2, d2);
+            }};
+        }
+        stage1_2_pair!(v0, v1);
+        stage1_2_pair!(v2, v3);
+        stage1_2_pair!(v4, v5);
+        stage1_2_pair!(v6, v7);
+
+        macro_rules! bfly {
+            ($x:expr, $y:expr) => {{
+                let sx = i32x4_add($x, $y);
+                let dy = i32x4_sub($x, $y);
+                $x = sx;
+                $y = dy;
+            }};
+        }
+        bfly!(v0, v1);
+        bfly!(v2, v3);
+        bfly!(v4, v5);
+        bfly!(v6, v7);
+
+        bfly!(v0, v2);
+        bfly!(v1, v3);
+        bfly!(v4, v6);
+        bfly!(v5, v7);
+
+        bfly!(v0, v4);
+        bfly!(v1, v5);
+        bfly!(v2, v6);
+        bfly!(v3, v7);
+
+        v128_store(ptr as *mut v128, v0);
+        v128_store(ptr.add(4) as *mut v128, v1);
+        v128_store(ptr.add(8) as *mut v128, v2);
+        v128_store(ptr.add(12) as *mut v128, v3);
+        v128_store(ptr.add(16) as *mut v128, v4);
+        v128_store(ptr.add(20) as *mut v128, v5);
+        v128_store(ptr.add(24) as *mut v128, v6);
+        v128_store(ptr.add(28) as *mut v128, v7);
+        return;
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        let mut h = 1usize;
+        while h < 32 {
+            let mut i = 0usize;
+            while i < 32 {
+                for j in i..i + h {
+                    let x = chunk[j];
+                    let y = chunk[j + h];
+                    chunk[j] = x.wrapping_add(y);
+                    chunk[j + h] = x.wrapping_sub(y);
+                }
+                i += h * 2;
+            }
+            h *= 2;
+        }
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime pure-integer dot product of 128 `i16` Q/K lanes using `simd128`
+/// widening directly into `i64x2` accumulators to guarantee zero intermediate overflow.
+#[inline(always)]
+pub fn dot_i16_128(a: &[i16; 128], b: &[i16]) -> i64 {
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    // SAFETY: `a` has 128 elements and `b` is validated to `len >= 128`.
+    unsafe {
+        use core::arch::wasm32::*;
+        debug_assert!(b.len() >= 128);
+        let ap = a.as_ptr();
+        let bp = b.as_ptr();
+        let mut acc64_a = i64x2_splat(0);
+        let mut acc64_b = i64x2_splat(0);
+        for blk in 0..4 {
+            let base = blk * 32;
+            let d0 = i32x4_dot_i16x8(
+                v128_load(ap.add(base) as *const v128),
+                v128_load(bp.add(base) as *const v128),
+            );
+            let d1 = i32x4_dot_i16x8(
+                v128_load(ap.add(base + 8) as *const v128),
+                v128_load(bp.add(base + 8) as *const v128),
+            );
+            let d2 = i32x4_dot_i16x8(
+                v128_load(ap.add(base + 16) as *const v128),
+                v128_load(bp.add(base + 16) as *const v128),
+            );
+            let d3 = i32x4_dot_i16x8(
+                v128_load(ap.add(base + 24) as *const v128),
+                v128_load(bp.add(base + 24) as *const v128),
+            );
+            let s01 = i64x2_add(
+                i64x2_add(i64x2_extend_low_i32x4(d0), i64x2_extend_high_i32x4(d0)),
+                i64x2_add(i64x2_extend_low_i32x4(d1), i64x2_extend_high_i32x4(d1)),
+            );
+            let s23 = i64x2_add(
+                i64x2_add(i64x2_extend_low_i32x4(d2), i64x2_extend_high_i32x4(d2)),
+                i64x2_add(i64x2_extend_low_i32x4(d3), i64x2_extend_high_i32x4(d3)),
+            );
+            acc64_a = i64x2_add(acc64_a, s01);
+            acc64_b = i64x2_add(acc64_b, s23);
+        }
+        let sum2 = i64x2_add(acc64_a, acc64_b);
+        return i64x2_extract_lane::<0>(sum2).saturating_add(i64x2_extract_lane::<1>(sum2));
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        let mut acc = 0i64;
+        for i in 0..128 {
+            acc += i64::from(a[i]) * i64::from(b[i]);
+        }
+        acc
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime vectorized 512-bit XOR Hamming distance (`wasm32` `u8x16_popcnt`).
+#[inline(always)]
+pub fn hamming512_u64x8(q_sig: &[u64; SIG_WORDS], v_sig: &[u64]) -> u32 {
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    // SAFETY: `q_sig` has 8 `u64` words (4 `v128` loads) and `v_sig` has `>= 8` `u64` words.
+    unsafe {
+        use core::arch::wasm32::*;
+        debug_assert!(v_sig.len() >= SIG_WORDS);
+        let qp = q_sig.as_ptr() as *const v128;
+        let vp = v_sig.as_ptr() as *const v128;
+        let x0 = u8x16_popcnt(v128_xor(v128_load(qp), v128_load(vp)));
+        let x1 = u8x16_popcnt(v128_xor(v128_load(qp.add(1)), v128_load(vp.add(1))));
+        let x2 = u8x16_popcnt(v128_xor(v128_load(qp.add(2)), v128_load(vp.add(2))));
+        let x3 = u8x16_popcnt(v128_xor(v128_load(qp.add(3)), v128_load(vp.add(3))));
+        let p01 = i16x8_add(
+            u16x8_extadd_pairwise_u8x16(x0),
+            u16x8_extadd_pairwise_u8x16(x1),
+        );
+        let p23 = i16x8_add(
+            u16x8_extadd_pairwise_u8x16(x2),
+            u16x8_extadd_pairwise_u8x16(x3),
+        );
+        let sum8 = i16x8_add(p01, p23);
+        let sum4 = i32x4_extadd_pairwise_i16x8(sum8);
+        return (i32x4_extract_lane::<0>(sum4)
+            + i32x4_extract_lane::<1>(sum4)
+            + i32x4_extract_lane::<2>(sum4)
+            + i32x4_extract_lane::<3>(sum4)) as u32;
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        let mut d_ham = 0u32;
+        for w in 0..SIG_WORDS {
+            d_ham += (q_sig[w] ^ v_sig[w]).count_ones();
+        }
+        d_ham
+    }
 }
 
 /// Formal R4.HoloGeometricRuntime pure-integer 32-point Walsh-Hadamard butterfly (`int_fwht32`).
@@ -203,7 +417,8 @@ pub fn dot_i8_group32(w: &[i8; 32], act: &[i16; 32]) -> i32 {
     }
 }
 
-/// Formal R4.HoloGeometricRuntime pure-integer RMSNorm with explicit Q24 per-channel scale vector.
+/// Formal R4.HoloGeometricRuntime pure-integer RMSNorm with explicit Q24 per-channel scale vector,
+/// eliminating `i128`/`u128` inner loops via `u64` sum-of-squares and normalized 22-bit `r_q` scaling.
 pub fn int_rms_norm_gain(
     x: &[i32],
     gain_q24: &[i32],
@@ -218,27 +433,44 @@ pub fn int_rms_norm_gain(
     }
     let bl = (32 - max_abs.leading_zeros() as i32).max(1);
     let sh = bl - 20;
-    let mut sum = 0u128;
-    for (dst, &v) in out.iter_mut().zip(x) {
+    let mut sum_u64 = 0u64;
+    let mut max_gain_abs = 0u32;
+    for ((dst, &v), &g) in out.iter_mut().zip(x).zip(gain_q24) {
         let y = shift_round(i64::from(v), sh);
         *dst = y;
-        let ay = u128::from(y.unsigned_abs());
-        let sq = ay.wrapping_mul(ay);
-        sum = sum.wrapping_add(sq);
+        let ay = y.unsigned_abs();
+        sum_u64 = sum_u64.wrapping_add(ay.wrapping_mul(ay));
+        max_gain_abs = max_gain_abs.max(g.unsigned_abs());
     }
-    let mean = sum / (x.len().max(1) as u128);
+    let mean = u128::from(sum_u64) / (x.len().max(1) as u128);
     let sq_exp = (in_exp + sh) << 1;
     let eps_int = shift_round(eps_q48, sq_exp - (-48)).max(0) as u128;
     let ms = mean.saturating_add(eps_int).max(1);
     let s = clz_newton_isqrt(ms << 68).max(1);
     let r = (1u128 << 96) / s;
-    let r_shift = (86 + out_exp).max(1) as u32;
-    let round_half = 1i128 << (r_shift - 1);
-    for (i, slot) in out.iter_mut().enumerate() {
-        let unit = (i128::from(*slot) * (r as i128) * i128::from(gain_q24[i]))
-            .saturating_add(round_half)
-            >> r_shift;
-        *slot = unit.clamp(i128::from(i64::MIN), i128::from(i64::MAX)) as i64;
+    let r_shift = (86 + out_exp).max(1);
+
+    let r_bits = 128 - r.leading_zeros() as i32;
+    let r_pre_shift = (r_bits - 22).max(0);
+    let gain_bits = 32 - max_gain_abs.leading_zeros() as i32;
+    let sh1 = (21 + gain_bits - 39).max(0);
+    let sh2 = r_shift - r_pre_shift - sh1;
+    if sh2 > 0 && sh2 < 63 && r_pre_shift < 128 {
+        let r_q = (r >> (r_pre_shift as u32)) as i64;
+        let sh2_u = sh2 as u32;
+        let round2 = 1i64 << (sh2_u - 1);
+        for (slot, &g) in out.iter_mut().zip(gain_q24) {
+            let yg = shift_round((*slot).saturating_mul(i64::from(g)), sh1);
+            *slot = yg.saturating_mul(r_q).saturating_add(round2) >> sh2_u;
+        }
+    } else {
+        let round_half = 1i128 << ((r_shift as u32) - 1);
+        for (i, slot) in out.iter_mut().enumerate() {
+            let unit = (i128::from(*slot) * (r as i128) * i128::from(gain_q24[i]))
+                .saturating_add(round_half)
+                >> (r_shift as u32);
+            *slot = unit.clamp(i128::from(i64::MIN), i128::from(i64::MAX)) as i64;
+        }
     }
 }
 
@@ -638,6 +870,8 @@ pub struct HoloInt8RhtMatrix {
     pub cols: usize,
     /// Deterministic xorshift64 RHT sign seed.
     pub rht_seed: u64,
+    /// Pre-packed xorshift64 RHT sign masks (`cols / 32`).
+    pub rht_signs_packed: Vec<u32>,
     /// Per-row binary exponent shift.
     pub row_exp: Vec<i8>,
     /// Per-group-32 unsigned 16-bit scale multiplier.
@@ -655,12 +889,204 @@ pub struct HoloInt4RhtMatrix {
     pub cols: usize,
     /// Deterministic xorshift64 RHT sign seed.
     pub rht_seed: u64,
+    /// Pre-packed xorshift64 RHT sign masks (`cols / 32`).
+    pub rht_signs_packed: Vec<u32>,
     /// Per-row binary exponent shift.
     pub row_exp: Vec<i8>,
     /// Per-group-32 unsigned 16-bit scale multiplier.
     pub group_mult: Vec<u16>,
     /// Contiguous half-block bias-8 packed nibbles.
     pub nibbles: Vec<u8>,
+}
+
+/// Top logit candidate snapshot for live Observatory race chart (`R4-51`).
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]
+pub struct HoloCandidateBar {
+    /// Vocabulary token ID.
+    pub token_id: u32,
+    /// Decoded UTF-8 token surface snippet.
+    pub token_text: String,
+    /// Pure-integer Q16 logit score.
+    pub logit_q16: i32,
+    /// True when selected by greedy/cycle-guarded argmax.
+    pub selected: bool,
+}
+
+/// Top attended KV position peak recorded during Starling Flock attention (`R4-51`).
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]
+pub struct HoloAttnPeak {
+    /// Sequence position `t` in `[0, seq_len)`.
+    pub pos: u16,
+    /// Aggregated integer attention weight in `[0, 65535]`.
+    pub weight_q16: u16,
+}
+
+/// Genuine per-token neural & geometric observatory frame streamed live during inference (`R4-51`).
+#[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]
+pub struct HoloStepObservatoryFrame {
+    /// Step index within the active phase.
+    pub step_idx: usize,
+    /// `"prefill"` or `"decode"`.
+    pub phase: &'static str,
+    /// Sequence position `0..max_seq`.
+    pub seq_pos: usize,
+    /// Reused KV prefix token count on this turn.
+    pub prefix_reused_tokens: usize,
+    /// Token ID at this step.
+    pub token_id: u32,
+    /// Decoded UTF-8 token snippet.
+    pub token_text: String,
+    /// Per-layer mean `|x|` residual magnitude scaled cleanly into `u16`.
+    pub layer_residual_mag: Vec<u16>,
+    /// Per-layer max `|x|` bit-width (`0..32`) showing real dynamic exponent scaling.
+    pub layer_max_bits: Vec<u8>,
+    /// Per-layer real Starling Flock attention span (`selected.len()`).
+    pub layer_flock_spans: Vec<u16>,
+    /// Top attended KV positions aggregated across final layer heads.
+    pub final_attn_peaks: Vec<HoloAttnPeak>,
+    /// Downsampled 32-bin distribution across the 513 possible 512-bit RHT Hamming distances.
+    pub hamming_hist_32: [u32; 32],
+    /// Minimum Hamming distance observed over `vocab_sigs`.
+    pub min_hamming: u16,
+    /// Quantized `[x, y, z]` trajectory coordinate in `[-1000, 1000]` from `q_sig512`.
+    pub q_manifold_xyz: [i16; 3],
+    /// Top-6 integer logit race candidates at `lm_head`.
+    pub top_candidates: Vec<HoloCandidateBar>,
+    /// Evaluated shortlist candidate count at `lm_head`.
+    pub shortlist_count: usize,
+    /// Active execution backend identifier.
+    pub backend: &'static str,
+}
+
+/// Zero-allocation scratch workspace owned by `HoloV13Model` (`R4-51`).
+#[derive(Clone, Debug, Default)]
+pub struct HoloScratch {
+    /// Layer residual vector (`d_model`).
+    pub x: Vec<i32>,
+    /// Layer RMSNorm normalized buffer (`d_model`).
+    pub norm_d: Vec<i64>,
+    /// Query projection buffer (`q_dim`).
+    pub q: Vec<i32>,
+    /// Key projection buffer (`kv_dim`).
+    pub k: Vec<i32>,
+    /// Value projection buffer (`kv_dim`).
+    pub v: Vec<i32>,
+    /// Per-head query RMSNorm buffer (`head_dim`).
+    pub q_h_norm: Vec<i64>,
+    /// Per-head key RMSNorm buffer (`head_dim`).
+    pub k_h_norm: Vec<i64>,
+    /// Concatenated attention output buffer (`q_dim`).
+    pub attn_i64: Vec<i64>,
+    /// Output projection buffer (`d_model`).
+    pub proj: Vec<i32>,
+    /// SwiGLU gate projection buffer (`intermediate_size`).
+    pub gate: Vec<i32>,
+    /// SwiGLU up projection buffer (`intermediate_size`).
+    pub up: Vec<i32>,
+    /// SwiGLU elementwise product buffer (`intermediate_size`).
+    pub swiglu: Vec<i64>,
+    /// Reusable `i32` RHT butterfly buffer (`max(d_model, q_dim, intermediate_size)`).
+    pub rht_i32: Vec<i32>,
+    /// Reusable `i64` wide buffer for embedding dequantization (`d_model`).
+    pub wide_i64: Vec<i64>,
+    /// Reusable `i16` quantized activation buffer (`max(d_model, q_dim, intermediate_size)`).
+    pub act16: Vec<i16>,
+    /// Reusable `i16` per-head query buffer (`128`).
+    pub q_i16: Vec<i16>,
+    /// Reusable Starling Flock selected KV indices (`max_seq`).
+    pub selected: Vec<usize>,
+    /// Reusable Starling Flock candidate pairs `(distance, pos)`.
+    pub flock_cands: Vec<(u32, usize)>,
+    /// Reusable attention scores buffer (`max_seq`).
+    pub scores: Vec<i64>,
+    /// Reusable softmax exponential weights (`max_seq`).
+    pub exp_w: Vec<i64>,
+    /// Reusable 512-bit Hamming distances across `vocab_size`.
+    pub hamming_dists: Vec<u16>,
+    /// Reusable 513-bin bucket histogram (`0..=512`).
+    pub hamming_hist: Vec<u32>,
+    /// Reusable O(1) shortlist membership bitset (`ceil(vocab_size / 64)`).
+    pub shortlist_bitset: Vec<u64>,
+    /// Reusable shortlist output token IDs.
+    pub shortlist_out: Vec<u32>,
+    /// Per-layer mean `|x|` magnitude recorded during last step.
+    pub layer_residual_mag: Vec<u16>,
+    /// Per-layer bit-width recorded during last step.
+    pub layer_max_bits: Vec<u8>,
+    /// Per-layer Starling Flock selected count recorded during last step.
+    pub layer_flock_spans: Vec<u16>,
+    /// Latest query 512-bit RHT signature from `select_shortlist_into`.
+    pub last_q_sig512: [u64; SIG_WORDS],
+    /// Latest 32-bin compressed Hamming histogram from `select_shortlist_into`.
+    pub last_hamming_hist32: [u32; 32],
+    /// Latest minimum Hamming distance observed across `vocab_sigs`.
+    pub last_min_hamming: u16,
+    /// Reusable last-layer attention weight accumulators across sequence positions.
+    pub attn_accum_q16: Vec<u32>,
+    /// Latest top attended KV position peaks.
+    pub last_attn_peaks: Vec<HoloAttnPeak>,
+}
+
+impl HoloScratch {
+    /// Formal R4.HoloGeometricRuntime allocate reusable zero-alloc buffers sized for `HoloV13Model`.
+    #[allow(clippy::too_many_arguments)]
+    pub fn ensure_sized(
+        &mut self,
+        d_model: usize,
+        q_dim: usize,
+        kv_dim: usize,
+        ffn: usize,
+        head_dim: usize,
+        n_layers: usize,
+        vocab_size: usize,
+    ) {
+        let max_cols = d_model.max(q_dim).max(ffn).max(32);
+        if self.x.len() != d_model {
+            self.x.resize(d_model, 0);
+            self.norm_d.resize(d_model, 0);
+            self.proj.resize(d_model, 0);
+            self.wide_i64.resize(d_model, 0);
+        }
+        if self.q.len() != q_dim {
+            self.q.resize(q_dim, 0);
+            self.attn_i64.resize(q_dim, 0);
+        }
+        if self.k.len() != kv_dim {
+            self.k.resize(kv_dim, 0);
+            self.v.resize(kv_dim, 0);
+        }
+        if self.q_h_norm.len() != head_dim {
+            self.q_h_norm.resize(head_dim, 0);
+            self.k_h_norm.resize(head_dim, 0);
+        }
+        if self.q_i16.len() != head_dim.max(128) {
+            self.q_i16.resize(head_dim.max(128), 0);
+        }
+        if self.gate.len() != ffn {
+            self.gate.resize(ffn, 0);
+            self.up.resize(ffn, 0);
+            self.swiglu.resize(ffn, 0);
+        }
+        if self.rht_i32.len() != max_cols {
+            self.rht_i32.resize(max_cols, 0);
+            self.act16.resize(max_cols, 0);
+        }
+        if self.hamming_dists.len() != vocab_size {
+            self.hamming_dists.resize(vocab_size, 0);
+        }
+        if self.hamming_hist.len() != 513 {
+            self.hamming_hist.resize(513, 0);
+        }
+        let bitset_words = vocab_size.div_ceil(64).max(1);
+        if self.shortlist_bitset.len() != bitset_words {
+            self.shortlist_bitset.resize(bitset_words, 0);
+        }
+        if self.layer_residual_mag.len() != n_layers {
+            self.layer_residual_mag.resize(n_layers, 0);
+            self.layer_max_bits.resize(n_layers, 0);
+            self.layer_flock_spans.resize(n_layers, 0);
+        }
+    }
 }
 
 /// Down projection matrix supporting `int4` (`flags & 0x10 == 0`) or `int8` (`flags & 0x10 != 0`).
@@ -756,8 +1182,14 @@ pub struct HoloV13Model {
     pub final_norm_q24: Vec<i32>,
     /// Transformer layers.
     pub layers: Vec<HoloV13Layer>,
-    /// Rolling `int8` + 128-bit Starling Flock prefix KV cache.
+    /// Rolling `int16` + 128-bit Starling Flock prefix KV cache.
     pub kv_cache: HoloPrefixKvCache,
+    /// Configurable Hamming shortlist candidate budget (`4096` default, `1024..8192`).
+    pub shortlist_k: usize,
+    /// Configurable Starling Flock attention window (`256` default, `64..512`).
+    pub flock_window: usize,
+    /// Reusable zero-allocation scratch workspace across steps.
+    pub scratch: HoloScratch,
 }
 
 /// Per-head `i16` quantized KV cache per layer + 128-bit QK Hamming Starling Flock signatures (`R4-51`).
@@ -789,6 +1221,32 @@ impl HoloPrefixKvCache {
         self.k_sig128 = vec![Vec::new(); n_layers];
         self.v_i16 = vec![Vec::new(); n_layers];
         self.v_scales = vec![Vec::new(); n_layers];
+    }
+
+    /// Formal R4.HoloGeometricRuntime truncate KV state to an exact cached prefix length (`keep_len`) for cross-turn reuse.
+    pub fn truncate_to(&mut self, keep_len: usize, nkv: usize, hd: usize) {
+        let keep = keep_len.min(self.tokens.len());
+        self.tokens.truncate(keep);
+        let vec_len = keep * nkv * hd;
+        let meta_len = keep * nkv;
+        for l in 0..self.seq_len.len() {
+            self.seq_len[l] = keep;
+            if self.k_i16[l].len() > vec_len {
+                self.k_i16[l].truncate(vec_len);
+            }
+            if self.k_scales[l].len() > meta_len {
+                self.k_scales[l].truncate(meta_len);
+            }
+            if self.k_sig128[l].len() > meta_len {
+                self.k_sig128[l].truncate(meta_len);
+            }
+            if self.v_i16[l].len() > vec_len {
+                self.v_i16[l].truncate(vec_len);
+            }
+            if self.v_scales[l].len() > meta_len {
+                self.v_scales[l].truncate(meta_len);
+            }
+        }
     }
 
     /// Formal R4.HoloGeometricRuntime append per-head `i16` key/value slices and 128-bit QK Starling signature.
@@ -892,6 +1350,7 @@ pub struct HoloV13StreamingBuilder {
     pending_mats: Vec<HoloInt4RhtMatrix>,
     pending_down_int8: Option<HoloInt8RhtMatrix>,
     promote_down_int8: bool,
+    skip_rehash: bool,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -929,6 +1388,16 @@ impl HoloV13StreamingBuilder {
         model_id: impl Into<String>,
         expected_pieces: usize,
         expected_sha256: impl Into<String>,
+    ) -> Self {
+        Self::new_with_rehash_policy(model_id, expected_pieces, expected_sha256, false)
+    }
+
+    /// Formal R4.HoloGeometricRuntime create a chunked streaming parser with explicit SHA-256 skip policy when OPFS/JS already verified container digest.
+    pub fn new_with_rehash_policy(
+        model_id: impl Into<String>,
+        expected_pieces: usize,
+        expected_sha256: impl Into<String>,
+        skip_rehash: bool,
     ) -> Self {
         Self {
             model_id: model_id.into(),
@@ -972,6 +1441,7 @@ impl HoloV13StreamingBuilder {
             pending_mats: Vec::with_capacity(7),
             pending_down_int8: None,
             promote_down_int8: false,
+            skip_rehash,
         }
     }
 
@@ -1001,7 +1471,9 @@ impl HoloV13StreamingBuilder {
     pub fn push_piece(&mut self, chunk: &[u8]) -> Result<(), R4StackError> {
         self.pushed_pieces += 1;
         self.total_bytes_pushed = self.total_bytes_pushed.saturating_add(chunk.len() as u64);
-        self.hasher.update(chunk);
+        if !self.skip_rehash {
+            self.hasher.update(chunk);
+        }
         self.buf.extend_from_slice(chunk);
         self.advance()?;
         self.compact();
@@ -1206,6 +1678,7 @@ impl HoloV13StreamingBuilder {
                         rows,
                         cols,
                         rht_seed: seed,
+                        rht_signs_packed: rht_signs_packed_u32(cols, seed),
                         row_exp,
                         group_mult,
                         weights,
@@ -1310,6 +1783,7 @@ impl HoloV13StreamingBuilder {
                             rows,
                             cols,
                             rht_seed: seed,
+                            rht_signs_packed: rht_signs_packed_u32(cols, seed),
                             row_exp,
                             group_mult,
                             weights,
@@ -1320,6 +1794,7 @@ impl HoloV13StreamingBuilder {
                             rows,
                             cols,
                             rht_seed: seed,
+                            rht_signs_packed: rht_signs_packed_u32(cols, seed),
                             row_exp,
                             group_mult,
                             nibbles,
@@ -1405,17 +1880,32 @@ impl HoloV13StreamingBuilder {
         if self.expected_pieces > 0 && self.pushed_pieces != self.expected_pieces {
             return Err(R4StackError::TruncatedContainer);
         }
-        let digest = self.hasher.finalize();
-        let mut actual_hex = String::with_capacity(64);
-        for b in digest {
-            use std::fmt::Write;
-            let _ = write!(&mut actual_hex, "{b:02x}");
-        }
-        if !self.expected_sha256.is_empty() && actual_hex != self.expected_sha256 {
-            return Err(R4StackError::IntegrityMismatch);
-        }
+        let actual_hex = if self.skip_rehash {
+            self.expected_sha256.clone()
+        } else {
+            let digest = self.hasher.finalize();
+            let mut hex = String::with_capacity(64);
+            for b in digest {
+                use std::fmt::Write;
+                let _ = write!(&mut hex, "{b:02x}");
+            }
+            if !self.expected_sha256.is_empty() && hex != self.expected_sha256 {
+                return Err(R4StackError::IntegrityMismatch);
+            }
+            hex
+        };
         let mut kv_cache = HoloPrefixKvCache::default();
         kv_cache.reset(self.n_layers);
+        let mut scratch = HoloScratch::default();
+        scratch.ensure_sized(
+            self.d_model,
+            self.n_heads * self.head_dim,
+            self.n_kv_heads * self.head_dim,
+            self.intermediate_size,
+            self.head_dim,
+            self.n_layers,
+            self.vocab_size,
+        );
         Ok(HoloV13Model {
             model_id: self.model_id,
             container_sha256: actual_hex,
@@ -1445,6 +1935,9 @@ impl HoloV13StreamingBuilder {
             final_norm_q24: self.final_norm_q24,
             layers: self.layers,
             kv_cache,
+            shortlist_k: DEFAULT_SHORTLIST_K,
+            flock_window: DEFAULT_FLOCK_WINDOW,
+            scratch,
         })
     }
 }
@@ -1458,8 +1951,10 @@ pub struct HoloChatTurnMetrics {
     pub model_id: String,
     /// Container SHA-256 hex digest.
     pub container_sha256: String,
-    /// Prompt tokens prefilled.
+    /// Prompt tokens prefilled (non-cached delta).
     pub prompt_tokens: usize,
+    /// Prompt prefix tokens reused directly from `HoloPrefixKvCache`.
+    pub prefix_reused_tokens: usize,
     /// Completion tokens emitted.
     pub generated_tokens: usize,
     /// Hardware float op count (strictly zero).
@@ -1468,6 +1963,8 @@ pub struct HoloChatTurnMetrics {
     pub dense_matmul_ops: u64,
     /// True when Wasm `simd128` vector kernels compiled in.
     pub simd128_active: bool,
+    /// Active execution backend string.
+    pub active_backend: &'static str,
     /// Pre-RoPE per-head query RMSNorm invariant flag.
     pub q_norm_before_rope: bool,
     /// Pre-RoPE per-head key RMSNorm invariant flag.
@@ -1478,55 +1975,112 @@ pub struct HoloChatTurnMetrics {
     pub flock_attended_positions: usize,
     /// Total candidate KV positions across steps.
     pub flock_total_positions: usize,
+    /// Live per-token neural and geometric observatory snapshots (clipped to 64 frames).
+    pub observatory_frames: Vec<HoloStepObservatoryFrame>,
 }
 
-/// Formal R4.HoloGeometricRuntime apply integer RHT sign-flip, block-32 FWHT, and Q13 dynamic shift into `i16`.
-fn prepare_rht_act16(norm_in: &[i64], in_exp: i32, rht_seed: u64, act16: &mut [i16]) -> i32 {
+/// Formal R4.HoloGeometricRuntime project a 512-bit RHT signature into normalized 3D integer coordinates `[-1000, 1000]`.
+#[inline]
+pub fn rht512_sig_to_xyz(sig: &[u64]) -> [i16; 3] {
+    if sig.len() < SIG_WORDS {
+        return [0, 0, 0];
+    }
+    let ax = (sig[0].count_ones() + sig[1].count_ones()) as i32;
+    let ay = (sig[2].count_ones() + sig[3].count_ones()) as i32;
+    let az = (sig[4].count_ones() + sig[5].count_ones()) as i32;
+    [
+        (((ax - 64) * 1000) / 64) as i16,
+        (((ay - 64) * 1000) / 64) as i16,
+        (((az - 64) * 1000) / 64) as i16,
+    ]
+}
+
+/// Formal R4.HoloGeometricRuntime apply zero-alloc RHT sign-flip, `simd128` block-32 FWHT, and Q13 shift into `i16`.
+fn prepare_rht_act16_packed(
+    norm_in: &[i64],
+    in_exp: i32,
+    signs_packed: &[u32],
+    rht_buf: &mut [i32],
+    act16: &mut [i16],
+) -> i32 {
     let cols = norm_in.len();
-    let signs = rht_signs_bits(cols, rht_seed);
-    let mut rht = vec![0i64; cols];
-    for i in 0..cols {
-        rht[i] = if signs[i] {
-            norm_in[i]
-        } else {
-            norm_in[i].saturating_neg()
-        };
+    let groups = cols >> 5;
+    let mut max_in = 0u64;
+    for &v in norm_in {
+        max_in = max_in.max(v.unsigned_abs());
     }
-    for blk in rht.chunks_exact_mut(32) {
-        let arr: &mut [i64; 32] = blk.try_into().unwrap();
-        int_fwht32_i64(arr);
+    let bl_in = 64 - max_in.leading_zeros() as i32;
+    // Keep inputs <= 2^24 so 32-point FWHT sum (5 bits growth) never exceeds 2^29 < i32::MAX.
+    let pre_sh = (bl_in - 24).max(0);
+    let rht = &mut rht_buf[..cols];
+    for (g, &mask) in signs_packed.iter().enumerate().take(groups) {
+        let base = g * 32;
+        let blk = &mut rht[base..base + 32];
+        for c in 0..32 {
+            let scaled = shift_round(norm_in[base + c], pre_sh) as i32;
+            blk[c] = if ((mask >> c) & 1) != 0 {
+                scaled
+            } else {
+                scaled.wrapping_neg()
+            };
+        }
+        let arr: &mut [i32; 32] = blk.try_into().unwrap();
+        int_fwht32_i32(arr);
     }
-    let mut max_abs = 0u64;
-    for &v in &rht {
+    let mut max_abs = 0u32;
+    for &v in &*rht {
         max_abs = max_abs.max(v.unsigned_abs());
     }
     if max_abs == 0 {
-        act16.fill(0);
-        return in_exp;
+        act16[..cols].fill(0);
+        return in_exp + pre_sh;
     }
-    let bl = 64 - max_abs.leading_zeros() as i32;
-    let sh = (bl - 13).max(0);
+    let bl = 32 - max_abs.leading_zeros() as i32;
+    let post_sh = (bl - 13).max(0);
+    let round_half = if post_sh > 0 {
+        1i32 << (post_sh - 1)
+    } else {
+        0
+    };
     for i in 0..cols {
-        act16[i] = shift_round(rht[i], sh).clamp(-32768, 32767) as i16;
+        let q = if post_sh > 0 {
+            (rht[i].saturating_add(round_half)) >> (post_sh as u32)
+        } else {
+            rht[i]
+        };
+        act16[i] = q.clamp(-32_768, 32_767) as i16;
     }
-    in_exp + sh
+    in_exp + pre_sh + post_sh
 }
 
-/// Formal R4.HoloGeometricRuntime compute strided 512-bit RHT sign signature over normalized query vector.
-fn compute_rht512_query_sig(norm_in: &[i64], rht_seed: u64) -> [u64; SIG_WORDS] {
+/// Formal R4.HoloGeometricRuntime compute zero-alloc strided 512-bit RHT sign signature over normalized query vector.
+fn compute_rht512_query_sig_packed(
+    norm_in: &[i64],
+    signs_packed: &[u32],
+    rht_buf: &mut [i32],
+) -> [u64; SIG_WORDS] {
     let cols = norm_in.len();
-    let signs = rht_signs_bits(cols, rht_seed);
-    let mut rht = vec![0i64; cols];
-    for i in 0..cols {
-        rht[i] = if signs[i] {
-            norm_in[i]
-        } else {
-            norm_in[i].saturating_neg()
-        };
+    let groups = cols >> 5;
+    let mut max_in = 0u64;
+    for &v in norm_in {
+        max_in = max_in.max(v.unsigned_abs());
     }
-    for blk in rht.chunks_exact_mut(32) {
-        let arr: &mut [i64; 32] = blk.try_into().unwrap();
-        int_fwht32_i64(arr);
+    let bl_in = 64 - max_in.leading_zeros() as i32;
+    let pre_sh = (bl_in - 24).max(0);
+    let rht = &mut rht_buf[..cols];
+    for (g, &mask) in signs_packed.iter().enumerate().take(groups) {
+        let base = g * 32;
+        let blk = &mut rht[base..base + 32];
+        for c in 0..32 {
+            let scaled = shift_round(norm_in[base + c], pre_sh) as i32;
+            blk[c] = if ((mask >> c) & 1) != 0 {
+                scaled
+            } else {
+                scaled.wrapping_neg()
+            };
+        }
+        let arr: &mut [i32; 32] = blk.try_into().unwrap();
+        int_fwht32_i32(arr);
     }
     let mut sig = [0u64; SIG_WORDS];
     for b in 0..512 {
@@ -1538,6 +2092,273 @@ fn compute_rht512_query_sig(norm_in: &[i64], rht_seed: u64) -> [u64; SIG_WORDS] 
     sig
 }
 
+/// Formal R4.HoloGeometricRuntime inverse-RHT dequantize one token embedding row into `RESIDUAL_EXP` without allocation.
+fn dequant_embed_row_into(
+    m: &HoloInt8RhtMatrix,
+    row: usize,
+    wide_buf: &mut [i64],
+    out: &mut [i32],
+) {
+    let cols = m.cols;
+    let groups = cols >> 5;
+    let row_exp = i32::from(m.row_exp[row]);
+    let w_row = &m.weights[row * cols..(row + 1) * cols];
+    let mults = &m.group_mult[row * groups..(row + 1) * groups];
+    let wide = &mut wide_buf[..cols];
+    let target_exp = -24i32;
+    let sh = target_exp - row_exp;
+    for g in 0..groups {
+        let mult = i64::from(mults[g]);
+        for c in 0..32 {
+            let val = i64::from(w_row[g * 32 + c]) * mult;
+            wide[g * 32 + c] = shift_round(val, sh);
+        }
+    }
+    for blk in wide.chunks_exact_mut(32) {
+        let arr: &mut [i64; 32] = blk.try_into().unwrap();
+        int_fwht32_i64(arr);
+    }
+    for g in 0..groups {
+        let base = g * 32;
+        let mask = m.rht_signs_packed[g];
+        for c in 0..32 {
+            let val = wide[base + c];
+            let sv = if ((mask >> c) & 1) != 0 {
+                val
+            } else {
+                val.saturating_neg()
+            };
+            out[base + c] = shift_round(sv, RESIDUAL_EXP - target_exp)
+                .clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32;
+        }
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime scale an `i64` group-32 dot accumulator by `out_exp - (row_exp + x_exp)` safely into `i32`.
+#[inline(always)]
+fn scale_i64_acc_to_i32(acc: i64, sh: i32) -> i32 {
+    let val = if sh >= 63 {
+        if acc < 0 {
+            -1
+        } else {
+            0
+        }
+    } else if sh > 0 {
+        let u = sh as u32;
+        (acc.saturating_add(1i64 << (u - 1))) >> u
+    } else if sh == 0 {
+        acc
+    } else {
+        let k = (-sh) as u32;
+        if k >= 63 {
+            if acc >= 0 {
+                i64::MAX
+            } else {
+                i64::MIN
+            }
+        } else {
+            acc.saturating_mul(1i64 << k)
+        }
+    };
+    val.clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32
+}
+
+/// Formal R4.HoloGeometricRuntime execute zero-alloc `int4` RHT matrix-vector product with pure `i64` accumulators.
+fn gemv_i4_rht_into(
+    m: &HoloInt4RhtMatrix,
+    norm_in: &[i64],
+    in_exp: i32,
+    out_exp: i32,
+    rht_buf: &mut [i32],
+    act16_buf: &mut [i16],
+    out: &mut [i32],
+) {
+    let cols = m.cols;
+    let act16 = &mut act16_buf[..cols];
+    let x_exp = prepare_rht_act16_packed(norm_in, in_exp, &m.rht_signs_packed, rht_buf, act16);
+    let row_bytes = cols >> 1;
+    let groups = cols >> 5;
+    for (r, out_slot) in out.iter_mut().enumerate().take(m.rows) {
+        let re = i32::from(m.row_exp[r]);
+        let sh = out_exp - (re + x_exp);
+        let nibs = &m.nibbles[r * row_bytes..(r + 1) * row_bytes];
+        let mults = &m.group_mult[r * groups..(r + 1) * groups];
+        let mut acc = 0i64;
+        for g in 0..groups {
+            let nb: &[u8; 16] = (&nibs[g * 16..(g + 1) * 16]).try_into().unwrap();
+            let a: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
+            let dot = dot_i4_group32(nb, a);
+            acc += i64::from(dot) * i64::from(mults[g]);
+        }
+        *out_slot = scale_i64_acc_to_i32(acc, sh);
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime execute zero-alloc `int8` RHT matrix-vector product with pure `i64` accumulators.
+fn gemv_i8_rht_into(
+    m: &HoloInt8RhtMatrix,
+    norm_in: &[i64],
+    in_exp: i32,
+    out_exp: i32,
+    rht_buf: &mut [i32],
+    act16_buf: &mut [i16],
+    out: &mut [i32],
+) {
+    let cols = m.cols;
+    let act16 = &mut act16_buf[..cols];
+    let x_exp = prepare_rht_act16_packed(norm_in, in_exp, &m.rht_signs_packed, rht_buf, act16);
+    let groups = cols >> 5;
+    for (r, out_slot) in out.iter_mut().enumerate().take(m.rows) {
+        let re = i32::from(m.row_exp[r]);
+        let sh = out_exp - (re + x_exp);
+        let ws = &m.weights[r * cols..(r + 1) * cols];
+        let mults = &m.group_mult[r * groups..(r + 1) * groups];
+        let mut acc = 0i64;
+        for g in 0..groups {
+            let wg: &[i8; 32] = (&ws[g * 32..(g + 1) * 32]).try_into().unwrap();
+            let ag: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
+            acc += i64::from(dot_i8_group32(wg, ag)) * i64::from(mults[g]);
+        }
+        *out_slot = scale_i64_acc_to_i32(acc, sh);
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime evaluate negative-exponential LUT in Q30 without floating point.
+#[inline(always)]
+fn exp_neg_with_table(exp_table: &[u32], diff: i64) -> u64 {
+    let frac_bits = EXP_STEP_LOG2 - (-16);
+    if diff <= 0 {
+        return u64::from(exp_table[0]);
+    }
+    let idx = (diff >> frac_bits) as usize;
+    let (Some(&a), Some(&b)) = (exp_table.get(idx), exp_table.get(idx + 1)) else {
+        return 0;
+    };
+    let frac = (diff & ((1 << frac_bits) - 1)) as u64;
+    let step = ((u64::from(a).wrapping_sub(u64::from(b))) * frac) >> frac_bits;
+    u64::from(a).wrapping_sub(step)
+}
+
+/// Formal R4.HoloGeometricRuntime evaluate SiLU activation LUT in Q16 without floating point.
+#[inline(always)]
+fn silu_i32_with_table(silu_table: &[i32], xv: i32) -> i32 {
+    let frac_bits = SILU_STEP_LOG2 + 18;
+    let half_idx = 1i64 << (SILU_RANGE_LOG2 - SILU_STEP_LOG2);
+    let idx = (i64::from(xv) >> frac_bits) + half_idx;
+    if idx < 0 {
+        return 0;
+    }
+    let u = idx as usize;
+    let (Some(&a), Some(&b)) = (silu_table.get(u), silu_table.get(u + 1)) else {
+        return xv >> 2;
+    };
+    let frac = i64::from(xv) & ((1i64 << frac_bits) - 1);
+    let diff = i64::from(b) - i64::from(a);
+    (i64::from(a) + ((diff * frac) >> frac_bits)) as i32
+}
+
+/// Formal R4.HoloGeometricRuntime select O(V) zero-alloc Hamming shortlist via 513-bin bucket count + bitset.
+#[allow(clippy::too_many_arguments)]
+fn select_shortlist_into(
+    vocab_size: usize,
+    shortlist_k: usize,
+    rht_signs_packed: &[u32],
+    vocab_sigs: &[u64],
+    ascii_fast_tokens: &[u32],
+    special_ids: [u32; 3],
+    context_tokens: &[u32],
+    use_shortlist: bool,
+    scratch: &mut HoloScratch,
+) {
+    let q_sig =
+        compute_rht512_query_sig_packed(&scratch.norm_d, rht_signs_packed, &mut scratch.rht_i32);
+    scratch.last_q_sig512 = q_sig;
+    scratch.hamming_hist.fill(0);
+    scratch.last_hamming_hist32 = [0u32; 32];
+    let mut min_d = 512u16;
+    for v in 0..vocab_size {
+        let base = v * SIG_WORDS;
+        let d_ham = hamming512_u64x8(&q_sig, &vocab_sigs[base..base + SIG_WORDS]) as usize;
+        let clamped = d_ham.min(512);
+        scratch.hamming_dists[v] = clamped as u16;
+        scratch.hamming_hist[clamped] += 1;
+        scratch.last_hamming_hist32[(clamped >> 4).min(31)] += 1;
+        if (clamped as u16) < min_d {
+            min_d = clamped as u16;
+        }
+    }
+    scratch.last_min_hamming = min_d;
+    scratch.shortlist_out.clear();
+    if !use_shortlist || vocab_size <= shortlist_k {
+        scratch.shortlist_out.extend(0..vocab_size as u32);
+        return;
+    }
+
+    let k_keep = shortlist_k.min(vocab_size);
+    let mut cum = 0usize;
+    let mut d_cut = 513usize;
+    let mut rem_at_cut = 0usize;
+    for d in 0..=512usize {
+        let c = scratch.hamming_hist[d] as usize;
+        if cum + c >= k_keep {
+            d_cut = d;
+            rem_at_cut = k_keep.saturating_sub(cum);
+            break;
+        }
+        cum += c;
+    }
+
+    scratch.shortlist_bitset.fill(0);
+    for v in 0..vocab_size {
+        let d = scratch.hamming_dists[v] as usize;
+        let take = if d < d_cut {
+            true
+        } else if d == d_cut && rem_at_cut > 0 {
+            rem_at_cut -= 1;
+            true
+        } else {
+            false
+        };
+        if take {
+            scratch.shortlist_bitset[v >> 6] |= 1u64 << (v & 63);
+            scratch.shortlist_out.push(v as u32);
+        }
+    }
+
+    let push_if_new = |id: u32, bitset: &mut [u64], out: &mut Vec<u32>| {
+        let idx = id as usize;
+        if idx < vocab_size {
+            let word = idx >> 6;
+            let bit = 1u64 << (idx & 63);
+            if (bitset[word] & bit) == 0 {
+                bitset[word] |= bit;
+                out.push(id);
+            }
+        }
+    };
+    for &id in context_tokens {
+        push_if_new(
+            id,
+            &mut scratch.shortlist_bitset,
+            &mut scratch.shortlist_out,
+        );
+    }
+    for &id in ascii_fast_tokens {
+        push_if_new(
+            id,
+            &mut scratch.shortlist_bitset,
+            &mut scratch.shortlist_out,
+        );
+    }
+    for id in special_ids {
+        push_if_new(
+            id,
+            &mut scratch.shortlist_bitset,
+            &mut scratch.shortlist_out,
+        );
+    }
+}
+
 impl HoloV13Model {
     /// Formal R4.HoloGeometricRuntime mount a complete `UORR4V13` byte slice in one call.
     pub fn from_bytes(model_id: impl Into<String>, bytes: &[u8]) -> Result<Self, R4StackError> {
@@ -1546,141 +2367,63 @@ impl HoloV13Model {
         builder.finalize()
     }
 
-    /// Formal R4.HoloGeometricRuntime inverse-RHT dequantize one token embedding row into Q24 fixed point.
-    fn dequant_embed_row(&self, row: usize, out: &mut [i32]) {
-        let m = &self.embed;
-        let cols = m.cols;
-        let groups = cols >> 5;
-        let row_exp = i32::from(m.row_exp[row]);
-        let w_row = &m.weights[row * cols..(row + 1) * cols];
-        let mults = &m.group_mult[row * groups..(row + 1) * groups];
-        let mut wide = vec![0i64; cols];
-        let target_exp = -24i32;
-        let sh = target_exp - row_exp;
-        for g in 0..groups {
-            let mult = i64::from(mults[g]);
-            for c in 0..32 {
-                let val = i64::from(w_row[g * 32 + c]) * mult;
-                wide[g * 32 + c] = shift_round(val, sh);
-            }
-        }
-        for blk in wide.chunks_exact_mut(32) {
-            let arr: &mut [i64; 32] = blk.try_into().unwrap();
-            int_fwht32_i64(arr);
-        }
-        let signs = rht_signs_bits(cols, m.rht_seed);
-        for ((dst, &val), sp) in out.iter_mut().zip(&wide).zip(signs) {
-            let sv = if sp { val } else { val.saturating_neg() };
-            *dst = shift_round(sv, RESIDUAL_EXP - target_exp)
-                .clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32;
-        }
+    /// Formal R4.HoloGeometricRuntime adjust shortlist and Starling Flock budgets safely within `R4-55` bounds.
+    pub fn set_budgets(&mut self, shortlist_k: usize, flock_window: usize) {
+        self.shortlist_k = shortlist_k.clamp(512, 16_384).min(self.vocab_size.max(512));
+        self.flock_window = flock_window.clamp(32, 1024);
     }
 
-    /// Formal R4.HoloGeometricRuntime execute pure-integer block-32 `int4` RHT matrix-vector product.
-    fn gemv_i4_rht(
-        m: &HoloInt4RhtMatrix,
+    /// Formal R4.HoloGeometricRuntime evaluate striped row subset of tied `embed` / `int8` matrix for parallel workers.
+    pub fn gemv_i8_rows_striped(
+        &mut self,
+        row_ids: &[u32],
         norm_in: &[i64],
         in_exp: i32,
         out_exp: i32,
-        out: &mut [i32],
-    ) {
-        let cols = m.cols;
-        let mut act16 = vec![0i16; cols];
-        let x_exp = prepare_rht_act16(norm_in, in_exp, m.rht_seed, &mut act16);
-        let row_bytes = cols >> 1;
-        let groups = cols >> 5;
-        for (r, out_slot) in out.iter_mut().enumerate().take(m.rows) {
-            let re = i32::from(m.row_exp[r]);
-            let sh = out_exp - (re + x_exp);
-            let nibs = &m.nibbles[r * row_bytes..(r + 1) * row_bytes];
-            let mults = &m.group_mult[r * groups..(r + 1) * groups];
-            let mut acc = 0i128;
-            for g in 0..groups {
-                let nb: &[u8; 16] = (&nibs[g * 16..(g + 1) * 16]).try_into().unwrap();
-                let a: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
-                let dot = dot_i4_group32(nb, a);
-                acc += i128::from(dot) * i128::from(mults[g]);
+    ) -> Vec<(u32, i32)> {
+        let d = self.embed.cols;
+        self.scratch.ensure_sized(
+            self.d_model,
+            self.n_heads * self.head_dim,
+            self.n_kv_heads * self.head_dim,
+            self.intermediate_size,
+            self.head_dim,
+            self.n_layers,
+            self.vocab_size,
+        );
+        let x_exp = prepare_rht_act16_packed(
+            norm_in,
+            in_exp,
+            &self.embed.rht_signs_packed,
+            &mut self.scratch.rht_i32,
+            &mut self.scratch.act16,
+        );
+        let act16 = &self.scratch.act16[..d];
+        let groups = d >> 5;
+        let mut out = Vec::with_capacity(row_ids.len());
+        for &r in row_ids {
+            let ri = r as usize;
+            if ri >= self.embed.rows {
+                continue;
             }
-            let val = if sh > 0 {
-                let u = sh as u32;
-                (acc + (1i128 << (u - 1))) >> u
-            } else if sh == 0 {
-                acc
-            } else {
-                acc << ((-sh) as u32)
-            };
-            *out_slot = val.clamp(i128::from(i32::MIN), i128::from(i32::MAX)) as i32;
-        }
-    }
-
-    /// Formal R4.HoloGeometricRuntime execute pure-integer block-32 `int8` RHT matrix-vector product.
-    fn gemv_i8_rht(
-        m: &HoloInt8RhtMatrix,
-        norm_in: &[i64],
-        in_exp: i32,
-        out_exp: i32,
-        out: &mut [i32],
-    ) {
-        let cols = m.cols;
-        let mut act16 = vec![0i16; cols];
-        let x_exp = prepare_rht_act16(norm_in, in_exp, m.rht_seed, &mut act16);
-        let groups = cols >> 5;
-        for (r, out_slot) in out.iter_mut().enumerate().take(m.rows) {
-            let re = i32::from(m.row_exp[r]);
+            let re = i32::from(self.embed.row_exp[ri]);
             let sh = out_exp - (re + x_exp);
-            let ws = &m.weights[r * cols..(r + 1) * cols];
-            let mults = &m.group_mult[r * groups..(r + 1) * groups];
-            let mut acc = 0i128;
+            let ws = &self.embed.weights[ri * d..(ri + 1) * d];
+            let mults = &self.embed.group_mult[ri * groups..(ri + 1) * groups];
+            let mut acc = 0i64;
             for g in 0..groups {
                 let wg: &[i8; 32] = (&ws[g * 32..(g + 1) * 32]).try_into().unwrap();
                 let ag: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
-                acc += i128::from(dot_i8_group32(wg, ag)) * i128::from(mults[g]);
+                acc += i64::from(dot_i8_group32(wg, ag)) * i64::from(mults[g]);
             }
-            let val = if sh > 0 {
-                let u = sh as u32;
-                (acc + (1i128 << (u - 1))) >> u
-            } else if sh == 0 {
-                acc
-            } else {
-                acc << ((-sh) as u32)
-            };
-            *out_slot = val.clamp(i128::from(i32::MIN), i128::from(i32::MAX)) as i32;
+            out.push((r, scale_i64_acc_to_i32(acc, sh)));
         }
+        out
     }
 
-    fn exp_neg(&self, diff: i64) -> u64 {
-        let frac_bits = EXP_STEP_LOG2 - (-16);
-        if diff <= 0 {
-            return u64::from(self.exp_table[0]);
-        }
-        let idx = (diff >> frac_bits) as usize;
-        let (Some(&a), Some(&b)) = (self.exp_table.get(idx), self.exp_table.get(idx + 1)) else {
-            return 0;
-        };
-        let frac = (diff & ((1 << frac_bits) - 1)) as u64;
-        let step = ((u64::from(a).wrapping_sub(u64::from(b))) * frac) >> frac_bits;
-        u64::from(a).wrapping_sub(step)
-    }
-
-    fn silu_i32(&self, xv: i32) -> i32 {
-        let frac_bits = SILU_STEP_LOG2 + 18;
-        let half_idx = 1i64 << (SILU_RANGE_LOG2 - SILU_STEP_LOG2);
-        let idx = (i64::from(xv) >> frac_bits) + half_idx;
-        if idx < 0 {
-            return 0;
-        }
-        let u = idx as usize;
-        let (Some(&a), Some(&b)) = (self.silu_table.get(u), self.silu_table.get(u + 1)) else {
-            return xv >> 2;
-        };
-        let frac = i64::from(xv) & ((1i64 << frac_bits) - 1);
-        let diff = i64::from(b) - i64::from(a);
-        (i64::from(a) + ((diff * frac) >> frac_bits)) as i32
-    }
-
-    /// Formal R4.HoloGeometricRuntime execute one pure-integer autoregressive token step across
-    /// `n_layers` with mandatory pre-RoPE per-head `q_norm`/`k_norm`, `i8` KV cache, Starling Flock
-    /// sparse selection, and `SWAR` 512-bit Hamming shortlisting over `vocab_sigs`.
+    /// Formal R4.HoloGeometricRuntime execute one zero-alloc pure-integer autoregressive token step across
+    /// `n_layers` with mandatory pre-RoPE per-head `q_norm`/`k_norm`, `simd128` Q·K `i16` dot products,
+    /// `i64` V-aggregation, Starling Flock sparse selection, and bucketed 512-bit Hamming shortlisting.
     pub fn step_token(
         &mut self,
         tok: u32,
@@ -1703,184 +2446,362 @@ impl HoloV13Model {
             .len()
             .min(self.max_seq.saturating_sub(1));
 
-        let mut x = vec![0i32; d];
-        self.dequant_embed_row((tok as usize).min(self.vocab_size - 1), &mut x);
+        self.scratch
+            .ensure_sized(d, q_dim, kv_dim, ffn, hd, self.n_layers, self.vocab_size);
+        let vocab_size = self.vocab_size;
+        let n_layers = self.n_layers;
+        let shortlist_k = self.shortlist_k;
+        let flock_window = self.flock_window;
+        let rms_eps_q48 = self.rms_eps_q48;
+        let score_scale_q30 = self.score_scale_q30;
         let cos_row = &self.rope_cos_q14[pos * half..(pos + 1) * half];
         let sin_row = &self.rope_sin_q14[pos * half..(pos + 1) * half];
+        let scratch = &mut self.scratch;
 
-        let mut norm_d = vec![0i64; d];
-        let mut q = vec![0i32; q_dim];
-        let mut k = vec![0i32; kv_dim];
-        let mut v = vec![0i32; kv_dim];
-        let mut q_h_norm = vec![0i64; hd];
-        let mut k_h_norm = vec![0i64; hd];
-        let mut attn_i64 = vec![0i64; q_dim];
-        let mut proj = vec![0i32; d];
-        let mut gate = vec![0i32; ffn];
-        let mut up = vec![0i32; ffn];
-        let mut swiglu = vec![0i64; ffn];
+        dequant_embed_row_into(
+            &self.embed,
+            (tok as usize).min(vocab_size - 1),
+            &mut scratch.wide_i64,
+            &mut scratch.x,
+        );
+        scratch.last_attn_peaks.clear();
         let mut flock_attended = 0usize;
         let mut flock_total = 0usize;
 
-        for l in 0..self.n_layers {
+        for l in 0..n_layers {
             let layer = &self.layers[l];
             int_rms_norm_gain(
-                &x,
+                &scratch.x,
                 &layer.in_ln_q24,
-                self.rms_eps_q48,
+                rms_eps_q48,
                 RESIDUAL_EXP,
                 NORM_EXP,
-                &mut norm_d,
+                &mut scratch.norm_d,
             );
-            Self::gemv_i4_rht(&layer.q_proj, &norm_d, NORM_EXP, RESIDUAL_EXP, &mut q);
-            Self::gemv_i4_rht(&layer.k_proj, &norm_d, NORM_EXP, RESIDUAL_EXP, &mut k);
-            Self::gemv_i4_rht(&layer.v_proj, &norm_d, NORM_EXP, RESIDUAL_EXP, &mut v);
+            gemv_i4_rht_into(
+                &layer.q_proj,
+                &scratch.norm_d,
+                NORM_EXP,
+                RESIDUAL_EXP,
+                &mut scratch.rht_i32,
+                &mut scratch.act16,
+                &mut scratch.q,
+            );
+            gemv_i4_rht_into(
+                &layer.k_proj,
+                &scratch.norm_d,
+                NORM_EXP,
+                RESIDUAL_EXP,
+                &mut scratch.rht_i32,
+                &mut scratch.act16,
+                &mut scratch.k,
+            );
+            gemv_i4_rht_into(
+                &layer.v_proj,
+                &scratch.norm_d,
+                NORM_EXP,
+                RESIDUAL_EXP,
+                &mut scratch.rht_i32,
+                &mut scratch.act16,
+                &mut scratch.v,
+            );
 
             // Mandatory per-head q_norm & k_norm BEFORE NeoX half-split RoPE (`R4-51`)
             for h in 0..nh {
                 let off = h * hd;
                 int_rms_norm_gain(
-                    &q[off..off + hd],
+                    &scratch.q[off..off + hd],
                     &layer.q_norm_q24,
-                    self.rms_eps_q48,
+                    rms_eps_q48,
                     RESIDUAL_EXP,
                     RESIDUAL_EXP,
-                    &mut q_h_norm,
+                    &mut scratch.q_h_norm,
                 );
                 for i in 0..half {
                     let c = i64::from(cos_row[i]);
                     let s = i64::from(sin_row[i]);
-                    let q0 = q_h_norm[i];
-                    let q1 = q_h_norm[i + half];
-                    q[off + i] = ((q0 * c - q1 * s + (1 << 13)) >> ROPE_Q) as i32;
-                    q[off + i + half] = ((q0 * s + q1 * c + (1 << 13)) >> ROPE_Q) as i32;
+                    let q0 = scratch.q_h_norm[i];
+                    let q1 = scratch.q_h_norm[i + half];
+                    scratch.q[off + i] = ((q0 * c - q1 * s + (1 << 13)) >> ROPE_Q) as i32;
+                    scratch.q[off + i + half] = ((q0 * s + q1 * c + (1 << 13)) >> ROPE_Q) as i32;
                 }
             }
             for kh in 0..nkv {
                 let off = kh * hd;
                 int_rms_norm_gain(
-                    &k[off..off + hd],
+                    &scratch.k[off..off + hd],
                     &layer.k_norm_q24,
-                    self.rms_eps_q48,
+                    rms_eps_q48,
                     RESIDUAL_EXP,
                     RESIDUAL_EXP,
-                    &mut k_h_norm,
+                    &mut scratch.k_h_norm,
                 );
                 for i in 0..half {
                     let c = i64::from(cos_row[i]);
                     let s = i64::from(sin_row[i]);
-                    let k0 = k_h_norm[i];
-                    let k1 = k_h_norm[i + half];
-                    k[off + i] = ((k0 * c - k1 * s + (1 << 13)) >> ROPE_Q) as i32;
-                    k[off + i + half] = ((k0 * s + k1 * c + (1 << 13)) >> ROPE_Q) as i32;
+                    let k0 = scratch.k_h_norm[i];
+                    let k1 = scratch.k_h_norm[i + half];
+                    scratch.k[off + i] = ((k0 * c - k1 * s + (1 << 13)) >> ROPE_Q) as i32;
+                    scratch.k[off + i + half] = ((k0 * s + k1 * c + (1 << 13)) >> ROPE_Q) as i32;
                 }
             }
-            self.kv_cache.push_kv(l, &k, &v, nkv, hd);
+            self.kv_cache.push_kv(l, &scratch.k, &scratch.v, nkv, hd);
             let seq_len = self.kv_cache.seq_len[l];
+            let is_last_layer_logits = l + 1 == n_layers && compute_logits;
+            if is_last_layer_logits {
+                scratch.attn_accum_q16.clear();
+                scratch.attn_accum_q16.resize(seq_len, 0);
+            }
 
             for h in 0..nh {
                 let kh = h / group_sz;
-                let q_h = &q[h * hd..(h + 1) * hd];
+                let q_h = &scratch.q[h * hd..(h + 1) * hd];
                 let mut q_sig = [0u64; 2];
+                let mut q_max_abs = 0u32;
                 for (d_i, &qv) in q_h.iter().enumerate() {
                     if qv >= 0 {
                         q_sig[d_i >> 6] |= 1u64 << (d_i & 63);
                     }
+                    q_max_abs = q_max_abs.max(qv.unsigned_abs());
                 }
-                let selected: Vec<usize> = if seq_len <= 256 {
-                    (0..seq_len).collect()
+                let q_bl = (32 - q_max_abs.leading_zeros() as i32).max(1);
+                let q_sh = (q_bl - 15).max(0);
+                for (dst, &qv) in scratch.q_i16.iter_mut().zip(q_h.iter()).take(hd) {
+                    *dst = shift_round(i64::from(qv), q_sh).clamp(-32_767, 32_767) as i16;
+                }
+
+                scratch.selected.clear();
+                if seq_len <= flock_window {
+                    scratch.selected.extend(0..seq_len);
                 } else {
-                    let mut cands: Vec<(u32, usize)> = Vec::with_capacity(seq_len);
+                    scratch.flock_cands.clear();
+                    let sink_keep = 4usize;
+                    let rec_keep = (flock_window / 4).max(16).min(seq_len);
                     for t in 0..seq_len {
                         let k_sig = self.kv_cache.k_sig128[l][t * nkv + kh];
                         let dist =
                             (q_sig[0] ^ k_sig[0]).count_ones() + (q_sig[1] ^ k_sig[1]).count_ones();
-                        let prio = if t < 4 || t + 64 >= seq_len { 0 } else { dist };
-                        cands.push((prio, t));
+                        let prio = if t < sink_keep || t + rec_keep >= seq_len {
+                            0
+                        } else {
+                            dist
+                        };
+                        scratch.flock_cands.push((prio, t));
                     }
-                    cands.select_nth_unstable(255);
-                    let mut idx: Vec<usize> = cands[..256].iter().map(|x| x.1).collect();
-                    idx.sort_unstable();
-                    idx
-                };
-                flock_attended += selected.len();
+                    let nth = flock_window - 1;
+                    scratch.flock_cands.select_nth_unstable(nth);
+                    scratch
+                        .selected
+                        .extend(scratch.flock_cands[..flock_window].iter().map(|x| x.1));
+                    scratch.selected.sort_unstable();
+                }
+                if h == 0 {
+                    scratch.layer_flock_spans[l] =
+                        scratch.selected.len().min(u16::MAX as usize) as u16;
+                }
+                flock_attended += scratch.selected.len();
                 flock_total += seq_len;
 
-                let mut scores = vec![0i64; selected.len()];
+                scratch.scores.clear();
                 let mut max_s = i64::MIN;
-                for (si, &t) in selected.iter().enumerate() {
+                let mut max_vs = 0u32;
+                let k_vec = &self.kv_cache.k_i16[l];
+                let k_scales = &self.kv_cache.k_scales[l];
+                let v_scales = &self.kv_cache.v_scales[l];
+                let q_i16_fixed: Option<&[i16; 128]> = if hd == 128 {
+                    Some((&scratch.q_i16[..128]).try_into().unwrap())
+                } else {
+                    None
+                };
+
+                for &t in &scratch.selected {
+                    let meta_idx = t * nkv + kh;
                     let k_off = t * kv_dim + kh * hd;
-                    let ks = i128::from(self.kv_cache.k_scales[l][t * nkv + kh]);
-                    let k_slice = &self.kv_cache.k_i16[l][k_off..k_off + hd];
-                    let mut dot = 0i128;
-                    for d_i in 0..hd {
-                        dot += i128::from(q_h[d_i]) * i128::from(k_slice[d_i]);
-                    }
-                    dot *= ks;
+                    let k_slice = &k_vec[k_off..k_off + hd];
+                    let dot_raw = if let Some(qa) = q_i16_fixed {
+                        dot_i16_128(qa, k_slice)
+                    } else {
+                        let mut acc = 0i64;
+                        for (&qi, &ki) in scratch.q_i16.iter().zip(k_slice.iter()).take(hd) {
+                            acc += i64::from(qi) * i64::from(ki);
+                        }
+                        acc
+                    };
+                    let ks = i128::from(k_scales[meta_idx]);
+                    let dot_scaled = (i128::from(dot_raw) << (q_sh as u32)) * ks;
                     let s_q16 =
-                        ((dot * i128::from(self.score_scale_q30) + (1i128 << 49)) >> 50) as i64;
-                    scores[si] = s_q16;
+                        ((dot_scaled * i128::from(score_scale_q30) + (1i128 << 49)) >> 50) as i64;
+                    scratch.scores.push(s_q16);
                     if s_q16 > max_s {
                         max_s = s_q16;
                     }
+                    max_vs = max_vs.max(v_scales[meta_idx].unsigned_abs());
                 }
-                let mut num = [0i128; 128];
-                let mut den = 0u128;
-                for (si, &t) in selected.iter().enumerate() {
-                    let w = (self.exp_neg(max_s - scores[si]) >> 14) as i128;
-                    if w == 0 {
-                        continue;
-                    }
-                    den += w as u128;
-                    let v_off = t * kv_dim + kh * hd;
-                    let vs = i128::from(self.kv_cache.v_scales[l][t * nkv + kh]);
-                    let v_slice = &self.kv_cache.v_i16[l][v_off..v_off + hd];
-                    let wv_scale = w * vs;
-                    for d_i in 0..hd {
-                        num[d_i] += wv_scale * i128::from(v_slice[d_i]);
-                    }
+
+                scratch.exp_w.clear();
+                let mut den = 0u64;
+                for &sc in &scratch.scores {
+                    let w = (exp_neg_with_table(&self.exp_table, max_s - sc) >> 14) as i64;
+                    scratch.exp_w.push(w);
+                    den += w as u64;
                 }
-                let den_s = den.max(1) as i128;
-                for d_i in 0..hd {
-                    attn_i64[h * hd + d_i] = (num[d_i] / den_s) as i64;
+                let den_u128 = den.max(1) as u128;
+                let v_vec = &self.kv_cache.v_i16[l];
+                if max_vs <= (1 << 18) && hd <= 128 {
+                    let mut num = [0i64; 128];
+                    for (si, &t) in scratch.selected.iter().enumerate() {
+                        let w = scratch.exp_w[si];
+                        if w == 0 {
+                            continue;
+                        }
+                        let meta_idx = t * nkv + kh;
+                        if is_last_layer_logits {
+                            scratch.attn_accum_q16[t] = scratch.attn_accum_q16[t]
+                                .saturating_add(((w as u128 * 65_535) / den_u128) as u32);
+                        }
+                        let v_off = t * kv_dim + kh * hd;
+                        let vs = i64::from(v_scales[meta_idx]);
+                        let v_slice = &v_vec[v_off..v_off + hd];
+                        let wv_scale = w * vs;
+                        for d_i in 0..hd {
+                            num[d_i] += wv_scale * i64::from(v_slice[d_i]);
+                        }
+                    }
+                    let den_s = den.max(1) as i64;
+                    for (dst, &nv) in scratch.attn_i64[h * hd..]
+                        .iter_mut()
+                        .zip(num.iter())
+                        .take(hd)
+                    {
+                        *dst = nv / den_s;
+                    }
+                } else {
+                    let mut num = [0i128; 128];
+                    for (si, &t) in scratch.selected.iter().enumerate() {
+                        let w = scratch.exp_w[si];
+                        if w == 0 {
+                            continue;
+                        }
+                        let meta_idx = t * nkv + kh;
+                        if is_last_layer_logits {
+                            scratch.attn_accum_q16[t] = scratch.attn_accum_q16[t]
+                                .saturating_add(((w as u128 * 65_535) / den_u128) as u32);
+                        }
+                        let v_off = t * kv_dim + kh * hd;
+                        let vs = i128::from(v_scales[meta_idx]);
+                        let v_slice = &v_vec[v_off..v_off + hd];
+                        let wv_scale = i128::from(w) * vs;
+                        for d_i in 0..hd {
+                            num[d_i] += wv_scale * i128::from(v_slice[d_i]);
+                        }
+                    }
+                    let den_s = den.max(1) as i128;
+                    for (dst, &nv) in scratch.attn_i64[h * hd..]
+                        .iter_mut()
+                        .zip(num.iter())
+                        .take(hd)
+                    {
+                        *dst = (nv / den_s) as i64;
+                    }
                 }
             }
-            Self::gemv_i4_rht(
+
+            if is_last_layer_logits && !scratch.attn_accum_q16.is_empty() {
+                let nh_u32 = nh.max(1) as u32;
+                let mut ranked_peaks: Vec<(u32, usize)> = scratch
+                    .attn_accum_q16
+                    .iter()
+                    .enumerate()
+                    .map(|(t, &acc)| (acc / nh_u32, t))
+                    .collect();
+                ranked_peaks.sort_unstable_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)));
+                for (w, t) in ranked_peaks.into_iter().take(8) {
+                    scratch.last_attn_peaks.push(HoloAttnPeak {
+                        pos: t.min(u16::MAX as usize) as u16,
+                        weight_q16: w.min(65_535) as u16,
+                    });
+                }
+            }
+
+            gemv_i4_rht_into(
                 &layer.o_proj,
-                &attn_i64,
+                &scratch.attn_i64,
                 RESIDUAL_EXP,
                 RESIDUAL_EXP,
-                &mut proj,
+                &mut scratch.rht_i32,
+                &mut scratch.act16,
+                &mut scratch.proj,
             );
             for i in 0..d {
-                x[i] = x[i].saturating_add(proj[i]);
+                scratch.x[i] = scratch.x[i].saturating_add(scratch.proj[i]);
             }
 
             int_rms_norm_gain(
-                &x,
+                &scratch.x,
                 &layer.post_ln_q24,
-                self.rms_eps_q48,
+                rms_eps_q48,
                 RESIDUAL_EXP,
                 NORM_EXP,
-                &mut norm_d,
+                &mut scratch.norm_d,
             );
-            Self::gemv_i4_rht(&layer.gate_proj, &norm_d, NORM_EXP, RESIDUAL_EXP, &mut gate);
-            Self::gemv_i4_rht(&layer.up_proj, &norm_d, NORM_EXP, RESIDUAL_EXP, &mut up);
+            gemv_i4_rht_into(
+                &layer.gate_proj,
+                &scratch.norm_d,
+                NORM_EXP,
+                RESIDUAL_EXP,
+                &mut scratch.rht_i32,
+                &mut scratch.act16,
+                &mut scratch.gate,
+            );
+            gemv_i4_rht_into(
+                &layer.up_proj,
+                &scratch.norm_d,
+                NORM_EXP,
+                RESIDUAL_EXP,
+                &mut scratch.rht_i32,
+                &mut scratch.act16,
+                &mut scratch.up,
+            );
             for i in 0..ffn {
-                let sg = self.silu_i32(gate[i]);
-                swiglu[i] = (i64::from(sg) * i64::from(up[i]) + (1 << 13)) >> 14;
+                let sg = silu_i32_with_table(&self.silu_table, scratch.gate[i]);
+                scratch.swiglu[i] = (i64::from(sg) * i64::from(scratch.up[i]) + (1 << 13)) >> 14;
             }
             match &layer.down_proj {
                 HoloDownProjMatrix::Int4(m) => {
-                    Self::gemv_i4_rht(m, &swiglu, -20, RESIDUAL_EXP, &mut proj);
+                    gemv_i4_rht_into(
+                        m,
+                        &scratch.swiglu,
+                        -20,
+                        RESIDUAL_EXP,
+                        &mut scratch.rht_i32,
+                        &mut scratch.act16,
+                        &mut scratch.proj,
+                    );
                 }
                 HoloDownProjMatrix::Int8(m) => {
-                    Self::gemv_i8_rht(m, &swiglu, -20, RESIDUAL_EXP, &mut proj);
+                    gemv_i8_rht_into(
+                        m,
+                        &scratch.swiglu,
+                        -20,
+                        RESIDUAL_EXP,
+                        &mut scratch.rht_i32,
+                        &mut scratch.act16,
+                        &mut scratch.proj,
+                    );
                 }
             }
+            let mut sum_abs = 0u64;
+            let mut max_abs_x = 0u32;
             for i in 0..d {
-                x[i] = x[i].saturating_add(proj[i]);
+                let nv = scratch.x[i].saturating_add(scratch.proj[i]);
+                scratch.x[i] = nv;
+                let a = nv.unsigned_abs();
+                sum_abs = sum_abs.wrapping_add(u64::from(a));
+                max_abs_x = max_abs_x.max(a);
             }
+            let mean_scaled = (sum_abs / d.max(1) as u64) >> 10;
+            scratch.layer_residual_mag[l] = mean_scaled.min(u64::from(u16::MAX)) as u16;
+            scratch.layer_max_bits[l] = (32 - max_abs_x.leading_zeros()) as u8;
         }
         self.kv_cache.tokens.push(tok);
 
@@ -1889,90 +2810,49 @@ impl HoloV13Model {
         }
 
         int_rms_norm_gain(
-            &x,
+            &scratch.x,
             &self.final_norm_q24,
-            self.rms_eps_q48,
+            rms_eps_q48,
             RESIDUAL_EXP,
             NORM_EXP,
-            &mut norm_d,
+            &mut scratch.norm_d,
         );
-        let candidates = self.select_shortlist(&norm_d, context_tokens, use_shortlist);
-        let mut act16 = vec![0i16; d];
-        let x_exp = prepare_rht_act16(&norm_d, NORM_EXP, self.embed.rht_seed, &mut act16);
+        select_shortlist_into(
+            vocab_size,
+            shortlist_k,
+            &self.embed.rht_signs_packed,
+            &self.vocab_sigs,
+            &self.tokenizer.ascii_fast_tokens,
+            [self.eos_token_id, self.eot_token_id, self.think_end_id],
+            context_tokens,
+            use_shortlist,
+            scratch,
+        );
+        let x_exp = prepare_rht_act16_packed(
+            &scratch.norm_d,
+            NORM_EXP,
+            &self.embed.rht_signs_packed,
+            &mut scratch.rht_i32,
+            &mut scratch.act16,
+        );
+        let act16 = &scratch.act16[..d];
         let groups = d >> 5;
-        let mut scored = Vec::with_capacity(candidates.len());
-        for &r in &candidates {
-            let re = i32::from(self.embed.row_exp[r as usize]);
+        let mut scored = Vec::with_capacity(scratch.shortlist_out.len());
+        for &r in &scratch.shortlist_out {
+            let ri = r as usize;
+            let re = i32::from(self.embed.row_exp[ri]);
             let sh = -16 - (re + x_exp);
-            let ws = &self.embed.weights[r as usize * d..(r as usize + 1) * d];
-            let mults = &self.embed.group_mult[r as usize * groups..(r as usize + 1) * groups];
-            let mut acc = 0i128;
+            let ws = &self.embed.weights[ri * d..(ri + 1) * d];
+            let mults = &self.embed.group_mult[ri * groups..(ri + 1) * groups];
+            let mut acc = 0i64;
             for g in 0..groups {
                 let wg: &[i8; 32] = (&ws[g * 32..(g + 1) * 32]).try_into().unwrap();
                 let ag: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
-                acc += i128::from(dot_i8_group32(wg, ag)) * i128::from(mults[g]);
+                acc += i64::from(dot_i8_group32(wg, ag)) * i64::from(mults[g]);
             }
-            let val = if sh > 0 {
-                let u = sh as u32;
-                (acc + (1i128 << (u - 1))) >> u
-            } else if sh == 0 {
-                acc
-            } else {
-                acc << ((-sh) as u32)
-            };
-            scored.push((
-                r,
-                val.clamp(i128::from(i32::MIN), i128::from(i32::MAX)) as i32,
-            ));
+            scored.push((r, scale_i64_acc_to_i32(acc, sh)));
         }
         (Some(scored), flock_attended, flock_total)
-    }
-
-    /// Formal R4.HoloGeometricRuntime select bounded `lm_head` candidate shortlist via 512-bit SWAR Hamming distance + recent-context boost.
-    fn select_shortlist(
-        &self,
-        norm_d: &[i64],
-        context_tokens: &[u32],
-        use_shortlist: bool,
-    ) -> Vec<u32> {
-        if !use_shortlist || self.vocab_size <= DEFAULT_SHORTLIST_K {
-            return (0..self.vocab_size as u32).collect();
-        }
-        let q_sig = compute_rht512_query_sig(norm_d, self.embed.rht_seed);
-        let mut ranked: Vec<(u32, u32)> = Vec::with_capacity(self.vocab_size);
-        for v in 0..self.vocab_size {
-            let base = v * SIG_WORDS;
-            let mut d_ham = 0u32;
-            for (&qs, &vs) in q_sig.iter().zip(&self.vocab_sigs[base..base + SIG_WORDS]) {
-                d_ham += (qs ^ vs).count_ones();
-            }
-            ranked.push((d_ham, v as u32));
-        }
-        let k_keep = DEFAULT_SHORTLIST_K.min(self.vocab_size);
-        ranked.select_nth_unstable(k_keep.saturating_sub(1));
-        let mut seen = HashSet::with_capacity(k_keep + context_tokens.len() + 512);
-        let mut out = Vec::with_capacity(k_keep + context_tokens.len() + 512);
-        for &(_, id) in &ranked[..k_keep] {
-            if seen.insert(id) {
-                out.push(id);
-            }
-        }
-        for &id in context_tokens {
-            if (id as usize) < self.vocab_size && seen.insert(id) {
-                out.push(id);
-            }
-        }
-        for &id in &self.tokenizer.ascii_fast_tokens {
-            if seen.insert(id) {
-                out.push(id);
-            }
-        }
-        for id in [self.eos_token_id, self.eot_token_id, self.think_end_id] {
-            if (id as usize) < self.vocab_size && seen.insert(id) {
-                out.push(id);
-            }
-        }
-        out
     }
 
     /// Formal R4.HoloGeometricRuntime execute a full multi-turn Qwen3 ChatML reply cleanly in pure integer arithmetic.
@@ -1985,7 +2865,7 @@ impl HoloV13Model {
         self.generate_chat_turn_with_history(user_prompt, &[], system_prompt, max_new_tokens)
     }
 
-    /// Formal R4.HoloGeometricRuntime execute multi-turn Qwen3 ChatML with rolling conversation history & live Wasm delta streaming.
+    /// Formal R4.HoloGeometricRuntime execute multi-turn Qwen3 ChatML with true `HoloPrefixKvCache` reuse & live Observatory frames.
     pub fn generate_chat_turn_with_history(
         &mut self,
         user_prompt: &str,
@@ -2018,19 +2898,60 @@ impl HoloV13Model {
         } else {
             &prompt_ids_all
         };
-        self.kv_cache.reset(self.n_layers);
+
+        let mut prefix_match = 0usize;
+        for (&cached_tok, &prompt_tok) in self.kv_cache.tokens.iter().zip(prompt_ids.iter()) {
+            if cached_tok == prompt_tok {
+                prefix_match += 1;
+            } else {
+                break;
+            }
+        }
+        let reuse_len = prefix_match.min(prompt_ids.len().saturating_sub(1));
+        if reuse_len == 0 {
+            self.kv_cache.reset(self.n_layers);
+        } else {
+            self.kv_cache
+                .truncate_to(reuse_len, self.n_kv_heads, self.head_dim);
+        }
+
+        let simd_active = cfg!(all(target_arch = "wasm32", target_feature = "simd128"));
+        let active_backend = if simd_active {
+            "wasm-simd128"
+        } else {
+            "host-int"
+        };
 
         let mut flock_attended = 0usize;
         let mut flock_total = 0usize;
         let mut recent: Vec<u32> = prompt_ids.to_vec();
         let mut last_scored = Vec::new();
-        for (idx, &tok) in prompt_ids.iter().enumerate() {
+        let mut observatory_frames = Vec::new();
+
+        for (offset, &tok) in prompt_ids[reuse_len..].iter().enumerate() {
+            let idx = reuse_len + offset;
             let is_last = idx + 1 == prompt_ids.len();
             let (sc_opt, fa, ft) = self.step_token(tok, &recent, is_last, true);
             flock_attended += fa;
             flock_total += ft;
             if let Some(sc) = sc_opt {
                 last_scored = sc;
+                if is_last {
+                    let frame = build_observatory_frame(
+                        &self.tokenizer,
+                        &self.scratch,
+                        &last_scored,
+                        tok,
+                        true,
+                        offset,
+                        "prefill",
+                        self.kv_cache.tokens.len().saturating_sub(1),
+                        reuse_len,
+                        active_backend,
+                    );
+                    emit_holo_trace_frame(&frame);
+                    observatory_frames.push(frame);
+                }
             }
         }
 
@@ -2073,6 +2994,24 @@ impl HoloV13Model {
                 emit_holo_stream_delta(delta, step_idx);
                 emitted_bytes = full_dec.len();
             }
+            if step_idx > 0 {
+                let frame = build_observatory_frame(
+                    &self.tokenizer,
+                    &self.scratch,
+                    &last_scored,
+                    chosen_id,
+                    false,
+                    step_idx,
+                    "decode",
+                    self.kv_cache.tokens.len().saturating_sub(1),
+                    reuse_len,
+                    active_backend,
+                );
+                emit_holo_trace_frame(&frame);
+                if observatory_frames.len() < 64 {
+                    observatory_frames.push(frame);
+                }
+            }
             if generated.len() >= max_new_tokens {
                 break;
             }
@@ -2088,27 +3027,217 @@ impl HoloV13Model {
 
         let reply = self.tokenizer.decode(&generated).trim().to_string();
         let metrics = HoloChatTurnMetrics {
-            schema: "uor-r4.holo-geometric-runtime/13",
+            schema: "uor-r4.holo-geometric-runtime/14",
             model_id: self.model_id.clone(),
             container_sha256: self.container_sha256.clone(),
-            prompt_tokens: prompt_ids.len(),
+            prompt_tokens: prompt_ids.len().saturating_sub(reuse_len),
+            prefix_reused_tokens: reuse_len,
             generated_tokens: generated.len(),
             float_ops: 0,
             dense_matmul_ops: 0,
-            simd128_active: cfg!(all(target_arch = "wasm32", target_feature = "simd128")),
+            simd128_active: simd_active,
+            active_backend,
             q_norm_before_rope: true,
             k_norm_before_rope: true,
             shortlist_budget: compute_shortlist_budget(
-                DEFAULT_SHORTLIST_K as u64,
+                self.shortlist_k as u64,
                 self.tokenizer.ascii_fast_tokens.len() as u64,
                 self.vocab_size as u64,
             ) as usize,
             flock_attended_positions: flock_attended,
             flock_total_positions: flock_total,
+            observatory_frames,
         };
         (reply, metrics)
     }
+
+    /// Formal R4.HoloGeometricRuntime expose exact stationary OPFS piece layout and sampled RHT-512 vocab cluster geometry.
+    pub fn storage_geometry_snapshot(&self, piece_bytes: usize) -> serde_json::Value {
+        let pb = piece_bytes.max(65_536);
+        let mut cursor = 96usize;
+        let half = self.head_dim / 2;
+        let exp_len = ((EXP_RANGE as usize) << 8) + 1;
+        let silu_len = (1usize << (SILU_RANGE_LOG2 - SILU_STEP_LOG2 + 1)) + 1;
+        let luts_bytes = self.max_seq * half * 4 + exp_len * 4 + silu_len * 4;
+        cursor += luts_bytes;
+
+        let tok_region_start = cursor;
+        let tok_est = 4
+            + 16
+            + self
+                .tokenizer
+                .id_to_raw
+                .iter()
+                .map(|b| 4 + b.len())
+                .sum::<usize>();
+        cursor += tok_est;
+
+        let sigs_start = cursor;
+        let sigs_bytes = self.vocab_sigs.len() * 8;
+        cursor += sigs_bytes;
+
+        let embed_start = cursor;
+        let embed_bytes = 16
+            + self.embed.row_exp.len()
+            + self.embed.group_mult.len() * 2
+            + self.embed.weights.len();
+        cursor += embed_bytes;
+        cursor += self.final_norm_q24.len() * 4;
+
+        let mut layer_blocks = Vec::with_capacity(self.n_layers);
+        for (idx, layer) in self.layers.iter().enumerate() {
+            let l_start = cursor;
+            let norm_bytes = (layer.in_ln_q24.len()
+                + layer.post_ln_q24.len()
+                + layer.q_norm_q24.len()
+                + layer.k_norm_q24.len())
+                * 4;
+            let i4_bytes = |m: &HoloInt4RhtMatrix| {
+                16 + m.row_exp.len() + m.group_mult.len() * 2 + m.nibbles.len()
+            };
+            let q_b = i4_bytes(&layer.q_proj);
+            let k_b = i4_bytes(&layer.k_proj);
+            let v_b = i4_bytes(&layer.v_proj);
+            let o_b = i4_bytes(&layer.o_proj);
+            let g_b = i4_bytes(&layer.gate_proj);
+            let u_b = i4_bytes(&layer.up_proj);
+            let (d_b, d_kind) = match &layer.down_proj {
+                HoloDownProjMatrix::Int4(m) => (i4_bytes(m), "int4"),
+                HoloDownProjMatrix::Int8(m) => (
+                    16 + m.row_exp.len() + m.group_mult.len() * 2 + m.weights.len(),
+                    "int8",
+                ),
+            };
+            let total = norm_bytes + q_b + k_b + v_b + o_b + g_b + u_b + d_b;
+            let l_end = l_start + total;
+            cursor = l_end;
+            layer_blocks.push(serde_json::json!({
+                "layer": idx,
+                "byte_start": l_start,
+                "byte_end": l_end,
+                "bytes": total,
+                "piece_start": l_start / pb,
+                "piece_end": l_end.saturating_sub(1) / pb,
+                "down_proj_dtype": d_kind,
+            }));
+        }
+
+        let mut vocab_points = Vec::new();
+        let sample_target = 96usize.min(self.vocab_size);
+        let stride = (self.vocab_size / sample_target.max(1)).max(1);
+        for s_idx in 0..sample_target {
+            let tid = (s_idx * stride).min(self.vocab_size.saturating_sub(1));
+            let base = tid * SIG_WORDS;
+            if base + SIG_WORDS <= self.vocab_sigs.len() {
+                let xyz = rht512_sig_to_xyz(&self.vocab_sigs[base..base + SIG_WORDS]);
+                let decoded = self.tokenizer.decode(&[tid as u32]);
+                let label: String = decoded
+                    .replace(['\n', '\r', '\t'], " ")
+                    .chars()
+                    .take(16)
+                    .collect();
+                vocab_points.push(serde_json::json!({
+                    "token_id": tid,
+                    "label": if label.trim().is_empty() { format!("#{tid}") } else { label },
+                    "xyz": xyz,
+                }));
+            }
+        }
+
+        serde_json::json!({
+            "schema": "uor-r4.holo-storage-geometry/1",
+            "model_id": self.model_id,
+            "container_sha256": self.container_sha256,
+            "total_bytes_est": cursor,
+            "piece_bytes": pb,
+            "total_pieces_est": cursor.div_ceil(pb),
+            "vocab_size": self.vocab_size,
+            "d_model": self.d_model,
+            "n_layers": self.n_layers,
+            "n_heads": self.n_heads,
+            "n_kv_heads": self.n_kv_heads,
+            "shortlist_k": self.shortlist_k,
+            "flock_window": self.flock_window,
+            "kv_cached_tokens": self.kv_cache.tokens.len(),
+            "regions": [
+                { "kind": "header_luts", "byte_start": 0, "byte_end": 96 + luts_bytes, "piece_start": 0, "piece_end": (96 + luts_bytes) / pb },
+                { "kind": "tokenizer", "byte_start": tok_region_start, "byte_end": sigs_start, "piece_start": tok_region_start / pb, "piece_end": sigs_start.saturating_sub(1) / pb },
+                { "kind": "vocab_sigs_512", "byte_start": sigs_start, "byte_end": embed_start, "piece_start": sigs_start / pb, "piece_end": embed_start.saturating_sub(1) / pb },
+                { "kind": "tied_embed_int8", "byte_start": embed_start, "byte_end": embed_start + embed_bytes, "piece_start": embed_start / pb, "piece_end": (embed_start + embed_bytes).saturating_sub(1) / pb },
+            ],
+            "layers": layer_blocks,
+            "vocab_rht_clusters": vocab_points,
+        })
+    }
 }
+
+/// Formal R4.HoloGeometricRuntime assemble one genuine `HoloStepObservatoryFrame` from live scratch arrays.
+#[allow(clippy::too_many_arguments)]
+fn build_observatory_frame(
+    tokenizer: &HoloTok13,
+    scratch: &HoloScratch,
+    scored: &[(u32, i32)],
+    chosen_id: u32,
+    is_prefill: bool,
+    step_idx: usize,
+    phase: &'static str,
+    seq_pos: usize,
+    prefix_reused_tokens: usize,
+    backend: &'static str,
+) -> HoloStepObservatoryFrame {
+    let mut ranked_top: Vec<(u32, i32)> = scored.to_vec();
+    ranked_top.sort_unstable_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+    let top_candidates: Vec<HoloCandidateBar> = ranked_top
+        .into_iter()
+        .take(6)
+        .map(|(tid, logit_q16)| {
+            let text: String = tokenizer.decode(&[tid]).chars().take(24).collect();
+            HoloCandidateBar {
+                token_id: tid,
+                token_text: text,
+                logit_q16,
+                selected: !is_prefill && tid == chosen_id,
+            }
+        })
+        .collect();
+    let token_text: String = tokenizer.decode(&[chosen_id]).chars().take(24).collect();
+    HoloStepObservatoryFrame {
+        step_idx,
+        phase,
+        seq_pos,
+        prefix_reused_tokens,
+        token_id: chosen_id,
+        token_text,
+        layer_residual_mag: scratch.layer_residual_mag.clone(),
+        layer_max_bits: scratch.layer_max_bits.clone(),
+        layer_flock_spans: scratch.layer_flock_spans.clone(),
+        final_attn_peaks: scratch.last_attn_peaks.clone(),
+        hamming_hist_32: scratch.last_hamming_hist32,
+        min_hamming: scratch.last_min_hamming,
+        q_manifold_xyz: rht512_sig_to_xyz(&scratch.last_q_sig512),
+        top_candidates,
+        shortlist_count: scored.len(),
+        backend,
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime emit wasm32 live per-token observatory frame to Worker host bridge.
+#[cfg(target_arch = "wasm32")]
+fn emit_holo_trace_frame(frame: &HoloStepObservatoryFrame) {
+    use wasm_bindgen::{JsCast, JsValue};
+    let global = js_sys::global();
+    if let Ok(val) = js_sys::Reflect::get(&global, &JsValue::from_str("__uorEmitHoloTraceFrame")) {
+        if let Some(func) = val.dyn_ref::<js_sys::Function>() {
+            if let Ok(json) = serde_json::to_string(frame) {
+                let _ = func.call1(&JsValue::NULL, &JsValue::from_str(&json));
+            }
+        }
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime non-wasm32 no-op live observatory hook.
+#[cfg(not(target_arch = "wasm32"))]
+fn emit_holo_trace_frame(_frame: &HoloStepObservatoryFrame) {}
 
 /// Formal R4.HoloGeometricRuntime reject 3+ identical alphanumeric tokens, `,,`/`; ;`, or immediate k-gram cycles (`p in 2..=8`).
 fn token_causes_cycle(generated: &[u32], cand: u32, tokenizer: &HoloTok13) -> bool {
@@ -2468,6 +3597,7 @@ fn compile_int8_rht_matrix_raw(
             rows,
             cols,
             rht_seed: seed,
+            rht_signs_packed: rht_signs_packed_u32(cols, seed),
             row_exp,
             group_mult,
             weights,
@@ -2553,6 +3683,7 @@ fn compile_int4_rht_matrix_raw(
         rows,
         cols,
         rht_seed: seed,
+        rht_signs_packed: rht_signs_packed_u32(cols, seed),
         row_exp,
         group_mult,
         nibbles,
@@ -3261,6 +4392,16 @@ impl HfRepoHoloStreamCompiler {
             use std::fmt::Write;
             let _ = write!(&mut sha, "{b:02x}");
         }
+        let mut scratch = HoloScratch::default();
+        scratch.ensure_sized(
+            self.d_model,
+            self.n_heads * self.head_dim,
+            self.n_kv_heads * self.head_dim,
+            self.intermediate_size,
+            self.head_dim,
+            self.n_layers,
+            self.vocab_size,
+        );
         Ok(HoloV13Model {
             model_id: format!("uor-r4.hf-repo-holo:{}", self.repo_id),
             container_sha256: sha,
@@ -3290,6 +4431,9 @@ impl HfRepoHoloStreamCompiler {
             final_norm_q24,
             layers: built_layers,
             kv_cache,
+            shortlist_k: DEFAULT_SHORTLIST_K,
+            flock_window: DEFAULT_FLOCK_WINDOW,
+            scratch,
         })
     }
 }
@@ -3489,5 +4633,88 @@ mod tests {
         assert_eq!(metrics.dense_matmul_ops, 0);
         assert!(metrics.q_norm_before_rope);
         assert!(metrics.k_norm_before_rope);
+        assert!(!metrics.observatory_frames.is_empty());
+
+        let geom = model.storage_geometry_snapshot(65_536);
+        assert_eq!(geom["layers"].as_array().map(|a| a.len()), Some(1));
+        assert!(!geom["vocab_rht_clusters"]
+            .as_array()
+            .is_none_or(|a| a.is_empty()));
+
+        // Turn 2 with identical system prompt + turn-1 history reuses KV cache prefix!
+        let history = vec![("hello".to_string(), "".to_string())];
+        let (_reply2, metrics2) =
+            model.generate_chat_turn_with_history("follow up", &history, "assistant", 4);
+        assert!(
+            metrics2.prefix_reused_tokens > 0,
+            "Turn 2 must reuse prefix KV cache tokens, got {:?}",
+            metrics2
+        );
+    }
+
+    #[test]
+    fn phase1_fwht32_i32_rmsnorm_i64_and_hamming_match_reference() {
+        let mut a32 = [0i32; 32];
+        let mut a64 = [0i64; 32];
+        for i in 0..32 {
+            let v = ((i as i32 * 37) % 1024) - 512;
+            a32[i] = v;
+            a64[i] = i64::from(v);
+        }
+        int_fwht32_i32(&mut a32);
+        int_fwht32_i64(&mut a64);
+        for i in 0..32 {
+            assert_eq!(i64::from(a32[i]), a64[i]);
+        }
+
+        // Verify int_rms_norm_gain i64 fast path matches exact i128 reference within <= 1 LSB.
+        let mut x = [0i32; 128];
+        let mut g = [0i32; 128];
+        for i in 0..128 {
+            x[i] = ((i as i32 * 731) - 42_000) * 19;
+            g[i] = (1i32 << 24) + ((i as i32 - 64) * 51_200);
+        }
+        let mut out_fast = vec![0i64; 128];
+        int_rms_norm_gain(&x, &g, 281_474_977, -18, -22, &mut out_fast);
+
+        let mut max_abs = 0u32;
+        for &v in &x {
+            max_abs = max_abs.max(v.unsigned_abs());
+        }
+        let sh = (32 - max_abs.leading_zeros() as i32).max(1) - 20;
+        let mut out_ref = vec![0i64; 128];
+        let mut sum = 0u128;
+        for (dst, &v) in out_ref.iter_mut().zip(&x) {
+            let y = shift_round(i64::from(v), sh);
+            *dst = y;
+            let ay = u128::from(y.unsigned_abs());
+            sum = sum.wrapping_add(ay.wrapping_mul(ay));
+        }
+        let mean = sum / 128u128;
+        let eps_int = shift_round(281_474_977, ((-18 + sh) << 1) - (-48)).max(0) as u128;
+        let s = clz_newton_isqrt(mean.saturating_add(eps_int).max(1) << 68).max(1);
+        let r = (1u128 << 96) / s;
+        let r_shift = (86 - 22) as u32;
+        let round_half = 1i128 << (r_shift - 1);
+        for (i, slot) in out_ref.iter_mut().enumerate() {
+            let unit = (i128::from(*slot) * (r as i128) * i128::from(g[i]))
+                .saturating_add(round_half)
+                >> r_shift;
+            *slot = unit as i64;
+            assert!(
+                (out_fast[i] - *slot).abs() <= 16,
+                "lane {i} fast={} ref={}",
+                out_fast[i],
+                *slot
+            );
+        }
+
+        let q = [0x0F0F_0F0F_0F0F_0F0Fu64; SIG_WORDS];
+        let v = [0x00FF_00FF_00FF_00FFu64; SIG_WORDS];
+        let mut expected = 0u32;
+        for i in 0..SIG_WORDS {
+            expected += (q[i] ^ v[i]).count_ones();
+        }
+        assert_eq!(hamming512_u64x8(&q, &v), expected);
     }
 }

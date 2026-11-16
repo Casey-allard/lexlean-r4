@@ -1044,6 +1044,16 @@ const engineWorkerClient = {
         if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
         if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
       }
+      if (msg.recommendedModel && !holoObservatoryState.manualModelPinned) {
+        const modelSel = document.getElementById('composer-model-select');
+        if (modelSel && Array.from(modelSel.options).some((o) => o.value === msg.recommendedModel)) {
+          modelSel.value = msg.recommendedModel;
+          if (AppState && AppState.config) AppState.config.selectedModel = msg.recommendedModel;
+          if (typeof syncComposerModel === 'function') syncComposerModel(msg.recommendedModel);
+          if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+          if (typeof emitPrismEmbedEvent === 'function') emitPrismEmbedEvent('prism:status');
+        }
+      }
       if (msg.holo) {
         this.rpc('holo_runtime_status', {})
           .then((res) => {
@@ -1054,7 +1064,26 @@ const engineWorkerClient = {
             if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
           })
           .catch(() => {});
+        refreshHoloStorageGeometry(msg.recommendedModel || '').catch(() => {});
       }
+      return;
+    }
+    if (evType === 'holo_trace_frame' && msg.frame) {
+      ingestHoloObservatoryFrame(msg.frame, null);
+      return;
+    }
+    if (evType === 'holo_observatory_batch' && Array.isArray(msg.frames)) {
+      for (let i = 0; i < msg.frames.length; i += 1) {
+        ingestHoloObservatoryFrame(msg.frames[i], {
+          prefixReused: msg.prefixReused || 0,
+          selectedModel: msg.selectedModel || '',
+        });
+      }
+      refreshHoloStorageGeometry(msg.selectedModel || '').catch(() => {});
+      return;
+    }
+    if (evType === 'telos_tick') {
+      renderTelosSelfImproveStatus(msg);
       return;
     }
     if (evType === 'weights_upgraded') {
@@ -1158,6 +1187,8 @@ function startHeaderBrainPulseCanvas() {
 
   canvas.addEventListener('click', () => {
     activateCanvasTab('traces');
+    refreshHoloStorageGeometry('').catch(() => {});
+    renderHoloObservatoryDeck();
   });
 
   const drawFrame = (ts) => {
@@ -2730,6 +2761,26 @@ function renderCompletedChatResponse(trimmed, chatRes) {
   appendChatTurn('assistant', assistantTitle, replyProse, patchTarget, patchBody, true, chatMeta);
   updateLiveAgentStatusBar(chatRes);
 
+  if (Array.isArray(chatRes.holo_observatory_frames) && chatRes.holo_observatory_frames.length > 0) {
+    const nowDone = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    const totalMs = holoObservatoryState.turnStartMs > 0 ? Math.max(1, Math.round(nowDone - holoObservatoryState.turnStartMs)) : 0;
+    holoObservatoryState.lastTurnDurationMs = totalMs;
+    holoObservatoryState.lastGeneratedTokens = Number((gm && gm.generated_tokens) || chatRes.holo_observatory_frames.length || 0);
+    for (let fi = 0; fi < chatRes.holo_observatory_frames.length; fi += 1) {
+      ingestHoloObservatoryFrame(chatRes.holo_observatory_frames[fi], {
+        prefixReused: Number(chatRes.holo_prefix_reused_tokens) || 0,
+        selectedModel: chatRes.selected_model || '',
+      });
+    }
+    if (engineWorkerClient && engineWorkerClient.enabled) {
+      runVerdantTelosTick({
+        latency_ms: totalMs,
+        prompt_len: Number((gm && gm.prompt_tokens) || 64),
+        matched_prefix: Number(chatRes.holo_prefix_reused_tokens) || 0,
+      }).catch(() => {});
+    }
+  }
+
   if (Array.isArray(chatMeta.toolCards)) {
     chatMeta.toolCards.forEach((tc) => {
       secopsAudit.recordEvent('tool_invocation', tc.name, 'agent_tool', tc.arguments || {}, 'info');
@@ -2938,6 +2989,9 @@ function runClaudeChat(promptText, recordUserBubble = true) {
   const activeTierTag = engineWorkerClient.holoStatus && engineWorkerClient.holoStatus.mounted_count > 0
     ? 'Holo v13 Int4'
     : 'Holo v13 Worker';
+  holoObservatoryState.turnStartMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  holoObservatoryState.firstDeltaMs = 0;
+  holoObservatoryState.deltaCount = 0;
   const chatPayload = JSON.stringify({
     prompt: trimmed,
     selected_model: selectedModel,
@@ -2946,6 +3000,9 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     retain_lambda: AppState.config.retainLambda ?? 0.85,
     plurality_votes: AppState.config.pluralityVotes ?? 8,
     active_project: AppState.config.activeProject || 'lexlean-r4',
+    connected_repo: (AppState.config && AppState.config.connectedGitRepo) || '',
+    connected_branch: (AppState.config && AppState.config.connectedGitBranch) || 'main',
+    active_file: (typeof activeWorkspacePath === 'string' && activeWorkspacePath) || '',
     web_access: engineWorkerClient.webAccessEnabled,
   });
 
@@ -2978,6 +3035,11 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     const liveHook = (bridgeEvt) => {
       if (!statusLineEl || !bridgeEvt) return;
       if (bridgeEvt.stage === 'chat_stream_delta') {
+        const nowMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+        if (!holoObservatoryState.firstDeltaMs && holoObservatoryState.turnStartMs > 0) {
+          holoObservatoryState.firstDeltaMs = Math.max(1, Math.round(nowMs - holoObservatoryState.turnStartMs));
+        }
+        holoObservatoryState.deltaCount += 1;
         streamedReplyText += String(bridgeEvt.text || '');
         if (streamedReplyText) {
           statusLineEl.textContent = streamedReplyText;
@@ -4858,13 +4920,437 @@ function renderVerdantSynthesisPanel() {
   }
 }
 
+const holoObservatoryState = {
+  frames: [],
+  storageGeom: null,
+  paused: false,
+  qTrail: [],
+  rotAngle: 0.42,
+  turnStartMs: 0,
+  firstDeltaMs: 0,
+  deltaCount: 0,
+  lastTurnDurationMs: 0,
+  lastGeneratedTokens: 0,
+  prefixReused: 0,
+  shortlistK: 4096,
+  backend: 'wasm-simd128',
+  manualModelPinned: false,
+};
+
+function renderTelosSelfImproveStatus(res) {
+  /* Formal R4.OntologicalTelos (src/R4/OntologicalTelos.lex.tex) */
+  if (!res) return;
+  const badge = document.getElementById('telos-verdict-badge');
+  const txt = document.getElementById('telos-summary-text');
+  if (badge) {
+    badge.textContent = `${res.verdict || 'TelosAdmitted'} · k=${res.shortlist_k || 4096} · w=${res.flock_window || 256}`;
+  }
+  if (txt) {
+    const comps = res.loss_components || {};
+    txt.textContent = `Tick #${res.step_idx ?? 0} (${res.tuned_axis || 'shortlist_k'}) · W5H=${Boolean(res.w5h_complete)} · loss=${res.loss_total ?? 0} · opacity=${comps.opacity_debt ?? 0} legibility=${comps.legibility_gap ?? 0} dissonance=${comps.observer_dissonance ?? 0}`;
+  }
+}
+
+/** Formal R4.OntologicalTelos (src/R4/OntologicalTelos.lex.tex) */
+async function runVerdantTelosTick(metricsPayload) {
+  /* Formal R4.OntologicalTelos (src/R4/OntologicalTelos.lex.tex) */
+  const payloadObj = metricsPayload || {};
+  if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+    const res = await engineWorkerClient.rpc('telos_self_improvement_tick', payloadObj);
+    renderTelosSelfImproveStatus(res);
+    return res;
+  }
+  const raw = dispatchStudioEnvelope('telos_tick', JSON.stringify(payloadObj));
+  renderTelosSelfImproveStatus(raw);
+  return raw;
+}
+
+async function refreshHoloStorageGeometry(modelId = '') {
+  /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  let geom = null;
+  if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+    geom = await engineWorkerClient.rpc('holo_storage_geometry', { modelId: String(modelId || '') });
+  } else {
+    geom = dispatchStudioEnvelope('holo_storage_geometry', String(modelId || ''));
+  }
+  if (geom && geom.status === 'ok') {
+    holoObservatoryState.storageGeom = geom;
+    renderHoloObservatoryDeck();
+  }
+  return geom;
+}
+
+function ingestHoloObservatoryFrame(frame, batchMeta = null) {
+  /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  if (!frame || typeof frame !== 'object') return;
+  if (holoObservatoryState.paused) return;
+  holoObservatoryState.frames.push(frame);
+  if (holoObservatoryState.frames.length > 96) {
+    holoObservatoryState.frames.shift();
+  }
+  if (Array.isArray(frame.q_manifold_xyz) && frame.q_manifold_xyz.length === 3) {
+    holoObservatoryState.qTrail.push({
+      xyz: frame.q_manifold_xyz,
+      label: String(frame.token_text || `#${frame.token_id || 0}`).slice(0, 10),
+    });
+    if (holoObservatoryState.qTrail.length > 32) {
+      holoObservatoryState.qTrail.shift();
+    }
+  }
+  if (batchMeta && typeof batchMeta.prefixReused === 'number') {
+    holoObservatoryState.prefixReused = batchMeta.prefixReused;
+  } else if (typeof frame.prefix_reused_tokens === 'number') {
+    holoObservatoryState.prefixReused = frame.prefix_reused_tokens;
+  }
+  if (frame.backend) {
+    holoObservatoryState.backend = String(frame.backend);
+  }
+  holoObservatoryState.rotAngle = (holoObservatoryState.rotAngle + 0.08) % (Math.PI * 2);
+  renderHoloObservatoryDeck();
+}
+
+function drawHoloCanvasHeader(ctx, w, h, subtitle) {
+  /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#05070c';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
+  if (subtitle) {
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px ui-monospace, Menlo, monospace';
+    ctx.fillText(subtitle, 10, 15);
+  }
+}
+
+function renderHoloObservatoryDeck() {
+  /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  const latest = holoObservatoryState.frames[holoObservatoryState.frames.length - 1] || null;
+  const geom = holoObservatoryState.storageGeom;
+
+  const badgeEl = document.getElementById('holo-obs-status-badge');
+  const speedEl = document.getElementById('holo-obs-speed-stat');
+  const prefixEl = document.getElementById('holo-obs-prefix-stat');
+  const shortlistEl = document.getElementById('holo-obs-shortlist-stat');
+  const backendEl = document.getElementById('holo-obs-backend-stat');
+
+  if (badgeEl) {
+    badgeEl.textContent = latest
+      ? `${latest.phase} pos=${latest.seq_pos} tok="${String(latest.token_text || '').replace(/\s+/g, ' ')}"`
+      : 'Awaiting Live Token Frame';
+  }
+  if (speedEl) {
+    const ttft = holoObservatoryState.firstDeltaMs ? `${holoObservatoryState.firstDeltaMs}ms TTFT` : '—';
+    const durSec = holoObservatoryState.lastTurnDurationMs > 0 ? holoObservatoryState.lastTurnDurationMs / 1000 : 0;
+    const tps = (durSec > 0 && holoObservatoryState.lastGeneratedTokens > 0)
+      ? `${(holoObservatoryState.lastGeneratedTokens / durSec).toFixed(1)} tok/s`
+      : '—';
+    speedEl.textContent = `${ttft} · ${tps}`;
+  }
+  if (prefixEl) {
+    prefixEl.textContent = `${holoObservatoryState.prefixReused || 0} tok cached`;
+  }
+  if (shortlistEl) {
+    shortlistEl.textContent = `${latest ? latest.shortlist_count : holoObservatoryState.shortlistK} / d=${latest ? latest.min_hamming : '—'}`;
+  }
+  if (backendEl) {
+    backendEl.textContent = holoObservatoryState.backend;
+  }
+
+  // 1. 28-Layer Residual & Bit-Width Waterfall
+  const c1 = document.getElementById('holo-layer-waterfall-canvas');
+  if (c1 && typeof c1.getContext === 'function') {
+    const ctx = c1.getContext('2d');
+    const w = c1.width;
+    const h = c1.height;
+    const mags = (latest && Array.isArray(latest.layer_residual_mag) && latest.layer_residual_mag.length > 0)
+      ? latest.layer_residual_mag
+      : null;
+    const bits = (latest && Array.isArray(latest.layer_max_bits)) ? latest.layer_max_bits : [];
+    drawHoloCanvasHeader(ctx, w, h, mags ? `${mags.length} Layers · Live Residual Magnitude & Max Bit-Width` : 'Send a chat turn to inspect live 28-layer integer dynamics');
+    if (mags) {
+      let maxMag = 1;
+      for (let i = 0; i < mags.length; i += 1) {
+        if (mags[i] > maxMag) maxMag = mags[i];
+      }
+      const padL = 16;
+      const padB = 22;
+      const plotW = w - padL * 2;
+      const plotH = h - 32 - padB;
+      const stepX = plotW / Math.max(1, mags.length);
+      for (let i = 0; i < mags.length; i += 1) {
+        const bw = Math.max(3, stepX - 2);
+        const normH = Math.max(4, Math.round((mags[i] / maxMag) * plotH));
+        const bWidth = Number(bits[i] || 18);
+        const hue = bWidth >= 24 ? '#f59e0b' : (bWidth >= 20 ? '#38bdf8' : '#22d3ee');
+        ctx.fillStyle = hue;
+        ctx.fillRect(padL + i * stepX, h - padB - normH, bw, normH);
+        if (i === 0 || i === mags.length - 1 || i % 7 === 0) {
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '9px ui-monospace, Menlo, monospace';
+          ctx.fillText(`L${i}`, padL + i * stepX, h - 7);
+        }
+        ctx.fillStyle = '#cbd5e1';
+        ctx.font = '8px ui-monospace, Menlo, monospace';
+        if (i % 4 === 0) {
+          ctx.fillText(`${bWidth}b`, padL + i * stepX, Math.max(26, h - padB - normH - 3));
+        }
+      }
+    }
+  }
+
+  // 2. 151,936-Vocab RHT-512 Hamming Bell Curve + Top-6 Integer Logit Race
+  const c2 = document.getElementById('holo-shortlist-race-canvas');
+  if (c2 && typeof c2.getContext === 'function') {
+    const ctx = c2.getContext('2d');
+    const w = c2.width;
+    const h = c2.height;
+    const hist = (latest && Array.isArray(latest.hamming_hist_32)) ? latest.hamming_hist_32 : null;
+    const cands = (latest && Array.isArray(latest.top_candidates)) ? latest.top_candidates : [];
+    drawHoloCanvasHeader(ctx, w, h, hist ? `RHT-512 Bell Curve (min d=${latest.min_hamming}) · Top-6 Shortlist Race` : 'Shortlist Hamming histogram & logit race await decode');
+    const splitX = Math.floor(w * 0.48);
+    if (hist) {
+      let maxBin = 1;
+      for (let b = 0; b < hist.length; b += 1) {
+        if (hist[b] > maxBin) maxBin = hist[b];
+      }
+      const bw = Math.max(2, (splitX - 24) / hist.length);
+      for (let b = 0; b < hist.length; b += 1) {
+        const logRatio = Math.log10(1 + (hist[b] || 0)) / Math.log10(1 + maxBin);
+        const bh = Math.max(2, Math.round(logRatio * (h - 56)));
+        ctx.fillStyle = b < 14 ? '#34d399' : '#38bdf8';
+        ctx.fillRect(14 + b * bw, h - 22 - bh, Math.max(1, bw - 1), bh);
+      }
+      ctx.fillStyle = '#64748b';
+      ctx.font = '9px ui-monospace, Menlo, monospace';
+      ctx.fillText('d=0', 14, h - 7);
+      ctx.fillText('256', Math.floor(splitX * 0.46), h - 7);
+      ctx.fillText('512', splitX - 26, h - 7);
+    }
+    if (cands.length > 0) {
+      let maxLog = 1;
+      let minLog = cands[cands.length - 1].logit_q16 || 0;
+      for (let i = 0; i < cands.length; i += 1) {
+        if (cands[i].logit_q16 > maxLog) maxLog = cands[i].logit_q16;
+        if (cands[i].logit_q16 < minLog) minLog = cands[i].logit_q16;
+      }
+      const span = Math.max(1, maxLog - minLog + 64);
+      const barAreaW = w - splitX - 20;
+      for (let i = 0; i < cands.length; i += 1) {
+        const item = cands[i];
+        const y = 30 + i * 28;
+        const frac = Math.max(0.12, (item.logit_q16 - minLog + 32) / span);
+        ctx.fillStyle = item.selected ? 'rgba(52, 211, 153, 0.25)' : 'rgba(56, 189, 248, 0.16)';
+        ctx.fillRect(splitX + 6, y, Math.round(barAreaW * frac), 21);
+        ctx.fillStyle = item.selected ? '#34d399' : '#e2e8f0';
+        ctx.font = '10px ui-monospace, Menlo, monospace';
+        const lbl = `${item.selected ? '*' : ' '}"${String(item.token_text || '').replace(/\s+/g, ' ')}"`;
+        ctx.fillText(`${lbl.slice(0, 14)} (${item.logit_q16})`, splitX + 10, y + 14);
+      }
+    }
+  }
+
+  // 3. Causal Starling-Flock Sparse Attention Matrix & Final-Layer Peaks
+  const c3 = document.getElementById('holo-causal-flock-canvas');
+  if (c3 && typeof c3.getContext === 'function') {
+    const ctx = c3.getContext('2d');
+    const w = c3.width;
+    const h = c3.height;
+    const spans = (latest && Array.isArray(latest.layer_flock_spans)) ? latest.layer_flock_spans : null;
+    const peaks = (latest && Array.isArray(latest.final_attn_peaks)) ? latest.final_attn_peaks : [];
+    drawHoloCanvasHeader(ctx, w, h, spans ? `Starling Flock Spans (${spans.length}L) · Reused Prefix=${holoObservatoryState.prefixReused}` : 'Causal Starling-Flock KV matrix awaits decode');
+    if (spans) {
+      const seqMax = Math.max(1, Number(latest.seq_pos) + 1);
+      const padL = 14;
+      const plotW = w - 28;
+      const plotH = h - 76;
+      const rowH = Math.max(3, plotH / spans.length);
+      const reusedW = Math.round((Math.min(seqMax, holoObservatoryState.prefixReused) / seqMax) * plotW);
+      if (reusedW > 0) {
+        ctx.fillStyle = 'rgba(52, 211, 153, 0.2)';
+        ctx.fillRect(padL, 24, reusedW, plotH);
+      }
+      for (let l = 0; l < spans.length; l += 1) {
+        const spanFrac = Math.min(1, Number(spans[l] || 1) / seqMax);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(padL + plotW * (1 - spanFrac), 24 + l * rowH, Math.max(3, plotW * spanFrac), Math.max(2, rowH - 1));
+      }
+      // Plot top attended KV peaks as luminous stems along bottom timeline
+      const baseY = h - 18;
+      ctx.strokeStyle = '#334155';
+      ctx.beginPath();
+      ctx.moveTo(padL, baseY);
+      ctx.lineTo(padL + plotW, baseY);
+      ctx.stroke();
+      for (let p = 0; p < peaks.length; p += 1) {
+        const pk = peaks[p];
+        const px = padL + Math.round((Math.min(seqMax - 1, pk.pos) / Math.max(1, seqMax - 1)) * plotW);
+        const ph = Math.max(6, Math.round((pk.weight_q16 / 65535) * 32));
+        ctx.fillStyle = '#f472b6';
+        ctx.fillRect(px - 2, baseY - ph, 4, ph);
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '8px ui-monospace, Menlo, monospace';
+        ctx.fillText(`t${pk.pos}`, Math.min(w - 28, Math.max(padL, px - 6)), baseY - ph - 3);
+      }
+    }
+  }
+
+  // 4. Stationary OPFS + MVM CoW + 3D RHT-512 Hypercube
+  const c4 = document.getElementById('holo-storage-geometry-canvas');
+  if (c4 && typeof c4.getContext === 'function') {
+    const ctx = c4.getContext('2d');
+    const w = c4.width;
+    const h = c4.height;
+    const layers = (geom && Array.isArray(geom.layers)) ? geom.layers : [];
+    const mvm = (geom && geom.mvm_storage) ? geom.mvm_storage : {};
+    const clusters = (geom && Array.isArray(geom.vocab_rht_clusters)) ? geom.vocab_rht_clusters : [];
+    drawHoloCanvasHeader(
+      ctx,
+      w,
+      h,
+      geom
+        ? `OPFS ${geom.total_pieces_est || 0}x1MiB (${layers.length}L) · MVM CoW dirty=${mvm.dirty_sector_count || 0}x4KiB · ${clusters.length} RHT clusters`
+        : 'Click "Refresh Storage Map" after model mount to inspect OPFS + MVM geometry',
+    );
+    // Left half: Stationary 1 MiB OPFS pieces + MVM CoW sector strip
+    const leftW = Math.floor(w * 0.48);
+    const totalPieces = Math.max(1, (geom && geom.total_pieces_est) || Math.max(28, layers.length));
+    const cols = 12;
+    const cellW = Math.max(8, Math.floor((leftW - 20) / cols));
+    const cellH = Math.max(8, Math.min(18, Math.floor((h - 86) / Math.max(1, Math.ceil(totalPieces / cols)))));
+    const pieceColors = new Map();
+    for (let li = 0; li < layers.length; li += 1) {
+      const ly = layers[li];
+      for (let p = Number(ly.piece_start || 0); p <= Number(ly.piece_end || 0); p += 1) {
+        pieceColors.set(p, ly.down_proj_dtype === 'int8' ? '#f59e0b' : '#38bdf8');
+      }
+    }
+    const maxDraw = Math.min(totalPieces, 72);
+    for (let p = 0; p < maxDraw; p += 1) {
+      const cx = 12 + (p % cols) * cellW;
+      const cy = 28 + Math.floor(p / cols) * cellH;
+      ctx.fillStyle = pieceColors.get(p) || '#818cf8';
+      ctx.fillRect(cx, cy, cellW - 2, cellH - 2);
+    }
+    // MVM CoW 4 KiB dirty sector bar at bottom left
+    const dirtyIdx = Array.isArray(mvm.dirty_sector_indices) ? mvm.dirty_sector_indices : [];
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '9px ui-monospace, Menlo, monospace';
+    ctx.fillText(`MVM 4KiB CoW (${mvm.workspace_file_count || 0} files / ${mvm.dirty_sector_count || 0} dirty)`, 12, h - 30);
+    for (let s = 0; s < 24; s += 1) {
+      const isDirty = s < dirtyIdx.length;
+      ctx.fillStyle = isDirty ? '#34d399' : '#1e293b';
+      ctx.fillRect(12 + s * 8, h - 22, 6, 10);
+    }
+
+    // Right half: Rotating 3D RHT-512 Hypercube of Vocab Clusters + Live q_manifold_xyz Trail
+    const cx3 = Math.floor(w * 0.74);
+    const cy3 = Math.floor(h * 0.56);
+    const scale3 = Math.min(w * 0.19, h * 0.34);
+    const ca = Math.cos(holoObservatoryState.rotAngle);
+    const sa = Math.sin(holoObservatoryState.rotAngle);
+    const project3 = (pt) => {
+      const nx = (Number(pt[0]) || 0) / 1000;
+      const ny = (Number(pt[1]) || 0) / 1000;
+      const nz = (Number(pt[2]) || 0) / 1000;
+      const rx = nx * ca - nz * sa;
+      const rz = nx * sa + nz * ca;
+      const persp = 1.0 / (1.8 + rz * 0.5);
+      return [cx3 + rx * scale3 * persp, cy3 - (ny * scale3 * persp)];
+    };
+    // Wireframe cube corners
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+    const boxEdges = [
+      [[-1000, -1000, -1000], [1000, -1000, -1000]],
+      [[1000, -1000, -1000], [1000, 1000, -1000]],
+      [[1000, 1000, -1000], [-1000, 1000, -1000]],
+      [[-1000, 1000, -1000], [-1000, -1000, -1000]],
+      [[-1000, -1000, 1000], [1000, -1000, 1000]],
+      [[1000, -1000, 1000], [1000, 1000, 1000]],
+      [[1000, 1000, 1000], [-1000, 1000, 1000]],
+      [[-1000, 1000, 1000], [-1000, -1000, 1000]],
+    ];
+    for (let e = 0; e < boxEdges.length; e += 1) {
+      const [p0, p1] = boxEdges[e];
+      const a2 = project3(p0);
+      const b2 = project3(p1);
+      ctx.beginPath();
+      ctx.moveTo(a2[0], a2[1]);
+      ctx.lineTo(b2[0], b2[1]);
+      ctx.stroke();
+    }
+    for (let ci = 0; ci < clusters.length; ci += 1) {
+      const pt = clusters[ci];
+      const [px, py] = project3(pt.xyz || [0, 0, 0]);
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.55)';
+      ctx.fillRect(px - 1, py - 1, 3, 3);
+    }
+    if (holoObservatoryState.qTrail.length > 0) {
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      for (let ti = 0; ti < holoObservatoryState.qTrail.length; ti += 1) {
+        const [px, py] = project3(holoObservatoryState.qTrail[ti].xyz);
+        if (ti === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      const head = holoObservatoryState.qTrail[holoObservatoryState.qTrail.length - 1];
+      const [hx, hy] = project3(head.xyz);
+      ctx.fillStyle = '#34d399';
+      ctx.beginPath();
+      ctx.arc(hx, hy, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '9px ui-monospace, Menlo, monospace';
+      ctx.fillText(head.label, hx + 6, hy + 3);
+    }
+  }
+}
+
+let __holoObsButtonsBound = false;
+function bindHoloObservatoryControls() {
+  /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  if (__holoObsButtonsBound) return;
+  const refreshBtn = document.getElementById('holo-obs-refresh-storage-btn');
+  const pauseBtn = document.getElementById('holo-obs-pause-toggle');
+  if (!refreshBtn && !pauseBtn) return;
+  __holoObsButtonsBound = true;
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      const sel = document.getElementById('composer-model-select');
+      refreshHoloStorageGeometry(sel ? sel.value : '').catch(() => {});
+    });
+  }
+  if (pauseBtn) {
+    pauseBtn.addEventListener('click', () => {
+      holoObservatoryState.paused = !holoObservatoryState.paused;
+      pauseBtn.textContent = holoObservatoryState.paused ? 'Live Stream: PAUSED' : 'Live Stream: ON';
+      if (!holoObservatoryState.paused) {
+        renderHoloObservatoryDeck();
+      }
+    });
+  }
+}
+
 let __uorcWatchdogButtonsBound = false;
 function bindVerdantWatchdogButtons() {
+  bindHoloObservatoryControls();
   if (__uorcWatchdogButtonsBound) return;
   const admitBtn = document.getElementById('uorc-admit-capsule-btn');
   const rollbackBtn = document.getElementById('uorc-rollback-btn');
-  if (!admitBtn && !rollbackBtn) return;
+  const telosBtn = document.getElementById('telos-run-tick-btn');
+  if (!admitBtn && !rollbackBtn && !telosBtn) return;
   __uorcWatchdogButtonsBound = true;
+  if (telosBtn) {
+    telosBtn.addEventListener('click', () => {
+      runVerdantTelosTick({
+        latency_ms: holoObservatoryState.lastTurnDurationMs || 18,
+        matched_prefix: holoObservatoryState.prefixReused || 0,
+      }).catch(() => {});
+    });
+  }
 
   if (admitBtn) {
     admitBtn.addEventListener('click', async () => {
@@ -13883,6 +14369,81 @@ function initEmbedMeBridge() {
         requestId: msg.requestId || null,
         result,
       });
+    } else if (action === 'set-layout') {
+      if (typeof setLayoutMode === 'function') {
+        setLayoutMode(msg.layout === 'chat' ? 'chat' : 'studio');
+      }
+      replyBridge(ev.source || null, {
+        ...getPrismEmbedStatusSnapshot('uor-workspace-bridge/1:status'),
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:status',
+        layoutMode: msg.layout === 'chat' ? 'chat' : 'studio',
+      });
+    } else if (action === 'sync-foundry-files') {
+      const rawFiles = Array.isArray(msg.files)
+        ? msg.files
+        : (msg.files && typeof msg.files === 'object'
+          ? Object.entries(msg.files).map(([p, c]) => ({ path: p, content: c }))
+          : []);
+      const normalized = rawFiles
+        .filter((it) => it && typeof it.path === 'string' && typeof it.content === 'string' && it.path.trim() && !it.path.includes('..'))
+        .map((it) => ({ path: it.path.trim(), content: it.content }));
+      if (msg.replace === true && engineWorkerClient && engineWorkerClient.workspaceFiles) {
+        const keepSet = new Set(normalized.map((it) => it.path));
+        for (const existingPath of Array.from(engineWorkerClient.workspaceFiles.keys())) {
+          if (!keepSet.has(existingPath)) {
+            dispatchStudioEnvelope('workspace_delete', existingPath);
+          }
+        }
+      }
+      const batchEntries = [];
+      for (const it of normalized) {
+        if (it.content.includes('\n===FILE===\n')) {
+          dispatchStudioEnvelope('workspace_write', `${it.path}\n${it.content}`);
+        } else {
+          batchEntries.push(`${it.path}\n${it.content}`);
+        }
+      }
+      if (batchEntries.length > 0) {
+        dispatchStudioEnvelope('workspace_batch', batchEntries.join('\n===FILE===\n'));
+      }
+      if (typeof setLayoutMode === 'function' && msg.layout !== 'chat') {
+        setLayoutMode('studio');
+      }
+      const wsSnapshot = engineWorkerClient.getWorkspaceListObject();
+      if (typeof renderWorkspaceList === 'function') renderWorkspaceList(wsSnapshot);
+      if (typeof renderCursorScmSection === 'function') renderCursorScmSection(wsSnapshot);
+      const preferredEntry = ['src/pages/Index.tsx', 'src/App.tsx', 'prism/spec.json']
+        .find((candidate) => normalized.some((it) => it.path === candidate))
+        || (normalized[0] ? normalized[0].path : '');
+      if (preferredEntry && typeof selectWorkspaceFile === 'function') {
+        selectWorkspaceFile(preferredEntry);
+      }
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:files-synced',
+        requestId: msg.requestId || null,
+        projectName: msg.projectName || '',
+        fileCount: normalized.length,
+      });
+    } else if (action === 'export-foundry-files') {
+      const outFiles = {};
+      let count = 0;
+      if (engineWorkerClient && engineWorkerClient.workspaceFiles) {
+        for (const [p, entry] of engineWorkerClient.workspaceFiles.entries()) {
+          if (entry && typeof entry.content === 'string' && (!entry.lazy || entry.content.length > 0)) {
+            outFiles[p] = entry.content;
+            count += 1;
+          }
+        }
+      }
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:files-exported',
+        requestId: msg.requestId || null,
+        files: outFiles,
+        fileCount: count,
+      });
     }
   };
 
@@ -13908,7 +14469,13 @@ function initEmbedMeBridge() {
 function initLayoutAndConnectedControls() {
   let initialMode = 'chat';
   try {
-    if (typeof window !== 'undefined' && window.location && window.location.hash === '#studio') {
+    const queryParams = typeof window !== 'undefined' && window.location && window.location.search
+      ? new URLSearchParams(window.location.search)
+      : null;
+    if (
+      (typeof window !== 'undefined' && window.location && window.location.hash === '#studio')
+      || (queryParams && queryParams.get('mode') === 'studio')
+    ) {
       initialMode = 'studio';
     } else if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('uor_r4_layout_mode') === 'studio') {
       initialMode = 'studio';
@@ -14149,6 +14716,7 @@ function initLayoutAndConnectedControls() {
       composerModelSel.value = AppState.config.selectedModel;
     }
     composerModelSel.addEventListener('change', () => {
+      holoObservatoryState.manualModelPinned = true;
       if (AppState && AppState.config) {
         AppState.config.selectedModel = composerModelSel.value || 'uor-r4.qwen3-0.6b-holo';
       }
@@ -14500,6 +15068,8 @@ try {
     claudeChatInput.value = '';
     claudeChatInput.focus();
   }
+  bindHoloObservatoryControls();
+  renderHoloObservatoryDeck();
   fetchRecordedTraces();
 } catch (err) {
   appendChatTurn(

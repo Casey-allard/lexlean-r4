@@ -1,7 +1,7 @@
 {
   "address": "lexlean-r4",
-  "applicationKappa": "blake3:3b8b8a368e22fab9103082f887dc0f62b90aad3efa580cc6d4f122dcf3f5e364",
-  "archiveKappa": "blake3:8f5a4718642c205e9156d087e15c7f85dcc634df60c06ffa18117df56e4aef4e",
+  "applicationKappa": "blake3:3a0eb46d37d703de3b859337d240da7a9c0650a619a9b8b1dfb88795269c1e60",
+  "archiveKappa": "blake3:23d704863acb7c21a4f4672135d8ffd676f5b61708fd393e8e35899dd42dff48",
   "capabilities": [
     "holo_v13_pure_integer",
     "opfs_kappastore_sync_access",
@@ -50,7 +50,10 @@
         "compile-holo",
         "app-descriptor",
         "inprism-infer",
-        "foundry-descriptor"
+        "foundry-descriptor",
+        "set-layout",
+        "sync-foundry-files",
+        "export-foundry-files"
       ],
       "extendedEvents": [
         "prism:identity",
@@ -67,7 +70,7 @@
     "queryParam": "embed=me",
     "supported": true
   },
-  "fingerprint": "45ccf04a8dad991962b145c3647af61f6f7e433413fd2377fbdc3aa0be13634b",
+  "fingerprint": "92047322ae35c8ffe2cf88db08fc6c4c37901c3235fe602a63510d54db57e93c",
   "foundry": {
     "embedQueryParam": "embed=foundry",
     "fork": "https://github.com/Casey-allard/foundry",
@@ -83,9 +86,9 @@
     "r4SpecSha256": "808b936a8f33c67c0563fbd3069753e221c644ca20fcc1a81a1c37b19644b254",
     "repository": "https://github.com/UOR-Foundation/foundry"
   },
-  "guestContentKappa": "blake3:47e031051ec08012c9684694009720f2ad2afa4835bff16cbf6ee9c70aa273d7",
+  "guestContentKappa": "blake3:432ef4380308a8212164bf5ec406050034fca4ca62675e073a750df6461a1ce3",
   "holoAddress": "holo://lexlean-r4",
-  "holoByteLength": 11775235,
+  "holoByteLength": 11921281,
   "holoUrl": "https://casey-allard.github.io/lexlean-r4/app.holo",
   "icons": [
     {
@@ -96,7 +99,7 @@
   ],
   "inputLabel": "Prompt or Workspace Command",
   "live": "https://casey-allard.github.io/lexlean-r4/",
-  "modelContentKappa": "blake3:501d590fc01d0b50d3592c9387473e228808e5c7cf5f33abd9b7104ab4c254ac",
+  "modelContentKappa": "blake3:6a2c6d9521df423c4ce3f50ef1fa57b96f71f878e9b0312be789ca5366b2b2d4",
   "models": [
     "uor-r4.qwen3-0.6b-holo",
     "uor-r4.qwen3-1.7b-holo",
@@ -149,6 +152,6 @@
       "value": "stitch/xor-2-of-3/1 deterministic XOR pair recovery + SHA-256 verification"
     }
   ],
-  "version": "0.13.0",
-  "viewContentKappa": "blake3:8ccc33947e3bff8748539b7927d8f94537377976524efcd1bac624c8cc98f13f"
+  "version": "0.14.0",
+  "viewContentKappa": "blake3:3626c295366d0c073209a2a8c2499be368b4c36beec78284edcf528cf6aa29c3"
 }

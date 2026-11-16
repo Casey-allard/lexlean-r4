@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-55"
+level = "build"
+suite = "r4-ontological-telos"
+statement = "Pure LexLean models Verdant-Resonance Ontological Telos loss decomposition, 5W+H completeness verification, non-coercive parametric coordinate descent, Holo v13 prefix-KV cache continuity, bounded Qwen3 ReAct agent steps, and real non-synthetic per-layer trace frame emission (R4.OntologicalTelos): integer host-ceiling budget excess computeHostCeilingExcess, four-component evaluateTotalTelosLoss (opacityDebt, legibilityGap, observerDissonance, ceilingExcess), six-axis verifyW5HCertificateComplete, monotone stepParametricTelosCoordinate, incremental HoloPrefixKvCache prefix bounds (matchedPrefix <= cachedPrefixLen < promptLen), fuel-bounded pure-integer ReAct steps, and live per-layer RMS trace frames rejecting post-hoc modulo synthesis; with typed refusals RefusedIncompleteW5HCertificate, RefusedTelosLossRegression, RefusedCoerciveStep, RefusedPrefixBoundsViolation, RefusedReactFuelExhausted, and RefusedSyntheticModuloPulse. Formal controls establish no external upstream GitHub execution, WebGPU hardware speed, or external model corpus accuracy."
+
+[[id]]
 id = "R4-54"
 level = "build"
 suite = "r4-prism-holo-identity"

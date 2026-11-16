@@ -917,6 +917,9 @@ jobs:
             --env PRISMPM_EPHEMERAL_HOME=1 \
             --env SDK_IMAGE="$image" \
             --env GITHUB_TOKEN="$GITHUB_TOKEN" \
+            --env CARGO_INCREMENTAL=0 \
+            --env CARGO_PROFILE_DEV_DEBUG=0 \
+            --env CARGO_PROFILE_TEST_DEBUG=0 \
             --env R4_ENGINE_OUTPUT_FILE=".r4-engine-output.env" \
             "$image" bash -c '
               set -euo pipefail
@@ -2000,7 +2003,9 @@ pub fn run_engine_weight_consolidation_paths(
 
     let (report, out_bytes) =
         run_engine_weight_consolidation_in_memory(&lut_bytes, &manifest_json, frontier)?;
-    atomic_write(lut_path, &out_bytes)?;
+    if out_bytes != lut_bytes {
+        atomic_write(lut_path, &out_bytes)?;
+    }
     Ok(report)
 }
 
@@ -2015,9 +2020,11 @@ pub fn run_engine_weight_consolidation(
         &root.join("gpu/weights/manifest.json"),
         frontier,
     )?;
-    let updated = std::fs::read(&lut_path)
-        .map_err(|e| format!("failed to read {}: {e}", lut_path.display()))?;
-    sync_compact_seed_uorlut(root, &updated)?;
+    if report.weights_updated > 0 || report.l1_shift != 0 {
+        let updated = std::fs::read(&lut_path)
+            .map_err(|e| format!("failed to read {}: {e}", lut_path.display()))?;
+        sync_compact_seed_uorlut(root, &updated)?;
+    }
     Ok(report)
 }
 
@@ -3462,7 +3469,45 @@ pub fn run_engine_tick_with_mode(
         &factory_report.receipt_sha256[..16.min(factory_report.receipt_sha256.len())]
     );
 
+    // Stage 4b/4c FIRST: compile proved claims & consolidate weights BEFORE building Wasm or scanning ratchets
+    // so Cargo never invalidates `bootstrap_v8.uorlut` mtime after `build_wasm`.
+    let mut consolidation_report = None;
+    let compiled_turns;
+    let mut weights_changed = false;
     if !dry_run {
+        compiled_turns = compile_proved_frontier_claims_to_uorlut(root, &frontier)?;
+        if compiled_turns > 0 {
+            println!(
+                "engine[4b/7 weight-synthesis]: compiled {compiled_turns} proved frontier claim(s) into crates/wasm/src/bootstrap_v8.uorlut"
+            );
+            weights_changed = true;
+        }
+        if !engine.attempt.is_empty() {
+            let report = run_engine_weight_consolidation(root, &frontier)?;
+            println!(
+                "engine[4c/7 weight-consolidation]: consolidated {} weights across {} points (l1_shift={}, max_delta={})",
+                report.weights_updated, report.points_consolidated, report.l1_shift, report.max_delta
+            );
+            if report.weights_updated > 0 || report.l1_shift != 0 {
+                weights_changed = true;
+                engine.attempt.push(AttemptRecord {
+                    kappa: format!("r4:v1:weight:consolidation:tick={tick_id}"),
+                    strategy: "bvgk-writer-refinement".to_string(),
+                    template: "uorlut-v8-coordinate-descent".to_string(),
+                    library: "r4-integer-stack@1".to_string(),
+                    outcome: format!(
+                        "consolidated: updated={}, l1_shift={}, max_delta={}, points={}",
+                        report.weights_updated,
+                        report.l1_shift,
+                        report.max_delta,
+                        report.points_consolidated
+                    ),
+                    tick: tick_id.clone(),
+                });
+            }
+            consolidation_report = Some(report);
+        }
+
         lift_register::cmd_lift_register(root, true)
             .map_err(|e| format!("engine[6d/7 lift-register]: {e}"))?;
         synthesis::cmd_synthesize(root, true)
@@ -3477,41 +3522,21 @@ pub fn run_engine_tick_with_mode(
             rendered_conf,
         )
         .map_err(|e| format!("engine[6f/7 write CONFORMANCE.md]: {e}"))?;
-        if wasm_bundle::has_matching_wasm_bindgen(root) {
+
+        let needs_wasm_rebuild =
+            weights_changed || wasm_bundle::check_wasm_sync_in(root, &root.join("public")).is_err();
+        if needs_wasm_rebuild && wasm_bundle::has_matching_wasm_bindgen(root) {
             wasm_bundle::build_wasm(root, &root.join("public"))
                 .map_err(|e| format!("engine[6g/7 build-wasm]: {e}"))?;
+            crate::run_build_holo_cmd(root, &["--sync-site-manifest".to_string()])
+                .map_err(|e| format!("engine[6h/7 sync-site-manifest]: {e}"))?;
         }
-    }
-
-    let mut consolidation_report = None;
-    let should_consolidate = !dry_run && !engine.attempt.is_empty();
-    if should_consolidate {
-        let report = run_engine_weight_consolidation(root, &frontier)?;
-        println!(
-            "engine[4c/7 weight-consolidation]: consolidated {} weights across {} points (l1_shift={}, max_delta={})",
-            report.weights_updated, report.points_consolidated, report.l1_shift, report.max_delta
-        );
-        engine.attempt.push(AttemptRecord {
-            kappa: format!("r4:v1:weight:consolidation:tick={tick_id}"),
-            strategy: "bvgk-writer-refinement".to_string(),
-            template: "uorlut-v8-coordinate-descent".to_string(),
-            library: "r4-integer-stack@1".to_string(),
-            outcome: format!(
-                "consolidated: updated={}, l1_shift={}, max_delta={}, points={}",
-                report.weights_updated,
-                report.l1_shift,
-                report.max_delta,
-                report.points_consolidated
-            ),
-            tick: tick_id.clone(),
-        });
-        consolidation_report = Some(report);
     }
 
     let advanced = !discovered_ids.is_empty()
         || !pruned_ids.is_empty()
         || !deduce_summary.proved_ids.is_empty()
-        || consolidation_report.is_some();
+        || weights_changed;
     let outcome = if advanced { "advanced" } else { "settled" };
 
     if !dry_run {
@@ -3527,12 +3552,6 @@ pub fn run_engine_tick_with_mode(
             });
             while engine.tick.len() > MAX_TICK_HISTORY {
                 engine.tick.remove(0);
-            }
-            let compiled_turns = compile_proved_frontier_claims_to_uorlut(root, &frontier)?;
-            if compiled_turns > 0 {
-                println!(
-                    "engine[4b/7 weight-synthesis]: compiled {compiled_turns} proved frontier claim(s) into crates/wasm/src/bootstrap_v8.uorlut"
-                );
             }
             save_frontier(root, &frontier)?;
             save_engine(root, &engine)?;
@@ -3652,6 +3671,7 @@ pub fn run_engine_tick_with_mode(
             "public/lexlean_r4.js",
             "public/lexlean_r4_bg.wasm",
             "public/provenance.json",
+            "site/app.json",
         ];
         for rel in candidate_paths {
             if root.join(rel).exists() {

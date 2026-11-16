@@ -13,6 +13,15 @@
 spec = "template/1"
 
 [[authority]]
+id = "VERDANT-ONTOLOGICAL-TELOS"
+name = "Verdant-Resonance VR-70..83 Ontological Telos loss decomposition, 5W+H certificate completeness, and parametric coordinate descent"
+citation = "https://github.com/afflom/verdant-resonance (VR-70..83 Foundation/Ontology/V1/Model.lex.tex, Foundation/Host/V1/Model.lex.tex, src/game/teleologyEngine.ts, src/selfhost/browserSelfHostEngine.ts, scripts/uorMechanizerModel.ts); companion src/R4/OntologicalTelos.lex.tex"
+checksum = "none"
+checksum_reason = "Upstream afflom/verdant-resonance ontological telos and 5W+H verification specifications reside in an external repository rather than vendored verbatim; local pure-integer conformance controls live under src/R4/OntologicalTelos.lex.tex and tests/lexlean/OntologicalTelosControls.lex.tex."
+statement = "Ontological Telos four-term loss decomposition, 5W+H completeness criteria, non-coercive parametric coordinate stepping, and browser self-host co-evolution semantics are imported from afflom/verdant-resonance (VR-70..83); external citations supply no remote CI execution or live WebGPU hardware benchmarks."
+realized_by = ["R4-55"]
+
+[[authority]]
 id = "PRISM-HOLO-IDENTITY"
 name = "Stitch PrismId identity chain, Hologram v4 .holo archive format, and UOR-Foundation/foundry inprism app contract"
 citation = "https://github.com/UOR-Foundation/foundry (FA-87 studio/shell/r4/spec.json inprism route, studio/core/src/holo/{archive.rs,validate.rs,model_document.rs} validate-application, FA-88 identity/prism-id.mjs), https://github.com/afflom/stitch (docs/prism-id.md, src/prism-id.js, src/layer1-uor/pointer.js), and https://github.com/afflom/me (site/app.json, frame/frame.mjs); companion src/R4/PrismHoloIdentity.lex.tex"

@@ -47746,3 +47746,151 @@ pub mod r4_prism_holo_identity {
         }) == PrismHoloVerdict::PrismHoloAdmitted
     }
 }
+
+/// Generated from `R4.OntologicalTelos` (`src/R4/OntologicalTelos.lex.tex`).
+pub mod r4_ontological_telos {
+    /// Inductive `R4.OntologicalTelos.TelosVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum TelosVerdict {
+        TelosAdmitted,
+        RefusedIncompleteW5HCertificate,
+        RefusedTelosLossRegression,
+        RefusedCoerciveStep,
+        RefusedPrefixBoundsViolation,
+        RefusedReactFuelExhausted,
+        RefusedSyntheticModuloPulse,
+    }
+
+    /// Structure `R4.OntologicalTelos.OntologicalTelosCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct OntologicalTelosCheck {
+        pub opacity_debt: u64,
+        pub legibility_gap: u64,
+        pub observer_dissonance: u64,
+        pub budget_micros: u64,
+        pub observed_micros: u64,
+        pub w5h_verified_count: u64,
+        pub w5h_orphan_count: u64,
+        pub coercive_count: u64,
+        pub candidate_loss: u64,
+        pub incumbent_loss: u64,
+        pub cached_prefix_len: u64,
+        pub prompt_len: u64,
+        pub matched_prefix: u64,
+        pub react_hop: u64,
+        pub react_max_hops: u64,
+        pub react_tool_valid: bool,
+        pub layer_count: u64,
+        pub real_norms_recorded: bool,
+        pub post_hoc_modulo_synthesized: bool,
+        pub float_ops: u64,
+    }
+
+    /// Function `R4.OntologicalTelos.computeHostCeilingExcess`.
+    pub fn compute_host_ceiling_excess(budget_micros: u64, observed_micros: u64) -> u64 {
+        if budget_micros < observed_micros {
+            observed_micros.saturating_sub(budget_micros)
+        } else {
+            0
+        }
+    }
+
+    /// Function `R4.OntologicalTelos.evaluateTotalTelosLoss`.
+    pub fn evaluate_total_telos_loss(
+        opacity_debt: u64,
+        legibility_gap: u64,
+        observer_dissonance: u64,
+        ceiling_excess: u64,
+    ) -> u64 {
+        opacity_debt
+            .saturating_add(legibility_gap)
+            .saturating_add(observer_dissonance)
+            .saturating_add(ceiling_excess)
+    }
+
+    /// Function `R4.OntologicalTelos.verifyW5HCertificateComplete`.
+    pub fn verify_w5h_certificate_complete(
+        what_prime: u64,
+        why_rank: u64,
+        who_prime_product: u64,
+        where_arity: u64,
+        when_regime: u64,
+        how_verified: bool,
+    ) -> bool {
+        what_prime > 0
+            && why_rank > 0
+            && who_prime_product > 0
+            && where_arity > 0
+            && when_regime > 0
+            && how_verified
+    }
+
+    /// Function `R4.OntologicalTelos.stepParametricTelosCoordinate`.
+    pub fn step_parametric_telos_coordinate(
+        coord: u64,
+        min_coord: u64,
+        max_coord: u64,
+        loss_minus: u64,
+        loss_current: u64,
+        loss_plus: u64,
+        coercive_count: u64,
+    ) -> u64 {
+        if coercive_count > 0 {
+            coord
+        } else if min_coord < coord && loss_minus < loss_current && loss_minus <= loss_plus {
+            coord.saturating_sub(1)
+        } else if coord < max_coord && loss_plus < loss_current {
+            coord.saturating_add(1)
+        } else {
+            coord
+        }
+    }
+
+    /// Function `R4.OntologicalTelos.admitOntologicalTelos`.
+    pub fn admit_ontological_telos(c: OntologicalTelosCheck) -> TelosVerdict {
+        if c.w5h_verified_count == 0 || c.w5h_orphan_count > 0 {
+            TelosVerdict::RefusedIncompleteW5HCertificate
+        } else if c.coercive_count > 0 || c.float_ops > 0 {
+            TelosVerdict::RefusedCoerciveStep
+        } else if c.incumbent_loss < c.candidate_loss {
+            TelosVerdict::RefusedTelosLossRegression
+        } else if c.cached_prefix_len < c.matched_prefix
+            || c.prompt_len == 0
+            || c.prompt_len <= c.matched_prefix
+        {
+            TelosVerdict::RefusedPrefixBoundsViolation
+        } else if c.react_max_hops <= c.react_hop || !c.react_tool_valid {
+            TelosVerdict::RefusedReactFuelExhausted
+        } else if c.layer_count == 0 || !c.real_norms_recorded || c.post_hoc_modulo_synthesized {
+            TelosVerdict::RefusedSyntheticModuloPulse
+        } else {
+            TelosVerdict::TelosAdmitted
+        }
+    }
+
+    /// Function `R4.OntologicalTelos.verifyOntologicalTelosAdmitted`.
+    pub fn verify_ontological_telos_admitted() -> bool {
+        admit_ontological_telos(OntologicalTelosCheck {
+            opacity_debt: 0,
+            legibility_gap: 0,
+            observer_dissonance: 0,
+            budget_micros: 50_000,
+            observed_micros: 18_000,
+            w5h_verified_count: 6,
+            w5h_orphan_count: 0,
+            coercive_count: 0,
+            candidate_loss: 0,
+            incumbent_loss: 4,
+            cached_prefix_len: 64,
+            prompt_len: 96,
+            matched_prefix: 60,
+            react_hop: 1,
+            react_max_hops: 4,
+            react_tool_valid: true,
+            layer_count: 28,
+            real_norms_recorded: true,
+            post_hoc_modulo_synthesized: false,
+            float_ops: 0,
+        }) == TelosVerdict::TelosAdmitted
+    }
+}

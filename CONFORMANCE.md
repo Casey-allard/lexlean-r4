@@ -198,6 +198,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-03` | `build` | The LexLean scalar objective model preserves absent-rival hinge and rank arithmetic and both checked weighted objectives, including rejection of overflow in an unselected branch. Formal scalar controls do not establish writer integration, carrier evaluation, or training qualification. |
 
+## r4-ontological-telos
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-55` | `build` | Pure LexLean models Verdant-Resonance Ontological Telos loss decomposition, 5W+H completeness verification, non-coercive parametric coordinate descent, Holo v13 prefix-KV cache continuity, bounded Qwen3 ReAct agent steps, and real non-synthetic per-layer trace frame emission (R4.OntologicalTelos): integer host-ceiling budget excess computeHostCeilingExcess, four-component evaluateTotalTelosLoss (opacityDebt, legibilityGap, observerDissonance, ceilingExcess), six-axis verifyW5HCertificateComplete, monotone stepParametricTelosCoordinate, incremental HoloPrefixKvCache prefix bounds (matchedPrefix <= cachedPrefixLen < promptLen), fuel-bounded pure-integer ReAct steps, and live per-layer RMS trace frames rejecting post-hoc modulo synthesis; with typed refusals RefusedIncompleteW5HCertificate, RefusedTelosLossRegression, RefusedCoerciveStep, RefusedPrefixBoundsViolation, RefusedReactFuelExhausted, and RefusedSyntheticModuloPulse. Formal controls establish no external upstream GitHub execution, WebGPU hardware speed, or external model corpus accuracy. |
+
 ## r4-phrase-dag
 
 | ID | Level | Statement |
@@ -348,6 +354,7 @@ Never re-derived, vendored, or gated on.
 
 | Authority | Citation | Evidence here |
 | --- | --- | --- |
+| `VERDANT-ONTOLOGICAL-TELOS` | https://github.com/afflom/verdant-resonance (VR-70..83 Foundation/Ontology/V1/Model.lex.tex, Foundation/Host/V1/Model.lex.tex, src/game/teleologyEngine.ts, src/selfhost/browserSelfHostEngine.ts, scripts/uorMechanizerModel.ts); companion src/R4/OntologicalTelos.lex.tex | `R4-55` |
 | `PRISM-HOLO-IDENTITY` | https://github.com/UOR-Foundation/foundry (FA-87 studio/shell/r4/spec.json inprism route, studio/core/src/holo/{archive.rs,validate.rs,model_document.rs} validate-application, FA-88 identity/prism-id.mjs), https://github.com/afflom/stitch (docs/prism-id.md, src/prism-id.js, src/layer1-uor/pointer.js), and https://github.com/afflom/me (site/app.json, frame/frame.mjs); companion src/R4/PrismHoloIdentity.lex.tex | `R4-54` |
 | `UORUST-PRISM-DEVREL` | https://github.com/afflom/UORust (model/routes.toml uorust/routes/1 total classification routing) and https://github.com/afflom/prism-devrel (model/measures.toml prism/measures/1 and W3C PROV-O primary-source ledger); companion src/R4/UorustPrismDevrel.lex.tex | `R4-53` |
 | `NATIVE-Q31-TRAIN` | Sibling workspace /Users/casey.allard/uor-r4 (PLAN.md D80-D85, uor-r4-integer/stack, uor-r4-float-train/spiralcore_fbs); companion src/R4/NativeQ31Train.lex.tex | `R4-52` |
@@ -399,6 +406,7 @@ Never re-derived, vendored, or gated on.
 
 | ID | Level | Claim |
 | --- | --- | --- |
+| `AUTH-VERDANT-ONTOLOGICAL-TELOS` | `some-true` | Verdant-Resonance VR-70..83 Ontological Telos loss decomposition (epistemic opacity debt, sensory legibility gap, observer dissonance, host ceiling excess), 5W+H certificate verification, and non-coercive parametric coordinate stepping are imported from afflom/verdant-resonance. Formal LexLean controls do not replace local integer verification or browser host benchmarks. |
 | `AUTH-PRISM-HOLO-IDENTITY` | `some-true` | Stitch.PrismId content-addressed identity records (prism/device/1 through prism/persona/1), Hologram v4 .holo 8-section binary framing with HOLOVIEW v1 and Core-Wasm guest contracts, and UOR-Foundation/foundry FA-87 inprism selectable app descriptors are imported from UOR-Foundation/foundry, afflom/stitch, and afflom/me. Formal LexLean controls do not entail external registry.uor.foundation availability or hardware secure-enclave attestation. |
 | `AUTH-UORUST-PRISM-DEVREL` | `some-true` | UORust route-table totality (uorust/routes/1), Prism-DevRel ISO 15939 measurement criteria (prism/measures/1), and W3C PROV-O primary source derivation rules (source-attribution registry) are imported from afflom/UORust and afflom/prism-devrel. Formal LexLean controls do not entail upstream repository state or external runtime environments. |
 | `AUTH-NATIVE-Q31-TRAIN` | `some-true` | Pure Q31 SpiralCore Cl(0,6)/E8 orbital dynamics, Hamilton G2 quaternion gating, SWAR Hamming population reads, and D19 content-addressed associative memory specifications are imported from sibling R4 architecture tracks (uor-r4 D80-D85). Formal LexLean controls do not prove hardware GPU training throughput or corpus loss convergence outside committed receipts. |

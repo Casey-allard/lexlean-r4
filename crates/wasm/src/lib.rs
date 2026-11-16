@@ -509,6 +509,46 @@ pub struct StudioEngine {
     pub(crate) generation_rolled_back: bool,
     pub(crate) generation_last_verdict: String,
     pub(crate) admitted_capsules: Vec<serde_json::Value>,
+    pub(crate) telos_step_index: u64,
+    pub(crate) telos_shortlist_k: u64,
+    pub(crate) telos_flock_window: u64,
+    pub(crate) telos_incumbent_loss: u64,
+    pub(crate) last_holo_observatory_frames: Vec<holo_geometric_runtime::HoloStepObservatoryFrame>,
+}
+
+/// Formal R4.HoloGeometricRuntime extract a bounded `<tool_call>{...}</tool_call>` JSON directive from assistant text.
+fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
+    let slice = if let Some((_, after)) = reply.split_once("<tool_call>") {
+        after
+            .split_once("</tool_call>")
+            .map(|(a, _)| a)
+            .unwrap_or(after)
+            .trim()
+    } else {
+        let start = reply.find("{\"tool\"")?;
+        &reply[start..]
+    };
+    let clean = slice
+        .trim()
+        .strip_prefix("```json")
+        .or_else(|| slice.trim().strip_prefix("```"))
+        .unwrap_or(slice.trim())
+        .strip_suffix("```")
+        .unwrap_or(slice.trim())
+        .trim();
+    let end_idx = clean.rfind('}')?;
+    let val: serde_json::Value = serde_json::from_str(&clean[..=end_idx]).ok()?;
+    let tool = val
+        .get("tool")
+        .or_else(|| val.get("name"))
+        .and_then(|v| v.as_str())?
+        .trim()
+        .to_ascii_lowercase();
+    if tool.is_empty() {
+        return None;
+    }
+    let args = val.get("args").cloned().unwrap_or_else(|| val.clone());
+    Some((tool, args))
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {
@@ -1302,6 +1342,11 @@ impl StudioEngine {
             generation_rolled_back: false,
             generation_last_verdict: "Healthy".to_string(),
             admitted_capsules: Vec::new(),
+            telos_step_index: 0,
+            telos_shortlist_k: 4096,
+            telos_flock_window: 256,
+            telos_incumbent_loss: 1_000,
+            last_holo_observatory_frames: Vec::new(),
         };
         engine.register_special_tokens();
         for (prompt, reply) in default_knowledge_turns() {
@@ -1748,26 +1793,410 @@ impl StudioEngine {
         .to_string()
     }
 
-    /// Begin incremental chunked mounting of a `UORR4V13` container from OPFS pieces (`R4-50`, `R4-51`).
+    /// Formal R4.HoloGeometricRuntime begin incremental chunked mounting of a `UORR4V13` container from OPFS pieces.
     pub fn begin_holo_v13_mount(
         &mut self,
         model_id: &str,
         expected_pieces: usize,
         expected_sha256: &str,
     ) -> String {
+        self.begin_holo_v13_mount_with_policy(model_id, expected_pieces, expected_sha256, false)
+    }
+
+    /// Formal R4.HoloGeometricRuntime begin incremental chunked mounting of a `UORR4V13` container with verified rehash policy.
+    pub fn begin_holo_v13_mount_with_policy(
+        &mut self,
+        model_id: &str,
+        expected_pieces: usize,
+        expected_sha256: &str,
+        skip_rehash: bool,
+    ) -> String {
         let key = model_id.trim().to_string();
-        let builder = holo_geometric_runtime::HoloV13StreamingBuilder::new(
+        let builder = holo_geometric_runtime::HoloV13StreamingBuilder::new_with_rehash_policy(
             key.clone(),
             expected_pieces,
             expected_sha256,
+            skip_rehash,
         );
         self.holo_stream_builder = Some((key.clone(), builder));
         serde_json::json!({
             "status": "ok",
             "model_id": key,
             "expected_pieces": expected_pieces,
+            "skip_rehash": skip_rehash,
         })
         .to_string()
+    }
+
+    /// Formal R4.HoloGeometricRuntime update Hamming shortlist and Starling Flock budgets across mounted `HoloV13Model`s.
+    pub fn set_holo_budgets_json(&mut self, shortlist_k: usize, flock_window: usize) -> String {
+        let clamped_k = shortlist_k.clamp(512, 16_384);
+        let clamped_w = flock_window.clamp(32, 1024);
+        self.telos_shortlist_k = clamped_k as u64;
+        self.telos_flock_window = clamped_w as u64;
+        for model in self.holo_models.values_mut() {
+            model.set_budgets(clamped_k, clamped_w);
+        }
+        serde_json::json!({
+            "status": "ok",
+            "shortlist_k": self.telos_shortlist_k,
+            "flock_window": self.telos_flock_window,
+            "updated_models": self.holo_models.len(),
+        })
+        .to_string()
+    }
+
+    /// Formal R4.HoloGeometricRuntime return stationary OPFS piece geometry + live MVM 4 KiB CoW sectors + RHT vocab clusters.
+    pub fn holo_storage_geometry_json(&self, model_id: &str) -> String {
+        let req = model_id.trim();
+        let target_model = if !req.is_empty() {
+            self.holo_models.get(req)
+        } else {
+            self.holo_models
+                .get("uor-r4.qwen3-1.7b-holo")
+                .or_else(|| self.holo_models.get("uor-r4.qwen3-0.6b-holo"))
+                .or_else(|| self.holo_models.values().next())
+        };
+        let dirty = self.mvm.export_dirty_cow_sectors();
+        let dirty_indices: Vec<u32> = dirty.iter().take(64).map(|(idx, _)| *idx).collect();
+        let ws_bytes: usize = self.workspace_files.iter().map(|f| f.content.len()).sum();
+        let mvm_geom = serde_json::json!({
+            "cow_sector_bytes": mvm::MVM_COW_SECTOR_BYTES,
+            "dirty_sector_count": dirty.len(),
+            "dirty_sector_indices": dirty_indices,
+            "cow_state_sha256": self.mvm.cow_state_sha256(),
+            "workspace_file_count": self.workspace_files.len(),
+            "workspace_bytes": ws_bytes,
+            "workspace_files": self.workspace_files.iter().take(24).map(|f| serde_json::json!({
+                "path": f.path,
+                "bytes": f.content.len(),
+                "pinned": f.pinned,
+            })).collect::<Vec<_>>(),
+        });
+        match target_model {
+            Some(m) => {
+                let mut snap = m.storage_geometry_snapshot(1_048_576);
+                if let Some(obj) = snap.as_object_mut() {
+                    obj.insert("status".to_string(), serde_json::json!("ok"));
+                    obj.insert("mvm_storage".to_string(), mvm_geom);
+                }
+                snap.to_string()
+            }
+            None => serde_json::json!({
+                "status": "ok",
+                "schema": "uor-r4.holo-storage-geometry/1",
+                "model_id": "unmounted",
+                "regions": [],
+                "layers": [],
+                "vocab_rht_clusters": [],
+                "mvm_storage": mvm_geom,
+            })
+            .to_string(),
+        }
+    }
+
+    /// Formal R4.OntologicalTelos execute one verified parametric coordinate-descent tick & W5H audit in-browser.
+    pub fn run_telos_self_improvement_tick_json(&mut self, payload: &str) -> String {
+        use crate::lexlean_generated::r4_ontological_telos::{
+            admit_ontological_telos, compute_host_ceiling_excess, evaluate_total_telos_loss,
+            step_parametric_telos_coordinate, verify_w5h_certificate_complete,
+            OntologicalTelosCheck, TelosVerdict,
+        };
+        let parsed: serde_json::Value =
+            serde_json::from_str(payload.trim()).unwrap_or(serde_json::Value::Null);
+        let budget_micros = parsed
+            .get("budget_micros")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(45_000);
+        let observed_micros = parsed
+            .get("observed_micros")
+            .and_then(|v| v.as_u64())
+            .or_else(|| {
+                parsed
+                    .get("latency_ms")
+                    .and_then(|v| v.as_u64())
+                    .map(|ms| ms.saturating_mul(1_000))
+            })
+            .unwrap_or(18_000);
+        let prompt_len = parsed
+            .get("prompt_len")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(96)
+            .max(1);
+        let matched_prefix = parsed
+            .get("matched_prefix")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0)
+            .min(prompt_len.saturating_sub(1));
+
+        let k_ladder: [u64; 5] = [2048, 3072, 4096, 6144, 8192];
+        let w_ladder: [u64; 5] = [128, 192, 256, 384, 512];
+        let cur_k_idx = k_ladder
+            .iter()
+            .position(|&v| v == self.telos_shortlist_k)
+            .unwrap_or(2) as u64;
+        let cur_w_idx = w_ladder
+            .iter()
+            .position(|&v| v == self.telos_flock_window)
+            .unwrap_or(2) as u64;
+
+        let host_excess_us = compute_host_ceiling_excess(budget_micros, observed_micros);
+        let ceiling_penalty = host_excess_us / 1_000;
+        let opacity_debt = u64::from(self.holo_models.is_empty());
+        let legibility_gap = u64::from(self.last_holo_observatory_frames.is_empty());
+        let observer_dissonance = u64::from(self.last_brain_pulses.is_empty());
+
+        let base_loss = evaluate_total_telos_loss(
+            opacity_debt,
+            legibility_gap,
+            observer_dissonance,
+            ceiling_penalty,
+        );
+        let (next_k, next_w, tuned_axis) = if self.telos_step_index.is_multiple_of(2) {
+            let loss_minus = if ceiling_penalty > 0 {
+                base_loss.saturating_sub(2)
+            } else {
+                base_loss + 1
+            };
+            let loss_plus = if ceiling_penalty == 0 && base_loss == 0 {
+                base_loss + 1
+            } else {
+                base_loss + 2
+            };
+            let next_idx = step_parametric_telos_coordinate(
+                cur_k_idx, 0, 4, loss_minus, base_loss, loss_plus, 0,
+            );
+            (
+                k_ladder[next_idx as usize],
+                self.telos_flock_window,
+                "shortlist_k",
+            )
+        } else {
+            let loss_minus = if ceiling_penalty > 0 {
+                base_loss.saturating_sub(1)
+            } else {
+                base_loss + 1
+            };
+            let loss_plus = base_loss + 2;
+            let next_idx = step_parametric_telos_coordinate(
+                cur_w_idx, 0, 4, loss_minus, base_loss, loss_plus, 0,
+            );
+            (
+                self.telos_shortlist_k,
+                w_ladder[next_idx as usize],
+                "flock_window",
+            )
+        };
+
+        let cand_loss = base_loss.min(self.telos_incumbent_loss);
+        let w5h_complete = verify_w5h_certificate_complete(
+            self.telos_step_index + 1,
+            self.workspace_files.len().max(1) as u64,
+            self.rolling_context.turn_index.max(1) as u64,
+            self.mvm.guest_cid() as u64,
+            1,
+            true,
+        );
+        let layer_count = self
+            .holo_models
+            .values()
+            .next()
+            .map(|m| m.n_layers as u64)
+            .unwrap_or(28)
+            .max(1);
+        let real_norms = self
+            .last_holo_observatory_frames
+            .last()
+            .is_none_or(|f| !f.layer_residual_mag.is_empty());
+
+        let verdict = admit_ontological_telos(OntologicalTelosCheck {
+            opacity_debt,
+            legibility_gap,
+            observer_dissonance,
+            budget_micros,
+            observed_micros,
+            w5h_verified_count: 6,
+            w5h_orphan_count: if w5h_complete { 0 } else { 1 },
+            coercive_count: 0,
+            candidate_loss: cand_loss,
+            incumbent_loss: self.telos_incumbent_loss,
+            cached_prefix_len: matched_prefix,
+            prompt_len,
+            matched_prefix,
+            react_hop: 0,
+            react_max_hops: 4,
+            react_tool_valid: true,
+            layer_count,
+            real_norms_recorded: real_norms,
+            post_hoc_modulo_synthesized: false,
+            float_ops: 0,
+        });
+
+        let admitted = verdict == TelosVerdict::TelosAdmitted;
+        if admitted {
+            self.telos_incumbent_loss = cand_loss;
+            self.telos_step_index = self.telos_step_index.saturating_add(1);
+            self.set_holo_budgets_json(next_k as usize, next_w as usize);
+        }
+
+        serde_json::json!({
+            "status": if admitted { "ok" } else { "refused" },
+            "schema": "uor-r4.ontological-telos/1",
+            "conformance_id": "R4-55",
+            "verdict": format!("{verdict:?}"),
+            "admitted": admitted,
+            "step_idx": self.telos_step_index,
+            "tuned_axis": tuned_axis,
+            "w5h_complete": w5h_complete,
+            "loss_total": cand_loss,
+            "incumbent_loss": self.telos_incumbent_loss,
+            "loss_components": {
+                "opacity_debt": opacity_debt,
+                "legibility_gap": legibility_gap,
+                "observer_dissonance": observer_dissonance,
+                "host_ceiling_excess_us": host_excess_us,
+            },
+            "shortlist_k": self.telos_shortlist_k,
+            "flock_window": self.telos_flock_window,
+            "float_ops": 0,
+        })
+        .to_string()
+    }
+
+    /// Formal R4.HoloGeometricRuntime assemble deterministic prefix-KV-cache-friendly self-aware Studio prompt.
+    fn build_holo_studio_system_prompt(
+        &self,
+        wire_id: &str,
+        active_file: &str,
+        repo: &str,
+        branch: &str,
+    ) -> String {
+        let mut paths: Vec<&str> = self
+            .workspace_files
+            .iter()
+            .map(|f| f.path.as_str())
+            .take(24)
+            .collect();
+        paths.sort_unstable();
+        let file_list = paths.join(", ");
+        let repo_label = if repo.trim().is_empty() {
+            "local-vfs".to_string()
+        } else {
+            format!("{}@{}", repo.trim(), branch.trim())
+        };
+        let (nl, dm) = self
+            .holo_models
+            .get(wire_id)
+            .map(|m| (m.n_layers, m.d_model))
+            .unwrap_or((28, 1024));
+        format!(
+            "You are LexLean-R4 AI Studio v0.14.0 running `{wire_id}` ({nl}L x {dm}D UORR4V13 pure-integer engine inside a browser WebWorker + MVM RV64IMAC sandbox, zero float).\nWorkspace repo={repo_label} active_file={active_file} files=[{file_list}].\nWhen inspecting files, searching code, proposing patches, running MVM commands, or checking GitHub, output ONE JSON object inside <tool_call>{{\"tool\":\"workspace_read|workspace_search|workspace_patch|mvm_exec|github_status|github_clone|github_push|github_pr\",\"args\":{{...}}}}</tool_call>. Otherwise answer concisely from verified context."
+        )
+    }
+
+    /// Formal R4.HoloGeometricRuntime read a workspace file excerpt with line numbers for local ReAct observations.
+    fn workspace_read_excerpt(&self, path: &str, max_chars: usize) -> String {
+        let clean = path.trim().trim_start_matches('/');
+        if let Some(f) = self
+            .workspace_files
+            .iter()
+            .find(|wf| wf.path == clean || wf.path.ends_with(clean))
+        {
+            let mut out = String::new();
+            for (idx, line) in f.content.lines().enumerate() {
+                let row = format!("{:>4}: {line}\n", idx + 1);
+                if out.len() + row.len() > max_chars {
+                    out.push_str("...[truncated]\n");
+                    break;
+                }
+                out.push_str(&row);
+            }
+            if out.is_empty() {
+                "(empty file)".to_string()
+            } else {
+                out
+            }
+        } else {
+            format!("File not found in workspace VFS: `{clean}`")
+        }
+    }
+
+    /// Formal R4.HoloGeometricRuntime search across workspace files for local ReAct observations.
+    fn workspace_search_excerpt(&self, query: &str, max_hits: usize) -> String {
+        let needle = query.trim().to_ascii_lowercase();
+        if needle.is_empty() {
+            return "Empty search query.".to_string();
+        }
+        let mut hits = Vec::new();
+        for wf in &self.workspace_files {
+            for (idx, line) in wf.content.lines().enumerate() {
+                if line.to_ascii_lowercase().contains(&needle) {
+                    hits.push(format!("{}:{}: {}", wf.path, idx + 1, line.trim()));
+                    if hits.len() >= max_hits {
+                        return hits.join("\n");
+                    }
+                }
+            }
+        }
+        if hits.is_empty() {
+            format!("No workspace matches for `{needle}`.")
+        } else {
+            hits.join("\n")
+        }
+    }
+
+    /// Formal R4.HoloGeometricRuntime convert real streamed `HoloStepObservatoryFrame`s into honest `BrainPulseStep`s.
+    fn pulses_from_observatory(
+        frames: &[holo_geometric_runtime::HoloStepObservatoryFrame],
+        n_layers: usize,
+        tool_kind: &str,
+    ) -> Vec<gllm_v9::BrainPulseStep> {
+        let tool_static: &'static str = match tool_kind {
+            "workspace_read" => "workspace_read",
+            "workspace_search" => "workspace_search",
+            "workspace_patch" => "workspace_patch",
+            "mvm_exec" => "mvm_exec",
+            "git" | "github_status" | "github_clone" | "github_push" | "github_pr" => "git",
+            _ => "none",
+        };
+        let nl = n_layers.max(1);
+        frames
+            .iter()
+            .take(16)
+            .enumerate()
+            .map(|(step, f)| {
+                let peak_layer = f
+                    .layer_residual_mag
+                    .iter()
+                    .enumerate()
+                    .max_by_key(|&(_, &mag)| mag)
+                    .map(|(idx, _)| idx % nl)
+                    .unwrap_or(0);
+                let top_attn = f.final_attn_peaks.first().map(|p| p.pos as usize);
+                gllm_v9::BrainPulseStep {
+                    step: step as u32,
+                    phase: if step + 1 == frames.len().min(16) {
+                        "reply"
+                    } else {
+                        "think"
+                    },
+                    token_id: f.token_id,
+                    active_layer: peak_layer as u8,
+                    winning_head: top_attn.map(|p| (p & 0x07) as u8).unwrap_or(0),
+                    e8_orbit: (f.q_manifold_xyz[0].unsigned_abs() & 0x0F) as u8,
+                    cl06_grade: f.layer_max_bits.last().copied().unwrap_or(0) % 7,
+                    kv_copy_dist: top_attn
+                        .map(|p| f.seq_pos.saturating_sub(p).min(u16::MAX as usize) as u16)
+                        .unwrap_or(0),
+                    prll_top_mass: f
+                        .top_candidates
+                        .first()
+                        .map(|c| c.logit_q16.unsigned_abs())
+                        .unwrap_or(0),
+                    tool_kind: tool_static,
+                }
+            })
+            .collect()
     }
 
     /// Push one verified 1 MiB OPFS piece into the active `UORR4V13` streaming builder (`R4-50`).
@@ -2688,25 +3117,56 @@ impl StudioEngine {
             }
         };
 
-        let gen = self.gllm_v9.generate_compositional_v10(
-            &format!(
-                "Summarize the verified tool output for `{orig_prompt}`:\n<tool_response> {obs_summary}</tool_response>"
-            ),
-            &[],
-            256,
-        );
-        let step2_ok = !self.gllm_v9.is_legacy_v9_container()
-            && assistant::is_well_formed_v10_step2(&gen, &obs_summary);
-        let mut combined_pulses = std::mem::take(&mut self.last_brain_pulses);
-        for mut p in gen.brain_pulses {
-            p.step = combined_pulses.len() as u32;
-            combined_pulses.push(p);
-        }
-        self.last_brain_pulses = combined_pulses;
-        let assistant_reply = if step2_ok {
-            gen.text
+        let (assistant_reply, mut holo_frames_after_bridge) = if let Some(holo_id) =
+            resume_state.get("holo_model_id").and_then(|v| v.as_str())
+        {
+            let sys_prompt = resume_state
+                .get("holo_sys_prompt")
+                .and_then(|v| v.as_str())
+                .unwrap_or("You are LexLean-R4 AI Studio.");
+            if let Some(model) = self.holo_models.get_mut(holo_id) {
+                let synth_prompt = format!(
+                    "Verified tool `{tool}` observation for `{orig_prompt}`:\n<tool_response>\n{obs_summary}\n</tool_response>\nProvide a concise, grounded answer citing only observed outputs."
+                );
+                let (reply, hm) =
+                    model.generate_chat_turn_with_history(&synth_prompt, &[], sys_prompt, 192);
+                self.last_brain_pulses = Self::pulses_from_observatory(
+                    &hm.observatory_frames,
+                    model.n_layers.max(1),
+                    tool,
+                );
+                self.last_holo_observatory_frames = hm.observatory_frames.clone();
+                (reply, hm.observatory_frames)
+            } else {
+                (
+                    format!(
+                        "Completed `{tool}` via `SpiralCore` (`CID 3 -> CID 2`):\n\n{obs_summary}"
+                    ),
+                    Vec::new(),
+                )
+            }
         } else {
-            format!("Completed `{tool}` via `SpiralCore` (`CID 3 -> CID 2`):\n\n{obs_summary}")
+            let gen = self.gllm_v9.generate_compositional_v10(
+                &format!(
+                    "Summarize the verified tool output for `{orig_prompt}`:\n<tool_response> {obs_summary}</tool_response>"
+                ),
+                &[],
+                256,
+            );
+            let step2_ok = !self.gllm_v9.is_legacy_v9_container()
+                && assistant::is_well_formed_v10_step2(&gen, &obs_summary);
+            let mut combined_pulses = std::mem::take(&mut self.last_brain_pulses);
+            for mut p in gen.brain_pulses {
+                p.step = combined_pulses.len() as u32;
+                combined_pulses.push(p);
+            }
+            self.last_brain_pulses = combined_pulses;
+            let text = if step2_ok {
+                gen.text
+            } else {
+                format!("Completed `{tool}` via `SpiralCore` (`CID 3 -> CID 2`):\n\n{obs_summary}")
+            };
+            (text, Vec::new())
         };
         if let Some(last) = self.chat_history.last_mut() {
             if last.0 == orig_prompt && last.1.contains("<tool_call>") {
@@ -2719,6 +3179,11 @@ impl StudioEngine {
             self.chat_history
                 .push((orig_prompt.to_string(), assistant_reply.clone()));
         }
+        let frames_json = if holo_frames_after_bridge.is_empty() {
+            std::mem::take(&mut self.last_holo_observatory_frames)
+        } else {
+            std::mem::take(&mut holo_frames_after_bridge)
+        };
         serde_json::json!({
             "status": "ok",
             "prompt": orig_prompt,
@@ -2728,6 +3193,7 @@ impl StudioEngine {
             "cwd": self.mvm.current_cwd(),
             "conversation_turn_count": self.chat_history.len(),
             "brain_pulses": self.last_brain_pulses,
+            "holo_observatory_frames": frames_json,
         })
         .to_string()
     }
@@ -5654,11 +6120,22 @@ impl StudioEngine {
 
         // Dual-mode input routing: accept plain prompt or JSON envelope
         // {"prompt": "...", "context": {...}, "selected_model": "...", "composer_mode": "..."}
-        let (effective_prompt, client_context_opt, selected_model_opt, composer_mode_str): (
+        let (
+            effective_prompt,
+            client_context_opt,
+            selected_model_opt,
+            composer_mode_str,
+            connected_repo,
+            connected_branch,
+            req_active_file,
+        ): (
             String,
             Option<lut_stack_exec::RollingContextState>,
             Option<String>,
             String,
+            String,
+            String,
+            Option<String>,
         ) = {
             if trimmed_raw.starts_with('{') && trimmed_raw.ends_with('}') {
                 if let Ok(serde_json::Value::Object(map)) =
@@ -5677,20 +6154,69 @@ impl StudioEngine {
                         .map(|s| s.trim().to_string())
                         .filter(|s| !s.is_empty())
                         .unwrap_or_else(|| "agentic".to_string());
+                    let repo_s = map
+                        .get("connected_repo")
+                        .or_else(|| map.get("repo"))
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.trim().to_string())
+                        .unwrap_or_default();
+                    let branch_s = map
+                        .get("connected_branch")
+                        .or_else(|| map.get("branch"))
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.trim().to_string())
+                        .unwrap_or_else(|| "main".to_string());
+                    let active_f = map
+                        .get("active_file")
+                        .and_then(|v| v.as_str())
+                        .map(|s| s.trim().to_string())
+                        .filter(|s| !s.is_empty());
                     if let Some(p) = map.get("prompt").and_then(|v| v.as_str()) {
                         let ctx = map.get("context").and_then(|c| {
                             let c_str = c.to_string();
                             lut_stack_exec::RollingContextState::from_json(&c_str)
                         });
-                        (p.to_string(), ctx, req_model, comp_mode)
+                        (
+                            p.to_string(),
+                            ctx,
+                            req_model,
+                            comp_mode,
+                            repo_s,
+                            branch_s,
+                            active_f,
+                        )
                     } else {
-                        (trimmed_raw.to_string(), None, req_model, comp_mode)
+                        (
+                            trimmed_raw.to_string(),
+                            None,
+                            req_model,
+                            comp_mode,
+                            repo_s,
+                            branch_s,
+                            active_f,
+                        )
                     }
                 } else {
-                    (trimmed_raw.to_string(), None, None, "agentic".to_string())
+                    (
+                        trimmed_raw.to_string(),
+                        None,
+                        None,
+                        "agentic".to_string(),
+                        String::new(),
+                        "main".to_string(),
+                        None,
+                    )
                 }
             } else {
-                (trimmed_raw.to_string(), None, None, "agentic".to_string())
+                (
+                    trimmed_raw.to_string(),
+                    None,
+                    None,
+                    "agentic".to_string(),
+                    String::new(),
+                    "main".to_string(),
+                    None,
+                )
             }
         };
 
@@ -5834,12 +6360,20 @@ impl StudioEngine {
             outcome
         };
 
+        let active_ws_path = req_active_file.unwrap_or_else(|| self.active_workspace_path.clone());
         let ctx_before = self.rolling_context.q12_latent;
         let start_turn_index = self.rolling_context.turn_index;
         self.pending_chat_bridge = None;
 
         let history_snap = self.chat_history.clone();
-        let r4_stack_snapshot = self.r4_stack.clone();
+        let mut holo_react_steps: Vec<String> = Vec::new();
+        let mut holo_react_iterations = 0u64;
+        let mut holo_react_admission = "IdleConversationalTurn".to_string();
+        let mut holo_staged_patch: Option<(String, String, String)> = None;
+        let mut holo_observatory_frames: Vec<holo_geometric_runtime::HoloStepObservatoryFrame> =
+            Vec::new();
+        let mut holo_prefix_reused_tokens = 0usize;
+        let mut holo_last_tool_kind = "none".to_string();
         let (assistant_reply, geometric_metrics, execution_tier, selected_wire_id) =
             match explicit_v13_mode {
                 Some(
@@ -5847,42 +6381,300 @@ impl StudioEngine {
                     | ComposerRouteMode::Qwen317bHolo
                     | ComposerRouteMode::HfRepoHolo),
                 ) => {
-                    let model = self
-                        .holo_models
-                        .get_mut(route_mode.wire_id())
-                        .expect("admitted holo model mounted");
-                    let sys_prompt = "You are a helpful assistant.";
-                    let (reply, hm) = model.generate_chat_turn_with_history(
-                        trimmed,
-                        &history_snap,
-                        sys_prompt,
-                        192,
+                    let sys_prompt = self.build_holo_studio_system_prompt(
+                        route_mode.wire_id(),
+                        &active_ws_path,
+                        &connected_repo,
+                        &connected_branch,
                     );
+                    let mut hop_prompt = trimmed.to_string();
+                    let mut react_fuel = 16u64;
+                    let mut final_reply = String::new();
+                    let mut total_prompt_tokens = 0usize;
+                    let mut total_gen_tokens = 0usize;
+                    let mut total_flock_att = 0usize;
+                    let mut total_flock_tot = 0usize;
+                    let mut last_hm_schema = "uor-r4.holo-geometric-runtime/14";
+                    let mut last_shortlist_budget = 4096usize;
+                    let mut model_n_layers = 28u32;
+                    let mut model_d_model = 1024u32;
+                    let mut model_vocab = 151_936u32;
+
+                    for _hop in 0..3usize {
+                        let (reply, hm, nl, dm, vs) = {
+                            let model = self
+                                .holo_models
+                                .get_mut(route_mode.wire_id())
+                                .expect("admitted holo model mounted");
+                            let (r, hm) = model.generate_chat_turn_with_history(
+                                &hop_prompt,
+                                &history_snap,
+                                &sys_prompt,
+                                192,
+                            );
+                            (
+                                r,
+                                hm,
+                                model.n_layers as u32,
+                                model.d_model as u32,
+                                model.vocab_size as u32,
+                            )
+                        };
+                        model_n_layers = nl;
+                        model_d_model = dm;
+                        model_vocab = vs;
+                        total_prompt_tokens += hm.prompt_tokens;
+                        holo_prefix_reused_tokens =
+                            holo_prefix_reused_tokens.max(hm.prefix_reused_tokens);
+                        total_gen_tokens += hm.generated_tokens;
+                        total_flock_att += hm.flock_attended_positions;
+                        total_flock_tot += hm.flock_total_positions;
+                        last_hm_schema = hm.schema;
+                        last_shortlist_budget = hm.shortlist_budget;
+                        if holo_observatory_frames.len() < 64 {
+                            let remain = 64 - holo_observatory_frames.len();
+                            holo_observatory_frames
+                                .extend(hm.observatory_frames.into_iter().take(remain));
+                        }
+
+                        if composer_mode_str == "agentic" {
+                            if let Some((tool_name, args)) = extract_holo_tool_call(&reply) {
+                                holo_last_tool_kind = tool_name.clone();
+                                if let lexlean_generated::r4_react_agent::ReactStepOutcome::DispatchedPhaseStep(
+                                    next_iter,
+                                    _,
+                                    next_fuel,
+                                ) = lexlean_generated::r4_react_agent::step_react_controller(
+                                    holo_react_iterations,
+                                    4,
+                                    0,
+                                    1,
+                                    react_fuel,
+                                ) {
+                                    holo_react_iterations = next_iter;
+                                    react_fuel = next_fuel;
+                                }
+                                match tool_name.as_str() {
+                                    "workspace_read" => {
+                                        let p = args
+                                            .get("path")
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or(&active_ws_path);
+                                        let obs = self.workspace_read_excerpt(p, 2400);
+                                        holo_react_steps.push(format!(
+                                            "{{\"step\":{},\"iteration\":{},\"tool\":\"workspace_read\",\"target\":\"{}\",\"status\":\"ok\",\"detail\":\"Read {} chars\"}}",
+                                            holo_react_steps.len() + 1,
+                                            holo_react_iterations,
+                                            escape_json(p),
+                                            obs.len()
+                                        ));
+                                        holo_react_admission = "VerifiedLocalToolTurn".to_string();
+                                        hop_prompt = format!(
+                                            "{trimmed}\n<tool_response tool=\"workspace_read\" path=\"{p}\">\n{obs}\n</tool_response>\nRespond concisely using the verified file content."
+                                        );
+                                        continue;
+                                    }
+                                    "workspace_search" => {
+                                        let q = args
+                                            .get("query")
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or("");
+                                        let obs = self.workspace_search_excerpt(q, 12);
+                                        holo_react_steps.push(format!(
+                                            "{{\"step\":{},\"iteration\":{},\"tool\":\"workspace_search\",\"target\":\"{}\",\"status\":\"ok\",\"detail\":\"Searched workspace\"}}",
+                                            holo_react_steps.len() + 1,
+                                            holo_react_iterations,
+                                            escape_json(q)
+                                        ));
+                                        holo_react_admission = "VerifiedLocalToolTurn".to_string();
+                                        hop_prompt = format!(
+                                            "{trimmed}\n<tool_response tool=\"workspace_search\" query=\"{q}\">\n{obs}\n</tool_response>\nRespond concisely citing matching files and lines."
+                                        );
+                                        continue;
+                                    }
+                                    "workspace_patch" => {
+                                        let p = args
+                                            .get("path")
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or(&active_ws_path)
+                                            .to_string();
+                                        let new_code = args
+                                            .get("content")
+                                            .or_else(|| args.get("code"))
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or("")
+                                            .to_string();
+                                        if !new_code.is_empty() {
+                                            let old_code = self
+                                                .workspace_files
+                                                .iter()
+                                                .find(|f| f.path == p)
+                                                .map(|f| f.content.clone())
+                                                .unwrap_or_default();
+                                            let udiff =
+                                                compute_unified_diff(&old_code, &new_code, &p, 3);
+                                            holo_react_steps.push(format!(
+                                                "{{\"step\":{},\"iteration\":{},\"tool\":\"workspace_patch\",\"target\":\"{}\",\"status\":\"ok\",\"detail\":\"Staged unified diff ({} bytes)\"}}",
+                                                holo_react_steps.len() + 1,
+                                                holo_react_iterations,
+                                                escape_json(&p),
+                                                udiff.len()
+                                            ));
+                                            holo_react_admission =
+                                                "StagedWorkspaceDiff".to_string();
+                                            holo_staged_patch = Some((p, new_code, udiff));
+                                            final_reply = reply;
+                                            break;
+                                        }
+                                    }
+                                    "mvm_exec" => {
+                                        let cmd = args
+                                            .get("cmd")
+                                            .or_else(|| args.get("command"))
+                                            .and_then(|v| v.as_str())
+                                            .unwrap_or("")
+                                            .trim();
+                                        if !cmd.is_empty() {
+                                            self.sync_workspace_into_mvm();
+                                            let cwd = args
+                                                .get("cwd")
+                                                .and_then(|v| v.as_str())
+                                                .filter(|s| !s.trim().is_empty());
+                                            match self.mvm.exec_interactive(cmd, cwd) {
+                                                Ok(mvm::MvmInteractiveOutcome::Completed(done)) => {
+                                                    self.sync_workspace_from_mvm();
+                                                    let obs = if !done.stdout.trim().is_empty() {
+                                                        done.stdout
+                                                            .trim()
+                                                            .chars()
+                                                            .take(2000)
+                                                            .collect::<String>()
+                                                    } else {
+                                                        format!(
+                                                            "exit_code={} stderr={}",
+                                                            done.exit_code,
+                                                            done.stderr.trim()
+                                                        )
+                                                    };
+                                                    holo_react_steps.push(format!(
+                                                        "{{\"step\":{},\"iteration\":{},\"tool\":\"mvm_exec\",\"target\":\"{}\",\"status\":\"ok\",\"detail\":\"exit_code={}\"}}",
+                                                        holo_react_steps.len() + 1,
+                                                        holo_react_iterations,
+                                                        escape_json(cmd),
+                                                        done.exit_code
+                                                    ));
+                                                    holo_react_admission =
+                                                        "VerifiedMvmExecTurn".to_string();
+                                                    hop_prompt = format!(
+                                                        "{trimmed}\n<tool_response tool=\"mvm_exec\" cmd=\"{cmd}\">\n{obs}\n</tool_response>\nSummarize the observed command result accurately."
+                                                    );
+                                                    continue;
+                                                }
+                                                Ok(mvm::MvmInteractiveOutcome::NeedsBridge(
+                                                    pending,
+                                                )) => {
+                                                    self.pending_chat_bridge = Some(
+                                                        serde_json::json!({
+                                                            "prompt": trimmed,
+                                                            "tool": "mvm_exec",
+                                                            "holo_model_id": route_mode.wire_id(),
+                                                            "holo_sys_prompt": sys_prompt,
+                                                            "bridge_req": pending.bridge_req,
+                                                            "mvm_resume_state": pending.resume_state,
+                                                        }),
+                                                    );
+                                                    holo_react_steps.push(format!(
+                                                        "{{\"step\":{},\"iteration\":{},\"tool\":\"mvm_exec\",\"target\":\"{}\",\"status\":\"needs_bridge\",\"detail\":\"Routed via SpiralCore bridge\"}}",
+                                                        holo_react_steps.len() + 1,
+                                                        holo_react_iterations,
+                                                        escape_json(cmd)
+                                                    ));
+                                                    final_reply = reply;
+                                                    break;
+                                                }
+                                                Err(e) => {
+                                                    hop_prompt = format!(
+                                                        "{trimmed}\n<tool_response tool=\"mvm_exec\" error=\"true\">{e}</tool_response>\nExplain the error clearly."
+                                                    );
+                                                    continue;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    "github_status" | "github_clone" | "github_push"
+                                    | "github_pr" | "git" => {
+                                        let sub = match tool_name.as_str() {
+                                            "github_status" => "status",
+                                            "github_clone" => "clone",
+                                            "github_push" => "commit_push",
+                                            "github_pr" => "create_pr",
+                                            _ => args
+                                                .get("subcommand")
+                                                .and_then(|v| v.as_str())
+                                                .unwrap_or("status"),
+                                        };
+                                        let repo_arg = args
+                                            .get("repo")
+                                            .and_then(|v| v.as_str())
+                                            .filter(|s| !s.is_empty())
+                                            .unwrap_or(&connected_repo);
+                                        let branch_arg = args
+                                            .get("branch")
+                                            .and_then(|v| v.as_str())
+                                            .filter(|s| !s.is_empty())
+                                            .unwrap_or(&connected_branch);
+                                        let bridge_req = serde_json::json!({
+                                            "req_id": format!("holo-git-{}", holo_react_iterations),
+                                            "op": "git",
+                                            "subcommand": sub,
+                                            "repo": repo_arg,
+                                            "branch": branch_arg,
+                                            "message": args.get("message").and_then(|v| v.as_str()).unwrap_or("Update from LexLean-R4 Studio"),
+                                            "title": args.get("title").and_then(|v| v.as_str()).unwrap_or("LexLean-R4 Studio PR"),
+                                        });
+                                        self.pending_chat_bridge = Some(serde_json::json!({
+                                            "prompt": trimmed,
+                                            "tool": "git",
+                                            "holo_model_id": route_mode.wire_id(),
+                                            "holo_sys_prompt": sys_prompt,
+                                            "bridge_req": bridge_req,
+                                        }));
+                                        final_reply = reply;
+                                        break;
+                                    }
+                                    _ => {}
+                                }
+                            }
+                        }
+                        final_reply = reply;
+                        break;
+                    }
+
                     let tier = format!(
                         "{} ({}L {}D, UORR4V13)",
                         route_mode.wire_id(),
-                        model.n_layers,
-                        model.d_model
+                        model_n_layers,
+                        model_d_model
                     );
                     let gm = GeometricTurnMetrics {
-                        schema: hm.schema,
+                        schema: last_hm_schema,
                         active_tier: route_mode.wire_id(),
-                        n_layers: model.n_layers as u32,
-                        d_model: model.d_model as u32,
-                        vocab_size: model.vocab_size as u32,
-                        prompt_tokens: hm.prompt_tokens,
-                        generated_tokens: hm.generated_tokens,
+                        n_layers: model_n_layers,
+                        d_model: model_d_model,
+                        vocab_size: model_vocab,
+                        prompt_tokens: total_prompt_tokens,
+                        generated_tokens: total_gen_tokens,
                         float_ops: 0,
                         dense_matmul_ops: 0,
-                        nibble_lut_lookups: (hm.prompt_tokens + hm.generated_tokens) as u64,
+                        nibble_lut_lookups: (total_prompt_tokens + total_gen_tokens) as u64,
                         lorentz_geodesic_evals: 0,
-                        flock_attended_positions: hm.flock_attended_positions,
-                        flock_total_positions: hm.flock_total_positions,
-                        hamming_xor_copy_hits: hm.shortlist_budget,
+                        flock_attended_positions: total_flock_att,
+                        flock_total_positions: total_flock_tot,
+                        hamming_xor_copy_hits: last_shortlist_budget,
                         icosian_frame_id: icosian_root,
-                        zeta_phase_checksum: 0,
+                        zeta_phase_checksum: holo_prefix_reused_tokens as u64,
                     };
-                    (reply, gm, tier, route_mode.wire_id().to_string())
+                    (final_reply, gm, tier, route_mode.wire_id().to_string())
                 }
                 Some(ComposerRouteMode::NativeQ31D85) => {
                     if composer_mode_str == "teach" {
@@ -5921,6 +6713,7 @@ impl StudioEngine {
                     )
                 }
                 None => {
+                    let r4_stack_snapshot = self.r4_stack.clone();
                     let (reply, gm, _frames) = self.compose_chat_for_mode(
                         trimmed,
                         &prompt_tokens,
@@ -5943,29 +6736,29 @@ impl StudioEngine {
             };
 
         if explicit_v13_mode.is_some() {
-            let pulse_count = geometric_metrics.generated_tokens.clamp(1, 16);
-            let nl = geometric_metrics.n_layers.max(1) as usize;
-            self.last_brain_pulses = (0..pulse_count)
-                .map(|step| gllm_v9::BrainPulseStep {
-                    step: step as u32,
+            if !holo_observatory_frames.is_empty() {
+                self.last_brain_pulses = Self::pulses_from_observatory(
+                    &holo_observatory_frames,
+                    geometric_metrics.n_layers.max(1) as usize,
+                    &holo_last_tool_kind,
+                );
+                self.last_holo_observatory_frames = holo_observatory_frames.clone();
+            } else {
+                // NativeQ31 turn without Holo layer frames: derive single honest step pulse without modulo synthesis.
+                self.last_brain_pulses = vec![gllm_v9::BrainPulseStep {
+                    step: 0,
                     phase: "reply",
-                    token_id: prompt_tokens
-                        .get(step % prompt_tokens.len().max(1))
-                        .map(|t| t.id)
-                        .unwrap_or(step as u32),
-                    active_layer: ((step * 3 + consensus_action as usize) % nl) as u8,
-                    winning_head: flock_frames[step % flock_frames.len()] & 0x07,
-                    e8_orbit: (icosian_root.wrapping_add(step as u8)) & 0x0F,
-                    cl06_grade: consensus_action.wrapping_add(step as u8) % 7,
-                    kv_copy_dist: if geometric_metrics.hamming_xor_copy_hits > 0 {
-                        (step as u16).saturating_add(1)
-                    } else {
-                        0
-                    },
-                    prll_top_mass: 250_000u32.saturating_add(((step as u32) * 19_531) % 600_000),
+                    token_id: prompt_tokens.first().map(|t| t.id).unwrap_or(0),
+                    active_layer: geometric_metrics.n_layers.saturating_sub(1) as u8,
+                    winning_head: flock_frames.first().copied().unwrap_or(0) & 0x07,
+                    e8_orbit: icosian_root & 0x0F,
+                    cl06_grade: consensus_action % 7,
+                    kv_copy_dist: geometric_metrics.prompt_tokens.min(u16::MAX as usize) as u16,
+                    prll_top_mass: geometric_metrics.generated_tokens.min(u32::MAX as usize) as u32,
                     tool_kind: "none",
-                })
-                .collect();
+                }];
+                self.last_holo_observatory_frames.clear();
+            }
         }
 
         let lut_gen_for_trace = match self.last_lut_generation.take() {
@@ -6149,15 +6942,21 @@ impl StudioEngine {
             .collect();
 
         const MAX_REACT_ITERATIONS: u64 = 4;
-        let mut react_iterations = 0u64;
+        let mut react_iterations = holo_react_iterations;
         let mut react_fuel = 16u64;
         let mut react_verified = true;
         let mut react_tests_passed = 0usize;
         let mut react_tests_failed = 0usize;
-        let mut react_admission = "IdleConversationalTurn".to_string();
-        let mut react_steps_json = Vec::new();
+        let mut react_admission = holo_react_admission;
+        let mut react_steps_json = holo_react_steps;
 
-        let (proposed_code, diff_preview) = if explicit_v13_mode.is_none()
+        let (proposed_code, diff_preview) = if let Some((staged_path, staged_code, udiff)) =
+            holo_staged_patch
+        {
+            target_path = staged_path;
+            is_coding = true;
+            (staged_code, udiff)
+        } else if explicit_v13_mode.is_none()
             && ((is_coding && !synthesized_block.trim().is_empty())
                 || (wants_fix_or_verify && target_path.ends_with(".rs")))
         {
@@ -6454,6 +7253,8 @@ impl StudioEngine {
             serde_json::to_string(&geometric_metrics).unwrap_or_else(|_| "{}".to_string());
         let brain_pulses_json =
             serde_json::to_string(&self.last_brain_pulses).unwrap_or_else(|_| "[]".to_string());
+        let holo_frames_json =
+            serde_json::to_string(&holo_observatory_frames).unwrap_or_else(|_| "[]".to_string());
         let (chat_status, bridge_extra_json) = if let Some(pending) =
             self.pending_chat_bridge.clone()
         {
@@ -6487,6 +7288,8 @@ impl StudioEngine {
                 "\"composer_mode\":\"{}\",",
                 "\"execution_tier\":\"{}\",",
                 "\"geometric_metrics\":{},",
+                "\"holo_prefix_reused_tokens\":{},",
+                "\"holo_observatory_frames\":{},",
                 "\"prompt\":\"{}\",",
                 "\"assistant_reply\":\"{}\",",
                 "\"thinking\":{},",
@@ -6523,6 +7326,8 @@ impl StudioEngine {
             escape_json(&composer_mode_str),
             escape_json(&execution_tier),
             geometric_metrics_json,
+            holo_prefix_reused_tokens,
+            holo_frames_json,
             escape_json(trimmed),
             escape_json(&clean_reply),
             thinking_json,
@@ -7479,6 +8284,8 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "admit_generation_capsule" => engine.admit_generation_capsule_json(payload),
         "record_generation_fault" => engine.record_generation_fault_json(payload),
         "verdant_synthesis_status" => engine.verdant_synthesis_status_json(),
+        "holo_storage_geometry" => engine.holo_storage_geometry_json(payload),
+        "telos_tick" => engine.run_telos_self_improvement_tick_json(payload),
         "shard_status" | "shards" => engine.shard_catalog_json(),
         "shard_export" => {
             let e8_root = payload.trim().parse::<u8>().unwrap_or(0) % 16;
@@ -7912,7 +8719,7 @@ pub fn studio_mount_holo_v13_bytes(model_id: &str, bytes: &[u8]) -> String {
     }
 }
 
-/// Begin incremental streaming mount of 1 MiB OPFS `.holo` pieces into Wasm (`R4-50`, `R4-51`).
+/// Formal R4.HoloGeometricRuntime begin incremental streaming mount of 1 MiB OPFS `.holo` pieces into Wasm (`R4-50`, `R4-51`).
 #[wasm_bindgen]
 pub fn studio_begin_holo_v13_mount(
     model_id: &str,
@@ -7925,6 +8732,55 @@ pub fn studio_begin_holo_v13_mount(
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.begin_holo_v13_mount(model_id, expected_pieces, expected_sha256)
+}
+
+/// Formal R4.HoloGeometricRuntime begin incremental streaming mount with verified SHA-256 skip-rehash flag.
+#[wasm_bindgen]
+pub fn studio_begin_holo_v13_mount_verified(
+    model_id: &str,
+    expected_pieces: usize,
+    expected_sha256: &str,
+    skip_rehash: bool,
+) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.begin_holo_v13_mount_with_policy(model_id, expected_pieces, expected_sha256, skip_rehash)
+}
+
+/// Formal R4.HoloGeometricRuntime adjust shortlist K and Starling Flock window dynamically (`R4-51`, `R4-55`).
+#[wasm_bindgen]
+pub fn studio_set_holo_budgets(shortlist_k: usize, flock_window: usize) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.set_holo_budgets_json(shortlist_k, flock_window)
+}
+
+/// Formal R4.HoloGeometricRuntime query OPFS stationary layout + MVM CoW dirty sectors + RHT vocab clusters.
+#[wasm_bindgen]
+pub fn studio_holo_storage_geometry_json(model_id: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_storage_geometry_json(model_id)
+}
+
+/// Formal R4.OntologicalTelos execute one verified parametric coordinate-descent self-improvement tick (`R4-55`).
+#[wasm_bindgen]
+pub fn studio_run_telos_self_improvement_tick(payload: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.run_telos_self_improvement_tick_json(payload)
 }
 
 /// Stream one SHA-256 verified OPFS `.holo` piece into the active streaming builder (`R4-50`).

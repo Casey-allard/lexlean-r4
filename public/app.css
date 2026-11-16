@@ -1544,6 +1544,88 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
+/* Live 4-Canvas Holo v13 Neural & Storage Geometry Observatory */
+.holo-observatory-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  background: #070a10;
+  border: 1px solid #1e293b;
+  border-radius: 0.55rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.38);
+}
+
+.holo-obs-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.holo-obs-title-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.holo-obs-title {
+  font-size: 0.86rem;
+  color: #f1f5f9;
+}
+
+.holo-obs-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.holo-obs-stats-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.45rem;
+}
+
+.holo-obs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 0.65rem;
+}
+
+.holo-obs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: #0b101b;
+  border: 1px solid #1e293b;
+  border-radius: 0.45rem;
+  padding: 0.5rem;
+}
+
+.holo-obs-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.holo-obs-card-head code {
+  font-size: 0.7rem;
+  color: #38bdf8;
+}
+
+.holo-obs-canvas {
+  width: 100%;
+  height: 220px;
+  border-radius: 0.35rem;
+  background: #05070c;
+  display: block;
+}
+
 /* 3D Holographic Neural Viewport & WebGL Canvas */
 #neural-3d-viewport,
 .neural-3d-viewport {

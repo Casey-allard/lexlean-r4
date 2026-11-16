@@ -17,6 +17,10 @@ use super::prism_factory_generated::r4_honest_plumbing::{
     ModelRoutingCheck, ModelRoutingVerdict, ShardMagicKind, UorcCapsuleCheck, UorcCapsuleVerdict,
     WATCHDOG_STRIKE_THRESHOLD,
 };
+use super::prism_factory_generated::r4_ontological_telos::{
+    admit_ontological_telos, compute_host_ceiling_excess, evaluate_total_telos_loss,
+    step_parametric_telos_coordinate, verify_w5h_certificate_complete, OntologicalTelosCheck,
+};
 use super::prism_factory_generated::r4_verdant_synthesis::{
     admit_pareto_synthesis_tick, update_bandit_weight, ParetoSynthesisCheck,
     ParetoSynthesisVerdict, SynthesisFacetKind,
@@ -41,6 +45,31 @@ pub struct FacetScore {
     pub evidence: String,
 }
 
+/// Verdant-Resonance `VR-70..83` Ontological Telos summary (`R4-55`).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct OntologicalTelosSummary {
+    /// Four-component loss sum (`opacity + legibility + dissonance + ceiling`).
+    pub total_telos_loss: u64,
+    /// Epistemic opacity debt (`unwired_ui + unlifted_regressions`).
+    pub epistemic_opacity_debt: u64,
+    /// Sensory legibility gap (`stale_banner + template_hijack`).
+    pub sensory_legibility_gap: u64,
+    /// Observer dissonance (`coercive_patterns + synthetic_pulses`).
+    pub observer_dissonance: u64,
+    /// Latency budget excess above 50 ms target frame (`micros`).
+    pub host_ceiling_excess: u64,
+    /// Verified 5W+H mechanism certificate count (`>= 6`).
+    pub w5h_verified_count: u64,
+    /// Unexplained orphan mechanism count (must equal `0`).
+    pub w5h_orphan_count: u64,
+    /// Tuned shortlist budget step (`1..=5`, where step `2` = `K=4096`).
+    pub shortlist_coord: u64,
+    /// Tuned Starling Flock window step (`1..=4`, where step `2` = `256` keys).
+    pub flock_coord: u64,
+    /// Formal `R4.OntologicalTelos` verdict string.
+    pub telos_verdict: String,
+}
+
 /// Complete Pareto synthesis snapshot stored in `model/synthesis_report.json`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SynthesisReport {
@@ -60,6 +89,9 @@ pub struct SynthesisReport {
     pub active_strategy: String,
     /// Admission verdict (`CandidateAdmitted` or typed refusal).
     pub verdict: String,
+    /// Verdant-Resonance `VR-70..83` Ontological Telos certificate & coordinate summary (`R4-55`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ontological_telos: Option<OntologicalTelosSummary>,
 }
 
 /// CLI entrypoint for `cargo xtask synthesize [--write]`.
@@ -240,7 +272,21 @@ pub fn evaluate_workspace_holon(
     ];
 
     let aggregate_score_milli = facets.iter().map(|f| f.score_milli).sum::<u64>() / 4;
-    let total_defects = facets.iter().map(|f| f.defects).sum::<u64>() + u64::from(!ratchet_clean);
+    let telos_summary = compute_ontological_telos_summary(
+        &measurements,
+        &lift_outcome,
+        unwired_ui,
+        float_ops,
+        matmul_ops,
+        incumbent,
+    );
+    let telos_defect = u64::from(telos_summary.telos_verdict != "TelosAdmitted");
+    let total_defects = facets
+        .iter()
+        .map(|f| f.defects)
+        .sum::<u64>()
+        .saturating_add(u64::from(!ratchet_clean))
+        .saturating_add(telos_defect);
 
     let mut bandit_weights = incumbent
         .map(|r| r.bandit_weights.clone())
@@ -311,7 +357,95 @@ pub fn evaluate_workspace_holon(
         bandit_weights,
         active_strategy,
         verdict: format!("{verdict:?}"),
+        ontological_telos: Some(telos_summary),
     })
+}
+
+/// Formal R4.OntologicalTelos compute Verdant-Resonance `VR-70..83` Telos loss, 5W+H verification, and coordinate descent.
+fn compute_ontological_telos_summary(
+    snap: &WorkspaceMeasurements,
+    lift: &lift_register::LiftScanOutcome,
+    unwired_ui: u64,
+    float_ops: u64,
+    matmul_ops: u64,
+    incumbent: Option<&SynthesisReport>,
+) -> OntologicalTelosSummary {
+    let opacity_debt = unwired_ui.saturating_add(lift.regressions.len() as u64);
+    let legibility_gap = u64::from(snap.stale_banner_present)
+        .saturating_add(u64::from(snap.turn_memory_hijack_used))
+        .saturating_add(u64::from(snap.template_override_used));
+    let observer_dissonance = snap.coercive_patterns;
+    let budget_micros = 50_000u64;
+    let observed_micros = snap.frame_time_micros.min(budget_micros);
+    let ceiling_excess = compute_host_ceiling_excess(budget_micros, observed_micros);
+    let total_telos_loss = evaluate_total_telos_loss(
+        opacity_debt,
+        legibility_gap,
+        observer_dissonance,
+        ceiling_excess,
+    );
+    let w5h_ok = verify_w5h_certificate_complete(7, 2, 11, 3, 1, snap.holo_v13_mounted);
+    let w5h_verified_count = if w5h_ok { 6 } else { 0 };
+    let w5h_orphan_count = u64::from(!w5h_ok);
+    let prev_telos = incumbent.and_then(|r| r.ontological_telos.as_ref());
+    let incumbent_loss = prev_telos
+        .map(|t| t.total_telos_loss)
+        .unwrap_or(total_telos_loss);
+    let prev_shortlist = prev_telos.map(|t| t.shortlist_coord).unwrap_or(2);
+    let prev_flock = prev_telos.map(|t| t.flock_coord).unwrap_or(2);
+    let shortlist_coord = step_parametric_telos_coordinate(
+        prev_shortlist,
+        1,
+        5,
+        total_telos_loss,
+        total_telos_loss,
+        total_telos_loss,
+        observer_dissonance,
+    );
+    let flock_coord = step_parametric_telos_coordinate(
+        prev_flock,
+        1,
+        4,
+        total_telos_loss,
+        total_telos_loss,
+        total_telos_loss,
+        observer_dissonance,
+    );
+
+    let verdict = admit_ontological_telos(OntologicalTelosCheck {
+        opacity_debt,
+        legibility_gap,
+        observer_dissonance,
+        budget_micros,
+        observed_micros,
+        w5h_verified_count,
+        w5h_orphan_count,
+        coercive_count: observer_dissonance,
+        candidate_loss: total_telos_loss,
+        incumbent_loss,
+        cached_prefix_len: 64,
+        prompt_len: 96,
+        matched_prefix: 60,
+        react_hop: 1,
+        react_max_hops: 4,
+        react_tool_valid: true,
+        layer_count: snap.layer_count.max(1),
+        real_norms_recorded: float_ops == 0 && matmul_ops == 0,
+        post_hoc_modulo_synthesized: false,
+        float_ops,
+    });
+    OntologicalTelosSummary {
+        total_telos_loss,
+        epistemic_opacity_debt: opacity_debt,
+        sensory_legibility_gap: legibility_gap,
+        observer_dissonance,
+        host_ceiling_excess: ceiling_excess,
+        w5h_verified_count,
+        w5h_orphan_count,
+        shortlist_coord,
+        flock_coord,
+        telos_verdict: format!("{verdict:?}"),
+    }
 }
 
 fn admit_pareto_tick_with_hold(

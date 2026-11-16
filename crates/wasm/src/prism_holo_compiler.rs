@@ -691,7 +691,7 @@ fn push_wasm_section(id: u8, payload: &[u8], out: &mut Vec<u8>) {
 
 /// Deterministic `lexlean-r4` acceptance vectors answered natively by `hologram:guest/core-wasm@1`.
 pub const HOLO_ACCEPTANCE_PAIRS: [(&[u8], &[u8]); 5] = [
-    (b"1\tping\t", b"1\tok\tlexlean-r4\tv0.13.0"),
+    (b"1\tping\t", b"1\tok\tlexlean-r4\tv0.14.0"),
     (
         b"1\troute\tqwen3-0.6b-holo",
         b"1\tok\tuor-r4.qwen3-0.6b-holo\tsimd128-int4-rht32",
@@ -1169,7 +1169,7 @@ pub fn compile_holo_v4_from_holoview(
     let application_json = json!({
         "name": "lexlean-r4",
         "cargo_name": "lexlean-r4-wasm",
-        "cargo_version": "0.13.0",
+        "cargo_version": "0.14.0",
         "cargo_description": "Pure-integer Holo v13 and Q31 D85 AI Studio for UOR Foundry",
         "cargo_repository": "https://github.com/Casey-allard/lexlean-r4",
         "cargo_homepage": "https://casey-allard.github.io/lexlean-r4/",
@@ -1336,7 +1336,7 @@ pub fn compile_holo_v4_from_holoview(
         "lcnf_manifest_sha256": view_manifest_sha,
         "generated_core_sha256": generated_core_sha,
         "cargo_name": "lexlean-r4-wasm",
-        "cargo_version": "0.13.0",
+        "cargo_version": "0.14.0",
         "cargo_crate_sha256": cargo_crate_sha256,
         "guest_content_kappa": guest_kappa,
         "view_binding": {

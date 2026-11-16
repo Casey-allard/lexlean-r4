@@ -215,7 +215,7 @@ fn validate(root: &Path) -> Result<(), Fail> {
 
 /// Compile the 6-file `public/` browser closure into a Hologram v4 `.holo` archive (`R4-54`),
 /// verifying its `core-wasm@1` acceptance vectors and BLAKE3 footer against `site/app.json`.
-fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
+pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
     let mut out_path: Option<PathBuf> = None;
     let mut sync_site = false;
     let mut verify_site = false;
