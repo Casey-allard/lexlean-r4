@@ -34,6 +34,8 @@ pub mod holo_kappa_store;
 mod lexlean_generated_core;
 /// Track 2 (`R4-52`): Pure-from-scratch `D85` `Q31` SpiralCore/FBS orbital lane & `UORQ31V1` codec.
 pub mod native_q31_lane;
+/// `R4-54`: Pure-integer Stitch Prism Identity, BLAKE3, HOLOVIEW v1, and Hologram v4 `.holo` compiler.
+pub mod prism_holo_compiler;
 /// Multiplier-free, zero-float `UORR4V12` geometric vector stack runtime (`R4-46`).
 pub mod r4_geometric_stack;
 /// Deterministically generated Rust implementation of the verified LexLean `R4.*` modules.
@@ -496,6 +498,7 @@ pub struct StudioEngine {
     pub(crate) hf_repo_compiler: Option<holo_geometric_runtime::HfRepoHoloStreamCompiler>,
     pub(crate) native_q31: native_q31_lane::NativeQ31Model,
     pub(crate) ciris_ledger: ciris_ledger::CirisCausalLedger,
+    pub(crate) prism_identity: prism_holo_compiler::PrismIdentityLedger,
     pub(crate) last_brain_pulses: Vec<gllm_v9::BrainPulseStep>,
     pub(crate) pending_mvm_bridge: Option<serde_json::Value>,
     pub(crate) pending_chat_bridge: Option<serde_json::Value>,
@@ -1288,6 +1291,7 @@ impl StudioEngine {
                     .clone()
             },
             ciris_ledger: ciris_ledger::CirisCausalLedger::new(),
+            prism_identity: prism_holo_compiler::PrismIdentityLedger::default(),
             last_brain_pulses: Vec::new(),
             pending_mvm_bridge: None,
             pending_chat_bridge: None,
@@ -5847,11 +5851,7 @@ impl StudioEngine {
                         .holo_models
                         .get_mut(route_mode.wire_id())
                         .expect("admitted holo model mounted");
-                    let sys_prompt = if composer_mode_str == "agentic" {
-                        "You are UOR-R4 Assistant running inside an offline pure-integer browser engine. Give clear, accurate, concise answers and clean code."
-                    } else {
-                        "You are a helpful assistant."
-                    };
+                    let sys_prompt = "You are a helpful assistant.";
                     let (reply, hm) = model.generate_chat_turn_with_history(
                         trimmed,
                         &history_snap,
@@ -8040,6 +8040,7 @@ pub fn studio_hf_repo_begin(repo_id: &str, config_json: &str, tokenizer_json: &s
         Err(poisoned) => poisoned.into_inner(),
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_models.remove("uor-r4.hf-repo-holo");
     match holo_geometric_runtime::HfRepoHoloStreamCompiler::new(
         repo_id,
         config_json,
@@ -8758,6 +8759,100 @@ pub fn studio_stitch_recover_2of3_object(
     };
     stitch_fabric::recover_2of3_object(&provided, original_length, sha_opt, None)
         .map_err(|e| JsValue::from_str(&format!("{}: {e}", e.error_code())))
+}
+
+/// Formal `R4.PrismHoloIdentity` query active `afflom/stitch` Prism Identity ledger state (`R4-54`).
+#[wasm_bindgen]
+pub fn studio_prism_identity_status() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.prism_identity.status_json().to_string()
+}
+
+/// Formal `R4.PrismHoloIdentity` admit a `Stitch.PrismId` JSON record into the session ledger (`R4-54`).
+#[wasm_bindgen]
+pub fn studio_prism_identity_admit_record(record_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let parsed: serde_json::Value = match serde_json::from_str(record_json) {
+        Ok(v) => v,
+        Err(e) => {
+            return serde_json::json!({
+                "status": "error",
+                "error_code": "RefusedNonIntegerCanonicalJson",
+                "message": format!("invalid record JSON: {e}"),
+            })
+            .to_string();
+        }
+    };
+    match engine.prism_identity.admit_record(&parsed) {
+        Ok(adm) => serde_json::json!({
+            "status": "ok",
+            "verdict": adm.verdict_name,
+            "record_kappa": adm.record_kappa,
+            "prism_id": adm.prism_id,
+            "schema": adm.schema,
+            "active_devices": adm.active_devices,
+            "revoked_devices": adm.revoked_devices,
+            "ledger": engine.prism_identity.status_json(),
+        })
+        .to_string(),
+        Err(verdict) => serde_json::json!({
+            "status": "error",
+            "error_code": prism_holo_compiler::verdict_name(verdict),
+            "message": format!("PrismId admission refused: {:?}", verdict),
+        })
+        .to_string(),
+    }
+}
+
+/// Formal `R4.PrismHoloIdentity` return the import-free `hologram:guest/core-wasm@1` wasm32 module (`R4-54`).
+#[wasm_bindgen]
+pub fn studio_core_wasm_guest_bytes() -> Vec<u8> {
+    prism_holo_compiler::build_core_wasm_guest()
+}
+
+/// Formal `R4.PrismHoloIdentity` compile a big-endian `HOLOVIEW` v1 closure and provenance JSON into a Hologram v4 `.holo` archive (`R4-54`).
+#[wasm_bindgen]
+pub fn studio_compile_holo_v4_archive(holoview_bytes: &[u8], provenance_bytes: &[u8]) -> Vec<u8> {
+    prism_holo_compiler::compile_holo_v4_from_holoview(holoview_bytes, provenance_bytes)
+        .unwrap_or_default()
+}
+
+/// Formal `R4.PrismHoloIdentity` verify a Hologram v4 `.holo` archive and return structured JSON verdict (`R4-54`).
+#[wasm_bindgen]
+pub fn studio_verify_holo_v4_archive(archive_bytes: &[u8]) -> String {
+    match prism_holo_compiler::verify_holo_v4_archive(archive_bytes) {
+        Ok(sum) => serde_json::json!({
+            "status": "ok",
+            "verdict": sum.verdict_name,
+            "archive_kappa": sum.archive_kappa,
+            "fingerprint": sum.fingerprint,
+            "application_kappa": sum.application_kappa,
+            "guest_content_kappa": sum.guest_content_kappa,
+            "view_content_kappa": sum.view_content_kappa,
+            "model_content_kappa": sum.model_content_kappa,
+            "requires_kappa": sum.requires_kappa,
+            "byte_length": sum.byte_length,
+            "vectors_passed": sum.vectors_passed,
+            "vectors_total": sum.vectors_total,
+            "view_entry": sum.view_entry,
+            "view_file_count": sum.view_file_count,
+        })
+        .to_string(),
+        Err(verdict) => serde_json::json!({
+            "status": "error",
+            "error_code": prism_holo_compiler::verdict_name(verdict),
+            "message": format!("Holo v4 archive verification refused: {:?}", verdict),
+        })
+        .to_string(),
+    }
 }
 
 #[cfg(test)]

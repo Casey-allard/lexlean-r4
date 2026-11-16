@@ -13,6 +13,15 @@
 spec = "template/1"
 
 [[authority]]
+id = "PRISM-HOLO-IDENTITY"
+name = "Stitch PrismId identity chain, Hologram v4 .holo archive format, and UOR-Foundation/foundry inprism app contract"
+citation = "https://github.com/UOR-Foundation/foundry (FA-87 studio/shell/r4/spec.json inprism route, studio/core/src/holo/{archive.rs,validate.rs,model_document.rs} validate-application, FA-88 identity/prism-id.mjs), https://github.com/afflom/stitch (docs/prism-id.md, src/prism-id.js, src/layer1-uor/pointer.js), and https://github.com/afflom/me (site/app.json, frame/frame.mjs); companion src/R4/PrismHoloIdentity.lex.tex"
+checksum = "none"
+checksum_reason = "Upstream UOR-Foundation/foundry, afflom/stitch, and afflom/me format references reside in external repositories rather than vendored verbatim; local formal parity and conformance tests live under src/R4/PrismHoloIdentity.lex.tex and crates/wasm/src/prism_holo_compiler.rs."
+statement = "Stitch.PrismId sha256 canonical-JSON kappa records, Hologram v4 .holo 8-section binary layout with zero-import Core-Wasm guests and HOLOVIEW v1 portable view bundles, and UOR-Foundation/foundry FA-87 inprism selectable app metadata are cited from UOR-Foundation/foundry, afflom/stitch, and afflom/me specifications; source citations supply no external registry availability or OIDC token issuance."
+realized_by = ["R4-54"]
+
+[[authority]]
 id = "UORUST-PRISM-DEVREL"
 name = "UORust total route table and Prism-DevRel ISO 15939 measures & W3C PROV-O source registry"
 citation = "https://github.com/afflom/UORust (model/routes.toml uorust/routes/1 total classification routing) and https://github.com/afflom/prism-devrel (model/measures.toml prism/measures/1 and W3C PROV-O primary-source ledger); companion src/R4/UorustPrismDevrel.lex.tex"

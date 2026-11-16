@@ -154,10 +154,15 @@
               <div><strong>Stitch Custody:</strong> <code>stitch/xor-2-of-3/1</code></div>
               <div><strong>Parity State:</strong> Bootstrapping multi-source verification...</div>
             </div>
+            <div id="prism-holo-sidebar-card" class="stitch-health-card" role="status" aria-live="polite">
+              <div><strong>Prism ID (Stitch):</strong> <code id="prism-sidebar-id-code">initializing&hellip;</code></div>
+              <div><strong>Holo v4 Package:</strong> <code id="prism-sidebar-holo-code">holo://lexlean-r4</code></div>
+            </div>
             <div class="cursor-scm-actions">
               <button id="cursor-hydrate-shards-btn" type="button" class="cursor-mini-btn">Hydrate Holo v13 Shards</button>
               <button id="native-q31-train-btn" type="button" class="cursor-mini-btn">Train Q31 Step</button>
               <button id="cursor-train-quick-btn" type="button" class="cursor-mini-btn">Train LUT</button>
+              <button id="sidebar-compile-holo-btn" type="button" class="cursor-mini-btn">Compile .holo</button>
             </div>
             <div class="cursor-scm-actions">
               <label for="hf-repo-id-input" class="sr-only">HuggingFace Repository ID</label>
@@ -358,6 +363,7 @@
         <div class="topbar-actions">
           <button id="toggle-web-access-btn" type="button" class="topbar-btn topbar-pill-web-on" aria-pressed="true" title="Toggle Connected Web Search, HTTPS Reader &amp; DoH">Web: ON</button>
           <button id="open-github-connect-btn" type="button" class="topbar-btn" title="Connect GitHub Personal Access Token Vault &amp; Sync Repository">GitHub</button>
+          <button id="topbar-prism-holo-btn" type="button" class="topbar-btn" title="Stitch Prism Identity, .holo v4 Compiler &amp; UOR Foundry Packaging">Prism ID &amp; .holo</button>
           <button id="toggle-inspectors-btn" type="button" class="topbar-btn" title="Open Full-Height 3D Holographic Brain &amp; Engine Inspectors">Inspectors</button>
           <button id="toggle-studio-ide-btn" type="button" class="topbar-btn topbar-btn-studio-toggle" title="Switch instantaneously between Chat View and Cursor 3-Pane Studio IDE">Studio IDE</button>
           <button id="topbar-terminal-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="terminal">Terminal</button>
@@ -1377,6 +1383,45 @@
             </div>
           </div>
           <output id="github-connect-status" class="admit-output" role="status" aria-live="polite">Host Vault standby &middot; Direct-HTTPS DoH, Search &amp; GitHub REST active.</output>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stitch Prism Identity & Hologram v4 .holo App Compiler Modal (R4-54) -->
+    <div id="prism-holo-modal" class="github-connect-modal" hidden role="dialog" aria-modal="true" aria-label="Stitch Prism Identity and Hologram v4 Compiler">
+      <div id="prism-holo-backdrop" class="inspectors-modal-backdrop"></div>
+      <div class="github-connect-dialog">
+        <div class="github-connect-header">
+          <div>
+            <strong>Stitch Prism Identity &amp; Hologram v4 <code>.holo</code> Compiler (<code>R4-54</code>)</strong>
+            <div class="github-connect-subtitle">Login-free <code>uor-addr/sha256</code> identity (non-extractable P-256) + verifiable <code>holo://lexlean-r4</code> app archive for UOR Foundry (<code>inprism</code>)</div>
+          </div>
+          <button id="prism-holo-close-btn" type="button" class="btn-secondary btn-xs" aria-label="Close Prism Holo Modal">&times; Close</button>
+        </div>
+        <div class="github-connect-body">
+          <div id="prism-identity-summary" class="stitch-health-card">
+            <div><strong>Prism ID:</strong> <code id="prism-modal-prism-id">initializing&hellip;</code></div>
+            <div><strong>Device ID:</strong> <code id="prism-modal-device-id">&mdash;</code></div>
+            <div><strong>Persona (Foundry / Me):</strong> <code id="prism-modal-persona">unbound</code></div>
+            <div><strong>Latest <code>.holo</code> Fingerprint:</strong> <code id="prism-modal-holo-fp">not compiled yet</code></div>
+          </div>
+          <div class="field">
+            <label for="prism-persona-handle-input">Bind Foundry Persona Handle (<code>prism/persona/1</code> on <code>uor-foundation.github.io</code>)</label>
+            <div class="github-input-row">
+              <input id="prism-persona-handle-input" type="text" value="lexlean-r4-studio" placeholder="persona handle" autocomplete="off" spellcheck="false">
+              <button id="prism-bind-persona-btn" type="button" class="btn-secondary">Bind Foundry Persona</button>
+              <button id="prism-identity-init-btn" type="button" class="btn-secondary">Refresh Prism ID</button>
+            </div>
+          </div>
+          <div class="field">
+            <span class="diag-label">Hologram v4 Archive &amp; Selectable UOR Foundry Bundle (<code>hologram:guest/core-wasm@1</code> + <code>HOLOVIEW</code> v1)</span>
+            <div class="github-input-row">
+              <button id="prism-compile-holo-btn" type="button" class="btn-primary">Compile &amp; Verify .holo v4</button>
+              <button id="prism-download-holo-btn" type="button" class="btn-secondary">Download lexlean-r4.holo</button>
+              <button id="prism-copy-me-manifest-btn" type="button" class="btn-secondary">Inspect Foundry Descriptor</button>
+            </div>
+          </div>
+          <output id="prism-holo-status" class="admit-output" role="status" aria-live="polite">Stitch Prism Identity ready &middot; Click Compile &amp; Verify .holo v4 to build and replay vectors.</output>
         </div>
       </div>
     </div>

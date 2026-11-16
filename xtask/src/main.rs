@@ -22,6 +22,9 @@ pub mod lut_stack_exec;
 #[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/otel.rs"]
 pub mod otel;
+#[allow(dead_code, clippy::all)]
+#[path = "../../crates/wasm/src/prism_holo_compiler.rs"]
+pub mod prism_holo_compiler;
 mod routes_and_measures;
 #[allow(dead_code, clippy::all)]
 #[path = "../../crates/wasm/src/wasm_ast_eval.rs"]
@@ -46,6 +49,7 @@ fn main() -> ExitCode {
         "synthesize" => engine::synthesis::cmd_synthesize(&root, write),
         "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
         "build-wasm" => wasm_bundle::run_build_wasm_cmd(&root, rest),
+        "build-holo" => run_build_holo_cmd(&root, rest),
         "check-wasm-sync" => wasm_bundle::run_check_wasm_sync_cmd(&root),
         "check-routes" => routes_and_measures::check_routes(&root),
         "check-measures" => routes_and_measures::check_measures(&root),
@@ -125,6 +129,7 @@ fn main() -> ExitCode {
                  synthesize        R4-45: 4-facet holon KPIs + Hebbian bandit Pareto tick (--write)\n\
                  ratchet-check     R4-41: shrink-only metric ratchet + Peirce triadic cycle\n\
                  build-wasm        compile crates/wasm, inject bridge + cache hook, write provenance.json\n\
+                 build-holo        compile public/ closure into Hologram v4 .holo (--out / --sync-site-manifest / --verify-site-manifest)\n\
                  check-wasm-sync   verify public/ Wasm/JS bundle matches provenance.json\n\
                  check-routes      R4-53: verify model/routes.toml UORust route table + vectors\n\
                  check-measures    R4-53: verify model/measures.toml & provenance.toml criteria\n\
@@ -202,7 +207,106 @@ fn validate(root: &Path) -> Result<(), Fail> {
     engine::ratchet::check(root)?;
     routes_and_measures::check_routes(root)?;
     routes_and_measures::check_measures(root)?;
+    run_build_holo_cmd(root, &["--verify-site-manifest".to_string()])?;
     engine::synthesis::cmd_synthesize(root, false)?;
     bootstrap::audit(root)?;
+    Ok(())
+}
+
+/// Compile the 6-file `public/` browser closure into a Hologram v4 `.holo` archive (`R4-54`),
+/// verifying its `core-wasm@1` acceptance vectors and BLAKE3 footer against `site/app.json`.
+fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
+    let mut out_path: Option<PathBuf> = None;
+    let mut sync_site = false;
+    let mut verify_site = false;
+    let mut i = 0usize;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--out" => {
+                let raw = args
+                    .get(i + 1)
+                    .ok_or("--out requires a destination .holo path")?;
+                let p = PathBuf::from(raw);
+                out_path = Some(if p.is_absolute() { p } else { root.join(p) });
+                i += 2;
+            }
+            "--sync-site-manifest" => {
+                sync_site = true;
+                i += 1;
+            }
+            "--verify-site-manifest" => {
+                verify_site = true;
+                i += 1;
+            }
+            other => return Err(format!("unknown build-holo argument `{other}`").into()),
+        }
+    }
+
+    let public_dir = root.join("public");
+    let closure_names = [
+        "app.css",
+        "app.js",
+        "index.html",
+        "lexlean_r4.js",
+        "lexlean_r4_bg.wasm",
+        "provenance.json",
+    ];
+    let mut files = std::collections::BTreeMap::new();
+    for name in closure_names {
+        let p = public_dir.join(name);
+        let bytes =
+            std::fs::read(&p).map_err(|e| format!("build-holo reading {}: {e}", p.display()))?;
+        files.insert(name.to_string(), bytes);
+    }
+    let prov_bytes = files.get("provenance.json").cloned().unwrap_or_default();
+
+    let archive = prism_holo_compiler::compile_holo_v4_archive(&files, &prov_bytes)
+        .map_err(|v| format!("build-holo compile refused: {v:?}"))?;
+    let summary = prism_holo_compiler::verify_holo_v4_archive(&archive)
+        .map_err(|v| format!("build-holo verify refused: {v:?}"))?;
+
+    if let Some(dest) = &out_path {
+        if let Some(parent) = dest.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        std::fs::write(dest, &archive)?;
+    }
+
+    let site_manifest_path = root.join("site/app.json");
+    if sync_site {
+        let raw = std::fs::read_to_string(&site_manifest_path)?;
+        let mut doc: serde_json::Value = serde_json::from_str(&raw)?;
+        doc["archiveKappa"] = serde_json::json!(summary.archive_kappa);
+        doc["fingerprint"] = serde_json::json!(summary.fingerprint);
+        doc["applicationKappa"] = serde_json::json!(summary.application_kappa);
+        doc["guestContentKappa"] = serde_json::json!(summary.guest_content_kappa);
+        doc["viewContentKappa"] = serde_json::json!(summary.view_content_kappa);
+        doc["modelContentKappa"] = serde_json::json!(summary.model_content_kappa);
+        doc["holoByteLength"] = serde_json::json!(summary.byte_length);
+        std::fs::write(
+            &site_manifest_path,
+            format!("{}\n", serde_json::to_string_pretty(&doc)?),
+        )?;
+    } else if verify_site {
+        let raw = std::fs::read_to_string(&site_manifest_path)?;
+        let doc: serde_json::Value = serde_json::from_str(&raw)?;
+        let expected_fp = doc["fingerprint"].as_str().unwrap_or("");
+        if expected_fp != summary.fingerprint {
+            return Err(format!(
+                "site/app.json fingerprint mismatch: site/app.json={} compiled={}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`",
+                expected_fp, summary.fingerprint
+            )
+            .into());
+        }
+    }
+
+    println!(
+        "build-holo: verified v4 archive ({} bytes, blake3={}, vectors={}/{}, view_files={})",
+        summary.byte_length,
+        &summary.fingerprint[..16],
+        summary.vectors_passed,
+        summary.vectors_total,
+        summary.view_file_count,
+    );
     Ok(())
 }

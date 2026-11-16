@@ -71,6 +71,13 @@ prism_record = "Foundation.Release::SealedBundle"
 facet = "release"
 note = "Immutable signed PrismPM bundle provenance and release tag closure."
 
+[[route]]
+id = "R4-UR10"
+rust_fact = "prism-holo-identity"
+prism_record = "Foundation.Release::HoloIdentityBundle"
+facet = "release"
+note = "Stitch PrismId sha256 kappa chain and Hologram v4 .holo selectable app archive for UOR-Foundation/foundry."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -115,6 +122,11 @@ response = "route R4-UR08\nfact uorust-kappa-ratchet\nrecord Foundation.Qual::Mo
 case = "route R4-UR09"
 request_hex = "707269736d2d72656c656173652d7061636b"
 response = "route R4-UR09\nfact prism-release-pack\nrecord Foundation.Release::SealedBundle\nfacet release"
+
+[[vector]]
+case = "route R4-UR10"
+request_hex = "707269736d2d686f6c6f2d6964656e74697479"
+response = "route R4-UR10\nfact prism-holo-identity\nrecord Foundation.Release::HoloIdentityBundle\nfacet release"
 
 [[vector]]
 case = "error empty"

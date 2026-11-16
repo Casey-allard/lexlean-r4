@@ -26,7 +26,7 @@ const EXP_RANGE: i32 = 32;
 const SILU_STEP_LOG2: i32 = -8;
 const SILU_RANGE_LOG2: i32 = 4;
 const SIG_WORDS: usize = 8;
-const DEFAULT_SHORTLIST_K: usize = 4096;
+const DEFAULT_SHORTLIST_K: usize = 16_384;
 
 /// Formal R4.HoloGeometricRuntime immutable xorshift64 sign stream for Block-32 RHT.
 #[inline(always)]
@@ -760,61 +760,85 @@ pub struct HoloV13Model {
     pub kv_cache: HoloPrefixKvCache,
 }
 
-/// Int8 quantized KV cache per layer + 128-bit QK Hamming Starling Flock signatures (`R4-51`).
+/// Per-head `i16` quantized KV cache per layer + 128-bit QK Hamming Starling Flock signatures (`R4-51`).
 #[derive(Clone, Debug, Default)]
 pub struct HoloPrefixKvCache {
     /// Cached prefix token IDs.
     pub tokens: Vec<u32>,
-    /// Quantized `int8` key vectors per layer.
-    pub k_i8: Vec<Vec<i8>>,
-    /// Per-step Q16 key scale factors per layer.
-    pub k_scales_q16: Vec<Vec<i32>>,
+    /// Per-layer cached sequence lengths.
+    pub seq_len: Vec<usize>,
+    /// Quantized per-head `int16` key vectors per layer.
+    pub k_i16: Vec<Vec<i16>>,
+    /// Per-step, per-KV-head integer key scale factors per layer.
+    pub k_scales: Vec<Vec<i32>>,
     /// 128-bit QK Hamming signatures per KV head per position.
     pub k_sig128: Vec<Vec<[u64; 2]>>,
-    /// Quantized `int8` value vectors per layer.
-    pub v_i8: Vec<Vec<i8>>,
-    /// Per-step Q16 value scale factors per layer.
-    pub v_scales_q16: Vec<Vec<i32>>,
+    /// Quantized per-head `int16` value vectors per layer.
+    pub v_i16: Vec<Vec<i16>>,
+    /// Per-step, per-KV-head integer value scale factors per layer.
+    pub v_scales: Vec<Vec<i32>>,
 }
 
 impl HoloPrefixKvCache {
     /// Formal R4.HoloGeometricRuntime clear incremental KV state cleanly.
     pub fn reset(&mut self, n_layers: usize) {
         self.tokens.clear();
-        self.k_i8 = vec![Vec::new(); n_layers];
-        self.k_scales_q16 = vec![Vec::new(); n_layers];
+        self.seq_len = vec![0; n_layers];
+        self.k_i16 = vec![Vec::new(); n_layers];
+        self.k_scales = vec![Vec::new(); n_layers];
         self.k_sig128 = vec![Vec::new(); n_layers];
-        self.v_i8 = vec![Vec::new(); n_layers];
-        self.v_scales_q16 = vec![Vec::new(); n_layers];
+        self.v_i16 = vec![Vec::new(); n_layers];
+        self.v_scales = vec![Vec::new(); n_layers];
     }
 
-    /// Formal R4.HoloGeometricRuntime append quantized int8 key/value slices and 128-bit QK Starling signature.
+    /// Formal R4.HoloGeometricRuntime append per-head `i16` key/value slices and 128-bit QK Starling signature.
     fn push_kv(&mut self, layer: usize, k_vec: &[i32], v_vec: &[i32], nkv: usize, hd: usize) {
-        let mut kmax = 0u32;
-        let mut vmax = 0u32;
-        for &x in k_vec {
-            kmax = kmax.max(x.unsigned_abs());
-        }
-        for &x in v_vec {
-            vmax = vmax.max(x.unsigned_abs());
-        }
-        let ks = (i64::from(kmax.max(127)) / 127).max(1) as i32;
-        let vs = (i64::from(vmax.max(127)) / 127).max(1) as i32;
-        self.k_scales_q16[layer].push(ks);
-        self.v_scales_q16[layer].push(vs);
-        let k_dest = &mut self.k_i8[layer];
-        let v_dest = &mut self.v_i8[layer];
-        for &x in k_vec {
-            k_dest.push((x / ks).clamp(-127, 127) as i8);
-        }
-        for &x in v_vec {
-            v_dest.push((x / vs).clamp(-127, 127) as i8);
-        }
-        // Compute 128-bit QK Hamming signature per KV head (`R4-51`)
+        self.seq_len[layer] += 1;
+        let k_dest = &mut self.k_i16[layer];
+        let v_dest = &mut self.v_i16[layer];
         for kh in 0..nkv {
+            let k_head = &k_vec[kh * hd..(kh + 1) * hd];
+            let v_head = &v_vec[kh * hd..(kh + 1) * hd];
+
+            let mut kmax = 0u32;
+            for &x in k_head {
+                kmax = kmax.max(x.unsigned_abs());
+            }
+            let ks = ((i64::from(kmax) + 32_766) / 32_767).max(1) as i32;
+            self.k_scales[layer].push(ks);
+            let ks64 = i64::from(ks);
+            let half_k = ks64 / 2;
+            for &x in k_head {
+                let x64 = i64::from(x);
+                let q = if x64 >= 0 {
+                    (x64 + half_k) / ks64
+                } else {
+                    (x64 - half_k) / ks64
+                };
+                k_dest.push(q.clamp(-32_767, 32_767) as i16);
+            }
+
+            let mut vmax = 0u32;
+            for &x in v_head {
+                vmax = vmax.max(x.unsigned_abs());
+            }
+            let vs = ((i64::from(vmax) + 32_766) / 32_767).max(1) as i32;
+            self.v_scales[layer].push(vs);
+            let vs64 = i64::from(vs);
+            let half_v = vs64 / 2;
+            for &x in v_head {
+                let x64 = i64::from(x);
+                let q = if x64 >= 0 {
+                    (x64 + half_v) / vs64
+                } else {
+                    (x64 - half_v) / vs64
+                };
+                v_dest.push(q.clamp(-32_767, 32_767) as i16);
+            }
+
+            // Compute 128-bit QK Hamming signature per KV head (`R4-51`)
             let mut sig = [0u64; 2];
-            let sl = &k_vec[kh * hd..(kh + 1) * hd];
-            for (d_i, &kv) in sl.iter().enumerate() {
+            for (d_i, &kv) in k_head.iter().enumerate() {
                 if kv >= 0 {
                     sig[d_i >> 6] |= 1u64 << (d_i & 63);
                 }
@@ -1308,22 +1332,54 @@ impl HoloV13StreamingBuilder {
                         };
                     } else {
                         let mut mats = self.pending_mats.drain(..);
+                        let q_proj = mats.next().ok_or(R4StackError::TruncatedContainer)?;
+                        let k_proj = mats.next().ok_or(R4StackError::TruncatedContainer)?;
+                        let v_proj = mats.next().ok_or(R4StackError::TruncatedContainer)?;
+                        let o_proj = mats.next().ok_or(R4StackError::TruncatedContainer)?;
+                        let gate_proj = mats.next().ok_or(R4StackError::TruncatedContainer)?;
+                        let up_proj = mats.next().ok_or(R4StackError::TruncatedContainer)?;
                         let down_proj = if self.promote_down_int8 {
-                            HoloDownProjMatrix::Int8(self.pending_down_int8.take().unwrap())
+                            HoloDownProjMatrix::Int8(
+                                self.pending_down_int8
+                                    .take()
+                                    .ok_or(R4StackError::TruncatedContainer)?,
+                            )
                         } else {
-                            HoloDownProjMatrix::Int4(mats.next().unwrap())
+                            HoloDownProjMatrix::Int4(
+                                mats.next().ok_or(R4StackError::TruncatedContainer)?,
+                            )
                         };
+                        let q_dim = self.n_heads * self.head_dim;
+                        let kv_dim = self.n_kv_heads * self.head_dim;
+                        let dm = self.d_model;
+                        let ffn = self.intermediate_size;
+                        let down_shape_ok = match &down_proj {
+                            HoloDownProjMatrix::Int4(m) => m.rows == dm && m.cols == ffn,
+                            HoloDownProjMatrix::Int8(m) => m.rows == dm && m.cols == ffn,
+                        };
+                        if (q_proj.rows, q_proj.cols) != (q_dim, dm)
+                            || (k_proj.rows, k_proj.cols) != (kv_dim, dm)
+                            || (v_proj.rows, v_proj.cols) != (kv_dim, dm)
+                            || (o_proj.rows, o_proj.cols) != (dm, q_dim)
+                            || (gate_proj.rows, gate_proj.cols) != (ffn, dm)
+                            || (up_proj.rows, up_proj.cols) != (ffn, dm)
+                            || !down_shape_ok
+                        {
+                            return Err(R4StackError::InvalidGeometry(
+                                "layer projection dimensions mismatch",
+                            ));
+                        }
                         let built = HoloV13Layer {
                             in_ln_q24: std::mem::take(&mut self.pending_in_ln),
                             post_ln_q24: std::mem::take(&mut self.pending_post_ln),
                             q_norm_q24: std::mem::take(&mut self.pending_q_norm),
                             k_norm_q24: std::mem::take(&mut self.pending_k_norm),
-                            q_proj: mats.next().unwrap(),
-                            k_proj: mats.next().unwrap(),
-                            v_proj: mats.next().unwrap(),
-                            o_proj: mats.next().unwrap(),
-                            gate_proj: mats.next().unwrap(),
-                            up_proj: mats.next().unwrap(),
+                            q_proj,
+                            k_proj,
+                            v_proj,
+                            o_proj,
+                            gate_proj,
+                            up_proj,
                             down_proj,
                         };
                         self.layers.push(built);
@@ -1720,7 +1776,7 @@ impl HoloV13Model {
                 }
             }
             self.kv_cache.push_kv(l, &k, &v, nkv, hd);
-            let seq_len = self.kv_cache.k_scales_q16[l].len();
+            let seq_len = self.kv_cache.seq_len[l];
 
             for h in 0..nh {
                 let kh = h / group_sz;
@@ -1754,8 +1810,8 @@ impl HoloV13Model {
                 let mut max_s = i64::MIN;
                 for (si, &t) in selected.iter().enumerate() {
                     let k_off = t * kv_dim + kh * hd;
-                    let ks = i128::from(self.kv_cache.k_scales_q16[l][t]);
-                    let k_slice = &self.kv_cache.k_i8[l][k_off..k_off + hd];
+                    let ks = i128::from(self.kv_cache.k_scales[l][t * nkv + kh]);
+                    let k_slice = &self.kv_cache.k_i16[l][k_off..k_off + hd];
                     let mut dot = 0i128;
                     for d_i in 0..hd {
                         dot += i128::from(q_h[d_i]) * i128::from(k_slice[d_i]);
@@ -1777,8 +1833,8 @@ impl HoloV13Model {
                     }
                     den += w as u128;
                     let v_off = t * kv_dim + kh * hd;
-                    let vs = i128::from(self.kv_cache.v_scales_q16[l][t]);
-                    let v_slice = &self.kv_cache.v_i8[l][v_off..v_off + hd];
+                    let vs = i128::from(self.kv_cache.v_scales[l][t * nkv + kh]);
+                    let v_slice = &self.kv_cache.v_i16[l][v_off..v_off + hd];
                     let wv_scale = w * vs;
                     for d_i in 0..hd {
                         num[d_i] += wv_scale * i128::from(v_slice[d_i]);
@@ -1981,24 +2037,36 @@ impl HoloV13Model {
         let mut generated = Vec::new();
         let mut emitted_bytes = 0usize;
         for step_idx in 0..max_new_tokens.max(1) {
-            let mut best_id = self.eos_token_id;
-            let mut best_logit = i32::MIN;
-            for &(tid, logit) in &last_scored {
-                let mut adj = logit;
-                let window_start = generated.len().saturating_sub(32);
-                if generated[window_start..].contains(&tid) {
-                    adj = adj.saturating_sub(1 << 15);
+            let mut blocked_ids: Vec<u32> = Vec::new();
+            let chosen_id = loop {
+                let mut best_id = self.eos_token_id;
+                let mut best_logit = i32::MIN;
+                let mut found_any = false;
+                for &(tid, logit) in &last_scored {
+                    if blocked_ids.contains(&tid) {
+                        continue;
+                    }
+                    if !found_any || logit > best_logit {
+                        best_logit = logit;
+                        best_id = tid;
+                        found_any = true;
+                    }
                 }
-                if adj > best_logit {
-                    best_logit = adj;
-                    best_id = tid;
+                if !found_any || best_id == self.eos_token_id || best_id == self.eot_token_id {
+                    break best_id;
                 }
-            }
-            if best_id == self.eos_token_id || best_id == self.eot_token_id {
+                if blocked_ids.len() < 8 && token_causes_cycle(&generated, best_id, &self.tokenizer)
+                {
+                    blocked_ids.push(best_id);
+                    continue;
+                }
+                break best_id;
+            };
+            if chosen_id == self.eos_token_id || chosen_id == self.eot_token_id {
                 break;
             }
-            generated.push(best_id);
-            recent.push(best_id);
+            generated.push(chosen_id);
+            recent.push(chosen_id);
             let full_dec = self.tokenizer.decode(&generated);
             if full_dec.len() > emitted_bytes && full_dec.is_char_boundary(emitted_bytes) {
                 let delta = &full_dec[emitted_bytes..];
@@ -2008,7 +2076,7 @@ impl HoloV13Model {
             if generated.len() >= max_new_tokens {
                 break;
             }
-            let (sc_opt, fa, ft) = self.step_token(best_id, &recent, true, true);
+            let (sc_opt, fa, ft) = self.step_token(chosen_id, &recent, true, true);
             flock_attended += fa;
             flock_total += ft;
             if let Some(sc) = sc_opt {
@@ -2040,6 +2108,40 @@ impl HoloV13Model {
         };
         (reply, metrics)
     }
+}
+
+/// Formal R4.HoloGeometricRuntime reject 3+ identical alphanumeric tokens, `,,`/`; ;`, or immediate k-gram cycles (`p in 2..=8`).
+fn token_causes_cycle(generated: &[u32], cand: u32, tokenizer: &HoloTok13) -> bool {
+    let n = generated.len();
+    if n >= 1 && generated[n - 1] == cand {
+        let dec = tokenizer.decode(&[cand]);
+        if matches!(dec.as_str(), "," | ";") {
+            return true;
+        }
+        if n >= 2 && generated[n - 2] == cand && dec.chars().any(|c| c.is_alphanumeric()) {
+            return true;
+        }
+    }
+    for p in 2usize..=8 {
+        if n + 1 < 2 * p {
+            continue;
+        }
+        let b1_start = n + 1 - 2 * p;
+        let b2_start = n + 1 - p;
+        let mut all_eq = cand == generated[b1_start + p - 1];
+        if all_eq {
+            for k in 0..(p - 1) {
+                if generated[b1_start + k] != generated[b2_start + k] {
+                    all_eq = false;
+                    break;
+                }
+            }
+        }
+        if all_eq {
+            return true;
+        }
+    }
+    false
 }
 
 /// Formal R4.HoloGeometricRuntime emit wasm32 incremental token delta event to worker host stream hook.
@@ -2168,6 +2270,71 @@ fn f16_bits_to_q24(bits: u16) -> i64 {
     f32_bits_to_q24(sign | ((exp + 112) << 23) | (mant << 13))
 }
 
+/// Formal R4.HoloGeometricRuntime return byte width for supported safetensors dtypes.
+fn safetensors_elem_bytes(dtype: &str) -> Result<usize, HoloKappaStoreError> {
+    match dtype {
+        "BF16" | "F16" => Ok(2),
+        "F32" => Ok(4),
+        other => Err(HoloKappaStoreError::CorruptSafetensorsHeader(format!(
+            "unsupported tensor dtype '{other}' in HfRepoHolo compiler"
+        ))),
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime decode one contiguous row of `BF16`/`F16`/`F32` bytes into `Q24` integers.
+fn decode_safetensors_row_q24(
+    dtype: &str,
+    raw: &[u8],
+    row: usize,
+    cols: usize,
+    out: &mut [i64],
+) -> Result<(), HoloKappaStoreError> {
+    let elem_bytes = safetensors_elem_bytes(dtype)?;
+    let row_bytes = cols
+        .checked_mul(elem_bytes)
+        .ok_or_else(|| HoloKappaStoreError::CorruptSafetensorsHeader("row byte overflow".into()))?;
+    let start = row.checked_mul(row_bytes).ok_or_else(|| {
+        HoloKappaStoreError::CorruptSafetensorsHeader("row offset overflow".into())
+    })?;
+    let end = start
+        .checked_add(row_bytes)
+        .ok_or_else(|| HoloKappaStoreError::CorruptSafetensorsHeader("row end overflow".into()))?;
+    let slice = raw.get(start..end).ok_or_else(|| {
+        HoloKappaStoreError::CorruptSafetensorsHeader(format!(
+            "truncated {dtype} row {row} (need {end} bytes, got {})",
+            raw.len()
+        ))
+    })?;
+    if out.len() < cols {
+        return Err(HoloKappaStoreError::CorruptSafetensorsHeader(
+            "row scratch buffer smaller than cols".into(),
+        ));
+    }
+    match dtype {
+        "BF16" => {
+            for (dst, c) in out[..cols].iter_mut().zip(slice.chunks_exact(2)) {
+                *dst = bf16_bits_to_q24(u16::from_le_bytes([c[0], c[1]]));
+            }
+        }
+        "F16" => {
+            for (dst, c) in out[..cols].iter_mut().zip(slice.chunks_exact(2)) {
+                *dst = f16_bits_to_q24(u16::from_le_bytes([c[0], c[1]]));
+            }
+        }
+        "F32" => {
+            for (dst, c) in out[..cols].iter_mut().zip(slice.chunks_exact(4)) {
+                *dst = f32_bits_to_q24(u32::from_le_bytes([c[0], c[1], c[2], c[3]]));
+            }
+        }
+        _ => {
+            return Err(HoloKappaStoreError::CorruptSafetensorsHeader(format!(
+                "unsupported tensor dtype '{dtype}' in HfRepoHolo compiler"
+            )));
+        }
+    }
+    Ok(())
+}
+
 /// Formal R4.HoloGeometricRuntime decode `BF16`/`F16`/`F32` safetensors bytes into pure `Q24` integers.
 fn decode_safetensors_tensor_q24(dtype: &str, raw: &[u8]) -> Result<Vec<i64>, HoloKappaStoreError> {
     match dtype {
@@ -2218,22 +2385,43 @@ fn rht32_apply_q24_row(row_q24: &[i64], signs: &[bool]) -> Vec<i64> {
     out
 }
 
-/// Formal R4.HoloGeometricRuntime pack streamed pure-integer tensor into `int8` block-32 RHT weights + 512-bit signatures.
-fn compile_int8_rht_matrix(
-    w_q24: &[i64],
+/// Formal R4.HoloGeometricRuntime pack streamed pure-integer tensor row-by-row into `int8` block-32 RHT weights + 512-bit signatures.
+fn compile_int8_rht_matrix_raw(
+    dtype: &str,
+    raw: &[u8],
     rows: usize,
     cols: usize,
     seed: u64,
-) -> (HoloInt8RhtMatrix, Vec<u64>) {
+) -> Result<(HoloInt8RhtMatrix, Vec<u64>), HoloKappaStoreError> {
+    if cols == 0 || (cols & 31) != 0 {
+        return Err(HoloKappaStoreError::CorruptSafetensorsHeader(format!(
+            "int8 RHT matrix cols ({cols}) must be a positive multiple of 32"
+        )));
+    }
+    let elem_bytes = safetensors_elem_bytes(dtype)?;
+    let need_bytes = rows
+        .checked_mul(cols)
+        .and_then(|n| n.checked_mul(elem_bytes))
+        .ok_or_else(|| {
+            HoloKappaStoreError::CorruptSafetensorsHeader("matrix byte overflow".into())
+        })?;
+    if raw.len() < need_bytes {
+        return Err(HoloKappaStoreError::CorruptSafetensorsHeader(format!(
+            "truncated matrix bytes: need {need_bytes}, got {}",
+            raw.len()
+        )));
+    }
     let groups = cols >> 5;
     let signs = rht_signs_bits(cols, seed);
     let mut row_exp = Vec::with_capacity(rows);
     let mut group_mult = Vec::with_capacity(rows * groups);
     let mut weights = Vec::with_capacity(rows * cols);
     let mut vocab_sigs = Vec::with_capacity(rows * SIG_WORDS);
+    let mut row_q24 = vec![0i64; cols];
 
     for r in 0..rows {
-        let rht = rht32_apply_q24_row(&w_q24[r * cols..(r + 1) * cols], &signs);
+        decode_safetensors_row_q24(dtype, raw, r, cols, &mut row_q24)?;
+        let rht = rht32_apply_q24_row(&row_q24, &signs);
         let mut sig = [0u64; SIG_WORDS];
         for b in 0..512 {
             let col = (b * cols) / 512;
@@ -2275,7 +2463,7 @@ fn compile_int8_rht_matrix(
         }
     }
 
-    (
+    Ok((
         HoloInt8RhtMatrix {
             rows,
             cols,
@@ -2285,24 +2473,45 @@ fn compile_int8_rht_matrix(
             weights,
         },
         vocab_sigs,
-    )
+    ))
 }
 
-/// Formal R4.HoloGeometricRuntime pack streamed pure-integer tensor into `int4` nibble block-32 RHT weights.
-fn compile_int4_rht_matrix(
-    w_q24: &[i64],
+/// Formal R4.HoloGeometricRuntime pack streamed pure-integer tensor row-by-row into `int4` nibble block-32 RHT weights.
+fn compile_int4_rht_matrix_raw(
+    dtype: &str,
+    raw: &[u8],
     rows: usize,
     cols: usize,
     seed: u64,
-) -> HoloInt4RhtMatrix {
+) -> Result<HoloInt4RhtMatrix, HoloKappaStoreError> {
+    if cols == 0 || (cols & 31) != 0 {
+        return Err(HoloKappaStoreError::CorruptSafetensorsHeader(format!(
+            "int4 RHT matrix cols ({cols}) must be a positive multiple of 32"
+        )));
+    }
+    let elem_bytes = safetensors_elem_bytes(dtype)?;
+    let need_bytes = rows
+        .checked_mul(cols)
+        .and_then(|n| n.checked_mul(elem_bytes))
+        .ok_or_else(|| {
+            HoloKappaStoreError::CorruptSafetensorsHeader("matrix byte overflow".into())
+        })?;
+    if raw.len() < need_bytes {
+        return Err(HoloKappaStoreError::CorruptSafetensorsHeader(format!(
+            "truncated matrix bytes: need {need_bytes}, got {}",
+            raw.len()
+        )));
+    }
     let groups = cols >> 5;
     let signs = rht_signs_bits(cols, seed);
     let mut row_exp = Vec::with_capacity(rows);
     let mut group_mult = Vec::with_capacity(rows * groups);
     let mut nibbles = Vec::with_capacity(rows * (cols >> 1));
+    let mut row_q24 = vec![0i64; cols];
 
     for r in 0..rows {
-        let rht = rht32_apply_q24_row(&w_q24[r * cols..(r + 1) * cols], &signs);
+        decode_safetensors_row_q24(dtype, raw, r, cols, &mut row_q24)?;
+        let rht = rht32_apply_q24_row(&row_q24, &signs);
         let mut max_s_q64 = 1i128 << 24;
         let mut g_scales_q64 = vec![0i128; groups];
         for g in 0..groups {
@@ -2340,14 +2549,14 @@ fn compile_int4_rht_matrix(
         }
     }
 
-    HoloInt4RhtMatrix {
+    Ok(HoloInt4RhtMatrix {
         rows,
         cols,
         rht_seed: seed,
         row_exp,
         group_mult,
         nibbles,
-    }
+    })
 }
 
 /// Formal R4.HoloGeometricRuntime parse positive JSON decimal/scientific number scaled by `2^scale_p2` without floats.
@@ -2828,7 +3037,7 @@ impl HfRepoHoloStreamCompiler {
         })
     }
 
-    /// Formal R4.HoloGeometricRuntime stream one Safetensors tensor slice into `UORR4V13` Block-32 RHT form.
+    /// Formal R4.HoloGeometricRuntime stream one Safetensors tensor slice (or embedding band) into `UORR4V13` Block-32 RHT form.
     pub fn push_tensor_bytes(
         &mut self,
         name: &str,
@@ -2836,7 +3045,6 @@ impl HfRepoHoloStreamCompiler {
         shape: &[usize],
         raw_bytes: &[u8],
     ) -> Result<(), HoloKappaStoreError> {
-        let data = decode_safetensors_tensor_q24(dtype, raw_bytes)?;
         let seed_of = |tag: u64| -> u64 {
             let mut h = 0x517c_c1b7_2722_0a95u64 ^ (tag.wrapping_mul(0x9e37_79b9_7f4a_7c15));
             h ^= h >> 30;
@@ -2846,12 +3054,41 @@ impl HfRepoHoloStreamCompiler {
         if name == "model.embed_tokens.weight" {
             let rows = *shape.first().unwrap_or(&self.vocab_size);
             let cols = *shape.get(1).unwrap_or(&self.d_model);
-            let (mat, sigs) = compile_int8_rht_matrix(&data, rows, cols, seed_of(0));
+            let (mat, sigs) =
+                compile_int8_rht_matrix_raw(dtype, raw_bytes, rows, cols, seed_of(0))?;
             self.embed = Some(mat);
             self.vocab_sigs = sigs;
             return Ok(());
         }
+        if name == "model.embed_tokens.weight:band" {
+            let band_rows = *shape.first().unwrap_or(&0);
+            let cols = *shape.get(1).unwrap_or(&self.d_model);
+            if cols != self.d_model || band_rows == 0 {
+                return Err(HoloKappaStoreError::CorruptSafetensorsHeader(format!(
+                    "embed band shape [{band_rows}, {cols}] mismatches d_model={}",
+                    self.d_model
+                )));
+            }
+            let (mat, sigs) =
+                compile_int8_rht_matrix_raw(dtype, raw_bytes, band_rows, cols, seed_of(0))?;
+            if let Some(em) = self.embed.as_mut() {
+                if em.cols != cols {
+                    return Err(HoloKappaStoreError::CorruptSafetensorsHeader(
+                        "embed band cols mismatch".into(),
+                    ));
+                }
+                em.rows += mat.rows;
+                em.row_exp.extend_from_slice(&mat.row_exp);
+                em.group_mult.extend_from_slice(&mat.group_mult);
+                em.weights.extend_from_slice(&mat.weights);
+            } else {
+                self.embed = Some(mat);
+            }
+            self.vocab_sigs.extend_from_slice(&sigs);
+            return Ok(());
+        }
         if name == "model.norm.weight" {
+            let data = decode_safetensors_tensor_q24(dtype, raw_bytes)?;
             self.final_norm_q24 = Some(q24_to_i32_slice(&data));
             return Ok(());
         }
@@ -2871,39 +3108,84 @@ impl HfRepoHoloStreamCompiler {
                 let cols = *shape.get(1).unwrap_or(&0);
                 let tag = (l_idx as u64) * 16;
                 match sub {
-                    "input_layernorm.weight" => layer.in_ln_q24 = Some(q24_to_i32_slice(&data)),
-                    "post_attention_layernorm.weight" => {
-                        layer.post_ln_q24 = Some(q24_to_i32_slice(&data))
+                    "input_layernorm.weight" => {
+                        let data = decode_safetensors_tensor_q24(dtype, raw_bytes)?;
+                        layer.in_ln_q24 = Some(q24_to_i32_slice(&data));
                     }
-                    "self_attn.q_norm.weight" => layer.q_norm_q24 = Some(q24_to_i32_slice(&data)),
-                    "self_attn.k_norm.weight" => layer.k_norm_q24 = Some(q24_to_i32_slice(&data)),
+                    "post_attention_layernorm.weight" => {
+                        let data = decode_safetensors_tensor_q24(dtype, raw_bytes)?;
+                        layer.post_ln_q24 = Some(q24_to_i32_slice(&data));
+                    }
+                    "self_attn.q_norm.weight" => {
+                        let data = decode_safetensors_tensor_q24(dtype, raw_bytes)?;
+                        layer.q_norm_q24 = Some(q24_to_i32_slice(&data));
+                    }
+                    "self_attn.k_norm.weight" => {
+                        let data = decode_safetensors_tensor_q24(dtype, raw_bytes)?;
+                        layer.k_norm_q24 = Some(q24_to_i32_slice(&data));
+                    }
                     "self_attn.q_proj.weight" => {
-                        layer.q_proj =
-                            Some(compile_int4_rht_matrix(&data, rows, cols, seed_of(tag + 1)))
+                        layer.q_proj = Some(compile_int4_rht_matrix_raw(
+                            dtype,
+                            raw_bytes,
+                            rows,
+                            cols,
+                            seed_of(tag + 1),
+                        )?);
                     }
                     "self_attn.k_proj.weight" => {
-                        layer.k_proj =
-                            Some(compile_int4_rht_matrix(&data, rows, cols, seed_of(tag + 2)))
+                        layer.k_proj = Some(compile_int4_rht_matrix_raw(
+                            dtype,
+                            raw_bytes,
+                            rows,
+                            cols,
+                            seed_of(tag + 2),
+                        )?);
                     }
                     "self_attn.v_proj.weight" => {
-                        layer.v_proj =
-                            Some(compile_int4_rht_matrix(&data, rows, cols, seed_of(tag + 3)))
+                        layer.v_proj = Some(compile_int4_rht_matrix_raw(
+                            dtype,
+                            raw_bytes,
+                            rows,
+                            cols,
+                            seed_of(tag + 3),
+                        )?);
                     }
                     "self_attn.o_proj.weight" => {
-                        layer.o_proj =
-                            Some(compile_int4_rht_matrix(&data, rows, cols, seed_of(tag + 4)))
+                        layer.o_proj = Some(compile_int4_rht_matrix_raw(
+                            dtype,
+                            raw_bytes,
+                            rows,
+                            cols,
+                            seed_of(tag + 4),
+                        )?);
                     }
                     "mlp.gate_proj.weight" => {
-                        layer.gate_proj =
-                            Some(compile_int4_rht_matrix(&data, rows, cols, seed_of(tag + 5)))
+                        layer.gate_proj = Some(compile_int4_rht_matrix_raw(
+                            dtype,
+                            raw_bytes,
+                            rows,
+                            cols,
+                            seed_of(tag + 5),
+                        )?);
                     }
                     "mlp.up_proj.weight" => {
-                        layer.up_proj =
-                            Some(compile_int4_rht_matrix(&data, rows, cols, seed_of(tag + 6)))
+                        layer.up_proj = Some(compile_int4_rht_matrix_raw(
+                            dtype,
+                            raw_bytes,
+                            rows,
+                            cols,
+                            seed_of(tag + 6),
+                        )?);
                     }
                     "mlp.down_proj.weight" => {
-                        layer.down_proj =
-                            Some(compile_int4_rht_matrix(&data, rows, cols, seed_of(tag + 7)))
+                        layer.down_proj = Some(compile_int4_rht_matrix_raw(
+                            dtype,
+                            raw_bytes,
+                            rows,
+                            cols,
+                            seed_of(tag + 7),
+                        )?);
                     }
                     _ => {}
                 }
@@ -2915,6 +3197,9 @@ impl HfRepoHoloStreamCompiler {
     /// Formal R4.HoloGeometricRuntime finalize all streamed tensors into a runnable `HoloV13Model`.
     pub fn finish_model(self) -> Result<HoloV13Model, R4StackError> {
         let embed = self.embed.ok_or(R4StackError::TruncatedContainer)?;
+        if embed.rows < self.vocab_size || self.vocab_sigs.len() < self.vocab_size * SIG_WORDS {
+            return Err(R4StackError::TruncatedContainer);
+        }
         let final_norm_q24 = self
             .final_norm_q24
             .ok_or(R4StackError::TruncatedContainer)?;
@@ -3070,5 +3355,139 @@ mod tests {
         assert_eq!(sin_tbl[0], 0);
         assert!((cos_tbl[64] - 8_850).abs() <= 2);
         assert!((sin_tbl[64] - 13_787).abs() <= 2);
+    }
+
+    #[test]
+    fn non_square_layer_streaming_mount_and_inference_succeeds() {
+        let vocab = 256usize;
+        let dm = 128usize;
+        let nl = 1usize;
+        let nh = 2usize;
+        let nkv = 1usize;
+        let hd = 128usize;
+        let ffn = 192usize;
+        let max_seq = 16usize;
+
+        let mut raw = Vec::new();
+        raw.extend_from_slice(HOLO_V13_MAGIC);
+        raw.extend_from_slice(&HOLO_V13_VERSION.to_le_bytes());
+        raw.extend_from_slice(&1u32.to_le_bytes());
+        raw.extend_from_slice(&(vocab as u32).to_le_bytes());
+        raw.extend_from_slice(&(dm as u32).to_le_bytes());
+        raw.extend_from_slice(&(nl as u32).to_le_bytes());
+        raw.extend_from_slice(&(nh as u32).to_le_bytes());
+        raw.extend_from_slice(&(nkv as u32).to_le_bytes());
+        raw.extend_from_slice(&(hd as u32).to_le_bytes());
+        raw.extend_from_slice(&(ffn as u32).to_le_bytes());
+        raw.extend_from_slice(&(max_seq as u32).to_le_bytes());
+        raw.extend_from_slice(&0u32.to_le_bytes());
+        raw.extend_from_slice(&1u32.to_le_bytes());
+        raw.extend_from_slice(&0u32.to_le_bytes());
+        raw.extend_from_slice(&2u32.to_le_bytes());
+        raw.extend_from_slice(&3u32.to_le_bytes());
+        raw.extend_from_slice(&281_474_977i64.to_le_bytes());
+        raw.extend_from_slice(&94_906_266i64.to_le_bytes());
+        raw.extend_from_slice(&1_000_000u64.to_le_bytes());
+        raw.extend_from_slice(&0b0_1111u32.to_le_bytes());
+
+        let half = hd / 2;
+        for _ in 0..(max_seq * half) {
+            raw.extend_from_slice(&16_384i16.to_le_bytes());
+        }
+        for _ in 0..(max_seq * half) {
+            raw.extend_from_slice(&0i16.to_le_bytes());
+        }
+        let exp_len = ((EXP_RANGE as usize) << 8) + 1;
+        for _ in 0..exp_len {
+            raw.extend_from_slice(&(1u32 << 30).to_le_bytes());
+        }
+        let silu_len = (1usize << (SILU_RANGE_LOG2 - SILU_STEP_LOG2 + 1)) + 1;
+        for _ in 0..silu_len {
+            raw.extend_from_slice(&0i32.to_le_bytes());
+        }
+
+        let mut tok = Vec::new();
+        tok.extend_from_slice(HOLO_TOK13_MAGIC);
+        tok.extend_from_slice(&(vocab as u32).to_le_bytes());
+        tok.extend_from_slice(&0u32.to_le_bytes());
+        tok.extend_from_slice(&0u32.to_le_bytes());
+        for b in 0..vocab {
+            tok.extend_from_slice(&1u16.to_le_bytes());
+            tok.push(b as u8);
+        }
+        for b in 0..vocab {
+            tok.extend_from_slice(&1u16.to_le_bytes());
+            let ch = if (b as u8).is_ascii_graphic() {
+                b as u8
+            } else {
+                b'x'
+            };
+            tok.push(ch);
+        }
+        raw.extend_from_slice(&(tok.len() as u32).to_le_bytes());
+        raw.extend_from_slice(&tok);
+
+        for _ in 0..(vocab * SIG_WORDS) {
+            raw.extend_from_slice(&0x5555_5555_5555_5555u64.to_le_bytes());
+        }
+
+        // Tied embedding matrix [vocab, dm]
+        raw.extend_from_slice(&(vocab as u32).to_le_bytes());
+        raw.extend_from_slice(&(dm as u32).to_le_bytes());
+        raw.extend_from_slice(&1u64.to_le_bytes());
+        raw.resize(raw.len() + vocab, (-20i8) as u8);
+        for _ in 0..(vocab * (dm >> 5)) {
+            raw.extend_from_slice(&1u16.to_le_bytes());
+        }
+        raw.resize(raw.len() + vocab * dm, 1i8 as u8);
+
+        for _ in 0..dm {
+            raw.extend_from_slice(&(1i32 << 24).to_le_bytes());
+        }
+        for _ in 0..(dm * 2 + hd * 2) {
+            raw.extend_from_slice(&(1i32 << 24).to_le_bytes());
+        }
+
+        let push_i4 = |buf: &mut Vec<u8>, rows: usize, cols: usize, seed: u64| {
+            buf.extend_from_slice(&(rows as u32).to_le_bytes());
+            buf.extend_from_slice(&(cols as u32).to_le_bytes());
+            buf.extend_from_slice(&seed.to_le_bytes());
+            buf.resize(buf.len() + rows, (-18i8) as u8);
+            for _ in 0..(rows * (cols >> 5)) {
+                buf.extend_from_slice(&1u16.to_le_bytes());
+            }
+            buf.resize(buf.len() + rows * (cols >> 1), 0x89u8);
+        };
+        let q_dim = nh * hd;
+        let kv_dim = nkv * hd;
+        push_i4(&mut raw, q_dim, dm, 11);
+        push_i4(&mut raw, kv_dim, dm, 12);
+        push_i4(&mut raw, kv_dim, dm, 13);
+        push_i4(&mut raw, dm, q_dim, 14);
+        push_i4(&mut raw, ffn, dm, 15);
+        push_i4(&mut raw, ffn, dm, 16);
+        push_i4(&mut raw, dm, ffn, 17);
+
+        let digest = Sha256::digest(&raw);
+        let mut sha_hex = String::with_capacity(64);
+        for b in digest {
+            use std::fmt::Write;
+            let _ = write!(&mut sha_hex, "{b:02x}");
+        }
+
+        let c1 = raw.len() / 3;
+        let c2 = (raw.len() * 2) / 3;
+        let mut builder = HoloV13StreamingBuilder::new("uor-r4.test-nonsquare", 3, &sha_hex);
+        builder.push_piece(&raw[..c1]).expect("chunk 1");
+        builder.push_piece(&raw[c1..c2]).expect("chunk 2");
+        builder.push_piece(&raw[c2..]).expect("chunk 3");
+        let mut model = builder.finalize().expect("non-square Int4 mount");
+        assert_eq!(model.n_layers, 1);
+        assert_eq!(model.d_model, dm);
+        let (_reply, metrics) = model.generate_chat_turn("hello", "assistant", 4);
+        assert_eq!(metrics.float_ops, 0);
+        assert_eq!(metrics.dense_matmul_ops, 0);
+        assert!(metrics.q_norm_before_rope);
+        assert!(metrics.k_norm_before_rope);
     }
 }

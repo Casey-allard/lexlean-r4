@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-54"
+level = "build"
+suite = "r4-prism-holo-identity"
+statement = "Pure LexLean models afflom/stitch Prism Identity ledgers, Hologram v4 .holo archive compilation and integrity verification, and UOR-Foundation/foundry selectable application integration (r4-prism-holo-identity): Stitch.PrismId content-addressed identity logs (prism/device/1, prism/genesis/1, prism/bind/1, prism/revoke/1, prism/action/1, prism/persona/1) over NFC safe-integer canonical JSON sha256 kappa digests with non-extractable WebCrypto P-256 keys; deterministic Hologram v4 .holo compilation (HOLO v4, 8-section table [15,8,14,14,16,16,16,16], 356-byte APP_MANIFEST, source-manifest/4, application-directory/v1, prismpm-model/v1, prismpm/model-document/1 ModelDocument + 25-field ModelProvenanceV1, import-free hologram:guest/core-wasm@1 exporting [holo_alloc, holo_run, memory], big-endian sorted HOLOVIEW v1 portable closure, 4 lexically sorted blake3: content blobs, and 32-byte unkeyed BLAKE3 footer); UOR-Foundation/foundry FA-87 inprism app descriptors and uor-workspace-bridge/1 actions; and typed refusals RefusedNonIntegerCanonicalJson, RefusedIdentityKappaMismatch, RefusedUnauthorizedIdentityRole, RefusedRevokedDeviceSigner, RefusedInvalidHoloMagicOrVersion, RefusedInvalidHoloSectionOrder, RefusedCoreWasmContractViolation, RefusedUnsortedHoloBlobsOrView, RefusedHoloBlake3FooterMismatch, and RefusedMeAppVectorReplayFailure. Formal controls establish no external registry.uor.foundation availability, OIDC token issuance, or hardware secure-enclave attestation."
+
+[[id]]
 id = "R4-53"
 level = "build"
 suite = "r4-uorust-prism-devrel"

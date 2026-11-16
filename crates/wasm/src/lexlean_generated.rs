@@ -47598,3 +47598,151 @@ pub mod r4_uorust_prism_devrel {
         }
     }
 }
+
+/// Generated from `R4.PrismHoloIdentity` (`src/R4/PrismHoloIdentity.lex.tex`).
+pub mod r4_prism_holo_identity {
+    /// Inductive `R4.PrismHoloIdentity.PrismIdentityRole`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PrismIdentityRole {
+        Member,
+        Delegate,
+        Recovery,
+        Unbound,
+    }
+
+    /// Inductive `R4.PrismHoloIdentity.PrismRecordKind`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PrismRecordKind {
+        Device1,
+        Genesis1,
+        Bind1,
+        Revoke1,
+        Action1,
+        Persona1,
+    }
+
+    /// Inductive `R4.PrismHoloIdentity.PrismHoloVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PrismHoloVerdict {
+        PrismHoloAdmitted,
+        RefusedNonIntegerCanonicalJson,
+        RefusedIdentityKappaMismatch,
+        RefusedUnauthorizedIdentityRole,
+        RefusedRevokedDeviceSigner,
+        RefusedInvalidHoloMagicOrVersion,
+        RefusedInvalidHoloSectionOrder,
+        RefusedCoreWasmContractViolation,
+        RefusedUnsortedHoloBlobsOrView,
+        RefusedHoloBlake3FooterMismatch,
+        RefusedMeAppVectorReplayFailure,
+    }
+
+    /// Structure `R4.PrismHoloIdentity.PrismIdentityCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct PrismIdentityCheck {
+        pub canonical_integers_only: bool,
+        pub kappa_matches_body: bool,
+        pub signer_revoked: bool,
+        pub signer_role: PrismIdentityRole,
+        pub record_kind: PrismRecordKind,
+    }
+
+    /// Structure `R4.PrismHoloIdentity.HoloArchiveCheck`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct HoloArchiveCheck {
+        pub magic_valid: bool,
+        pub version: u64,
+        pub section_count: u64,
+        pub section_order_valid: bool,
+        pub manifest_bytes: u64,
+        pub guest_imports: u64,
+        pub guest_exports_valid: bool,
+        pub blobs_and_view_sorted: bool,
+        pub blake3_footer_valid: bool,
+        pub vectors_passed: u64,
+        pub vectors_total: u64,
+    }
+
+    /// Function `R4.PrismHoloIdentity.rolePermitsRecord`.
+    pub fn role_permits_record(role: PrismIdentityRole, record_kind: PrismRecordKind) -> bool {
+        match record_kind {
+            PrismRecordKind::Device1 | PrismRecordKind::Genesis1 | PrismRecordKind::Persona1 => {
+                matches!(role, PrismIdentityRole::Member)
+            }
+            PrismRecordKind::Bind1 | PrismRecordKind::Revoke1 => {
+                matches!(
+                    role,
+                    PrismIdentityRole::Member | PrismIdentityRole::Recovery
+                )
+            }
+            PrismRecordKind::Action1 => {
+                matches!(
+                    role,
+                    PrismIdentityRole::Member | PrismIdentityRole::Delegate
+                )
+            }
+        }
+    }
+
+    /// Function `R4.PrismHoloIdentity.admitPrismIdentityRecord`.
+    pub fn admit_prism_identity_record(c: PrismIdentityCheck) -> PrismHoloVerdict {
+        if !c.canonical_integers_only {
+            PrismHoloVerdict::RefusedNonIntegerCanonicalJson
+        } else if !c.kappa_matches_body {
+            PrismHoloVerdict::RefusedIdentityKappaMismatch
+        } else if c.signer_revoked {
+            PrismHoloVerdict::RefusedRevokedDeviceSigner
+        } else if !role_permits_record(c.signer_role, c.record_kind) {
+            PrismHoloVerdict::RefusedUnauthorizedIdentityRole
+        } else {
+            PrismHoloVerdict::PrismHoloAdmitted
+        }
+    }
+
+    /// Function `R4.PrismHoloIdentity.admitHoloV4Archive`.
+    pub fn admit_holo_v4_archive(h: HoloArchiveCheck) -> PrismHoloVerdict {
+        if !h.magic_valid || h.version != 4 {
+            PrismHoloVerdict::RefusedInvalidHoloMagicOrVersion
+        } else if h.section_count != 8 || !h.section_order_valid || h.manifest_bytes != 356 {
+            PrismHoloVerdict::RefusedInvalidHoloSectionOrder
+        } else if h.guest_imports > 0 || !h.guest_exports_valid {
+            PrismHoloVerdict::RefusedCoreWasmContractViolation
+        } else if !h.blobs_and_view_sorted {
+            PrismHoloVerdict::RefusedUnsortedHoloBlobsOrView
+        } else if !h.blake3_footer_valid {
+            PrismHoloVerdict::RefusedHoloBlake3FooterMismatch
+        } else if h.vectors_total == 0 || h.vectors_passed != h.vectors_total {
+            PrismHoloVerdict::RefusedMeAppVectorReplayFailure
+        } else {
+            PrismHoloVerdict::PrismHoloAdmitted
+        }
+    }
+
+    /// Function `R4.PrismHoloIdentity.verifyPrismIdentityAdmitted`.
+    pub fn verify_prism_identity_admitted() -> bool {
+        admit_prism_identity_record(PrismIdentityCheck {
+            canonical_integers_only: true,
+            kappa_matches_body: true,
+            signer_revoked: false,
+            signer_role: PrismIdentityRole::Member,
+            record_kind: PrismRecordKind::Action1,
+        }) == PrismHoloVerdict::PrismHoloAdmitted
+    }
+
+    /// Function `R4.PrismHoloIdentity.verifyHoloArchiveAdmitted`.
+    pub fn verify_holo_archive_admitted() -> bool {
+        admit_holo_v4_archive(HoloArchiveCheck {
+            magic_valid: true,
+            version: 4,
+            section_count: 8,
+            section_order_valid: true,
+            manifest_bytes: 356,
+            guest_imports: 0,
+            guest_exports_valid: true,
+            blobs_and_view_sorted: true,
+            blake3_footer_valid: true,
+            vectors_passed: 4,
+            vectors_total: 4,
+        }) == PrismHoloVerdict::PrismHoloAdmitted
+    }
+}

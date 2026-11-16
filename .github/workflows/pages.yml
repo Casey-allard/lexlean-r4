@@ -109,6 +109,16 @@ jobs:
 
           touch public/.nojekyll
           if [ -f site/app.json ]; then cp site/app.json public/app.json; fi
+          if [ -f site/icons/icon-192.png ]; then
+            mkdir -p public/icons
+            cp site/icons/icon-192.png public/icons/icon-192.png
+          fi
+          image=$(sed -n 's/.*"sdk_image":"\([^"]*\)".*/\1/p' prismpm.lock)
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --volume "$PWD:$PWD" \
+            --workdir "$PWD" \
+            "$image" ./target/debug/xtask build-holo --out public/app.holo --verify-site-manifest
           if [ -d gpu/weights ]; then
             cp -R gpu/weights public/weights
             find public/weights -type f \( -name "*.bin" -o -name "*.part*" \) -delete

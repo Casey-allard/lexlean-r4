@@ -273,11 +273,12 @@ async function verifyPartBModelPersistenceAndBridge() {
     'function renderThreadSidebar() {}',
     'function setLayoutMode() {}',
     'function getActiveThread() { return { messages: [] }; }',
+    'function initPrismHoloIdentityControls() {}',
+    'function renderPrismHoloIdentityUI() {}',
     'let activeWorkspacePath = "src/lib.rs";',
     rawJs.slice(scmStart, scmEnd),
     rawJs.slice(ctrlStart, initCtrlEnd),
-    '  initEmbedMeBridge();',
-    '}',
+  '}',
     'return { initLayoutAndConnectedControls };',
   ].join('\n');
 

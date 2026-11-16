@@ -12,10 +12,10 @@ Authoritative verification evidence for **Track 1** (`Qwen/Qwen3-0.6B` and `Qwen
 
 ## Build & Normative Gate Measurements (`v0.13.0`)
 
-- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `10,468,818` bytes / `9.98 MiB` < `15 MiB`, `provenance.json`), `wasm=bda49a033e3b`, `js=7e359e57142f`, `core=6647c48416a6`.
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `10,486,024` bytes / `10.00 MiB` < `15 MiB`, `provenance.json`), `wasm=39a6e1d7cc5c`, `js=9e49a01e0b04`, `core=6647c48416a6`.
 - **`check-model`**: `CONFORMANCE.md` equals `model/`, `53` conformance IDs (`R4-01..R4-53`).
 - **`lift-register`**: `total=2498`, `lifted=1778`, `effect=236`, `foreign=140`, `residue=344` (`<= 355`).
-- **`ratchet-check`**: shrink-only + Peirce triadic admitted (`r30_gen=222`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=344`, `float=0`, `matmul=0`, `unwired_ui=0`).
+- **`ratchet-check`**: shrink-only + Peirce triadic admitted (`r30_gen=223`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=344`, `float=0`, `matmul=0`, `unwired_ui=0`).
 - **`check-routes`**: `9` routes and `12` test vectors checked under `uorust/routes/1`.
 - **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=344`, `routes=9`, `provenance_sources=22`).
 - **`synthesize`**: `score_milli=986`, `complexity=344`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
@@ -47,3 +47,10 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `1`
   - **Diagnostic**: `gate failed: check-measures failed on \`Quality::measureFloatServingOps\` (R4.UorustPrismDevrel.floatServingOps): verdict=RefusedMeasureThresholdViolated, measured=1, threshold=0, missing_provenance=[]`
 - **Restored result**: Reverted `gpu/rtx4090_holo_v13_qwen3_0_6b_receipt.json`; `./target/debug/xtask check-measures` exited `0` (`check-measures: 6 measures admitted (uncovered=0, undeclared=0, float_ops=0, matmul_ops=0, kappa_residue=344, routes=9, provenance_sources=22)`).
+
+### 4. Corrupt BLAKE3 Footer Bypass on Hologram v4 Archive (`R4-54`)
+- **Planted defect**: Bypassed `actual_footer == expected_footer` (`let blake3_footer_valid = true;`) in `crates/wasm/src/prism_holo_compiler.rs`.
+- **Failing command**: `cargo test -p repo-conformance --test prism_holo_identity`
+  - **Exit code**: `101`
+  - **Diagnostic**: `panicked at crates/conformance/tests/prism_holo_identity.rs:301:43: called Result::unwrap_err() on an Ok value: HoloV4Summary { verdict: PrismHoloAdmitted, ... }`
+- **Restored result**: Restored `let blake3_footer_valid = actual_footer == expected_footer;` in `crates/wasm/src/prism_holo_compiler.rs`; `cargo test -p repo-conformance --test prism_holo_identity` exited `0` (`test result: ok. 1 passed`).

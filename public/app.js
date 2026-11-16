@@ -1012,10 +1012,13 @@ const engineWorkerClient = {
         }
       }
       if (snap.stitchHealth) this.stitchHealth = snap.stitchHealth;
+      if (snap.prismIdentity) this.prismIdentity = snap.prismIdentity;
+      if (msg.prismIdentity) this.prismIdentity = msg.prismIdentity;
       if (msg.weightCacheMeta) globalThis.__uorWeightCacheMeta = msg.weightCacheMeta;
       if (msg.gllmMeta) globalThis.__uorGllmV9Meta = msg.gllmMeta;
       if (snap.workspace) this.applyWorkspaceSnapshot(snap.workspace);
       updateWeightCacheBadge();
+      if (typeof renderPrismHoloIdentityUI === 'function') renderPrismHoloIdentityUI();
       if (typeof renderVerdantSynthesisPanel === 'function') renderVerdantSynthesisPanel();
       if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
       if (typeof updateDynamicPlanningPanel === 'function') updateDynamicPlanningPanel();
@@ -1035,10 +1038,17 @@ const engineWorkerClient = {
     }
     if (evType === 'holo_ready') {
       if (msg.kappaStore) globalThis.__uorHoloKappaStatus = msg.kappaStore;
+      if (msg.holo && typeof msg.holo.mounted_count === 'number') {
+        this.holoStatus = msg.holo;
+        updateWeightCacheBadge();
+        if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
+        if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+      }
       if (msg.holo) {
         this.rpc('holo_runtime_status', {})
-          .then((hs) => {
-            if (hs) this.holoStatus = hs;
+          .then((res) => {
+            const hs = (res && res.holo && typeof res.mounted_count !== 'number') ? res.holo : res;
+            if (hs && typeof hs.mounted_count === 'number') this.holoStatus = hs;
             updateWeightCacheBadge();
             if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
             if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
@@ -1064,6 +1074,18 @@ const engineWorkerClient = {
       if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
       if (typeof renderDynamicPoolPanel === 'function') renderDynamicPoolPanel();
       if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+      if (typeof emitPrismEmbedEvent === 'function') emitPrismEmbedEvent('prism:status');
+      return;
+    }
+    if (evType === 'prism_identity') {
+      this.prismIdentity = msg;
+      if (typeof renderPrismHoloIdentityUI === 'function') renderPrismHoloIdentityUI();
+      if (typeof emitPrismEmbedEvent === 'function') emitPrismEmbedEvent('prism:status');
+      return;
+    }
+    if (evType === 'holo_compiled') {
+      this.latestHoloSummary = msg;
+      if (typeof renderPrismHoloIdentityUI === 'function') renderPrismHoloIdentityUI();
       if (typeof emitPrismEmbedEvent === 'function') emitPrismEmbedEvent('prism:status');
       return;
     }
@@ -2848,7 +2870,8 @@ function runClaudeChat(promptText, recordUserBubble = true) {
         );
         return engineWorkerClient.rpc('holo_runtime_status', {});
       })
-      .then((hs) => {
+      .then((res) => {
+        const hs = (res && res.holo && typeof res.mounted_count !== 'number') ? res.holo : res;
         if (hs) engineWorkerClient.holoStatus = hs;
         updateWeightCacheBadge();
       })
@@ -2873,6 +2896,34 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       })
       .catch((err) => {
         appendChatTurn('assistant', 'uor-r4.native-q31-d85', `Native Q31 train error: ${err?.message || String(err)}`);
+      });
+    return;
+  }
+
+  if ((trimmed === '/holo' || trimmed === '/holo compile' || trimmed === '/prism-id') && engineWorkerClient.enabled) {
+    const rpcOp = trimmed === '/prism-id' ? 'prism_identity_ensure' : 'compile_holo_archive';
+    engineWorkerClient.rpc(rpcOp, {})
+      .then((res) => {
+        if (rpcOp === 'prism_identity_ensure') {
+          engineWorkerClient.prismIdentity = res;
+          if (typeof renderPrismHoloIdentityUI === 'function') renderPrismHoloIdentityUI();
+          appendChatTurn(
+            'assistant',
+            'stitch/prism-id/1',
+            `Active Stitch Prism Identity: \`${res?.prism_id || 'pending'}\`\n- **Device ID:** \`${res?.device_id || 'pending'}\` (${res?.protection || 'P-256'})\n- **Role:** \`${res?.role || 'member'}\` · **Persona:** \`${res?.persona?.handle || 'unbound'}\``,
+          );
+        } else {
+          engineWorkerClient.latestHoloSummary = res;
+          if (typeof renderPrismHoloIdentityUI === 'function') renderPrismHoloIdentityUI();
+          appendChatTurn(
+            'assistant',
+            'holo://lexlean-r4',
+            `Compiled & verified Hologram v4 \`.holo\` archive for UOR Foundry:\n- **BLAKE3 Fingerprint:** \`blake3:${res?.fingerprint || ''}\`\n- **Size:** \`${res?.byte_length || 0}\` bytes (\`${res?.view_file_count || 6}\` files in \`HOLOVIEW\` v1)\n- **Core-Wasm Replay:** \`${res?.wasm_vectors_passed ?? res?.vectors_passed ?? 0}/${res?.wasm_vectors_total ?? res?.vectors_total ?? 0}\` passed (\`hologram:guest/core-wasm@1\`)`,
+          );
+        }
+      })
+      .catch((err) => {
+        appendChatTurn('assistant', 'holo://lexlean-r4', `Prism/Holo operation error: ${err?.message || String(err)}`);
       });
     return;
   }
@@ -3635,6 +3686,20 @@ const AGENTIC_SLASH_COMMANDS = [
     description: 'Clear current conversation thread and reset 256D Q12 RollingContextState',
     template: '',
     action: 'clear',
+  },
+  {
+    command: '/holo',
+    title: 'Compile & Verify .holo v4 Package',
+    badge: 'holo://app',
+    description: 'Compile live 6-file closure into HOLO v4 + Core-Wasm archive for UOR Foundry',
+    template: '/holo',
+  },
+  {
+    command: '/prism-id',
+    title: 'Inspect Stitch Prism Identity',
+    badge: 'P-256 Kappa',
+    description: 'Initialize or inspect non-extractable Stitch PrismId sha256 kappa chain',
+    template: '/prism-id',
   },
 ];
 
@@ -4734,7 +4799,7 @@ const DEFAULT_VERDANT_FACETS = [
     kpi_id: 'R4-44..R4-46',
     metric: 'UOR-R4 + uor-workspace-bridge/1',
     status: 'VERIFIED · Zero Residue',
-    summary: 'LexLean AST mechanizer, UORust κ-lift ratchet, afflom/me postMessage protocol, and zero-Python deterministic gates.',
+    summary: 'LexLean AST mechanizer, UORust κ-lift ratchet, UOR Foundry inprism + uor-workspace-bridge/1 postMessage protocol, and zero-Python deterministic gates.',
   },
 ];
 
@@ -8774,7 +8839,8 @@ class LexLeanTerminal {
           const st = dispatchStudioEnvelope('state', '');
           if (args.includes('--json')) {
             if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
-              engineWorkerClient.rpc('holo_runtime_status', {}).then((hs) => {
+              engineWorkerClient.rpc('holo_runtime_status', {}).then((res) => {
+                const hs = (res && res.holo && typeof res.mounted_count !== 'number') ? res.holo : res;
                 if (hs) engineWorkerClient.holoStatus = hs;
                 this.printAnsi(JSON.stringify({ state: st, holo: hs, native_q31: engineWorkerClient.nativeQ31Info }, null, 2));
               }).catch(() => {
@@ -8972,7 +9038,8 @@ class LexLeanTerminal {
               engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null),
               engineWorkerClient.rpc('native_q31_status', {}).catch(() => null),
               engineWorkerClient.rpc('weight_pack_status', {}).catch(() => null),
-            ]).then(([holo, nativeQ31, pack]) => {
+            ]).then(([holoRaw, nativeQ31, pack]) => {
+              const holo = (holoRaw && holoRaw.holo && typeof holoRaw.mounted_count !== 'number') ? holoRaw.holo : holoRaw;
               if (holo) engineWorkerClient.holoStatus = holo;
               if (nativeQ31) engineWorkerClient.nativeQ31Info = nativeQ31;
               if (pack) engineWorkerClient.packInfo = pack;
@@ -9155,6 +9222,59 @@ class LexLeanTerminal {
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Reset failed: ${err?.message || String(err)}`);
           this.setExitCode(1);
+        }
+        break;
+      }
+      case 'prism': {
+        const sub = (args[0] || 'id').toLowerCase();
+        if (sub === 'id' || sub === 'status') {
+          if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+            engineWorkerClient.rpc('prism_identity_ensure', {})
+              .then((res) => {
+                engineWorkerClient.prismIdentity = res;
+                if (typeof renderPrismHoloIdentityUI === 'function') renderPrismHoloIdentityUI();
+                this.printAnsi('\x1b[1m\x1b[36m--- Stitch Prism Identity (uor-addr/sha256, R4-54) ---\x1b[0m');
+                this.printAnsi(`  Prism ID:   \x1b[32m${res?.prism_id || '—'}\x1b[0m`);
+                this.printAnsi(`  Device ID:  \x1b[33m${res?.device_id || '—'}\x1b[0m (${res?.protection || 'P-256'})`);
+                this.printAnsi(`  Role:       \x1b[32m${res?.role || 'member'}\x1b[0m · Persona: ${res?.persona?.handle || 'unbound'}`);
+                this.setExitCode(0);
+              })
+              .catch((err) => {
+                this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Prism ID failed: ${err?.message || String(err)}`);
+                this.setExitCode(1);
+              });
+          } else {
+            this.printAnsi('Stitch Prism Identity requires active Wasm Worker.');
+          }
+        } else {
+          this.printAnsi('Usage: prism id');
+        }
+        break;
+      }
+      case 'holo': {
+        const sub = (args[0] || 'compile').toLowerCase();
+        if (sub === 'compile' || sub === 'verify') {
+          if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+            engineWorkerClient.rpc('compile_holo_archive', {})
+              .then((res) => {
+                engineWorkerClient.latestHoloSummary = res;
+                if (typeof renderPrismHoloIdentityUI === 'function') renderPrismHoloIdentityUI();
+                this.printAnsi('\x1b[1m\x1b[36m--- Hologram v4 .holo Package Verification (R4-54) ---\x1b[0m');
+                this.printAnsi(`  Verdict:     \x1b[32m${res?.verdict || 'PrismHoloAdmitted'}\x1b[0m`);
+                this.printAnsi(`  Fingerprint: \x1b[33mblake3:${res?.fingerprint || ''}\x1b[0m`);
+                this.printAnsi(`  Size:        ${res?.byte_length || 0} bytes (${res?.view_file_count || 6} HOLOVIEW files)`);
+                this.printAnsi(`  Vectors:     \x1b[32m${res?.wasm_vectors_passed ?? res?.vectors_passed ?? 0}/${res?.wasm_vectors_total ?? res?.vectors_total ?? 0}\x1b[0m passed (core-wasm@1)`);
+                this.setExitCode(0);
+              })
+              .catch((err) => {
+                this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Holo compile/verify failed: ${err?.message || String(err)}`);
+                this.setExitCode(1);
+              });
+          } else {
+            this.printAnsi('Hologram v4 compiler requires active Wasm Worker.');
+          }
+        } else {
+          this.printAnsi('Usage: holo [compile | verify]');
         }
         break;
       }
@@ -12774,7 +12894,8 @@ function initCursorIdeWorkbench() {
         const targetHolo = sel === 'uor-r4.qwen3-1.7b-holo' ? 'uor-r4.qwen3-1.7b-holo' : 'uor-r4.qwen3-0.6b-holo';
         if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
           await engineWorkerClient.rpc('hydrate_holo_model', { modelId: targetHolo, force: true }).catch(() => null);
-          const hs = await engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null);
+          const hsRaw = await engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null);
+          const hs = (hsRaw && hsRaw.holo && typeof hsRaw.mounted_count !== 'number') ? hsRaw.holo : hsRaw;
           if (hs) engineWorkerClient.holoStatus = hs;
         }
         renderCursorShardsSection();
@@ -12801,11 +12922,12 @@ function initCursorIdeWorkbench() {
         if (typeof syncComposerModel === 'function') syncComposerModel('uor-r4.hf-repo-holo');
         if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
           const res = await engineWorkerClient.rpc('load_hf_repo_holo', { repoId });
-          const hs = await engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null);
+          const hsRaw = await engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null);
+          const hs = (hsRaw && hsRaw.holo && typeof hsRaw.mounted_count !== 'number') ? hsRaw.holo : hsRaw;
           if (hs) engineWorkerClient.holoStatus = hs;
           updateWeightCacheBadge();
           if (workspaceStatus) {
-            workspaceStatus.textContent = `[HF Range 206] Streamed ${repoId}: mounted=${Boolean(res && res.holo && res.holo.mounted)}.`;
+            workspaceStatus.textContent = `[HF Range 206] Streamed ${repoId}: mounted=${Boolean(res && res.holo && (res.holo.mounted || res.holo.hf_repo_mounted || res.holo.status === 'ok'))}.`;
           }
         }
       } catch (err) {
@@ -13260,6 +13382,9 @@ function getPrismEmbedStatusSnapshot(eventType = 'prism:status') {
     workspaceFileCount: engineWorkerClient && engineWorkerClient.workspaceFiles ? engineWorkerClient.workspaceFiles.size : 0,
     stitchHealth: st,
     verdantSynthesis: vsStatus,
+    prismIdentity: (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.prismIdentity) || null,
+    holoArchive: (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.latestHoloSummary) || null,
+    holoAddress: 'holo://lexlean-r4',
   };
 }
 
@@ -13616,17 +13741,18 @@ async function runGitHubLoopAction(subcommand, extraArgs = {}) {
 }
 
 function initEmbedMeBridge() {
-  let isEmbedMe = false;
+  let embedTarget = '';
   try {
     if (typeof window !== 'undefined' && window.location) {
       const params = new URLSearchParams(window.location.search || '');
-      isEmbedMe = params.get('embed') === 'me';
+      const rawEmbed = params.get('embed') || '';
+      if (rawEmbed === 'me' || rawEmbed === 'foundry') embedTarget = rawEmbed;
     }
   } catch {
-    isEmbedMe = false;
+    embedTarget = '';
   }
-  if (isEmbedMe && document.body) {
-    document.body.dataset.embed = 'me';
+  if (embedTarget && document.body) {
+    document.body.dataset.embed = embedTarget;
     document.body.classList.add('embed-me-compact');
   }
 
@@ -13706,6 +13832,55 @@ function initEmbedMeBridge() {
       replyBridge(ev.source || null, {
         protocol: 'uor-workspace-bridge/1',
         type: 'uor-workspace-bridge/1:watchdog-result',
+        result,
+      });
+    } else if (action === 'identity' && typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      const result = await engineWorkerClient.rpc('prism_identity_ensure', {}).catch((e) => ({ ok: false, error: String(e) }));
+      if (result && result.ok) engineWorkerClient.prismIdentity = result;
+      renderPrismHoloIdentityUI();
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:identity',
+        result,
+      });
+    } else if (action === 'bind-persona' && typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      const result = await engineWorkerClient.rpc('prism_identity_bind_persona', {
+        handle: msg.handle || 'lexlean-r4-studio',
+        host: msg.host || 'uor-foundation.github.io',
+      }).catch((e) => ({ ok: false, error: String(e) }));
+      if (result && result.ok) engineWorkerClient.prismIdentity = result;
+      renderPrismHoloIdentityUI();
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:identity',
+        result,
+      });
+    } else if ((action === 'compile-holo' || msg.type === 'prism:compile-holo') && typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      const result = await engineWorkerClient.rpc('compile_holo_archive', {}).catch((e) => ({ ok: false, error: String(e) }));
+      if (result && result.ok) engineWorkerClient.latestHoloSummary = result;
+      renderPrismHoloIdentityUI();
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:holo-compiled',
+        result,
+      });
+    } else if ((action === 'app-descriptor' || action === 'foundry-descriptor') && typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      const hrefOrigin = typeof window !== 'undefined' && window.location ? String(window.location.href || '') : '';
+      const result = await engineWorkerClient.rpc('get_foundry_app_descriptor', { origin: hrefOrigin }).catch((e) => ({ ok: false, error: String(e) }));
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: `uor-workspace-bridge/1:${action}`,
+        result,
+      });
+    } else if (action === 'inprism-infer' && typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      const inferPayload = msg.payload && typeof msg.payload === 'object'
+        ? msg.payload
+        : { prompt: msg.prompt || '', preferredModel: msg.model || '' };
+      const result = await engineWorkerClient.rpc('inprism_r4_turn', inferPayload).catch((e) => ({ ok: false, error: String(e) }));
+      replyBridge(ev.source || null, {
+        protocol: 'uor-workspace-bridge/1',
+        type: 'uor-workspace-bridge/1:inprism-infer',
+        requestId: msg.requestId || null,
         result,
       });
     }
@@ -14029,6 +14204,7 @@ function initLayoutAndConnectedControls() {
   renderDynamicPoolPanel();
   renderCoworkStatusBar();
   renderCursorShardsSection();
+  initPrismHoloIdentityControls();
 
   if (saveRelayUrlBtn) {
     saveRelayUrlBtn.addEventListener('click', async () => {
@@ -14052,15 +14228,189 @@ function initLayoutAndConnectedControls() {
 
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') {
+      const prismHoloEl = document.getElementById('prism-holo-modal');
       if (inspectorsModalEl && !inspectorsModalEl.hasAttribute('hidden')) {
         ev.preventDefault();
         closeInspectorsModal();
       } else if (githubModal && !githubModal.hasAttribute('hidden')) {
         ev.preventDefault();
         closeGithubModal();
+      } else if (prismHoloEl && !prismHoloEl.hasAttribute('hidden')) {
+        ev.preventDefault();
+        prismHoloEl.setAttribute('hidden', '');
       }
     }
   });
+}
+
+function renderPrismHoloIdentityUI() {
+  const idState = typeof engineWorkerClient !== 'undefined' ? engineWorkerClient.prismIdentity : null;
+  const holoSum = typeof engineWorkerClient !== 'undefined'
+    ? (engineWorkerClient.latestHoloSummary || (idState && idState.latest_holo))
+    : null;
+  const sideIdEl = document.getElementById('prism-sidebar-id-code');
+  const sideHoloEl = document.getElementById('prism-sidebar-holo-code');
+  const modalPrismEl = document.getElementById('prism-modal-prism-id');
+  const modalDevEl = document.getElementById('prism-modal-device-id');
+  const modalPersonaEl = document.getElementById('prism-modal-persona');
+  const modalFpEl = document.getElementById('prism-modal-holo-fp');
+  if (sideIdEl) {
+    sideIdEl.textContent = idState && idState.prism_id ? `${idState.prism_id.slice(0, 22)}...` : 'initializing...';
+  }
+  if (sideHoloEl) {
+    sideHoloEl.textContent = holoSum && holoSum.fingerprint
+      ? `blake3:${holoSum.fingerprint.slice(0, 14)}... (${holoSum.vectors_passed || 5}/${holoSum.vectors_total || 5})`
+      : 'holo://lexlean-r4';
+  }
+  if (modalPrismEl) {
+    modalPrismEl.textContent = (idState && idState.prism_id) || 'initializing...';
+  }
+  if (modalDevEl) {
+    modalDevEl.textContent = idState && idState.device_id
+      ? `${idState.device_id} (${idState.protection || 'P-256'} · ${idState.role || 'member'})`
+      : '—';
+  }
+  if (modalPersonaEl) {
+    const p = idState && idState.persona;
+    modalPersonaEl.textContent = p && p.handle ? `${p.handle}@${p.host || 'uor-foundation.github.io'} (${p.app_address || 'holo://lexlean-r4'})` : 'unbound';
+  }
+  if (modalFpEl) {
+    modalFpEl.textContent = holoSum && holoSum.fingerprint
+      ? `blake3:${holoSum.fingerprint} (${holoSum.byte_length} bytes · ${holoSum.wasm_vectors_passed ?? holoSum.vectors_passed}/${holoSum.wasm_vectors_total ?? holoSum.vectors_total} vectors)`
+      : 'not compiled yet';
+  }
+}
+
+function initPrismHoloIdentityControls() {
+  const modal = document.getElementById('prism-holo-modal');
+  const openBtn = document.getElementById('topbar-prism-holo-btn');
+  const closeBtn = document.getElementById('prism-holo-close-btn');
+  const backdrop = document.getElementById('prism-holo-backdrop');
+  const sidebarCompileBtn = document.getElementById('sidebar-compile-holo-btn');
+  const initIdBtn = document.getElementById('prism-identity-init-btn');
+  const personaInput = document.getElementById('prism-persona-handle-input');
+  const bindPersonaBtn = document.getElementById('prism-bind-persona-btn');
+  const compileBtn = document.getElementById('prism-compile-holo-btn');
+  const downloadBtn = document.getElementById('prism-download-holo-btn');
+  const copyDescBtn = document.getElementById('prism-copy-me-manifest-btn');
+  const statusEl = document.getElementById('prism-holo-status');
+
+  const closeModal = () => {
+    if (modal) modal.setAttribute('hidden', '');
+  };
+  const openModal = async () => {
+    if (modal) modal.removeAttribute('hidden');
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      const idRes = await engineWorkerClient.rpc('prism_identity_ensure', {}).catch(() => null);
+      if (idRes && idRes.ok) engineWorkerClient.prismIdentity = idRes;
+    }
+    renderPrismHoloIdentityUI();
+  };
+
+  if (openBtn) openBtn.addEventListener('click', () => { openModal(); });
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (backdrop) backdrop.addEventListener('click', closeModal);
+
+  if (initIdBtn) {
+    initIdBtn.addEventListener('click', async () => {
+      if (!engineWorkerClient || !engineWorkerClient.enabled) return;
+      const res = await engineWorkerClient.rpc('prism_identity_ensure', {}).catch((e) => ({ ok: false, error: String(e) }));
+      if (res && res.ok) {
+        engineWorkerClient.prismIdentity = res;
+        renderPrismHoloIdentityUI();
+        if (statusEl) statusEl.textContent = `Stitch PrismId active (${res.storage}): ${res.prism_id}`;
+      } else if (statusEl) {
+        statusEl.textContent = `PrismId error: ${res?.error || 'failed'}`;
+      }
+    });
+  }
+
+  if (bindPersonaBtn) {
+    bindPersonaBtn.addEventListener('click', async () => {
+      if (!engineWorkerClient || !engineWorkerClient.enabled) return;
+      const handle = (personaInput && personaInput.value.trim()) || 'lexlean-r4-studio';
+      if (statusEl) statusEl.textContent = `Signing prism/persona/1 for ${handle}@uor-foundation.github.io...`;
+      try {
+        const res = await engineWorkerClient.rpc('prism_identity_bind_persona', {
+          handle,
+          host: 'uor-foundation.github.io',
+        });
+        engineWorkerClient.prismIdentity = res;
+        renderPrismHoloIdentityUI();
+        if (statusEl) statusEl.textContent = `Bound Foundry persona ${handle}@uor-foundation.github.io (kappa: ${res.last_record_kappa || res.head_kappa})`;
+      } catch (err) {
+        if (statusEl) statusEl.textContent = `Persona bind failed: ${err?.message || String(err)}`;
+      }
+    });
+  }
+
+  const runHoloCompile = async (triggerDownload) => {
+    if (!engineWorkerClient || !engineWorkerClient.enabled) {
+      if (statusEl) statusEl.textContent = 'Dedicated Worker required to compile .holo archive.';
+      return;
+    }
+    if (statusEl) statusEl.textContent = 'Compiling 6-file HOLOVIEW v1 + core-wasm@1 into Hologram v4 .holo archive...';
+    if (compileBtn) compileBtn.disabled = true;
+    try {
+      const res = await engineWorkerClient.rpc(
+        triggerDownload ? 'download_holo_archive' : 'compile_holo_archive',
+        { includeBytes: Boolean(triggerDownload) },
+      );
+      engineWorkerClient.latestHoloSummary = res;
+      renderPrismHoloIdentityUI();
+      if (statusEl) {
+        statusEl.textContent = `Verified HOLO v4 (${res.byte_length} bytes, blake3:${res.fingerprint}, core-wasm@1 ${res.wasm_vectors_passed}/${res.wasm_vectors_total} passed, receipt ${res.action_record_kappa || 'signed'}).`;
+      }
+      if (triggerDownload && res.bytes && typeof Blob !== 'undefined' && typeof URL !== 'undefined') {
+        const u8 = res.bytes instanceof Uint8Array ? res.bytes : new Uint8Array(res.bytes);
+        const blobUrl = URL.createObjectURL(new Blob([u8], { type: 'application/octet-stream' }));
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = 'lexlean-r4.holo';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(blobUrl);
+      }
+    } catch (err) {
+      if (statusEl) statusEl.textContent = `Holo compile failed: ${err?.message || String(err)}`;
+    } finally {
+      if (compileBtn) compileBtn.disabled = false;
+    }
+  };
+
+  if (compileBtn) compileBtn.addEventListener('click', () => { runHoloCompile(false); });
+  if (downloadBtn) downloadBtn.addEventListener('click', () => { runHoloCompile(true); });
+  if (sidebarCompileBtn) {
+    sidebarCompileBtn.addEventListener('click', () => {
+      openModal();
+      runHoloCompile(false);
+    });
+  }
+  if (personaInput) {
+    personaInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' && bindPersonaBtn) {
+        ev.preventDefault();
+        bindPersonaBtn.click();
+      }
+    });
+  }
+  if (copyDescBtn) {
+    copyDescBtn.addEventListener('click', async () => {
+      if (!engineWorkerClient || !engineWorkerClient.enabled) return;
+      const hrefOrigin = typeof window !== 'undefined' && window.location ? String(window.location.href || '') : '';
+      const desc = await engineWorkerClient.rpc('get_me_app_descriptor', { origin: hrefOrigin }).catch(() => null);
+      if (desc && statusEl) {
+        const txt = JSON.stringify(desc, null, 2);
+        statusEl.textContent = txt;
+        if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+          navigator.clipboard.writeText(txt).catch(() => {});
+        }
+      }
+    });
+  }
+
+  renderPrismHoloIdentityUI();
 }
 
 initCursorIdeWorkbench();

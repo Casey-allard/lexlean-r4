@@ -24,6 +24,8 @@ sources = [
   "src/R4/*.lex.tex",
   "tests/lexlean/*.lex.tex",
   "public/provenance.json",
+  "site/app.json",
+  "site/icons/icon-192.png",
   ".github/workflows/*.yml",
 ]
 

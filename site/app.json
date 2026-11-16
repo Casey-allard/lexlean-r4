@@ -1,46 +1,15 @@
 {
-  "schema": "prism/r4-workspace/1",
-  "name": "LexLean-R4 Universal Workspace",
-  "shortName": "prism-r4",
-  "tagline": "In-browser WebAssembly UOR-R4 GLLM & Prism Agentic Studio with Zero-NIC Secret Vault and 2-of-3 Stitch Parity Custody",
-  "purpose": "Connect any GitHub repository into a sandboxed browser workspace backed by local UOR-R4 v12 geometric execution, Stitch 2-of-3 XOR parity weight custody, and host-vaulted GitHub branch/commit/PR/CI loops where bearer credentials never enter guest RAM.",
-  "inputLabel": "Prompt or Workspace Command",
-  "placeholder": "Plan, edit, test, commit, open PR, or switch branch on any GitHub repository...",
-  "submitLabel": "Run",
-  "outputLabel": "Workspace Output",
-  "promise": {
-    "headline": "GitHub bearer credentials remain isolated in the Dedicated Worker host vault and allowlisted origins.",
-    "detail": "Arbitrary repository clones (>40 files lazy-loaded via read_blob), branch creation, atomic multi-file commits, pull requests, CI/workflow status polling, Pages digest checks, and Stitch 2-of-3 XOR parity recovery run through typed boundaries without exposing credentials to guest WebAssembly memory."
-  },
-  "claim": "R4-WS-01: Local UOR-R4 GLLM modes, Stitch 2-of-3 XOR parity custody, and arbitrary GitHub repository workflows execute deterministically with strict HostNotAllowlistedForSecret isolation.",
-  "embed": {
-    "supported": true,
-    "queryParam": "embed=me",
-    "metaTag": "prism/r4-workspace/1",
-    "bridgeProtocol": "uor-workspace-bridge/1",
-    "compactMode": true,
-    "postMessage": {
-      "outbound": [
-        "prism:ready",
-        "prism:status"
-      ],
-      "inbound": [
-        "prism:open-repo"
-      ]
-    }
-  },
-  "custody": {
-    "scheme": "stitch/xor-2-of-3/1",
-    "parity": "2-of-3 XOR + SHA-256",
-    "weightsFormat": "UORR4V12"
-  },
-  "models": [
-    "uor-r4.recompiled-v12-agent",
-    "uor-r4.recompiled-v12-chat",
-    "uor-r4.seed-fast",
-    "uor-r4.lut-symbolic"
-  ],
+  "address": "lexlean-r4",
+  "applicationKappa": "blake3:3b8b8a368e22fab9103082f887dc0f62b90aad3efa580cc6d4f122dcf3f5e364",
+  "archiveKappa": "blake3:8f5a4718642c205e9156d087e15c7f85dcc634df60c06ffa18117df56e4aef4e",
   "capabilities": [
+    "holo_v13_pure_integer",
+    "opfs_kappastore_sync_access",
+    "native_q31_d85_train",
+    "hf_safetensors_range_stream",
+    "stitch_prism_identity",
+    "compile_holo_v4_archive",
+    "verify_holo_v4_archive",
     "detect_repo",
     "connect",
     "branches",
@@ -54,19 +23,132 @@
     "watch_deploy",
     "stitch_2_of_3_recovery"
   ],
+  "claim": "R4-54: Stitch.PrismId canonical kappa identity chains and Hologram v4 .holo archives compile deterministically and verify against BLAKE3 footers and Core-Wasm acceptance vectors for UOR-Foundation/foundry selection.",
+  "custody": {
+    "coreWasmContract": "hologram:guest/core-wasm@1",
+    "holoFormat": "HOLO/v4",
+    "opfsStore": "OpfsKappaStore",
+    "parity": "2-of-3 XOR + SHA-256",
+    "scheme": "stitch/xor-2-of-3/1",
+    "weightsFormat": "UORR4V13"
+  },
+  "embed": {
+    "bridgeProtocol": "uor-workspace-bridge/1",
+    "compactMode": true,
+    "foundryQueryParam": "embed=foundry",
+    "metaTag": "prism/r4-workspace/1",
+    "postMessage": {
+      "bridgeActions": [
+        "ping",
+        "status",
+        "open-repo",
+        "set-model",
+        "admit-capsule",
+        "record-fault",
+        "identity",
+        "bind-persona",
+        "compile-holo",
+        "app-descriptor",
+        "inprism-infer",
+        "foundry-descriptor"
+      ],
+      "extendedEvents": [
+        "prism:identity",
+        "prism:holo-compiled"
+      ],
+      "inbound": [
+        "prism:open-repo"
+      ],
+      "outbound": [
+        "prism:ready",
+        "prism:status"
+      ]
+    },
+    "queryParam": "embed=me",
+    "supported": true
+  },
+  "fingerprint": "45ccf04a8dad991962b145c3647af61f6f7e433413fd2377fbdc3aa0be13634b",
+  "foundry": {
+    "embedQueryParam": "embed=foundry",
+    "fork": "https://github.com/Casey-allard/foundry",
+    "holoViewer": "holo.html",
+    "inprismRequest": {
+      "boundary": "allow",
+      "engine": "match",
+      "mode": "inprism",
+      "outcome": "answer",
+      "route": "none",
+      "weights": "match"
+    },
+    "r4SpecSha256": "808b936a8f33c67c0563fbd3069753e221c644ca20fcc1a81a1c37b19644b254",
+    "repository": "https://github.com/UOR-Foundation/foundry"
+  },
+  "guestContentKappa": "blake3:47e031051ec08012c9684694009720f2ad2afa4835bff16cbf6ee9c70aa273d7",
+  "holoAddress": "holo://lexlean-r4",
+  "holoByteLength": 11775235,
+  "holoUrl": "https://casey-allard.github.io/lexlean-r4/app.holo",
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "icons/icon-192.png",
+      "type": "image/png"
+    }
+  ],
+  "inputLabel": "Prompt or Workspace Command",
+  "live": "https://casey-allard.github.io/lexlean-r4/",
+  "modelContentKappa": "blake3:501d590fc01d0b50d3592c9387473e228808e5c7cf5f33abd9b7104ab4c254ac",
+  "models": [
+    "uor-r4.qwen3-0.6b-holo",
+    "uor-r4.qwen3-1.7b-holo",
+    "uor-r4.native-q31-d85",
+    "uor-r4.hf-repo-holo"
+  ],
+  "name": "LexLean-R4 Universal Workspace",
+  "outputLabel": "Workspace Output",
+  "placeholder": "Ask Holo v13, /q31-train, /hf Qwen/Qwen3-0.6B, /holo, or /prism-id...",
+  "prismIdentity": {
+    "addr": "uor-addr/sha256",
+    "extractable": false,
+    "keyCurve": "P-256",
+    "records": [
+      "prism/device/1",
+      "prism/genesis/1",
+      "prism/bind/1",
+      "prism/revoke/1",
+      "prism/action/1",
+      "prism/persona/1"
+    ],
+    "scheme": "stitch/prism-id/1"
+  },
+  "promise": {
+    "detail": "Pure-integer Holo v13 and Q31 D85 execution, OPFS SyncAccessHandle persistence, Stitch 2-of-3 XOR recovery, WebCrypto non-extractable P-256 PrismId logs, and zero-import hologram:guest/core-wasm@1 .holo v4 packaging run inside the isolated Worker.",
+    "headline": "Zero-float integer inference, Stitch PrismId non-extractable keys, and GitHub bearer credentials remain isolated in the Dedicated Worker."
+  },
+  "purpose": "Execute quantized Qwen3 Holo v13 and native Q31 SpiralCore/FBS models purely in WebAssembly with OPFS SyncAccessHandle persistence, Stitch Prism Identity (sha256 uor-addr), Hologram v4 .holo archival compilation, and sandboxed GitHub workflows integrated directly into UOR-Foundation/foundry (FA-87 inprism).",
+  "registry": "registry.uor.foundation",
+  "repository": "https://github.com/Casey-allard/lexlean-r4",
+  "schema": "prism/r4-workspace/1",
+  "shortName": "prism-r4",
+  "submitLabel": "Run",
+  "tagline": "Pure-Integer WebAssembly Holo v13 & Q31 D85 Studio with Stitch Prism Identity, .holo v4 Compiler & 2-of-3 Parity Custody",
   "trusted": [
     {
       "name": "Browser WebAssembly Sandbox",
-      "value": "lexlean_r4_bg.wasm (zero-NIC guest memory isolation)"
+      "value": "lexlean_r4_bg.wasm (simd128 pure-integer, 0 float ops, 0 dense matmuls)"
     },
     {
-      "name": "Dedicated Worker Host Bridge",
-      "value": "HostNotAllowlistedForSecret secret-vault enforcement on github.com / api.github.com"
+      "name": "Stitch Prism Identity",
+      "value": "uor-addr sha256 kappa chain + non-extractable WebCrypto P-256 keys"
+    },
+    {
+      "name": "Hologram v4 Selectable Package",
+      "value": "HOLO v4 + zero-import hologram:guest/core-wasm@1 + HOLOVIEW v1"
     },
     {
       "name": "Stitch Parity Custody",
       "value": "stitch/xor-2-of-3/1 deterministic XOR pair recovery + SHA-256 verification"
     }
   ],
-  "repository": "https://github.com/UOR-Foundation/Prism"
+  "version": "0.13.0",
+  "viewContentKappa": "blake3:8ccc33947e3bff8748539b7927d8f94537377976524efcd1bac624c8cc98f13f"
 }

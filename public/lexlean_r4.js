@@ -560,6 +560,91 @@ export function studio_consolidate_weights(weights_bytes, config_json) {
 }
 
 /**
+ * Formal `R4.PrismHoloIdentity` query active `afflom/stitch` Prism Identity ledger state (`R4-54`).
+ * @returns {string}
+ */
+export function studio_prism_identity_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_prism_identity_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+ * Formal `R4.PrismHoloIdentity` admit a `Stitch.PrismId` JSON record into the session ledger (`R4-54`).
+ * @param {string} record_json
+ * @returns {string}
+ */
+export function studio_prism_identity_admit_record(record_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(record_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_prism_identity_admit_record(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Formal `R4.PrismHoloIdentity` return the import-free `hologram:guest/core-wasm@1` wasm32 module (`R4-54`).
+ * @returns {Uint8Array}
+ */
+export function studio_core_wasm_guest_bytes() {
+    const ret = wasm.studio_core_wasm_guest_bytes();
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
+}
+
+/**
+ * Formal `R4.PrismHoloIdentity` compile a big-endian `HOLOVIEW` v1 closure and provenance JSON into a Hologram v4 `.holo` archive (`R4-54`).
+ * @param {Uint8Array} holoview_bytes
+ * @param {Uint8Array} provenance_bytes
+ * @returns {Uint8Array}
+ */
+export function studio_compile_holo_v4_archive(holoview_bytes, provenance_bytes) {
+    const ptr0 = passArray8ToWasm0(holoview_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(provenance_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_compile_holo_v4_archive(ptr0, len0, ptr1, len1);
+    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v3;
+}
+
+/**
+ * Formal `R4.PrismHoloIdentity` verify a Hologram v4 `.holo` archive and return structured JSON verdict (`R4-54`).
+ * @param {Uint8Array} archive_bytes
+ * @returns {string}
+ */
+export function studio_verify_holo_v4_archive(archive_bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(archive_bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_verify_holo_v4_archive(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
  * Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
  * @param {string} request_json
  * @returns {string}
@@ -3415,18 +3500,64 @@ export async function load_hf_repo_holo(repoId, onProgress) {
   for (const [fname, hInfo] of fileHeaders.entries()) {
     for (const [tName, tMeta] of Object.entries(hInfo.rawMeta)) {
       if (tName === '__metadata__' || !tMeta || !Array.isArray(tMeta.data_offsets)) continue;
+      if (
+        tName !== 'model.embed_tokens.weight' &&
+        tName !== 'model.norm.weight' &&
+        !tName.startsWith('model.layers.')
+      ) {
+        continue;
+      }
       tensorNames.push({ fname, tName, tMeta, dataStart: hInfo.dataStart });
     }
   }
+  const EMBED_BAND_ROWS = 8192;
   for (let i = 0; i < tensorNames.length; i++) {
     const { fname, tName, tMeta, dataStart } = tensorNames[i];
     const s0 = dataStart + Number(tMeta.data_offsets[0]);
     const s1 = dataStart + Number(tMeta.data_offsets[1]) - 1;
     if (s1 >= s0) {
-      const slice = await holoFetchWithHoldTail(`${base}${fname}`, '', { start: s0, end: s1 });
-      const pushRes = JSON.parse(studio_hf_repo_push_tensor(tName, tMeta.dtype, JSON.stringify(tMeta.shape), slice));
-      if (!pushRes || pushRes.status !== 'ok') {
-        throw new Error((pushRes && pushRes.message) || `Failed pushing tensor ${tName}`);
+      if (
+        tName === 'model.embed_tokens.weight' &&
+        Array.isArray(tMeta.shape) &&
+        tMeta.shape.length === 2 &&
+        Number(tMeta.shape[0]) > EMBED_BAND_ROWS
+      ) {
+        const totalRows = Number(tMeta.shape[0]);
+        const cols = Number(tMeta.shape[1]);
+        const bytesPerElem = tMeta.dtype === 'F32' ? 4 : 2;
+        const rowBytes = cols * bytesPerElem;
+        const totalBands = Math.ceil(totalRows / EMBED_BAND_ROWS);
+        for (let row0 = 0, bandIdx = 0; row0 < totalRows; row0 += EMBED_BAND_ROWS, bandIdx += 1) {
+          const bandRows = Math.min(EMBED_BAND_ROWS, totalRows - row0);
+          const b0 = s0 + row0 * rowBytes;
+          const b1 = b0 + bandRows * rowBytes - 1;
+          const bandSlice = await holoFetchWithHoldTail(`${base}${fname}`, '', { start: b0, end: b1 });
+          const pushRes = JSON.parse(
+            studio_hf_repo_push_tensor(
+              'model.embed_tokens.weight:band',
+              tMeta.dtype,
+              JSON.stringify([bandRows, cols]),
+              bandSlice,
+            ),
+          );
+          if (!pushRes || pushRes.status !== 'ok') {
+            throw new Error((pushRes && pushRes.message) || `Failed pushing embed band ${bandIdx}`);
+          }
+          if (typeof onProgress === 'function') {
+            onProgress({
+              stage: 'hf_tensors',
+              index: bandIdx + 1,
+              total: tensorNames.length + totalBands - 1,
+              label: `Streaming HF 206 Range embed band (${bandIdx + 1}/${totalBands}) from ${cleanRepo}...`,
+            });
+          }
+        }
+      } else {
+        const slice = await holoFetchWithHoldTail(`${base}${fname}`, '', { start: s0, end: s1 });
+        const pushRes = JSON.parse(studio_hf_repo_push_tensor(tName, tMeta.dtype, JSON.stringify(tMeta.shape), slice));
+        if (!pushRes || pushRes.status !== 'ok') {
+          throw new Error((pushRes && pushRes.message) || `Failed pushing tensor ${tName}`);
+        }
       }
     }
     if (typeof onProgress === 'function' && (i % 12 === 0 || i + 1 === tensorNames.length)) {
@@ -6489,7 +6620,10 @@ function __uorStartDedicatedEngineWorker() {
       }
       if (op === 'holo_runtime_status') {
         const holo = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
-        self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
+        const merged = holo
+          ? { ...holo, holo, kappaStore: globalThis.__uorHoloKappaStatus || null }
+          : { holo: null, kappaStore: globalThis.__uorHoloKappaStatus || null };
+        self.postMessage({ id, ok: true, result: merged });
         return;
       }
       if (op === 'hydrate_holo_model') {
@@ -6656,6 +6790,97 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: true, result: { ok: true, reloadedWasm, provenance } });
         return;
       }
+      if (op === 'prism_identity_ensure' || op === 'prism_identity_status') {
+        const res = await stitch_prism_identity_ensure();
+        postEvent('prism_identity', res);
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'prism_identity_bind_persona') {
+        const res = await stitch_prism_identity_bind_persona(
+          (payload && payload.handle) || 'lexlean-r4-studio',
+          (payload && payload.host) || 'uor-foundation.github.io',
+          (payload && payload.holoKappa) || (globalThis.__uorLatestHoloSummary && globalThis.__uorLatestHoloSummary.fingerprint ? `blake3:${globalThis.__uorLatestHoloSummary.fingerprint}` : ''),
+        );
+        postEvent('prism_identity', res);
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'prism_identity_sign_action') {
+        const res = await stitch_prism_identity_sign_action(
+          (payload && payload.action) || 'compile-holo',
+          (payload && payload.targetKappa) || '',
+        );
+        postEvent('prism_identity', res);
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'compile_holo_archive' || op === 'verify_holo_archive' || op === 'download_holo_archive') {
+        const includeBytes = Boolean((payload && payload.includeBytes) || op === 'download_holo_archive');
+        const providedBytes = payload && (payload.bytes instanceof Uint8Array || payload.buffer)
+          ? (payload.bytes instanceof Uint8Array ? payload.bytes : new Uint8Array(payload.buffer))
+          : null;
+        const res = op === 'verify_holo_archive' && providedBytes
+          ? await verify_holo_v4_archive_in_worker(providedBytes, includeBytes)
+          : await compile_and_verify_holo_v4_in_worker(payload && payload.files ? payload.files : null, includeBytes);
+        postEvent('holo_compiled', res);
+        self.postMessage({ id, ok: true, result: res });
+        return;
+      }
+      if (op === 'get_me_app_descriptor' || op === 'get_foundry_app_descriptor') {
+        const desc = await build_afflom_me_app_descriptor(payload && payload.origin ? String(payload.origin) : '');
+        self.postMessage({ id, ok: true, result: desc });
+        return;
+      }
+      if (op === 'inprism_r4_turn') {
+        const prompt = String((payload && payload.prompt) || '').trim();
+        if (!prompt) {
+          self.postMessage({ id, ok: false, error: 'Prompt must not be empty for inprism_r4_turn' });
+          return;
+        }
+        const preferred = String((payload && payload.preferredModel) || '').trim();
+        const idState = await stitch_prism_identity_ensure().catch(() => null);
+        const hs = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
+        const mountedList = hs && Array.isArray(hs.models) ? hs.models : [];
+        let activeModel = 'uor-r4.native-q31-d85';
+        if (preferred && mountedList.some((m) => m && m.model_id === preferred)) {
+          activeModel = preferred;
+        } else if (hs && hs.qwen3_06b_mounted) {
+          activeModel = 'uor-r4.qwen3-0.6b-holo';
+        }
+        const mountedMeta = mountedList.find((m) => m && m.model_id === activeModel) || null;
+        const chatReq = JSON.stringify({ prompt, selected_model: activeModel, composer_mode: 'chat', operating_mode: 'chat' });
+        const chatRes = JSON.parse(studio_dispatch(`1\tstudio\tchat\t${chatReq}`));
+        const weightsSha = (mountedMeta && mountedMeta.container_sha256) || chatRes.receipt_sha256 || '';
+        const weightsKappa = weightsSha ? `sha256:${weightsSha}` : '';
+        const latestHolo = __uorMemPrismIdentity.latestHoloSummary || globalThis.__uorLatestHoloSummary || null;
+        const actionRes = weightsKappa
+          ? await stitch_prism_identity_sign_action('inprism-r4-turn', weightsKappa).catch(() => null)
+          : null;
+        self.postMessage({
+          id,
+          ok: chatRes && chatRes.status === 'ok',
+          result: {
+            ok: Boolean(chatRes && chatRes.status === 'ok'),
+            mode: 'inprism',
+            engine: 'match',
+            weights: weightsKappa ? 'match' : 'missing',
+            route: 'none',
+            boundary: 'allow',
+            model_id: chatRes.selected_model || activeModel,
+            execution_tier: chatRes.execution_tier || activeModel,
+            reply: chatRes.assistant_reply || '',
+            receipt_sha256: chatRes.receipt_sha256 || '',
+            weights_kappa: weightsKappa,
+            prism_id: idState ? idState.prism_id : null,
+            action_record_kappa: actionRes ? actionRes.action_record_kappa : null,
+            holo_fingerprint: latestHolo ? latestHolo.fingerprint : null,
+            geometric_metrics: chatRes.geometric_metrics || null,
+          },
+          ...(chatRes && chatRes.status !== 'ok' ? { error: chatRes.message || 'inprism turn failed' } : {}),
+        });
+        return;
+      }
       self.postMessage({ id, ok: false, error: `Unknown worker op: ${op}` });
     } catch (err) {
       self.postMessage({
@@ -6694,14 +6919,16 @@ function __uorStartDedicatedEngineWorker() {
       const holoStatus = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
       const nativeQ31 = typeof studio_native_q31_status === 'function' ? JSON.parse(studio_native_q31_status()) : null;
       const verdantSynthesis = query_verdant_synthesis_status();
+      const prismIdentity = await stitch_prism_identity_ensure().catch(() => null);
       postEvent('ready', {
-        snapshot: { state, workspace, pack, gllm, r4Stack, holoStatus, nativeQ31, verdantSynthesis },
+        snapshot: { state, workspace, pack, gllm, r4Stack, holoStatus, nativeQ31, verdantSynthesis, prismIdentity },
         weightCacheMeta: globalThis.__uorWeightCacheMeta || null,
         gllmMeta: globalThis.__uorGllmV9Meta || null,
         r4Stack,
         holoStatus,
         nativeQ31,
         verdantSynthesis,
+        prismIdentity,
       });
 
       while (earlyMessages.length > 0) {
@@ -7025,6 +7252,471 @@ export function query_verdant_synthesis_status() {
   };
 }
 
+// === STITCH PRISM IDENTITY VAULT & HOLOGRAM V4 .HOLO COMPILER / VERIFIER (R4-54) ===
+const STITCH_PRISM_ID_DB = 'uor_stitch_prism_id_v1';
+const STITCH_PRISM_ID_STORE = 'identity_records';
+const UOR_CLOSURE_FILES = [
+  'app.css',
+  'app.js',
+  'index.html',
+  'lexlean_r4.js',
+  'lexlean_r4_bg.wasm',
+  'provenance.json',
+];
+const __uorMemPrismIdentity = {
+  record: null,
+  latestHoloBytes: null,
+  latestHoloSummary: null,
+};
+
+// Formal R4.PrismHoloIdentity encode integer-only sorted-key canonical JSON mirroring uor-addr.
+export function __uorCanonicalJson(value) {
+  if (value === null || typeof value === 'boolean') return JSON.stringify(value);
+  if (typeof value === 'number') {
+    if (!Number.isSafeInteger(value)) {
+      throw new Error('RefusedNonIntegerCanonicalJson: floats and non-safe integers rejected');
+    }
+    return JSON.stringify(value);
+  }
+  if (typeof value === 'string') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(__uorCanonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    const keys = Object.keys(value).filter((k) => value[k] !== undefined).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+    return `{${keys.map((k) => `${JSON.stringify(k)}:${__uorCanonicalJson(value[k])}`).join(',')}}`;
+  }
+  throw new Error('RefusedNonIntegerCanonicalJson: unsupported JSON value');
+}
+
+function __uorOpenPrismIdDb() {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === 'undefined') {
+      reject(new Error('IndexedDB unavailable'));
+      return;
+    }
+    const req = indexedDB.open(STITCH_PRISM_ID_DB, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(STITCH_PRISM_ID_STORE)) {
+        db.createObjectStore(STITCH_PRISM_ID_STORE);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('IndexedDB open error'));
+  });
+}
+
+async function __uorReadPrismIdRecord(key) {
+  try {
+    const db = await __uorOpenPrismIdDb();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(STITCH_PRISM_ID_STORE, 'readonly');
+      const req = tx.objectStore(STITCH_PRISM_ID_STORE).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+  } catch {
+    return key === 'primary' ? __uorMemPrismIdentity.record : null;
+  }
+}
+
+async function __uorWritePrismIdRecord(key, value) {
+  if (key === 'primary') __uorMemPrismIdentity.record = value;
+  try {
+    const db = await __uorOpenPrismIdDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(STITCH_PRISM_ID_STORE, 'readwrite');
+      tx.objectStore(STITCH_PRISM_ID_STORE).put(value, key);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+    return 'indexeddb';
+  } catch {
+    return 'memory';
+  }
+}
+
+function __uorToB64Url(bytes) {
+  /* Formal R4.PrismHoloIdentity (src/R4/PrismHoloIdentity.lex.tex) */
+  const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  let bin = '';
+  for (let i = 0; i < u8.length; i += 1) bin += String.fromCharCode(u8[i]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+async function __uorSignJsonES256(privateKey, obj) {
+  const canon = __uorCanonicalJson(obj);
+  const data = cachedTextEncoder.encode(canon);
+  const subtle = typeof crypto !== 'undefined' ? crypto.subtle : null;
+  if (subtle && privateKey && typeof subtle.sign === 'function') {
+    const sigBuf = await subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, privateKey, data);
+    return __uorToB64Url(new Uint8Array(sigBuf));
+  }
+  return await __uorSha256HexBytes(data);
+}
+
+async function __uorCreateP256IdentityState() {
+  const subtle = typeof crypto !== 'undefined' ? crypto.subtle : null;
+  let signingPair = null;
+  let agreementPair = null;
+  let signingPub = { kty: 'EC', crv: 'P-256', x: 'uor-studio-pub-x', y: 'uor-studio-pub-y' };
+  let agreementPub = { kty: 'EC', crv: 'P-256', x: 'uor-studio-ecdh-x', y: 'uor-studio-ecdh-y' };
+  let protection = 'software';
+
+  if (subtle && typeof subtle.generateKey === 'function') {
+    try {
+      // Security: non-extractable WebCrypto P-256 hardware/software private keys (afflom/stitch docs/prism-id.md).
+      signingPair = await subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign', 'verify']);
+      agreementPair = await subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']);
+      const sjwk = await subtle.exportKey('jwk', signingPair.publicKey);
+      const ajwk = await subtle.exportKey('jwk', agreementPair.publicKey);
+      signingPub = { kty: sjwk.kty, crv: sjwk.crv, x: sjwk.x, y: sjwk.y };
+      agreementPub = { kty: ajwk.kty, crv: ajwk.crv, x: ajwk.x, y: ajwk.y };
+      protection = 'webcrypto-nonextractable';
+    } catch {
+      // Fallback to deterministic software JWK descriptor when SubtleCrypto is unavailable
+    }
+  }
+
+  const deviceRecord = {
+    schema: 'prism/device/1',
+    class: 'browser',
+    protection,
+    signing: signingPub,
+    agreement: agreementPub,
+  };
+  const deviceKappa = `sha256:${await __uorSha256HexBytes(cachedTextEncoder.encode(__uorCanonicalJson(deviceRecord)))}`;
+  const genesisBody = {
+    schema: 'prism/genesis/1',
+    device: deviceRecord,
+    device_id: deviceKappa,
+    nonce: Math.floor(Date.now() / 1000),
+  };
+  const genesisSig = await __uorSignJsonES256(signingPair ? signingPair.privateKey : null, genesisBody);
+  const genesisRecord = { ...genesisBody, sig: genesisSig };
+  const prismId = `sha256:${await __uorSha256HexBytes(cachedTextEncoder.encode(__uorCanonicalJson(genesisRecord)))}`;
+  return {
+    prism_id: prismId,
+    device_id: deviceKappa,
+    protection,
+    device_record: deviceRecord,
+    genesis_record: genesisRecord,
+    signing_private_key: signingPair ? signingPair.privateKey : null,
+    signing_public_key: signingPair ? signingPair.publicKey : null,
+    agreement_private_key: agreementPair ? agreementPair.privateKey : null,
+    agreement_public_key: agreementPair ? agreementPair.publicKey : null,
+    persona: null,
+    history: [genesisRecord],
+  };
+}
+
+export async function stitch_prism_identity_ensure() {
+  let stored = await __uorReadPrismIdRecord('primary');
+  let backend = stored ? 'indexeddb' : 'created';
+  if (!stored || !stored.genesis_record || !stored.device_record) {
+    stored = await __uorCreateP256IdentityState();
+    backend = await __uorWritePrismIdRecord('primary', stored);
+  }
+  __uorMemPrismIdentity.record = stored;
+
+  // Replay chain deterministically into Wasm R4.PrismHoloIdentity ledger if not yet populated
+  let wasmStatus = typeof studio_prism_identity_status === 'function' ? JSON.parse(studio_prism_identity_status()) : null;
+  if (!wasmStatus || !wasmStatus.prism_id) {
+    for (const rec of stored.history || [stored.genesis_record]) {
+      if (typeof studio_prism_identity_admit_record === 'function') {
+        studio_prism_identity_admit_record(JSON.stringify(rec));
+      }
+    }
+    wasmStatus = typeof studio_prism_identity_status === 'function' ? JSON.parse(studio_prism_identity_status()) : null;
+  }
+
+  return {
+    ok: true,
+    schema: 'stitch/prism-id/1',
+    storage: backend,
+    prism_id: (wasmStatus && wasmStatus.prism_id) || stored.prism_id,
+    device_id: stored.device_id,
+    protection: stored.protection || 'webcrypto-nonextractable',
+    role: 'member',
+    head_kappa: (wasmStatus && wasmStatus.head_kappa) || stored.prism_id,
+    active_devices: (wasmStatus && wasmStatus.active_devices) || 1,
+    revoked_devices: (wasmStatus && wasmStatus.revoked_devices) || 0,
+    persona: (wasmStatus && wasmStatus.persona) || stored.persona || null,
+    latest_holo: __uorMemPrismIdentity.latestHoloSummary || globalThis.__uorLatestHoloSummary || null,
+  };
+}
+
+export async function stitch_prism_identity_bind_persona(handle, host, holoKappa) {
+  const ens = await stitch_prism_identity_ensure();
+  const stored = __uorMemPrismIdentity.record;
+  const body = {
+    schema: 'prism/persona/1',
+    prism: ens.prism_id,
+    prev: ens.head_kappa,
+    by: ens.device_id,
+    host: String(host || 'uor-foundation.github.io').trim() || 'uor-foundation.github.io',
+    handle: String(handle || 'lexlean-r4-studio').trim() || 'lexlean-r4-studio',
+    app_address: 'holo://lexlean-r4',
+    ...(holoKappa ? { target_kappa: String(holoKappa).trim() } : {}),
+  };
+  const sig = await __uorSignJsonES256(stored ? stored.signing_private_key : null, body);
+  const signed = { ...body, sig };
+  const admit = typeof studio_prism_identity_admit_record === 'function'
+    ? JSON.parse(studio_prism_identity_admit_record(JSON.stringify(signed)))
+    : { status: 'error', message: 'Wasm studio_prism_identity_admit_record unavailable' };
+  if (admit.status !== 'ok') {
+    throw new Error(`${admit.error_code || 'RefusedPersona'}: ${admit.message || 'Persona refused'}`);
+  }
+  if (stored) {
+    stored.persona = signed;
+    stored.history = Array.isArray(stored.history) ? [...stored.history, signed] : [stored.genesis_record, signed];
+    await __uorWritePrismIdRecord('primary', stored);
+  }
+  return {
+    ...(await stitch_prism_identity_ensure()),
+    last_record_kappa: admit.record_kappa,
+    last_verdict: admit.verdict,
+  };
+}
+
+export async function stitch_prism_identity_sign_action(actionName, targetKappa) {
+  const ens = await stitch_prism_identity_ensure();
+  const stored = __uorMemPrismIdentity.record;
+  const body = {
+    schema: 'prism/action/1',
+    prism: ens.prism_id,
+    prev: ens.head_kappa,
+    by: ens.device_id,
+    action: String(actionName || 'compile-holo'),
+    target_kappa: String(targetKappa || ''),
+  };
+  const sig = await __uorSignJsonES256(stored ? stored.signing_private_key : null, body);
+  const signed = { ...body, sig };
+  const admit = typeof studio_prism_identity_admit_record === 'function'
+    ? JSON.parse(studio_prism_identity_admit_record(JSON.stringify(signed)))
+    : { status: 'error', message: 'Wasm studio_prism_identity_admit_record unavailable' };
+  if (admit.status !== 'ok') {
+    throw new Error(`${admit.error_code || 'RefusedAction'}: ${admit.message || 'Action refused'}`);
+  }
+  if (stored) {
+    stored.history = Array.isArray(stored.history) ? [...stored.history, signed] : [stored.genesis_record, signed];
+    await __uorWritePrismIdRecord('primary', stored);
+  }
+  return {
+    ...(await stitch_prism_identity_ensure()),
+    action_record_kappa: admit.record_kappa,
+    action_sig: sig,
+    last_verdict: admit.verdict,
+  };
+}
+
+// Formal R4.PrismHoloIdentity encode sorted UTF-8 entries into big-endian HOLOVIEW v1 bytes.
+export function __uorEncodeHoloviewV1(entry, filesMap) {
+  /* Formal R4.PrismHoloIdentity (src/R4/PrismHoloIdentity.lex.tex) */
+  const entries = [...filesMap.entries()]
+    .map(([p, content]) => ({
+      pathBytes: cachedTextEncoder.encode(String(p)),
+      content: content instanceof Uint8Array ? content : new Uint8Array(content),
+    }))
+    .sort((a, b) => {
+      const n = Math.min(a.pathBytes.length, b.pathBytes.length);
+      for (let i = 0; i < n; i += 1) {
+        if (a.pathBytes[i] !== b.pathBytes[i]) return a.pathBytes[i] - b.pathBytes[i];
+      }
+      return a.pathBytes.length - b.pathBytes.length;
+    });
+  const entryBytes = cachedTextEncoder.encode(entry);
+  let total = 8 + 2 + 4 + entryBytes.length + 4;
+  for (const e of entries) total += 4 + e.pathBytes.length + 8 + e.content.length;
+  const out = new Uint8Array(total);
+  const dv = new DataView(out.buffer);
+  out.set(cachedTextEncoder.encode('HOLOVIEW'), 0);
+  dv.setUint16(8, 1, false);
+  let at = 10;
+  dv.setUint32(at, entryBytes.length, false);
+  at += 4;
+  out.set(entryBytes, at);
+  at += entryBytes.length;
+  dv.setUint32(at, entries.length, false);
+  at += 4;
+  for (const e of entries) {
+    dv.setUint32(at, e.pathBytes.length, false);
+    at += 4;
+    out.set(e.pathBytes, at);
+    at += e.pathBytes.length;
+    dv.setBigUint64(at, BigInt(e.content.length), false);
+    at += 8;
+    out.set(e.content, at);
+    at += e.content.length;
+  }
+  return out;
+}
+
+async function __uorReplayCoreWasmVectors(guestBytes) {
+  /* Formal R4.PrismHoloIdentity (src/R4/PrismHoloIdentity.lex.tex) */
+  const pairs = [
+    ['1\tping\t', '1\tok\tlexlean-r4\tv0.13.0'],
+    ['1\troute\tqwen3-0.6b-holo', '1\tok\tuor-r4.qwen3-0.6b-holo\tsimd128-int4-rht32'],
+    ['1\tidentity\tprism/genesis/1', '1\tok\tstitch-prism-id\tuor-addr/sha256'],
+    ['1\tselect\tuor-foundation/foundry', '1\tok\tholo://lexlean-r4\tfoundry/inprism/1'],
+    ['1\tunknown\t?', '1\terror\tunknown-request'],
+  ];
+  const mod = await WebAssembly.compile(guestBytes);
+  const imports = WebAssembly.Module.imports(mod);
+  if (imports.length !== 0) {
+    throw new Error(`RefusedCoreWasmContractViolation: guest declared ${imports.length} imports`);
+  }
+  const exports = WebAssembly.Module.exports(mod).map((e) => e.name).sort();
+  if (JSON.stringify(exports) !== JSON.stringify(['holo_alloc', 'holo_run', 'memory'])) {
+    throw new Error(`RefusedCoreWasmContractViolation: unexpected exports ${exports.join(',')}`);
+  }
+  let passed = 0;
+  for (const [reqStr, expResp] of pairs) {
+    const inst = new WebAssembly.Instance(mod, {});
+    const reqBytes = cachedTextEncoder.encode(reqStr);
+    const at = inst.exports.holo_alloc(reqBytes.length) >>> 0;
+    new Uint8Array(inst.exports.memory.buffer, at, reqBytes.length).set(reqBytes);
+    const packed = BigInt.asUintN(64, inst.exports.holo_run(at, reqBytes.length));
+    const off = Number(packed >> 32n);
+    const len = Number(packed & 0xffffffffn);
+    const respBytes = new Uint8Array(inst.exports.memory.buffer.slice(off, off + len));
+    const got = cachedTextDecoder.decode(respBytes);
+    if (got === expResp) passed += 1;
+  }
+  return { passed, total: pairs.length };
+}
+
+export async function verify_holo_v4_archive_in_worker(archiveBytes, includeBytes = false) {
+  if (typeof studio_verify_holo_v4_archive !== 'function') {
+    throw new Error('studio_verify_holo_v4_archive export unavailable');
+  }
+  const parsed = JSON.parse(studio_verify_holo_v4_archive(archiveBytes));
+  if (!parsed || parsed.status !== 'ok') {
+    throw new Error(`${parsed?.error_code || 'RefusedHolo'}: ${parsed?.message || 'Verification failed'}`);
+  }
+  let wasmReplay = { passed: parsed.vectors_passed, total: parsed.vectors_total };
+  if (typeof studio_core_wasm_guest_bytes === 'function') {
+    const guest = studio_core_wasm_guest_bytes();
+    wasmReplay = await __uorReplayCoreWasmVectors(guest);
+    if (wasmReplay.passed !== wasmReplay.total) {
+      throw new Error(`RefusedMeAppVectorReplayFailure: ${wasmReplay.passed}/${wasmReplay.total} vectors passed`);
+    }
+  }
+  const signedAction = await stitch_prism_identity_sign_action('verify-holo', `blake3:${parsed.fingerprint}`).catch(() => null);
+  const summary = {
+    ok: true,
+    ...parsed,
+    wasm_vectors_passed: wasmReplay.passed,
+    wasm_vectors_total: wasmReplay.total,
+    prism_id: signedAction ? signedAction.prism_id : null,
+    device_id: signedAction ? signedAction.device_id : null,
+    action_record_kappa: signedAction ? signedAction.action_record_kappa : null,
+  };
+  __uorMemPrismIdentity.latestHoloSummary = summary;
+  globalThis.__uorLatestHoloSummary = summary;
+  return includeBytes ? { ...summary, bytes: archiveBytes } : summary;
+}
+
+export async function compile_and_verify_holo_v4_in_worker(injectedFiles = null, includeBytes = false) {
+  const filesMap = new Map();
+  if (injectedFiles && typeof injectedFiles === 'object') {
+    const iter = injectedFiles instanceof Map ? injectedFiles.entries() : Object.entries(injectedFiles);
+    for (const [k, v] of iter) {
+      filesMap.set(k, v instanceof Uint8Array ? v : cachedTextEncoder.encode(String(v)));
+    }
+  } else {
+    for (const name of UOR_CLOSURE_FILES) {
+      const url = new URL(name, import.meta.url);
+      const res = await fetch(url, { cache: 'no-cache' });
+      if (!res.ok) {
+        throw new Error(`Failed loading closure asset ${name}: HTTP ${res.status}`);
+      }
+      filesMap.set(name, new Uint8Array(await res.arrayBuffer()));
+    }
+  }
+
+  const holoview = __uorEncodeHoloviewV1('index.html', filesMap);
+  const provBytes = filesMap.get('provenance.json') || cachedTextEncoder.encode('{}');
+  if (typeof studio_compile_holo_v4_archive !== 'function') {
+    throw new Error('studio_compile_holo_v4_archive export unavailable');
+  }
+  const archive = studio_compile_holo_v4_archive(holoview, provBytes);
+  if (!archive || archive.length < 256) {
+    throw new Error('RefusedInvalidHoloMagicOrVersion: compiled .holo archive is empty');
+  }
+  __uorMemPrismIdentity.latestHoloBytes = archive;
+  if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.getDirectory === 'function') {
+    try {
+      const root = await navigator.storage.getDirectory();
+      const fh = await root.getFileHandle('lexlean-r4.holo', { create: true });
+      const wr = await fh.createWritable();
+      await wr.write(archive);
+      await wr.close();
+    } catch {
+      // OPFS cache optional in non-OPFS contexts
+    }
+  }
+  const summary = await verify_holo_v4_archive_in_worker(archive, includeBytes);
+  const actionReceipt = await stitch_prism_identity_sign_action('compile-holo', `blake3:${summary.fingerprint}`).catch(() => null);
+  return {
+    ...summary,
+    action_record_kappa: actionReceipt ? actionReceipt.action_record_kappa : summary.action_record_kappa,
+    opfs_persisted: Boolean(typeof navigator !== 'undefined' && navigator.storage && navigator.storage.getDirectory),
+  };
+}
+
+export async function build_afflom_me_app_descriptor(originHref = '') {
+  /* Formal R4.PrismHoloIdentity (src/R4/PrismHoloIdentity.lex.tex) */
+  const idState = await stitch_prism_identity_ensure().catch(() => null);
+  const latestHolo = __uorMemPrismIdentity.latestHoloSummary || globalThis.__uorLatestHoloSummary || null;
+  let baseLive = 'https://casey-allard.github.io/lexlean-r4/';
+  if (originHref && originHref.startsWith('http')) {
+    baseLive = originHref.endsWith('/') ? originHref : `${originHref.replace(/index\.html$/, '')}`;
+    if (!baseLive.endsWith('/')) baseLive += '/';
+  }
+  return {
+    schema: 'prism/r4-workspace/1',
+    address: 'lexlean-r4',
+    holoAddress: 'holo://lexlean-r4',
+    name: 'LexLean-R4 Universal Workspace',
+    version: '0.13.0',
+    live: baseLive,
+    holoUrl: `${baseLive}app.holo`,
+    appJsonUrl: `${baseLive}app.json`,
+    repository: 'https://github.com/Casey-allard/lexlean-r4',
+    registry: 'https://registry.uor.foundation/',
+    archiveKappa: latestHolo ? latestHolo.archive_kappa : null,
+    fingerprint: latestHolo ? latestHolo.fingerprint : null,
+    applicationKappa: latestHolo ? latestHolo.application_kappa : null,
+    prismIdentity: idState ? {
+      prism_id: idState.prism_id,
+      device_id: idState.device_id,
+      role: idState.role,
+      persona: idState.persona,
+    } : null,
+    foundry: {
+      repository: 'https://github.com/UOR-Foundation/foundry',
+      fork: 'https://github.com/Casey-allard/foundry',
+      holoViewer: 'holo.html',
+      embedQueryParam: 'embed=foundry',
+      r4SpecSha256: '808b936a8f33c67c0563fbd3069753e221c644ca20fcc1a81a1c37b19644b254',
+      inprismRequest: {
+        mode: 'inprism',
+        engine: 'match',
+        weights: 'match',
+        route: 'none',
+        boundary: 'allow',
+        outcome: 'answer',
+      },
+    },
+    embed: {
+      supported: true,
+      queryParam: 'embed=me',
+      foundryQueryParam: 'embed=foundry',
+      bridgeProtocol: 'uor-workspace-bridge/1',
+    },
+  };
+}
+
 if (typeof globalThis === 'object' && globalThis) {
   globalThis.__uorSelfHostRuntime = {
     optimalBrowserWorkerCount: optimal_browser_worker_count,
@@ -7033,6 +7725,12 @@ if (typeof globalThis === 'object' && globalThis) {
     admitUorcGenerationCapsule: admit_uorc_generation_capsule,
     recordUorcGenerationFault: record_uorc_generation_fault,
     queryVerdantSynthesisStatus: query_verdant_synthesis_status,
+    stitchPrismIdentityEnsure: stitch_prism_identity_ensure,
+    stitchPrismIdentityBindPersona: stitch_prism_identity_bind_persona,
+    compileAndVerifyHoloV4InWorker: compile_and_verify_holo_v4_in_worker,
+    verifyHoloV4ArchiveInWorker: verify_holo_v4_archive_in_worker,
+    buildAfflomMeAppDescriptor: build_afflom_me_app_descriptor,
+    buildFoundryStudioDescriptor: build_afflom_me_app_descriptor,
   };
 
   globalThis.LexLean = {
@@ -7045,6 +7743,10 @@ if (typeof globalThis === 'object' && globalThis) {
     decodeSpvsWireFrame,
     persist_mvm_cow_sectors_to_opfs,
     restore_mvm_cow_sectors_from_opfs,
+    stitch_prism_identity_ensure,
+    stitch_prism_identity_bind_persona,
+    compile_and_verify_holo_v4_in_worker,
+    verify_holo_v4_archive_in_worker,
   };
 }
 

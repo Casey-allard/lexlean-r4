@@ -179,6 +179,7 @@ pub fn check_routes(root: &Path) -> Result<(), Fail> {
         "crates/wasm/src/holo_kappa_store.rs",
         "crates/wasm/src/holo_geometric_runtime.rs",
         "crates/wasm/src/native_q31_lane.rs",
+        "crates/wasm/src/prism_holo_compiler.rs",
     ] {
         let src = std::fs::read_to_string(root.join(target_rel))
             .map_err(|e| format!("reading routed target {target_rel}: {e}"))?;

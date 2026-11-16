@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-PRISM-HOLO-IDENTITY"
+level = "some-true"
+authority = "PRISM-HOLO-IDENTITY"
+statement = "Stitch.PrismId content-addressed identity records (prism/device/1 through prism/persona/1), Hologram v4 .holo 8-section binary framing with HOLOVIEW v1 and Core-Wasm guest contracts, and UOR-Foundation/foundry FA-87 inprism selectable app descriptors are imported from UOR-Foundation/foundry, afflom/stitch, and afflom/me. Formal LexLean controls do not entail external registry.uor.foundation availability or hardware secure-enclave attestation."
+
+[[claim]]
 id = "AUTH-UORUST-PRISM-DEVREL"
 level = "some-true"
 authority = "UORUST-PRISM-DEVREL"
