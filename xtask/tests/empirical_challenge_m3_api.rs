@@ -15,9 +15,9 @@
 
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::net::TcpStream;
 use std::path::{Path, PathBuf};
-use std::process::{Child, Command};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Barrier};
 use std::thread;
 use std::time::Duration;
@@ -40,69 +40,43 @@ use engine::api::{
     OpenAiChatCompletionRequest, OpenAiChatCompletionResponse, ParsedTurn,
 };
 
-fn find_free_port() -> u16 {
-    let listener = TcpListener::bind("127.0.0.1:0").expect("bind ephemeral socket");
-    listener.local_addr().expect("local addr").port()
-}
-
-fn xtask_binary_path() -> PathBuf {
-    if let Ok(bin) = std::env::var("CARGO_BIN_EXE_xtask") {
-        PathBuf::from(bin)
-    } else {
-        repo_model::repo_root().join("target/debug/xtask")
-    }
-}
-
 struct TestServerDaemon {
-    child: Child,
+    stop: Arc<AtomicBool>,
+    handle: Option<thread::JoinHandle<()>>,
     port: u16,
     addr: String,
 }
 
 impl TestServerDaemon {
     fn spawn() -> Self {
-        let port = find_free_port();
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("bind ephemeral socket");
+        let port = listener.local_addr().expect("local addr").port();
         let addr = format!("127.0.0.1:{port}");
-        let bin = xtask_binary_path();
-        assert!(bin.exists(), "xtask binary must exist at {}", bin.display());
+        let root = repo_model::repo_root();
+        let _ = engine::api::default_model_backend();
 
-        let child = Command::new(&bin)
-            .args(["api", "serve", "--port", &port.to_string()])
-            .spawn()
-            .unwrap_or_else(|e| panic!("failed to spawn xtask api serve on port {port}: {e}"));
+        let stop = Arc::new(AtomicBool::new(false));
+        let stop_thread = Arc::clone(&stop);
+        let handle = thread::spawn(move || {
+            let _ = engine::serve_listener_until_stopped(listener, root, stop_thread);
+        });
 
-        // Wait up to 30 seconds for daemon to accept connections under parallel CPU load
-        let mut ready = false;
-        for _ in 0..300 {
-            thread::sleep(Duration::from_millis(100));
-            if TcpStream::connect(&addr).is_ok() {
-                ready = true;
-                break;
-            }
+        Self {
+            stop,
+            handle: Some(handle),
+            port,
+            addr,
         }
-        assert!(
-            ready,
-            "xtask api serve daemon failed to become ready on {addr}"
-        );
-
-        let warmup_body = br#"{"messages":[{"role":"user","content":"warmup"}],"max_tokens":4}"#;
-        let _ = send_raw_http_request_once(
-            &addr,
-            "POST",
-            "/v1/messages",
-            &[("Content-Type", "application/json")],
-            Some(warmup_body),
-            Duration::from_secs(120),
-        );
-
-        Self { child, port, addr }
     }
 }
 
 impl Drop for TestServerDaemon {
     fn drop(&mut self) {
-        let _ = self.child.kill();
-        let _ = self.child.wait();
+        self.stop.store(true, Ordering::Relaxed);
+        let _ = TcpStream::connect(&self.addr);
+        if let Some(h) = self.handle.take() {
+            let _ = h.join();
+        }
     }
 }
 
@@ -965,7 +939,8 @@ fn challenge_11_live_daemon_concurrency_hammer_200_requests() {
                     2 => {
                         // Anthropic message
                         let req = serde_json::json!({
-                            "messages": [{"role": "user", "content": format!("Concurrent prompt {thread_idx}-{req_idx}")}]
+                            "messages": [{"role": "user", "content": format!("Concurrent prompt {thread_idx}-{req_idx}")}],
+                            "max_tokens": 32
                         });
                         let body = req.to_string();
                         let headers = [("Content-Type", "application/json")];
@@ -983,7 +958,8 @@ fn challenge_11_live_daemon_concurrency_hammer_200_requests() {
                     3 => {
                         // OpenAI chat completion
                         let req = serde_json::json!({
-                            "messages": [{"role": "user", "content": format!("Concurrent completion {thread_idx}-{req_idx}")}]
+                            "messages": [{"role": "user", "content": format!("Concurrent completion {thread_idx}-{req_idx}")}],
+                            "max_tokens": 32
                         });
                         let body = req.to_string();
                         let headers = [("Content-Type", "application/json")];

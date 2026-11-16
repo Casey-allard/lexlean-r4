@@ -41,6 +41,3 @@ codegen-units = 1
 [profile.test]
 opt-level = 2
 debug = false
-
-[profile.dev.package.xtask]
-opt-level = 2

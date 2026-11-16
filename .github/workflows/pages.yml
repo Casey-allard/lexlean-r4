@@ -55,7 +55,7 @@ jobs:
           docker run --rm \
             --user "$(id -u):$(id -g)" \
             --group-add "$(stat -c '%g' /var/run/docker.sock)" \
-            --tmpfs /tmp:rw,exec,nosuid,size=2g \
+            --tmpfs /tmp:rw,exec,nosuid,size=6g \
             --volume "$PWD:$PWD" \
             --volume /var/run/docker.sock:/var/run/docker.sock \
             --volume "$docker_config:/tmp/prismpm-home/.docker:ro" \

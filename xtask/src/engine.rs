@@ -5340,7 +5340,7 @@ fn build_feed_json(root: &Path) -> String {
 }
 
 /// Handle a single incoming HTTP connection.
-fn handle_http_connection(stream: std::net::TcpStream, root: &Path) -> Result<(), String> {
+pub fn handle_http_connection(stream: std::net::TcpStream, root: &Path) -> Result<(), String> {
     use std::io::{BufRead, BufReader, Read};
     let mut reader = BufReader::new(stream);
 
@@ -5580,13 +5580,22 @@ pub fn run_api_serve_cmd(root: &Path, args: &[String]) -> Result<(), String> {
     let listener = std::net::TcpListener::bind(format!("0.0.0.0:{port}"))
         .map_err(|e| format!("failed to bind port {port}: {e}"))?;
     println!("api serve: listening on http://127.0.0.1:{port}");
-    std::thread::spawn(|| {
-        let _ = api::default_model_backend();
-    });
     let root_buf = root.to_path_buf();
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
+    let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+    serve_listener_until_stopped(listener, root_buf, stop)
+}
+
+/// Serve HTTP connections on a bound TCP listener until `stop` becomes `true`.
+pub fn serve_listener_until_stopped(
+    listener: std::net::TcpListener,
+    root: PathBuf,
+    stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
+) -> Result<(), String> {
+    let _ = api::default_model_backend();
+    let _ = listener.set_nonblocking(true);
+    while !stop.load(std::sync::atomic::Ordering::Relaxed) {
+        match listener.accept() {
+            Ok((stream, _)) => {
                 let active =
                     ACTIVE_DAEMON_CONNECTIONS.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                 if active >= MAX_CONCURRENT_DAEMON_CONNECTIONS {
@@ -5602,12 +5611,15 @@ pub fn run_api_serve_cmd(root: &Path, args: &[String]) -> Result<(), String> {
                     continue;
                 }
 
-                let root_clone = root_buf.clone();
+                let root_clone = root.clone();
                 std::thread::spawn(move || {
                     let _guard = DaemonConnGuard;
                     let _ = configure_socket_timeouts(&stream, DEFAULT_SOCKET_TIMEOUT);
                     let _ = handle_http_connection(stream, &root_clone);
                 });
+            }
+            Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                std::thread::sleep(std::time::Duration::from_millis(5));
             }
             Err(e) => {
                 eprintln!("api serve: connection error: {e}");
