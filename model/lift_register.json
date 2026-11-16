@@ -16977,7 +16977,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a89df0d6b7124422c55311d15e67f13ab74e770bad434be6c8815f1659912cba",
+      "kappa": "14ff5527b226af540576ab862104736eefa0ea2bc853f486823820f770884dc5",
       "function": "public/app.js::renderHoloObservatoryDeck",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -17532,7 +17532,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "425b9f86d7fdc9d49e632f19333ce35db8933bfcb2a4cfafb3c0bbd45a14de10",
+      "kappa": "a27df57870413a74d9d405e35de7bdd4b8480ef253b264a10fa07484098d32cd",
       "function": "xtask/src/engine.rs::audit_codebase_and_inference",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",

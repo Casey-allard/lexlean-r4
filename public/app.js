@@ -5082,7 +5082,8 @@ function renderHoloObservatoryDeck() {
       for (let i = 0; i < mags.length; i += 1) {
         const bw = Math.max(3, stepX - 2);
         const normH = Math.max(4, Math.round((mags[i] / maxMag) * plotH));
-        const bWidth = Number(bits[i] || 18);
+        const rawLayerBits = bits[i] || 18;
+        const bWidth = rawLayerBits ? Math.max(0, rawLayerBits | 0) : 18;
         const hue = bWidth >= 24 ? '#f59e0b' : (bWidth >= 20 ? '#38bdf8' : '#22d3ee');
         ctx.fillStyle = hue;
         ctx.fillRect(padL + i * stepX, h - padB - normH, bw, normH);
