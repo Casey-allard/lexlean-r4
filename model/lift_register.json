@@ -2,8 +2,8 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2633,
-    "lifted": 1895,
+    "total_functions": 2644,
+    "lifted": 1906,
     "effect": 249,
     "foreign": 145,
     "residue": 344
@@ -301,7 +301,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0e431b5582ebfff103adcc1d863f63044a34288e8757f600aa849f6eb6e0e404",
+      "kappa": "71fa84df6d6cec52a1fad35893370860c7343bc25804d49ab42810565be95427",
       "function": "crates/wasm/js/worker_host_bridge.js::execute_inprism_foundry_turn",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -826,7 +826,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "830ea50a2a4260aeb3261cc1fb38c4ffe52ccfcad2fd3933ddc84cd9ebf56acf",
+      "kappa": "9c246b1cc60877434e900c9037d11694197647d3b424e37ab8bfa539c6d7dfd2",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_begin_foundry_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -840,8 +840,22 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "8ddf8394dfd1be70ed359235c9bf5428ca5dbce5b5d8016a7e899210125a7795",
+      "kappa": "a7bcf56ded26aa3dca05353c8c78a73a4a47650548b74f6f2a983a09aa6944b0",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_model_kv_prefix_tokens",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "3e0c7efb3c22dbf7c8b59ef420f9d1b67a33e50815a3bd120b3b15b805860696",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_step_foundry_turn",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "6d493b54b30b80a3ab283c7e6a80aa22ce48cace0cac0a4329ccfb05d9bc2a34",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::last_foundry_observatory_frame_count",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
       "exact_divergence_free": true
@@ -900,6 +914,13 @@
       "function": "crates/wasm/src/assistant.rs::build_language_task_code",
       "status": "lifted",
       "definition": "R4.Flock",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "65b5b68d4c1851d13fdaad5c7b6ace9eb71030f5a64c76ebd52e98df0a25a012",
+      "function": "crates/wasm/src/assistant.rs::detect_mvm_exec_tool_call",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
       "exact_divergence_free": true
     },
     {
@@ -999,21 +1020,28 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "75d119113feb736ac2bdd110690837955afca2622d6786feb445c76748d3f7e8",
-      "function": "crates/wasm/src/assistant.rs::flush_incremental_utf8",
+      "kappa": "74d21b1b1f90c813de3a27ee96d3563d4e2a9d3ca0c634566d4312e50ec6aeaa",
+      "function": "crates/wasm/src/assistant.rs::fit_foundry_prompt_tokens",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
       "exact_divergence_free": true
     },
     {
-      "kappa": "c583eabd547c0c4eebd87c00d5be6346e2dc874f8c3d459e9f14856eec713470",
+      "kappa": "86077ee5bdb09778fd92a70c9e46017b5b70cf985c9af3812527053c5f4743df",
+      "function": "crates/wasm/src/assistant.rs::format_foundry_system_parts",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "799d41930e01a3a251e4129cba47963dbd8a9d74de31e3cd60d859ebb7a2cda6",
       "function": "crates/wasm/src/assistant.rs::format_foundry_system_prompt",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
       "exact_divergence_free": true
     },
     {
-      "kappa": "5876a16ab02298e240db280810be5160404eec1709f4b53a76806ca2f7127607",
+      "kappa": "df47374694bbf7340868b35b1dcec4c790653313adb3b16386d84bd7dd44f4eb",
       "function": "crates/wasm/src/assistant.rs::format_foundry_user_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -2347,7 +2375,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "d88ee5261f7a07fc3433292c3773e6d63c0139508b4a57875df8834865d6a019",
+      "kappa": "f9db7a02732f8969227040a3e64ad96049d9c54d7b2277c4ea7129b3015bf9b7",
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::generate_chat_turn_with_history",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -2606,6 +2634,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "7ba03cf10109b5935a016b39742bd344c092dec086c08c8e73d7a1ea83f30abd",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::flush_incremental_utf8",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "807029cc5a874f102a689a664f0a6491d7da1b89fd1558179e16db0d6aee30e4",
       "function": "crates/wasm/src/holo_geometric_runtime.rs::gemm_i4_rht_batch",
       "status": "lifted",
@@ -2739,6 +2774,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "586fffbff19a8347ff0c5eb0ec4f4072fc46b37552337c1695e819df6a68c9e2",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::record_observatory_frame",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "03de144c1b5f5f88e11ec4fc3f759f5bf686eea0e88d9bb39edbc517ac32de15",
       "function": "crates/wasm/src/holo_geometric_runtime.rs::rht32_apply_q24_row",
       "status": "lifted",
@@ -2797,6 +2839,13 @@
     {
       "kappa": "b6b12349753a2b48bb5caca0007563d0f11410e6e8328a1e1f7231c8ffd91f8d",
       "function": "crates/wasm/src/holo_geometric_runtime.rs::shift_round",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "4152d22049df4058821e80dec664260254f8648e4338691b7922326d641983fe",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::should_emit_decode_observatory_frame",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
       "exact_divergence_free": true
@@ -13004,6 +13053,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "b464c781a613f7cac6a8c1cf7b962ec43a032ad4cdf4a05c3f40ae18b1afee05",
+      "function": "crates/wasm/src/lib.rs::extract_closed_holo_tool_calls",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "aa42aa8d10acaee872eae190669396c11e4d9974819c589412109e54ec959ec8",
       "function": "crates/wasm/src/lib.rs::extract_first_rust_item_ident",
       "status": "residue",
@@ -13012,7 +13068,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0775e5abd3271100a32b3d7ad4081e0d57e15955d3d70715e851d33f707b0867",
+      "kappa": "fde6a1cbd00e67eb5a243ea77e9904f2cef04a7c13a38f2caba8e79d938928f0",
       "function": "crates/wasm/src/lib.rs::extract_holo_tool_call",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -13091,6 +13147,13 @@
       "status": "foreign",
       "foreign_crate": "serde_json",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "214f4a95a06915300280b0b36a97b85fd463b2af3a81754dec1a529425c7aac7",
+      "function": "crates/wasm/src/lib.rs::parse_holo_tool_slice",
+      "status": "lifted",
+      "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
     },
     {
       "kappa": "3f0d720f6bd0ad232a2898dbed627f2afde863cd124b1866b9505d1f49622c04",
@@ -15104,7 +15167,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "8f57f41890e85825492966ff2b50566778ea663b79c326f0750346f3489875ad",
+      "kappa": "b820a348ff50d0d26f716355248e403b60462028069a1c263655e85aa486b64b",
       "function": "crates/wasm/src/native_q31_lane.rs::NativeQ31Model::generate_reply",
       "status": "lifted",
       "definition": "R4.NativeQ31Train",
@@ -15125,8 +15188,22 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "c7149c0c532f90e54dd2f9b03f4d3a3ce905d3509caedc46b176354439159186",
+      "function": "crates/wasm/src/native_q31_lane.rs::NativeQ31Model::step_next_token",
+      "status": "lifted",
+      "definition": "R4.NativeQ31Train",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "a395761edacd9dac1d3fd5fbbb9aa2902438ce42117da1727ffc680b40cdd19e",
       "function": "crates/wasm/src/native_q31_lane.rs::NativeQ31Model::to_bytes",
+      "status": "lifted",
+      "definition": "R4.NativeQ31Train",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "fde83222390276e6e9ed59afe8ebdb6e5a97147487ead521ec1e3da163b5c766",
+      "function": "crates/wasm/src/native_q31_lane.rs::NativeQ31Model::token_bytes",
       "status": "lifted",
       "definition": "R4.NativeQ31Train",
       "exact_divergence_free": true

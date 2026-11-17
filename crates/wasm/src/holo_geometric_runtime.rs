@@ -4703,22 +4703,17 @@ impl HoloV13Model {
             if chosen_id == self.eos_token_id || chosen_id == self.eot_token_id {
                 if step_idx > 0 && last_emitted_decode_step != step_idx {
                     let prev_id = generated.last().copied().unwrap_or(chosen_id);
-                    let frame = build_observatory_frame(
-                        &self.tokenizer,
-                        &self.scratch,
+                    record_observatory_frame(
+                        self,
                         &last_scored,
                         prev_id,
                         false,
                         step_idx,
                         "decode",
-                        self.kv_cache.tokens.len().saturating_sub(1),
                         reuse_len,
                         active_backend,
+                        &mut observatory_frames,
                     );
-                    emit_holo_trace_frame(&frame);
-                    if observatory_frames.len() < 64 {
-                        observatory_frames.push(frame);
-                    }
                 }
                 break;
             }
@@ -4726,54 +4721,24 @@ impl HoloV13Model {
             recent.push(chosen_id);
             if let Some(tok_bytes) = self.tokenizer.id_to_raw.get(chosen_id as usize) {
                 raw_stream.extend_from_slice(tok_bytes);
-                while emitted_raw < raw_stream.len() {
-                    match std::str::from_utf8(&raw_stream[emitted_raw..]) {
-                        Ok(valid_delta) => {
-                            emit_holo_stream_delta(valid_delta, step_idx);
-                            emitted_raw = raw_stream.len();
-                        }
-                        Err(e) => {
-                            let valid_len = e.valid_up_to();
-                            if valid_len > 0 {
-                                if let Ok(prefix) = std::str::from_utf8(
-                                    &raw_stream[emitted_raw..emitted_raw + valid_len],
-                                ) {
-                                    emit_holo_stream_delta(prefix, step_idx);
-                                }
-                                emitted_raw += valid_len;
-                            }
-                            if let Some(bad_len) = e.error_len() {
-                                emit_holo_stream_delta("\u{FFFD}", step_idx);
-                                emitted_raw += bad_len;
-                            } else {
-                                break;
-                            }
-                        }
-                    }
+                let delta = flush_incremental_utf8(&raw_stream, &mut emitted_raw, false);
+                if !delta.is_empty() {
+                    emit_holo_stream_delta(&delta, step_idx);
                 }
             }
-            if step_idx > 0
-                && (step_idx == 1
-                    || step_idx.is_multiple_of(4)
-                    || generated.len() >= max_new_tokens)
-            {
-                let frame = build_observatory_frame(
-                    &self.tokenizer,
-                    &self.scratch,
+            if should_emit_decode_observatory_frame(step_idx, generated.len(), max_new_tokens) {
+                record_observatory_frame(
+                    self,
                     &last_scored,
                     chosen_id,
                     false,
                     step_idx,
                     "decode",
-                    self.kv_cache.tokens.len().saturating_sub(1),
                     reuse_len,
                     active_backend,
+                    &mut observatory_frames,
                 );
-                emit_holo_trace_frame(&frame);
                 last_emitted_decode_step = step_idx;
-                if observatory_frames.len() < 64 {
-                    observatory_frames.push(frame);
-                }
             }
             if generated.len() >= max_new_tokens {
                 let (_, fa, ft) = self.step_token(chosen_id, &recent, false, true);
@@ -5030,6 +4995,88 @@ pub(crate) fn emit_holo_trace_frame(frame: &HoloStepObservatoryFrame) {
 /// Formal R4.HoloGeometricRuntime non-wasm32 no-op live observatory hook.
 #[cfg(not(target_arch = "wasm32"))]
 pub(crate) fn emit_holo_trace_frame(_frame: &HoloStepObservatoryFrame) {}
+
+/// Formal R4.HoloGeometricRuntime flush complete UTF-8 sequences from raw token bytes without emitting premature U+FFFD.
+pub(crate) fn flush_incremental_utf8(
+    raw_stream: &[u8],
+    emitted_raw: &mut usize,
+    flush_lossy_end: bool,
+) -> String {
+    let mut delta = String::new();
+    while *emitted_raw < raw_stream.len() {
+        match std::str::from_utf8(&raw_stream[*emitted_raw..]) {
+            Ok(valid) => {
+                delta.push_str(valid);
+                *emitted_raw = raw_stream.len();
+            }
+            Err(e) => {
+                let valid_len = e.valid_up_to();
+                if valid_len > 0 {
+                    if let Ok(prefix) =
+                        std::str::from_utf8(&raw_stream[*emitted_raw..*emitted_raw + valid_len])
+                    {
+                        delta.push_str(prefix);
+                    }
+                    *emitted_raw += valid_len;
+                }
+                if let Some(bad_len) = e.error_len() {
+                    delta.push('\u{FFFD}');
+                    *emitted_raw += bad_len;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    if flush_lossy_end && *emitted_raw < raw_stream.len() {
+        let tail = String::from_utf8_lossy(&raw_stream[*emitted_raw..]);
+        delta.push_str(&tail);
+        *emitted_raw = raw_stream.len();
+    }
+    delta
+}
+
+/// Formal R4.HoloGeometricRuntime decide whether a decode step emits an observatory trace frame.
+pub(crate) fn should_emit_decode_observatory_frame(
+    cur_step: usize,
+    emitted_tokens: usize,
+    max_new_tokens: usize,
+) -> bool {
+    cur_step == 1
+        || (cur_step > 0 && cur_step.is_multiple_of(4))
+        || emitted_tokens >= max_new_tokens
+}
+
+/// Formal R4.HoloGeometricRuntime build, emit, and record a bounded observatory trace frame.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn record_observatory_frame(
+    model: &HoloV13Model,
+    last_scored: &[(u32, i32)],
+    token_id: u32,
+    is_prefill: bool,
+    step_idx: usize,
+    phase: &'static str,
+    reuse_len: usize,
+    active_backend: &'static str,
+    frames: &mut Vec<HoloStepObservatoryFrame>,
+) {
+    let frame = build_observatory_frame(
+        &model.tokenizer,
+        &model.scratch,
+        last_scored,
+        token_id,
+        is_prefill,
+        step_idx,
+        phase,
+        model.kv_cache.tokens.len().saturating_sub(1),
+        reuse_len,
+        active_backend,
+    );
+    emit_holo_trace_frame(&frame);
+    if frames.len() < 64 {
+        frames.push(frame);
+    }
+}
 
 /// Formal R4.HoloGeometricRuntime select the highest-scoring non-cyclic candidate token from scored logits.
 pub(crate) fn pick_next_holo_token(

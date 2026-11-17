@@ -785,6 +785,66 @@ impl NativeQ31Model {
         (logits, cksum)
     }
 
+    /// Formal R4.NativeQ31Train return raw UTF-8 token bytes for one `D85` vocabulary ID.
+    pub(crate) fn token_bytes(&self, token_id: u16) -> &[u8] {
+        self.vocab_tokens
+            .get(usize::from(token_id))
+            .map(Vec::as_slice)
+            .unwrap_or(&[])
+    }
+
+    /// Formal R4.NativeQ31Train execute a single pure-integer `D85` decode step and return `(next_token_id, checksum)`.
+    pub(crate) fn step_next_token(
+        &self,
+        tokens: &[u16],
+        start_len: usize,
+        step_idx: usize,
+    ) -> (Option<u16>, u64) {
+        let (mut logits, cksum) = self.forward_logits(tokens);
+        // Block EOS (0), non-UTF-8 high bytes (128..256), and raw ASCII control chars on generation.
+        logits[0] = i64::MIN;
+        for (b, slot) in logits.iter_mut().enumerate().take(32).skip(1usize) {
+            if b != 10 {
+                *slot = i64::MIN;
+            }
+        }
+        for slot in logits.iter_mut().take(256).skip(127usize) {
+            *slot = i64::MIN;
+        }
+        let gen = &tokens[start_len..];
+        if let Some(&last) = gen.last() {
+            logits[usize::from(last)] = logits[usize::from(last)].saturating_sub(1i64 << 30);
+        }
+        if step_idx == 0 {
+            logits[usize::from(b'\n')] = logits[usize::from(b'\n')].saturating_sub(1i64 << 28);
+        }
+        for &prev in gen.iter().rev().take(8) {
+            logits[usize::from(prev)] = logits[usize::from(prev)].saturating_sub(1i64 << 27);
+        }
+        if gen.len() >= 3 {
+            let n = gen.len();
+            let (p0, p1, p2) = (gen[n - 3], gen[n - 2], gen[n - 1]);
+            for w in gen.windows(4) {
+                if w[0] == p0 && w[1] == p1 && w[2] == p2 {
+                    logits[usize::from(w[3])] = i64::MIN;
+                }
+            }
+        }
+        let next_id = logits
+            .iter()
+            .enumerate()
+            .max_by_key(|(id, &val)| (val, std::cmp::Reverse(*id)))
+            .map(|(id, _)| id as u16)
+            .unwrap_or(0);
+        if next_id == 0
+            || (step_idx > 12 && next_id == 10 && self.decode_tokens(gen).ends_with('.'))
+        {
+            (None, cksum)
+        } else {
+            (Some(next_id), cksum)
+        }
+    }
+
     /// Formal R4.NativeQ31Train generate a coherent pure-integer reply from `prompt`.
     pub fn generate_reply(&self, prompt: &str, max_new_tokens: usize) -> (String, u64) {
         let mut tokens = self.encode_bytes(prompt.as_bytes());
@@ -794,48 +854,11 @@ impl NativeQ31Model {
         let start_len = tokens.len();
         let mut last_cksum = 0u64;
         for step_idx in 0..max_new_tokens.min(160) {
-            let (mut logits, cksum) = self.forward_logits(&tokens);
+            let (next_opt, cksum) = self.step_next_token(&tokens, start_len, step_idx);
             last_cksum = cksum;
-            // Block EOS (0), non-UTF-8 high bytes (128..256), and raw ASCII control chars on generation.
-            logits[0] = i64::MIN;
-            for (b, slot) in logits.iter_mut().enumerate().take(32).skip(1usize) {
-                if b != 10 {
-                    *slot = i64::MIN;
-                }
-            }
-            for slot in logits.iter_mut().take(256).skip(127usize) {
-                *slot = i64::MIN;
-            }
-            let gen = &tokens[start_len..];
-            if let Some(&last) = gen.last() {
-                logits[usize::from(last)] = logits[usize::from(last)].saturating_sub(1i64 << 30);
-            }
-            if step_idx == 0 {
-                logits[usize::from(b'\n')] = logits[usize::from(b'\n')].saturating_sub(1i64 << 28);
-            }
-            for &prev in gen.iter().rev().take(8) {
-                logits[usize::from(prev)] = logits[usize::from(prev)].saturating_sub(1i64 << 27);
-            }
-            if gen.len() >= 3 {
-                let n = gen.len();
-                let (p0, p1, p2) = (gen[n - 3], gen[n - 2], gen[n - 1]);
-                for w in gen.windows(4) {
-                    if w[0] == p0 && w[1] == p1 && w[2] == p2 {
-                        logits[usize::from(w[3])] = i64::MIN;
-                    }
-                }
-            }
-            let next_id = logits
-                .iter()
-                .enumerate()
-                .max_by_key(|(id, &val)| (val, std::cmp::Reverse(*id)))
-                .map(|(id, _)| id as u16)
-                .unwrap_or(0);
-            if next_id == 0
-                || (step_idx > 12 && next_id == 10 && self.decode_tokens(gen).ends_with('.'))
-            {
+            let Some(next_id) = next_opt else {
                 break;
-            }
+            };
             tokens.push(next_id);
         }
         let text = self.decode_tokens(&tokens[start_len..]);

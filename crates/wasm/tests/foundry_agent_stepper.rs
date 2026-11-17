@@ -316,6 +316,23 @@ fn foundry_turn_begin_validates_empty_busy_and_unmounted_errors() {
     assert_eq!(empty_json["status"], "error");
     assert_eq!(empty_json["error_code"], "EmptyPrompt");
 
+    // Invalid JSON -> InvalidPayload; TurnNotFound when no active session
+    let bad_json: Value =
+        serde_json::from_str(&engine.holo_begin_foundry_turn("{not valid json")).unwrap();
+    assert_eq!(bad_json["status"], "error");
+    assert_eq!(bad_json["error_code"], "InvalidPayload");
+
+    let step_missing: Value = serde_json::from_str(&engine.holo_step_foundry_turn(42)).unwrap();
+    assert_eq!(step_missing["status"], "error");
+    assert_eq!(step_missing["error_code"], "TurnNotFound");
+
+    let retired: Value = serde_json::from_str(&engine.holo_begin_foundry_turn(
+        r#"{"prompt":"hi","selected_model":"uor-r4.recompiled-v12-agent"}"#,
+    ))
+    .unwrap();
+    assert_eq!(retired["status"], "error");
+    assert_eq!(retired["error_code"], "RefusedRetiredScaffoldMode");
+
     // 2. No Holo model mounted -> ModelNotMounted
     let unmounted: Value = serde_json::from_str(
         &engine.holo_begin_foundry_turn(r#"{"prompt":"Add a counter button"}"#),
@@ -348,6 +365,15 @@ fn foundry_turn_begin_validates_empty_busy_and_unmounted_errors() {
             .unwrap();
     assert_eq!(busy["status"], "error");
     assert_eq!(busy["error_code"], "BusyTurn");
+
+    // Calling step with wrong turn_id returns TurnNotFound without clobbering active turn
+    let mismatch: Value =
+        serde_json::from_str(&engine.holo_step_foundry_turn(turn_id + 99)).unwrap();
+    assert_eq!(mismatch["status"], "error");
+    assert_eq!(mismatch["error_code"], "TurnNotFound");
+    let valid_step: Value = serde_json::from_str(&engine.holo_step_foundry_turn(turn_id)).unwrap();
+    assert_eq!(valid_step["status"], "streaming");
+    assert_eq!(valid_step["model_id"], "uor-r4.qwen3-0.6b-holo");
 }
 
 #[test]
@@ -579,4 +605,158 @@ fn test_foundry_agent_stepper_r4_56() {
         "tool iterations must be bounded to max 6"
     );
     assert_eq!(step["status"], "done");
+}
+
+#[test]
+fn foundry_prompt_pinning_escaping_malformed_prior_tool_and_native_q31_r4_56() {
+    // 1. XML attribute escaping & Unicode scalar boundary snippet truncation
+    let mut unicode_ws = Vec::new();
+    for i in 0..16 {
+        unicode_ws.push(FoundryWorkspaceFile {
+            path: format!("src/\"bad_{i}\"<tag>&.tsx"),
+            content: "αβγ🚀".repeat(400),
+            sha256: format!("sha\"<&>{i}"),
+        });
+    }
+    let sys = format_foundry_system_prompt(&unicode_ws, Some("src/\"bad_0\"<tag>&.tsx"));
+    assert!(sys.starts_with(BUILD_SYSTEM_PREFIX));
+    assert!(sys.contains("path=\"src/&quot;bad_0&quot;&lt;tag&gt;&amp;.tsx\""));
+    assert!(sys.contains("sha256=\"sha&quot;&lt;&amp;&gt;0\""));
+
+    let mut engine = StudioEngine::new_default();
+
+    // 2. Mount prose model and check front-pinning + max_new_tokens=1 decode telemetry frame
+    let extra_prose: &[(u32, &[u8])] = &[(261, b"ok"), (262, b"!")];
+    let bytes_prose = build_scripted_holo_v13_bytes(&[10, 261, 262, 257], extra_prose);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_prose)
+        .expect("mount prose model");
+    let big_payload = serde_json::json!({
+        "prompt": "Check front pinning",
+        "workspace_files": unicode_ws,
+        "active_file": "src/\"bad_0\"<tag>&.tsx",
+        "max_new_tokens": 1
+    })
+    .to_string();
+    let b1: Value = serde_json::from_str(&engine.holo_begin_foundry_turn(&big_payload)).unwrap();
+    assert_eq!(b1["status"], "ready");
+    let tid1 = b1["turn_id"].as_u64().unwrap();
+    let kv_toks = engine
+        .holo_model_kv_prefix_tokens("uor-r4.qwen3-0.6b-holo")
+        .expect("kv tokens");
+    let kv_prefix_bytes: Vec<u8> = kv_toks
+        .iter()
+        .take(64)
+        .filter(|&&id| id < 256)
+        .map(|&id| id as u8)
+        .collect();
+    let kv_head = String::from_utf8_lossy(&kv_prefix_bytes);
+    assert!(
+        kv_toks.first().copied().unwrap_or(0) >= 256,
+        "KV must begin with <|im_start|> special token, got: {:?}",
+        kv_toks.first()
+    );
+    assert!(
+        kv_head.starts_with("system\n\n<role> You are Prism"),
+        "system prefix must stay pinned at KV start, got: {kv_head}"
+    );
+    let kv_tail_bytes: Vec<u8> = kv_toks
+        .iter()
+        .rev()
+        .take(64)
+        .copied()
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .filter(|&id| id < 256)
+        .map(|id| id as u8)
+        .collect();
+    let kv_tail = String::from_utf8_lossy(&kv_tail_bytes);
+    assert!(
+        kv_tail
+            .trim_end()
+            .ends_with("user\nCheck front pinning\nassistant")
+            && kv_tail.ends_with("\n\n"),
+        "user prompt and assistant start tag must stay pinned at KV end, got: {kv_tail:?}"
+    );
+
+    let s1: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid1)).unwrap();
+    assert_eq!(s1["status"], "done");
+    assert_eq!(s1["model_id"], "uor-r4.qwen3-0.6b-holo");
+    assert_eq!(s1["tokens_emitted"], 1);
+    assert!(
+        engine.last_foundry_observatory_frame_count() >= 2,
+        "max_new_tokens=1 must emit both prefill and decode observatory frames"
+    );
+
+    // 3. Earlier malformed / non-mvm_exec <tool_call> does NOT blind later valid mvm_exec, plus continuation -> done
+    let extra_multi: &[(u32, &[u8])] = &[
+        (261, b"<tool_call>{bad json</tool_call> "),
+        (
+            262,
+            b"<tool_call>{\"name\":\"noop\",\"arguments\":{}}</tool_call> ",
+        ),
+        (263, b"<tool_call>{\"name\":\"mvm_exec\","),
+        (264, b"\"arguments\":{\"cmd\":\"uname -a\"}}"),
+        (265, b"</tool_call>"),
+        (266, b"ignored_after_stop"),
+    ];
+    let bytes_multi =
+        build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 264, 265, 266, 257], extra_multi);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_multi)
+        .expect("mount multi tool model");
+    let b2: Value =
+        serde_json::from_str(&engine.holo_begin_foundry_turn(r#"{"prompt":"Inspect kernel"}"#))
+            .unwrap();
+    let tid2 = b2["turn_id"].as_u64().unwrap();
+    let t_step1: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid2)).unwrap();
+    assert_eq!(t_step1["status"], "streaming");
+    assert_eq!(t_step1["model_id"], "uor-r4.qwen3-0.6b-holo");
+    let t_step2: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid2)).unwrap();
+    assert_eq!(t_step2["status"], "needs_tool");
+    assert_eq!(t_step2["model_id"], "uor-r4.qwen3-0.6b-holo");
+    assert_eq!(t_step2["tool_call"]["name"], "mvm_exec");
+    assert_eq!(t_step2["tool_call"]["cmd"], "uname -a");
+
+    // Feed tool_results into continuation turn with prose model and complete cleanly
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_prose)
+        .expect("mount continuation prose");
+    let cont = serde_json::json!({
+        "prompt": "Inspect kernel",
+        "tool_results": [{
+            "cmd": "uname -a",
+            "exit_code": 0,
+            "stdout": "Linux riscv64\n",
+            "stderr": "",
+            "changed_files": []
+        }]
+    })
+    .to_string();
+    let b3: Value = serde_json::from_str(&engine.holo_begin_foundry_turn(&cont)).unwrap();
+    let tid3 = b3["turn_id"].as_u64().unwrap();
+    let done3: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid3)).unwrap();
+    assert_eq!(done3["status"], "done");
+    assert_eq!(done3["delta"], "ok!");
+
+    // 4. Explicit uor-r4.native-q31-d85 steps incrementally (<=4 tokens per call) and honors max_new_tokens
+    let n_begin: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            r#"{"prompt":"Hello native Q31","selected_model":"uor-r4.native-q31-d85","max_new_tokens":6}"#,
+        ),
+    )
+    .unwrap();
+    assert_eq!(n_begin["status"], "ready");
+    assert_eq!(n_begin["model_id"], "uor-r4.native-q31-d85");
+    assert_eq!(n_begin["max_new_tokens"], 6);
+    let n_tid = n_begin["turn_id"].as_u64().unwrap();
+    let n1: Value = serde_json::from_str(&engine.holo_step_foundry_turn(n_tid)).unwrap();
+    assert_eq!(n1["model_id"], "uor-r4.native-q31-d85");
+    assert_eq!(n1["status"], "streaming");
+    assert_eq!(n1["tokens_emitted"], 4);
+    let n2: Value = serde_json::from_str(&engine.holo_step_foundry_turn(n_tid)).unwrap();
+    assert_eq!(n2["model_id"], "uor-r4.native-q31-d85");
+    assert_eq!(n2["status"], "done");
+    assert_eq!(n2["tokens_emitted"], 6);
 }

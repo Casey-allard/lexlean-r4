@@ -451,3 +451,299 @@ test('Worker message loop interleaves terminal:write and cancel_inprism_turn bet
     globalThis.studio_dispatch = prevDispatch;
   }
 });
+
+test('hydrate_holo_model with allowOffOriginHydration=true invokes off-origin fetch without ConsentRequiredForWeightDownload', async () => {
+  const prevLocation = globalThis.location;
+  const prevFetch = globalThis.fetch;
+  const prevIdb = globalThis.indexedDB;
+  const fetchedUrls = [];
+
+  try {
+    globalThis.location = { origin: 'http://localhost:4173', href: 'http://localhost:4173/' };
+    globalThis.indexedDB = undefined;
+    globalThis.fetch = async (url) => {
+      fetchedUrls.push(String(url || ''));
+      throw new Error('simulated mirror offline');
+    };
+
+    await assert.rejects(
+      () =>
+        hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, false, {
+          allowOffOriginHydration: true,
+        }),
+      (err) =>
+        err &&
+        err.code !== 'ConsentRequiredForWeightDownload' &&
+        !String(err.message).includes('ConsentRequiredForWeightDownload'),
+    );
+    assert.ok(
+      fetchedUrls.some((u) => !u.startsWith('http://localhost:4173/')),
+      `expected off-origin fetch attempt once consent granted, got: ${JSON.stringify(fetchedUrls)}`,
+    );
+  } finally {
+    globalThis.location = prevLocation;
+    globalThis.fetch = prevFetch;
+    globalThis.indexedDB = prevIdb;
+  }
+});
+
+test('execute_inprism_foundry_turn preserves native-q31-d85 and propagates turn_id on stepper errors', async () => {
+  let hydrated = false;
+  const fake = createFakeStepperHooks({
+    mounted: false,
+    scriptForHop: () => [{ status: 'done', delta: 'ok', tokens_emitted: 1, tok_per_sec: 12 }],
+  });
+  const res = await execute_inprism_foundry_turn(
+    {
+      id: 'req-native-1',
+      payload: { prompt: 'Offline prompt', preferredModel: 'uor-r4.native-q31-d85' },
+    },
+    {
+      ...fake.hooks,
+      hydrateHoloModel: async () => {
+        hydrated = true;
+      },
+      holoBeginTurn: (payloadJson) => {
+        const req = JSON.parse(payloadJson);
+        fake.beginCalls.push(req);
+        return JSON.stringify({ status: 'ready', turn_id: 77, model_id: req.selected_model });
+      },
+      holoStepTurn: () =>
+        JSON.stringify({
+          status: 'done',
+          turn_id: 77,
+          model_id: 'uor-r4.native-q31-d85',
+          delta: 'hello',
+          tokens_emitted: 1,
+          tok_per_sec: 20,
+        }),
+    },
+  );
+  assert.equal(hydrated, false, 'native-q31-d85 must not invoke Holo hydration');
+  assert.equal(fake.beginCalls[0].selected_model, 'uor-r4.native-q31-d85');
+  assert.equal(res.ok, true);
+  assert.equal(res.result.model_id, 'uor-r4.native-q31-d85');
+
+  const nullStepRes = await execute_inprism_foundry_turn(
+    { id: 'req-null-step', payload: { prompt: 'Trigger null step', preferredModel: 'uor-r4.native-q31-d85' } },
+    {
+      ...fake.hooks,
+      holoBeginTurn: () => JSON.stringify({ status: 'ready', turn_id: 88, model_id: 'uor-r4.native-q31-d85' }),
+      holoStepTurn: () => null,
+    },
+  );
+  assert.equal(nullStepRes.ok, false);
+  assert.equal(nullStepRes.error_code, 'InvalidStepperOutcome');
+  assert.equal(nullStepRes.turn_id, 88);
+});
+
+test('Worker BusyTurn preserves active Turn 1 ownership, handles targetId hydration cancel, and validates terminal:write', async () => {
+  const prevWgs = globalThis.WorkerGlobalScope;
+  const prevSelf = globalThis.self;
+  const prevWbg = globalThis.__wbg_init;
+  const prevPanic = globalThis.init_panic_hook;
+  const prevBoot = globalThis.studio_bootstrap;
+  const prevPack = globalThis.studio_weight_pack_status;
+  const prevBegin = globalThis.holo_begin_foundry_turn;
+  const prevStep = globalThis.holo_step_foundry_turn;
+  const prevCancel = globalThis.holo_cancel_foundry_turn;
+  const prevStatus = globalThis.studio_holo_runtime_status;
+  const prevDispatch = globalThis.studio_dispatch;
+  const prevLocation = globalThis.location;
+  const prevFetch = globalThis.fetch;
+  const prevIdb = globalThis.indexedDB;
+
+  const posted = [];
+  const rpcWaiters = new Map();
+  const waitForRpc = (id) =>
+    new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error(`Timeout waiting for RPC ${id}`)), 2000);
+      rpcWaiters.set(id, (msg) => {
+        clearTimeout(t);
+        resolve(msg);
+      });
+    });
+
+  let readyResolve;
+  const readyPromise = new Promise((r) => {
+    readyResolve = r;
+  });
+
+  try {
+    class MockWorkerGlobalScope {
+      constructor() {
+        this.name = 'uor-r4-engine-worker';
+      }
+      postMessage(msg) {
+        posted.push(msg);
+        if (msg && msg.event === 'ready') readyResolve(msg);
+        if (msg && msg.id != null && typeof msg.ok === 'boolean' && rpcWaiters.has(msg.id)) {
+          const cb = rpcWaiters.get(msg.id);
+          rpcWaiters.delete(msg.id);
+          cb(msg);
+        }
+      }
+    }
+    const mockSelf = new MockWorkerGlobalScope();
+    globalThis.WorkerGlobalScope = MockWorkerGlobalScope;
+    globalThis.self = mockSelf;
+    globalThis.__wbg_init = async () => ({});
+    globalThis.init_panic_hook = () => {};
+    globalThis.studio_bootstrap = () => '{}';
+    globalThis.studio_weight_pack_status = () => JSON.stringify({ mounted_packs: [] });
+
+    const fake = createFakeStepperHooks({
+      scriptForHop: () => [
+        { status: 'streaming', delta: 't1 ', tokens_emitted: 4, tok_per_sec: 40 },
+        { status: 'streaming', delta: 't2 ', tokens_emitted: 8, tok_per_sec: 40 },
+        { status: 'done', delta: 't3', tokens_emitted: 12, tok_per_sec: 40 },
+      ],
+    });
+    let runtimeMounted = true;
+    globalThis.holo_begin_foundry_turn = fake.hooks.holoBeginTurn;
+    globalThis.holo_step_foundry_turn = fake.hooks.holoStepTurn;
+    globalThis.holo_cancel_foundry_turn = fake.hooks.holoCancelTurn;
+    globalThis.studio_holo_runtime_status = () =>
+      JSON.stringify(
+        runtimeMounted
+          ? {
+              qwen3_06b_mounted: true,
+              qwen3_17b_mounted: false,
+              models: [{ model_id: 'uor-r4.qwen3-0.6b-holo' }],
+            }
+          : { qwen3_06b_mounted: false, qwen3_17b_mounted: false, models: [] },
+      );
+    globalThis.studio_dispatch = () =>
+      JSON.stringify({ status: 'ok', exit_code: 0, mvm_stdout: 'ok' });
+
+    await import('../../crates/wasm/js/worker_host_bridge.js?worker_concurrency_test=1');
+    await readyPromise;
+
+    // 1. Validate terminal:* rejects invalid empty terminal:write and accepts payload.data
+    const invalidTermP = waitForRpc('term-empty');
+    mockSelf.onmessage({ data: { id: 'term-empty', op: 'terminal:write', payload: { cmd: '   ' } } });
+    const invalidTerm = await invalidTermP;
+    assert.equal(invalidTerm.ok, false);
+    assert.equal(invalidTerm.error_code, 'InvalidPayload');
+
+    const badResizeP = waitForRpc('term-resize-bad');
+    mockSelf.onmessage({
+      data: { id: 'term-resize-bad', op: 'terminal:resize', payload: { cols: 0, rows: 24 } },
+    });
+    const badResize = await badResizeP;
+    assert.equal(badResize.ok, false);
+    assert.equal(badResize.error_code, 'InvalidPayload');
+
+    const rawDataTermP = waitForRpc('term-data');
+    mockSelf.onmessage({
+      data: { id: 'term-data', op: 'terminal:write', payload: { data: 'ls\n' } },
+    });
+    const rawDataTerm = await rawDataTermP;
+    assert.equal(rawDataTerm.ok, true);
+    assert.equal(rawDataTerm.result.bytes, 3);
+
+    // 2. Concurrent BusyTurn: Turn 1 streams while Turn 2 arrives and gets BusyTurn WITHOUT clobbering Turn 1
+    const turn1P = waitForRpc('turn-owner-1');
+    mockSelf.onmessage({
+      data: {
+        id: 'turn-owner-1',
+        op: 'inprism_r4_turn',
+        payload: { prompt: 'Turn 1 owner', preferredModel: 'uor-r4.qwen3-0.6b-holo' },
+      },
+    });
+    await new Promise((r) => setTimeout(r, 0));
+
+    // Flip mounted flag false to prove Turn 2 hits BusyTurn BEFORE hydration / consent guard
+    runtimeMounted = false;
+    const turn2P = waitForRpc('turn-busy-2');
+    mockSelf.onmessage({
+      data: {
+        id: 'turn-busy-2',
+        op: 'inprism_r4_turn',
+        payload: { prompt: 'Turn 2 concurrent', preferredModel: 'uor-r4.qwen3-0.6b-holo' },
+      },
+    });
+    const turn2 = await turn2P;
+    runtimeMounted = true;
+    assert.equal(turn2.ok, false);
+    assert.equal(turn2.error_code, 'BusyTurn');
+    assert.equal(fake.beginCalls.length, 1, 'BusyTurn must reject before invoking fnBegin a second time');
+
+    // Cancel Turn 1 AFTER Turn 2 BusyTurn rejection: must STILL cancel Turn 1 cleanly
+    const cancel1P = waitForRpc('cancel-owner-1');
+    mockSelf.onmessage({
+      data: { id: 'cancel-owner-1', op: 'cancel_inprism_turn', payload: { targetId: 'turn-owner-1' } },
+    });
+    const cancel1 = await cancel1P;
+    assert.equal(cancel1.ok, true);
+    assert.equal(cancel1.result.status, 'cancelled');
+
+    const turn1 = await turn1P;
+    assert.equal(turn1.ok, false);
+    assert.equal(turn1.cancelled, true);
+    assert.equal(turn1.error_code, 'Cancelled');
+
+    // 3. Pre-fnBegin hydration cancellation via payload.targetId
+    runtimeMounted = false;
+    globalThis.location = { origin: 'http://localhost:4173', href: 'http://localhost:4173/' };
+    globalThis.indexedDB = undefined;
+    let releaseManifestFetch;
+    globalThis.fetch = () =>
+      new Promise((_, reject) => {
+        releaseManifestFetch = () => reject(new Error('aborted'));
+      });
+
+    const beginCountBeforeHydrate = fake.beginCalls.length;
+    const hydrateTurnP = waitForRpc('turn-hydrate-cancel');
+    mockSelf.onmessage({
+      data: {
+        id: 'turn-hydrate-cancel',
+        op: 'inprism_r4_turn',
+        payload: {
+          prompt: 'Cancel during hydration',
+          preferredModel: 'uor-r4.qwen3-0.6b-holo',
+          allowOffOriginHydration: true,
+        },
+      },
+    });
+    await new Promise((r) => setTimeout(r, 5));
+
+    const cancelHydrateP = waitForRpc('cancel-hydrate-1');
+    mockSelf.onmessage({
+      data: {
+        id: 'cancel-hydrate-1',
+        op: 'cancel_inprism_turn',
+        payload: { targetId: 'turn-hydrate-cancel' },
+      },
+    });
+    const cancelHydrateAck = await cancelHydrateP;
+    assert.equal(cancelHydrateAck.ok, true);
+    assert.equal(cancelHydrateAck.result.status, 'cancelled');
+
+    const hydrateTurnRes = await hydrateTurnP;
+    assert.equal(hydrateTurnRes.ok, false);
+    assert.equal(hydrateTurnRes.cancelled, true);
+    assert.equal(hydrateTurnRes.error_code, 'Cancelled');
+    assert.equal(
+      fake.beginCalls.length,
+      beginCountBeforeHydrate,
+      'pre-fnBegin hydration cancel must never invoke holoBeginTurn',
+    );
+    if (releaseManifestFetch) releaseManifestFetch();
+  } finally {
+    globalThis.WorkerGlobalScope = prevWgs;
+    globalThis.self = prevSelf;
+    globalThis.__wbg_init = prevWbg;
+    globalThis.init_panic_hook = prevPanic;
+    globalThis.studio_bootstrap = prevBoot;
+    globalThis.studio_weight_pack_status = prevPack;
+    globalThis.holo_begin_foundry_turn = prevBegin;
+    globalThis.holo_step_foundry_turn = prevStep;
+    globalThis.holo_cancel_foundry_turn = prevCancel;
+    globalThis.studio_holo_runtime_status = prevStatus;
+    globalThis.studio_dispatch = prevDispatch;
+    globalThis.location = prevLocation;
+    globalThis.fetch = prevFetch;
+    globalThis.indexedDB = prevIdb;
+  }
+});

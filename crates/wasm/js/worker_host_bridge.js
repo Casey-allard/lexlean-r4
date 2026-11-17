@@ -2418,6 +2418,18 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   const postEvent = typeof runtimeHooks.postEvent === 'function' ? runtimeHooks.postEvent : () => {};
   const setActiveTurnId =
     typeof runtimeHooks.setActiveTurnId === 'function' ? runtimeHooks.setActiveTurnId : () => {};
+  const claimTurnOwnership =
+    typeof runtimeHooks.claimTurnOwnership === 'function'
+      ? runtimeHooks.claimTurnOwnership
+      : () => ({ ok: true, activeTurnId: null });
+  const releaseTurnOwnership =
+    typeof runtimeHooks.releaseTurnOwnership === 'function'
+      ? runtimeHooks.releaseTurnOwnership
+      : () => {};
+  const registerCancelWaiter =
+    typeof runtimeHooks.registerCancelWaiter === 'function'
+      ? runtimeHooks.registerCancelWaiter
+      : () => () => {};
   const isCancelled =
     typeof runtimeHooks.isCancelled === 'function' ? runtimeHooks.isCancelled : () => false;
   const clearCancelled =
@@ -2483,6 +2495,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       cancelled: true,
       error_code: 'Cancelled',
       error: 'Foundry turn cancelled before start',
+      turn_id: null,
     };
   }
   if (typeof fnBegin !== 'function' || typeof fnStep !== 'function') {
@@ -2494,16 +2507,31 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     };
   }
 
+  const ownership = claimTurnOwnership(reqId);
+  if (!ownership || !ownership.ok) {
+    return {
+      id: reqId,
+      ok: false,
+      error_code: 'BusyTurn',
+      error: 'An active Foundry turn is already streaming',
+      turn_id: ownership && ownership.activeTurnId != null ? Number(ownership.activeTurnId) : null,
+    };
+  }
+
+  try {
   const rawPref = String(
     payload.preferredModel || payload.selected_model || payload.model || '',
   ).trim();
   const explicit17b = rawPref === 'uor-r4.qwen3-1.7b-holo' || rawPref === 'qwen3-1.7b-holo';
   const explicit06b = rawPref === 'uor-r4.qwen3-0.6b-holo' || rawPref === 'qwen3-0.6b-holo';
+  const explicitNative = rawPref === 'uor-r4.native-q31-d85' || rawPref === 'native-q31-d85';
   let selectedModel = explicit17b
     ? 'uor-r4.qwen3-1.7b-holo'
-    : explicit06b || !rawPref || rawPref === 'uor-r4.native-q31-d85'
+    : explicit06b || !rawPref
       ? 'uor-r4.qwen3-0.6b-holo'
-      : rawPref;
+      : explicitNative
+        ? 'uor-r4.native-q31-d85'
+        : rawPref;
 
   let runtimeStatus = null;
   if (typeof fnRuntimeStatus === 'function') {
@@ -2532,13 +2560,38 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   const knownHoloTarget =
     selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
   if (knownHoloTarget && !isTargetMounted(selectedModel, runtimeStatus)) {
+    let unsubWaiter = () => {};
     try {
-      await fnHydrate(
-        selectedModel,
-        (prog) => postEvent('chat_hydration', prog),
-        false,
-        { allowOffOriginHydration: Boolean(payload.allowOffOriginHydration) },
+      const cancelPromise = new Promise((resolve) => {
+        unsubWaiter = registerCancelWaiter(reqId, () => resolve({ __cancelled: true }));
+      });
+      const hydrateJob = Promise.resolve(
+        fnHydrate(
+          selectedModel,
+          (prog) => postEvent('chat_hydration', prog),
+          false,
+          { allowOffOriginHydration: Boolean(payload.allowOffOriginHydration) },
+        ),
       );
+      hydrateJob.catch(() => {});
+      const raceOut = await Promise.race([
+        hydrateJob.then((val) => ({ __cancelled: false, val })),
+        cancelPromise,
+      ]);
+      if ((raceOut && raceOut.__cancelled) || isCancelled(reqId, null)) {
+        clearCancelled(reqId, null);
+        postEvent('chat_cancelled', { id: reqId, turn_id: null, tokens_emitted: 0 });
+        return {
+          id: reqId,
+          ok: false,
+          cancelled: true,
+          error_code: 'Cancelled',
+          error: 'Foundry turn cancelled during weight hydration.',
+          turn_id: null,
+          reply: '',
+          assistant_reply: '',
+        };
+      }
       if (typeof fnRuntimeStatus === 'function') {
         try {
           const rawStatus = fnRuntimeStatus();
@@ -2557,6 +2610,8 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         error_code: code,
         error: (err && err.message) || String(err),
       };
+    } finally {
+      unsubWaiter();
     }
   }
 
@@ -2655,7 +2710,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       } catch (_) {}
     }
     const tid = activeTurnNum;
-    setActiveTurnId(null);
+    setActiveTurnId(null, reqId);
     clearCancelled(reqId, tid);
     const obsMetrics = buildObsMetrics();
     const partial = fullReplyParts.join('');
@@ -2719,18 +2774,23 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     const rawBegin = fnBegin(JSON.stringify(beginPayload));
     const beginRes = typeof rawBegin === 'string' ? JSON.parse(rawBegin) : rawBegin;
     if (!beginRes || beginRes.status !== 'ready') {
-      setActiveTurnId(null);
-      clearCancelled(reqId, activeTurnNum);
+      const errCode = (beginRes && beginRes.error_code) || 'ModelNotMounted';
+      const errTid = beginRes && beginRes.turn_id != null ? Number(beginRes.turn_id) : activeTurnNum;
+      if (errCode !== 'BusyTurn') {
+        setActiveTurnId(null, reqId);
+        clearCancelled(reqId, activeTurnNum);
+      }
       return {
         id: reqId,
         ok: false,
-        error_code: (beginRes && beginRes.error_code) || 'ModelNotMounted',
+        error_code: errCode,
         error: (beginRes && beginRes.message) || 'holo_begin_foundry_turn failed',
+        turn_id: errTid,
       };
     }
 
     activeTurnNum = Number(beginRes.turn_id);
-    setActiveTurnId(activeTurnNum);
+    setActiveTurnId(activeTurnNum, reqId);
     if (beginRes.model_id) {
       selectedModel = beginRes.model_id;
     }
@@ -2740,13 +2800,15 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
 
     for await (const stepRes of streamFoundryHopSlices(activeTurnNum)) {
       if (!stepRes) {
-        setActiveTurnId(null);
-        clearCancelled(reqId, activeTurnNum);
+        const tid = activeTurnNum;
+        setActiveTurnId(null, reqId);
+        clearCancelled(reqId, tid);
         return {
           id: reqId,
           ok: false,
           error_code: 'InvalidStepperOutcome',
           error: 'Empty step outcome from holo_step_foundry_turn',
+          turn_id: tid,
         };
       }
       if (stepRes.status === 'cancelled' || stepRes.cancelled_by_host) {
@@ -2754,7 +2816,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       }
       if (stepRes.status === 'error') {
         const tid = activeTurnNum;
-        setActiveTurnId(null);
+        setActiveTurnId(null, reqId);
         clearCancelled(reqId, tid);
         postEvent('chat_error', {
           id: reqId,
@@ -2892,10 +2954,11 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     return await buildFinalTurnResult(hopDoneStep || {});
   }
 
-  async function buildFinalTurnResult(stepData = {}) {
+  async function buildFinalTurnResult(stepData) {
     /* Formal R4.HoloGeometricRuntime */
+    stepData = stepData && typeof stepData === 'object' ? stepData : {};
     const finishedTurnId = activeTurnNum;
-    setActiveTurnId(null);
+    setActiveTurnId(null, reqId);
     clearCancelled(reqId, finishedTurnId);
 
     const prismIdentity = await Promise.resolve(ensureIdentity()).catch(() => null);
@@ -2948,6 +3011,9 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   }
 
   return await buildFinalTurnResult({});
+  } finally {
+    releaseTurnOwnership(reqId);
+  }
 }
 
 /** Formal R4.HoloGeometricRuntime stream a HuggingFace Safetensors repo via HTTP `206` `Range` slices & compile to `UORR4V13`. */
@@ -5802,9 +5868,11 @@ function __uorStartDedicatedEngineWorker() {
   let bootPromise = null;
   let activeHydrationPromise = null;
   let lastHydrationProgress = null;
+  let activeInprismRequestId = null;
   let activeInprismTurnId = null;
   const cancelledInprismRequests = new Set();
   const cancelledInprismTurns = new Set();
+  const pendingInprismCancelWaiters = new Map();
   const earlyMessages = [];
 
   const postEvent = (event, data = {}) => {
@@ -6378,9 +6446,42 @@ function __uorStartDedicatedEngineWorker() {
         return;
       }
       if (op === 'cancel_inprism_turn') {
-        const reqId = payload && payload.requestId != null ? payload.requestId : null;
-        if (reqId != null) cancelledInprismRequests.add(reqId);
-        const rawTid = payload && payload.turn_id != null ? Number(payload.turn_id) : activeInprismTurnId;
+        const hasTarget = payload && payload.targetId != null;
+        const hasReq = payload && payload.requestId != null;
+        const hasReqSnake = payload && payload.reqId != null;
+        const targetReqId = hasTarget
+          ? payload.targetId
+          : hasReq
+            ? payload.requestId
+            : hasReqSnake
+              ? payload.reqId
+              : null;
+        if (targetReqId != null) {
+          cancelledInprismRequests.add(targetReqId);
+          cancelledInprismRequests.add(String(targetReqId));
+        }
+        if (hasReq && payload.requestId !== targetReqId) {
+          cancelledInprismRequests.add(payload.requestId);
+          cancelledInprismRequests.add(String(payload.requestId));
+        }
+        const matchesActiveReq =
+          targetReqId != null &&
+          activeInprismRequestId != null &&
+          String(targetReqId) === String(activeInprismRequestId);
+        if (
+          targetReqId == null &&
+          (payload == null || payload.turn_id == null) &&
+          activeInprismRequestId != null
+        ) {
+          cancelledInprismRequests.add(activeInprismRequestId);
+          cancelledInprismRequests.add(String(activeInprismRequestId));
+        }
+        const rawTid =
+          payload && payload.turn_id != null
+            ? Number(payload.turn_id)
+            : targetReqId == null || matchesActiveReq
+              ? activeInprismTurnId
+              : null;
         let cancelRes = { status: 'not_found', turn_id: Number(rawTid || 0) };
         if (rawTid != null && Number.isFinite(rawTid) && rawTid > 0) {
           cancelledInprismTurns.add(Number(rawTid));
@@ -6391,16 +6492,75 @@ function __uorStartDedicatedEngineWorker() {
           if (typeof cancelFn === 'function') {
             const arg = typeof BigInt === 'function' ? BigInt(Math.trunc(rawTid)) : Math.trunc(rawTid);
             cancelRes = JSON.parse(cancelFn(arg));
+          } else {
+            cancelRes = { status: 'cancelled', turn_id: Number(rawTid) };
+          }
+        } else if (matchesActiveReq || (targetReqId == null && activeInprismRequestId != null)) {
+          cancelRes = {
+            status: 'cancelled',
+            turn_id: 0,
+            targetId: targetReqId != null ? targetReqId : activeInprismRequestId,
+          };
+        }
+        const notifyKeys = new Set();
+        if (targetReqId != null) notifyKeys.add(String(targetReqId));
+        else if (activeInprismRequestId != null) notifyKeys.add(String(activeInprismRequestId));
+        for (const k of notifyKeys) {
+          const waiters = pendingInprismCancelWaiters.get(k);
+          if (waiters) {
+            for (const cb of waiters) cb();
+            pendingInprismCancelWaiters.delete(k);
           }
         }
         self.postMessage({ id, ok: true, result: cancelRes });
         return;
       }
       if (op === 'terminal:write' || op === 'terminal:open' || op === 'terminal:close' || op === 'terminal:kill' || op === 'terminal:resize' || op === 'terminal:serialize') {
-        if (op === 'terminal:write' && payload && typeof payload.cmd === 'string' && payload.cmd.trim()) {
-          const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: payload.cmd.trim() })}`);
-          self.postMessage({ id, ok: true, result: out });
+        if (payload != null && typeof payload !== 'object') {
+          self.postMessage({
+            id,
+            ok: false,
+            error_code: 'InvalidPayload',
+            error: `${op} payload must be an object`,
+          });
           return;
+        }
+        if (op === 'terminal:write') {
+          const cmdStr = payload && typeof payload.cmd === 'string' ? payload.cmd.trim() : '';
+          const hasRawData = payload && typeof payload.data === 'string' && payload.data.length > 0;
+          if (!cmdStr && !hasRawData) {
+            self.postMessage({
+              id,
+              ok: false,
+              error_code: 'InvalidPayload',
+              error: 'terminal:write requires non-empty payload.cmd or payload.data',
+            });
+            return;
+          }
+          if (cmdStr) {
+            const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: cmdStr })}`);
+            self.postMessage({ id, ok: true, result: out });
+            return;
+          }
+          self.postMessage({
+            id,
+            ok: true,
+            result: { ok: true, op, bytes: payload.data.length, interleaved: true },
+          });
+          return;
+        }
+        if (op === 'terminal:resize') {
+          const cols = Number(payload && payload.cols);
+          const rows = Number(payload && payload.rows);
+          if (!Number.isFinite(cols) || cols <= 0 || !Number.isFinite(rows) || rows <= 0) {
+            self.postMessage({
+              id,
+              ok: false,
+              error_code: 'InvalidPayload',
+              error: 'terminal:resize requires positive cols and rows',
+            });
+            return;
+          }
         }
         self.postMessage({ id, ok: true, result: { ok: true, op, interleaved: true } });
         return;
@@ -6413,14 +6573,47 @@ function __uorStartDedicatedEngineWorker() {
             postEvent,
             postResponse: (resp) => self.postMessage(resp),
             dispatchBridge: dispatchWithConnectedBridge,
-            setActiveTurnId: (tid) => {
-              activeInprismTurnId = tid;
+            claimTurnOwnership: (ownerReqId) => {
+              if (activeInprismRequestId != null && activeInprismRequestId !== ownerReqId) {
+                return { ok: false, activeTurnId: activeInprismTurnId };
+              }
+              activeInprismRequestId = ownerReqId;
+              return { ok: true, activeTurnId: activeInprismTurnId };
+            },
+            releaseTurnOwnership: (ownerReqId) => {
+              if (activeInprismRequestId === ownerReqId) {
+                activeInprismRequestId = null;
+                activeInprismTurnId = null;
+              }
+            },
+            setActiveTurnId: (tid, ownerReqId) => {
+              if (ownerReqId === undefined || activeInprismRequestId === ownerReqId) {
+                activeInprismTurnId = tid;
+              }
+            },
+            registerCancelWaiter: (ownerReqId, cb) => {
+              const key = String(ownerReqId);
+              let set = pendingInprismCancelWaiters.get(key);
+              if (!set) {
+                set = new Set();
+                pendingInprismCancelWaiters.set(key, set);
+              }
+              set.add(cb);
+              return () => {
+                const cur = pendingInprismCancelWaiters.get(key);
+                if (cur) {
+                  cur.delete(cb);
+                  if (cur.size === 0) pendingInprismCancelWaiters.delete(key);
+                }
+              };
             },
             isCancelled: (reqId, turnId) =>
               cancelledInprismRequests.has(reqId) ||
+              cancelledInprismRequests.has(String(reqId)) ||
               (turnId != null && cancelledInprismTurns.has(Number(turnId))),
             clearCancelled: (reqId, turnId) => {
               cancelledInprismRequests.delete(reqId);
+              cancelledInprismRequests.delete(String(reqId));
               if (turnId != null) cancelledInprismTurns.delete(Number(turnId));
             },
           },

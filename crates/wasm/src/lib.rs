@@ -525,28 +525,23 @@ pub struct StudioEngine {
     pub(crate) next_foundry_turn_id: u64,
 }
 
-/// Formal R4.HoloGeometricRuntime extract a bounded `<tool_call>{...}</tool_call>` JSON directive from assistant text.
-pub(crate) fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
-    let slice = if let Some((_, after)) = reply.split_once("<tool_call>") {
-        after
-            .split_once("</tool_call>")
-            .map(|(a, _)| a)
-            .unwrap_or(after)
-            .trim()
-    } else {
-        let start = reply.find("{\"tool\"")?;
-        &reply[start..]
-    };
-    let clean = slice
-        .trim()
+/// Formal R4.HoloGeometricRuntime parse a single `<tool_call>` body JSON slice into `(tool_name, args)`.
+fn parse_holo_tool_slice(slice: &str) -> Option<(String, serde_json::Value)> {
+    let trimmed = slice.trim();
+    let without_open = trimmed
         .strip_prefix("```json")
-        .or_else(|| slice.trim().strip_prefix("```"))
-        .unwrap_or(slice.trim())
+        .or_else(|| trimmed.strip_prefix("```"))
+        .unwrap_or(trimmed);
+    let clean = without_open
         .strip_suffix("```")
-        .unwrap_or(slice.trim())
+        .unwrap_or(without_open)
         .trim();
+    let start_idx = clean.find('{')?;
     let end_idx = clean.rfind('}')?;
-    let val: serde_json::Value = serde_json::from_str(&clean[..=end_idx]).ok()?;
+    if end_idx < start_idx {
+        return None;
+    }
+    let val: serde_json::Value = serde_json::from_str(&clean[start_idx..=end_idx]).ok()?;
     let tool = val
         .get("tool")
         .or_else(|| val.get("name"))
@@ -562,6 +557,40 @@ pub(crate) fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json:
         .cloned()
         .unwrap_or_else(|| val.clone());
     Some((tool, args))
+}
+
+/// Formal R4.HoloGeometricRuntime extract all valid closed `<tool_call>...</tool_call>` directives in order.
+pub(crate) fn extract_closed_holo_tool_calls(reply: &str) -> Vec<(String, serde_json::Value)> {
+    let mut out = Vec::new();
+    let mut rest = reply;
+    while let Some((_, after_open)) = rest.split_once("<tool_call>") {
+        let Some((body, after_close)) = after_open.split_once("</tool_call>") else {
+            break;
+        };
+        if let Some(parsed) = parse_holo_tool_slice(body) {
+            out.push(parsed);
+        }
+        rest = after_close;
+    }
+    out
+}
+
+/// Formal R4.HoloGeometricRuntime extract a bounded `<tool_call>{...}</tool_call>` JSON directive from assistant text.
+pub(crate) fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
+    if let Some(first_closed) = extract_closed_holo_tool_calls(reply).into_iter().next() {
+        return Some(first_closed);
+    }
+    if let Some((_, after_last)) = reply.rsplit_once("<tool_call>") {
+        let slice = after_last
+            .split_once("</tool_call>")
+            .map(|(a, _)| a)
+            .unwrap_or(after_last);
+        if let Some(parsed) = parse_holo_tool_slice(slice) {
+            return Some(parsed);
+        }
+    }
+    let start = reply.find("{\"tool\"")?;
+    parse_holo_tool_slice(&reply[start..])
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {
