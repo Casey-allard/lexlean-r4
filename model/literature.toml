@@ -2,7 +2,7 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-17T01:40:51Z"
+synced_at = "2026-11-17T04:06:43Z"
 query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
 
 [[paper]]
@@ -227,4 +227,117 @@ categories = [
     "math.LO",
 ]
 abstract = '''No free lattice contains an infinite strictly ascending chain of sublattices isomorphic to FL(3), the free lattice on three generators; this answers a question that R. A. Dean asked and the second author's 1997 notes on the problem left open. Every such chain would yield, inside FL(3), a coherent chain of proper self-embeddings $Θ_0, Θ_1, Θ_2, \dots$ with $Θ_k \circ Θ_j = Θ_j$ for $j < k$, so that each later embedding fixes the image of each earlier one pointwise. Every proper self-embedding of FL(3) whose fixed sublattice contains a free generating triple fixes one of the three generators, say $z$, because a power of it or of its dual lies above the identity, and a self-embedding that moves every generator and lies above the identity fixes at most eleven elements. Up to duality, a proper self-embedding fixing the image of such a $Θ_1$ pointwise fixes only elements above $z \wedge (x \vee y)$, where no free generating triple containing $z$ can lie. We also verify the one-step example of the 1997 notes, prove that no step toward such a chain is self-similar, and show that the configuration the argument rules out at length three does occur at length two. Without freeness the answer reverses: FL(3) contains an infinite strictly ascending chain of 3-generated sublattices, so the lattice analogue of Takahasi's chain condition for free groups fails. The theorem itself is checked by the Agda proof assistant under its safe flags, for free lattices over generators with decidable equality, and its formal proof uses no classical principle: finite searches and an induction on a finite set replace the infinite pigeonhole principle by which a chain yields a coherent chain.'''
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.20230"
+title = "A Matrix with Steps: An Episodic and Procedural Memory Method for Tool-Using Agents and Robots"
+authors = [
+    "Jürgen Paulhart",
+    "Peter Schüller",
+]
+published = "2026-11-15T20:06:43Z"
+updated = "2026-11-15T20:06:43Z"
+primary_category = "cs.AI"
+categories = ["cs.AI"]
+abstract = '''Agents that call tools and robots that execute tasks are challenged by two shortcomings: they repeat what failed before, and they learn from runs that they only believe succeeded. We describe the construction of a memory that addresses both, built for a production agent platform. Every run is recorded as an episode, and only an outcome confirmed by an external check, a test, a tool result or a person counts; the agent's own claim never does. What is learned from episodes is kept in a memory with two parts: an associative matrix, written with the delta rule, which finds the procedure that applies to a situation; and a section of ordered, addressable step records that answers what comes after a given step, where a step is a goal of the agent, not a motion. Because the matrix sums its associations, it keeps no order and cannot return or delete a single one; it serves as the finder, and order, outcome counts and deletion live in the records. We describe how execution outcomes are stored, how episodes are recalled and used for solving tasks, and the file format that stores the memory. In simulation, a robot that judged its own success and stopped when it believed it was done reported $96\%$ of its tasks as done and solved $35\%$; with external verification it solved $79%$. In a store of $100000$ synthetic episodes ($457$MB on disk), the oldest episode was still found first, no episode from another person's memory was returned, and a success vouched for only by the model was never recalled; a lookup took $16$ms on a laptop and $40$ms on a server node (median). Task outcomes were measured up to about $10000$ confirmed records, where the exact records solved every revisit at the first attempt.'''
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.20223"
+title = "Understanding Users' Security, Privacy, and Trust Concerns in Healthcare AI Systems"
+authors = [
+    "Tushar Nayan",
+    "Mohammed Al Duniawi",
+    "Song Fang",
+    "Aokun Chen",
+    "Arjun Arunasalam",
+    "Ruimin Sun",
+]
+published = "2026-11-15T19:43:10Z"
+updated = "2026-11-15T19:43:10Z"
+primary_category = "cs.CR"
+categories = [
+    "cs.CR",
+    "cs.CY",
+]
+abstract = "Artificial intelligence is increasingly integrated into healthcare systems, from clinical information retrieval to workflow automation and decision support, which introduces new security, privacy, and trust risks with direct implications for patient care. While prior work has examined these risks from technical and regulatory perspectives, less is known about how these risks are naturally discussed in online communities. To address this gap, we conduct a large-scale analysis of 14 medical communities on Reddit and extract 6,514 relevant posts. Through systematic qualitative coding and LLM-assisted classification, we investigate concerns expressed in healthcare AI discussions, their prevalence, and how they evolve over time. Our analysis reveals that users perceive healthcare AI as expanding traditional healthcare trust boundaries and attack surfaces through integrations with electronic health records, third-party services, cloud platforms, and automated clinical workflows. Posts express concerns about over-privileged access to sensitive records, opaque data flows, unauthorized secondary use, and unsafe automation can amplify the consequences of errors and misuse. We identify four attitudes toward these risks: exploring questions of accountability and harm, cautiously accepting AI with stronger safeguards, skepticism about system trustworthiness, and resignation to growing data exposure and automation. Longitudinal analysis shows that SP&T discussions have increased significantly, with shifts coinciding with major healthcare AI deployments, privacy incidents, and regulatory developments. These findings illuminate changing trust relationships and data-governance challenges, informing the design and governance of safer, more transparent, and accountable healthcare AI systems."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.20218"
+title = "SWE-CoWork: Benchmarking Coding Agents as Digital Employees in Organizations"
+authors = [
+    "Xinping Lei",
+    "Minghao Liu",
+    "Ruijie Zhu",
+    "Xiaohui Hu",
+    "Xingqiao Li",
+    "Ao Zhang",
+    "Wenhao Chai",
+    "Han Li",
+    "Tao Wang",
+    "Jingyuan Zhang",
+    "Enduo Zhao",
+    "Yunfeng Shi",
+    "Yiming Liang",
+    "Zetao Yang",
+    "Xingjian Wang",
+    "Yifan Yao",
+    "Xinkai Ma",
+    "Yingru Li",
+    "Tianhan Yang",
+    "Huan Zhou",
+    "Weiran Shi",
+    "Shen Yan",
+    "Jiaheng Liu",
+    "Stephen Huang",
+    "Eli Cheung",
+    "Weihao Xuan",
+]
+published = "2026-11-15T19:39:01Z"
+updated = "2026-11-15T19:39:01Z"
+primary_category = "cs.SE"
+categories = [
+    "cs.SE",
+    "cs.AI",
+]
+abstract = "A coding agent working within a software organization must establish what to build, collaborate with colleagues, and verify what it delivers. We introduce SWE-CoWork, a benchmark comprising 101 development assignments across 101 real repositories, 11 programming languages, and 12 application domains. Each assignment places an agent in a simulated engineering organization with 26 colleagues who have distinct responsibilities, bounded knowledge, and controlled collaboration behavior. Starting from a brief handoff, agents must recover requirements distributed across colleagues and workplace records, reconcile conflicting evidence, and implement changes evaluated by private executable tests. We evaluate eleven models and find a substantial gap between partial implementation and complete task delivery. The two leading models satisfy approximately 63% of fail-to-pass (F2P) tests but complete fewer than 8% of assignments. Providing complete requirements upfront improves F2P by approximately 16 percentage points for Seed Evolving and GPT-6 Astra, yet leaves complete task success unchanged. Requirement-level trajectory analysis reveals failures throughout the delivery process: Claude-Opus-5.5 directs a mean of 93% of first questions about queried cards to their accountable owners across runs but obtains only 64% of colleague-held requirements. Deferred questions go unfollowed, implementations remain incomplete even after requirements are acquired, and 31% of requirements reported as completed fail their tests. These findings highlight sustained requirement tracking, from clarification through implementation, verification, and handoff, as a key challenge for reliable autonomous software engineering."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.20204"
+title = "Paying Creators for Training Data Can Increase AI Displacement"
+authors = [
+    "Lijuan Luo",
+    "Emaad Manzoor",
+    "Nathan Yang",
+    "Fan Yao",
+]
+published = "2026-11-15T19:05:47Z"
+updated = "2026-11-15T19:05:47Z"
+primary_category = "cs.GT"
+categories = [
+    "cs.GT",
+    "cs.AI",
+    "econ.TH",
+]
+abstract = "Generative AI increasingly competes with creators while using their content as training data. In response, policymakers have called for platforms to compensate creators for training data use and allow opting out. We study how such policies affect creator displacement in a model of a platform where creators choose whether to contribute training data and consumers choose between purchasing from creators and prompting generative AI trained on their content. When compensation is required, the low-quality creator chooses to remain solely as a training data supplier while AI fully displaces her demand, despite AI quality and the price the platform charges for AI-generated content being identical with and without compensation. Without compensation, the risk of losing creators and their training data constrains the platform to set the price of creators' content to preserve their demand. This constraint also prevents further AI displacement as AI improves, with the platform raising AI prices while keeping creators' prices and demand unchanged to prevent exit. Compensation increases creators' payoffs and total surplus but reduces consumer surplus. Our findings highlight how compensation policies for training data can shape creators' economic roles in a future with more capable generative AI."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.20195"
+title = "How Specification Explicitness Shapes Failure in LLM-Generated Code"
+authors = [
+    "Elmira Onagh",
+    "Maleknaz Nayebi",
+]
+published = "2026-11-15T18:45:44Z"
+updated = "2026-11-15T18:45:44Z"
+primary_category = "cs.SE"
+categories = [
+    "cs.SE",
+    "cs.AI",
+]
+abstract = 'When LLMs turn requirements into code, every underspecified constraint becomes behavior that the model must decide during generation. We test when specifications move beyond structure and begin to control generated behavior. In a controlled experiment, 72 participants implemented and revised Python tasks with an LLM under three levels of specification explicitness. The results show a clear break between lightweight structure and explicit behavioral obligations. Lightweight structure reduced hidden-test failures by only 8.7%. Requiring participants to specify constraints, invariants, negative requirements, edge cases, tie-breaking rules, and exception handling cut failures by 47.2% and reduced the number of distinct failure modes by 20.5%. The largest drops were in failure modes tied to implicit obligations. Invariant violations fell by 66.1%, and unsupported assumptions fell by 59.5%. After a requirement change, specifications with explicit behavioral obligations produced regressions in more submissions, but each affected submission lost less previously correct behavior. Explicit specifications also changed how developers judged generated code. Without explicit obligations, participants overestimated generated-code correctness by about 23 percentage points. With explicit obligations, they produced better code but judged it more cautiously. Thus, the lesson is sharper than "better specifications help." Lightweight structure barely helped, while explicit behavioral obligations nearly halved failures, made regressions shallower, and improved calibration.'
 hypothesis = []
