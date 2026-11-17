@@ -4079,3 +4079,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f259_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging milk and color across PointKey row 229 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect milk and color across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects milk and color by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F260"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.19215:H-LIT-2611.19215-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f260_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.19215 (Mem2Fair: Online Fairness Control for Text-to-Video Generation via Fair Memory)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
