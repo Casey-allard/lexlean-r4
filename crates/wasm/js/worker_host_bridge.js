@@ -2942,10 +2942,14 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         stdout,
         stderr,
         changed_files: changedFiles,
+        ...(execRes && execRes.workspace_diff ? { workspace_diff: execRes.workspace_diff } : {}),
       });
       if (afterSnap && Array.isArray(afterSnap.files)) {
         workspaceFiles = afterSnap.files;
-        postEvent('workspace_sync', { workspace: afterSnap });
+        postEvent('workspace_sync', {
+          workspace: afterSnap,
+          ...(execRes && execRes.workspace_diff ? { diff: execRes.workspace_diff } : {}),
+        });
       }
       await yieldSlice();
       continue;
@@ -5928,6 +5932,108 @@ function __uorStartDedicatedEngineWorker() {
     return run;
   };
 
+  let mvmWorkspaceSyncEpoch = 0;
+  const syncedHostWorkspaceFiles = new Map();
+
+  const encodeUtf8ToBase64 = (text) => {
+    const str = String(text || '');
+    if (cachedTextEncoder && typeof cachedTextEncoder.encode === 'function') {
+      return __uorBytesToBase64(cachedTextEncoder.encode(str));
+    }
+    if (typeof Buffer !== 'undefined') {
+      return Buffer.from(str, 'utf8').toString('base64');
+    }
+    const u8 = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) u8[i] = str.charCodeAt(i) & 0xff;
+    return __uorBytesToBase64(u8);
+  };
+
+  const decodeBase64ToUtf8 = (b64) => {
+    const bytes = __uorBase64ToBytes(b64);
+    if (cachedTextDecoder && typeof cachedTextDecoder.decode === 'function') {
+      return cachedTextDecoder.decode(bytes);
+    }
+    if (typeof Buffer !== 'undefined') {
+      return Buffer.from(bytes).toString('utf8');
+    }
+    return '';
+  };
+
+  const resolveMvmSyncInFn = () =>
+    typeof mvm_sync_workspace_in_json === 'function'
+      ? mvm_sync_workspace_in_json
+      : globalThis.mvm_sync_workspace_in_json;
+
+  const resolveMvmExportDiffFn = () =>
+    typeof mvm_export_workspace_diff_json === 'function'
+      ? mvm_export_workspace_diff_json
+      : globalThis.mvm_export_workspace_diff_json;
+
+  const syncWorkspaceIntoMvm = () => {
+    const syncInFn = resolveMvmSyncInFn();
+    if (typeof syncInFn !== 'function') return null;
+    try {
+      const snap = __uorCollectWorkspaceSnapshot();
+      const files = snap && Array.isArray(snap.files) ? snap.files : [];
+      const nextMap = new Map();
+      const payloadFiles = [];
+      for (const f of files) {
+        if (!f || typeof f.path !== 'string') continue;
+        const content = typeof f.content === 'string' ? f.content : '';
+        nextMap.set(f.path, content);
+        if (syncedHostWorkspaceFiles.get(f.path) !== content) {
+          payloadFiles.push({
+            path: f.path,
+            content_base64: encodeUtf8ToBase64(content),
+          });
+        }
+      }
+      for (const prevPath of syncedHostWorkspaceFiles.keys()) {
+        if (!nextMap.has(prevPath)) {
+          payloadFiles.push({ path: prevPath, content_base64: '', deleted: true });
+        }
+      }
+      if (payloadFiles.length === 0 && syncedHostWorkspaceFiles.size > 0) {
+        return null;
+      }
+      const resRaw = syncInFn(JSON.stringify({ epoch: mvmWorkspaceSyncEpoch, files: payloadFiles }));
+      const res = typeof resRaw === 'string' ? JSON.parse(resRaw) : resRaw;
+      if (res && res.status === 'ok') {
+        mvmWorkspaceSyncEpoch = Number(res.epoch) || mvmWorkspaceSyncEpoch;
+        syncedHostWorkspaceFiles.clear();
+        for (const [k, v] of nextMap.entries()) syncedHostWorkspaceFiles.set(k, v);
+      }
+      return res;
+    } catch {
+      return null;
+    }
+  };
+
+  const exportWorkspaceDiffFromMvm = () => {
+    const exportDiffFn = resolveMvmExportDiffFn();
+    if (typeof exportDiffFn !== 'function') return null;
+    try {
+      const diffRaw = exportDiffFn();
+      const diff = typeof diffRaw === 'string' ? JSON.parse(diffRaw) : diffRaw;
+      if (diff && diff.status === 'ok') {
+        mvmWorkspaceSyncEpoch = Number(diff.epoch) || mvmWorkspaceSyncEpoch;
+        const writes = Array.isArray(diff.writes) ? diff.writes : [];
+        for (const w of writes) {
+          if (w && typeof w.path === 'string' && typeof w.content_base64 === 'string') {
+            syncedHostWorkspaceFiles.set(w.path, decodeBase64ToUtf8(w.content_base64));
+          }
+        }
+        const deletes = Array.isArray(diff.deletes) ? diff.deletes : [];
+        for (const delPath of deletes) {
+          if (typeof delPath === 'string') syncedHostWorkspaceFiles.delete(delPath);
+        }
+      }
+      return diff;
+    } catch {
+      return null;
+    }
+  };
+
   const applyClonedFilesToWorkspace = (files) => {
     if (!Array.isArray(files) || files.length === 0) return null;
     for (const f of files) {
@@ -5941,6 +6047,10 @@ function __uorStartDedicatedEngineWorker() {
   };
 
   const dispatchWithConnectedBridge = async (envelope) => {
+    const isMvmExecEnvelope = envelope.includes('\tmvm_exec\t');
+    if (isMvmExecEnvelope) {
+      syncWorkspaceIntoMvm();
+    }
     let currentRaw = studio_dispatch(envelope);
     let parsed = JSON.parse(currentRaw);
     let hops = 0;
@@ -6023,9 +6133,21 @@ function __uorStartDedicatedEngineWorker() {
       const pulses = __uorSynthesizeBrainPulsesFromReply(parsed, lastToolKind);
       postEvent('brain_pulse', { pulses });
     }
-    if (envelope.includes('\tmvm_exec\t') || (isChatTurn && parsed && parsed.mvm_tool_executed)) {
+    if (isMvmExecEnvelope || (isChatTurn && parsed && parsed.mvm_tool_executed)) {
+      const diff = exportWorkspaceDiffFromMvm();
       persist_mvm_cow_sectors_to_opfs().catch(() => {});
-      postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
+      const snap = __uorCollectWorkspaceSnapshot();
+      if (diff && diff.status === 'ok' && parsed && typeof parsed === 'object') {
+        parsed.workspace_diff = diff;
+        parsed.ignored_heavy_paths = Number(diff.ignored_heavy_paths) || 0;
+        const diffWrites = Array.isArray(diff.writes) ? diff.writes.map((w) => w.path) : [];
+        const diffDeletes = Array.isArray(diff.deletes) ? diff.deletes : [];
+        parsed.changed_files = diffWrites.concat(diffDeletes);
+      }
+      postEvent('workspace_sync', {
+        workspace: snap,
+        ...(diff && diff.status === 'ok' ? { diff } : {}),
+      });
     }
     return parsed;
   };
@@ -6619,6 +6741,38 @@ function __uorStartDedicatedEngineWorker() {
           },
         );
         self.postMessage(resEnvelope);
+        return;
+      }
+      if (op === 'mvm_sync_workspace_in') {
+        const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload || { epoch: mvmWorkspaceSyncEpoch, files: [] });
+        const syncInFn = resolveMvmSyncInFn();
+        const rawOut =
+          typeof syncInFn === 'function'
+            ? syncInFn(payloadStr)
+            : studio_dispatch(`1\tstudio\tmvm_sync_workspace_in\t${payloadStr}`);
+        const parsedOut = typeof rawOut === 'string' ? JSON.parse(rawOut) : rawOut;
+        if (parsedOut && parsedOut.status === 'ok') {
+          mvmWorkspaceSyncEpoch = Number(parsedOut.epoch) || mvmWorkspaceSyncEpoch;
+          postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
+        }
+        self.postMessage({ id, ok: true, result: parsedOut });
+        return;
+      }
+      if (op === 'mvm_export_workspace_diff') {
+        const exportDiffFn = resolveMvmExportDiffFn();
+        const rawOut =
+          typeof exportDiffFn === 'function'
+            ? exportDiffFn()
+            : studio_dispatch('1\tstudio\tmvm_export_workspace_diff\t');
+        const parsedOut = typeof rawOut === 'string' ? JSON.parse(rawOut) : rawOut;
+        if (parsedOut && parsedOut.status === 'ok') {
+          mvmWorkspaceSyncEpoch = Number(parsedOut.epoch) || mvmWorkspaceSyncEpoch;
+          postEvent('workspace_sync', {
+            workspace: __uorCollectWorkspaceSnapshot(),
+            diff: parsedOut,
+          });
+        }
+        self.postMessage({ id, ok: true, result: parsedOut });
         return;
       }
       self.postMessage({ id, ok: false, error: `Unknown worker op: ${op}` });

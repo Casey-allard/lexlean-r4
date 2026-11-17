@@ -1398,6 +1398,12 @@ impl StudioEngine {
         }
         engine.init_default_workspace();
         engine.sync_workspace_into_mvm();
+        let baseline_map: std::collections::BTreeMap<String, String> = engine
+            .workspace_files
+            .iter()
+            .map(|wf| (wf.path.clone(), wf.content.clone()))
+            .collect();
+        engine.mvm.record_workspace_baseline_from_map(&baseline_map);
         engine
     }
 
@@ -1408,6 +1414,26 @@ impl StudioEngine {
             map.insert(wf.path.clone(), wf.content.clone());
         }
         self.mvm.sync_from_workspace_map(&map);
+    }
+
+    /// Apply a host/Worker base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
+    pub fn mvm_sync_workspace_in_json(&mut self, snapshot_json: &str) -> String {
+        let out = self.mvm.mvm_sync_workspace_in_json(snapshot_json);
+        let ok = serde_json::from_str::<serde_json::Value>(&out)
+            .ok()
+            .and_then(|v| v.get("status").and_then(|s| s.as_str()).map(|s| s == "ok"))
+            .unwrap_or(false);
+        if ok {
+            self.sync_workspace_from_mvm();
+        }
+        out
+    }
+
+    /// Export minimal filtered UTF-8 `/workspace` writes and deletes since the last MVM sync (`R4-57`).
+    pub fn mvm_export_workspace_diff_json(&mut self) -> String {
+        let out = self.mvm.mvm_export_workspace_diff_json();
+        self.sync_workspace_from_mvm();
+        out
     }
 
     /// Synchronize text files mutated or deleted inside `MVM-Wasm` `/workspace` back into Studio's workspace list.
@@ -5997,6 +6023,12 @@ impl StudioEngine {
         );
         self.admit_turn(&anchor_prompt, &anchor_reply);
         self.sync_workspace_into_mvm();
+        let baseline_map: std::collections::BTreeMap<String, String> = self
+            .workspace_files
+            .iter()
+            .map(|wf| (wf.path.clone(), wf.content.clone()))
+            .collect();
+        self.mvm.record_workspace_baseline_from_map(&baseline_map);
         self.workspace_list_json()
     }
 
@@ -6047,6 +6079,12 @@ impl StudioEngine {
                 .unwrap_or_default();
         }
         self.sync_workspace_into_mvm();
+        let baseline_map: std::collections::BTreeMap<String, String> = self
+            .workspace_files
+            .iter()
+            .map(|wf| (wf.path.clone(), wf.content.clone()))
+            .collect();
+        self.mvm.record_workspace_baseline_from_map(&baseline_map);
         self.workspace_list_json()
     }
 
@@ -8329,6 +8367,8 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "mvm_set_policy" => engine.mvm_set_policy_json(payload),
         "mvm_status" => engine.mvm_status_json(),
         "mvm_vsock_frame" => engine.mvm_vsock_frame_json(payload),
+        "mvm_sync_workspace_in" => engine.mvm_sync_workspace_in_json(payload),
+        "mvm_export_workspace_diff" => engine.mvm_export_workspace_diff_json(),
         "chat_v10_turn" => engine.chat_v10_turn_json(payload),
         "chat_complete_bridge" | "chat_v10_resume" => engine.chat_complete_bridge_json(payload),
         "stitch_verify_manifest" => studio_stitch_verify_manifest(payload),
@@ -9244,6 +9284,28 @@ pub fn studio_wasm_eval(subcommand: &str, filter: &str) -> String {
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.execute_cargo_json(&format!("{}\t{}", subcommand.trim(), filter.trim()))
+}
+
+/// Synchronize base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
+#[wasm_bindgen]
+pub fn mvm_sync_workspace_in_json(snapshot_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.mvm_sync_workspace_in_json(snapshot_json)
+}
+
+/// Export minimal filtered UTF-8 `/workspace` writes and deletes since last sync (`R4-57`).
+#[wasm_bindgen]
+pub fn mvm_export_workspace_diff_json() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.mvm_export_workspace_diff_json()
 }
 
 /// Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).

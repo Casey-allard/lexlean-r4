@@ -747,3 +747,198 @@ test('Worker BusyTurn preserves active Turn 1 ownership, handles targetId hydrat
     globalThis.indexedDB = prevIdb;
   }
 });
+
+test('Worker terminal:write and mvm_exec run bidirectional base64 /workspace sync hooks', async () => {
+  const prevWgs = globalThis.WorkerGlobalScope;
+  const prevSelf = globalThis.self;
+  const prevWbg = globalThis.__wbg_init;
+  const prevPanic = globalThis.init_panic_hook;
+  const prevBoot = globalThis.studio_bootstrap;
+  const prevPack = globalThis.studio_weight_pack_status;
+  const prevDispatch = globalThis.studio_dispatch;
+  const prevSyncIn = globalThis.mvm_sync_workspace_in_json;
+  const prevExportDiff = globalThis.mvm_export_workspace_diff_json;
+  const prevCowExport = globalThis.studio_export_mvm_cow_sectors;
+  const prevCowImport = globalThis.studio_import_mvm_cow_sectors;
+
+  const posted = [];
+  const rpcWaiters = new Map();
+  const waitForRpc = (id) =>
+    new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error(`Timeout waiting for RPC ${id}`)), 2000);
+      rpcWaiters.set(id, (msg) => {
+        clearTimeout(t);
+        resolve(msg);
+      });
+    });
+
+  let readyResolve;
+  const readyPromise = new Promise((r) => {
+    readyResolve = r;
+  });
+
+  try {
+    class MockWorkerGlobalScope {
+      constructor() {
+        this.name = 'uor-r4-engine-worker';
+      }
+      postMessage(msg) {
+        posted.push(msg);
+        if (msg && msg.event === 'ready') readyResolve(msg);
+        if (msg && msg.id != null && typeof msg.ok === 'boolean' && rpcWaiters.has(msg.id)) {
+          const cb = rpcWaiters.get(msg.id);
+          rpcWaiters.delete(msg.id);
+          cb(msg);
+        }
+      }
+    }
+    const mockSelf = new MockWorkerGlobalScope();
+    globalThis.WorkerGlobalScope = MockWorkerGlobalScope;
+    globalThis.self = mockSelf;
+    globalThis.__wbg_init = async () => ({});
+    globalThis.init_panic_hook = () => {};
+    globalThis.studio_bootstrap = () => '{}';
+    globalThis.studio_weight_pack_status = () => JSON.stringify({ mounted_packs: [] });
+    globalThis.studio_export_mvm_cow_sectors = () => new Uint8Array([77, 86, 77]);
+    globalThis.studio_import_mvm_cow_sectors = () => JSON.stringify({ status: 'ok', sectors: 0 });
+
+    const hostFiles = [
+      { path: 'src/App.tsx', language: 'typescript', content: 'export const x = 1;\n' },
+      { path: 'README.md', language: 'markdown', content: '# App\n' },
+    ];
+    const callOrder = [];
+    const syncInPayloads = [];
+    let epoch = 0;
+
+    globalThis.mvm_sync_workspace_in_json = (jsonStr) => {
+      callOrder.push('sync_in');
+      const req = JSON.parse(jsonStr);
+      syncInPayloads.push(req);
+      epoch = Number(req.epoch) || epoch;
+      return JSON.stringify({
+        status: 'ok',
+        epoch,
+        applied_writes: req.files.length,
+        applied_deletes: 0,
+      });
+    };
+
+    const diffQueue = [
+      {
+        status: 'ok',
+        epoch: 1,
+        writes: [
+          {
+            path: 'generated.txt',
+            content_base64: Buffer.from('hello from mvm\n', 'utf8').toString('base64'),
+          },
+        ],
+        deletes: [],
+        ignored_heavy_paths: 2,
+        cow_state_sha256: 'b'.repeat(64),
+      },
+      {
+        status: 'ok',
+        epoch: 2,
+        writes: [],
+        deletes: ['src/App.tsx'],
+        ignored_heavy_paths: 0,
+        cow_state_sha256: 'c'.repeat(64),
+      },
+    ];
+    globalThis.mvm_export_workspace_diff_json = () => {
+      callOrder.push('export_diff');
+      const next = diffQueue.shift() || {
+        status: 'ok',
+        epoch,
+        writes: [],
+        deletes: [],
+        ignored_heavy_paths: 0,
+        cow_state_sha256: 'd'.repeat(64),
+      };
+      return JSON.stringify(next);
+    };
+
+    globalThis.studio_dispatch = (env) => {
+      if (env.includes('\tworkspace_list\t')) {
+        return JSON.stringify({ status: 'ok', files: hostFiles });
+      }
+      if (env.includes('\tmvm_exec\t')) {
+        callOrder.push('mvm_exec');
+        return JSON.stringify({ status: 'ok', exit_code: 0, mvm_stdout: 'ran\n', mvm_stderr: '' });
+      }
+      return JSON.stringify({ status: 'ok' });
+    };
+
+    await import('../../crates/wasm/js/worker_host_bridge.js?worker_sync_test=1');
+    await readyPromise;
+
+    const term1P = waitForRpc('sync-term-1');
+    mockSelf.onmessage({
+      data: {
+        id: 'sync-term-1',
+        op: 'terminal:write',
+        payload: { cmd: 'echo hello > /workspace/generated.txt' },
+      },
+    });
+    const term1 = await term1P;
+    assert.equal(term1.ok, true);
+    assert.deepEqual(callOrder, ['sync_in', 'mvm_exec', 'export_diff']);
+    assert.equal(syncInPayloads[0].files.length, 2);
+    assert.equal(
+      Buffer.from(syncInPayloads[0].files[0].content_base64, 'base64').toString('utf8'),
+      'export const x = 1;\n',
+    );
+    assert.equal(term1.result.ignored_heavy_paths, 2);
+    assert.deepEqual(term1.result.changed_files, ['generated.txt']);
+
+    const syncEvents1 = posted.filter((m) => m.event === 'workspace_sync');
+    assert.ok(syncEvents1.some((e) => e.diff && e.diff.ignored_heavy_paths === 2));
+
+    hostFiles.splice(1, 1);
+    hostFiles.push({ path: 'generated.txt', language: 'text', content: 'hello from mvm\n' });
+    const term2P = waitForRpc('sync-term-2');
+    mockSelf.onmessage({
+      data: {
+        id: 'sync-term-2',
+        op: 'terminal:write',
+        payload: { cmd: 'rm /workspace/src/App.tsx' },
+      },
+    });
+    const term2 = await term2P;
+    assert.equal(term2.ok, true);
+    assert.deepEqual(syncInPayloads[1].files, [{ path: 'README.md', content_base64: '', deleted: true }]);
+    assert.equal(syncInPayloads[1].epoch, 1);
+    assert.deepEqual(term2.result.changed_files, ['src/App.tsx']);
+
+    const directInP = waitForRpc('direct-sync-in');
+    mockSelf.onmessage({
+      data: {
+        id: 'direct-sync-in',
+        op: 'mvm_sync_workspace_in',
+        payload: { epoch: 5, files: [{ path: 'a.txt', content_base64: Buffer.from('a').toString('base64') }] },
+      },
+    });
+    const directIn = await directInP;
+    assert.equal(directIn.ok, true);
+    assert.equal(directIn.result.epoch, 5);
+
+    const directDiffP = waitForRpc('direct-export-diff');
+    mockSelf.onmessage({ data: { id: 'direct-export-diff', op: 'mvm_export_workspace_diff' } });
+    const directDiff = await directDiffP;
+    assert.equal(directDiff.ok, true);
+    assert.equal(directDiff.result.status, 'ok');
+  } finally {
+    globalThis.WorkerGlobalScope = prevWgs;
+    globalThis.self = prevSelf;
+    globalThis.__wbg_init = prevWbg;
+    globalThis.init_panic_hook = prevPanic;
+    globalThis.studio_bootstrap = prevBoot;
+    globalThis.studio_weight_pack_status = prevPack;
+    globalThis.studio_dispatch = prevDispatch;
+    globalThis.mvm_sync_workspace_in_json = prevSyncIn;
+    globalThis.mvm_export_workspace_diff_json = prevExportDiff;
+    globalThis.studio_export_mvm_cow_sectors = prevCowExport;
+    globalThis.studio_import_mvm_cow_sectors = prevCowImport;
+  }
+});

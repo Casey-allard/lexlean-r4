@@ -186,6 +186,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-08` | `build` | The pure LexLean finite learning-transition model selects from the complete sixteen geometric or three gate candidate inventory, preserves baseline-fixed eligibility and checked batch-loss semantics over explicit read/writer outcomes, and applies only a binding- and epoch-valid strictly improving geometric update while preserving the whole state on refusal. Formal controls do not establish counterfactual read execution, private device proposal authentication, GPU parity, or permission to train. |
 
+## r4-mvm-linux-workspace
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-57` | `build` | Pure LexLean models the MVM-Wasm Linux shell AST executor, native Rust coreutils applets, and filtered bidirectional /workspace sync (R4-57): deterministic AST shell parsing and execution across pipelines (\|), command chains (&&/\|\|/;), environment variable expansion and export ($VAR, ${VAR}, $?), redirects (>, >>, <, 2>&1), and heredocs (<<EOF, <<'EOF') backed directly by MvmCowSnapshot inodes; panic-free native Rust coreutils applets (head, tail, wc, tr, cut, sed, awk, find, cp, mv, touch, chmod, ln, printf, env, export, which, ps, uname, date, tar, gzip/gunzip, base64, diff, bc, jq, sort, uniq, grep, cat, ls) returning exit 0 on valid inputs and non-zero typed stderr on missing or corrupt inputs; mvm_sync_workspace_in_json and mvm_export_workspace_diff_json delta synchronization across StudioEngine, #[wasm_bindgen], and Worker terminal:write/mvm_exec hooks preserving heavy directories (/workspace/node_modules/**, /workspace/.venv/**, /workspace/**/__pycache__/**, /workspace/.git/objects/**) and non-UTF-8 binary blobs (*.db, *.wasm, >1 MiB) solely in MVM OPFS COW sectors (uor-mvm-cow-v1.bin) while protecting canonical rule files (^prism/.*\.lex\.tex$, ^app/state$) and rejecting traversal or invalid sync payloads with typed refusals. Formal controls establish no full POSIX kernel process isolation or external OS syscall parity beyond MVM-Wasm CoW inodes and RV64IMAC execution. |
+
 ## r4-native-q31-train
 
 | ID | Level | Statement |

@@ -9,7 +9,12 @@ use lexlean_r4_wasm::mvm::{
     admit_elf64_riscv, admit_guest_socket_domain, admit_spiralcore_header, MvmSandbox,
     SpiralCoreHeader, SPIRALCORE_MAGIC,
 };
-use lexlean_r4_wasm::studio_dispatch;
+use lexlean_r4_wasm::{
+    mvm_export_workspace_diff_json, mvm_sync_workspace_in_json, studio_dispatch,
+    studio_export_mvm_cow_sectors, studio_import_mvm_cow_sectors, StudioEngine,
+};
+
+static STUDIO_GLOBAL_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 #[test]
 fn test_mvm_boot_and_real_rv64_elf64_userland_r4_37() {
@@ -93,6 +98,7 @@ fn test_mvm_boot_and_real_rv64_elf64_userland_r4_37() {
 
 #[test]
 fn test_mvm_c_compiler_emits_and_executes_real_rv64_elf64_r4_37() {
+    let _guard = STUDIO_GLOBAL_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let _ = studio_dispatch("1\tstudio\treset\t");
     let c_src = r#"
 #include <stdio.h>
@@ -282,4 +288,408 @@ fn test_mvm_cow_block_snapshot_and_rollback_r4_37() {
         vm.read_guest_file("/workspace/state.txt").as_deref(),
         Some(&b"baseline-v1"[..])
     );
+}
+
+#[test]
+fn test_mvm_pipeline_heredoc_redirects_and_env_r4_57() {
+    let mut vm = MvmSandbox::boot_default().expect("boot MVM");
+
+    // 1. Multi-stage pipeline + single-quoted heredoc + redirect from task-2-brief
+    let script = "cat <<'EOF' | grep -E \"foo|bar\" | sort | uniq -c | awk '{print $2,$1}' > /workspace/out.txt\nfoo\nbar\nfoo\nbaz\nEOF";
+    let res = vm
+        .exec_command(script, "/workspace")
+        .expect("exec pipeline");
+    assert_eq!(res.exit_code, 0, "stderr: {}", res.stderr);
+    assert_eq!(res.stdout, "");
+    let out_bytes = vm
+        .read_guest_file("/workspace/out.txt")
+        .expect("/workspace/out.txt written");
+    assert_eq!(String::from_utf8_lossy(&out_bytes), "bar 1\nfoo 2\n");
+
+    // 2. Quoted vs unquoted heredoc + export + ${VAR:-default} + $? + chains
+    let env_script = "export GREETING=hello\ncat <<EOF > /workspace/env_doc.txt\n$GREETING ${MISSING:-fallback}\nEOF\ncat <<'EOF' >> /workspace/env_doc.txt\n$GREETING\nEOF";
+    let env_res = vm.exec_command(env_script, "/workspace").expect("exec env");
+    assert_eq!(env_res.exit_code, 0, "stderr: {}", env_res.stderr);
+    let env_bytes = vm
+        .read_guest_file("/workspace/env_doc.txt")
+        .expect("/workspace/env_doc.txt written");
+    assert_eq!(
+        String::from_utf8_lossy(&env_bytes),
+        "hello fallback\n$GREETING\n"
+    );
+
+    // 3. Input redirect `<`, `2>&1`, `&&`, `||`
+    let wc_in = vm
+        .exec_command("wc -l < /workspace/out.txt", "/workspace")
+        .expect("wc <");
+    assert_eq!(wc_in.exit_code, 0, "stderr: {}", wc_in.stderr);
+    assert_eq!(wc_in.stdout.trim(), "2");
+
+    let redir_err = vm
+        .exec_command(
+            "cat /workspace/missing_redir.txt 2>&1 || echo RECOVERED:$?",
+            "/workspace",
+        )
+        .expect("2>&1 and ||");
+    assert_eq!(redir_err.exit_code, 0);
+    assert!(
+        redir_err.stdout.contains("missing_redir.txt") && redir_err.stdout.contains("RECOVERED:1"),
+        "expected merged stderr and || recovery, got stdout={:?} stderr={:?}",
+        redir_err.stdout,
+        redir_err.stderr
+    );
+}
+
+#[test]
+fn test_mvm_coreutils_applets_and_negative_errors_r4_57() {
+    let mut vm = MvmSandbox::boot_default().expect("boot MVM");
+    vm.write_guest_file(
+        "/workspace/data.txt",
+        b"alpha:10:red\nbeta:20:blue\ngamma:30:green\ndelta:40:yellow\n",
+    )
+    .expect("seed data.txt");
+    vm.write_guest_file(
+        "/workspace/other.txt",
+        b"alpha:10:red\nbeta:25:blue\ngamma:30:green\ndelta:40:yellow\n",
+    )
+    .expect("seed other.txt");
+
+    let positive_cases: Vec<(&str, &str)> = vec![
+        ("head -n 2 /workspace/data.txt", "alpha:10:red\nbeta:20:blue\n"),
+        ("tail -n 2 /workspace/data.txt", "gamma:30:green\ndelta:40:yellow\n"),
+        ("wc -l /workspace/data.txt", "4 /workspace/data.txt\n"),
+        ("echo hello | tr a-z A-Z", "HELLO\n"),
+        ("cut -d: -f1,3 /workspace/data.txt | head -n 1", "alpha:red\n"),
+        ("echo hello world | sed 's/world/mvm/g'", "hello mvm\n"),
+        ("echo 'a b c' | awk '{print $3,$1}'", "c a\n"),
+        ("find /workspace -name '*.txt' | sort", "/workspace/data.txt\n/workspace/other.txt\n"),
+        ("cp /workspace/data.txt /workspace/copy.txt && cat /workspace/copy.txt | wc -l", "4\n"),
+        ("mv /workspace/copy.txt /workspace/moved.txt && ls /workspace/moved.txt", "/workspace/moved.txt\n"),
+        ("touch /workspace/touched.txt && ls /workspace/touched.txt", "/workspace/touched.txt\n"),
+        ("chmod 755 /workspace/touched.txt && echo ok", "ok\n"),
+        ("ln -s /workspace/data.txt /workspace/data.link && head -n 1 /workspace/data.link", "alpha:10:red\n"),
+        ("printf '%s-%03d\\n' uor 7", "uor-007\n"),
+        ("export TEST_ENV_KEY=rv64 && env | grep TEST_ENV_KEY", "TEST_ENV_KEY=rv64\n"),
+        ("which jq", "/usr/bin/jq\n"),
+        ("ps", "mvm-agent"),
+        ("uname -m", "riscv64\n"),
+        ("date +%Y", "2026\n"),
+        ("tar -cf /workspace/arch.tar -C /workspace data.txt other.txt && tar -tf /workspace/arch.tar", "data.txt"),
+        ("mkdir -p /workspace/untar && tar -xf /workspace/arch.tar -C /workspace/untar && head -n 1 /workspace/untar/data.txt", "alpha:10:red\n"),
+        ("gzip -c /workspace/data.txt > /workspace/data.txt.gz && gunzip -c /workspace/data.txt.gz | head -n 1", "alpha:10:red\n"),
+        ("echo -n uor | base64 | base64 -d", "uor"),
+        ("diff -u /workspace/data.txt /workspace/data.txt", ""),
+        ("echo '6 * 7 + 5' | bc", "47\n"),
+        ("echo '{\"a\":{\"b\":42}}' | jq .a.b", "42\n"),
+    ];
+
+    for (cmd, expected_substr) in positive_cases {
+        let out = vm.exec_command(cmd, "/workspace").expect(cmd);
+        assert_eq!(
+            out.exit_code, 0,
+            "command `{cmd}` failed with exit={}, stdout={:?}, stderr={:?}",
+            out.exit_code, out.stdout, out.stderr
+        );
+        if expected_substr.is_empty() {
+            assert_eq!(out.stdout, "", "expected empty stdout for `{cmd}`");
+        } else {
+            assert!(
+                out.stdout.contains(expected_substr),
+                "command `{cmd}` stdout {:?} missing {:?}",
+                out.stdout,
+                expected_substr
+            );
+        }
+    }
+
+    // diff on differing files returns exit 1 with diff lines (not 2)
+    let diff_changed = vm
+        .exec_command(
+            "diff -u /workspace/data.txt /workspace/other.txt",
+            "/workspace",
+        )
+        .expect("diff changed");
+    assert_eq!(diff_changed.exit_code, 1);
+    assert!(diff_changed.stdout.contains("-beta:20:blue"));
+    assert!(diff_changed.stdout.contains("+beta:25:blue"));
+
+    // Negative / missing-file / corrupt-input / binary coverage (R5, zero panics)
+    let negative_cases = [
+        "head /workspace/nope.txt",
+        "tail /workspace/nope.txt",
+        "wc /workspace/nope.txt",
+        "cut -d: -f1 /workspace/nope.txt",
+        "sed 's/a/b/' /workspace/nope.txt",
+        "awk '{print $1}' /workspace/nope.txt",
+        "find /workspace/nope_dir",
+        "cp /workspace/nope.txt /workspace/dst.txt",
+        "mv /workspace/nope.txt /workspace/dst.txt",
+        "chmod 755 /workspace/nope.txt",
+        "ln /workspace/nope.txt /workspace/link.txt",
+        "which missing_binary_r5_check",
+        "tar -tf /workspace/nope.tar",
+        "tar -cf /workspace/bad.tar /workspace/nope.txt",
+        "gzip /workspace/nope.txt",
+        "gunzip /workspace/nope.gz",
+        "base64 /workspace/nope.txt",
+        "echo '!!!invalid!!!' | base64 -d",
+        "echo 'not-gzip-bytes' | gunzip",
+        "diff /workspace/nope1.txt /workspace/nope2.txt",
+        "echo '10 / 0' | bc",
+        "echo '{bad-json' | jq .",
+        "jq . /workspace/nope.json",
+    ];
+    for cmd in negative_cases {
+        let out = vm.exec_command(cmd, "/workspace").expect(cmd);
+        assert_ne!(
+            out.exit_code, 0,
+            "negative command `{cmd}` must return non-zero exit_code, got 0 (stdout={:?})",
+            out.stdout
+        );
+        assert!(
+            !out.stderr.trim().is_empty(),
+            "negative command `{cmd}` must emit typed diagnostic stderr"
+        );
+    }
+
+    // Binary safety: non-UTF-8 bytes never panic across text & archive utilities
+    vm.write_guest_file("/workspace/bin.dat", b"\xff\xfe\x00\x80\nhello\n\xf0\x9f")
+        .expect("write binary fixture");
+    for bin_cmd in [
+        "head -n 1 /workspace/bin.dat",
+        "tail -n 1 /workspace/bin.dat",
+        "wc -c /workspace/bin.dat",
+        "grep -E hello /workspace/bin.dat",
+        "sed 's/hello/world/' /workspace/bin.dat",
+        "awk '{print NR}' /workspace/bin.dat",
+        "base64 /workspace/bin.dat | base64 -d | wc -c",
+        "gzip -c /workspace/bin.dat | gunzip -c | wc -c",
+        "diff /workspace/bin.dat /workspace/data.txt",
+    ] {
+        let out = vm.exec_command(bin_cmd, "/workspace").expect(bin_cmd);
+        assert!(
+            out.exit_code == 0 || out.exit_code == 1,
+            "binary command `{bin_cmd}` panicked or failed unexpectedly: {:?}",
+            out.stderr
+        );
+    }
+}
+
+fn test_b64_encode(input: &[u8]) -> String {
+    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    let mut out = String::new();
+    for chunk in input.chunks(3) {
+        let b0 = chunk[0];
+        let b1 = if chunk.len() > 1 { chunk[1] } else { 0 };
+        let b2 = if chunk.len() > 2 { chunk[2] } else { 0 };
+        out.push(TABLE[(b0 >> 2) as usize] as char);
+        out.push(TABLE[(((b0 & 0x03) << 4) | (b1 >> 4)) as usize] as char);
+        if chunk.len() > 1 {
+            out.push(TABLE[(((b1 & 0x0f) << 2) | (b2 >> 6)) as usize] as char);
+        } else {
+            out.push('=');
+        }
+        if chunk.len() > 2 {
+            out.push(TABLE[(b2 & 0x3f) as usize] as char);
+        } else {
+            out.push('=');
+        }
+    }
+    out
+}
+
+#[test]
+fn test_mvm_workspace_sync_filter_and_binary_isolation_r4_57() {
+    // 1. MvmSandbox level: heavy dir, binary blob, and canonical rule exclusion + OPFS COW persistence
+    let mut vm = MvmSandbox::boot_default().expect("boot MVM");
+    let main_tsx = b"export const App = () => <h1>Hello</h1>;\n";
+    let db_blob = b"SQLite format 3\x00\xff\xfe\x80\x01binary-db";
+    let wasm_blob = b"\x00asm\x01\x00\x00\x00\xff\xfe";
+    let big_bin = vec![b'B'; 1_048_577];
+
+    vm.write_guest_file("/workspace/src/main.tsx", main_tsx)
+        .expect("write main.tsx");
+    vm.write_guest_file(
+        "/workspace/node_modules/pkg/index.js",
+        b"module.exports = 1;\n",
+    )
+    .expect("write node_modules");
+    vm.write_guest_file("/workspace/.venv/lib/x.py", b"x = 1\n")
+        .expect("write .venv");
+    vm.write_guest_file(
+        "/workspace/pkg/__pycache__/mod.cpython-312.pyc",
+        b"\x00\xffpyc",
+    )
+    .expect("write __pycache__");
+    vm.write_guest_file("/workspace/.git/objects/ab/cdef01", b"\x78\x9c\x01")
+        .expect("write .git/objects");
+    vm.write_guest_file(
+        "/workspace/prism/Rule.lex.tex",
+        b"\\begin{lexlean}{R4.Rule}\\end{lexlean}\n",
+    )
+    .expect("write prism rule");
+    vm.write_guest_file("/workspace/app/state", b"canonical-state\n")
+        .expect("write app/state");
+    vm.write_guest_file("/workspace/data/local.db", db_blob)
+        .expect("write local.db");
+    vm.write_guest_file("/workspace/dist/app.wasm", wasm_blob)
+        .expect("write app.wasm");
+    vm.write_guest_file("/workspace/big.bin", &big_bin)
+        .expect("write >1MiB bin");
+
+    let diff_raw = vm.mvm_export_workspace_diff_json();
+    let diff: serde_json::Value = serde_json::from_str(&diff_raw).expect("valid diff json");
+    assert_eq!(diff["status"], "ok");
+    let writes = diff["writes"].as_array().expect("writes array");
+    assert_eq!(
+        writes.len(),
+        1,
+        "only src/main.tsx should be exported, got: {writes:?}"
+    );
+    assert_eq!(writes[0]["path"], "src/main.tsx");
+    assert_eq!(writes[0]["content_base64"], test_b64_encode(main_tsx));
+    assert_eq!(diff["deletes"].as_array().expect("deletes").len(), 0);
+    assert_eq!(
+        diff["ignored_heavy_paths"].as_u64(),
+        Some(9),
+        "all 9 excluded heavy/binary/canonical paths must be counted: {diff}"
+    );
+    assert_eq!(
+        diff["cow_state_sha256"].as_str().map(str::len),
+        Some(64),
+        "cow_state_sha256 must be 64-char hex"
+    );
+
+    // Excluded files MUST still persist across MvmCowSnapshot CoW sectors (uor-mvm-cow-v1.bin)
+    let dirty_sectors = vm.export_dirty_cow_sectors();
+    let mut restored_vm = MvmSandbox::boot_default().expect("boot restored MVM");
+    let imported = restored_vm.import_cow_sectors(&dirty_sectors);
+    assert!(imported >= 1);
+    assert_eq!(
+        restored_vm
+            .read_guest_file("/workspace/node_modules/pkg/index.js")
+            .as_deref(),
+        Some(&b"module.exports = 1;\n"[..])
+    );
+    assert_eq!(
+        restored_vm
+            .read_guest_file("/workspace/.venv/lib/x.py")
+            .as_deref(),
+        Some(&b"x = 1\n"[..])
+    );
+    assert_eq!(
+        restored_vm
+            .read_guest_file("/workspace/data/local.db")
+            .as_deref(),
+        Some(&db_blob[..])
+    );
+    assert_eq!(
+        restored_vm
+            .read_guest_file("/workspace/dist/app.wasm")
+            .as_deref(),
+        Some(&wasm_blob[..])
+    );
+
+    // 2. StudioEngine & #[wasm_bindgen] bidirectional sync + incremental delta + canonical write refusal
+    let _guard = STUDIO_GLOBAL_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let _ = studio_dispatch("1\tstudio\treset\t");
+    let sync_in_payload = serde_json::json!({
+        "epoch": 42,
+        "files": [
+            { "path": "package.json", "content_base64": test_b64_encode(b"{\"name\":\"foundry-app\"}\n") },
+            { "path": "src/main.tsx", "content_base64": test_b64_encode(b"export const v = 1;\n") }
+        ]
+    })
+    .to_string();
+    let sync_res: serde_json::Value =
+        serde_json::from_str(&mvm_sync_workspace_in_json(&sync_in_payload)).expect("sync_in json");
+    assert_eq!(sync_res["status"], "ok");
+    assert_eq!(sync_res["epoch"], 42);
+
+    // Guest writes to canonical protected paths produce typed diagnostic stderr & never leak
+    let canon_attempt = serde_json::from_str::<serde_json::Value>(&studio_dispatch(
+        r#"1	studio	mvm_exec	{"cmd":"mkdir -p /workspace/prism /workspace/app && echo tamper > /workspace/prism/Rule.lex.tex"}"#,
+    ))
+    .expect("mvm_exec canonical json");
+    assert_eq!(
+        canon_attempt["status"], "ok",
+        "canonical refusal must still complete mvm_exec cleanly: {canon_attempt}"
+    );
+    assert_ne!(canon_attempt["exit_code"], 0);
+    assert!(
+        !canon_attempt["mvm_stderr"]
+            .as_str()
+            .unwrap_or("")
+            .trim()
+            .is_empty(),
+        "canonical write refusal must emit diagnostic stderr: {canon_attempt}"
+    );
+
+    // Guest updates src/main.tsx and deletes package.json + creates a binary sqlite db
+    let mut_res = serde_json::from_str::<serde_json::Value>(&studio_dispatch(
+        r#"1	studio	mvm_exec	{"cmd":"echo 'export const v = 2;' > /workspace/src/main.tsx && rm /workspace/package.json && printf 'bin\\0data' > /workspace/cache.db"}"#,
+    ))
+    .expect("mvm_exec mutate json");
+    assert_eq!(mut_res["status"], "ok", "mutate failed: {mut_res}");
+    assert_eq!(mut_res["exit_code"], 0, "stderr: {}", mut_res["mvm_stderr"]);
+
+    let delta1: serde_json::Value =
+        serde_json::from_str(&mvm_export_workspace_diff_json()).expect("delta1 json");
+    assert_eq!(delta1["status"], "ok");
+    assert_eq!(delta1["epoch"], 43);
+    let d1_writes = delta1["writes"].as_array().expect("writes");
+    assert_eq!(d1_writes.len(), 1);
+    assert_eq!(d1_writes[0]["path"], "src/main.tsx");
+    assert_eq!(
+        d1_writes[0]["content_base64"],
+        test_b64_encode(b"export const v = 2;\n")
+    );
+    let d1_deletes = delta1["deletes"].as_array().expect("deletes");
+    assert_eq!(d1_deletes, &vec![serde_json::json!("package.json")]);
+    assert!(delta1["ignored_heavy_paths"].as_u64().unwrap_or(0) >= 1);
+
+    // Second export with no further changes returns empty delta
+    let delta2: serde_json::Value =
+        serde_json::from_str(&mvm_export_workspace_diff_json()).expect("delta2 json");
+    assert_eq!(delta2["writes"].as_array().expect("writes").len(), 0);
+    assert_eq!(delta2["deletes"].as_array().expect("deletes").len(), 0);
+
+    // OPFS CoW sector stream preserves cache.db
+    let cow_stream = studio_export_mvm_cow_sectors();
+    let import_res: serde_json::Value =
+        serde_json::from_str(&studio_import_mvm_cow_sectors(&cow_stream)).expect("import json");
+    assert_eq!(import_res["status"], "ok");
+
+    // 3. Negative sync_in validation (`R5`)
+    let mut engine = StudioEngine::new_default();
+    let bad_json: serde_json::Value =
+        serde_json::from_str(&engine.mvm_sync_workspace_in_json("{bad")).expect("err json");
+    assert_eq!(bad_json["status"], "error");
+    assert_eq!(bad_json["error_code"], "InvalidPayload");
+
+    let traversal: serde_json::Value = serde_json::from_str(
+        &engine.mvm_sync_workspace_in_json(
+            &serde_json::json!({
+                "epoch": 1,
+                "files": [{ "path": "../etc/passwd", "content_base64": test_b64_encode(b"x") }]
+            })
+            .to_string(),
+        ),
+    )
+    .expect("traversal err json");
+    assert_eq!(traversal["status"], "error");
+    assert_eq!(traversal["error_code"], "RefusedParentTraversal");
+
+    let bad_b64: serde_json::Value = serde_json::from_str(
+        &engine.mvm_sync_workspace_in_json(
+            &serde_json::json!({
+                "epoch": 1,
+                "files": [{ "path": "src/bad.txt", "content_base64": "!!!" }]
+            })
+            .to_string(),
+        ),
+    )
+    .expect("bad b64 err json");
+    assert_eq!(bad_b64["status"], "error");
+    assert_eq!(bad_b64["error_code"], "InvalidBase64");
 }
