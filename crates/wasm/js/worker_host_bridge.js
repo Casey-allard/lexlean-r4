@@ -3193,9 +3193,19 @@ class MvmPolyglotVfs {
     this.files = new Map();
     this.symlinks = new Map();
     this.modes = new Map();
+    this.dirs = new Set(['']);
     this.originalKeys = new Set();
     this.dirtyWrites = new Set();
     this.dirtyDeletes = new Set();
+
+    const recordAncestorDirs = (relPath) => {
+      let idx = relPath.lastIndexOf('/');
+      while (idx > 0) {
+        const parentRel = relPath.slice(0, idx);
+        this.dirs.add(parentRel);
+        idx = parentRel.lastIndexOf('/');
+      }
+    };
 
     const list = Array.isArray(entries) ? entries : [];
     for (const item of list) {
@@ -3203,6 +3213,7 @@ class MvmPolyglotVfs {
       const rel = MvmPolyglotVfs.normalizeRel(item.path);
       if (!rel) continue;
       this.originalKeys.add(rel);
+      recordAncestorDirs(rel);
       const modeNum = typeof item.mode === 'number' ? item.mode : 0o100644;
       this.modes.set(rel, modeNum);
       if (typeof item.symlink_target === 'string') {
@@ -3293,7 +3304,7 @@ class MvmPolyglotVfs {
     try {
       const { rel } = this.resolveGuestTarget(rawPath);
       if (!rel) return true;
-      if (this.files.has(rel)) return true;
+      if (this.files.has(rel) || this.dirs.has(rel)) return true;
       const prefix = `${rel}/`;
       for (const k of this.files.keys()) {
         if (k.startsWith(prefix)) return true;
@@ -3312,6 +3323,7 @@ class MvmPolyglotVfs {
       const { rel } = this.resolveGuestTarget(rawPath);
       if (!rel) return true;
       if (this.files.has(rel)) return false;
+      if (this.dirs.has(rel)) return true;
       const prefix = `${rel}/`;
       for (const k of this.files.keys()) {
         if (k.startsWith(prefix)) return true;
@@ -3322,6 +3334,34 @@ class MvmPolyglotVfs {
       return false;
     } catch {
       return false;
+    }
+  }
+
+  mkdir(rawPath, opts) {
+    const abs = MvmPolyglotVfs.normalizePath(this.cwd, rawPath);
+    this.assertMutable(abs);
+    if (abs === '/workspace') return;
+    const rel = MvmPolyglotVfs.normalizeRel(abs);
+    if (!rel) return;
+    if (this.files.has(rel)) {
+      const e = new Error(`EEXIST: file already exists, mkdir '${rawPath}'`);
+      e.code = 'EEXIST';
+      throw e;
+    }
+    const recursive = Boolean(opts && opts.recursive);
+    const segs = rel.split('/').filter(Boolean);
+    if (!recursive && segs.length > 1) {
+      const parentRel = segs.slice(0, -1).join('/');
+      if (!this.isDirectory(`/workspace/${parentRel}`)) {
+        const e = new Error(`ENOENT: no such file or directory, mkdir '${rawPath}'`);
+        e.code = 'ENOENT';
+        throw e;
+      }
+    }
+    let acc = '';
+    for (const s of segs) {
+      acc = acc ? `${acc}/${s}` : s;
+      this.dirs.add(acc);
     }
   }
 
@@ -3348,6 +3388,12 @@ class MvmPolyglotVfs {
       : cachedTextEncoder.encode(String(data === undefined ? '' : data));
     this.symlinks.delete(targetRel);
     this.files.set(targetRel, u8);
+    let idx = targetRel.lastIndexOf('/');
+    while (idx > 0) {
+      const pRel = targetRel.slice(0, idx);
+      this.dirs.add(pRel);
+      idx = pRel.lastIndexOf('/');
+    }
     if (typeof mode === 'number') {
       this.modes.set(targetRel, mode);
     } else if (!this.modes.has(targetRel)) {
@@ -3365,22 +3411,46 @@ class MvmPolyglotVfs {
       throw err;
     }
     const rel = abs.slice('/workspace/'.length);
-    const resolvedTarget = String(target || '').startsWith('/')
-      ? MvmPolyglotVfs.normalizePath('/', target)
-      : MvmPolyglotVfs.normalizePath(MvmPolyglotVfs.parentDir(abs), target);
-    const targetRel = resolvedTarget.startsWith('/workspace/')
-      ? resolvedTarget.slice('/workspace/'.length)
-      : '';
-    if (
-      MvmPolyglotVfs.isCanonicalProtectedRel(rel) ||
-      (targetRel && MvmPolyglotVfs.isCanonicalProtectedRel(targetRel))
-    ) {
+    const targetStr = String(target || '');
+    let curAbs = targetStr.startsWith('/')
+      ? MvmPolyglotVfs.normalizePath('/', targetStr)
+      : MvmPolyglotVfs.normalizePath(MvmPolyglotVfs.parentDir(abs), targetStr);
+    if (!curAbs.startsWith('/workspace/') && curAbs !== '/workspace') {
+      const err = new Error(`Symlink escapes /workspace: ${curAbs}`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    if (MvmPolyglotVfs.isCanonicalProtectedRel(rel)) {
       const err = new Error(`mvm: refused symlink touching protected canonical path '${abs}'`);
       err.code = 'CanonicalPathProtected';
       throw err;
     }
+    for (let hop = 0; hop < 8; hop += 1) {
+      const curRel = curAbs === '/workspace' ? '' : curAbs.slice('/workspace/'.length);
+      if (curRel && MvmPolyglotVfs.isCanonicalProtectedRel(curRel)) {
+        const err = new Error(`mvm: refused symlink touching protected canonical path '${curAbs}'`);
+        err.code = 'CanonicalPathProtected';
+        throw err;
+      }
+      if (!curRel || !this.symlinks.has(curRel)) break;
+      const nextTarget = this.symlinks.get(curRel);
+      curAbs = nextTarget.startsWith('/')
+        ? MvmPolyglotVfs.normalizePath('/', nextTarget)
+        : MvmPolyglotVfs.normalizePath(MvmPolyglotVfs.parentDir(curAbs), nextTarget);
+      if (!curAbs.startsWith('/workspace/') && curAbs !== '/workspace') {
+        const err = new Error(`Symlink escapes /workspace: ${curAbs}`);
+        err.code = 'CanonicalPathProtected';
+        throw err;
+      }
+    }
     this.files.delete(rel);
-    this.symlinks.set(rel, String(target || ''));
+    this.symlinks.set(rel, targetStr);
+    let idx = rel.lastIndexOf('/');
+    while (idx > 0) {
+      const pRel = rel.slice(0, idx);
+      this.dirs.add(pRel);
+      idx = pRel.lastIndexOf('/');
+    }
     this.modes.set(rel, 0o120777);
     this.dirtyDeletes.delete(rel);
     this.dirtyWrites.add(rel);
@@ -3389,7 +3459,7 @@ class MvmPolyglotVfs {
   deletePath(rawPath) {
     const { directRel } = this.assertMutable(rawPath);
     if (!directRel) return false;
-    const existed = this.files.delete(directRel) || this.symlinks.delete(directRel);
+    const existed = this.files.delete(directRel) || this.symlinks.delete(directRel) || this.dirs.delete(directRel);
     this.modes.delete(directRel);
     this.dirtyWrites.delete(directRel);
     if (existed || this.originalKeys.has(directRel)) {
@@ -3410,6 +3480,12 @@ class MvmPolyglotVfs {
     }
     for (const k of this.symlinks.keys()) {
       if (k.startsWith(prefix)) {
+        const first = k.slice(prefix.length).split('/')[0];
+        if (first) out.add(first);
+      }
+    }
+    for (const k of this.dirs) {
+      if (k && k.startsWith(prefix)) {
         const first = k.slice(prefix.length).split('/')[0];
         if (first) out.add(first);
       }
@@ -3668,9 +3744,11 @@ class MvmWasiRunner {
         const oExcl = (oflags & 4) !== 0;
         const oTrunc = (oflags & 8) !== 0;
         const oAppend = (fdflags & 1) !== 0;
+        const writeRightMask = 0x400151n;
+        const wantsWrite = oCreat || oTrunc || oAppend || ((BigInt(_rBase || 0n) & writeRightMask) !== 0n);
         const existing = vfs.readBytes(fullPath);
 
-        if (oCreat || oTrunc || oAppend) {
+        if (wantsWrite) {
           try {
             vfs.assertMutable(fullPath);
           } catch (err) {
@@ -3692,6 +3770,7 @@ class MvmWasiRunner {
           data,
           offset: oAppend ? data.byteLength : 0,
           dirty: oTrunc || (!existing && oCreat),
+          writable: wantsWrite,
         });
         writeU32(openedFdPtr, fd);
         return WASI_ERRNO_SUCCESS;
@@ -3699,6 +3778,7 @@ class MvmWasiRunner {
       fd_write: (fd, iovsPtr, iovsLen, nwrittenPtr) => {
         const ent = fdTable.get(fd);
         if (!ent) return WASI_ERRNO_BADF;
+        if (ent.kind === 'file' && !ent.writable) return WASI_ERRNO_ACCES;
         const dv = memDv();
         const u8 = memU8();
         let total = 0;
@@ -3872,7 +3952,14 @@ class MvmSqliteEngine {
       err.code = 'SqliteRuntimeError';
       throw err;
     }
-    const parsed = JSON.parse(cachedTextDecoder.decode(rawBytes.subarray(100, 100 + payloadLen)));
+    let parsed;
+    try {
+      parsed = JSON.parse(cachedTextDecoder.decode(rawBytes.subarray(100, 100 + payloadLen)));
+    } catch {
+      const err = new Error('corrupt SQLite 3 database JSON payload');
+      err.code = 'CorruptSqliteDatabase';
+      throw err;
+    }
     const tables = new Map();
     for (const t of parsed.tables || []) {
       tables.set(t.name.toLowerCase(), {
@@ -3880,6 +3967,8 @@ class MvmSqliteEngine {
         columns: t.columns || [],
         rows: Array.isArray(t.rows) ? t.rows : [],
         sql: t.sql || '',
+        pk: Array.isArray(t.pk) ? t.pk : [],
+        unique: Array.isArray(t.unique) ? t.unique : [],
       });
     }
     return { tables };
@@ -4056,7 +4145,9 @@ class MvmSqliteEngine {
         return MvmSqliteEngine.parseLiteral(t);
       }
       const key = MvmSqliteEngine.unquoteIdent(t).toLowerCase();
-      return Object.prototype.hasOwnProperty.call(row, key) ? row[key] : null;
+      if (Object.prototype.hasOwnProperty.call(row, key)) return row[key];
+      const tail = key.includes('.') ? key.split('.').pop() : key;
+      return Object.prototype.hasOwnProperty.call(row, tail) ? row[tail] : null;
     };
 
     let m = /^(.+?)\s+IS\s+NOT\s+NULL$/i.exec(s);
@@ -4080,9 +4171,9 @@ class MvmSqliteEngine {
       const lhs = resolveVal(m[1]);
       const op = m[2];
       const rhs = resolveVal(m[3]);
+      if (lhs === null || rhs === null) return false;
       if (op === '=') return lhs === rhs;
       if (op === '!=' || op === '<>') return lhs !== rhs;
-      if (lhs === null || rhs === null) return false;
       if (op === '<') return lhs < rhs;
       if (op === '<=') return lhs <= rhs;
       if (op === '>') return lhs > rhs;
@@ -4114,6 +4205,7 @@ class MvmSqliteEngine {
 
   static execute(args, vfs, stdinUtf8) {
     const opts = { headers: false, mode: 'list', separator: '|' };
+    const cmdPreSql = [];
     const pos = [];
     for (let i = 0; i < args.length; i += 1) {
       const a = String(args[i]);
@@ -4125,7 +4217,7 @@ class MvmSqliteEngine {
         opts.separator = String(args[i + 1]);
         i += 1;
       } else if (a === '-cmd' && i + 1 < args.length) {
-        pos.push(String(args[i + 1]));
+        cmdPreSql.push(String(args[i + 1]));
         i += 1;
       } else if (!a.startsWith('-')) {
         pos.push(a);
@@ -4141,15 +4233,21 @@ class MvmSqliteEngine {
     if (!inMemory) vfs.assertMutable(dbPath);
     const existingBytes = inMemory ? null : vfs.readBytes(dbPath);
     const db = MvmSqliteEngine.loadDb(existingBytes);
-    const sqlInput = pos.slice(1).join(' ').trim() || String(stdinUtf8 || '').trim();
-    if (!sqlInput) {
+    const mainSql = pos.slice(1).join(' ').trim() || String(stdinUtf8 || '').trim();
+    const statements = [];
+    for (const pre of cmdPreSql) {
+      statements.push(...MvmSqliteEngine.splitStatements(pre));
+    }
+    if (mainSql) {
+      statements.push(...MvmSqliteEngine.splitStatements(mainSql));
+    }
+    if (statements.length === 0) {
       return { ok: true, exit_code: 0, stdout: '', stderr: '' };
     }
 
     let snapshot = null;
     let mutated = false;
     let outText = '';
-    const statements = MvmSqliteEngine.splitStatements(sqlInput);
 
     for (const rawStmt of statements) {
       const stmt = rawStmt.trim();
@@ -4200,15 +4298,35 @@ class MvmSqliteEngine {
         const tblName = MvmSqliteEngine.unquoteIdent(m[1]);
         const key = tblName.toLowerCase();
         if (!db.tables.has(key)) {
-          const colDefs = MvmSqliteEngine.splitTopLevelComma(m[2])
-            .filter((d) => !/^(PRIMARY\s+KEY|UNIQUE|CHECK|FOREIGN\s+KEY|CONSTRAINT)\b/i.test(d))
-            .map((d) => {
-              const tokens = d.trim().split(/\s+/);
-              const name = MvmSqliteEngine.unquoteIdent(tokens[0]).toLowerCase();
-              const type = (tokens[1] || 'TEXT').toUpperCase();
-              return { name, label: MvmSqliteEngine.unquoteIdent(tokens[0]), type };
-            });
-          db.tables.set(key, { name: tblName, columns: colDefs, rows: [], sql: stmt });
+          const allDefs = MvmSqliteEngine.splitTopLevelComma(m[2]);
+          const pkCols = [];
+          const uniqueSets = [];
+          const colDefs = [];
+          for (const d of allDefs) {
+            const dt = d.trim();
+            const pkMatch = /^(?:CONSTRAINT\s+\S+\s+)?PRIMARY\s+KEY\s*\(([^)]+)\)/i.exec(dt);
+            if (pkMatch) {
+              for (const c of MvmSqliteEngine.splitTopLevelComma(pkMatch[1])) {
+                pkCols.push(MvmSqliteEngine.unquoteIdent(c).toLowerCase());
+              }
+              continue;
+            }
+            const uqMatch = /^(?:CONSTRAINT\s+\S+\s+)?UNIQUE\s*\(([^)]+)\)/i.exec(dt);
+            if (uqMatch) {
+              uniqueSets.push(
+                MvmSqliteEngine.splitTopLevelComma(uqMatch[1]).map((c) => MvmSqliteEngine.unquoteIdent(c).toLowerCase()),
+              );
+              continue;
+            }
+            if (/^(CHECK|FOREIGN\s+KEY|CONSTRAINT)\b/i.test(dt)) continue;
+            const tokens = dt.split(/\s+/);
+            const name = MvmSqliteEngine.unquoteIdent(tokens[0]).toLowerCase();
+            const type = (tokens[1] || 'TEXT').toUpperCase();
+            if (/\bPRIMARY\s+KEY\b/i.test(dt)) pkCols.push(name);
+            if (/\bUNIQUE\b/i.test(dt)) uniqueSets.push([name]);
+            colDefs.push({ name, label: MvmSqliteEngine.unquoteIdent(tokens[0]), type });
+          }
+          db.tables.set(key, { name: tblName, columns: colDefs, rows: [], sql: stmt, pk: pkCols, unique: uniqueSets });
           mutated = true;
         }
         continue;
@@ -4224,17 +4342,18 @@ class MvmSqliteEngine {
         continue;
       }
 
-      m = /^INSERT\s+(?:OR\s+(?:REPLACE|IGNORE)\s+)?INTO\s+([A-Za-z_][A-Za-z0-9_"`]*)\s*(?:\(([^)]+)\))?\s*VALUES\s*([\s\S]+)$/i.exec(stmt);
+      m = /^INSERT\s+(?:OR\s+(REPLACE|IGNORE)\s+)?INTO\s+([A-Za-z_][A-Za-z0-9_"`]*)\s*(?:\(([^)]+)\))?\s*VALUES\s*([\s\S]+)$/i.exec(stmt);
       if (m) {
-        const key = MvmSqliteEngine.unquoteIdent(m[1]).toLowerCase();
+        const conflictMode = m[1] ? m[1].toUpperCase() : null;
+        const key = MvmSqliteEngine.unquoteIdent(m[2]).toLowerCase();
         const tbl = db.tables.get(key);
         if (!tbl) {
-          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[1]}\n` };
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[2]}\n` };
         }
-        const targetCols = m[2]
-          ? MvmSqliteEngine.splitTopLevelComma(m[2]).map((c) => MvmSqliteEngine.unquoteIdent(c).toLowerCase())
+        const targetCols = m[3]
+          ? MvmSqliteEngine.splitTopLevelComma(m[3]).map((c) => MvmSqliteEngine.unquoteIdent(c).toLowerCase())
           : tbl.columns.map((c) => c.name);
-        const rawTuples = m[3].trim();
+        const rawTuples = m[4].trim();
         let posIdx = 0;
         while (posIdx < rawTuples.length) {
           while (posIdx < rawTuples.length && (rawTuples[posIdx] === ',' || /\s/.test(rawTuples[posIdx]))) posIdx += 1;
@@ -4267,6 +4386,34 @@ class MvmSqliteEngine {
           for (const c of tbl.columns) rowObj[c.name] = null;
           for (let ci = 0; ci < targetCols.length; ci += 1) {
             rowObj[targetCols[ci]] = vals[ci] !== undefined ? vals[ci] : null;
+          }
+          const keyConstraints = [];
+          if (Array.isArray(tbl.pk) && tbl.pk.length > 0) keyConstraints.push(tbl.pk);
+          if (Array.isArray(tbl.unique)) {
+            for (const uq of tbl.unique) {
+              if (Array.isArray(uq) && uq.length > 0) keyConstraints.push(uq);
+            }
+          }
+          const conflictSet = new Set();
+          for (const kCols of keyConstraints) {
+            if (kCols.some((kc) => rowObj[kc] === null || rowObj[kc] === undefined)) continue;
+            for (let ri = 0; ri < tbl.rows.length; ri += 1) {
+              if (kCols.every((kc) => tbl.rows[ri][kc] === rowObj[kc])) {
+                conflictSet.add(ri);
+              }
+            }
+          }
+          if (conflictSet.size > 0) {
+            if (conflictMode === 'IGNORE') {
+              continue;
+            }
+            if (conflictMode === 'REPLACE') {
+              tbl.rows = tbl.rows.filter((_, ri) => !conflictSet.has(ri));
+              tbl.rows.push(rowObj);
+              mutated = true;
+              continue;
+            }
+            return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: UNIQUE constraint failed: ${tbl.name}\n` };
           }
           tbl.rows.push(rowObj);
           mutated = true;
@@ -4305,41 +4452,78 @@ class MvmSqliteEngine {
         continue;
       }
 
-      m = /^SELECT\s+(DISTINCT\s+)?([\s\S]+?)(?:\s+FROM\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+(?:AS\s+)?([A-Za-z_][A-Za-z0-9_]*))?(?:\s+(?:INNER\s+|LEFT\s+)?JOIN\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+(?:AS\s+)?([A-Za-z_][A-Za-z0-9_]*))?\s+ON\s+([\s\S]+?))?(?:\s+WHERE\s+([\s\S]+?))?(?:\s+GROUP\s+BY\s+([\s\S]+?))?(?:\s+ORDER\s+BY\s+([\s\S]+?))?(?:\s+LIMIT\s+(\d+)(?:\s+OFFSET\s+(\d+))?)?)?$/i.exec(stmt);
+      m = /^SELECT\s+(DISTINCT\s+)?([\s\S]+?)(?:\s+FROM\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+(?:AS\s+)?(?!INNER\b|LEFT\b|JOIN\b|WHERE\b|GROUP\b|ORDER\b|LIMIT\b)([A-Za-z_][A-Za-z0-9_]*))?(?:\s+(?:(INNER|LEFT(?:\s+OUTER)?)\s+)?JOIN\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+(?:AS\s+)?(?!ON\b|WHERE\b|GROUP\b|ORDER\b|LIMIT\b)([A-Za-z_][A-Za-z0-9_]*))?\s+ON\s+([\s\S]+?))?(?:\s+WHERE\s+([\s\S]+?))?(?:\s+GROUP\s+BY\s+([\s\S]+?))?(?:\s+ORDER\s+BY\s+([\s\S]+?))?(?:\s+LIMIT\s+(\d+)(?:\s+OFFSET\s+(\d+))?)?)?$/i.exec(stmt);
       if (m) {
         const distinct = Boolean(m[1]);
         const selectExprs = MvmSqliteEngine.splitTopLevelComma(m[2]);
         const tblName = m[3];
-        const joinTblName = m[5];
-        const joinOn = m[7];
-        const whereExpr = m[8];
-        const groupByExpr = m[9];
-        const orderByExpr = m[10];
-        const limitNum = m[11] ? Number(m[11]) : null;
-        const offsetNum = m[12] ? Number(m[12]) : 0;
+        const leftAlias = m[4] ? MvmSqliteEngine.unquoteIdent(m[4]).toLowerCase() : null;
+        const joinType = m[5] ? m[5].toUpperCase() : 'INNER';
+        const joinTblName = m[6];
+        const rightAlias = m[7] ? MvmSqliteEngine.unquoteIdent(m[7]).toLowerCase() : null;
+        const joinOn = m[8];
+        const whereExpr = m[9];
+        const groupByExpr = m[10];
+        const orderByExpr = m[11];
+        const limitNum = m[12] ? Number(m[12]) : null;
+        const offsetNum = m[13] ? Number(m[13]) : 0;
 
         let workingRows;
         let tbl = null;
         if (!tblName) {
           workingRows = [{}];
         } else {
-          tbl = db.tables.get(MvmSqliteEngine.unquoteIdent(tblName).toLowerCase());
+          const leftTableKey = MvmSqliteEngine.unquoteIdent(tblName).toLowerCase();
+          tbl = db.tables.get(leftTableKey);
           if (!tbl) {
             return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${tblName}\n` };
           }
-          workingRows = tbl.rows.map((r) => ({ ...r }));
+          workingRows = tbl.rows.map((r) => {
+            const obj = { ...r };
+            for (const c of tbl.columns) {
+              obj[`${leftTableKey}.${c.name}`] = r[c.name];
+              if (leftAlias) obj[`${leftAlias}.${c.name}`] = r[c.name];
+            }
+            return obj;
+          });
           if (joinTblName) {
-            const jTbl = db.tables.get(MvmSqliteEngine.unquoteIdent(joinTblName).toLowerCase());
+            const rightTableKey = MvmSqliteEngine.unquoteIdent(joinTblName).toLowerCase();
+            const jTbl = db.tables.get(rightTableKey);
             if (!jTbl) {
               return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${joinTblName}\n` };
             }
-            const eqParts = String(joinOn || '').split('=');
-            const lk = MvmSqliteEngine.unquoteIdent((eqParts[0] || '').split('.').pop()).toLowerCase();
-            const rk = MvmSqliteEngine.unquoteIdent((eqParts[1] || '').split('.').pop()).toLowerCase();
+            const isLeftJoin = joinType.startsWith('LEFT');
+            const makeJoinedRow = (lr, rr) => {
+              const out = {};
+              if (rr) {
+                for (const k of Object.keys(rr)) out[k] = rr[k];
+              } else {
+                for (const c of jTbl.columns) out[c.name] = null;
+              }
+              for (const k of Object.keys(lr)) out[k] = lr[k];
+              for (const c of tbl.columns) {
+                out[`${leftTableKey}.${c.name}`] = lr[c.name];
+                if (leftAlias) out[`${leftAlias}.${c.name}`] = lr[c.name];
+              }
+              for (const c of jTbl.columns) {
+                const rv = rr ? rr[c.name] : null;
+                out[`${rightTableKey}.${c.name}`] = rv;
+                if (rightAlias) out[`${rightAlias}.${c.name}`] = rv;
+              }
+              return out;
+            };
             const joined = [];
             for (const lr of workingRows) {
+              let matched = false;
               for (const rr of jTbl.rows) {
-                if (!joinOn || lr[lk] === rr[rk]) joined.push({ ...rr, ...lr });
+                const cand = makeJoinedRow(lr, rr);
+                if (!joinOn || MvmSqliteEngine.evalWhere(joinOn, cand)) {
+                  matched = true;
+                  joined.push(cand);
+                }
+              }
+              if (isLeftJoin && !matched) {
+                joined.push(makeJoinedRow(lr, null));
               }
             }
             workingRows = joined;
@@ -4356,8 +4540,11 @@ class MvmSqliteEngine {
             const fn = aggMatch[1].toUpperCase();
             const inner = aggMatch[2].trim();
             if (fn === 'COUNT' && inner === '*') return groupRows.length;
-            const colKey = MvmSqliteEngine.unquoteIdent(inner.split('.').pop()).toLowerCase();
-            const vals = groupRows.map((r) => r[colKey]).filter((v) => v !== null && v !== undefined);
+            const colFull = MvmSqliteEngine.unquoteIdent(inner).toLowerCase();
+            const colTail = MvmSqliteEngine.unquoteIdent(inner.split('.').pop()).toLowerCase();
+            const vals = groupRows
+              .map((r) => (Object.prototype.hasOwnProperty.call(r, colFull) ? r[colFull] : r[colTail]))
+              .filter((v) => v !== null && v !== undefined);
             if (fn === 'COUNT') return vals.length;
             if (fn === 'SUM') return vals.reduce((a, b) => Number(a) + Number(b), 0);
             if (fn === 'AVG') return vals.length ? vals.reduce((a, b) => Number(a) + Number(b), 0) / vals.length : null;
@@ -4365,12 +4552,12 @@ class MvmSqliteEngine {
             if (fn === 'MAX') return vals.length ? vals.reduce((a, b) => (b > a ? b : a)) : null;
           }
           const r0 = groupRows[0] || {};
+          const kFull = MvmSqliteEngine.unquoteIdent(clean).toLowerCase();
+          if (Object.prototype.hasOwnProperty.call(r0, kFull)) return r0[kFull];
           if (clean.includes('.') && !clean.startsWith("'")) {
-            const k = MvmSqliteEngine.unquoteIdent(clean.split('.').pop()).toLowerCase();
-            if (Object.prototype.hasOwnProperty.call(r0, k)) return r0[k];
+            const kTail = MvmSqliteEngine.unquoteIdent(clean.split('.').pop()).toLowerCase();
+            if (Object.prototype.hasOwnProperty.call(r0, kTail)) return r0[kTail];
           }
-          const k = MvmSqliteEngine.unquoteIdent(clean).toLowerCase();
-          if (Object.prototype.hasOwnProperty.call(r0, k)) return r0[k];
           return MvmSqliteEngine.parseLiteral(clean);
         };
 
@@ -4382,19 +4569,25 @@ class MvmSqliteEngine {
           colHeaders = tbl.columns.map((c) => c.label);
           if (orderByExpr) {
             const obParts = orderByExpr.trim().split(/\s+/);
-            const ok = MvmSqliteEngine.unquoteIdent(obParts[0]).toLowerCase();
+            const okFull = MvmSqliteEngine.unquoteIdent(obParts[0]).toLowerCase();
+            const okTail = okFull.includes('.') ? okFull.split('.').pop() : okFull;
             const desc = (obParts[1] || '').toUpperCase() === 'DESC';
-            workingRows.sort((a, b) => (a[ok] === b[ok] ? 0 : (a[ok] < b[ok] ? -1 : 1) * (desc ? -1 : 1)));
+            workingRows.sort((a, b) => {
+              const av = Object.prototype.hasOwnProperty.call(a, okFull) ? a[okFull] : a[okTail];
+              const bv = Object.prototype.hasOwnProperty.call(b, okFull) ? b[okFull] : b[okTail];
+              return av === bv ? 0 : (av < bv ? -1 : 1) * (desc ? -1 : 1);
+            });
           }
           resultRows = workingRows.map((r) => tbl.columns.map((c) => r[c.name]));
         } else if (isAggQuery) {
           colHeaders = selectExprs.map((e) => e.trim());
           resultRows = [selectExprs.map((e) => evalAggOrExpr(e, workingRows))];
         } else if (groupByExpr) {
-          const gKey = MvmSqliteEngine.unquoteIdent(groupByExpr.split(',')[0]).toLowerCase();
+          const gFull = MvmSqliteEngine.unquoteIdent(groupByExpr.split(',')[0]).toLowerCase();
+          const gTail = gFull.includes('.') ? gFull.split('.').pop() : gFull;
           const groups = new Map();
           for (const r of workingRows) {
-            const gv = r[gKey];
+            const gv = Object.prototype.hasOwnProperty.call(r, gFull) ? r[gFull] : r[gTail];
             if (!groups.has(gv)) groups.set(gv, []);
             groups.get(gv).push(r);
           }
@@ -4405,9 +4598,14 @@ class MvmSqliteEngine {
         } else {
           if (orderByExpr) {
             const obParts = orderByExpr.trim().split(/\s+/);
-            const ok = MvmSqliteEngine.unquoteIdent(obParts[0]).toLowerCase();
+            const okFull = MvmSqliteEngine.unquoteIdent(obParts[0]).toLowerCase();
+            const okTail = okFull.includes('.') ? okFull.split('.').pop() : okFull;
             const desc = (obParts[1] || '').toUpperCase() === 'DESC';
-            workingRows.sort((a, b) => (a[ok] === b[ok] ? 0 : (a[ok] < b[ok] ? -1 : 1) * (desc ? -1 : 1)));
+            workingRows.sort((a, b) => {
+              const av = Object.prototype.hasOwnProperty.call(a, okFull) ? a[okFull] : a[okTail];
+              const bv = Object.prototype.hasOwnProperty.call(b, okFull) ? b[okFull] : b[okTail];
+              return av === bv ? 0 : (av < bv ? -1 : 1) * (desc ? -1 : 1);
+            });
           }
           colHeaders = selectExprs.map((e) => e.trim());
           resultRows = workingRows.map((r) => selectExprs.map((e) => evalAggOrExpr(e, [r])));
@@ -4535,6 +4733,9 @@ export class SpiralCoreHostBridge {
   #pyodidePromise = null;
   #pyodideInstance = null;
   #pyodideShimmed = false;
+  #activePyStdoutSink = null;
+  #activePyStderrSink = null;
+  #syncFetchImpl = null;
 
   constructor(options) {
     const opts = options && typeof options === 'object' ? options : {};
@@ -4550,6 +4751,7 @@ export class SpiralCoreHostBridge {
     this.relayTimeoutMs = opts.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
     this.lastTransportMode = 'standby';
     this.fetchImpl = opts.fetchImpl || globalThis.fetch;
+    this.#syncFetchImpl = typeof opts.syncFetchImpl === 'function' ? opts.syncFetchImpl : null;
     this.esbuildModuleUrl = '';
     this.esbuildWasmUrl = '';
     this.setCompilerConfig(opts);
@@ -4575,28 +4777,31 @@ export class SpiralCoreHostBridge {
 
   setCompilerConfig(cfg) {
     const c = cfg && typeof cfg === 'object' ? cfg : {};
-    let modUrl = typeof c.esbuildModuleUrl === 'string' ? c.esbuildModuleUrl.trim() : '';
-    let wasmUrl = typeof c.esbuildWasmUrl === 'string' ? c.esbuildWasmUrl.trim() : '';
-    const baseEsbuild = typeof c.esbuildUrl === 'string' ? c.esbuildUrl.trim() : '';
+    const hasMod = Object.prototype.hasOwnProperty.call(c, 'esbuildModuleUrl');
+    const hasWasm = Object.prototype.hasOwnProperty.call(c, 'esbuildWasmUrl');
+    const hasBase = Object.prototype.hasOwnProperty.call(c, 'esbuildUrl');
+    let modUrl = hasMod && typeof c.esbuildModuleUrl === 'string' ? c.esbuildModuleUrl.trim() : '';
+    let wasmUrl = hasWasm && typeof c.esbuildWasmUrl === 'string' ? c.esbuildWasmUrl.trim() : '';
+    const baseEsbuild = hasBase && typeof c.esbuildUrl === 'string' ? c.esbuildUrl.trim() : '';
     if (baseEsbuild) {
       if (baseEsbuild.endsWith('esbuild.wasm')) {
-        if (!wasmUrl) wasmUrl = baseEsbuild;
-        if (!modUrl) modUrl = baseEsbuild.replace(/esbuild\.wasm$/, 'esm/browser.min.js');
+        if (!hasWasm) wasmUrl = baseEsbuild;
+        if (!hasMod) modUrl = baseEsbuild.replace(/esbuild\.wasm$/, 'esm/browser.min.js');
       } else if (baseEsbuild.endsWith('browser.min.js')) {
-        if (!modUrl) modUrl = baseEsbuild;
-        if (!wasmUrl) wasmUrl = baseEsbuild.replace(/esm\/browser\.min\.js$/, 'esbuild.wasm');
+        if (!hasMod) modUrl = baseEsbuild;
+        if (!hasWasm) wasmUrl = baseEsbuild.replace(/esm\/browser\.min\.js$/, 'esbuild.wasm');
       } else {
         const root = baseEsbuild.endsWith('/') ? baseEsbuild : `${baseEsbuild}/`;
-        if (!modUrl) modUrl = `${root}esm/browser.min.js`;
-        if (!wasmUrl) wasmUrl = `${root}esbuild.wasm`;
+        if (!hasMod) modUrl = `${root}esm/browser.min.js`;
+        if (!hasWasm) wasmUrl = `${root}esbuild.wasm`;
       }
     }
-    if (modUrl && modUrl !== this.esbuildModuleUrl) {
+    if ((hasMod || hasBase || modUrl) && modUrl !== this.esbuildModuleUrl) {
       this.esbuildModuleUrl = modUrl;
       this.#esbuildCompiler = null;
       this.#esbuildPromise = null;
     }
-    if (wasmUrl && wasmUrl !== this.esbuildWasmUrl) {
+    if ((hasWasm || hasBase || wasmUrl) && wasmUrl !== this.esbuildWasmUrl) {
       this.esbuildWasmUrl = wasmUrl;
       this.#esbuildCompiler = null;
       this.#esbuildPromise = null;
@@ -7011,15 +7216,26 @@ export class SpiralCoreHostBridge {
           return { ok: true, exit_code: 0, stdout: `esbuild ${esRes.compiler.version || 'wasm'}\n`, stderr: '', writes: [], deletes: [] };
         }
         const src = vfs.readText(entry) || '';
-        const out = await esRes.compiler.transform(src, { loader: entry.endsWith('.ts') ? 'ts' : 'js', format: 'cjs' });
-        const outFlagIdx = cmdArgs.findIndex((a) => a.startsWith('--outfile='));
-        if (outFlagIdx >= 0) {
-          const outFile = cmdArgs[outFlagIdx].slice('--outfile='.length);
-          vfs.writeBytes(outFile, out.code || '');
-          const muts = vfs.exportMutations();
-          return { ok: true, exit_code: 0, stdout: '', stderr: '', ...muts };
+        try {
+          const out = await esRes.compiler.transform(src, { loader: entry.endsWith('.ts') ? 'ts' : 'js', format: 'cjs' });
+          const outFlagIdx = cmdArgs.findIndex((a) => a.startsWith('--outfile='));
+          if (outFlagIdx >= 0) {
+            const outFile = cmdArgs[outFlagIdx].slice('--outfile='.length);
+            vfs.writeBytes(outFile, out.code || '');
+            const muts = vfs.exportMutations();
+            return { ok: true, exit_code: 0, stdout: '', stderr: '', ...muts };
+          }
+          return { ok: true, exit_code: 0, stdout: out.code || '', stderr: '', writes: [], deletes: [] };
+        } catch (err) {
+          return {
+            ok: true,
+            exit_code: 1,
+            stdout: '',
+            stderr: (err && err.stack ? err.stack : (err && err.message ? err.message : String(err))) + '\n',
+            writes: [],
+            deletes: [],
+          };
         }
-        return { ok: true, exit_code: 0, stdout: out.code || '', stderr: '', writes: [], deletes: [] };
       }
       const binPath = `/workspace/node_modules/.bin/${cmdName}`;
       if (!vfs.exists(binPath)) {
@@ -7040,7 +7256,7 @@ export class SpiralCoreHostBridge {
           ...req,
           tool: 'node',
           args: [binPath, ...cmdArgs],
-          workspace: mergedWs.files.size ? Array.from(mergedWs.files.entries()).map(([p, b]) => ({
+          workspace: (mergedWs.files.size || mergedWs.symlinks.size) ? Array.from(mergedWs.files.entries()).map(([p, b]) => ({
             path: p,
             content_base64: __uorBytesToBase64(b),
             mode: mergedWs.modes.get(p) || 0o100644,
@@ -7050,7 +7266,27 @@ export class SpiralCoreHostBridge {
             mode: 0o120777,
           }))) : info.workspace,
         });
-        return reExec;
+        if (!reExec.ok) return reExec;
+        const mergedWriteMap = new Map();
+        for (const w of installed.writes || []) {
+          mergedWriteMap.set(MvmPolyglotVfs.normalizeRel(w.path), w);
+        }
+        const mergedDeleteSet = new Set((installed.deletes || []).map((d) => MvmPolyglotVfs.normalizeRel(d)));
+        for (const d of reExec.deletes || []) {
+          const dr = MvmPolyglotVfs.normalizeRel(d);
+          mergedWriteMap.delete(dr);
+          mergedDeleteSet.add(dr);
+        }
+        for (const w of reExec.writes || []) {
+          const wr = MvmPolyglotVfs.normalizeRel(w.path);
+          mergedDeleteSet.delete(wr);
+          mergedWriteMap.set(wr, w);
+        }
+        return {
+          ...reExec,
+          writes: Array.from(mergedWriteMap.values()),
+          deletes: Array.from(mergedDeleteSet),
+        };
       }
       return this.handleNodeExec({ ...req, tool: 'node', args: [binPath, ...cmdArgs] });
     }
@@ -7086,7 +7322,15 @@ export class SpiralCoreHostBridge {
     let entryAbs = '/workspace/__eval__.js';
     let entryCode = evalCode;
     if (scriptPath) {
-      entryAbs = MvmPolyglotVfs.normalizePath(vfs.cwd, scriptPath);
+      const normScriptAbs = MvmPolyglotVfs.normalizePath(vfs.cwd, scriptPath);
+      try {
+        entryAbs = vfs.resolveGuestTarget(normScriptAbs).abs;
+      } catch (err) {
+        if (err && err.code === 'CanonicalPathProtected') {
+          return { ok: false, error_code: err.code, message: err.message };
+        }
+        throw err;
+      }
       const raw = vfs.readText(entryAbs);
       if (raw === null) {
         return {
@@ -7128,7 +7372,7 @@ export class SpiralCoreHostBridge {
         vfs.writeBytes(p, MvmNodeBuffer.concat([cur, add]));
       },
       existsSync: (p) => vfs.exists(p),
-      mkdirSync: () => undefined,
+      mkdirSync: (p, opts) => vfs.mkdir(p, opts),
       readdirSync: (p) => vfs.readdir(p),
       unlinkSync: (p) => {
         if (!vfs.deletePath(p)) {
@@ -7150,8 +7394,9 @@ export class SpiralCoreHostBridge {
       symlinkSync: (target, linkPath) => vfs.writeSymlink(linkPath, target),
       realpathSync: (p) => vfs.resolveGuestTarget(p).abs,
       statSync: (p) => {
-        const isDir = vfs.isDirectory(p);
-        const bytes = vfs.readBytes(p);
+        const resolved = vfs.resolveGuestTarget(p);
+        const isDir = vfs.isDirectory(resolved.abs);
+        const bytes = isDir ? null : vfs.readBytes(resolved.abs);
         if (!isDir && !bytes) {
           const e = new Error(`ENOENT: no such file or directory, stat '${p}'`);
           e.code = 'ENOENT';
@@ -7164,14 +7409,28 @@ export class SpiralCoreHostBridge {
           isSymbolicLink: () => false,
         };
       },
+      lstatSync: (p) => {
+        const abs = MvmPolyglotVfs.normalizePath(vfs.cwd, p);
+        const rel = MvmPolyglotVfs.normalizeRel(abs);
+        if (rel && vfs.symlinks.has(rel)) {
+          return {
+            size: vfs.symlinks.get(rel).length,
+            isFile: () => false,
+            isDirectory: () => false,
+            isSymbolicLink: () => true,
+          };
+        }
+        return fsShim.statSync(p);
+      },
     };
     fsShim.promises = {
       readFile: async (p, enc) => fsShim.readFileSync(p, enc),
       writeFile: async (p, data) => fsShim.writeFileSync(p, data),
       readdir: async (p) => fsShim.readdirSync(p),
-      mkdir: async () => undefined,
+      mkdir: async (p, opts) => fsShim.mkdirSync(p, opts),
       unlink: async (p) => fsShim.unlinkSync(p),
       stat: async (p) => fsShim.statSync(p),
+      lstat: async (p) => fsShim.lstatSync(p),
     };
 
     const processShim = {
@@ -7269,6 +7528,31 @@ export class SpiralCoreHostBridge {
       };
     };
 
+    const assertShim = {
+      ok: (cond, msg) => { if (!cond) throw new Error(msg || 'AssertionError'); },
+      equal: (a, b, msg) => { if (a != b) throw new Error(msg || `${a} != ${b}`); },
+      strictEqual: (a, b, msg) => { if (a !== b) throw new Error(msg || `${a} !== ${b}`); },
+      deepStrictEqual: (a, b, msg) => {
+        if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(msg || 'AssertionError: deepStrictEqual failed');
+      },
+      fail: (msg) => { throw new Error(msg || 'AssertionError: failed'); },
+    };
+    const utilShim = {
+      format: (fmt, ...vals) => {
+        if (typeof fmt !== 'string') return [fmt, ...vals].map(formatArg).join(' ');
+        let vi = 0;
+        const replaced = fmt.replace(/%([sdj%])/g, (full, ch) => {
+          if (ch === '%') return '%';
+          if (vi >= vals.length) return full;
+          const v = vals[vi++];
+          if (ch === 'j') return JSON.stringify(v);
+          if (ch === 'd') return String(Number(v));
+          return formatArg(v);
+        });
+        return vi < vals.length ? [replaced, ...vals.slice(vi).map(formatArg)].join(' ') : replaced;
+      },
+      inspect: (v) => formatArg(v),
+    };
     const builtins = new Map([
       ['fs', fsShim],
       ['node:fs', fsShim],
@@ -7284,14 +7568,10 @@ export class SpiralCoreHostBridge {
       ['node:crypto', cryptoShim],
       ['url', urlShim],
       ['node:url', urlShim],
-      ['assert', {
-        ok: (cond, msg) => { if (!cond) throw new Error(msg || 'AssertionError'); },
-        strictEqual: (a, b, msg) => { if (a !== b) throw new Error(msg || `${a} !== ${b}`); },
-      }],
-      ['util', {
-        format: (...vals) => vals.map(formatArg).join(' '),
-        inspect: (v) => formatArg(v),
-      }],
+      ['assert', assertShim],
+      ['node:assert', assertShim],
+      ['util', utilShim],
+      ['node:util', utilShim],
     ]);
 
     const transpileMap = new Map();
@@ -7316,7 +7596,9 @@ export class SpiralCoreHostBridge {
       const tryFile = (cand) => {
         for (const ext of ['', '.js', '.cjs', '.mjs', '.ts', '.tsx', '.json']) {
           const p = `${cand}${ext}`;
-          if (vfs.exists(p) && !vfs.isDirectory(p)) return p;
+          if (vfs.exists(p) && !vfs.isDirectory(p)) {
+            return vfs.resolveGuestTarget(p).abs;
+          }
         }
         if (vfs.isDirectory(cand)) {
           const pkgRaw = vfs.readText(`${cand}/package.json`);
@@ -7332,13 +7614,17 @@ export class SpiralCoreHostBridge {
                 }
               }
               const target = MvmPolyglotVfs.normalizePath(cand, entry);
-              if (vfs.exists(target) && !vfs.isDirectory(target)) return target;
+              if (vfs.exists(target) && !vfs.isDirectory(target)) {
+                return vfs.resolveGuestTarget(target).abs;
+              }
             } catch {
               // Fall back to index.js
             }
           }
           for (const idxExt of ['/index.js', '/index.cjs', '/index.ts']) {
-            if (vfs.exists(`${cand}${idxExt}`)) return `${cand}${idxExt}`;
+            if (vfs.exists(`${cand}${idxExt}`)) {
+              return vfs.resolveGuestTarget(`${cand}${idxExt}`).abs;
+            }
           }
         }
         return null;
@@ -7379,9 +7665,6 @@ export class SpiralCoreHostBridge {
       }
       return { ok: true };
     };
-
-    const prepRes = await collectDeps(entryCode, entryAbs, new Set());
-    if (!prepRes.ok) return prepRes;
 
     const moduleCache = new Map();
     const runModule = (fileAbs, isEntry) => {
@@ -7436,6 +7719,8 @@ export class SpiralCoreHostBridge {
     };
 
     try {
+      const prepRes = await collectDeps(entryCode, entryAbs, new Set());
+      if (!prepRes.ok) return prepRes;
       const ret = runModule(entryAbs, true);
       if (ret && typeof ret.then === 'function') {
         await ret;
@@ -7633,7 +7918,28 @@ export class SpiralCoreHostBridge {
   }
 
   async #ensurePyodideLoaded(stdoutChunks, stderrChunks) {
+    this.#activePyStdoutSink = (line) => stdoutChunks.push(String(line) + '\n');
+    this.#activePyStderrSink = (line) => stderrChunks.push(String(line) + '\n');
+
+    const bindStreams = (pyodide) => {
+      if (pyodide && typeof pyodide.setStdout === 'function') {
+        pyodide.setStdout({
+          batched: (line) => {
+            if (this.#activePyStdoutSink) this.#activePyStdoutSink(line);
+          },
+        });
+      }
+      if (pyodide && typeof pyodide.setStderr === 'function') {
+        pyodide.setStderr({
+          batched: (line) => {
+            if (this.#activePyStderrSink) this.#activePyStderrSink(line);
+          },
+        });
+      }
+    };
+
     if (this.#pyodideInstance) {
+      bindStreams(this.#pyodideInstance);
       return { ok: true, pyodide: this.#pyodideInstance };
     }
     const lock = this.pyodideLock;
@@ -7700,8 +8006,12 @@ export class SpiralCoreHostBridge {
         }
         const pyodide = await mod.loadPyodide({
           indexURL: lock.indexURL,
-          stdout: (line) => stdoutChunks.push(String(line) + '\n'),
-          stderr: (line) => stderrChunks.push(String(line) + '\n'),
+          stdout: (line) => {
+            if (this.#activePyStdoutSink) this.#activePyStdoutSink(line);
+          },
+          stderr: (line) => {
+            if (this.#activePyStderrSink) this.#activePyStderrSink(line);
+          },
         });
         this.#pyodideInstance = pyodide;
         return pyodide;
@@ -7710,6 +8020,7 @@ export class SpiralCoreHostBridge {
 
     try {
       const pyodide = await this.#pyodidePromise;
+      bindStreams(pyodide);
       return { ok: true, pyodide };
     } catch (err) {
       this.#pyodidePromise = null;
@@ -7729,13 +8040,46 @@ export class SpiralCoreHostBridge {
     const stderrChunks = [];
 
     const pyLoaded = await this.#ensurePyodideLoaded(stdoutChunks, stderrChunks);
-    if (!pyLoaded.ok) return pyLoaded;
+    if (!pyLoaded.ok) {
+      this.#activePyStdoutSink = null;
+      this.#activePyStderrSink = null;
+      return pyLoaded;
+    }
     const pyodide = pyLoaded.pyodide;
     const args = info.args.map((a) => String(a));
 
     try {
       if (pyodide.FS && typeof pyodide.FS.mkdirTree === 'function') {
         pyodide.FS.mkdirTree('/workspace');
+        if (typeof pyodide.FS.readdir === 'function' && typeof pyodide.FS.unlink === 'function') {
+          const pruneStaleFs = (dirAbs) => {
+            let entries = [];
+            try {
+              entries = pyodide.FS.readdir(dirAbs);
+            } catch {
+              return;
+            }
+            for (const name of entries) {
+              if (name === '.' || name === '..') continue;
+              const full = `${dirAbs}/${name}`;
+              const stat = pyodide.FS.analyzePath ? pyodide.FS.analyzePath(full) : null;
+              if (!stat || !stat.exists) continue;
+              if (stat.object && stat.object.isFolder) {
+                pruneStaleFs(full);
+              } else {
+                const rel = full.slice('/workspace/'.length);
+                if (!vfs.files.has(rel)) {
+                  try {
+                    pyodide.FS.unlink(full);
+                  } catch {
+                    // Ignore unlink error for virtual entries
+                  }
+                }
+              }
+            }
+          };
+          pruneStaleFs('/workspace');
+        }
         for (const [rel, bytes] of vfs.files.entries()) {
           const full = `/workspace/${rel}`;
           const parent = MvmPolyglotVfs.parentDir(full);
@@ -7744,47 +8088,130 @@ export class SpiralCoreHostBridge {
         }
       }
 
-      globalThis.__uorSpiralCorePyFetch = async (url, method, bodyStr) => {
+      globalThis.__uorSpiralCorePySyncFetch = (url, method, bodyStr, headersJson) => {
         const netCheck = this.#assertNetworkAllowed();
         if (!netCheck.ok) {
           throw new Error(`${netCheck.error_code}: ${netCheck.message}`);
         }
-        const res = await this.handleHttpRequest({ url: String(url), method: String(method || 'GET'), body: bodyStr });
-        if (!res.ok) throw new Error(res.message || res.error_code || 'HTTP error');
-        return String(res.body_text || '');
+        const urlCheck = this.validateTransportUrl(String(url), false);
+        if (!urlCheck.ok) {
+          throw new Error(`${urlCheck.error_code}: ${urlCheck.message}`);
+        }
+        let parsedHeaders = {};
+        if (headersJson) {
+          try {
+            const obj = JSON.parse(String(headersJson));
+            if (obj && typeof obj === 'object') parsedHeaders = obj;
+          } catch {
+            parsedHeaders = {};
+          }
+        }
+        const hdrSub = this.applyHostSecretSubstitution(urlCheck.url, parsedHeaders);
+        if (!hdrSub.ok) {
+          throw new Error(`${hdrSub.error_code}: ${hdrSub.message}`);
+        }
+        const host = urlCheck.url.hostname.toLowerCase();
+        const urlSub = this.substituteHostSecretsInString(String(url), host);
+        if (!urlSub.ok) {
+          throw new Error(`${urlSub.error_code}: ${urlSub.message}`);
+        }
+        const bodySub = this.substituteHostSecretsInString(String(bodyStr || ''), host);
+        if (!bodySub.ok) {
+          throw new Error(`${bodySub.error_code}: ${bodySub.message}`);
+        }
+        const mUpper = String(method || 'GET').toUpperCase();
+        if (typeof this.#syncFetchImpl === 'function') {
+          const syncRes = this.#syncFetchImpl(urlSub.value, {
+            method: mUpper,
+            headers: hdrSub.headers,
+            body: mUpper === 'GET' || mUpper === 'HEAD' ? undefined : bodySub.value,
+          });
+          return {
+            status: Number(syncRes && syncRes.status) || 200,
+            text: String((syncRes && syncRes.text !== undefined ? syncRes.text : (syncRes && syncRes.body_text)) || ''),
+          };
+        }
+        if (typeof XMLHttpRequest !== 'undefined') {
+          const xhr = new XMLHttpRequest();
+          xhr.open(mUpper, urlSub.value, false);
+          for (const [hk, hv] of Object.entries(hdrSub.headers)) {
+            xhr.setRequestHeader(hk, hv);
+          }
+          xhr.send(mUpper === 'GET' || mUpper === 'HEAD' ? null : bodySub.value);
+          return {
+            status: xhr.status || 200,
+            text: String(xhr.responseText || ''),
+          };
+        }
+        throw new Error('SyncHttpUnavailable: synchronous Python HTTP requires XMLHttpRequest or syncFetchImpl');
       };
 
       if (!this.#pyodideShimmed) {
         this.#pyodideShimmed = true;
         try {
           await pyodide.runPythonAsync(`
-import os, sys, types
-if os.path.isdir('/workspace'):
-    os.chdir('/workspace')
+import io, os, sys, types, json as _uor_json
 try:
-    import js, urllib.request
+    import js, urllib.request, urllib.parse
     class _SpiralResp:
         def __init__(self, text, status=200):
-            self.text = text
-            self.status_code = status
-            self._data = text.encode('utf-8')
+            self.text = str(text)
+            self.status_code = int(status)
+            self.status = int(status)
+            self._data = self.text.encode('utf-8')
+            self.content = self._data
+            self.headers = {}
+            self.ok = 200 <= self.status_code < 300
         def read(self):
             return self._data
         def json(self):
-            import json
-            return json.loads(self.text)
+            return _uor_json.loads(self.text)
+        def raise_for_status(self):
+            if self.status_code >= 400:
+                raise RuntimeError(f'HTTP {self.status_code}')
         def __enter__(self):
             return self
         def __exit__(self, *a):
             return False
-    async def _uor_async_fetch(url, method='GET', data=None):
-        txt = await js.__uorSpiralCorePyFetch(str(url), method, data)
-        return _SpiralResp(txt)
+    def _uor_sync_fetch(url, method='GET', data=None, json=None, headers=None, params=None):
+        target_url = str(url)
+        if params and isinstance(params, dict):
+            sep = '&' if '?' in target_url else '?'
+            target_url = target_url + sep + urllib.parse.urlencode(params)
+        hdrs = dict(headers) if isinstance(headers, dict) else {}
+        body_str = ''
+        if json is not None:
+            body_str = _uor_json.dumps(json)
+            if 'Content-Type' not in hdrs and 'content-type' not in hdrs:
+                hdrs['Content-Type'] = 'application/json'
+        elif data is not None:
+            if isinstance(data, dict):
+                body_str = urllib.parse.urlencode(data)
+            elif isinstance(data, (bytes, bytearray)):
+                body_str = bytes(data).decode('utf-8', errors='replace')
+            else:
+                body_str = str(data)
+        res = js.__uorSpiralCorePySyncFetch(target_url, str(method).upper(), body_str, _uor_json.dumps(hdrs))
+        txt = getattr(res, 'text', '')
+        st = getattr(res, 'status', 200)
+        return _SpiralResp(txt, st)
+    def _uor_sync_urlopen(url_or_req, data=None, timeout=None, **kw):
+        if isinstance(url_or_req, str):
+            m = 'POST' if data is not None else 'GET'
+            return _uor_sync_fetch(url_or_req, m, data=data)
+        u = getattr(url_or_req, 'full_url', None) or str(url_or_req)
+        m = url_or_req.get_method() if hasattr(url_or_req, 'get_method') else ('POST' if data is not None else 'GET')
+        req_data = getattr(url_or_req, 'data', None)
+        if req_data is None:
+            req_data = data
+        req_hdrs = dict(url_or_req.header_items()) if hasattr(url_or_req, 'header_items') else {}
+        return _uor_sync_fetch(u, m, data=req_data, headers=req_hdrs)
+    urllib.request.urlopen = _uor_sync_urlopen
     _req_mod = types.ModuleType('requests')
-    _req_mod.get = lambda url, **kw: _uor_async_fetch(url, 'GET', None)
-    _req_mod.post = lambda url, data=None, json=None, **kw: _uor_async_fetch(url, 'POST', data)
-    sys.modules.setdefault('requests', _req_mod)
-    urllib.request._uor_spiralcore_fetch = _uor_async_fetch
+    _req_mod.get = lambda url, **kw: _uor_sync_fetch(url, 'GET', headers=kw.get('headers'), params=kw.get('params'))
+    _req_mod.post = lambda url, data=None, json=None, **kw: _uor_sync_fetch(url, 'POST', data=data, json=json, headers=kw.get('headers'), params=kw.get('params'))
+    _req_mod.request = lambda method, url, **kw: _uor_sync_fetch(url, method, data=kw.get('data'), json=kw.get('json'), headers=kw.get('headers'), params=kw.get('params'))
+    sys.modules['requests'] = _req_mod
 except Exception:
     pass
 `);
@@ -7794,6 +8221,32 @@ except Exception:
       }
 
       const isPip = info.tool === 'pip' || info.tool === 'pip3';
+      const pyArgv = isPip
+        ? ['pip', ...args]
+        : (args[0] === '-c'
+          ? ['-c', ...args.slice(2)]
+          : (args[0] && !args[0].startsWith('-') ? [args[0], ...args.slice(1)] : ['-']));
+      const pyEnvObj = { HOME: '/root', PATH: '/usr/local/bin:/usr/bin:/bin', ...info.env };
+      const pyStdinText = cachedTextDecoder.decode(info.stdinBytes);
+      try {
+        await pyodide.runPythonAsync(`
+import io, os, sys
+sys.argv = ${JSON.stringify(pyArgv)}
+_uor_env = ${JSON.stringify(pyEnvObj)}
+os.environ.clear()
+os.environ.update({str(k): str(v) for k, v in _uor_env.items()})
+_uor_stdin_str = ${JSON.stringify(pyStdinText)}
+sys.stdin = io.TextIOWrapper(io.BytesIO(_uor_stdin_str.encode('utf-8')), encoding='utf-8')
+_uor_cwd = ${JSON.stringify(vfs.cwd)}
+if os.path.isdir(_uor_cwd):
+    os.chdir(_uor_cwd)
+elif os.path.isdir('/workspace'):
+    os.chdir('/workspace')
+`);
+      } catch {
+        // Ignore if minimal mock runtime skips process context preamble
+      }
+
       let exitCode = 0;
       if (isPip) {
         const sub = (args[0] || 'list').toLowerCase();
@@ -7897,6 +8350,9 @@ except Exception:
         stderr: stderrChunks.join('') + (err && err.message ? err.message : String(err)) + '\n',
         ...vfs.exportMutations(),
       };
+    } finally {
+      this.#activePyStdoutSink = null;
+      this.#activePyStderrSink = null;
     }
   }
 

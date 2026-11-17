@@ -14122,7 +14122,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "ef5fa821673bd1d1507e7e746a80ad9854c5829b6cc1b036a821e6a6ada8d651",
+      "kappa": "8f0e0c0a4938cd58e9f19e8a7effa71cdc294e853a3512d51885669a7dd950a1",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::apply_polyglot_workspace_mutations",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -14165,7 +14165,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "85539848032cbfb83b153e8cc08fc0d03812bffb8bad358b3a119ad469084291",
+      "kappa": "338de158e96c0dee80296703e1d0fd19cb49b442b695fcf11612dfa3b55e874f",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::complete_bridge",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -14310,7 +14310,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0e18ad0b7179e1d129933aa792c6ffd2670de5a78d7952703c39600947f11e09",
+      "kappa": "bd651a61eb67c28a11f8d59305a2c1073c013f16a1b9ad570d4bf37d0d682b39",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_interactive_segment",
       "status": "foreign",
       "foreign_crate": "serde_json",

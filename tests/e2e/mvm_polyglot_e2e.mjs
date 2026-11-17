@@ -144,6 +144,56 @@ function buildMinimalWasiStdoutModule() {
   ]);
 }
 
+function buildWasiCanonicalWriteOpenModule() {
+  const pathStr = 'prism/Rule.lex.tex';
+  const typeSection = wasmSection(1, [
+    2,
+    0x60, 9, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7e, 0x7e, 0x7f, 0x7f, 1, 0x7f,
+    0x60, 0, 0,
+  ]);
+  const importSection = wasmSection(2, [
+    1,
+    ...wasmStr('wasi_snapshot_preview1'),
+    ...wasmStr('path_open'),
+    0x00, 0,
+  ]);
+  const funcSection = wasmSection(3, [1, 1]);
+  const memSection = wasmSection(5, [1, 0x00, 1]);
+  const exportSection = wasmSection(7, [
+    2,
+    ...wasmStr('memory'), 0x02, 0,
+    ...wasmStr('_start'), 0x00, 1,
+  ]);
+  const body = [
+    0,
+    0x41, 0x03,       // dirfd = 3
+    0x41, 0x00,       // dirflags = 0
+    0x41, 0xc0, 0x00, // pathPtr = 64
+    0x41, pathStr.length, // pathLen = 18
+    0x41, 0x00,       // oflags = 0 (no O_CREAT/O_TRUNC; only FD_WRITE right!)
+    0x42, 0xc0, 0x00, // rights_base = 64n (FD_WRITE)
+    0x42, 0x00,       // rights_inheriting = 0n
+    0x41, 0x00,       // fdflags = 0
+    0x41, 0x10,       // opened_fd ptr = 16
+    0x10, 0x00,       // call 0 (path_open)
+    0x1a,             // drop
+    0x0b,             // end
+  ];
+  const codeSection = wasmSection(10, [1, ...encodeLebU32(body.length), ...body]);
+  const pathBytes = [...Buffer.from(pathStr, 'utf8')];
+  const dataSection = wasmSection(11, [1, 0, 0x41, 0xc0, 0x00, 0x0b, ...encodeLebU32(pathBytes.length), ...pathBytes]);
+  return new Uint8Array([
+    0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
+    ...typeSection,
+    ...importSection,
+    ...funcSection,
+    ...memSection,
+    ...exportSection,
+    ...codeSection,
+    ...dataSection,
+  ]);
+}
+
 async function testNodeAndEsbuildAdapter() {
   console.log('1. Testing node_exec isolated scope & Foundry esbuild.wasm adapter gating...');
   assert.ok(PYODIDE_LOCK && typeof PYODIDE_LOCK.version === 'string');
@@ -232,6 +282,88 @@ export async function build(opts) {
     assert.equal(tsRes.stdout, 'ts=42\n');
     const esMod = await import(modUrl);
     assert.equal(esMod.initOpts && esMod.initOpts.wasmURL, wasmUrl);
+
+    // 1d. Syntax errors in esbuild.transform & npx esbuild MUST return exit_code 1 + stderr cleanly (no uncaught rejection)
+    const errMockMod = path.join(tmpDir, 'browser-err.min.js');
+    fs.writeFileSync(
+      errMockMod,
+      `export async function initialize() {}
+export async function transform(code) {
+  if (String(code || '').includes('SYNTAX_BOOM')) {
+    throw new Error('Transform failed with 1 error: Unexpected SYNTAX_BOOM');
+  }
+  return { code: String(code || '').replace(/:\\s*number\\b/g, ''), warnings: [] };
+}
+`,
+    );
+    const errBridge = new SpiralCoreHostBridge({
+      webAccessEnabled: true,
+      esbuildModuleUrl: pathToFileURL(errMockMod).href,
+      esbuildWasmUrl: wasmUrl,
+    });
+    const tsSyntaxErr = await errBridge.execute({
+      op: 'node_exec',
+      kind: 'node_exec',
+      tool: 'node',
+      args: ['/workspace/bad.ts'],
+      cwd: '/workspace',
+      workspace: [{ path: 'bad.ts', content_base64: b64Encode('const x: number = SYNTAX_BOOM;\n') }],
+    });
+    assert.equal(tsSyntaxErr.ok, true);
+    assert.equal(tsSyntaxErr.exit_code, 1);
+    assert.ok(tsSyntaxErr.stderr.includes('SYNTAX_BOOM'), `expected transform error in stderr: ${tsSyntaxErr.stderr}`);
+
+    const npxSyntaxErr = await errBridge.execute({
+      op: 'node_exec',
+      kind: 'node_exec',
+      tool: 'npx',
+      args: ['esbuild', '/workspace/bad.ts'],
+      cwd: '/workspace',
+      workspace: [{ path: 'bad.ts', content_base64: b64Encode('const x: number = SYNTAX_BOOM;\n') }],
+    });
+    assert.equal(npxSyntaxErr.ok, true);
+    assert.equal(npxSyntaxErr.exit_code, 1);
+    assert.ok(npxSyntaxErr.stderr.includes('SYNTAX_BOOM'));
+
+    // 1e. node:assert, node:util, fs.mkdirSync + existsSync(dir), statSync/lstatSync isSymbolicLink parity, & setCompilerConfig reset
+    const nodeBuiltinsRes = await errBridge.execute({
+      op: 'node_exec',
+      kind: 'node_exec',
+      tool: 'node',
+      args: [
+        '-e',
+        [
+          "const fs = require('fs');",
+          "const a = require('node:assert');",
+          "const u = require('node:util');",
+          "fs.mkdirSync('/workspace/d/sub', { recursive: true });",
+          "a.ok(fs.existsSync('/workspace/d/sub'), 'mkdirSync dir must exist');",
+          "fs.writeFileSync('/workspace/target.txt', 'hi');",
+          "fs.symlinkSync('/workspace/target.txt', '/workspace/sym.txt');",
+          "a.strictEqual(fs.lstatSync('/workspace/sym.txt').isSymbolicLink(), true);",
+          "a.strictEqual(fs.statSync('/workspace/sym.txt').isSymbolicLink(), false);",
+          "console.log(u.format('built=%s', 'ok'));",
+        ].join(' '),
+      ],
+      cwd: '/workspace',
+      workspace: [],
+    });
+    assert.equal(nodeBuiltinsRes.ok, true, `nodeBuiltins failed: ${JSON.stringify(nodeBuiltinsRes)}`);
+    assert.equal(nodeBuiltinsRes.exit_code, 0, `nodeBuiltins stderr: ${nodeBuiltinsRes.stderr}`);
+    assert.equal(nodeBuiltinsRes.stdout.trim(), 'built=ok');
+
+    // Resetting esbuildModuleUrl / esbuildWasmUrl to '' must re-arm EsbuildAdapterUnavailable
+    errBridge.setCompilerConfig({ esbuildModuleUrl: '', esbuildWasmUrl: '' });
+    const resetTs = await errBridge.execute({
+      op: 'node_exec',
+      kind: 'node_exec',
+      tool: 'node',
+      args: ['/workspace/app.ts'],
+      cwd: '/workspace',
+      workspace: [{ path: 'app.ts', content_base64: b64Encode('const n: number = 1;\nconsole.log(n);\n') }],
+    });
+    assert.equal(resetTs.ok, false);
+    assert.equal(resetTs.error_code, 'EsbuildAdapterUnavailable');
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
@@ -353,7 +485,72 @@ async function testNpmSriAndTarExtraction() {
   assert.equal(reqRes.ok, true);
   assert.equal(reqRes.exit_code, 0, `require stderr: ${reqRes.stderr}`);
   assert.equal(reqRes.stdout, '[ok]\n');
-  console.log('  ✓ npm SHA-512 IntegrityMismatch rejection + tgz extraction + require() verified.');
+
+  // 2c. `npx <pkg>` auto-installs pkg with relative `.bin/` symlink + preserves node_modules writes & resolves relative require('../lib/helper')
+  const npxTarBuf = buildUstarTar([
+    {
+      name: 'package/package.json',
+      data: JSON.stringify({ name: 'rel-cli', version: '2.0.0', bin: { 'rel-cli': 'bin/cli.js' } }),
+    },
+    {
+      name: 'package/lib/helper.js',
+      data: "module.exports = function fmt(v) { return 'HELPER:' + v; };\n",
+    },
+    {
+      name: 'package/bin/cli.js',
+      data: "#!/usr/bin/env node\nconst fmt = require('../lib/helper');\nconsole.log(fmt(process.argv[2] || 'default'));\n",
+      mode: 0o755,
+    },
+  ]);
+  const npxTgz = zlib.gzipSync(npxTarBuf);
+  const npxSri = 'sha512-' + crypto.createHash('sha512').update(npxTgz).digest('base64');
+  const npxBridge = new SpiralCoreHostBridge({
+    webAccessEnabled: true,
+    fetchImpl: async (url) => {
+      const u = String(url);
+      if (u === 'https://registry.npmjs.org/rel-cli') {
+        return new Response(
+          JSON.stringify({
+            name: 'rel-cli',
+            'dist-tags': { latest: '2.0.0' },
+            versions: {
+              '2.0.0': {
+                name: 'rel-cli',
+                version: '2.0.0',
+                bin: { 'rel-cli': 'bin/cli.js' },
+                dist: { tarball: 'https://registry.npmjs.org/rel-cli/-/rel-cli-2.0.0.tgz', integrity: npxSri },
+              },
+            },
+          }),
+          { status: 200 },
+        );
+      }
+      if (u === 'https://registry.npmjs.org/rel-cli/-/rel-cli-2.0.0.tgz') {
+        return new Response(npxTgz, { status: 200 });
+      }
+      throw new Error(`Unexpected fetch: ${u}`);
+    },
+  });
+  const npxRes = await npxBridge.execute({
+    op: 'node_exec',
+    kind: 'node_exec',
+    tool: 'npx',
+    args: ['rel-cli', 'npx-arg'],
+    cwd: '/workspace',
+    workspace: [],
+  });
+  assert.equal(npxRes.ok, true, `npx failed: ${JSON.stringify(npxRes)}`);
+  assert.equal(npxRes.exit_code, 0, `npx stderr: ${npxRes.stderr}`);
+  assert.equal(npxRes.stdout, 'HELPER:npx-arg\n');
+  assert.ok(
+    (npxRes.writes || []).some((w) => w.path === 'node_modules/rel-cli/bin/cli.js'),
+    'npx auto-install must preserve node_modules/** writes',
+  );
+  assert.ok(
+    (npxRes.writes || []).some((w) => w.path === 'package.json'),
+    'npx auto-install must preserve package.json writes',
+  );
+  console.log('  ✓ npm SHA-512 IntegrityMismatch rejection + tgz extraction + npx relative require() verified.');
 }
 
 async function testPyodideLazySriAndPythonPip() {
@@ -412,15 +609,22 @@ async function testPyodideLazySriAndPythonPip() {
     assert.equal(badPy.error_code, 'IntegrityMismatch');
     assert.equal(cacheMap.size, 0, 'Tampered Pyodide asset must NEVER be cached');
 
-    // 3b. Valid SRI-verified Pyodide bootstrap + Emscripten /workspace sync + micropip + SpiralCore shim
+    // 3b. Valid SRI-verified Pyodide bootstrap + cached 2nd-call stdout/stderr + sys.argv/environ/stdin + FS prune + sync HTTP
     const mockPyJs = Buffer.from(
-      `export async function loadPyodide() {
+      `export async function loadPyodide(opts) {
         const fsStore = new Map();
+        const pyEnv = { HOME: '/root' };
+        let pyArgv = [];
+        let pyStdin = '';
+        let shimCode = '';
+        let stdoutCb = (s) => opts && opts.stdout && opts.stdout(s);
+        let stderrCb = (s) => opts && opts.stderr && opts.stderr(s);
         return {
           FS: {
             mkdirTree() {},
             writeFile(p, d) { fsStore.set(p, Buffer.from(d)); },
             readFile(p) { return new Uint8Array(fsStore.get(p) || []); },
+            unlink(p) { fsStore.delete(p); },
             readdir(dir) {
               const out = ['.', '..'];
               for (const k of fsStore.keys()) {
@@ -436,10 +640,46 @@ async function testPyodideLazySriAndPythonPip() {
               return { exists: isFile || [...fsStore.keys()].some((k) => k.startsWith(p + '/')), object: { isFolder: !isFile } };
             },
           },
+          setStdout(cfg) { if (cfg && typeof cfg.batched === 'function') stdoutCb = cfg.batched; },
+          setStderr(cfg) { if (cfg && typeof cfg.batched === 'function') stderrCb = cfg.batched; },
           async loadPackage() {},
           async runPythonAsync(code) {
-            if (code.includes('micropip')) {
+            const c = String(code || '');
+            if (c.includes('def _uor_sync_urlopen')) {
+              shimCode = c;
+            }
+            if (c.includes('sys.argv =')) {
+              const mArgv = /sys\\.argv = (\\[[^\\n]*\\])/.exec(c);
+              if (mArgv) pyArgv = JSON.parse(mArgv[1]);
+              const mEnv = /_uor_env = (\\{[^\\n]*\\})/.exec(c);
+              if (mEnv) Object.assign(pyEnv, JSON.parse(mEnv[1]));
+              const mIn = /_uor_stdin_str = ("[^\\n]*")/.exec(c);
+              if (mIn) pyStdin = JSON.parse(mIn[1]);
+              return null;
+            }
+            if (c.includes('micropip')) {
               return 'installed:rich';
+            }
+            if (c.includes('CALL_1')) {
+              stdoutCb('out:call1:' + JSON.stringify(pyArgv) + ':' + pyEnv.PY_MODE + ':' + pyStdin);
+              stderrCb('err:call1');
+              fsStore.set('/workspace/temp_py.txt', Buffer.from('ephemeral\\n', 'utf8'));
+              fsStore.set('/workspace/py_out.txt', Buffer.from('py-ok\\n', 'utf8'));
+              return '1';
+            }
+            if (c.includes('CALL_2')) {
+              stdoutCb('out:call2:' + JSON.stringify(pyArgv) + ':' + (fsStore.has('/workspace/temp_py.txt') ? 'STALE' : 'PRUNED') + ':' + pyStdin);
+              stderrCb('err:call2');
+              if (!shimCode || shimCode.includes('async def _uor_async_fetch')) {
+                throw new Error('Pyodide HTTP shim must be synchronous');
+              }
+              if (typeof globalThis.__uorSpiralCorePySyncFetch !== 'function') {
+                throw new Error('Missing synchronous __uorSpiralCorePySyncFetch hook');
+              }
+              const getRes = globalThis.__uorSpiralCorePySyncFetch('https://api.github.com/uor', 'GET', '', '{}');
+              const postRes = globalThis.__uorSpiralCorePySyncFetch('https://api.github.com/uor', 'POST', '{"k":1}', JSON.stringify({ Authorization: 'Bearer {{MVM_SECRET:GITHUB_TOKEN}}' }));
+              stdoutCb('sync:' + getRes.text + ':' + postRes.text);
+              return '2';
             }
             fsStore.set('/workspace/py_out.txt', Buffer.from('py-ok\\n', 'utf8'));
             return '42';
@@ -453,6 +693,12 @@ async function testPyodideLazySriAndPythonPip() {
     const verifiedBridge = new SpiralCoreHostBridge({
       webAccessEnabled: true,
       pyodideLock: { version: '0.27.2-test', url: 'https://cdn.jsdelivr.net/pyodide/test/pyodide.mjs', sri: mockSri },
+      syncFetchImpl: (url, init) => {
+        if (init && init.method === 'POST') {
+          return { status: 200, text: `post-auth=${init.headers && init.headers.Authorization}` };
+        }
+        return { status: 200, text: `get-ok=${url}` };
+      },
       fetchImpl: async (url) => {
         if (String(url) === 'https://cdn.jsdelivr.net/pyodide/test/pyodide.mjs') {
           return new Response(mockPyJs, { status: 200 });
@@ -463,18 +709,41 @@ async function testPyodideLazySriAndPythonPip() {
         throw new Error(`Unexpected fetch: ${url}`);
       },
     });
-    const pyOk = await verifiedBridge.execute({
+    verifiedBridge.setSecret('GITHUB_TOKEN', 'ghp_sync_tok');
+    const pyOk1 = await verifiedBridge.execute({
       op: 'python_exec',
       kind: 'python_exec',
       tool: 'python3',
-      args: ['-c', 'print(42)'],
+      args: ['-c', 'CALL_1', 'flagA'],
       cwd: '/workspace',
+      env: { PY_MODE: 'alpha' },
+      stdin_utf8: 'in-one',
       workspace: [],
     });
-    assert.equal(pyOk.ok, true, `pyOk failed: ${JSON.stringify(pyOk)}`);
-    assert.equal(pyOk.exit_code, 0, `pyOk stderr: ${pyOk.stderr}`);
+    assert.equal(pyOk1.ok, true, `pyOk1 failed: ${JSON.stringify(pyOk1)}`);
+    assert.equal(pyOk1.exit_code, 0, `pyOk1 stderr: ${pyOk1.stderr}`);
     assert.ok(cacheMap.has('https://cdn.jsdelivr.net/pyodide/test/pyodide.mjs'), 'Verified Pyodide must be cached in uor-pyodide-v1');
-    assert.ok((pyOk.writes || []).some((w) => w.path === 'py_out.txt'), 'Python /workspace writes must propagate');
+    assert.ok(pyOk1.stdout.includes('out:call1:["-c","flagA"]:alpha:in-one'), `unexpected call1 stdout: ${pyOk1.stdout}`);
+    assert.ok(pyOk1.stderr.includes('err:call1'), `unexpected call1 stderr: ${pyOk1.stderr}`);
+    assert.ok((pyOk1.writes || []).some((w) => w.path === 'py_out.txt'), 'Python /workspace writes must propagate');
+
+    // Call #2 on cached Pyodide: stdout/stderr MUST stay intact, temp_py.txt MUST be pruned from pyodide.FS, & sync fetch must work
+    const pyOk2 = await verifiedBridge.execute({
+      op: 'python_exec',
+      kind: 'python_exec',
+      tool: 'python3',
+      args: ['-c', 'CALL_2', 'flagB'],
+      cwd: '/workspace',
+      env: { PY_MODE: 'beta' },
+      stdin_utf8: 'in-two',
+      workspace: [{ path: 'py_out.txt', content_base64: b64Encode('py-ok\n') }],
+    });
+    assert.equal(pyOk2.ok, true, `pyOk2 failed: ${JSON.stringify(pyOk2)}`);
+    assert.equal(pyOk2.exit_code, 0, `pyOk2 stderr: ${pyOk2.stderr}`);
+    assert.ok(pyOk2.stdout.includes('out:call2:["-c","flagB"]:PRUNED:in-two'), `Call 2 lost stdout or stale FS file persisted: ${pyOk2.stdout}`);
+    assert.ok(pyOk2.stdout.includes('sync:get-ok=https://api.github.com/uor:post-auth=Bearer ghp_sync_tok'), `Sync HTTP hook failed: ${pyOk2.stdout}`);
+    assert.ok(pyOk2.stderr.includes('err:call2'), `Call 2 lost stderr: ${pyOk2.stderr}`);
+    assert.ok(!(pyOk2.writes || []).some((w) => w.path === 'temp_py.txt'), 'Deleted workspace file must NOT be resurrected by pyodide.FS');
 
     const pipOk = await verifiedBridge.execute({
       op: 'python_exec',
@@ -522,6 +791,22 @@ async function testWasiPreview1AndSqlite3() {
   assert.equal(badWasi.ok, false);
   assert.equal(badWasi.error_code, 'WasiRuntimeError');
 
+  // 4b-bis. WASI path_open with writable rights on canonical file MUST fail upfront before fd_write
+  const canonWasiBytes = buildWasiCanonicalWriteOpenModule();
+  const canonWasi = await bridge.execute({
+    op: 'wasi_exec',
+    kind: 'wasi_exec',
+    tool: 'wasm',
+    args: ['run', '/workspace/canon_open.wasm'],
+    cwd: '/workspace',
+    workspace: [
+      { path: 'canon_open.wasm', content_base64: b64Encode(canonWasiBytes) },
+      { path: 'prism/Rule.lex.tex', content_base64: b64Encode('canonical\n') },
+    ],
+  });
+  assert.equal(canonWasi.ok, false);
+  assert.equal(canonWasi.error_code, 'CanonicalPathProtected');
+
   // 4c. sqlite3 create + insert + select, then reopen persisted binary /workspace/app.db
   const sqlRes1 = await bridge.execute({
     op: 'sqlite_exec',
@@ -563,7 +848,7 @@ async function testWasiPreview1AndSqlite3() {
   assert.equal(canonSql.ok, false);
   assert.equal(canonSql.error_code, 'CanonicalPathProtected');
 
-  // 4e. Corrupt binary .db refusal
+  // 4e. Corrupt binary .db refusal (bad magic -> SqliteRuntimeError, corrupt JSON payload -> CorruptSqliteDatabase)
   const corruptSql = await bridge.execute({
     op: 'sqlite_exec',
     kind: 'sqlite_exec',
@@ -574,7 +859,52 @@ async function testWasiPreview1AndSqlite3() {
   });
   assert.equal(corruptSql.ok, false);
   assert.equal(corruptSql.error_code, 'SqliteRuntimeError');
-  console.log('  ✓ WASI Preview 1 & persistent binary sqlite3 verified.');
+
+  const corruptJsonBuf = Buffer.alloc(4096, 0);
+  corruptJsonBuf.write('SQLite format 3\0', 0, 'ascii');
+  corruptJsonBuf.writeUInt32LE(8, 96);
+  corruptJsonBuf.write('{badjson', 100, 'utf8');
+  const corruptJsonSql = await bridge.execute({
+    op: 'sqlite_exec',
+    kind: 'sqlite_exec',
+    tool: 'sqlite3',
+    args: ['/workspace/corrupt_json.db', 'SELECT 1;'],
+    cwd: '/workspace',
+    workspace: [{ path: 'corrupt_json.db', content_base64: b64Encode(corruptJsonBuf) }],
+  });
+  assert.equal(corruptJsonSql.ok, false);
+  assert.equal(corruptJsonSql.error_code, 'CorruptSqliteDatabase');
+
+  // 4f. `-cmd` before positional dbPath + INSERT OR REPLACE / INSERT OR IGNORE + true LEFT JOIN
+  const cmdSql = await bridge.execute({
+    op: 'sqlite_exec',
+    kind: 'sqlite_exec',
+    tool: 'sqlite3',
+    args: [
+      '-cmd',
+      '.mode json',
+      '/workspace/adv.db',
+      [
+        'CREATE TABLE users(id INT PRIMARY KEY, name TEXT);',
+        'CREATE TABLE orders(oid INT PRIMARY KEY, user_id INT, item TEXT);',
+        "INSERT INTO users VALUES (1, 'Alice'), (2, 'Bob');",
+        "INSERT OR IGNORE INTO users VALUES (1, 'IgnoredAlice');",
+        "INSERT OR REPLACE INTO users VALUES (2, 'Bobby');",
+        "INSERT INTO orders VALUES (10, 1, 'Book');",
+        'SELECT u.name, o.item FROM users u LEFT JOIN orders o ON u.id = o.user_id ORDER BY u.id;',
+      ].join(' '),
+    ],
+    cwd: '/workspace',
+    workspace: [],
+  });
+  assert.equal(cmdSql.ok, true, `cmdSql failed: ${JSON.stringify(cmdSql)}`);
+  assert.equal(cmdSql.exit_code, 0, `cmdSql stderr: ${cmdSql.stderr}`);
+  const joinedRows = JSON.parse(cmdSql.stdout);
+  assert.deepEqual(joinedRows, [
+    { 'u.name': 'Alice', 'o.item': 'Book' },
+    { 'u.name': 'Bobby', 'o.item': null },
+  ]);
+  console.log('  ✓ WASI Preview 1 & persistent binary sqlite3 (-cmd, CorruptSqliteDatabase, OR REPLACE|IGNORE, LEFT JOIN) verified.');
 }
 
 async function testWorkerPolyglotLoop() {

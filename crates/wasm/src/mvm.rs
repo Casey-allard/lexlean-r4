@@ -2028,13 +2028,7 @@ impl MvmSandbox {
                 MvmInteractiveOutcome::Completed(pipe_done) => {
                     total_stdout.push_str(&pipe_done.stdout);
                     total_stderr.push_str(&pipe_done.stderr);
-                    let mut next_insts = total_insts.saturating_add(pipe_done.instructions_retired);
-                    if let Some(p_insts) = resume_state
-                        .get("pipeline_insts_prefix")
-                        .and_then(|v| v.as_u64())
-                    {
-                        next_insts = next_insts.saturating_add(p_insts);
-                    }
+                    let next_insts = total_insts.saturating_add(pipe_done.instructions_retired);
                     return self.run_interactive_segments(
                         &remaining_segments,
                         0,
@@ -2154,8 +2148,37 @@ impl MvmSandbox {
             && !trimmed.contains('=')
             && self.inodes.contains_key("/bin/sh")
         {
-            let outcome = self.exec_single_segment_ast(seg, working_cwd)?;
-            return Ok(MvmInteractiveOutcome::Completed(outcome));
+            let p0 = parse_stage_words_and_redirects(
+                &stages[0],
+                &self.env_vars,
+                self.last_exit_code,
+                self.next_pid,
+            );
+            let p1 = parse_stage_words_and_redirects(
+                &stages[1],
+                &self.env_vars,
+                self.last_exit_code,
+                self.next_pid,
+            );
+            let is_mvmbox_simple = |words: &[String]| -> bool {
+                let Some(prog) = words.first().map(String::as_str) else {
+                    return false;
+                };
+                if self
+                    .resolve_guest_exec_path(working_cwd, prog)
+                    .is_some_and(|p| p.starts_with("/usr/local/bin/"))
+                {
+                    return false;
+                }
+                matches!(
+                    prog,
+                    "echo" | "sha256sum" | "uname" | "pwd" | "id" | "whoami" | "true" | "false"
+                )
+            };
+            if is_mvmbox_simple(&p0.words) && is_mvmbox_simple(&p1.words) {
+                let outcome = self.exec_single_segment_ast(seg, working_cwd)?;
+                return Ok(MvmInteractiveOutcome::Completed(outcome));
+            }
         }
         let out = self.exec_pipeline_stages_with_mode(
             stages,
@@ -2288,12 +2311,30 @@ impl MvmSandbox {
         data: &serde_json::Value,
         bridge_resp: &serde_json::Value,
     ) -> Result<(), MvmError> {
+        enum StagedPolyglotWrite {
+            Symlink(String),
+            Regular { bytes: Vec<u8>, mode: u32 },
+        }
+
         let writes = data
             .get("writes")
             .or_else(|| bridge_resp.get("writes"))
             .and_then(|v| v.as_array())
             .cloned()
             .unwrap_or_default();
+        let deletes = data
+            .get("deletes")
+            .or_else(|| bridge_resp.get("deletes"))
+            .and_then(|v| v.as_array())
+            .cloned()
+            .unwrap_or_default();
+
+        let mut staged_writes: Vec<(String, StagedPolyglotWrite)> =
+            Vec::with_capacity(writes.len());
+        let mut staged_write_map: BTreeMap<String, usize> = BTreeMap::new();
+        let mut staged_deletes: Vec<String> = Vec::with_capacity(deletes.len());
+        let mut delete_set: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+
         for w in writes {
             let Some(raw_path) = w.get("path").and_then(|v| v.as_str()) else {
                 continue;
@@ -2310,43 +2351,34 @@ impl MvmSandbox {
                 return Err(MvmError::CanonicalPathProtected(norm));
             }
             if let Some(sym_target) = w.get("symlink_target").and_then(|v| v.as_str()) {
-                let resolved = Self::resolve_symlink_step(&norm, sym_target);
-                if Self::is_protected_canonical_guest_path(&resolved) {
-                    return Err(MvmError::CanonicalPathProtected(norm));
-                }
-                self.ensure_parent_dirs(&norm);
-                self.inodes.insert(
-                    norm,
-                    GuestInode {
-                        mode: 0o120777,
-                        kind: InodeKind::Symlink {
-                            target: sym_target.to_string(),
-                        },
-                    },
-                );
-                continue;
-            }
-            let bytes = if let Some(b64) = w.get("content_base64").and_then(|v| v.as_str()) {
-                decode_base64_bytes(b64).map_err(MvmError::BridgeRejected)?
-            } else if let Some(txt) = w.get("content_utf8").and_then(|v| v.as_str()) {
-                txt.as_bytes().to_vec()
+                let idx = staged_writes.len();
+                staged_write_map.insert(norm.clone(), idx);
+                staged_writes.push((norm, StagedPolyglotWrite::Symlink(sym_target.to_string())));
             } else {
-                Vec::new()
-            };
-            self.write_guest_file(&norm, &bytes)?;
-            if let Some(mode_num) = w.get("mode").and_then(|v| v.as_u64()) {
-                if let Some(ino) = self.inodes.get_mut(&norm) {
-                    ino.mode = mode_num as u32;
-                }
+                let bytes = if let Some(b64) = w.get("content_base64").and_then(|v| v.as_str()) {
+                    decode_base64_bytes(b64).map_err(MvmError::BridgeRejected)?
+                } else if let Some(txt) = w.get("content_utf8").and_then(|v| v.as_str()) {
+                    txt.as_bytes().to_vec()
+                } else {
+                    Vec::new()
+                };
+                let mode = w
+                    .get("mode")
+                    .and_then(|v| v.as_u64())
+                    .map(|m| m as u32)
+                    .unwrap_or_else(|| {
+                        if bytes.starts_with(b"\x7fELF") {
+                            0o100755
+                        } else {
+                            0o100644
+                        }
+                    });
+                let idx = staged_writes.len();
+                staged_write_map.insert(norm.clone(), idx);
+                staged_writes.push((norm, StagedPolyglotWrite::Regular { bytes, mode }));
             }
         }
 
-        let deletes = data
-            .get("deletes")
-            .or_else(|| bridge_resp.get("deletes"))
-            .and_then(|v| v.as_array())
-            .cloned()
-            .unwrap_or_default();
         for d in deletes {
             let Some(raw_path) = d.as_str() else {
                 continue;
@@ -2356,15 +2388,151 @@ impl MvmSandbox {
             } else {
                 Self::normalize_guest_path("/workspace", raw_path)
             };
-            if Self::is_protected_canonical_guest_path(&norm) {
-                return Err(MvmError::CanonicalPathProtected(norm));
-            }
             if !norm.starts_with("/workspace/") && !norm.starts_with("/tmp/") {
                 return Err(MvmError::CanonicalPathProtected(norm));
             }
+            if Self::is_protected_canonical_guest_path(&norm) {
+                return Err(MvmError::CanonicalPathProtected(norm));
+            }
+            let prefix = format!("{norm}/");
+            if self
+                .inodes
+                .keys()
+                .any(|k| k.starts_with(&prefix) && Self::is_protected_canonical_guest_path(k))
+            {
+                return Err(MvmError::CanonicalPathProtected(norm));
+            }
+            delete_set.insert(norm.clone());
+            staged_deletes.push(norm);
+        }
+
+        let virtual_symlink_target = |path: &str| -> Option<String> {
+            if let Some(&idx) = staged_write_map.get(path) {
+                return match &staged_writes[idx].1 {
+                    StagedPolyglotWrite::Symlink(t) => Some(t.clone()),
+                    StagedPolyglotWrite::Regular { .. } => None,
+                };
+            }
+            if delete_set.contains(path) {
+                return None;
+            }
+            match self.inodes.get(path) {
+                Some(GuestInode {
+                    kind: InodeKind::Symlink { target },
+                    ..
+                }) => Some(target.clone()),
+                _ => None,
+            }
+        };
+
+        let check_chain = |origin: &str| -> Result<(), MvmError> {
+            let in_ws = origin.starts_with("/workspace/");
+            let in_tmp = origin.starts_with("/tmp/");
+            let within_scope = |p: &str| -> bool {
+                if in_ws {
+                    p == "/workspace" || p.starts_with("/workspace/")
+                } else if in_tmp {
+                    p == "/tmp" || p.starts_with("/tmp/")
+                } else {
+                    false
+                }
+            };
+
+            // Check ancestor directory symlinks along `origin`
+            let mut slash_pos = 1usize;
+            while let Some(next_slash) = origin[slash_pos..].find('/') {
+                let prefix_end = slash_pos + next_slash;
+                let prefix = &origin[..prefix_end];
+                let suffix = &origin[prefix_end..];
+                let mut cur_prefix = prefix.to_string();
+                for _ in 0..8 {
+                    if let Some(target) = virtual_symlink_target(&cur_prefix) {
+                        let resolved_prefix = Self::resolve_symlink_step(&cur_prefix, &target);
+                        if !within_scope(&resolved_prefix) {
+                            return Err(MvmError::CanonicalPathProtected(origin.to_string()));
+                        }
+                        let combined = format!("{resolved_prefix}{suffix}");
+                        if Self::is_protected_canonical_guest_path(&combined) {
+                            return Err(MvmError::CanonicalPathProtected(origin.to_string()));
+                        }
+                        cur_prefix = resolved_prefix;
+                    } else {
+                        break;
+                    }
+                }
+                slash_pos = prefix_end + 1;
+            }
+
+            // Chase symlink hops at `origin` itself up to 8 hops
+            let mut cur = origin.to_string();
+            for hop in 0..8 {
+                if Self::is_protected_canonical_guest_path(&cur) {
+                    return Err(MvmError::CanonicalPathProtected(origin.to_string()));
+                }
+                if !within_scope(&cur) {
+                    return Err(MvmError::CanonicalPathProtected(origin.to_string()));
+                }
+                match virtual_symlink_target(&cur) {
+                    Some(target) => {
+                        let next = Self::resolve_symlink_step(&cur, &target);
+                        if !within_scope(&next) || Self::is_protected_canonical_guest_path(&next) {
+                            return Err(MvmError::CanonicalPathProtected(origin.to_string()));
+                        }
+                        cur = next;
+                        if hop == 7 {
+                            return Err(MvmError::CanonicalPathProtected(origin.to_string()));
+                        }
+                    }
+                    None => break,
+                }
+            }
+            Ok(())
+        };
+
+        for (norm, mut_kind) in &staged_writes {
+            check_chain(norm)?;
+            if matches!(mut_kind, StagedPolyglotWrite::Regular { .. }) && !delete_set.contains(norm)
+            {
+                let mut existing_cur = norm.clone();
+                for _ in 0..8 {
+                    if Self::is_protected_canonical_guest_path(&existing_cur) {
+                        return Err(MvmError::CanonicalPathProtected(norm.clone()));
+                    }
+                    match self.inodes.get(&existing_cur) {
+                        Some(GuestInode {
+                            kind: InodeKind::Symlink { target },
+                            ..
+                        }) => {
+                            existing_cur = Self::resolve_symlink_step(&existing_cur, target);
+                        }
+                        _ => break,
+                    }
+                }
+            }
+        }
+
+        // All validations succeeded: apply staged mutations atomically.
+        for norm in staged_deletes {
             let _ = self
                 .remove_guest_path(&norm, false)
                 .map_err(MvmError::CanonicalPathProtected)?;
+        }
+        for (norm, mut_kind) in staged_writes {
+            match mut_kind {
+                StagedPolyglotWrite::Symlink(sym_target) => {
+                    self.ensure_parent_dirs(&norm);
+                    self.inodes.insert(
+                        norm,
+                        GuestInode {
+                            mode: 0o120777,
+                            kind: InodeKind::Symlink { target: sym_target },
+                        },
+                    );
+                }
+                StagedPolyglotWrite::Regular { bytes, mode } => {
+                    self.write_inode_with_mode(&norm, &bytes, mode)?;
+                }
+            }
         }
         Ok(())
     }

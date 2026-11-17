@@ -1344,3 +1344,165 @@ fn test_mvm_polyglot_env_pipeline_and_rel_symlinks_r4_58() {
     assert_eq!(resumed.exit_code, 0, "stderr: {}", resumed.stderr);
     assert_eq!(resumed.stdout, "42:ok\n");
 }
+
+#[test]
+fn test_mvm_two_stage_pipeline_and_atomic_mutations_r4_58() {
+    let mut vm = MvmSandbox::boot_default().expect("boot MVM");
+    assert!(
+        vm.read_guest_file("/bin/sh").is_some(),
+        "/bin/sh must be present so 2-stage fast-path guard is exercised"
+    );
+
+    // 1. Real 2-stage pipelines without $/redirs/= MUST emit NeedsBridge instead of falling into /bin/sh exit 127
+    let two_stage_sql = vm
+        .exec_interactive(
+            "echo \"SELECT 42;\" | sqlite3 /workspace/app.db",
+            Some("/workspace"),
+        )
+        .expect("2-stage echo | sqlite3 executes");
+    let sql_pending = match two_stage_sql {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for 2-stage `echo | sqlite3`, got {other:?}"),
+    };
+    assert_eq!(sql_pending.bridge_req["kind"], "sqlite_exec");
+    assert_eq!(sql_pending.bridge_req["stdin_utf8"], "SELECT 42;\n");
+
+    vm.write_guest_file("/workspace/hi.js", b"console.log('piped-node');\n")
+        .expect("write hi.js");
+    let two_stage_node = vm
+        .exec_interactive("cat /workspace/hi.js | node", Some("/workspace"))
+        .expect("2-stage cat | node executes");
+    let node_pending = match two_stage_node {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for 2-stage `cat | node`, got {other:?}"),
+    };
+    assert_eq!(node_pending.bridge_req["kind"], "node_exec");
+    assert_eq!(
+        node_pending.bridge_req["stdin_utf8"],
+        "console.log('piped-node');\n"
+    );
+
+    // 2. Atomic polyglot mutation validation: if one write/symlink in batch violates policy, NOTHING is written
+    vm.seed_canonical_guest_file("/workspace/prism/Rule.lex.tex", b"canonical-rule\n")
+        .expect("seed canonical rule");
+    let batch_pending = match vm
+        .exec_interactive("node -e \"batch()\"", Some("/workspace"))
+        .expect("node pending")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge, got {other:?}"),
+    };
+    let batch_err = vm
+        .complete_bridge(
+            &batch_pending.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "writes": [
+                    { "path": "/workspace/should_rollback.txt", "content_base64": test_b64_encode(b"partial\n") },
+                    { "path": "/workspace/prism/Rule.lex.tex", "content_base64": test_b64_encode(b"tamper") }
+                ]
+            }),
+        )
+        .expect_err("mixed batch containing canonical write must fail atomically");
+    assert!(
+        matches!(
+            batch_err,
+            lexlean_r4_wasm::mvm::MvmError::CanonicalPathProtected(_)
+        ),
+        "expected CanonicalPathProtected, got {batch_err:?}"
+    );
+    assert!(
+        vm.read_guest_file("/workspace/should_rollback.txt")
+            .is_none(),
+        "atomic failure must NOT leave preceding batch writes in guest filesystem"
+    );
+
+    // 3. Symlink escaping /workspace and multi-hop canonical symlink chains must be rejected at creation time
+    let escape_pending = match vm
+        .exec_interactive("node -e \"escape()\"", Some("/workspace"))
+        .expect("node pending")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge, got {other:?}"),
+    };
+    let escape_err = vm
+        .complete_bridge(
+            &escape_pending.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "writes": [
+                    { "path": "/workspace/escape_link", "symlink_target": "../../etc/passwd" }
+                ]
+            }),
+        )
+        .expect_err("symlink escaping /workspace must be rejected");
+    assert!(matches!(
+        escape_err,
+        lexlean_r4_wasm::mvm::MvmError::CanonicalPathProtected(_)
+    ));
+    assert!(vm.read_guest_file("/workspace/escape_link").is_none());
+
+    let hop_pending = match vm
+        .exec_interactive("node -e \"multihop()\"", Some("/workspace"))
+        .expect("node pending")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge, got {other:?}"),
+    };
+    let hop_err = vm
+        .complete_bridge(
+            &hop_pending.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "writes": [
+                    { "path": "/workspace/hop_a", "symlink_target": "/workspace/hop_b" },
+                    { "path": "/workspace/hop_b", "symlink_target": "/workspace/prism/Rule.lex.tex" }
+                ]
+            }),
+        )
+        .expect_err("multi-hop canonical symlink chain must be rejected at creation time");
+    assert!(matches!(
+        hop_err,
+        lexlean_r4_wasm::mvm::MvmError::CanonicalPathProtected(_)
+    ));
+
+    // 4. `pipeline_insts_prefix` must NOT be double-counted when downstream stage completes
+    let pipe_pending = match vm
+        .exec_interactive("node -e \"p()\" | wc -c", Some("/workspace"))
+        .expect("node | wc pending")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge, got {other:?}"),
+    };
+    let mut mod_resume = pipe_pending.resume_state.clone();
+    mod_resume["pipeline_insts_prefix"] = serde_json::json!(1000u64);
+    let pipe_done = match vm
+        .complete_bridge(
+            &mod_resume,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "abc\n",
+                "stderr": ""
+            }),
+        )
+        .expect("complete pipe")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed, got {other:?}"),
+    };
+    assert!(
+        pipe_done.instructions_retired < 2000,
+        "pipeline_insts_prefix (1000) must not be double-counted (got {})",
+        pipe_done.instructions_retired
+    );
+}
