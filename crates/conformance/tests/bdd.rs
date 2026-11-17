@@ -85,12 +85,12 @@ fn every_id_has_a_scenario_and_a_test_cm_02() {
         report.violations.join("\n\n")
     );
     assert_eq!(
-        report.ids_checked, 57,
-        "CM-02 requires exactly 57 registered conformance IDs"
+        report.ids_checked, 58,
+        "CM-02 requires exactly 58 registered conformance IDs"
     );
     assert_eq!(
-        report.scenarios_checked, 57,
-        "CM-02 requires exactly 57 Gherkin scenarios"
+        report.scenarios_checked, 58,
+        "CM-02 requires exactly 58 Gherkin scenarios"
     );
     eprintln!(
         "CM-02: {} registered IDs, {} scenarios, {} test names",
@@ -113,8 +113,8 @@ fn no_scenario_is_pending_cm_02() {
     let suites = scenarios_in(&root().join("features/suites")).expect("suites read");
     assert_eq!(
         model.ids.id.len(),
-        57,
-        "M2 requires all 57 registered IDs present"
+        58,
+        "M2 requires all 58 registered IDs present"
     );
     assert!(
         suites.files >= 50,

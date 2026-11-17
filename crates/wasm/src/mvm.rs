@@ -86,10 +86,18 @@ pub enum BridgeError {
     PackageSizeExceedsQuota,
     /// Bridge resume or response JSON was malformed.
     InvalidBridgeJson(String),
+    /// Subresource Integrity (`SHA-512` npm or `SHA-384` Pyodide) verification failed (`R4-58`).
+    IntegrityMismatch(String),
+    /// Host `esbuildModuleUrl` / `esbuildWasmUrl` adapter is unconfigured or unavailable (`R4-58`).
+    EsbuildAdapterUnavailable(String),
+    /// WASI Preview 1 module instantiation or execution failed (`R4-58`).
+    WasiRuntimeError(String),
+    /// In-Worker SQLite execution or binary DB validation failed (`R4-58`).
+    SqliteRuntimeError(String),
 }
 
 impl BridgeError {
-    /// Canonical machine-readable error code matching `R4-39` failure variants.
+    /// Canonical machine-readable error code matching `R4-39` and `R4-58` failure variants.
     pub fn error_code(&self) -> &'static str {
         match self {
             Self::PolicyDenied => "PolicyDenied",
@@ -102,6 +110,10 @@ impl BridgeError {
             Self::PackageInvalidElf64 => "PackageInvalidElf64",
             Self::PackageSizeExceedsQuota => "PackageSizeExceedsQuota",
             Self::InvalidBridgeJson(_) => "InvalidBridgeJson",
+            Self::IntegrityMismatch(_) => "IntegrityMismatch",
+            Self::EsbuildAdapterUnavailable(_) => "EsbuildAdapterUnavailable",
+            Self::WasiRuntimeError(_) => "WasiRuntimeError",
+            Self::SqliteRuntimeError(_) => "SqliteRuntimeError",
         }
     }
 }
@@ -129,6 +141,12 @@ impl std::fmt::Display for BridgeError {
             }
             Self::PackageSizeExceedsQuota => write!(f, "package exceeds 4 MB quota"),
             Self::InvalidBridgeJson(msg) => write!(f, "invalid bridge JSON: {msg}"),
+            Self::IntegrityMismatch(msg) => write!(f, "subresource integrity mismatch: {msg}"),
+            Self::EsbuildAdapterUnavailable(msg) => {
+                write!(f, "esbuild adapter unavailable: {msg}")
+            }
+            Self::WasiRuntimeError(msg) => write!(f, "WASI runtime error: {msg}"),
+            Self::SqliteRuntimeError(msg) => write!(f, "SQLite runtime error: {msg}"),
         }
     }
 }
@@ -916,6 +934,18 @@ impl MvmSandbox {
         Ok(())
     }
 
+    fn resolve_symlink_step(link_path: &str, target: &str) -> String {
+        if target.starts_with('/') {
+            Self::normalize_guest_path("/", target)
+        } else {
+            let parent = match link_path.rsplit_once('/') {
+                Some((p, _)) if !p.is_empty() => p,
+                _ => "/",
+            };
+            Self::normalize_guest_path(parent, target)
+        }
+    }
+
     /// Write a regular file into the guest CoW filesystem (`0o100644` default permissions),
     /// refusing protected canonical paths (`prism/*.lex.tex`, `app/state`) and symlinks to them.
     pub fn write_guest_file(&mut self, path: &str, data: &[u8]) -> Result<(), MvmError> {
@@ -928,7 +958,7 @@ impl MvmSandbox {
             match self.inodes.get(&cur) {
                 Some(ino) => match &ino.kind {
                     InodeKind::Symlink { target } => {
-                        cur = Self::normalize_guest_path("/", target);
+                        cur = Self::resolve_symlink_step(&cur, target);
                     }
                     InodeKind::Regular { .. } => break,
                 },
@@ -959,7 +989,7 @@ impl MvmSandbox {
             let inode = self.inodes.get(&cur)?;
             match &inode.kind {
                 InodeKind::Symlink { target } => {
-                    cur = Self::normalize_guest_path("/", target);
+                    cur = Self::resolve_symlink_step(&cur, target);
                 }
                 InodeKind::Regular {
                     sector_start,
@@ -1655,6 +1685,12 @@ impl MvmSandbox {
                 .get("error_code")
                 .and_then(|v| v.as_str())
                 .unwrap_or("");
+            let err_detail = bridge_resp
+                .get("error_message")
+                .or_else(|| bridge_resp.get("message"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("SpiralCore bridge error")
+                .to_string();
             match code {
                 "PolicyDenied" => return Err(MvmError::BridgeRejected(BridgeError::PolicyDenied)),
                 "InsecureTransportRejected" => {
@@ -1691,13 +1727,31 @@ impl MvmSandbox {
                         BridgeError::PackageSizeExceedsQuota,
                     ))
                 }
+                "IntegrityMismatch" => {
+                    return Err(MvmError::BridgeRejected(BridgeError::IntegrityMismatch(
+                        err_detail,
+                    )))
+                }
+                "EsbuildAdapterUnavailable" => {
+                    return Err(MvmError::BridgeRejected(
+                        BridgeError::EsbuildAdapterUnavailable(err_detail),
+                    ))
+                }
+                "WasiRuntimeError" => {
+                    return Err(MvmError::BridgeRejected(BridgeError::WasiRuntimeError(
+                        err_detail,
+                    )))
+                }
+                "SqliteRuntimeError" | "CorruptSqliteDatabase" => {
+                    return Err(MvmError::BridgeRejected(BridgeError::SqliteRuntimeError(
+                        err_detail,
+                    )))
+                }
+                "CanonicalPathProtected" => {
+                    return Err(MvmError::CanonicalPathProtected(err_detail))
+                }
                 _ => {
-                    let err_msg = bridge_resp
-                        .get("error_message")
-                        .or_else(|| bridge_resp.get("message"))
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("SpiralCore relay returned error");
-                    total_stderr.push_str(err_msg);
+                    total_stderr.push_str(&err_detail);
                     if !total_stderr.ends_with('\n') {
                         total_stderr.push('\n');
                     }
@@ -1758,6 +1812,14 @@ impl MvmSandbox {
                     }
                     (0, body_str, String::new())
                 }
+            }
+            "pkg_fetch"
+                if resume_state.get("ecosystem").and_then(|v| v.as_str()) == Some("npm") =>
+            {
+                self.complete_polyglot_bridge_outcome(data, bridge_resp)?
+            }
+            "node_exec" | "python_exec" | "wasi_exec" | "sqlite_exec" => {
+                self.complete_polyglot_bridge_outcome(data, bridge_resp)?
             }
             "pkg_fetch" => {
                 let pkg_name = resume_state
@@ -1865,19 +1927,55 @@ impl MvmSandbox {
 
         self.ensure_guest_ram_uncontaminated()?;
 
-        if let Some((redir_path, append)) = redirect {
-            self.write_redirected_bytes(
-                &working_cwd,
-                &redir_path,
-                seg_stdout.as_bytes(),
-                append,
-                None,
-            )
-            .map_err(MvmError::CpuTrap)?;
-        } else {
-            total_stdout.push_str(&seg_stdout);
+        let mut stage_out_bytes = seg_stdout.into_bytes();
+        let mut stage_err_str = seg_stderr;
+        let mut stage_exit = seg_exit;
+        if resume_state
+            .get("stderr_to_stdout")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
+        {
+            stage_out_bytes.extend_from_slice(stage_err_str.as_bytes());
+            stage_err_str.clear();
         }
-        total_stderr.push_str(&seg_stderr);
+        if resume_state
+            .get("stdout_to_stderr")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false)
+        {
+            stage_err_str.push_str(&String::from_utf8_lossy(&stage_out_bytes));
+            stage_out_bytes.clear();
+        }
+        if let Some(err_path) = resume_state
+            .get("stderr_redirect_path")
+            .and_then(|v| v.as_str())
+        {
+            let err_append = resume_state
+                .get("stderr_redirect_append")
+                .and_then(|a| a.as_bool())
+                .unwrap_or(false);
+            let err_bytes = stage_err_str.as_bytes().to_vec();
+            stage_err_str.clear();
+            if let Err(msg) =
+                self.write_redirected_bytes(&working_cwd, err_path, &err_bytes, err_append, None)
+            {
+                stage_err_str.push_str(&msg);
+                stage_err_str.push('\n');
+                stage_exit = 1;
+            }
+        }
+        if let Some((redir_path, append)) = redirect {
+            self.write_redirected_bytes(&working_cwd, &redir_path, &stage_out_bytes, append, None)
+                .map_err(MvmError::CpuTrap)?;
+            stage_out_bytes.clear();
+        }
+        if let Some(pipe_err) = resume_state
+            .get("pipeline_stderr_prefix")
+            .and_then(|v| v.as_str())
+        {
+            total_stderr.push_str(pipe_err);
+        }
+        total_stderr.push_str(&stage_err_str);
 
         let mut remaining_segments: Vec<ShellCommandSegment> = Vec::new();
         if let Some(arr) = resume_state
@@ -1900,14 +1998,91 @@ impl MvmSandbox {
             }
         }
 
+        let rem_stages: Vec<String> = resume_state
+            .get("remaining_pipeline_stages")
+            .and_then(|v| v.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|v| v.as_str().map(str::to_string))
+                    .collect()
+            })
+            .unwrap_or_default();
+        let pipeline_insts_prefix = resume_state
+            .get("pipeline_insts_prefix")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(0);
+
+        if !rem_stages.is_empty() {
+            match self.exec_pipeline_stages_with_mode(
+                &rem_stages,
+                &[],
+                &mut working_cwd,
+                stage_out_bytes,
+                String::new(),
+                stage_exit,
+                pipeline_insts_prefix,
+                Vec::new(),
+                None,
+                true,
+            )? {
+                MvmInteractiveOutcome::Completed(pipe_done) => {
+                    total_stdout.push_str(&pipe_done.stdout);
+                    total_stderr.push_str(&pipe_done.stderr);
+                    let mut next_insts = total_insts.saturating_add(pipe_done.instructions_retired);
+                    if let Some(p_insts) = resume_state
+                        .get("pipeline_insts_prefix")
+                        .and_then(|v| v.as_u64())
+                    {
+                        next_insts = next_insts.saturating_add(p_insts);
+                    }
+                    return self.run_interactive_segments(
+                        &remaining_segments,
+                        0,
+                        &mut working_cwd,
+                        total_stdout,
+                        total_stderr,
+                        pipe_done.exit_code,
+                        next_insts,
+                        pipe_done.vsock_frames,
+                        pipe_done.compiled_elf_machine,
+                    );
+                }
+                MvmInteractiveOutcome::NeedsBridge(mut next_pending) => {
+                    if let Some(obj) = next_pending.resume_state.as_object_mut() {
+                        obj.insert(
+                            "working_cwd".to_string(),
+                            serde_json::Value::String(working_cwd),
+                        );
+                        obj.insert(
+                            "stdout_prefix".to_string(),
+                            serde_json::Value::String(total_stdout),
+                        );
+                        obj.insert(
+                            "stderr_prefix".to_string(),
+                            serde_json::Value::String(total_stderr),
+                        );
+                        obj.insert(
+                            "instructions_prefix".to_string(),
+                            serde_json::Value::Number(total_insts.into()),
+                        );
+                        if let Some(rem) = resume_state.get("remaining_segments").cloned() {
+                            obj.insert("remaining_segments".to_string(), rem);
+                        }
+                    }
+                    return Ok(MvmInteractiveOutcome::NeedsBridge(next_pending));
+                }
+            }
+        }
+
+        total_stdout.push_str(&String::from_utf8_lossy(&stage_out_bytes));
         self.run_interactive_segments(
             &remaining_segments,
             0,
             &mut working_cwd,
             total_stdout,
             total_stderr,
-            seg_exit,
-            total_insts,
+            stage_exit,
+            total_insts.saturating_add(pipeline_insts_prefix),
             Vec::new(),
             None,
         )
@@ -1968,38 +2143,603 @@ impl MvmSandbox {
             return Ok(MvmInteractiveOutcome::Completed(self.empty_outcome()));
         }
         let stages = &seg.stages;
-        if stages.len() == 1 {
+        if stages.is_empty() {
+            return Ok(MvmInteractiveOutcome::Completed(self.empty_outcome()));
+        }
+        if seg.heredocs.is_empty()
+            && stages.len() == 2
+            && !trimmed.contains('$')
+            && !trimmed.contains('>')
+            && !trimmed.contains('<')
+            && !trimmed.contains('=')
+            && self.inodes.contains_key("/bin/sh")
+        {
+            let outcome = self.exec_single_segment_ast(seg, working_cwd)?;
+            return Ok(MvmInteractiveOutcome::Completed(outcome));
+        }
+        let out = self.exec_pipeline_stages_with_mode(
+            stages,
+            &seg.heredocs,
+            working_cwd,
+            Vec::new(),
+            String::new(),
+            0,
+            0,
+            Vec::new(),
+            None,
+            true,
+        )?;
+        if let MvmInteractiveOutcome::Completed(ref done) = out {
+            self.last_exit_code = done.exit_code;
+        }
+        Ok(out)
+    }
+
+    fn prepare_polyglot_bridge(
+        &mut self,
+        head: &str,
+        words: &[String],
+        working_cwd: &str,
+        stdin: &[u8],
+        eff_env: &BTreeMap<String, String>,
+        redirects: &StageRedirects,
+    ) -> Result<MvmBridgePending, MvmError> {
+        self.ensure_guest_ram_uncontaminated()?;
+
+        let (op, kind, bridge_kind, ecosystem): (&str, &str, &str, Option<&str>) = match head {
+            "node" | "npx" => ("node_exec", "node_exec", "node_exec", None),
+            "npm" => ("pkg_fetch", "pkg_fetch", "pkg_fetch", Some("npm")),
+            "python" | "python3" | "pip" | "pip3" => {
+                ("python_exec", "python_exec", "python_exec", None)
+            }
+            "wasm" => ("wasi_exec", "wasi_exec", "wasi_exec", None),
+            "sqlite3" => ("sqlite_exec", "sqlite_exec", "sqlite_exec", None),
+            _ => {
+                return Err(MvmError::CpuTrap(format!(
+                    "unsupported polyglot tool `{head}`"
+                )))
+            }
+        };
+
+        let req_id = self.next_bridge_req_id(&format!("mvm-{head}"));
+        let args: Vec<String> = words.get(1..).unwrap_or(&[]).to_vec();
+        let mut env_map = serde_json::Map::new();
+        for (k, v) in eff_env {
+            env_map.insert(k.clone(), serde_json::Value::String(v.clone()));
+        }
+        let workspace_entries = self.export_polyglot_workspace_entries();
+        let stdin_utf8 = String::from_utf8_lossy(stdin).into_owned();
+        let stdin_base64 = encode_base64_bytes(stdin);
+
+        let bridge_req = serde_json::json!({
+            "req_id": req_id,
+            "spvs_magic": "SPVS",
+            "src_cid": self.guest_cid,
+            "dst_cid": 2,
+            "policy": self.policy_str(),
+            "op": op,
+            "kind": kind,
+            "tool": head,
+            "ecosystem": ecosystem,
+            "args": args,
+            "cwd": working_cwd,
+            "env": env_map,
+            "stdin_utf8": stdin_utf8,
+            "stdin_base64": stdin_base64,
+            "workspace": workspace_entries,
+        });
+        let frame = self.emit_bridge_vsock_frame(bridge_req.to_string().as_bytes())?;
+        let resume_state = serde_json::json!({
+            "bridge_kind": bridge_kind,
+            "ecosystem": ecosystem,
+            "tool": head,
+            "working_cwd": working_cwd,
+            "redirect_path": redirects.stdout_file.as_ref().map(|(p, _)| p.clone()),
+            "redirect_append": redirects.stdout_file.as_ref().map(|(_, a)| *a).unwrap_or(false),
+            "stderr_redirect_path": redirects.stderr_file.as_ref().map(|(p, _)| p.clone()),
+            "stderr_redirect_append": redirects.stderr_file.as_ref().map(|(_, a)| *a).unwrap_or(false),
+            "stderr_to_stdout": redirects.stderr_to_stdout,
+            "stdout_to_stderr": redirects.stdout_to_stderr,
+        });
+        Ok(MvmBridgePending {
+            bridge_req,
+            resume_state,
+            vsock_frames: vec![frame],
+        })
+    }
+
+    fn export_polyglot_workspace_entries(&self) -> Vec<serde_json::Value> {
+        let mut entries = Vec::new();
+        for (path, ino) in &self.inodes {
+            let Some(rel) = path.strip_prefix("/workspace/") else {
+                continue;
+            };
+            if rel.is_empty() || is_git_internal_rel_path(rel) {
+                continue;
+            }
+            let readonly = is_canonical_protected_rel(rel);
+            match &ino.kind {
+                InodeKind::Regular { .. } => {
+                    let bytes = self.read_guest_file(path).unwrap_or_default();
+                    entries.push(serde_json::json!({
+                        "path": rel,
+                        "mode": ino.mode,
+                        "readonly": readonly,
+                        "content_base64": encode_base64_bytes(&bytes),
+                    }));
+                }
+                InodeKind::Symlink { target } => {
+                    let resolved_bytes = self.read_guest_file(path).unwrap_or_default();
+                    entries.push(serde_json::json!({
+                        "path": rel,
+                        "mode": ino.mode,
+                        "readonly": readonly,
+                        "symlink_target": target,
+                        "content_base64": encode_base64_bytes(&resolved_bytes),
+                    }));
+                }
+            }
+        }
+        entries
+    }
+
+    fn apply_polyglot_workspace_mutations(
+        &mut self,
+        data: &serde_json::Value,
+        bridge_resp: &serde_json::Value,
+    ) -> Result<(), MvmError> {
+        let writes = data
+            .get("writes")
+            .or_else(|| bridge_resp.get("writes"))
+            .and_then(|v| v.as_array())
+            .cloned()
+            .unwrap_or_default();
+        for w in writes {
+            let Some(raw_path) = w.get("path").and_then(|v| v.as_str()) else {
+                continue;
+            };
+            let norm = if raw_path.starts_with('/') {
+                Self::normalize_guest_path("/", raw_path)
+            } else {
+                Self::normalize_guest_path("/workspace", raw_path)
+            };
+            if !norm.starts_with("/workspace/") && !norm.starts_with("/tmp/") {
+                return Err(MvmError::CanonicalPathProtected(norm));
+            }
+            if Self::is_protected_canonical_guest_path(&norm) {
+                return Err(MvmError::CanonicalPathProtected(norm));
+            }
+            if let Some(sym_target) = w.get("symlink_target").and_then(|v| v.as_str()) {
+                let resolved = Self::resolve_symlink_step(&norm, sym_target);
+                if Self::is_protected_canonical_guest_path(&resolved) {
+                    return Err(MvmError::CanonicalPathProtected(norm));
+                }
+                self.ensure_parent_dirs(&norm);
+                self.inodes.insert(
+                    norm,
+                    GuestInode {
+                        mode: 0o120777,
+                        kind: InodeKind::Symlink {
+                            target: sym_target.to_string(),
+                        },
+                    },
+                );
+                continue;
+            }
+            let bytes = if let Some(b64) = w.get("content_base64").and_then(|v| v.as_str()) {
+                decode_base64_bytes(b64).map_err(MvmError::BridgeRejected)?
+            } else if let Some(txt) = w.get("content_utf8").and_then(|v| v.as_str()) {
+                txt.as_bytes().to_vec()
+            } else {
+                Vec::new()
+            };
+            self.write_guest_file(&norm, &bytes)?;
+            if let Some(mode_num) = w.get("mode").and_then(|v| v.as_u64()) {
+                if let Some(ino) = self.inodes.get_mut(&norm) {
+                    ino.mode = mode_num as u32;
+                }
+            }
+        }
+
+        let deletes = data
+            .get("deletes")
+            .or_else(|| bridge_resp.get("deletes"))
+            .and_then(|v| v.as_array())
+            .cloned()
+            .unwrap_or_default();
+        for d in deletes {
+            let Some(raw_path) = d.as_str() else {
+                continue;
+            };
+            let norm = if raw_path.starts_with('/') {
+                Self::normalize_guest_path("/", raw_path)
+            } else {
+                Self::normalize_guest_path("/workspace", raw_path)
+            };
+            if Self::is_protected_canonical_guest_path(&norm) {
+                return Err(MvmError::CanonicalPathProtected(norm));
+            }
+            if !norm.starts_with("/workspace/") && !norm.starts_with("/tmp/") {
+                return Err(MvmError::CanonicalPathProtected(norm));
+            }
+            let _ = self
+                .remove_guest_path(&norm, false)
+                .map_err(MvmError::CanonicalPathProtected)?;
+        }
+        Ok(())
+    }
+
+    fn complete_polyglot_bridge_outcome(
+        &mut self,
+        data: &serde_json::Value,
+        bridge_resp: &serde_json::Value,
+    ) -> Result<(i32, String, String), MvmError> {
+        self.apply_polyglot_workspace_mutations(data, bridge_resp)?;
+        let exit_code = data
+            .get("exit_code")
+            .or_else(|| bridge_resp.get("exit_code"))
+            .and_then(|v| v.as_i64())
+            .unwrap_or(0) as i32;
+        let stdout = data
+            .get("stdout")
+            .or_else(|| data.get("body_text"))
+            .or_else(|| bridge_resp.get("stdout"))
+            .or_else(|| bridge_resp.get("body_text"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        let stderr = data
+            .get("stderr")
+            .or_else(|| bridge_resp.get("stderr"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        Ok((exit_code, stdout, stderr))
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn exec_pipeline_stages_with_mode(
+        &mut self,
+        stages: &[String],
+        heredocs: &[HeredocBody],
+        working_cwd: &mut String,
+        mut piped_stdin: Vec<u8>,
+        mut total_stderr: String,
+        mut last_exit: i32,
+        mut total_insts: u64,
+        mut all_frames: Vec<VsockPacket>,
+        mut compiled_machine: Option<u16>,
+        allow_bridge: bool,
+    ) -> Result<MvmInteractiveOutcome, MvmError> {
+        let unwrap_env_and_polyglot = |sandbox: &MvmSandbox,
+                                       words: &[String],
+                                       base_env: &BTreeMap<String, String>,
+                                       cwd_str: &str|
+         -> (Vec<String>, BTreeMap<String, String>) {
+            let mut env_out = base_env.clone();
+            let mut idx = 0usize;
+            while idx < words.len() {
+                let head = words[idx].as_str();
+                if head == "env" || head == "/usr/bin/env" || head == "/bin/env" {
+                    idx += 1;
+                    while idx < words.len() {
+                        let a = &words[idx];
+                        if a == "-i" || a == "--ignore-environment" {
+                            env_out.clear();
+                            idx += 1;
+                        } else if a == "-u" && idx + 1 < words.len() {
+                            env_out.remove(&words[idx + 1]);
+                            idx += 2;
+                        } else if let Some((k, v)) = a.split_once('=') {
+                            env_out.insert(k.to_string(), v.to_string());
+                            idx += 1;
+                        } else {
+                            break;
+                        }
+                    }
+                    continue;
+                }
+                break;
+            }
+            let mut eff_words: Vec<String> = words[idx..].to_vec();
+            if let Some(first) = eff_words.first().cloned() {
+                if let Some(stripped) = first
+                    .strip_prefix("/usr/bin/")
+                    .or_else(|| first.strip_prefix("/bin/"))
+                    .or_else(|| first.strip_prefix("/usr/local/bin/"))
+                {
+                    let norm = Self::normalize_guest_path(cwd_str, &first);
+                    let is_elf = sandbox
+                        .read_guest_file(&norm)
+                        .is_some_and(|b| b.starts_with(b"\x7fELF"));
+                    if !is_elf && !stripped.is_empty() {
+                        eff_words[0] = stripped.to_string();
+                    }
+                } else {
+                    let cand_path = if first.starts_with('/')
+                        || first.starts_with("./")
+                        || first.starts_with("../")
+                    {
+                        Self::normalize_guest_path(cwd_str, &first)
+                    } else {
+                        format!("/workspace/node_modules/.bin/{first}")
+                    };
+                    if let Some(bytes) = sandbox.read_guest_file(&cand_path) {
+                        if !bytes.starts_with(b"\x7fELF") {
+                            let first_line = bytes.split(|&b| b == b'\n').next().unwrap_or(&[]);
+                            let header = String::from_utf8_lossy(first_line);
+                            if header.starts_with("#!") && header.contains("python") {
+                                let mut next = vec!["python3".to_string(), cand_path];
+                                next.extend(eff_words.into_iter().skip(1));
+                                eff_words = next;
+                            } else if (header.starts_with("#!") && header.contains("node"))
+                                || cand_path.ends_with(".js")
+                                || cand_path.ends_with(".mjs")
+                                || cand_path.ends_with(".cjs")
+                                || cand_path.ends_with(".ts")
+                            {
+                                let mut next = vec!["node".to_string(), cand_path];
+                                next.extend(eff_words.into_iter().skip(1));
+                                eff_words = next;
+                            }
+                        }
+                    }
+                }
+            }
+            (eff_words, env_out)
+        };
+
+        let expand_globs = |sandbox: &MvmSandbox,
+                            raw_words: &[String],
+                            quoted_flags: &[bool],
+                            cwd_str: &str|
+         -> Vec<String> {
+            let cmd_head = raw_words.first().map(String::as_str).unwrap_or("");
+            let allow_glob = matches!(
+                cmd_head,
+                "ls" | "cat"
+                    | "head"
+                    | "tail"
+                    | "wc"
+                    | "cp"
+                    | "mv"
+                    | "rm"
+                    | "touch"
+                    | "chmod"
+                    | "tar"
+                    | "gzip"
+                    | "gunzip"
+                    | "diff"
+                    | "base64"
+                    | "sha256sum"
+                    | "sort"
+                    | "uniq"
+            );
+            if !allow_glob {
+                return raw_words.to_vec();
+            }
+            let mut g_out = Vec::with_capacity(raw_words.len());
+            g_out.push(raw_words[0].clone());
+            for (idx, tok) in raw_words.iter().enumerate().skip(1) {
+                let quoted = quoted_flags.get(idx).copied().unwrap_or(false);
+                if !quoted && (tok.contains('*') || tok.contains('?')) {
+                    let norm_pat = Self::normalize_guest_path(cwd_str, tok);
+                    let mut matches = Vec::new();
+                    for path in sandbox.inodes.keys() {
+                        if glob_match(&norm_pat, path) {
+                            matches.push(path.clone());
+                        }
+                    }
+                    if !matches.is_empty() {
+                        g_out.extend(matches);
+                        continue;
+                    }
+                }
+                g_out.push(tok.clone());
+            }
+            g_out
+        };
+
+        for (stage_idx, stage_raw) in stages.iter().enumerate() {
             let parsed = parse_stage_words_and_redirects(
-                &stages[0],
+                stage_raw,
                 &self.env_vars,
                 self.last_exit_code,
                 self.next_pid,
             );
-            if parsed.assignments.is_empty() && !parsed.words.is_empty() {
+            let mut stage_env = self.env_vars.clone();
+            for (k, v) in &parsed.assignments {
+                stage_env.insert(k.clone(), v.clone());
+            }
+
+            if parsed.words.is_empty() && !parsed.assignments.is_empty() && stages.len() == 1 {
+                for (k, v) in parsed.assignments {
+                    self.env_vars.insert(k, v);
+                }
+                last_exit = 0;
+                piped_stdin.clear();
+                continue;
+            }
+
+            let stage_stdin = if let Some(h_idx) = parsed.redirects.stdin_heredoc {
+                if let Some(h) = heredocs.get(h_idx) {
+                    if h.expand_vars {
+                        expand_shell_vars(&h.body, &stage_env, self.last_exit_code, self.next_pid)
+                            .into_bytes()
+                    } else {
+                        h.body.as_bytes().to_vec()
+                    }
+                } else {
+                    Vec::new()
+                }
+            } else if let Some(ref in_file) = parsed.redirects.stdin_file {
+                if in_file == "/dev/null" {
+                    Vec::new()
+                } else {
+                    let norm_in = Self::normalize_guest_path(working_cwd, in_file);
+                    match self.read_guest_file(&norm_in) {
+                        Some(b) => b,
+                        None => {
+                            total_stderr.push_str(&format!(
+                                "mvm-sh: {in_file}: No such file or directory\n"
+                            ));
+                            last_exit = 1;
+                            piped_stdin.clear();
+                            continue;
+                        }
+                    }
+                }
+            } else {
+                std::mem::take(&mut piped_stdin)
+            };
+
+            if parsed.words.is_empty() {
+                if let Some((ref target, append)) = parsed.redirects.stdout_file {
+                    if let Err(msg) =
+                        self.write_redirected_bytes(working_cwd, target, &[], append, None)
+                    {
+                        total_stderr.push_str(&msg);
+                        total_stderr.push('\n');
+                        last_exit = 1;
+                    }
+                }
+                continue;
+            }
+
+            if allow_bridge {
+                let (eff_words, eff_env) =
+                    unwrap_env_and_polyglot(self, &parsed.words, &stage_env, working_cwd);
+                let head = eff_words.first().map(String::as_str).unwrap_or("");
                 let redirect = parsed.redirects.stdout_file.clone();
-                match parsed.words[0].as_str() {
-                    "nslookup" | "dig" => {
-                        let pending =
-                            self.prepare_dns_bridge(&parsed.words, working_cwd, redirect)?;
-                        return Ok(MvmInteractiveOutcome::NeedsBridge(pending));
+
+                let maybe_bridge: Option<MvmInteractiveOutcome> = match head {
+                    "nslookup" | "dig" => Some(MvmInteractiveOutcome::NeedsBridge(
+                        self.prepare_dns_bridge(&eff_words, working_cwd, redirect)?,
+                    )),
+                    "curl" | "wget" => Some(MvmInteractiveOutcome::NeedsBridge(
+                        self.prepare_http_bridge(&eff_words, working_cwd, redirect)?,
+                    )),
+                    "pkg" => Some(self.exec_pkg_command(&eff_words, working_cwd, redirect)?),
+                    "git" => Some(self.exec_git_command(&eff_words, working_cwd, redirect)?),
+                    "node" | "npm" | "npx" | "python" | "python3" | "pip" | "pip3" | "wasm"
+                    | "sqlite3" => Some(MvmInteractiveOutcome::NeedsBridge(
+                        self.prepare_polyglot_bridge(
+                            head,
+                            &eff_words,
+                            working_cwd,
+                            &stage_stdin,
+                            &eff_env,
+                            &parsed.redirects,
+                        )?,
+                    )),
+                    _ => None,
+                };
+
+                if let Some(outcome) = maybe_bridge {
+                    match outcome {
+                        MvmInteractiveOutcome::NeedsBridge(mut pending) => {
+                            let rem: Vec<serde_json::Value> = stages[stage_idx + 1..]
+                                .iter()
+                                .map(|s| serde_json::Value::String(s.clone()))
+                                .collect();
+                            if let Some(obj) = pending.resume_state.as_object_mut() {
+                                obj.insert(
+                                    "pipeline_stderr_prefix".to_string(),
+                                    serde_json::Value::String(total_stderr),
+                                );
+                                obj.insert(
+                                    "pipeline_insts_prefix".to_string(),
+                                    serde_json::Value::Number(total_insts.into()),
+                                );
+                                obj.insert(
+                                    "remaining_pipeline_stages".to_string(),
+                                    serde_json::Value::Array(rem),
+                                );
+                            }
+                            all_frames.extend(pending.vsock_frames);
+                            pending.vsock_frames = all_frames;
+                            return Ok(MvmInteractiveOutcome::NeedsBridge(pending));
+                        }
+                        MvmInteractiveOutcome::Completed(done) => {
+                            total_stderr.push_str(&done.stderr);
+                            total_insts = total_insts.saturating_add(done.instructions_retired);
+                            all_frames.extend(done.vsock_frames);
+                            last_exit = done.exit_code;
+                            if done.compiled_elf_machine.is_some() {
+                                compiled_machine = done.compiled_elf_machine;
+                            }
+                            piped_stdin = done.stdout.into_bytes();
+                            continue;
+                        }
                     }
-                    "curl" | "wget" => {
-                        let pending =
-                            self.prepare_http_bridge(&parsed.words, working_cwd, redirect)?;
-                        return Ok(MvmInteractiveOutcome::NeedsBridge(pending));
-                    }
-                    "pkg" => {
-                        return self.exec_pkg_command(&parsed.words, working_cwd, redirect);
-                    }
-                    "git" => {
-                        return self.exec_git_command(&parsed.words, working_cwd, redirect);
-                    }
-                    _ => {}
                 }
             }
+
+            let words = expand_globs(self, &parsed.words, &parsed.quoted_flags, working_cwd);
+            let mut stage_res =
+                self.exec_single_command_words(&words, working_cwd, &stage_stdin, &stage_env)?;
+            if parsed.redirects.stderr_to_stdout {
+                stage_res
+                    .stdout
+                    .extend_from_slice(stage_res.stderr.as_bytes());
+                stage_res.stderr.clear();
+            }
+            if parsed.redirects.stdout_to_stderr {
+                stage_res
+                    .stderr
+                    .push_str(&String::from_utf8_lossy(&stage_res.stdout));
+                stage_res.stdout.clear();
+            }
+            if let Some((ref err_target, err_append)) = parsed.redirects.stderr_file {
+                let err_bytes = stage_res.stderr.as_bytes().to_vec();
+                stage_res.stderr.clear();
+                if let Err(msg) = self.write_redirected_bytes(
+                    working_cwd,
+                    err_target,
+                    &err_bytes,
+                    err_append,
+                    None,
+                ) {
+                    stage_res.stderr.push_str(&msg);
+                    stage_res.stderr.push('\n');
+                    stage_res.exit_code = 1;
+                }
+            }
+            if let Some((ref out_target, out_append)) = parsed.redirects.stdout_file {
+                if let Err(msg) = self.write_redirected_bytes(
+                    working_cwd,
+                    out_target,
+                    &stage_res.stdout,
+                    out_append,
+                    None,
+                ) {
+                    stage_res.stderr.push_str(&msg);
+                    stage_res.stderr.push('\n');
+                    stage_res.exit_code = 1;
+                }
+                stage_res.stdout.clear();
+            }
+
+            total_stderr.push_str(&stage_res.stderr);
+            total_insts = total_insts.saturating_add(stage_res.instructions_retired);
+            all_frames.extend(stage_res.vsock_frames);
+            last_exit = stage_res.exit_code;
+            if stage_res.compiled_elf_machine.is_some() {
+                compiled_machine = stage_res.compiled_elf_machine;
+            }
+            piped_stdin = stage_res.stdout;
         }
-        let outcome = self.exec_single_segment_ast(seg, working_cwd)?;
-        Ok(MvmInteractiveOutcome::Completed(outcome))
+
+        self.last_exit_code = last_exit;
+        Ok(MvmInteractiveOutcome::Completed(MvmExecOutcome {
+            exit_code: last_exit,
+            stdout: String::from_utf8_lossy(&piped_stdin).into_owned(),
+            stderr: total_stderr,
+            instructions_retired: total_insts,
+            vsock_frames: all_frames,
+            compiled_elf_machine: compiled_machine,
+            cow_state_sha256: self.cow_state_sha256(),
+        }))
     }
 
     fn empty_outcome(&self) -> MvmExecOutcome {
@@ -2105,193 +2845,23 @@ impl MvmSandbox {
             }
         }
 
-        let mut piped_stdin: Vec<u8> = Vec::new();
-        let mut total_stderr = String::new();
-        let mut total_insts = 0u64;
-        let mut all_frames = Vec::new();
-        let mut last_exit = 0i32;
-        let mut compiled_machine = None;
-
-        for stage_raw in stages {
-            let parsed = parse_stage_words_and_redirects(
-                stage_raw,
-                &self.env_vars,
-                self.last_exit_code,
-                self.next_pid,
-            );
-
-            let mut stage_env = self.env_vars.clone();
-            for (k, v) in &parsed.assignments {
-                stage_env.insert(k.clone(), v.clone());
-            }
-
-            if parsed.words.is_empty() && !parsed.assignments.is_empty() && stages.len() == 1 {
-                for (k, v) in parsed.assignments {
-                    self.env_vars.insert(k, v);
-                }
-                last_exit = 0;
-                piped_stdin.clear();
-                continue;
-            }
-
-            let stage_stdin = if let Some(h_idx) = parsed.redirects.stdin_heredoc {
-                if let Some(h) = seg.heredocs.get(h_idx) {
-                    if h.expand_vars {
-                        expand_shell_vars(&h.body, &stage_env, self.last_exit_code, self.next_pid)
-                            .into_bytes()
-                    } else {
-                        h.body.as_bytes().to_vec()
-                    }
-                } else {
-                    Vec::new()
-                }
-            } else if let Some(ref in_file) = parsed.redirects.stdin_file {
-                if in_file == "/dev/null" {
-                    Vec::new()
-                } else {
-                    let norm_in = Self::normalize_guest_path(working_cwd, in_file);
-                    match self.read_guest_file(&norm_in) {
-                        Some(b) => b,
-                        None => {
-                            total_stderr.push_str(&format!(
-                                "mvm-sh: {in_file}: No such file or directory\n"
-                            ));
-                            last_exit = 1;
-                            piped_stdin.clear();
-                            continue;
-                        }
-                    }
-                }
-            } else {
-                std::mem::take(&mut piped_stdin)
-            };
-
-            if parsed.words.is_empty() {
-                if let Some((ref target, append)) = parsed.redirects.stdout_file {
-                    if let Err(msg) =
-                        self.write_redirected_bytes(working_cwd, target, &[], append, None)
-                    {
-                        total_stderr.push_str(&msg);
-                        total_stderr.push('\n');
-                        last_exit = 1;
-                    }
-                }
-                continue;
-            }
-
-            let cmd_head = parsed.words.first().map(String::as_str).unwrap_or("");
-            let allow_glob = matches!(
-                cmd_head,
-                "ls" | "cat"
-                    | "head"
-                    | "tail"
-                    | "wc"
-                    | "cp"
-                    | "mv"
-                    | "rm"
-                    | "touch"
-                    | "chmod"
-                    | "tar"
-                    | "gzip"
-                    | "gunzip"
-                    | "diff"
-                    | "base64"
-                    | "sha256sum"
-                    | "sort"
-                    | "uniq"
-            );
-            let words = if !allow_glob {
-                parsed.words.clone()
-            } else {
-                let mut g_out = Vec::with_capacity(parsed.words.len());
-                g_out.push(parsed.words[0].clone());
-                for idx in 1..parsed.words.len() {
-                    let tok = &parsed.words[idx];
-                    let quoted = parsed.quoted_flags.get(idx).copied().unwrap_or(false);
-                    if !quoted && (tok.contains('*') || tok.contains('?')) {
-                        let norm_pat = Self::normalize_guest_path(working_cwd, tok);
-                        let mut matches = Vec::new();
-                        for path in self.inodes.keys() {
-                            if glob_match(&norm_pat, path) {
-                                matches.push(path.clone());
-                            }
-                        }
-                        if !matches.is_empty() {
-                            g_out.extend(matches);
-                            continue;
-                        }
-                    }
-                    g_out.push(tok.clone());
-                }
-                g_out
-            };
-            let mut stage_res =
-                self.exec_single_command_words(&words, working_cwd, &stage_stdin, &stage_env)?;
-
-            if parsed.redirects.stderr_to_stdout {
-                stage_res
-                    .stdout
-                    .extend_from_slice(stage_res.stderr.as_bytes());
-                stage_res.stderr.clear();
-            }
-            if parsed.redirects.stdout_to_stderr {
-                stage_res
-                    .stderr
-                    .push_str(&String::from_utf8_lossy(&stage_res.stdout));
-                stage_res.stdout.clear();
-            }
-
-            if let Some((ref err_target, err_append)) = parsed.redirects.stderr_file {
-                let err_bytes = stage_res.stderr.as_bytes().to_vec();
-                stage_res.stderr.clear();
-                if let Err(msg) = self.write_redirected_bytes(
-                    working_cwd,
-                    err_target,
-                    &err_bytes,
-                    err_append,
-                    None,
-                ) {
-                    stage_res.stderr.push_str(&msg);
-                    stage_res.stderr.push('\n');
-                    stage_res.exit_code = 1;
-                }
-            }
-
-            if let Some((ref out_target, out_append)) = parsed.redirects.stdout_file {
-                if let Err(msg) = self.write_redirected_bytes(
-                    working_cwd,
-                    out_target,
-                    &stage_res.stdout,
-                    out_append,
-                    None,
-                ) {
-                    stage_res.stderr.push_str(&msg);
-                    stage_res.stderr.push('\n');
-                    stage_res.exit_code = 1;
-                }
-                stage_res.stdout.clear();
-            }
-
-            total_stderr.push_str(&stage_res.stderr);
-            total_insts = total_insts.saturating_add(stage_res.instructions_retired);
-            all_frames.extend(stage_res.vsock_frames);
-            last_exit = stage_res.exit_code;
-            if stage_res.compiled_elf_machine.is_some() {
-                compiled_machine = stage_res.compiled_elf_machine;
-            }
-            piped_stdin = stage_res.stdout;
+        match self.exec_pipeline_stages_with_mode(
+            stages,
+            &seg.heredocs,
+            working_cwd,
+            Vec::new(),
+            String::new(),
+            0,
+            0,
+            Vec::new(),
+            None,
+            false,
+        )? {
+            MvmInteractiveOutcome::Completed(done) => Ok(done),
+            MvmInteractiveOutcome::NeedsBridge(_) => Err(MvmError::BridgeRejected(
+                BridgeError::InvalidBridgeJson("interactive bridge unexpected".to_string()),
+            )),
         }
-
-        self.last_exit_code = last_exit;
-        Ok(MvmExecOutcome {
-            exit_code: last_exit,
-            stdout: String::from_utf8_lossy(&piped_stdin).into_owned(),
-            stderr: total_stderr,
-            instructions_retired: total_insts,
-            vsock_frames: all_frames,
-            compiled_elf_machine: compiled_machine,
-            cow_state_sha256: self.cow_state_sha256(),
-        })
     }
 
     fn exec_single_command_words(
@@ -2511,12 +3081,40 @@ impl MvmSandbox {
             ));
         }
 
-        // Explicit path execution (`/bin/...`, `/sbin/...`, `/workspace/...`, `./...`)
+        // Explicit path execution (`/bin/...`, `/sbin/...`, `/usr/bin/...`, `/workspace/...`, `./...`)
         if prog.starts_with('/') || prog.starts_with("./") || prog.starts_with("../") {
             let p = Self::normalize_guest_path(working_cwd, prog);
             if self.inodes.contains_key(&p) {
                 let out = self.run_elf_process_with_stdin(&p, words, working_cwd, stdin_bytes)?;
                 return Ok(StageExecBytesOutcome::from_exec_outcome(out));
+            }
+            if let Some(applet) = p
+                .strip_prefix("/usr/bin/")
+                .or_else(|| p.strip_prefix("/bin/"))
+                .or_else(|| p.strip_prefix("/sbin/"))
+            {
+                if let Some(res) = self.try_exec_native_coreutil(
+                    applet,
+                    &words[1..],
+                    working_cwd,
+                    stdin_bytes,
+                    stage_env,
+                ) {
+                    return Ok(res);
+                }
+                if let Some(bin_cand) = ["/bin/", "/sbin/", "/usr/local/bin/"]
+                    .iter()
+                    .map(|pref| format!("{pref}{applet}"))
+                    .find(|c| self.inodes.contains_key(c))
+                {
+                    let out = self.run_elf_process_with_stdin(
+                        &bin_cand,
+                        words,
+                        working_cwd,
+                        stdin_bytes,
+                    )?;
+                    return Ok(StageExecBytesOutcome::from_exec_outcome(out));
+                }
             }
             return Ok(StageExecBytesOutcome::err(
                 127,
@@ -3374,7 +3972,7 @@ impl MvmSandbox {
                     for _ in 0..8 {
                         if let Some(ino) = self.inodes.get(&target_norm) {
                             if let InodeKind::Symlink { target } = &ino.kind {
-                                target_norm = Self::normalize_guest_path("/", target);
+                                target_norm = Self::resolve_symlink_step(&target_norm, target);
                                 continue;
                             }
                         }
@@ -7771,12 +8369,13 @@ impl MvmSandbox {
                 }
                 if symlink {
                     self.ensure_parent_dirs(&link_norm);
-                    let abs_target = Self::normalize_guest_path(cwd, target_raw);
                     self.inodes.insert(
                         link_norm,
                         GuestInode {
                             mode: 0o120777,
-                            kind: InodeKind::Symlink { target: abs_target },
+                            kind: InodeKind::Symlink {
+                                target: target_raw.to_string(),
+                            },
                         },
                     );
                     StageExecBytesOutcome::ok_empty()
@@ -7896,7 +8495,7 @@ impl MvmSandbox {
                         ..
                     }) = self.inodes.get(&cur)
                     {
-                        cur = Self::normalize_guest_path("/", target);
+                        cur = Self::resolve_symlink_step(&cur, target);
                     } else {
                         break;
                     }
@@ -13156,6 +13755,15 @@ fn is_native_coreutil_or_builtin(name: &str) -> bool {
             | "gcc"
             | "git"
             | "pkg"
+            | "node"
+            | "npm"
+            | "npx"
+            | "python"
+            | "python3"
+            | "pip"
+            | "pip3"
+            | "wasm"
+            | "sqlite3"
     )
 }
 

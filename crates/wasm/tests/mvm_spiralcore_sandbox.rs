@@ -963,3 +963,384 @@ int main(void) {
         Some(&b"ok\n"[..])
     );
 }
+
+#[test]
+fn test_mvm_polyglot_wasm_container_bridge_r4_58() {
+    let mut vm = MvmSandbox::boot_default().expect("boot MVM");
+
+    // 1. `node -e ...` must suspend with NeedsBridge(node_exec) and write /workspace/hi.txt on resume
+    let node_cmd =
+        "node -e \"const fs = require('fs'); fs.writeFileSync('/workspace/hi.txt', process.version);\"";
+    let pending_node = match vm
+        .exec_interactive(node_cmd, Some("/workspace"))
+        .expect("node interactive executes")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::Completed(done) => {
+            panic!("expected NeedsBridge for node, got Completed: {done:?}");
+        }
+    };
+    assert_eq!(pending_node.bridge_req["op"], "node_exec");
+    assert_eq!(pending_node.bridge_req["kind"], "node_exec");
+    assert_eq!(pending_node.bridge_req["tool"], "node");
+    assert!(!pending_node.vsock_frames.is_empty());
+
+    let node_resumed = match vm
+        .complete_bridge(
+            &pending_node.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "writes": [
+                    {
+                        "path": "/workspace/hi.txt",
+                        "content_base64": test_b64_encode(b"v20.0.0-mvm"),
+                    }
+                ],
+                "deletes": []
+            }),
+        )
+        .expect("complete node bridge")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed after node resume, got {other:?}"),
+    };
+    assert_eq!(node_resumed.exit_code, 0, "stderr: {}", node_resumed.stderr);
+    assert_eq!(
+        vm.read_guest_file("/workspace/hi.txt").as_deref(),
+        Some(&b"v20.0.0-mvm"[..])
+    );
+
+    // 2. `npm install <pkg>` emits pkg_fetch/npm bridge and keeps node_modules/** out of Studio delta export while exporting package.json
+    let pending_npm = match vm
+        .exec_interactive("npm install left-pad", Some("/workspace"))
+        .expect("npm interactive executes")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for npm install, got {other:?}"),
+    };
+    assert_eq!(pending_npm.bridge_req["kind"], "pkg_fetch");
+    assert_eq!(pending_npm.bridge_req["ecosystem"], "npm");
+    assert_eq!(pending_npm.bridge_req["tool"], "npm");
+
+    let npm_resumed = match vm
+        .complete_bridge(
+            &pending_npm.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "added 1 package left-pad@1.3.0\n",
+                "stderr": "",
+                "writes": [
+                    {
+                        "path": "package.json",
+                        "content_base64": test_b64_encode(b"{\n  \"dependencies\": {\n    \"left-pad\": \"^1.3.0\"\n  }\n}\n"),
+                    },
+                    {
+                        "path": "node_modules/left-pad/index.js",
+                        "content_base64": test_b64_encode(b"module.exports = (s) => s;\n"),
+                    }
+                ]
+            }),
+        )
+        .expect("complete npm bridge")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed after npm resume, got {other:?}"),
+    };
+    assert_eq!(npm_resumed.exit_code, 0);
+    assert_eq!(
+        vm.read_guest_file("/workspace/node_modules/left-pad/index.js")
+            .as_deref(),
+        Some(&b"module.exports = (s) => s;\n"[..])
+    );
+    let diff: serde_json::Value =
+        serde_json::from_str(&vm.mvm_export_workspace_diff_json()).expect("diff json");
+    let diff_paths: Vec<&str> = diff["writes"]
+        .as_array()
+        .expect("writes")
+        .iter()
+        .filter_map(|w| w["path"].as_str())
+        .collect();
+    assert!(
+        diff_paths.contains(&"package.json"),
+        "package.json must sync to Studio: {diff_paths:?}"
+    );
+    assert!(
+        !diff_paths.iter().any(|p| p.starts_with("node_modules/")),
+        "node_modules/** must stay isolated in MVM OPFS COW sectors: {diff_paths:?}"
+    );
+
+    // 3. `python3`, `pip`, `wasm run`, and `sqlite3` emit typed NeedsBridge requests with workspace snapshot (including binary *.wasm and *.db)
+    let pending_py = match vm
+        .exec_interactive("python3 -c \"print(42)\"", Some("/workspace"))
+        .expect("python3 interactive")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for python3, got {other:?}"),
+    };
+    assert_eq!(pending_py.bridge_req["kind"], "python_exec");
+    assert_eq!(pending_py.bridge_req["tool"], "python3");
+
+    let pending_pip = match vm
+        .exec_interactive("pip install rich", Some("/workspace"))
+        .expect("pip interactive")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for pip, got {other:?}"),
+    };
+    assert_eq!(pending_pip.bridge_req["kind"], "python_exec");
+    assert_eq!(pending_pip.bridge_req["tool"], "pip");
+
+    vm.write_guest_file("/workspace/mod.wasm", b"\x00asm\x01\x00\x00\x00")
+        .expect("write mod.wasm");
+    let pending_wasi = match vm
+        .exec_interactive("wasm run /workspace/mod.wasm --flag", Some("/workspace"))
+        .expect("wasm run interactive")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for wasm run, got {other:?}"),
+    };
+    assert_eq!(pending_wasi.bridge_req["kind"], "wasi_exec");
+    let wasi_ws = pending_wasi.bridge_req["workspace"]
+        .as_array()
+        .expect("workspace entries in wasi_exec");
+    assert!(
+        wasi_ws.iter().any(|e| e["path"] == "mod.wasm"
+            && e["content_base64"] == test_b64_encode(b"\x00asm\x01\x00\x00\x00")),
+        "wasi_exec bridge request must carry binary mod.wasm from MVM /workspace"
+    );
+
+    let pending_sql = match vm
+        .exec_interactive(
+            "sqlite3 /workspace/app.db \"CREATE TABLE t(x INT); INSERT INTO t VALUES (42); SELECT x FROM t;\"",
+            Some("/workspace"),
+        )
+        .expect("sqlite3 interactive")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for sqlite3, got {other:?}"),
+    };
+    assert_eq!(pending_sql.bridge_req["kind"], "sqlite_exec");
+    let sqlite_bytes = b"SQLite format 3\x00\x10\x00\x01\x01binary-table";
+    let sql_resumed = match vm
+        .complete_bridge(
+            &pending_sql.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "42\n",
+                "stderr": "",
+                "writes": [
+                    {
+                        "path": "/workspace/app.db",
+                        "content_base64": test_b64_encode(sqlite_bytes),
+                    }
+                ]
+            }),
+        )
+        .expect("complete sqlite bridge")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed after sqlite resume, got {other:?}"),
+    };
+    assert_eq!(sql_resumed.exit_code, 0);
+    assert_eq!(sql_resumed.stdout, "42\n");
+    assert_eq!(
+        vm.read_guest_file("/workspace/app.db").as_deref(),
+        Some(&sqlite_bytes[..])
+    );
+    let diff_sql: serde_json::Value =
+        serde_json::from_str(&vm.mvm_export_workspace_diff_json()).expect("diff sql json");
+    let sql_writes = diff_sql["writes"].as_array().expect("writes");
+    assert!(
+        sql_writes.is_empty(),
+        "binary *.db and *.wasm must remain isolated from Studio text diff: {sql_writes:?}"
+    );
+}
+
+#[test]
+fn test_mvm_polyglot_sri_esbuild_and_canonical_refusals_r4_58() {
+    let _guard = STUDIO_GLOBAL_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let _ = studio_dispatch("1\tstudio\treset\t");
+    let mut engine = StudioEngine::new_default();
+
+    // 1. Typed R5 errors across mvm_complete_bridge_json (`IntegrityMismatch`, `EsbuildAdapterUnavailable`, `WasiRuntimeError`, `SqliteRuntimeError`)
+    for (cmd, code) in [
+        ("npm install bad-pkg", "IntegrityMismatch"),
+        ("node app.ts", "EsbuildAdapterUnavailable"),
+        ("wasm run /workspace/bad.wasm", "WasiRuntimeError"),
+        ("sqlite3 /workspace/app.db \"BAD\"", "SqliteRuntimeError"),
+    ] {
+        let req_raw = engine.mvm_exec_json(cmd);
+        let req: serde_json::Value = serde_json::from_str(&req_raw).expect("needs_bridge json");
+        assert_eq!(
+            req["status"], "needs_bridge",
+            "expected needs_bridge for `{cmd}`, got {req}"
+        );
+        let err_raw = engine.mvm_complete_bridge_json(
+            &serde_json::json!({
+                "resume_state": req["resume_state"],
+                "bridge_resp": {
+                    "ok": false,
+                    "error_code": code,
+                    "message": format!("simulated {code}"),
+                }
+            })
+            .to_string(),
+        );
+        let err_json: serde_json::Value = serde_json::from_str(&err_raw).expect("typed error json");
+        assert_eq!(
+            err_json["status"], "error",
+            "expected error for {code}: {err_json}"
+        );
+        assert_eq!(err_json["error_code"], code);
+    }
+
+    // 2. Canonical path protection enforced on polyglot bridge writes/deletes
+    let mut vm = MvmSandbox::boot_default().expect("boot MVM");
+    let canonical_rule = b"\\begin{lexlean}{R4.Rule}\\end{lexlean}\n";
+    let canonical_state = b"canonical-state\n";
+    vm.seed_canonical_guest_file("/workspace/prism/Rule.lex.tex", canonical_rule)
+        .expect("seed rule");
+    vm.seed_canonical_guest_file("/workspace/app/state", canonical_state)
+        .expect("seed app/state");
+
+    let pending = match vm
+        .exec_interactive("node -e \"tamper()\"", Some("/workspace"))
+        .expect("node pending")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge, got {other:?}"),
+    };
+    let tamper_err = vm
+        .complete_bridge(
+            &pending.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "writes": [
+                    {
+                        "path": "/workspace/prism/Rule.lex.tex",
+                        "content_base64": test_b64_encode(b"tampered!"),
+                    }
+                ]
+            }),
+        )
+        .expect_err("polyglot bridge write to prism/*.lex.tex must be refused");
+    assert!(
+        matches!(
+            tamper_err,
+            lexlean_r4_wasm::mvm::MvmError::CanonicalPathProtected(_)
+        ),
+        "expected CanonicalPathProtected, got {tamper_err:?}"
+    );
+    assert_eq!(
+        vm.read_guest_file("/workspace/prism/Rule.lex.tex")
+            .as_deref(),
+        Some(&canonical_rule[..])
+    );
+
+    let pending_del = match vm
+        .exec_interactive(
+            "python3 -c \"import os; os.remove('/workspace/app/state')\"",
+            Some("/workspace"),
+        )
+        .expect("python pending")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge, got {other:?}"),
+    };
+    let del_err = vm
+        .complete_bridge(
+            &pending_del.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "",
+                "stderr": "",
+                "deletes": ["/workspace/app/state"]
+            }),
+        )
+        .expect_err("polyglot bridge delete on app/state must be refused");
+    assert!(
+        matches!(
+            del_err,
+            lexlean_r4_wasm::mvm::MvmError::CanonicalPathProtected(_)
+        ),
+        "expected CanonicalPathProtected, got {del_err:?}"
+    );
+    assert_eq!(
+        vm.read_guest_file("/workspace/app/state").as_deref(),
+        Some(&canonical_state[..])
+    );
+}
+
+#[test]
+fn test_mvm_polyglot_env_pipeline_and_rel_symlinks_r4_58() {
+    let mut vm = MvmSandbox::boot_default().expect("boot MVM");
+
+    // 1. Relative symlink inside node_modules/.bin resolved cleanly against link parent directory
+    vm.write_guest_file(
+        "/workspace/node_modules/demo-cli/bin/cli.js",
+        b"#!/usr/bin/env node\nconsole.log('cli');\n",
+    )
+    .expect("write cli.js");
+    let tar_res = vm
+        .exec_command(
+            "mkdir -p /workspace/node_modules/.bin && ln -s ../demo-cli/bin/cli.js /workspace/node_modules/.bin/demo-cli",
+            "/workspace",
+        )
+        .expect("ln -s relative");
+    assert_eq!(tar_res.exit_code, 0, "stderr: {}", tar_res.stderr);
+    assert_eq!(
+        vm.read_guest_file("/workspace/node_modules/.bin/demo-cli")
+            .as_deref(),
+        Some(&b"#!/usr/bin/env node\nconsole.log('cli');\n"[..]),
+        "relative symlink inside node_modules/.bin must resolve relative to its parent directory"
+    );
+
+    // 2. `/usr/bin/env` and `/usr/bin/<applet>` explicit path dispatch
+    let env_cat = vm
+        .exec_command(
+            "/usr/bin/env GREETING=polyglot /usr/bin/printf '%s\\n' \"$GREETING\" | /usr/bin/tr a-z A-Z",
+            "/workspace",
+        )
+        .expect("/usr/bin/env + /usr/bin/<applet> runs");
+    assert_eq!(env_cat.exit_code, 0, "stderr: {}", env_cat.stderr);
+
+    // 3. `/usr/bin/env node -e ...` inside a pipeline + `&&` chain suspends with piped stdin and resumes downstream stages
+    let chained = vm
+        .exec_interactive(
+            "echo \"SELECT 42;\" | /usr/bin/env sqlite3 /workspace/app.db | tr -d '\\n' && echo ':ok'",
+            Some("/workspace"),
+        )
+        .expect("piped sqlite3 interactive");
+    let pending = match chained {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for piped /usr/bin/env sqlite3, got {other:?}"),
+    };
+    assert_eq!(pending.bridge_req["kind"], "sqlite_exec");
+    assert_eq!(pending.bridge_req["stdin_utf8"], "SELECT 42;\n");
+    let resumed = match vm
+        .complete_bridge(
+            &pending.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "exit_code": 0,
+                "stdout": "42\n",
+                "stderr": ""
+            }),
+        )
+        .expect("resume piped sqlite3")
+    {
+        lexlean_r4_wasm::mvm::MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed, got {other:?}"),
+    };
+    assert_eq!(resumed.exit_code, 0, "stderr: {}", resumed.stderr);
+    assert_eq!(resumed.stdout, "42:ok\n");
+}

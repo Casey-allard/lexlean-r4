@@ -3178,6 +3178,1278 @@ const SECRET_HOST_ALLOWLIST = Object.freeze({
   GITHUB_TOKEN: new Set(['github.com', 'api.github.com']),
 });
 
+export const PYODIDE_LOCK = Object.freeze({
+  version: '0.27.2',
+  url: 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.mjs',
+  indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/',
+  sri: 'sha384-tynFgfasyqq8i/8ivIOTHpF+NLPB4dVWM8E+tTowcaAWNwVf4dZK6QeV0b47SLDp',
+});
+
+const PYODIDE_CACHE_NAME = 'uor-pyodide-v1';
+
+class MvmPolyglotVfs {
+  constructor(entries, cwd) {
+    this.cwd = MvmPolyglotVfs.normalizePath('/', cwd || '/workspace');
+    this.files = new Map();
+    this.symlinks = new Map();
+    this.modes = new Map();
+    this.originalKeys = new Set();
+    this.dirtyWrites = new Set();
+    this.dirtyDeletes = new Set();
+
+    const list = Array.isArray(entries) ? entries : [];
+    for (const item of list) {
+      if (!item || typeof item.path !== 'string') continue;
+      const rel = MvmPolyglotVfs.normalizeRel(item.path);
+      if (!rel) continue;
+      this.originalKeys.add(rel);
+      const modeNum = typeof item.mode === 'number' ? item.mode : 0o100644;
+      this.modes.set(rel, modeNum);
+      if (typeof item.symlink_target === 'string') {
+        this.symlinks.set(rel, item.symlink_target);
+      } else if (typeof item.content_base64 === 'string') {
+        this.files.set(rel, __uorBase64ToBytes(item.content_base64));
+      } else if (typeof item.content_utf8 === 'string') {
+        this.files.set(rel, cachedTextEncoder.encode(item.content_utf8));
+      } else {
+        this.files.set(rel, new Uint8Array(0));
+      }
+    }
+  }
+
+  static normalizePath(cwd, raw) {
+    const rawStr = String(raw || '.').trim();
+    const base = rawStr.startsWith('/') ? rawStr : (cwd === '/' ? `/${rawStr}` : `${cwd}/${rawStr}`);
+    const stack = [];
+    for (const seg of base.split('/')) {
+      if (!seg || seg === '.') continue;
+      if (seg === '..') stack.pop();
+      else stack.push(seg);
+    }
+    return stack.length === 0 ? '/' : `/${stack.join('/')}`;
+  }
+
+  static normalizeRel(raw) {
+    const abs = MvmPolyglotVfs.normalizePath('/workspace', raw);
+    if (abs === '/workspace') return '';
+    if (abs.startsWith('/workspace/')) return abs.slice('/workspace/'.length);
+    return abs.replace(/^\/+/, '');
+  }
+
+  static isCanonicalProtectedRel(rel) {
+    return (rel.startsWith('prism/') && rel.endsWith('.lex.tex')) || rel === 'app/state';
+  }
+
+  static parentDir(absPath) {
+    const idx = absPath.lastIndexOf('/');
+    return idx <= 0 ? '/' : absPath.slice(0, idx);
+  }
+
+  resolveGuestTarget(rawPath) {
+    const abs = MvmPolyglotVfs.normalizePath(this.cwd, rawPath);
+    if (!abs.startsWith('/workspace/') && abs !== '/workspace') {
+      const err = new Error(`Path outside /workspace refused: ${abs}`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    let curAbs = abs;
+    for (let hop = 0; hop < 8; hop += 1) {
+      const rel = curAbs === '/workspace' ? '' : curAbs.slice('/workspace/'.length);
+      if (!rel || !this.symlinks.has(rel)) {
+        return { abs: curAbs, rel };
+      }
+      const target = this.symlinks.get(rel);
+      curAbs = target.startsWith('/')
+        ? MvmPolyglotVfs.normalizePath('/', target)
+        : MvmPolyglotVfs.normalizePath(MvmPolyglotVfs.parentDir(curAbs), target);
+      if (!curAbs.startsWith('/workspace/') && curAbs !== '/workspace') {
+        const err = new Error(`Symlink escapes /workspace: ${curAbs}`);
+        err.code = 'CanonicalPathProtected';
+        throw err;
+      }
+    }
+    const finalRel = curAbs === '/workspace' ? '' : curAbs.slice('/workspace/'.length);
+    return { abs: curAbs, rel: finalRel };
+  }
+
+  assertMutable(rawPath) {
+    const abs = MvmPolyglotVfs.normalizePath(this.cwd, rawPath);
+    const directRel = abs.startsWith('/workspace/') ? abs.slice('/workspace/'.length) : '';
+    if (directRel && MvmPolyglotVfs.isCanonicalProtectedRel(directRel)) {
+      const err = new Error(`mvm: refused mutation of protected canonical path '${abs}'`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    const resolved = this.resolveGuestTarget(abs);
+    if (resolved.rel && MvmPolyglotVfs.isCanonicalProtectedRel(resolved.rel)) {
+      const err = new Error(`mvm: refused mutation of protected canonical path '${resolved.abs}'`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    return { directRel, resolved };
+  }
+
+  exists(rawPath) {
+    try {
+      const { rel } = this.resolveGuestTarget(rawPath);
+      if (!rel) return true;
+      if (this.files.has(rel)) return true;
+      const prefix = `${rel}/`;
+      for (const k of this.files.keys()) {
+        if (k.startsWith(prefix)) return true;
+      }
+      for (const k of this.symlinks.keys()) {
+        if (k.startsWith(prefix)) return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  isDirectory(rawPath) {
+    try {
+      const { rel } = this.resolveGuestTarget(rawPath);
+      if (!rel) return true;
+      if (this.files.has(rel)) return false;
+      const prefix = `${rel}/`;
+      for (const k of this.files.keys()) {
+        if (k.startsWith(prefix)) return true;
+      }
+      for (const k of this.symlinks.keys()) {
+        if (k.startsWith(prefix)) return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  readBytes(rawPath) {
+    const { rel } = this.resolveGuestTarget(rawPath);
+    return rel && this.files.has(rel) ? this.files.get(rel) : null;
+  }
+
+  readText(rawPath) {
+    const bytes = this.readBytes(rawPath);
+    return bytes ? cachedTextDecoder.decode(bytes) : null;
+  }
+
+  writeBytes(rawPath, data, mode) {
+    const { directRel, resolved } = this.assertMutable(rawPath);
+    const targetRel = directRel || resolved.rel;
+    if (!targetRel) {
+      const err = new Error('Cannot write directly to /workspace root');
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    const u8 = data instanceof Uint8Array
+      ? new Uint8Array(data)
+      : cachedTextEncoder.encode(String(data === undefined ? '' : data));
+    this.symlinks.delete(targetRel);
+    this.files.set(targetRel, u8);
+    if (typeof mode === 'number') {
+      this.modes.set(targetRel, mode);
+    } else if (!this.modes.has(targetRel)) {
+      this.modes.set(targetRel, 0o100644);
+    }
+    this.dirtyDeletes.delete(targetRel);
+    this.dirtyWrites.add(targetRel);
+  }
+
+  writeSymlink(rawPath, target) {
+    const abs = MvmPolyglotVfs.normalizePath(this.cwd, rawPath);
+    if (!abs.startsWith('/workspace/')) {
+      const err = new Error(`Path outside /workspace refused: ${abs}`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    const rel = abs.slice('/workspace/'.length);
+    const resolvedTarget = String(target || '').startsWith('/')
+      ? MvmPolyglotVfs.normalizePath('/', target)
+      : MvmPolyglotVfs.normalizePath(MvmPolyglotVfs.parentDir(abs), target);
+    const targetRel = resolvedTarget.startsWith('/workspace/')
+      ? resolvedTarget.slice('/workspace/'.length)
+      : '';
+    if (
+      MvmPolyglotVfs.isCanonicalProtectedRel(rel) ||
+      (targetRel && MvmPolyglotVfs.isCanonicalProtectedRel(targetRel))
+    ) {
+      const err = new Error(`mvm: refused symlink touching protected canonical path '${abs}'`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    this.files.delete(rel);
+    this.symlinks.set(rel, String(target || ''));
+    this.modes.set(rel, 0o120777);
+    this.dirtyDeletes.delete(rel);
+    this.dirtyWrites.add(rel);
+  }
+
+  deletePath(rawPath) {
+    const { directRel } = this.assertMutable(rawPath);
+    if (!directRel) return false;
+    const existed = this.files.delete(directRel) || this.symlinks.delete(directRel);
+    this.modes.delete(directRel);
+    this.dirtyWrites.delete(directRel);
+    if (existed || this.originalKeys.has(directRel)) {
+      this.dirtyDeletes.add(directRel);
+    }
+    return existed;
+  }
+
+  readdir(rawPath) {
+    const { rel } = this.resolveGuestTarget(rawPath);
+    const prefix = rel ? `${rel}/` : '';
+    const out = new Set();
+    for (const k of this.files.keys()) {
+      if (k.startsWith(prefix)) {
+        const first = k.slice(prefix.length).split('/')[0];
+        if (first) out.add(first);
+      }
+    }
+    for (const k of this.symlinks.keys()) {
+      if (k.startsWith(prefix)) {
+        const first = k.slice(prefix.length).split('/')[0];
+        if (first) out.add(first);
+      }
+    }
+    return Array.from(out).sort();
+  }
+
+  exportMutations() {
+    const writes = [];
+    for (const rel of this.dirtyWrites) {
+      if (this.symlinks.has(rel)) {
+        writes.push({
+          path: rel,
+          symlink_target: this.symlinks.get(rel),
+          mode: this.modes.get(rel) || 0o120777,
+        });
+      } else if (this.files.has(rel)) {
+        writes.push({
+          path: rel,
+          content_base64: __uorBytesToBase64(this.files.get(rel)),
+          mode: this.modes.get(rel) || 0o100644,
+        });
+      }
+    }
+    const deletes = Array.from(this.dirtyDeletes);
+    return { writes, deletes };
+  }
+}
+
+class MvmNodeBuffer extends Uint8Array {
+  static from(value, encoding) {
+    if (value instanceof Uint8Array) {
+      return new MvmNodeBuffer(value);
+    }
+    if (Array.isArray(value)) {
+      return new MvmNodeBuffer(value);
+    }
+    if (value instanceof ArrayBuffer) {
+      return new MvmNodeBuffer(value);
+    }
+    const enc = String(encoding || 'utf8').toLowerCase();
+    const s = String(value || '');
+    if (enc === 'base64') {
+      return new MvmNodeBuffer(__uorBase64ToBytes(s));
+    }
+    if (enc === 'hex') {
+      const clean = s.replace(/\s+/g, '');
+      const out = new MvmNodeBuffer(Math.floor(clean.length / 2));
+      for (let i = 0; i < out.length; i += 1) {
+        out[i] = Number('0x' + clean.slice(i * 2, i * 2 + 2)) & 0xff;
+      }
+      return out;
+    }
+    return new MvmNodeBuffer(cachedTextEncoder.encode(s));
+  }
+
+  static alloc(size, fill) {
+    const out = new MvmNodeBuffer(Math.max(0, Number(size) || 0));
+    if (fill !== undefined) out.fill(Number(fill) & 0xff);
+    return out;
+  }
+
+  static allocUnsafe(size) {
+    return MvmNodeBuffer.alloc(size, 0);
+  }
+
+  static isBuffer(obj) {
+    return obj instanceof MvmNodeBuffer || obj instanceof Uint8Array;
+  }
+
+  static concat(list, totalLen) {
+    const items = Array.isArray(list) ? list : [];
+    const len = typeof totalLen === 'number'
+      ? totalLen
+      : items.reduce((acc, item) => acc + (item ? item.byteLength : 0), 0);
+    const out = new MvmNodeBuffer(len);
+    let offset = 0;
+    for (const item of items) {
+      if (!item || offset >= len) continue;
+      const take = Math.min(item.byteLength, len - offset);
+      out.set(item.subarray(0, take), offset);
+      offset += take;
+    }
+    return out;
+  }
+
+  static byteLength(str) {
+    if (str instanceof Uint8Array) return str.byteLength;
+    return cachedTextEncoder.encode(String(str || '')).byteLength;
+  }
+
+  toString(encoding) {
+    const enc = String(encoding || 'utf8').toLowerCase();
+    if (enc === 'base64') return __uorBytesToBase64(this);
+    if (enc === 'hex') {
+      let hex = '';
+      for (let i = 0; i < this.length; i += 1) {
+        hex += this[i].toString(16).padStart(2, '0');
+      }
+      return hex;
+    }
+    return cachedTextDecoder.decode(this);
+  }
+}
+
+class MvmWasiRunner {
+  static run(wasmBytes, vfs, args, env, stdinBytes) {
+    if (!(wasmBytes instanceof Uint8Array) || wasmBytes.byteLength < 8 ||
+      wasmBytes[0] !== 0x00 || wasmBytes[1] !== 0x61 || wasmBytes[2] !== 0x73 || wasmBytes[3] !== 0x6d) {
+      const err = new Error('Invalid WebAssembly binary magic header');
+      err.code = 'WasiRuntimeError';
+      throw err;
+    }
+
+    const argvList = Array.isArray(args) ? args.map((a) => String(a)) : [];
+    const envList = Object.entries(env || {}).map(([k, v]) => `${k}=${v}`);
+    const stdinBuf = stdinBytes instanceof Uint8Array ? stdinBytes : new Uint8Array(0);
+
+    const fdTable = new Map();
+    fdTable.set(0, { kind: 'stdin', data: stdinBuf, offset: 0 });
+    fdTable.set(1, { kind: 'stdout', chunks: [] });
+    fdTable.set(2, { kind: 'stderr', chunks: [] });
+    fdTable.set(3, { kind: 'preopen', guestPath: '/workspace', preopenName: '/workspace' });
+    fdTable.set(4, { kind: 'preopen', guestPath: vfs.cwd, preopenName: '.' });
+    let nextFd = 5;
+    let wasmMemory = null;
+    let exitCode = 0;
+
+    class WasiExitSignal {
+      constructor(code) {
+        this.code = code | 0;
+      }
+    }
+
+    const memU8 = () => new Uint8Array(wasmMemory.buffer);
+    const memDv = () => new DataView(wasmMemory.buffer);
+    const writeU32 = (ptr, val) => memDv().setUint32(ptr >>> 0, val >>> 0, true);
+    const writeU64 = (ptr, val) => memDv().setBigUint64(ptr >>> 0, BigInt(val), true);
+    const readStr = (ptr, len) => cachedTextDecoder.decode(memU8().subarray(ptr >>> 0, (ptr >>> 0) + (len >>> 0)));
+
+    const WASI_ERRNO_SUCCESS = 0;
+    const WASI_ERRNO_BADF = 8;
+    const WASI_ERRNO_ACCES = 2;
+    const WASI_ERRNO_EXIST = 20;
+    const WASI_ERRNO_INVAL = 28;
+    const WASI_ERRNO_NOENT = 44;
+
+    const wasiImports = {
+      args_sizes_get: (argcPtr, bufSizePtr) => {
+        let total = 0;
+        for (const a of argvList) total += cachedTextEncoder.encode(a).byteLength + 1;
+        writeU32(argcPtr, argvList.length);
+        writeU32(bufSizePtr, total);
+        return WASI_ERRNO_SUCCESS;
+      },
+      args_get: (argvPtr, argvBufPtr) => {
+        const u8 = memU8();
+        let ap = argvPtr >>> 0;
+        let bp = argvBufPtr >>> 0;
+        for (const a of argvList) {
+          writeU32(ap, bp);
+          ap += 4;
+          const enc = cachedTextEncoder.encode(a);
+          u8.set(enc, bp);
+          u8[bp + enc.length] = 0;
+          bp += enc.length + 1;
+        }
+        return WASI_ERRNO_SUCCESS;
+      },
+      environ_sizes_get: (cntPtr, bufSizePtr) => {
+        let total = 0;
+        for (const e of envList) total += cachedTextEncoder.encode(e).byteLength + 1;
+        writeU32(cntPtr, envList.length);
+        writeU32(bufSizePtr, total);
+        return WASI_ERRNO_SUCCESS;
+      },
+      environ_get: (envPtr, envBufPtr) => {
+        const u8 = memU8();
+        let ep = envPtr >>> 0;
+        let bp = envBufPtr >>> 0;
+        for (const e of envList) {
+          writeU32(ep, bp);
+          ep += 4;
+          const enc = cachedTextEncoder.encode(e);
+          u8.set(enc, bp);
+          u8[bp + enc.length] = 0;
+          bp += enc.length + 1;
+        }
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_prestat_get: (fd, prestatPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent || ent.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const nameBytes = cachedTextEncoder.encode(ent.preopenName);
+        memU8()[prestatPtr >>> 0] = 0;
+        writeU32((prestatPtr >>> 0) + 4, nameBytes.byteLength);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_prestat_dir_name: (fd, pathPtr, pathLen) => {
+        const ent = fdTable.get(fd);
+        if (!ent || ent.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const nameBytes = cachedTextEncoder.encode(ent.preopenName);
+        memU8().set(nameBytes.subarray(0, pathLen >>> 0), pathPtr >>> 0);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_fdstat_get: (fd, statPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent) return WASI_ERRNO_BADF;
+        const p = statPtr >>> 0;
+        memU8().fill(0, p, p + 24);
+        memU8()[p] = ent.kind === 'preopen' ? 3 : ent.kind === 'file' ? 4 : 2;
+        writeU64(p + 8, 0xffffffffn);
+        writeU64(p + 16, 0xffffffffn);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_filestat_get: (fd, statPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent) return WASI_ERRNO_BADF;
+        const p = statPtr >>> 0;
+        memU8().fill(0, p, p + 64);
+        memU8()[p + 16] = ent.kind === 'preopen' ? 3 : ent.kind === 'file' ? 4 : 2;
+        writeU64(p + 24, 1n);
+        writeU64(p + 32, BigInt(ent.data ? ent.data.byteLength : 0));
+        return WASI_ERRNO_SUCCESS;
+      },
+      path_filestat_get: (dirfd, _flags, pathPtr, pathLen, statPtr) => {
+        const dirEnt = fdTable.get(dirfd);
+        if (!dirEnt || dirEnt.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const subPath = readStr(pathPtr, pathLen);
+        const fullPath = MvmPolyglotVfs.normalizePath(dirEnt.guestPath, subPath);
+        const bytes = vfs.readBytes(fullPath);
+        const isDir = !bytes && vfs.isDirectory(fullPath);
+        if (!bytes && !isDir) return WASI_ERRNO_NOENT;
+        const p = statPtr >>> 0;
+        memU8().fill(0, p, p + 64);
+        memU8()[p + 16] = isDir ? 3 : 4;
+        writeU64(p + 24, 1n);
+        writeU64(p + 32, BigInt(bytes ? bytes.byteLength : 0));
+        return WASI_ERRNO_SUCCESS;
+      },
+      path_unlink_file: (dirfd, pathPtr, pathLen) => {
+        const dirEnt = fdTable.get(dirfd);
+        if (!dirEnt || dirEnt.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const subPath = readStr(pathPtr, pathLen);
+        const fullPath = MvmPolyglotVfs.normalizePath(dirEnt.guestPath, subPath);
+        vfs.assertMutable(fullPath);
+        return vfs.deletePath(fullPath) ? WASI_ERRNO_SUCCESS : WASI_ERRNO_NOENT;
+      },
+      sched_yield: () => WASI_ERRNO_SUCCESS,
+      path_open: (dirfd, _dirflags, pathPtr, pathLen, oflags, _rBase, _rInh, fdflags, openedFdPtr) => {
+        const dirEnt = fdTable.get(dirfd);
+        if (!dirEnt || dirEnt.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const subPath = readStr(pathPtr, pathLen);
+        const fullPath = MvmPolyglotVfs.normalizePath(dirEnt.guestPath, subPath);
+        const oCreat = (oflags & 1) !== 0;
+        const oExcl = (oflags & 4) !== 0;
+        const oTrunc = (oflags & 8) !== 0;
+        const oAppend = (fdflags & 1) !== 0;
+        const existing = vfs.readBytes(fullPath);
+
+        if (oCreat || oTrunc || oAppend) {
+          try {
+            vfs.assertMutable(fullPath);
+          } catch (err) {
+            if (err && err.code === 'CanonicalPathProtected') throw err;
+            return WASI_ERRNO_ACCES;
+          }
+        }
+        if (existing && oCreat && oExcl) return WASI_ERRNO_EXIST;
+        if (!existing && !oCreat) return WASI_ERRNO_NOENT;
+
+        const data = oTrunc || !existing ? new Uint8Array(0) : new Uint8Array(existing);
+        if (!existing && oCreat) vfs.writeBytes(fullPath, data);
+        else if (oTrunc) vfs.writeBytes(fullPath, data);
+
+        const fd = nextFd++;
+        fdTable.set(fd, {
+          kind: 'file',
+          guestPath: fullPath,
+          data,
+          offset: oAppend ? data.byteLength : 0,
+          dirty: oTrunc || (!existing && oCreat),
+        });
+        writeU32(openedFdPtr, fd);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_write: (fd, iovsPtr, iovsLen, nwrittenPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent) return WASI_ERRNO_BADF;
+        const dv = memDv();
+        const u8 = memU8();
+        let total = 0;
+        const parts = [];
+        for (let i = 0; i < (iovsLen >>> 0); i += 1) {
+          const base = dv.getUint32((iovsPtr >>> 0) + i * 8, true);
+          const len = dv.getUint32((iovsPtr >>> 0) + i * 8 + 4, true);
+          const slice = new Uint8Array(u8.subarray(base, base + len));
+          parts.push(slice);
+          total += slice.byteLength;
+        }
+        if (ent.kind === 'stdout' || ent.kind === 'stderr') {
+          for (const p of parts) ent.chunks.push(p);
+        } else if (ent.kind === 'file') {
+          const endPos = ent.offset + total;
+          if (endPos > ent.data.byteLength) {
+            const grown = new Uint8Array(endPos);
+            grown.set(ent.data, 0);
+            ent.data = grown;
+          }
+          let cur = ent.offset;
+          for (const p of parts) {
+            ent.data.set(p, cur);
+            cur += p.byteLength;
+          }
+          ent.offset = cur;
+          ent.dirty = true;
+        } else {
+          return WASI_ERRNO_BADF;
+        }
+        writeU32(nwrittenPtr, total);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_read: (fd, iovsPtr, iovsLen, nreadPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent || (ent.kind !== 'stdin' && ent.kind !== 'file')) return WASI_ERRNO_BADF;
+        const dv = memDv();
+        const u8 = memU8();
+        let total = 0;
+        for (let i = 0; i < (iovsLen >>> 0); i += 1) {
+          const base = dv.getUint32((iovsPtr >>> 0) + i * 8, true);
+          const len = dv.getUint32((iovsPtr >>> 0) + i * 8 + 4, true);
+          const avail = Math.max(0, ent.data.byteLength - ent.offset);
+          const take = Math.min(len, avail);
+          if (take > 0) {
+            u8.set(ent.data.subarray(ent.offset, ent.offset + take), base);
+            ent.offset += take;
+            total += take;
+          }
+          if (take < len) break;
+        }
+        writeU32(nreadPtr, total);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_seek: (fd, offsetBig, whence, newOffsetPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent || ent.kind !== 'file') return WASI_ERRNO_BADF;
+        const off = Number(offsetBig);
+        let next = ent.offset;
+        if (whence === 0) next = off;
+        else if (whence === 1) next = ent.offset + off;
+        else if (whence === 2) next = ent.data.byteLength + off;
+        else return WASI_ERRNO_INVAL;
+        if (next < 0) return WASI_ERRNO_INVAL;
+        ent.offset = next;
+        writeU64(newOffsetPtr, BigInt(next));
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_close: (fd) => {
+        const ent = fdTable.get(fd);
+        if (!ent) return WASI_ERRNO_BADF;
+        if (ent.kind === 'file' && ent.dirty) {
+          vfs.writeBytes(ent.guestPath, ent.data);
+        }
+        if (fd >= 5) fdTable.delete(fd);
+        return WASI_ERRNO_SUCCESS;
+      },
+      clock_time_get: (_clockId, _precision, timePtr) => {
+        writeU64(timePtr, BigInt(Date.now()) * 1000000n);
+        return WASI_ERRNO_SUCCESS;
+      },
+      random_get: (bufPtr, bufLen) => {
+        const target = memU8().subarray(bufPtr >>> 0, (bufPtr >>> 0) + (bufLen >>> 0));
+        if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+          crypto.getRandomValues(target);
+        }
+        return WASI_ERRNO_SUCCESS;
+      },
+      proc_exit: (code) => {
+        throw new WasiExitSignal(code);
+      },
+    };
+
+    const runAsync = async () => {
+      try {
+        const compiled = await WebAssembly.instantiate(wasmBytes, { wasi_snapshot_preview1: wasiImports });
+        const instance = compiled.instance || compiled;
+        wasmMemory = instance.exports && instance.exports.memory ? instance.exports.memory : null;
+        if (!wasmMemory) {
+          const err = new Error('WASI module must export linear memory');
+          err.code = 'WasiRuntimeError';
+          throw err;
+        }
+        const entry = instance.exports._start || instance.exports.main;
+        if (typeof entry !== 'function') {
+          const err = new Error('WASI module must export _start');
+          err.code = 'WasiRuntimeError';
+          throw err;
+        }
+        try {
+          entry();
+        } catch (sig) {
+          if (sig instanceof WasiExitSignal) {
+            exitCode = sig.code;
+          } else {
+            throw sig;
+          }
+        }
+        for (const ent of fdTable.values()) {
+          if (ent.kind === 'file' && ent.dirty) {
+            vfs.writeBytes(ent.guestPath, ent.data);
+          }
+        }
+        const mergeChunks = (chunks) => {
+          const total = chunks.reduce((s, c) => s + c.byteLength, 0);
+          const merged = new Uint8Array(total);
+          let off = 0;
+          for (const c of chunks) {
+            merged.set(c, off);
+            off += c.byteLength;
+          }
+          return cachedTextDecoder.decode(merged);
+        };
+        return {
+          ok: true,
+          exit_code: exitCode,
+          stdout: mergeChunks(fdTable.get(1).chunks),
+          stderr: mergeChunks(fdTable.get(2).chunks),
+        };
+      } catch (err) {
+        if (err && err.code === 'CanonicalPathProtected') throw err;
+        const wrapped = new Error(err && err.message ? err.message : String(err));
+        wrapped.code = 'WasiRuntimeError';
+        throw wrapped;
+      }
+    };
+    return runAsync();
+  }
+}
+
+class MvmSqliteEngine {
+  static MAGIC = 'SQLite format 3\0';
+
+  static loadDb(rawBytes) {
+    if (!rawBytes || rawBytes.byteLength === 0) {
+      return { tables: new Map() };
+    }
+    const headerStr = cachedTextDecoder.decode(rawBytes.subarray(0, 16));
+    if (headerStr !== MvmSqliteEngine.MAGIC || rawBytes.byteLength < 100) {
+      const err = new Error('file is not a valid SQLite 3 database');
+      err.code = 'SqliteRuntimeError';
+      throw err;
+    }
+    const dv = new DataView(rawBytes.buffer, rawBytes.byteOffset, rawBytes.byteLength);
+    const payloadLen = dv.getUint32(96, true);
+    if (payloadLen === 0) {
+      return { tables: new Map() };
+    }
+    if (100 + payloadLen > rawBytes.byteLength) {
+      const err = new Error('corrupt SQLite 3 database payload length');
+      err.code = 'SqliteRuntimeError';
+      throw err;
+    }
+    const parsed = JSON.parse(cachedTextDecoder.decode(rawBytes.subarray(100, 100 + payloadLen)));
+    const tables = new Map();
+    for (const t of parsed.tables || []) {
+      tables.set(t.name.toLowerCase(), {
+        name: t.name,
+        columns: t.columns || [],
+        rows: Array.isArray(t.rows) ? t.rows : [],
+        sql: t.sql || '',
+      });
+    }
+    return { tables };
+  }
+
+  static saveDb(db) {
+    const payloadObj = {
+      schema: 'uor-sqlite3/1',
+      tables: Array.from(db.tables.values()),
+    };
+    const jsonBytes = cachedTextEncoder.encode(JSON.stringify(payloadObj));
+    const pageAligned = Math.max(4096, Math.ceil((100 + jsonBytes.byteLength) / 4096) * 4096);
+    const out = new Uint8Array(pageAligned);
+    out.set(cachedTextEncoder.encode(MvmSqliteEngine.MAGIC), 0);
+    const dv = new DataView(out.buffer);
+    dv.setUint16(16, 4096, false);
+    out[18] = 1;
+    out[19] = 1;
+    out[21] = 64;
+    out[22] = 32;
+    out[23] = 32;
+    dv.setUint32(28, pageAligned / 4096, false);
+    dv.setUint32(96, jsonBytes.byteLength, true);
+    out.set(jsonBytes, 100);
+    return out;
+  }
+
+  static splitStatements(sql) {
+    const stmts = [];
+    let cur = '';
+    let i = 0;
+    let inSingle = false;
+    let inDouble = false;
+    while (i < sql.length) {
+      const ch = sql[i];
+      if (!inSingle && !inDouble && ch === '-' && sql[i + 1] === '-') {
+        while (i < sql.length && sql[i] !== '\n') i += 1;
+        continue;
+      }
+      if (!inSingle && !inDouble && ch === '/' && sql[i + 1] === '*') {
+        i += 2;
+        while (i + 1 < sql.length && !(sql[i] === '*' && sql[i + 1] === '/')) i += 1;
+        i += 2;
+        continue;
+      }
+      if (ch === "'" && !inDouble) {
+        cur += ch;
+        if (inSingle && sql[i + 1] === "'") {
+          cur += "'";
+          i += 2;
+          continue;
+        }
+        inSingle = !inSingle;
+        i += 1;
+        continue;
+      }
+      if (ch === '"' && !inSingle) {
+        inDouble = !inDouble;
+        cur += ch;
+        i += 1;
+        continue;
+      }
+      if (!inSingle && !inDouble && ch === ';') {
+        if (cur.trim()) stmts.push(cur.trim());
+        cur = '';
+        i += 1;
+        continue;
+      }
+      if (!inSingle && !inDouble && ch === '\n' && cur.trim().startsWith('.')) {
+        stmts.push(cur.trim());
+        cur = '';
+        i += 1;
+        continue;
+      }
+      cur += ch;
+      i += 1;
+    }
+    if (cur.trim()) stmts.push(cur.trim());
+    return stmts;
+  }
+
+  static splitTopLevelComma(str) {
+    const parts = [];
+    let cur = '';
+    let depth = 0;
+    let inSingle = false;
+    let inDouble = false;
+    for (let i = 0; i < str.length; i += 1) {
+      const ch = str[i];
+      if (ch === "'" && !inDouble) {
+        cur += ch;
+        if (inSingle && str[i + 1] === "'") {
+          cur += "'";
+          i += 1;
+          continue;
+        }
+        inSingle = !inSingle;
+      } else if (ch === '"' && !inSingle) {
+        inDouble = !inDouble;
+        cur += ch;
+      } else if (!inSingle && !inDouble) {
+        if (ch === '(') depth += 1;
+        else if (ch === ')') depth = Math.max(0, depth - 1);
+        else if (ch === ',' && depth === 0) {
+          parts.push(cur.trim());
+          cur = '';
+          continue;
+        }
+        cur += ch;
+      } else {
+        cur += ch;
+      }
+    }
+    if (cur.trim()) parts.push(cur.trim());
+    return parts;
+  }
+
+  static parseLiteral(tok) {
+    const t = String(tok || '').trim();
+    if (/^null$/i.test(t)) return null;
+    if (/^true$/i.test(t)) return 1;
+    if (/^false$/i.test(t)) return 0;
+    if (t.startsWith("'") && t.endsWith("'") && t.length >= 2) {
+      return t.slice(1, -1).replace(/''/g, "'");
+    }
+    if (/^[+-]?\d+$/.test(t)) return Number(t);
+    if (/^[+-]?\d+\.\d+$/.test(t)) return Number(t);
+    return t.replace(/^"|"$/g, '');
+  }
+
+  static unquoteIdent(s) {
+    const t = String(s || '').trim();
+    if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith('`') && t.endsWith('`'))) {
+      return t.slice(1, -1);
+    }
+    return t;
+  }
+
+  static evalWhere(exprStr, row) {
+    const s = String(exprStr || '').trim();
+    if (!s) return true;
+    const splitLogical = (text, kw) => {
+      let depth = 0;
+      let inS = false;
+      const upper = text.toUpperCase();
+      for (let i = 0; i <= text.length - kw.length; i += 1) {
+        if (text[i] === "'") {
+          inS = !inS;
+          continue;
+        }
+        if (inS) continue;
+        if (text[i] === '(') depth += 1;
+        else if (text[i] === ')') depth = Math.max(0, depth - 1);
+        else if (depth === 0 && upper.startsWith(kw, i)) {
+          const leftOk = i === 0 || /\s/.test(text[i - 1]);
+          const rightOk = i + kw.length === text.length || /\s/.test(text[i + kw.length]);
+          if (leftOk && rightOk) {
+            return [text.slice(0, i).trim(), text.slice(i + kw.length).trim()];
+          }
+        }
+      }
+      return null;
+    };
+    const orParts = splitLogical(s, 'OR');
+    if (orParts) return MvmSqliteEngine.evalWhere(orParts[0], row) || MvmSqliteEngine.evalWhere(orParts[1], row);
+    const andParts = splitLogical(s, 'AND');
+    if (andParts) return MvmSqliteEngine.evalWhere(andParts[0], row) && MvmSqliteEngine.evalWhere(andParts[1], row);
+    if (/^NOT\s+/i.test(s)) return !MvmSqliteEngine.evalWhere(s.replace(/^NOT\s+/i, ''), row);
+    if (s.startsWith('(') && s.endsWith(')')) return MvmSqliteEngine.evalWhere(s.slice(1, -1), row);
+
+    const resolveVal = (operand) => {
+      const t = operand.trim();
+      if ((t.startsWith("'") && t.endsWith("'")) || /^null$/i.test(t) || /^[+-]?\d+(?:\.\d+)?$/.test(t)) {
+        return MvmSqliteEngine.parseLiteral(t);
+      }
+      const key = MvmSqliteEngine.unquoteIdent(t).toLowerCase();
+      return Object.prototype.hasOwnProperty.call(row, key) ? row[key] : null;
+    };
+
+    let m = /^(.+?)\s+IS\s+NOT\s+NULL$/i.exec(s);
+    if (m) return resolveVal(m[1]) !== null;
+    m = /^(.+?)\s+IS\s+NULL$/i.exec(s);
+    if (m) return resolveVal(m[1]) === null;
+    m = /^(.+?)\s+IN\s*\((.+)\)$/i.exec(s);
+    if (m) {
+      const lhs = resolveVal(m[1]);
+      const items = MvmSqliteEngine.splitTopLevelComma(m[2]).map(resolveVal);
+      return items.some((v) => v === lhs);
+    }
+    m = /^(.+?)\s+LIKE\s+(.+)$/i.exec(s);
+    if (m) {
+      const lhs = String(resolveVal(m[1]) ?? '');
+      const pat = String(resolveVal(m[2]) ?? '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/%/g, '.*').replace(/_/g, '.');
+      return new RegExp(`^${pat}$`, 'i').test(lhs);
+    }
+    m = /^(.+?)\s*(!=|<>|<=|>=|=|<|>)\s*(.+)$/.exec(s);
+    if (m) {
+      const lhs = resolveVal(m[1]);
+      const op = m[2];
+      const rhs = resolveVal(m[3]);
+      if (op === '=') return lhs === rhs;
+      if (op === '!=' || op === '<>') return lhs !== rhs;
+      if (lhs === null || rhs === null) return false;
+      if (op === '<') return lhs < rhs;
+      if (op === '<=') return lhs <= rhs;
+      if (op === '>') return lhs > rhs;
+      if (op === '>=') return lhs >= rhs;
+    }
+    return Boolean(resolveVal(s));
+  }
+
+  static formatRows(cols, rows, opts) {
+    if (!rows || rows.length === 0) {
+      return opts.mode === 'json' ? '[]\n' : '';
+    }
+    if (opts.mode === 'json') {
+      const objs = rows.map((r) => {
+        const obj = {};
+        for (let i = 0; i < cols.length; i += 1) obj[cols[i]] = r[i] ?? null;
+        return obj;
+      });
+      return JSON.stringify(objs, null, 2) + '\n';
+    }
+    const sep = opts.mode === 'csv' ? ',' : (opts.separator || '|');
+    const lines = [];
+    if (opts.headers) lines.push(cols.join(sep));
+    for (const r of rows) {
+      lines.push(r.map((v) => (v === null || v === undefined ? '' : String(v))).join(sep));
+    }
+    return lines.join('\n') + '\n';
+  }
+
+  static execute(args, vfs, stdinUtf8) {
+    const opts = { headers: false, mode: 'list', separator: '|' };
+    const pos = [];
+    for (let i = 0; i < args.length; i += 1) {
+      const a = String(args[i]);
+      if (a === '-json') opts.mode = 'json';
+      else if (a === '-csv') opts.mode = 'csv';
+      else if (a === '-header') opts.headers = true;
+      else if (a === '-noheader') opts.headers = false;
+      else if (a === '-separator' && i + 1 < args.length) {
+        opts.separator = String(args[i + 1]);
+        i += 1;
+      } else if (a === '-cmd' && i + 1 < args.length) {
+        pos.push(String(args[i + 1]));
+        i += 1;
+      } else if (!a.startsWith('-')) {
+        pos.push(a);
+      }
+    }
+    if (pos.length === 0) {
+      const err = new Error('sqlite3: missing database path');
+      err.code = 'SqliteRuntimeError';
+      throw err;
+    }
+    const dbPath = pos[0];
+    const inMemory = dbPath === ':memory:';
+    if (!inMemory) vfs.assertMutable(dbPath);
+    const existingBytes = inMemory ? null : vfs.readBytes(dbPath);
+    const db = MvmSqliteEngine.loadDb(existingBytes);
+    const sqlInput = pos.slice(1).join(' ').trim() || String(stdinUtf8 || '').trim();
+    if (!sqlInput) {
+      return { ok: true, exit_code: 0, stdout: '', stderr: '' };
+    }
+
+    let snapshot = null;
+    let mutated = false;
+    let outText = '';
+    const statements = MvmSqliteEngine.splitStatements(sqlInput);
+
+    for (const rawStmt of statements) {
+      const stmt = rawStmt.trim();
+      if (!stmt) continue;
+      if (stmt.startsWith('.')) {
+        const parts = stmt.split(/\s+/);
+        const dot = parts[0].toLowerCase();
+        if (dot === '.tables') {
+          const names = Array.from(db.tables.values()).map((t) => t.name).sort();
+          if (names.length > 0) outText += names.join('  ') + '\n';
+        } else if (dot === '.schema') {
+          const filter = parts[1] ? parts[1].toLowerCase() : '';
+          for (const [k, t] of db.tables.entries()) {
+            if (!filter || k === filter) outText += `${t.sql};\n`;
+          }
+        } else if (dot === '.headers') {
+          opts.headers = String(parts[1] || '').toLowerCase() === 'on';
+        } else if (dot === '.mode') {
+          opts.mode = String(parts[1] || 'list').toLowerCase();
+        } else if (dot === '.separator' && parts[1]) {
+          opts.separator = parts[1];
+        }
+        continue;
+      }
+
+      const upper = stmt.toUpperCase();
+      if (upper === 'BEGIN' || upper === 'BEGIN TRANSACTION') {
+        snapshot = new Map();
+        for (const [k, t] of db.tables.entries()) {
+          snapshot.set(k, { ...t, columns: [...t.columns], rows: t.rows.map((r) => ({ ...r })) });
+        }
+        continue;
+      }
+      if (upper === 'COMMIT' || upper === 'END' || upper === 'END TRANSACTION') {
+        snapshot = null;
+        continue;
+      }
+      if (upper === 'ROLLBACK') {
+        if (snapshot) {
+          db.tables = snapshot;
+          snapshot = null;
+        }
+        continue;
+      }
+
+      let m = /^CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([A-Za-z_][A-Za-z0-9_"`]*)\s*\(([\s\S]+)\)$/i.exec(stmt);
+      if (m) {
+        const tblName = MvmSqliteEngine.unquoteIdent(m[1]);
+        const key = tblName.toLowerCase();
+        if (!db.tables.has(key)) {
+          const colDefs = MvmSqliteEngine.splitTopLevelComma(m[2])
+            .filter((d) => !/^(PRIMARY\s+KEY|UNIQUE|CHECK|FOREIGN\s+KEY|CONSTRAINT)\b/i.test(d))
+            .map((d) => {
+              const tokens = d.trim().split(/\s+/);
+              const name = MvmSqliteEngine.unquoteIdent(tokens[0]).toLowerCase();
+              const type = (tokens[1] || 'TEXT').toUpperCase();
+              return { name, label: MvmSqliteEngine.unquoteIdent(tokens[0]), type };
+            });
+          db.tables.set(key, { name: tblName, columns: colDefs, rows: [], sql: stmt });
+          mutated = true;
+        }
+        continue;
+      }
+
+      m = /^DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?([A-Za-z_][A-Za-z0-9_"`]*)$/i.exec(stmt);
+      if (m) {
+        const key = MvmSqliteEngine.unquoteIdent(m[1]).toLowerCase();
+        if (db.tables.delete(key)) mutated = true;
+        else if (!/IF\s+EXISTS/i.test(stmt)) {
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[1]}\n` };
+        }
+        continue;
+      }
+
+      m = /^INSERT\s+(?:OR\s+(?:REPLACE|IGNORE)\s+)?INTO\s+([A-Za-z_][A-Za-z0-9_"`]*)\s*(?:\(([^)]+)\))?\s*VALUES\s*([\s\S]+)$/i.exec(stmt);
+      if (m) {
+        const key = MvmSqliteEngine.unquoteIdent(m[1]).toLowerCase();
+        const tbl = db.tables.get(key);
+        if (!tbl) {
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[1]}\n` };
+        }
+        const targetCols = m[2]
+          ? MvmSqliteEngine.splitTopLevelComma(m[2]).map((c) => MvmSqliteEngine.unquoteIdent(c).toLowerCase())
+          : tbl.columns.map((c) => c.name);
+        const rawTuples = m[3].trim();
+        let posIdx = 0;
+        while (posIdx < rawTuples.length) {
+          while (posIdx < rawTuples.length && (rawTuples[posIdx] === ',' || /\s/.test(rawTuples[posIdx]))) posIdx += 1;
+          if (posIdx >= rawTuples.length) break;
+          if (rawTuples[posIdx] !== '(') {
+            return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: near "${rawTuples.slice(posIdx, posIdx + 12)}": syntax error\n` };
+          }
+          let depth = 0;
+          let inS = false;
+          const start = posIdx + 1;
+          posIdx += 1;
+          while (posIdx < rawTuples.length) {
+            const ch = rawTuples[posIdx];
+            if (ch === "'") {
+              if (inS && rawTuples[posIdx + 1] === "'") { posIdx += 2; continue; }
+              inS = !inS;
+            } else if (!inS) {
+              if (ch === '(') depth += 1;
+              else if (ch === ')') {
+                if (depth === 0) break;
+                depth -= 1;
+              }
+            }
+            posIdx += 1;
+          }
+          const tupleStr = rawTuples.slice(start, posIdx);
+          posIdx += 1;
+          const vals = MvmSqliteEngine.splitTopLevelComma(tupleStr).map(MvmSqliteEngine.parseLiteral);
+          const rowObj = {};
+          for (const c of tbl.columns) rowObj[c.name] = null;
+          for (let ci = 0; ci < targetCols.length; ci += 1) {
+            rowObj[targetCols[ci]] = vals[ci] !== undefined ? vals[ci] : null;
+          }
+          tbl.rows.push(rowObj);
+          mutated = true;
+        }
+        continue;
+      }
+
+      m = /^UPDATE\s+([A-Za-z_][A-Za-z0-9_"`]*)\s+SET\s+([\s\S]+?)(?:\s+WHERE\s+([\s\S]+))?$/i.exec(stmt);
+      if (m) {
+        const tbl = db.tables.get(MvmSqliteEngine.unquoteIdent(m[1]).toLowerCase());
+        if (!tbl) {
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[1]}\n` };
+        }
+        const assigns = MvmSqliteEngine.splitTopLevelComma(m[2]).map((a) => {
+          const eq = a.indexOf('=');
+          return [MvmSqliteEngine.unquoteIdent(a.slice(0, eq)).toLowerCase(), MvmSqliteEngine.parseLiteral(a.slice(eq + 1))];
+        });
+        for (const r of tbl.rows) {
+          if (!m[3] || MvmSqliteEngine.evalWhere(m[3], r)) {
+            for (const [k, v] of assigns) r[k] = v;
+            mutated = true;
+          }
+        }
+        continue;
+      }
+
+      m = /^DELETE\s+FROM\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+WHERE\s+([\s\S]+))?$/i.exec(stmt);
+      if (m) {
+        const tbl = db.tables.get(MvmSqliteEngine.unquoteIdent(m[1]).toLowerCase());
+        if (!tbl) {
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[1]}\n` };
+        }
+        const prevLen = tbl.rows.length;
+        tbl.rows = m[2] ? tbl.rows.filter((r) => !MvmSqliteEngine.evalWhere(m[2], r)) : [];
+        if (tbl.rows.length !== prevLen) mutated = true;
+        continue;
+      }
+
+      m = /^SELECT\s+(DISTINCT\s+)?([\s\S]+?)(?:\s+FROM\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+(?:AS\s+)?([A-Za-z_][A-Za-z0-9_]*))?(?:\s+(?:INNER\s+|LEFT\s+)?JOIN\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+(?:AS\s+)?([A-Za-z_][A-Za-z0-9_]*))?\s+ON\s+([\s\S]+?))?(?:\s+WHERE\s+([\s\S]+?))?(?:\s+GROUP\s+BY\s+([\s\S]+?))?(?:\s+ORDER\s+BY\s+([\s\S]+?))?(?:\s+LIMIT\s+(\d+)(?:\s+OFFSET\s+(\d+))?)?)?$/i.exec(stmt);
+      if (m) {
+        const distinct = Boolean(m[1]);
+        const selectExprs = MvmSqliteEngine.splitTopLevelComma(m[2]);
+        const tblName = m[3];
+        const joinTblName = m[5];
+        const joinOn = m[7];
+        const whereExpr = m[8];
+        const groupByExpr = m[9];
+        const orderByExpr = m[10];
+        const limitNum = m[11] ? Number(m[11]) : null;
+        const offsetNum = m[12] ? Number(m[12]) : 0;
+
+        let workingRows;
+        let tbl = null;
+        if (!tblName) {
+          workingRows = [{}];
+        } else {
+          tbl = db.tables.get(MvmSqliteEngine.unquoteIdent(tblName).toLowerCase());
+          if (!tbl) {
+            return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${tblName}\n` };
+          }
+          workingRows = tbl.rows.map((r) => ({ ...r }));
+          if (joinTblName) {
+            const jTbl = db.tables.get(MvmSqliteEngine.unquoteIdent(joinTblName).toLowerCase());
+            if (!jTbl) {
+              return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${joinTblName}\n` };
+            }
+            const eqParts = String(joinOn || '').split('=');
+            const lk = MvmSqliteEngine.unquoteIdent((eqParts[0] || '').split('.').pop()).toLowerCase();
+            const rk = MvmSqliteEngine.unquoteIdent((eqParts[1] || '').split('.').pop()).toLowerCase();
+            const joined = [];
+            for (const lr of workingRows) {
+              for (const rr of jTbl.rows) {
+                if (!joinOn || lr[lk] === rr[rk]) joined.push({ ...rr, ...lr });
+              }
+            }
+            workingRows = joined;
+          }
+          if (whereExpr) {
+            workingRows = workingRows.filter((r) => MvmSqliteEngine.evalWhere(whereExpr, r));
+          }
+        }
+
+        const evalAggOrExpr = (expr, groupRows) => {
+          const clean = expr.trim();
+          const aggMatch = /^(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.+)\s*\)$/i.exec(clean);
+          if (aggMatch) {
+            const fn = aggMatch[1].toUpperCase();
+            const inner = aggMatch[2].trim();
+            if (fn === 'COUNT' && inner === '*') return groupRows.length;
+            const colKey = MvmSqliteEngine.unquoteIdent(inner.split('.').pop()).toLowerCase();
+            const vals = groupRows.map((r) => r[colKey]).filter((v) => v !== null && v !== undefined);
+            if (fn === 'COUNT') return vals.length;
+            if (fn === 'SUM') return vals.reduce((a, b) => Number(a) + Number(b), 0);
+            if (fn === 'AVG') return vals.length ? vals.reduce((a, b) => Number(a) + Number(b), 0) / vals.length : null;
+            if (fn === 'MIN') return vals.length ? vals.reduce((a, b) => (b < a ? b : a)) : null;
+            if (fn === 'MAX') return vals.length ? vals.reduce((a, b) => (b > a ? b : a)) : null;
+          }
+          const r0 = groupRows[0] || {};
+          if (clean.includes('.') && !clean.startsWith("'")) {
+            const k = MvmSqliteEngine.unquoteIdent(clean.split('.').pop()).toLowerCase();
+            if (Object.prototype.hasOwnProperty.call(r0, k)) return r0[k];
+          }
+          const k = MvmSqliteEngine.unquoteIdent(clean).toLowerCase();
+          if (Object.prototype.hasOwnProperty.call(r0, k)) return r0[k];
+          return MvmSqliteEngine.parseLiteral(clean);
+        };
+
+        const isAggQuery = !groupByExpr && selectExprs.some((e) => /^(COUNT|SUM|AVG|MIN|MAX)\s*\(/i.test(e.trim()));
+        let colHeaders = [];
+        let resultRows = [];
+
+        if (selectExprs.length === 1 && selectExprs[0] === '*' && tbl) {
+          colHeaders = tbl.columns.map((c) => c.label);
+          if (orderByExpr) {
+            const obParts = orderByExpr.trim().split(/\s+/);
+            const ok = MvmSqliteEngine.unquoteIdent(obParts[0]).toLowerCase();
+            const desc = (obParts[1] || '').toUpperCase() === 'DESC';
+            workingRows.sort((a, b) => (a[ok] === b[ok] ? 0 : (a[ok] < b[ok] ? -1 : 1) * (desc ? -1 : 1)));
+          }
+          resultRows = workingRows.map((r) => tbl.columns.map((c) => r[c.name]));
+        } else if (isAggQuery) {
+          colHeaders = selectExprs.map((e) => e.trim());
+          resultRows = [selectExprs.map((e) => evalAggOrExpr(e, workingRows))];
+        } else if (groupByExpr) {
+          const gKey = MvmSqliteEngine.unquoteIdent(groupByExpr.split(',')[0]).toLowerCase();
+          const groups = new Map();
+          for (const r of workingRows) {
+            const gv = r[gKey];
+            if (!groups.has(gv)) groups.set(gv, []);
+            groups.get(gv).push(r);
+          }
+          colHeaders = selectExprs.map((e) => e.trim());
+          for (const gRows of groups.values()) {
+            resultRows.push(selectExprs.map((e) => evalAggOrExpr(e, gRows)));
+          }
+        } else {
+          if (orderByExpr) {
+            const obParts = orderByExpr.trim().split(/\s+/);
+            const ok = MvmSqliteEngine.unquoteIdent(obParts[0]).toLowerCase();
+            const desc = (obParts[1] || '').toUpperCase() === 'DESC';
+            workingRows.sort((a, b) => (a[ok] === b[ok] ? 0 : (a[ok] < b[ok] ? -1 : 1) * (desc ? -1 : 1)));
+          }
+          colHeaders = selectExprs.map((e) => e.trim());
+          resultRows = workingRows.map((r) => selectExprs.map((e) => evalAggOrExpr(e, [r])));
+        }
+
+        if (distinct) {
+          const seen = new Set();
+          resultRows = resultRows.filter((r) => {
+            const sig = JSON.stringify(r);
+            if (seen.has(sig)) return false;
+            seen.add(sig);
+            return true;
+          });
+        }
+        if (offsetNum > 0) resultRows = resultRows.slice(offsetNum);
+        if (limitNum !== null) resultRows = resultRows.slice(0, limitNum);
+        outText += MvmSqliteEngine.formatRows(colHeaders, resultRows, opts);
+        continue;
+      }
+
+      if (/^PRAGMA\s+/i.test(stmt)) {
+        const pm = /^PRAGMA\s+table_info\s*\(\s*([A-Za-z_][A-Za-z0-9_"`]*)\s*\)$/i.exec(stmt);
+        if (pm) {
+          const tbl = db.tables.get(MvmSqliteEngine.unquoteIdent(pm[1]).toLowerCase());
+          if (tbl) {
+            const pRows = tbl.columns.map((c, idx) => [idx, c.label, c.type, 0, null, 0]);
+            outText += MvmSqliteEngine.formatRows(['cid', 'name', 'type', 'notnull', 'dflt_value', 'pk'], pRows, opts);
+          }
+        }
+        continue;
+      }
+
+      return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: near "${stmt.slice(0, 24)}": syntax error\n` };
+    }
+
+    if (mutated && !inMemory) {
+      vfs.writeBytes(dbPath, MvmSqliteEngine.saveDb(db));
+    }
+    return { ok: true, exit_code: 0, stdout: outText, stderr: '' };
+  }
+}
+
 async function __uorSha256HexBytes(u8) {
   const view = u8 instanceof Uint8Array ? u8 : new Uint8Array(u8);
   const digest = await crypto.subtle.digest('SHA-256', view);
@@ -3258,20 +4530,82 @@ export class SpiralCoreHostBridge {
   #nextReqSeq = 1;
   #lazyRepoTrees = new Map();
   #provenanceBaseline = null;
+  #esbuildPromise = null;
+  #esbuildCompiler = null;
+  #pyodidePromise = null;
+  #pyodideInstance = null;
+  #pyodideShimmed = false;
 
-  constructor(options = {}) {
+  constructor(options) {
+    const opts = options && typeof options === 'object' ? options : {};
     this.relayUrl =
-      options.relayWsUrl !== undefined
-        ? options.relayWsUrl
-        : (options.relayUrl !== undefined ? options.relayUrl : DEFAULT_SPIRALCORE_RELAY_WS_URL);
-    this.relayHttpUrl = options.relayHttpUrl || '';
-    this.staticOrigin = options.staticOrigin || '';
-    this.locationOrigin = options.locationOrigin || '';
-    this.mcpPolicy = options.mcpPolicy || 'safe';
-    this.webAccessEnabled = options.webAccessEnabled !== false;
-    this.relayTimeoutMs = options.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
+      opts.relayWsUrl !== undefined
+        ? opts.relayWsUrl
+        : (opts.relayUrl !== undefined ? opts.relayUrl : DEFAULT_SPIRALCORE_RELAY_WS_URL);
+    this.relayHttpUrl = opts.relayHttpUrl || '';
+    this.staticOrigin = opts.staticOrigin || '';
+    this.locationOrigin = opts.locationOrigin || '';
+    this.mcpPolicy = opts.mcpPolicy || 'safe';
+    this.webAccessEnabled = opts.webAccessEnabled !== false;
+    this.relayTimeoutMs = opts.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
     this.lastTransportMode = 'standby';
-    this.fetchImpl = options.fetchImpl || globalThis.fetch;
+    this.fetchImpl = opts.fetchImpl || globalThis.fetch;
+    this.esbuildModuleUrl = '';
+    this.esbuildWasmUrl = '';
+    this.setCompilerConfig(opts);
+    this.pyodideLock = PYODIDE_LOCK;
+    if (opts.pyodideLock && typeof opts.pyodideLock === 'object') {
+      const l = opts.pyodideLock;
+      if (
+        typeof l.url === 'string' &&
+        l.url.startsWith('https://') &&
+        typeof l.sri === 'string' &&
+        l.sri.startsWith('sha384-') &&
+        l.sri.length > 20
+      ) {
+        this.pyodideLock = Object.freeze({
+          version: String(l.version || PYODIDE_LOCK.version),
+          url: l.url,
+          indexURL: String(l.indexURL || l.url.slice(0, l.url.lastIndexOf('/') + 1)),
+          sri: l.sri,
+        });
+      }
+    }
+  }
+
+  setCompilerConfig(cfg) {
+    const c = cfg && typeof cfg === 'object' ? cfg : {};
+    let modUrl = typeof c.esbuildModuleUrl === 'string' ? c.esbuildModuleUrl.trim() : '';
+    let wasmUrl = typeof c.esbuildWasmUrl === 'string' ? c.esbuildWasmUrl.trim() : '';
+    const baseEsbuild = typeof c.esbuildUrl === 'string' ? c.esbuildUrl.trim() : '';
+    if (baseEsbuild) {
+      if (baseEsbuild.endsWith('esbuild.wasm')) {
+        if (!wasmUrl) wasmUrl = baseEsbuild;
+        if (!modUrl) modUrl = baseEsbuild.replace(/esbuild\.wasm$/, 'esm/browser.min.js');
+      } else if (baseEsbuild.endsWith('browser.min.js')) {
+        if (!modUrl) modUrl = baseEsbuild;
+        if (!wasmUrl) wasmUrl = baseEsbuild.replace(/esm\/browser\.min\.js$/, 'esbuild.wasm');
+      } else {
+        const root = baseEsbuild.endsWith('/') ? baseEsbuild : `${baseEsbuild}/`;
+        if (!modUrl) modUrl = `${root}esm/browser.min.js`;
+        if (!wasmUrl) wasmUrl = `${root}esbuild.wasm`;
+      }
+    }
+    if (modUrl && modUrl !== this.esbuildModuleUrl) {
+      this.esbuildModuleUrl = modUrl;
+      this.#esbuildCompiler = null;
+      this.#esbuildPromise = null;
+    }
+    if (wasmUrl && wasmUrl !== this.esbuildWasmUrl) {
+      this.esbuildWasmUrl = wasmUrl;
+      this.#esbuildCompiler = null;
+      this.#esbuildPromise = null;
+    }
+    return {
+      ok: true,
+      esbuildModuleUrl: this.esbuildModuleUrl,
+      esbuildWasmUrl: this.esbuildWasmUrl,
+    };
   }
 
   setRelayUrl(url) {
@@ -3317,17 +4651,23 @@ export class SpiralCoreHostBridge {
     return { ok: true, sha256: actualSha, e_machine: elfCheck.e_machine };
   }
 
-  setPolicy({ mcpPolicy, webAccessEnabled } = {}) {
+  setPolicy(optsInput) {
+    const opts = optsInput && typeof optsInput === 'object' ? optsInput : {};
+    const { mcpPolicy, webAccessEnabled } = opts;
     if (typeof mcpPolicy === 'string' && ['safe', 'confirm', 'deny'].includes(mcpPolicy)) {
       this.mcpPolicy = mcpPolicy;
     }
     if (typeof webAccessEnabled === 'boolean') {
       this.webAccessEnabled = webAccessEnabled;
     }
+    if (opts.esbuildModuleUrl || opts.esbuildWasmUrl || opts.esbuildUrl) {
+      this.setCompilerConfig(opts);
+    }
     return {
       ok: true,
       mcp_policy: this.mcpPolicy,
       web_access_enabled: this.webAccessEnabled,
+      esbuild_configured: Boolean(this.esbuildModuleUrl && this.esbuildWasmUrl),
     };
   }
 
@@ -3600,6 +4940,28 @@ export class SpiralCoreHostBridge {
   async execute(rawRequest) {
     const req = typeof rawRequest === 'string' ? JSON.parse(rawRequest) : (rawRequest || {});
     const rawOp = String(req.op || req.kind || req.bridge_op || req.tool || req.name || 'http_request').toLowerCase();
+    const isNpmPkg =
+      rawOp === 'npm_exec' ||
+      rawOp === 'npm' ||
+      ((rawOp === 'pkg_fetch' || rawOp === 'pkg') &&
+        (String(req.ecosystem || '').toLowerCase() === 'npm' ||
+          String(req.tool || '').toLowerCase() === 'npm'));
+
+    if (rawOp === 'node_exec' || rawOp === 'node' || rawOp === 'npx') {
+      return this.handleNodeExec(req);
+    }
+    if (isNpmPkg) {
+      return this.handleNpmBridge(req);
+    }
+    if (rawOp === 'python_exec' || rawOp === 'python' || rawOp === 'python3' || rawOp === 'pip' || rawOp === 'pip3') {
+      return this.handlePythonExec(req);
+    }
+    if (rawOp === 'wasi_exec' || rawOp === 'wasm') {
+      return this.handleWasiExec(req);
+    }
+    if (rawOp === 'sqlite_exec' || rawOp === 'sqlite3') {
+      return this.handleSqliteExec(req);
+    }
 
     if (this.mcpPolicy === 'deny') {
       return {
@@ -5313,6 +6675,1290 @@ export class SpiralCoreHostBridge {
       body_text: `Installed verified RV64IMAC ELF64 binary /usr/local/bin/${pkgName} (${elfBytes.byteLength} B, sha256:${verified.sha256.slice(0, 16)})`,
     };
   }
+
+  #assertNetworkAllowed() {
+    if (this.mcpPolicy === 'deny') {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'PolicyDenied',
+        message: 'Outbound bridge operation denied by active MCP security policy',
+      };
+    }
+    if (!this.webAccessEnabled) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'PolicyDenied',
+        message: 'Web Access is currently toggled OFF in the studio topbar',
+      };
+    }
+    return { ok: true };
+  }
+
+  async #verifySri(bytes, integrityStr) {
+    const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes || 0);
+    const tokens = String(integrityStr || '').trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) {
+      return {
+        ok: false,
+        error_code: 'IntegrityMismatch',
+        message: 'Missing required Subresource Integrity digest',
+      };
+    }
+    const algMap = {
+      sha256: 'SHA-256',
+      sha384: 'SHA-384',
+      sha512: 'SHA-512',
+    };
+    let sawSupported = false;
+    for (const tok of tokens) {
+      const dash = tok.indexOf('-');
+      if (dash <= 0) continue;
+      const algKey = tok.slice(0, dash).toLowerCase();
+      const expectedB64 = tok.slice(dash + 1);
+      const subtleAlg = algMap[algKey];
+      if (!subtleAlg || !expectedB64) continue;
+      sawSupported = true;
+      const digBuf = await crypto.subtle.digest(subtleAlg, view);
+      const actualB64 = __uorBytesToBase64(new Uint8Array(digBuf));
+      if (actualB64 === expectedB64) {
+        return { ok: true, algorithm: subtleAlg, digest: tok };
+      }
+    }
+    return {
+      ok: false,
+      error_code: 'IntegrityMismatch',
+      message: sawSupported
+        ? `SRI integrity mismatch against ${tokens[0].slice(0, 24)}...`
+        : `Unsupported SRI algorithm in "${integrityStr}"`,
+    };
+  }
+
+  async #gunzipBytes(u8) {
+    if (typeof DecompressionStream === 'function') {
+      const ds = new DecompressionStream('gzip');
+      const writer = ds.writable.getWriter();
+      const writeP = writer.write(u8).then(() => writer.close());
+      const reader = ds.readable.getReader();
+      const chunks = [];
+      let total = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value && value.byteLength > 0) {
+          chunks.push(value);
+          total += value.byteLength;
+        }
+      }
+      await writeP;
+      const out = new Uint8Array(total);
+      let off = 0;
+      for (const c of chunks) {
+        out.set(c, off);
+        off += c.byteLength;
+      }
+      return out;
+    }
+    const err = new Error('DecompressionStream("gzip") unavailable in host environment');
+    err.code = 'IntegrityMismatch';
+    throw err;
+  }
+
+  #parseTarEntries(tarBytes) {
+    const entries = [];
+    let offset = 0;
+    let nextLongName = '';
+    let nextLongLink = '';
+    const parseOctal = (slice) => {
+      const txt = cachedTextDecoder.decode(slice).replace(/\0.*$/, '').trim();
+      return txt ? Number('0o' + txt) : 0;
+    };
+    const parsePax = (dataBytes) => {
+      const pax = {};
+      const text = cachedTextDecoder.decode(dataBytes);
+      let pos = 0;
+      while (pos < text.length) {
+        const sp = text.indexOf(' ', pos);
+        if (sp < 0) break;
+        const len = Number(text.slice(pos, sp));
+        if (!Number.isFinite(len) || len <= 0) break;
+        const rec = text.slice(sp + 1, pos + len).replace(/\n$/, '');
+        const eq = rec.indexOf('=');
+        if (eq > 0) pax[rec.slice(0, eq)] = rec.slice(eq + 1);
+        pos += len;
+      }
+      return pax;
+    };
+    let paxNext = {};
+    while (offset + 512 <= tarBytes.byteLength) {
+      const hdr = tarBytes.subarray(offset, offset + 512);
+      offset += 512;
+      let zero = true;
+      for (let i = 0; i < 512; i += 1) {
+        if (hdr[i] !== 0) {
+          zero = false;
+          break;
+        }
+      }
+      if (zero) break;
+      const rawName = cachedTextDecoder.decode(hdr.subarray(0, 100)).replace(/\0.*$/, '');
+      const prefix = cachedTextDecoder.decode(hdr.subarray(345, 500)).replace(/\0.*$/, '');
+      const mode = parseOctal(hdr.subarray(100, 108)) || 0o644;
+      const size = parseOctal(hdr.subarray(124, 136)) || 0;
+      const typeflag = String.fromCharCode(hdr[156] || 48);
+      const rawLink = cachedTextDecoder.decode(hdr.subarray(157, 257)).replace(/\0.*$/, '');
+      const dataSlice = size > 0 ? tarBytes.subarray(offset, offset + size) : new Uint8Array(0);
+      const padded = Math.ceil(size / 512) * 512;
+      offset += padded;
+
+      if (typeflag === 'L') {
+        nextLongName = cachedTextDecoder.decode(dataSlice).replace(/\0.*$/, '');
+        continue;
+      }
+      if (typeflag === 'K') {
+        nextLongLink = cachedTextDecoder.decode(dataSlice).replace(/\0.*$/, '');
+        continue;
+      }
+      if (typeflag === 'x') {
+        paxNext = parsePax(dataSlice);
+        continue;
+      }
+      if (typeflag === 'g') {
+        continue;
+      }
+
+      const fullName = paxNext.path || nextLongName || (prefix ? `${prefix}/${rawName}` : rawName);
+      const linkname = paxNext.linkpath || nextLongLink || rawLink;
+      nextLongName = '';
+      nextLongLink = '';
+      paxNext = {};
+
+      entries.push({
+        name: fullName,
+        mode,
+        typeflag,
+        linkname,
+        data: new Uint8Array(dataSlice),
+      });
+    }
+    return entries;
+  }
+
+  async ensureEsbuildCompiler() {
+    if (this.#esbuildCompiler) return { ok: true, compiler: this.#esbuildCompiler };
+    if (!this.esbuildModuleUrl || !this.esbuildWasmUrl) {
+      return {
+        ok: false,
+        error_code: 'EsbuildAdapterUnavailable',
+        message: 'Foundry esbuildModuleUrl / esbuildWasmUrl not configured in Worker host config',
+      };
+    }
+    if (!this.#esbuildPromise) {
+      this.#esbuildPromise = (async () => {
+        const mod = await import(this.esbuildModuleUrl);
+        if (mod && typeof mod.initialize === 'function') {
+          await mod.initialize({ wasmURL: this.esbuildWasmUrl, worker: false });
+        }
+        this.#esbuildCompiler = mod;
+        return mod;
+      })();
+    }
+    try {
+      const compiler = await this.#esbuildPromise;
+      return { ok: true, compiler };
+    } catch (err) {
+      this.#esbuildPromise = null;
+      this.#esbuildCompiler = null;
+      return {
+        ok: false,
+        error_code: 'EsbuildAdapterUnavailable',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
+
+  #needsEsbuildTranspile(code, filePath, args) {
+    const ext = String(filePath || '').toLowerCase();
+    if (
+      ext.endsWith('.ts') ||
+      ext.endsWith('.tsx') ||
+      ext.endsWith('.mts') ||
+      ext.endsWith('.cts') ||
+      ext.endsWith('.jsx') ||
+      ext.endsWith('.mjs')
+    ) {
+      return true;
+    }
+    const argList = Array.isArray(args) ? args : [];
+    if (argList.some((a) => String(a).includes('--loader=ts') || String(a) === '--experimental-strip-types')) {
+      return true;
+    }
+    const src = String(code || '');
+    return /^\s*(?:import\s+(?:[\s\S]+?\s+from\s+)?['"]|export\s+(?:default|const|let|var|function|class|type|interface|\{))/m.test(src);
+  }
+
+  #extractBridgePayload(req) {
+    const p = req && req.payload && typeof req.payload === 'object' ? req.payload : req;
+    const args = Array.isArray(p.args) ? p.args : (Array.isArray(req.args) ? req.args : []);
+    const cwd = String(p.cwd || req.cwd || '/workspace');
+    const env = p.env && typeof p.env === 'object' ? p.env : (req.env && typeof req.env === 'object' ? req.env : {});
+    const workspace = Array.isArray(p.workspace) ? p.workspace : (Array.isArray(req.workspace) ? req.workspace : []);
+    let stdinBytes = new Uint8Array(0);
+    if (typeof p.stdin_base64 === 'string' && p.stdin_base64) {
+      stdinBytes = __uorBase64ToBytes(p.stdin_base64);
+    } else if (typeof p.stdin_utf8 === 'string' && p.stdin_utf8) {
+      stdinBytes = cachedTextEncoder.encode(p.stdin_utf8);
+    } else if (typeof req.stdin_base64 === 'string' && req.stdin_base64) {
+      stdinBytes = __uorBase64ToBytes(req.stdin_base64);
+    } else if (typeof req.stdin_utf8 === 'string' && req.stdin_utf8) {
+      stdinBytes = cachedTextEncoder.encode(req.stdin_utf8);
+    }
+    return {
+      tool: String(p.tool || req.tool || 'node').toLowerCase(),
+      args,
+      cwd,
+      env,
+      workspace,
+      stdinBytes,
+    };
+  }
+
+  #makePosixPathShim() {
+    const normalize = (p) => MvmPolyglotVfs.normalizePath('/', p);
+    const resolve = (...segs) => {
+      let acc = '/workspace';
+      for (const s of segs) {
+        const str = String(s || '');
+        if (!str) continue;
+        acc = MvmPolyglotVfs.normalizePath(acc, str);
+      }
+      return acc;
+    };
+    const join = (...segs) => {
+      const raw = segs.map((s) => String(s || '')).filter(Boolean).join('/');
+      if (!raw) return '.';
+      if (raw.startsWith('/')) return normalize(raw);
+      const stack = [];
+      for (const part of raw.split('/')) {
+        if (!part || part === '.') continue;
+        if (part === '..') {
+          if (stack.length > 0 && stack[stack.length - 1] !== '..') stack.pop();
+          else stack.push('..');
+        } else {
+          stack.push(part);
+        }
+      }
+      return stack.length === 0 ? '.' : stack.join('/');
+    };
+    const dirname = (p) => {
+      const s = String(p || '');
+      const idx = s.lastIndexOf('/');
+      if (idx < 0) return '.';
+      return idx === 0 ? '/' : s.slice(0, idx);
+    };
+    const basename = (p, ext) => {
+      const s = String(p || '').replace(/\/+$/, '');
+      const base = s.slice(s.lastIndexOf('/') + 1);
+      return ext && base.endsWith(ext) ? base.slice(0, base.length - ext.length) : base;
+    };
+    const extname = (p) => {
+      const b = basename(p);
+      const dot = b.lastIndexOf('.');
+      return dot > 0 ? b.slice(dot) : '';
+    };
+    const relative = (from, to) => {
+      const f = resolve(from).split('/').filter(Boolean);
+      const t = resolve(to).split('/').filter(Boolean);
+      let common = 0;
+      while (common < f.length && common < t.length && f[common] === t[common]) common += 1;
+      const ups = new Array(f.length - common).fill('..');
+      return ups.concat(t.slice(common)).join('/') || '.';
+    };
+    const pathObj = {
+      sep: '/',
+      delimiter: ':',
+      normalize,
+      resolve,
+      join,
+      dirname,
+      basename,
+      extname,
+      relative,
+      isAbsolute: (p) => String(p || '').startsWith('/'),
+    };
+    pathObj.posix = pathObj;
+    return pathObj;
+  }
+
+  async handleNodeExec(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    const args = info.args.map((a) => String(a));
+
+    if (info.tool === 'npx') {
+      const cmdIdx = args.findIndex((a) => !a.startsWith('-'));
+      if (cmdIdx < 0) {
+        return { ok: true, exit_code: 1, stdout: '', stderr: 'npx: missing command argument\n', writes: [], deletes: [] };
+      }
+      const cmdName = args[cmdIdx];
+      const cmdArgs = args.slice(cmdIdx + 1);
+      if (cmdName === 'esbuild') {
+        const esRes = await this.ensureEsbuildCompiler();
+        if (!esRes.ok) return esRes;
+        const entry = cmdArgs.find((a) => !a.startsWith('-'));
+        if (!entry) {
+          return { ok: true, exit_code: 0, stdout: `esbuild ${esRes.compiler.version || 'wasm'}\n`, stderr: '', writes: [], deletes: [] };
+        }
+        const src = vfs.readText(entry) || '';
+        const out = await esRes.compiler.transform(src, { loader: entry.endsWith('.ts') ? 'ts' : 'js', format: 'cjs' });
+        const outFlagIdx = cmdArgs.findIndex((a) => a.startsWith('--outfile='));
+        if (outFlagIdx >= 0) {
+          const outFile = cmdArgs[outFlagIdx].slice('--outfile='.length);
+          vfs.writeBytes(outFile, out.code || '');
+          const muts = vfs.exportMutations();
+          return { ok: true, exit_code: 0, stdout: '', stderr: '', ...muts };
+        }
+        return { ok: true, exit_code: 0, stdout: out.code || '', stderr: '', writes: [], deletes: [] };
+      }
+      const binPath = `/workspace/node_modules/.bin/${cmdName}`;
+      if (!vfs.exists(binPath)) {
+        const installed = await this.handleNpmBridge({
+          ecosystem: 'npm',
+          tool: 'npm',
+          args: ['install', cmdName],
+          cwd: info.cwd,
+          workspace: info.workspace,
+        });
+        if (!installed.ok) return installed;
+        const mergedWs = new MvmPolyglotVfs(info.workspace, info.cwd);
+        for (const w of installed.writes || []) {
+          if (w.symlink_target) mergedWs.writeSymlink(w.path, w.symlink_target);
+          else mergedWs.writeBytes(w.path, __uorBase64ToBytes(w.content_base64 || ''), w.mode);
+        }
+        const reExec = await this.handleNodeExec({
+          ...req,
+          tool: 'node',
+          args: [binPath, ...cmdArgs],
+          workspace: mergedWs.files.size ? Array.from(mergedWs.files.entries()).map(([p, b]) => ({
+            path: p,
+            content_base64: __uorBytesToBase64(b),
+            mode: mergedWs.modes.get(p) || 0o100644,
+          })).concat(Array.from(mergedWs.symlinks.entries()).map(([p, t]) => ({
+            path: p,
+            symlink_target: t,
+            mode: 0o120777,
+          }))) : info.workspace,
+        });
+        return reExec;
+      }
+      return this.handleNodeExec({ ...req, tool: 'node', args: [binPath, ...cmdArgs] });
+    }
+
+    let evalCode = null;
+    let printExpr = false;
+    let scriptPath = null;
+    const scriptArgs = [];
+    for (let i = 0; i < args.length; i += 1) {
+      const a = args[i];
+      if ((a === '-e' || a === '--eval') && i + 1 < args.length && evalCode === null && !scriptPath) {
+        evalCode = args[i + 1];
+        i += 1;
+      } else if ((a === '-p' || a === '--print') && i + 1 < args.length && evalCode === null && !scriptPath) {
+        evalCode = args[i + 1];
+        printExpr = true;
+        i += 1;
+      } else if ((a === '-v' || a === '--version') && evalCode === null && !scriptPath) {
+        return { ok: true, exit_code: 0, stdout: 'v20.18.0-mvm\n', stderr: '', writes: [], deletes: [] };
+      } else if (a.startsWith('--loader=') || a === '--experimental-strip-types') {
+        continue;
+      } else if (!a.startsWith('-') && evalCode === null && !scriptPath) {
+        scriptPath = a;
+      } else {
+        scriptArgs.push(a);
+      }
+    }
+
+    if (evalCode === null && !scriptPath) {
+      evalCode = cachedTextDecoder.decode(info.stdinBytes);
+    }
+
+    let entryAbs = '/workspace/__eval__.js';
+    let entryCode = evalCode;
+    if (scriptPath) {
+      entryAbs = MvmPolyglotVfs.normalizePath(vfs.cwd, scriptPath);
+      const raw = vfs.readText(entryAbs);
+      if (raw === null) {
+        return {
+          ok: true,
+          exit_code: 1,
+          stdout: '',
+          stderr: `Error: Cannot find module '${scriptPath}'\n`,
+          writes: [],
+          deletes: [],
+        };
+      }
+      entryCode = raw;
+    }
+
+    const stdoutChunks = [];
+    const stderrChunks = [];
+    let procExitCode = 0;
+    class NodeExitSignal {
+      constructor(code) {
+        this.code = code | 0;
+      }
+    }
+
+    const pathShim = this.#makePosixPathShim();
+    const fsShim = {
+      readFileSync: (p, enc) => {
+        const bytes = vfs.readBytes(p);
+        if (!bytes) {
+          const e = new Error(`ENOENT: no such file or directory, open '${p}'`);
+          e.code = 'ENOENT';
+          throw e;
+        }
+        return enc ? MvmNodeBuffer.from(bytes).toString(enc) : MvmNodeBuffer.from(bytes);
+      },
+      writeFileSync: (p, data) => vfs.writeBytes(p, data),
+      appendFileSync: (p, data) => {
+        const cur = vfs.readBytes(p) || new Uint8Array(0);
+        const add = data instanceof Uint8Array ? data : cachedTextEncoder.encode(String(data ?? ''));
+        vfs.writeBytes(p, MvmNodeBuffer.concat([cur, add]));
+      },
+      existsSync: (p) => vfs.exists(p),
+      mkdirSync: () => undefined,
+      readdirSync: (p) => vfs.readdir(p),
+      unlinkSync: (p) => {
+        if (!vfs.deletePath(p)) {
+          const e = new Error(`ENOENT: no such file or directory, unlink '${p}'`);
+          e.code = 'ENOENT';
+          throw e;
+        }
+      },
+      rmSync: (p) => vfs.deletePath(p),
+      readlinkSync: (p) => {
+        const rel = MvmPolyglotVfs.normalizeRel(MvmPolyglotVfs.normalizePath(vfs.cwd, p));
+        if (!vfs.symlinks.has(rel)) {
+          const e = new Error(`EINVAL: invalid argument, readlink '${p}'`);
+          e.code = 'EINVAL';
+          throw e;
+        }
+        return vfs.symlinks.get(rel);
+      },
+      symlinkSync: (target, linkPath) => vfs.writeSymlink(linkPath, target),
+      realpathSync: (p) => vfs.resolveGuestTarget(p).abs,
+      statSync: (p) => {
+        const isDir = vfs.isDirectory(p);
+        const bytes = vfs.readBytes(p);
+        if (!isDir && !bytes) {
+          const e = new Error(`ENOENT: no such file or directory, stat '${p}'`);
+          e.code = 'ENOENT';
+          throw e;
+        }
+        return {
+          size: bytes ? bytes.byteLength : 0,
+          isFile: () => !isDir,
+          isDirectory: () => isDir,
+          isSymbolicLink: () => false,
+        };
+      },
+    };
+    fsShim.promises = {
+      readFile: async (p, enc) => fsShim.readFileSync(p, enc),
+      writeFile: async (p, data) => fsShim.writeFileSync(p, data),
+      readdir: async (p) => fsShim.readdirSync(p),
+      mkdir: async () => undefined,
+      unlink: async (p) => fsShim.unlinkSync(p),
+      stat: async (p) => fsShim.statSync(p),
+    };
+
+    const processShim = {
+      version: 'v20.18.0-mvm',
+      versions: { node: '20.18.0', v8: '12.0', wasi: '1.0' },
+      platform: 'linux',
+      arch: 'riscv64',
+      argv: ['node', scriptPath || '-e', ...scriptArgs],
+      env: { ...info.env },
+      cwd: () => vfs.cwd,
+      chdir: (nextDir) => {
+        vfs.cwd = MvmPolyglotVfs.normalizePath(vfs.cwd, nextDir);
+      },
+      stdout: {
+        write: (s) => {
+          stdoutChunks.push(String(s));
+          return true;
+        },
+      },
+      stderr: {
+        write: (s) => {
+          stderrChunks.push(String(s));
+          return true;
+        },
+      },
+      exit: (code) => {
+        throw new NodeExitSignal(code || 0);
+      },
+      nextTick: (fn, ...cbArgs) => Promise.resolve().then(() => fn(...cbArgs)),
+    };
+
+    const formatArg = (v) => {
+      if (typeof v === 'string') return v;
+      if (v instanceof Error) return v.stack || v.message;
+      try {
+        return typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+      } catch {
+        return String(v);
+      }
+    };
+    const consoleShim = {
+      log: (...vals) => stdoutChunks.push(vals.map(formatArg).join(' ') + '\n'),
+      info: (...vals) => stdoutChunks.push(vals.map(formatArg).join(' ') + '\n'),
+      warn: (...vals) => stderrChunks.push(vals.map(formatArg).join(' ') + '\n'),
+      error: (...vals) => stderrChunks.push(vals.map(formatArg).join(' ') + '\n'),
+    };
+
+    const cryptoShim = {
+      randomBytes: (n) => {
+        const buf = MvmNodeBuffer.alloc(n, 0);
+        if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+          crypto.getRandomValues(buf);
+        }
+        return buf;
+      },
+      randomUUID: () => (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : '00000000-0000-4000-8000-000000000000'),
+      subtle: typeof crypto !== 'undefined' ? crypto.subtle : undefined,
+    };
+
+    const urlShim = {
+      URL,
+      URLSearchParams,
+      fileURLToPath: (u) => new URL(u).pathname,
+      pathToFileURL: (p) => new URL(`file://${MvmPolyglotVfs.normalizePath('/', p)}`),
+    };
+
+    const fetchShim = async (url, init) => {
+      const netCheck = this.#assertNetworkAllowed();
+      if (!netCheck.ok) {
+        const e = new Error(netCheck.message);
+        e.code = netCheck.error_code;
+        throw e;
+      }
+      const opts = init && typeof init === 'object' ? init : {};
+      const res = await this.handleHttpRequest({
+        url: String(url),
+        method: opts.method || 'GET',
+        headers: opts.headers || {},
+        body: typeof opts.body === 'string' ? opts.body : undefined,
+      });
+      if (!res.ok && res.error_code) {
+        const e = new Error(res.message || res.error_code);
+        e.code = res.error_code;
+        throw e;
+      }
+      const text = String(res.body_text || '');
+      return {
+        ok: res.status >= 200 && res.status < 300,
+        status: res.status || 200,
+        text: async () => text,
+        json: async () => JSON.parse(text),
+        arrayBuffer: async () => cachedTextEncoder.encode(text).buffer,
+      };
+    };
+
+    const builtins = new Map([
+      ['fs', fsShim],
+      ['node:fs', fsShim],
+      ['fs/promises', fsShim.promises],
+      ['node:fs/promises', fsShim.promises],
+      ['path', pathShim],
+      ['node:path', pathShim],
+      ['process', processShim],
+      ['node:process', processShim],
+      ['buffer', { Buffer: MvmNodeBuffer }],
+      ['node:buffer', { Buffer: MvmNodeBuffer }],
+      ['crypto', cryptoShim],
+      ['node:crypto', cryptoShim],
+      ['url', urlShim],
+      ['node:url', urlShim],
+      ['assert', {
+        ok: (cond, msg) => { if (!cond) throw new Error(msg || 'AssertionError'); },
+        strictEqual: (a, b, msg) => { if (a !== b) throw new Error(msg || `${a} !== ${b}`); },
+      }],
+      ['util', {
+        format: (...vals) => vals.map(formatArg).join(' '),
+        inspect: (v) => formatArg(v),
+      }],
+    ]);
+
+    const transpileMap = new Map();
+    const prepareCodeSyncOrNeedEsbuild = async (rawSource, filePath) => {
+      const strippedShebang = String(rawSource || '').replace(/^#![^\n]*\n/, '');
+      if (!this.#needsEsbuildTranspile(strippedShebang, filePath, args)) {
+        return { ok: true, code: strippedShebang };
+      }
+      const esRes = await this.ensureEsbuildCompiler();
+      if (!esRes.ok) return esRes;
+      const ext = pathShim.extname(filePath).toLowerCase();
+      const loader = ext === '.tsx' ? 'tsx' : (ext === '.ts' || ext === '.mts' || ext === '.cts' ? 'ts' : (ext === '.jsx' ? 'jsx' : 'js'));
+      const transformed = await esRes.compiler.transform(strippedShebang, {
+        loader,
+        format: 'cjs',
+        target: 'es2022',
+      });
+      return { ok: true, code: transformed.code || '' };
+    };
+
+    const resolveModulePath = (spec, fromDir) => {
+      const tryFile = (cand) => {
+        for (const ext of ['', '.js', '.cjs', '.mjs', '.ts', '.tsx', '.json']) {
+          const p = `${cand}${ext}`;
+          if (vfs.exists(p) && !vfs.isDirectory(p)) return p;
+        }
+        if (vfs.isDirectory(cand)) {
+          const pkgRaw = vfs.readText(`${cand}/package.json`);
+          if (pkgRaw) {
+            try {
+              const pj = JSON.parse(pkgRaw);
+              let entry = pj.main || 'index.js';
+              if (pj.exports && typeof pj.exports === 'object' && pj.exports['.']) {
+                const dotExp = pj.exports['.'];
+                if (typeof dotExp === 'string') entry = dotExp;
+                else if (dotExp && typeof dotExp === 'object') {
+                  entry = dotExp.require || dotExp.default || dotExp.import || entry;
+                }
+              }
+              const target = MvmPolyglotVfs.normalizePath(cand, entry);
+              if (vfs.exists(target) && !vfs.isDirectory(target)) return target;
+            } catch {
+              // Fall back to index.js
+            }
+          }
+          for (const idxExt of ['/index.js', '/index.cjs', '/index.ts']) {
+            if (vfs.exists(`${cand}${idxExt}`)) return `${cand}${idxExt}`;
+          }
+        }
+        return null;
+      };
+      if (spec.startsWith('./') || spec.startsWith('../') || spec.startsWith('/')) {
+        return tryFile(MvmPolyglotVfs.normalizePath(fromDir, spec));
+      }
+      let curDir = fromDir;
+      while (true) {
+        const nmCand = `${curDir === '/' ? '' : curDir}/node_modules/${spec}`;
+        const hit = tryFile(nmCand);
+        if (hit) return hit;
+        if (curDir === '/' || curDir === '/workspace') break;
+        curDir = MvmPolyglotVfs.parentDir(curDir);
+      }
+      return null;
+    };
+
+    const collectDeps = async (srcText, filePath, visited) => {
+      if (visited.has(filePath)) return { ok: true };
+      visited.add(filePath);
+      const tRes = await prepareCodeSyncOrNeedEsbuild(srcText, filePath);
+      if (!tRes.ok) return tRes;
+      transpileMap.set(filePath, tRes.code);
+      const dir = pathShim.dirname(filePath);
+      const reqMatches = tRes.code.matchAll(/require\s*\(\s*['"]([^'"]+)['"]\s*\)/g);
+      for (const m of reqMatches) {
+        const spec = m[1];
+        if (builtins.has(spec)) continue;
+        const resolved = resolveModulePath(spec, dir);
+        if (resolved) {
+          const childRaw = vfs.readText(resolved);
+          if (childRaw !== null) {
+            const sub = await collectDeps(childRaw, resolved, visited);
+            if (!sub.ok) return sub;
+          }
+        }
+      }
+      return { ok: true };
+    };
+
+    const prepRes = await collectDeps(entryCode, entryAbs, new Set());
+    if (!prepRes.ok) return prepRes;
+
+    const moduleCache = new Map();
+    const runModule = (fileAbs, isEntry) => {
+      if (moduleCache.has(fileAbs)) return moduleCache.get(fileAbs).exports;
+      if (fileAbs.endsWith('.json')) {
+        const parsed = JSON.parse(vfs.readText(fileAbs) || 'null');
+        moduleCache.set(fileAbs, { exports: parsed });
+        return parsed;
+      }
+      const mod = { exports: {} };
+      moduleCache.set(fileAbs, mod);
+      const modDir = pathShim.dirname(fileAbs);
+      const localRequire = (spec) => {
+        if (builtins.has(spec)) return builtins.get(spec);
+        const resolved = resolveModulePath(spec, modDir);
+        if (!resolved) {
+          const e = new Error(`Cannot find module '${spec}'`);
+          e.code = 'MODULE_NOT_FOUND';
+          throw e;
+        }
+        return runModule(resolved, false);
+      };
+      const compiledCode = transpileMap.get(fileAbs) || '';
+      const execBody = isEntry && printExpr ? `return (${compiledCode});` : compiledCode;
+      const fn = new Function(
+        'exports',
+        'require',
+        'module',
+        '__filename',
+        '__dirname',
+        'process',
+        'console',
+        'Buffer',
+        'fetch',
+        execBody,
+      );
+      const ret = fn(
+        mod.exports,
+        localRequire,
+        mod,
+        fileAbs,
+        modDir,
+        processShim,
+        consoleShim,
+        MvmNodeBuffer,
+        fetchShim,
+      );
+      if (isEntry && printExpr && ret !== undefined) {
+        consoleShim.log(ret);
+      }
+      return isEntry ? ret : mod.exports;
+    };
+
+    try {
+      const ret = runModule(entryAbs, true);
+      if (ret && typeof ret.then === 'function') {
+        await ret;
+      }
+    } catch (err) {
+      if (err instanceof NodeExitSignal) {
+        procExitCode = err.code;
+      } else if (err && (err.code === 'CanonicalPathProtected' || err.code === 'EsbuildAdapterUnavailable')) {
+        return { ok: false, error_code: err.code, message: err.message };
+      } else {
+        procExitCode = 1;
+        stderrChunks.push((err && err.stack ? err.stack : String(err)) + '\n');
+      }
+    }
+
+    const muts = vfs.exportMutations();
+    return {
+      ok: true,
+      exit_code: procExitCode,
+      stdout: stdoutChunks.join(''),
+      stderr: stderrChunks.join(''),
+      ...muts,
+    };
+  }
+
+  async handleNpmBridge(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    const args = info.args.map((a) => String(a));
+    const sub = (args[0] || 'install').toLowerCase();
+
+    if (sub === 'init') {
+      if (!vfs.exists('/workspace/package.json')) {
+        vfs.writeBytes(
+          '/workspace/package.json',
+          JSON.stringify({ name: 'workspace-app', version: '1.0.0', private: true, dependencies: {} }, null, 2) + '\n',
+        );
+      }
+      const muts = vfs.exportMutations();
+      return { ok: true, exit_code: 0, stdout: 'Wrote /workspace/package.json\n', stderr: '', ...muts };
+    }
+
+    if (sub === 'run' && args[1]) {
+      const pjRaw = vfs.readText('/workspace/package.json');
+      if (!pjRaw) {
+        return { ok: true, exit_code: 1, stdout: '', stderr: 'npm ERR! missing package.json\n', writes: [], deletes: [] };
+      }
+      const pj = JSON.parse(pjRaw);
+      const scriptCmd = pj.scripts && pj.scripts[args[1]];
+      if (!scriptCmd) {
+        return { ok: true, exit_code: 1, stdout: '', stderr: `npm ERR! Missing script: "${args[1]}"\n`, writes: [], deletes: [] };
+      }
+      const parts = scriptCmd.trim().split(/\s+/);
+      const binName = parts[0] === 'node' ? parts : ['node', `/workspace/node_modules/.bin/${parts[0]}`, ...parts.slice(1)];
+      return this.handleNodeExec({ ...req, tool: 'node', args: binName.slice(1) });
+    }
+
+    if (sub !== 'install' && sub !== 'i' && sub !== 'add') {
+      return { ok: true, exit_code: 1, stdout: '', stderr: `npm: unsupported subcommand '${sub}'\n`, writes: [], deletes: [] };
+    }
+
+    const netCheck = this.#assertNetworkAllowed();
+    if (!netCheck.ok) return netCheck;
+
+    const specs = args.slice(1).filter((a) => !a.startsWith('-'));
+    const pkgJsonRaw = vfs.readText('/workspace/package.json');
+    let pkgJson = { name: 'workspace-app', version: '1.0.0', dependencies: {} };
+    if (pkgJsonRaw) {
+      try {
+        pkgJson = JSON.parse(pkgJsonRaw);
+      } catch {
+        pkgJson = { name: 'workspace-app', version: '1.0.0', dependencies: {} };
+      }
+    }
+    if (!pkgJson.dependencies || typeof pkgJson.dependencies !== 'object') {
+      pkgJson.dependencies = {};
+    }
+
+    const toInstall = specs.length > 0
+      ? specs
+      : Object.entries(pkgJson.dependencies).map(([n, v]) => `${n}@${v}`);
+    if (toInstall.length === 0) {
+      return { ok: true, exit_code: 0, stdout: 'up to date\n', stderr: '', writes: [], deletes: [] };
+    }
+
+    const installedCount = [];
+    const seen = new Set();
+    const parseSpec = (rawSpec) => {
+      const s = String(rawSpec).trim();
+      const at = s.startsWith('@') ? s.indexOf('@', 1) : s.indexOf('@');
+      return at > 0 ? { name: s.slice(0, at), range: s.slice(at + 1) } : { name: s, range: 'latest' };
+    };
+    const pickVersion = (meta, range) => {
+      const versions = meta.versions && typeof meta.versions === 'object' ? Object.keys(meta.versions) : [];
+      const tags = meta['dist-tags'] || {};
+      if (!range || range === 'latest' || range === '*') {
+        return tags.latest || versions[versions.length - 1];
+      }
+      if (meta.versions && meta.versions[range]) return range;
+      const clean = range.replace(/^[~^>=<\s]+/, '');
+      if (meta.versions && meta.versions[clean]) return clean;
+      const major = clean.split('.')[0];
+      const match = versions.filter((v) => v.startsWith(`${major}.`)).pop();
+      return match || tags.latest || versions[versions.length - 1];
+    };
+
+    const installSingle = async (rawSpec, isDirect) => {
+      const { name, range } = parseSpec(rawSpec);
+      if (!name || seen.has(name)) return { ok: true };
+      seen.add(name);
+      const encodedName = name.startsWith('@') ? `@${encodeURIComponent(name.slice(1))}` : encodeURIComponent(name);
+      const regUrl = `https://registry.npmjs.org/${encodedName}`;
+      const metaResp = await this.#fetchImpl(regUrl, { headers: { Accept: 'application/json' } });
+      if (!metaResp || !metaResp.ok) {
+        return {
+          ok: false,
+          status: metaResp ? metaResp.status : 502,
+          error_code: 'NpmRegistryError',
+          message: `Failed fetching npm metadata for ${name} (HTTP ${metaResp ? metaResp.status : 'error'})`,
+        };
+      }
+      const meta = await metaResp.json();
+      const ver = pickVersion(meta, range);
+      const verObj = meta.versions && ver ? meta.versions[ver] : null;
+      if (!verObj || !verObj.dist || !verObj.dist.tarball) {
+        return {
+          ok: false,
+          status: 404,
+          error_code: 'PackageNotFound',
+          message: `Version "${range}" not found for npm package "${name}"`,
+        };
+      }
+      const expectedSri = verObj.dist.integrity || '';
+      const tgzResp = await this.#fetchImpl(verObj.dist.tarball);
+      if (!tgzResp || !tgzResp.ok) {
+        return {
+          ok: false,
+          status: tgzResp ? tgzResp.status : 502,
+          error_code: 'PackageDownloadFailed',
+          message: `Failed downloading tarball ${verObj.dist.tarball}`,
+        };
+      }
+      const tgzBytes = new Uint8Array(await tgzResp.arrayBuffer());
+      const sriRes = await this.#verifySri(tgzBytes, expectedSri);
+      if (!sriRes.ok) {
+        return sriRes;
+      }
+      const tarBytes = await this.#gunzipBytes(tgzBytes);
+      const entries = this.#parseTarEntries(tarBytes);
+      const pkgBase = `/workspace/node_modules/${name}`;
+      for (const ent of entries) {
+        const cleanEntry = String(ent.name || '').replace(/^\.\//, '').replace(/^package\//, '').replace(/^\/+/, '');
+        if (!cleanEntry || cleanEntry.split('/').includes('..') || ent.typeflag === '5') continue;
+        const dst = `${pkgBase}/${cleanEntry}`;
+        if (ent.typeflag === '2') {
+          vfs.writeSymlink(dst, ent.linkname);
+        } else {
+          vfs.writeBytes(dst, ent.data, 0o100000 | (ent.mode & 0o777));
+        }
+      }
+      if (verObj.bin) {
+        const binMap = typeof verObj.bin === 'string' ? { [name.split('/').pop()]: verObj.bin } : verObj.bin;
+        for (const [bName, bRel] of Object.entries(binMap)) {
+          const cleanRel = String(bRel).replace(/^\.\//, '');
+          vfs.writeSymlink(`/workspace/node_modules/.bin/${bName}`, `../${name}/${cleanRel}`);
+        }
+      }
+      if (isDirect) {
+        pkgJson.dependencies[name] = `^${ver}`;
+      }
+      installedCount.push(`${name}@${ver}`);
+      if (verObj.dependencies && typeof verObj.dependencies === 'object') {
+        for (const [depName, depRange] of Object.entries(verObj.dependencies)) {
+          const subRes = await installSingle(`${depName}@${depRange}`, false);
+          if (!subRes.ok) return subRes;
+        }
+      }
+      return { ok: true };
+    };
+
+    for (const spec of toInstall) {
+      const r = await installSingle(spec, true);
+      if (!r.ok) return r;
+    }
+
+    vfs.writeBytes('/workspace/package.json', JSON.stringify(pkgJson, null, 2) + '\n');
+    const muts = vfs.exportMutations();
+    return {
+      ok: true,
+      exit_code: 0,
+      stdout: `added ${installedCount.length} package(s): ${installedCount.join(', ')}\n`,
+      stderr: '',
+      ...muts,
+    };
+  }
+
+  async #ensurePyodideLoaded(stdoutChunks, stderrChunks) {
+    if (this.#pyodideInstance) {
+      return { ok: true, pyodide: this.#pyodideInstance };
+    }
+    const lock = this.pyodideLock;
+    let verifiedBytes = null;
+
+    if (typeof caches !== 'undefined' && typeof caches.open === 'function') {
+      try {
+        const cache = await caches.open(PYODIDE_CACHE_NAME);
+        const cachedResp = await cache.match(lock.url);
+        if (cachedResp) {
+          const candBytes = new Uint8Array(await cachedResp.arrayBuffer());
+          const sriCheck = await this.#verifySri(candBytes, lock.sri);
+          if (sriCheck.ok) verifiedBytes = candBytes;
+        }
+      } catch {
+        // Cache API unavailable or empty
+      }
+    }
+
+    if (!verifiedBytes) {
+      const netCheck = this.#assertNetworkAllowed();
+      if (!netCheck.ok) return netCheck;
+      const resp = await this.#fetchImpl(lock.url);
+      if (!resp || !resp.ok) {
+        return {
+          ok: false,
+          status: resp ? resp.status : 502,
+          error_code: 'PyodideLoadError',
+          message: `Failed fetching Pyodide entrypoint ${lock.url}`,
+        };
+      }
+      const rawBytes = new Uint8Array(await resp.arrayBuffer());
+      const sriCheck = await this.#verifySri(rawBytes, lock.sri);
+      if (!sriCheck.ok) {
+        return sriCheck;
+      }
+      verifiedBytes = rawBytes;
+      if (typeof caches !== 'undefined' && typeof caches.open === 'function') {
+        try {
+          const cache = await caches.open(PYODIDE_CACHE_NAME);
+          await cache.put(
+            lock.url,
+            new Response(verifiedBytes, { status: 200, headers: { 'Content-Type': 'text/javascript' } }),
+          );
+        } catch {
+          // Ignore cache write errors in restricted hosts
+        }
+      }
+    }
+
+    if (!this.#pyodidePromise) {
+      this.#pyodidePromise = (async () => {
+        let mod = null;
+        if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function' && typeof WorkerGlobalScope !== 'undefined') {
+          const blobUrl = URL.createObjectURL(new Blob([verifiedBytes], { type: 'text/javascript' }));
+          try {
+            mod = await import(blobUrl);
+          } finally {
+            URL.revokeObjectURL(blobUrl);
+          }
+        } else {
+          const dataUrl = `data:text/javascript;base64,${__uorBytesToBase64(verifiedBytes)}`;
+          mod = await import(dataUrl);
+        }
+        const pyodide = await mod.loadPyodide({
+          indexURL: lock.indexURL,
+          stdout: (line) => stdoutChunks.push(String(line) + '\n'),
+          stderr: (line) => stderrChunks.push(String(line) + '\n'),
+        });
+        this.#pyodideInstance = pyodide;
+        return pyodide;
+      })();
+    }
+
+    try {
+      const pyodide = await this.#pyodidePromise;
+      return { ok: true, pyodide };
+    } catch (err) {
+      this.#pyodidePromise = null;
+      this.#pyodideInstance = null;
+      return {
+        ok: false,
+        error_code: 'PyodideLoadError',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
+
+  async handlePythonExec(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    const stdoutChunks = [];
+    const stderrChunks = [];
+
+    const pyLoaded = await this.#ensurePyodideLoaded(stdoutChunks, stderrChunks);
+    if (!pyLoaded.ok) return pyLoaded;
+    const pyodide = pyLoaded.pyodide;
+    const args = info.args.map((a) => String(a));
+
+    try {
+      if (pyodide.FS && typeof pyodide.FS.mkdirTree === 'function') {
+        pyodide.FS.mkdirTree('/workspace');
+        for (const [rel, bytes] of vfs.files.entries()) {
+          const full = `/workspace/${rel}`;
+          const parent = MvmPolyglotVfs.parentDir(full);
+          pyodide.FS.mkdirTree(parent);
+          pyodide.FS.writeFile(full, bytes);
+        }
+      }
+
+      globalThis.__uorSpiralCorePyFetch = async (url, method, bodyStr) => {
+        const netCheck = this.#assertNetworkAllowed();
+        if (!netCheck.ok) {
+          throw new Error(`${netCheck.error_code}: ${netCheck.message}`);
+        }
+        const res = await this.handleHttpRequest({ url: String(url), method: String(method || 'GET'), body: bodyStr });
+        if (!res.ok) throw new Error(res.message || res.error_code || 'HTTP error');
+        return String(res.body_text || '');
+      };
+
+      if (!this.#pyodideShimmed) {
+        this.#pyodideShimmed = true;
+        try {
+          await pyodide.runPythonAsync(`
+import os, sys, types
+if os.path.isdir('/workspace'):
+    os.chdir('/workspace')
+try:
+    import js, urllib.request
+    class _SpiralResp:
+        def __init__(self, text, status=200):
+            self.text = text
+            self.status_code = status
+            self._data = text.encode('utf-8')
+        def read(self):
+            return self._data
+        def json(self):
+            import json
+            return json.loads(self.text)
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            return False
+    async def _uor_async_fetch(url, method='GET', data=None):
+        txt = await js.__uorSpiralCorePyFetch(str(url), method, data)
+        return _SpiralResp(txt)
+    _req_mod = types.ModuleType('requests')
+    _req_mod.get = lambda url, **kw: _uor_async_fetch(url, 'GET', None)
+    _req_mod.post = lambda url, data=None, json=None, **kw: _uor_async_fetch(url, 'POST', data)
+    sys.modules.setdefault('requests', _req_mod)
+    urllib.request._uor_spiralcore_fetch = _uor_async_fetch
+except Exception:
+    pass
+`);
+        } catch {
+          // Non-CPython mock runtime ignores Python stdlib registration cleanly
+        }
+      }
+
+      const isPip = info.tool === 'pip' || info.tool === 'pip3';
+      let exitCode = 0;
+      if (isPip) {
+        const sub = (args[0] || 'list').toLowerCase();
+        if (sub === 'install') {
+          const netCheck = this.#assertNetworkAllowed();
+          if (!netCheck.ok) return netCheck;
+          const pkgList = args.slice(1).filter((a) => !a.startsWith('-'));
+          if (pkgList.length === 0) {
+            return { ok: true, exit_code: 1, stdout: '', stderr: 'pip install: missing package name\n', writes: [], deletes: [] };
+          }
+          for (const pkg of pkgList) {
+            const cleanPkg = pkg.split(/[=<>!~]/)[0].trim();
+            const metaResp = await this.#fetchImpl(`https://pypi.org/pypi/${encodeURIComponent(cleanPkg)}/json`);
+            if (!metaResp || !metaResp.ok) {
+              return { ok: true, exit_code: 1, stdout: '', stderr: `ERROR: Could not find a version that satisfies ${pkg}\n`, writes: [], deletes: [] };
+            }
+          }
+          if (typeof pyodide.loadPackage === 'function') {
+            await pyodide.loadPackage('micropip');
+          }
+          const installListJson = JSON.stringify(pkgList);
+          await pyodide.runPythonAsync(`import micropip\nawait micropip.install(${installListJson})`);
+          stdoutChunks.push(`Successfully installed ${pkgList.join(' ')}\n`);
+        } else {
+          const out = await pyodide.runPythonAsync(`import micropip\nstr(micropip.list())`);
+          stdoutChunks.push(String(out || '') + '\n');
+        }
+      } else {
+        let codeToRun = '';
+        if (args[0] === '-c' && args.length > 1) {
+          codeToRun = String(args[1]);
+        } else if (args[0] && !args[0].startsWith('-')) {
+          const target = MvmPolyglotVfs.normalizePath(vfs.cwd, args[0]);
+          const txt = vfs.readText(target);
+          if (txt === null) {
+            return { ok: true, exit_code: 1, stdout: '', stderr: `python3: can't open file '${args[0]}': No such file or directory\n`, writes: [], deletes: [] };
+          }
+          codeToRun = txt;
+        } else {
+          codeToRun = cachedTextDecoder.decode(info.stdinBytes);
+        }
+        const resVal = await pyodide.runPythonAsync(codeToRun);
+        if (stdoutChunks.length === 0 && resVal !== undefined && resVal !== null && args[0] === '-c') {
+          // runPythonAsync returns last expression if print() wasn't buffered through stdout callback
+        }
+      }
+
+      if (pyodide.FS && typeof pyodide.FS.readdir === 'function') {
+        const seenFs = new Set();
+        const walkFs = (dirAbs) => {
+          let entries = [];
+          try {
+            entries = pyodide.FS.readdir(dirAbs);
+          } catch {
+            return;
+          }
+          for (const name of entries) {
+            if (name === '.' || name === '..') continue;
+            const full = `${dirAbs}/${name}`;
+            const stat = pyodide.FS.analyzePath(full);
+            if (!stat || !stat.exists) continue;
+            if (stat.object && stat.object.isFolder) {
+              walkFs(full);
+            } else {
+              const rel = full.slice('/workspace/'.length);
+              seenFs.add(rel);
+              const bytes = pyodide.FS.readFile(full);
+              const prev = vfs.files.get(rel);
+              const changed =
+                !prev ||
+                prev.byteLength !== bytes.byteLength ||
+                prev.some((b, idx) => b !== bytes[idx]);
+              if (changed) vfs.writeBytes(full, bytes);
+            }
+          }
+        };
+        walkFs('/workspace');
+        for (const origRel of vfs.originalKeys) {
+          if (!seenFs.has(origRel) && !vfs.symlinks.has(origRel)) {
+            vfs.deletePath(`/workspace/${origRel}`);
+          }
+        }
+      }
+
+      const muts = vfs.exportMutations();
+      return {
+        ok: true,
+        exit_code: exitCode,
+        stdout: stdoutChunks.join(''),
+        stderr: stderrChunks.join(''),
+        ...muts,
+      };
+    } catch (err) {
+      if (err && err.code === 'CanonicalPathProtected') {
+        return { ok: false, error_code: 'CanonicalPathProtected', message: err.message };
+      }
+      return {
+        ok: true,
+        exit_code: 1,
+        stdout: stdoutChunks.join(''),
+        stderr: stderrChunks.join('') + (err && err.message ? err.message : String(err)) + '\n',
+        ...vfs.exportMutations(),
+      };
+    }
+  }
+
+  async handleWasiExec(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    const args = info.args.map((a) => String(a));
+    let modPath = '';
+    let wasiArgs = [];
+    if (args[0] === 'run' && args.length >= 2) {
+      modPath = args[1];
+      wasiArgs = [args[1], ...args.slice(2)];
+    } else if (args[0] && !args[0].startsWith('-')) {
+      modPath = args[0];
+      wasiArgs = [args[0], ...args.slice(1)];
+    } else {
+      return {
+        ok: false,
+        error_code: 'WasiRuntimeError',
+        message: 'wasm: expected `wasm run <module.wasm> [args...]`',
+      };
+    }
+    const wasmBytes = vfs.readBytes(modPath);
+    if (!wasmBytes) {
+      return {
+        ok: false,
+        error_code: 'WasiRuntimeError',
+        message: `wasm: module not found: ${modPath}`,
+      };
+    }
+    try {
+      const res = await MvmWasiRunner.run(wasmBytes, vfs, wasiArgs, info.env, info.stdinBytes);
+      const muts = vfs.exportMutations();
+      return { ...res, ...muts };
+    } catch (err) {
+      return {
+        ok: false,
+        error_code: (err && err.code) || 'WasiRuntimeError',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
+
+  async handleSqliteExec(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    try {
+      const res = MvmSqliteEngine.execute(
+        info.args,
+        vfs,
+        cachedTextDecoder.decode(info.stdinBytes),
+      );
+      const muts = vfs.exportMutations();
+      return { ...res, ...muts };
+    } catch (err) {
+      return {
+        ok: false,
+        error_code: (err && err.code) || 'SqliteRuntimeError',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
 }
 
 function __uorNormalizeStitchGroup(g) {
@@ -6326,7 +8972,7 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: vaultRes.ok, result: vaultRes });
         return;
       }
-      if (op === 'set_bridge_policy') {
+      if (op === 'set_bridge_policy' || op === 'set_host_config') {
         const res = hostBridge.setPolicy(payload || {});
         const customRelay = payload && (typeof payload.relayWsUrl === 'string' ? payload.relayWsUrl : payload.relayUrl);
         if (typeof customRelay === 'string') {

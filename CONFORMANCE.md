@@ -348,6 +348,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-32` | `build` | Pure LexLean models the in-Wasm Rust AST parser, typechecker, interpreter, and live #[test] runner (source module admission with exact line-and-column unbalanced-delimiter, syntax, and type diagnostics, fuel-bounded deterministic expression and statement evaluation with runtime division-by-zero and undefined-symbol guards, and live test assertion verification with exact line and operand reporting). Formal controls establish no full rustc borrow-checker equivalence or unbounded Turing-complete termination. |
 
+## r4-wasm-container-tools
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-58` | `build` | Pure LexLean models the MVM-Wasm polyglot WebAssembly container runtime across node/npm/npx/esbuild.wasm, SRI-pinned lazy Pyodide python/pip, WASI Preview 1, and persistent sqlite3 (R4-58): typed NeedsBridge suspend frames (node_exec, pkg_fetch/npm_exec, python_exec, wasi_exec, sqlite_exec) emitted from mvm.rs with active /workspace snapshots (including binary *.db, *.wasm, and node_modules/**) and resumed via mvm_complete_bridge_json enforcing canonical protection (^prism/.*\.lex\.tex$, ^app/state$) and typed error codes (IntegrityMismatch, EsbuildAdapterUnavailable, WasiRuntimeError, SqliteRuntimeError); Worker host adapter (worker_host_bridge.js) executing node/npx via isolated shimmed fs/path/process/buffer/crypto/url/fetch and host-configured Foundry studio/shell/compiler/esm/browser.min.js + esbuild.wasm (refusing TS/ESM transpilation with EsbuildAdapterUnavailable when unconfigured), npm install verifying SHA-512 dist.integrity before gzip tar extraction into /workspace/node_modules/ and package.json mutation, lazy-loaded Pyodide verified strictly against locked PYODIDE_LOCK SHA-384 SRI prior to uor-pyodide-v1 Cache API storage and micropip PyPI resolution, WebAssembly wasi_snapshot_preview1 execution over /workspace file descriptors, and deterministic binary SQLite 3 database persistence into MVM /workspace/*.db OPFS COW sectors. Formal controls establish no external npm/PyPI/CDN uptime or full native Node/CPython ABI parity beyond browser Wasm/JS adapters. |
+
 ## r4-words
 
 | ID | Level | Statement |

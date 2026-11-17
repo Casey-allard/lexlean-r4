@@ -940,12 +940,13 @@ fn test_t1_f13_prism_conformance_md_authority_rebuild() {
     assert!(content.contains("`R4-55`"));
     assert!(content.contains("`R4-56`"));
     assert!(content.contains("`R4-57`"));
+    assert!(content.contains("`R4-58`"));
 }
 
 #[test]
 fn test_t1_f13_prism_semver_change_level_computation() {
     let rows = load_all_capability_rows().expect("load model/ids.toml");
-    assert_eq!(rows.len(), 57);
+    assert_eq!(rows.len(), 58);
     for r in &rows {
         assert!(["build", "some-true", "open"].contains(&r.level.as_str()));
     }

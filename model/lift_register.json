@@ -2,10 +2,10 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2678,
-    "lifted": 1928,
+    "total_functions": 2684,
+    "lifted": 1929,
     "effect": 249,
-    "foreign": 157,
+    "foreign": 162,
     "residue": 344
   },
   "rows": [
@@ -14094,14 +14094,14 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "e79c0840fa71bfff62a2812181b5c36f253f7ad45101933e92af6de9042e69b4",
+      "kappa": "2321a1a6e3d92400e3be65b4645832f2f6fc50abe3b055e80a6d17df9e484cf7",
       "function": "crates/wasm/src/mvm.rs::BridgeError::error_code",
       "status": "lifted",
       "definition": "UORust.PureTotalExpr",
       "exact_divergence_free": true
     },
     {
-      "kappa": "f904eae62bc4e787ff52b77ba57d934cd16906e9c469736d838f52a2537c58ed",
+      "kappa": "e870bb744fd1b4333d3e33690ca12b812fb50ae76b9470efd14626d5cb270413",
       "function": "crates/wasm/src/mvm.rs::BridgeError::fmt",
       "status": "foreign",
       "foreign_crate": "std-fmt",
@@ -14120,6 +14120,13 @@
       "status": "lifted",
       "definition": "UORust.PureTotalExpr",
       "exact_divergence_free": true
+    },
+    {
+      "kappa": "ef5fa821673bd1d1507e7e746a80ad9854c5829b6cc1b036a821e6a6ada8d651",
+      "function": "crates/wasm/src/mvm.rs::MvmSandbox::apply_polyglot_workspace_mutations",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
     },
     {
       "kappa": "8059c5c9369ab2641abdfa3b0e052b7bfdacec7607df64d8c9a61a3af75fba14",
@@ -14158,7 +14165,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "02c72e36764d8e586a46e0def26cf1962e39c13f819e9ad0edb126c964c35ddd",
+      "kappa": "85539848032cbfb83b153e8cc08fc0d03812bffb8bad358b3a119ad469084291",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::complete_bridge",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -14167,6 +14174,13 @@
     {
       "kappa": "c8b9f33713a150a0731b8e1edb240ddd154d365e07270e9371c1d1fd7f9d25b8",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::complete_git_bridge",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "d0ba3a52f8be1af6b8c69022eecf00fc9d700435b305a0f932e16e1c50cc991e",
+      "function": "crates/wasm/src/mvm.rs::MvmSandbox::complete_polyglot_bridge_outcome",
       "status": "foreign",
       "foreign_crate": "serde_json",
       "exact_divergence_free": false
@@ -14296,8 +14310,15 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "51e0e358d8c04c7b917ac7f1cd5750a1fa47f0bd1b8ac708568ad25612070238",
+      "kappa": "0e18ad0b7179e1d129933aa792c6ffd2670de5a78d7952703c39600947f11e09",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_interactive_segment",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "487f5e13864ce2fe053ef7e0f0a14d93e8180d2615d7ce1369ce0a2041fbb648",
+      "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_pipeline_stages_with_mode",
       "status": "foreign",
       "foreign_crate": "serde_json",
       "exact_divergence_free": false
@@ -14310,17 +14331,17 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a752a66be8d15d6a82ef4b0a677200edbe42ec25879100fa62159b65e1e1208b",
+      "kappa": "aa4dcaf2ca6a11c75f5ac38bafc2a2abc1b5804e94d99938f518ab3c54a5afb1",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_single_command_words",
       "status": "effect",
       "effect": "stdio-console-effect",
       "exact_divergence_free": false
     },
     {
-      "kappa": "2a43aabb6f3a5c6b95cc7d819d89451f138c4303cc4e31bee256f18481033889",
+      "kappa": "78a35901ddaa6cd8d4e2b19e54d85749f933f22628f6b0b280b6b6f939bdc90d",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_single_segment_ast",
       "status": "foreign",
-      "foreign_crate": "sha2",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
@@ -14334,6 +14355,13 @@
     {
       "kappa": "d3d8062a10479f0d97e93c35a5b7fa3210c7d567ddeb0d7f1b9985cd2d683eac",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::export_dirty_cow_sectors",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "e74c016b183e10825ca7326f16a2bb94dd421ff97f1112c49ead5ef144016a1b",
+      "function": "crates/wasm/src/mvm.rs::MvmSandbox::export_polyglot_workspace_entries",
       "status": "foreign",
       "foreign_crate": "serde_json",
       "exact_divergence_free": false
@@ -14383,7 +14411,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "ac2dba1a570c1f1257b492d1210f5f56646569124bbe8461a85c6702df13d61d",
+      "kappa": "c57e866e1f761118e79eecc7e518ce84fa65ef782ca585949408050a5b13415b",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::handle_syscall",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -14433,7 +14461,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "db67361feb29da8b681fba17d1dfb001c0783a0df0119e168fb2b595847839d7",
+      "kappa": "22a99a17ac5098444b3c9e32b5ae5c58abd951f2391bb0f901d4e5a97c1ec7c5",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::is_native_coreutil_or_builtin",
       "status": "lifted",
       "definition": "UORust.PureTotalExpr",
@@ -14594,6 +14622,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "5aec7836f749b1c01e90aab3b88aec6d3b1abc5af330e4103885e97e76ded930",
+      "function": "crates/wasm/src/mvm.rs::MvmSandbox::prepare_polyglot_bridge",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "40b89fae382a5faf5ede953d05c1d06e88978b3553754e1d536cd8a3381fa1e3",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::prepare_web_fetch_bridge",
       "status": "foreign",
@@ -14616,7 +14651,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "50ca7e611b7b5f299d8192e047c5e6a9e5c828c9b3865c220966536bdf266e67",
+      "kappa": "4aca96f6587736380f5ae24e4864205d74f7f3f8c9e0dbcf0c920897417e3693",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::read_guest_file",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -14661,6 +14696,13 @@
       "reason": "unlifted-pure-fn",
       "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::resolve_guest_exec_path` pending formal .lex.tex lift",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "fb3c08df6f0c8a6bfda7519d61d88eaca726eaa696f44e6116306e680ae4db27",
+      "function": "crates/wasm/src/mvm.rs::MvmSandbox::resolve_symlink_step",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "5d103a13743b2743e1ae0f267739d98b2e0f06d0b90da3d89a71e47a28349273",
@@ -14751,7 +14793,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "b3c000e94085307edb07162e0800a4b3b8a9f3942a85d2b7fd16b8ac582635f0",
+      "kappa": "8af19f07210dc6c01ac666298bf3b2e6bea1f54c7fe5299688f1845141ef5222",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::try_exec_native_coreutil",
       "status": "foreign",
       "foreign_crate": "sha2",
@@ -14766,7 +14808,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "df5a49bc67bf3afd16fb25a7139f35aab64c582937ce4b4197297939840ff23d",
+      "kappa": "e8b37b4055dc870a66f8daeb5cc85280c87ef18c2312f12da228db97e399a094",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::write_guest_file",
       "status": "residue",
       "reason": "unlifted-pure-fn",
