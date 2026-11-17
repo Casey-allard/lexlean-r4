@@ -301,7 +301,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "18cb8ad0d0f19fef159c7dee88971aecff0a92ff206d5b6eafcb1b06fde8204a",
+      "kappa": "65a1beb98977a06a0a2fb058c4a5d357a9c3cd6fa500b77944e7f49695922476",
       "function": "crates/wasm/js/worker_host_bridge.js::execute_inprism_foundry_turn",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -12573,7 +12573,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "aa16ee78e10a3c935179f5a8dbda8b15dc78c7b413d8d640bc930cb934d8cff7",
+      "kappa": "396a6b7ae8d29b4f09f251850ec1c168c3f464afe2d22b437090a19fabc04042",
       "function": "crates/wasm/src/lib.rs::StudioEngine::format_mvm_interactive_outcome",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -14108,7 +14108,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "343ae82ab628da5bdae2949aed8f2e049da75b4ad8cf038b7b49489d5b05f7dd",
+      "kappa": "9c0694421df17240141af77e33b7be04df7442415411829d75ca203ea0a599fe",
       "function": "crates/wasm/src/mvm.rs::MvmError::fmt",
       "status": "foreign",
       "foreign_crate": "std-fmt",
@@ -14169,14 +14169,6 @@
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::complete_git_bridge",
       "status": "foreign",
       "foreign_crate": "serde_json",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "8debab03bc53e8f657e05deacf750bac8bc76041ff51ec01fbf42bf9c991bd44",
-      "function": "crates/wasm/src/mvm.rs::MvmSandbox::compute_simple_git_diff",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::compute_simple_git_diff` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -14276,7 +14268,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "5a998e65d003bcabecc72543359ecc06459faffa43c896769ae81a6c137324a7",
+      "kappa": "c58f5ad763e1d57ce1306b82bbc12c87c0d896f6baf58353682ee4cbb50728ad",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_coreutil_archive",
       "status": "foreign",
       "foreign_crate": "sha2",
@@ -14290,7 +14282,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2b04ee275f196a0707c5cbe88d2a62667576803d4dcabaa1a5d93d13f80603bd",
+      "kappa": "4138e8bb0fe018077216969a6079f536ea9b8b5ed871fb87f38d9400b1d0ada4",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_git_command",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -14391,7 +14383,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "e514aa9b6b65fc67ac8121819bfba81e1c38c619046968286094183ed6437ca2",
+      "kappa": "ac2dba1a570c1f1257b492d1210f5f56646569124bbe8461a85c6702df13d61d",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::handle_syscall",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -14499,7 +14491,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0ef72c426e32ac2053fd1d93f4be1549ec947471c97e93e2a4c78dde79f77a0c",
+      "kappa": "c13d0fde50601568f47a31dce6e5a411937115c82cfee30ebdd279c9163c4da3",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::mvm_sync_workspace_in_json",
       "status": "lifted",
       "definition": "R4.SecopsAudit",
@@ -14655,7 +14647,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "b9ca8022b14465ad56f7d1ab0951dd417487996d2e450c27fe09e89516178149",
+      "kappa": "93a610ec456ef9eecaed17dcf53f4bf29d99f596f9ef783d5655b32f30bbb537",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::remove_guest_path",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -14707,6 +14699,14 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "a8b2abdcf83be2525dd02f5681bfd83fdf7ae512d237d89945b2d2f17dd5d97a",
+      "function": "crates/wasm/src/mvm.rs::MvmSandbox::seed_canonical_guest_file",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `crates/wasm/src/mvm.rs::MvmSandbox::seed_canonical_guest_file` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "9eda926142d29005fc42a51ffd61718c914df1e026375fa3f3f1841c2ffd331c",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::set_policy_mode",
       "status": "residue",
@@ -14751,7 +14751,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "d99e617b607d4d60d51540c1891dfa3b0e6182169405ab10cfdd3a138515c641",
+      "kappa": "b3c000e94085307edb07162e0800a4b3b8a9f3942a85d2b7fd16b8ac582635f0",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::try_exec_native_coreutil",
       "status": "foreign",
       "foreign_crate": "sha2",
@@ -14766,7 +14766,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "80be3456269c991ea61753bdbc1ca14934ceab9ac234632669a04d3b826eb822",
+      "kappa": "df5a49bc67bf3afd16fb25a7139f35aab64c582937ce4b4197297939840ff23d",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::write_guest_file",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -14782,7 +14782,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "dec74a8051fc38965c95ebb859f42c5f1e1e2614a95c0626fd8e43c023d3335f",
+      "kappa": "fe8352c5c08ade5eb728ab63508ab2b993e0fc046a56b0c3ba9133d24cd68708",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::write_redirected_bytes",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -14949,7 +14949,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "63b3be2bfbac6c6cdeb36f977b6b97c2e7c215d88b747eebd0be1d12c827ef6d",
+      "kappa": "1b694853c897e535f5e56b53e080330a0ad445c82657ace997b850f14740cc76",
       "function": "crates/wasm/src/mvm.rs::parse_stage_words_and_redirects",
       "status": "lifted",
       "definition": "UORust.FixedWidthInt",
@@ -14971,7 +14971,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "59d3cb786d38dc15279326d878829be63f57522497a70dbe46533fb6fdfb9573",
+      "kappa": "1065b866c5a30657608a546fef9a09a5338a8978314afd54289aa73f8b24f740",
       "function": "crates/wasm/src/mvm_cc.rs::Codegen::compile_expr",
       "status": "residue",
       "reason": "unlifted-pure-fn",

@@ -923,11 +923,141 @@ test('Worker terminal:write and mvm_exec run bidirectional base64 /workspace syn
     assert.equal(directIn.ok, true);
     assert.equal(directIn.result.epoch, 5);
 
+    // Direct mvm_sync_workspace_in MUST update syncedHostWorkspaceFiles so subsequent terminal:write skips a.txt
+    // Also mirror term2's deletion of src/App.tsx on hostFiles so only a.txt differs if untracked
+    const appIdx = hostFiles.findIndex((f) => f.path === 'src/App.tsx');
+    if (appIdx >= 0) hostFiles.splice(appIdx, 1);
+    hostFiles.push({ path: 'a.txt', language: 'text', content: 'a' });
+    const countAfterDirectIn = syncInPayloads.length;
+    diffQueue.push({
+      status: 'ok',
+      epoch: 6,
+      writes: [{ path: 'c.txt', content_base64: Buffer.from('c').toString('base64') }],
+      deletes: [],
+      ignored_heavy_paths: 0,
+      cow_state_sha256: 'e'.repeat(64),
+    });
+    const term3P = waitForRpc('sync-term-3');
+    mockSelf.onmessage({
+      data: {
+        id: 'sync-term-3',
+        op: 'terminal:write',
+        payload: { cmd: 'echo c > /workspace/c.txt' },
+      },
+    });
+    const term3 = await term3P;
+    assert.equal(term3.ok, true);
+    // All host files (generated.txt, a.txt) were already synced -> term3 skips sync_in completely
+    assert.equal(
+      syncInPayloads.length,
+      countAfterDirectIn,
+      'direct mvm_sync_workspace_in must record a.txt in syncedHostWorkspaceFiles',
+    );
+
+    // Direct mvm_export_workspace_diff MUST update syncedHostWorkspaceFiles as well (c.txt & d.txt tracked)
+    diffQueue.push({
+      status: 'ok',
+      epoch: 7,
+      writes: [{ path: 'd.txt', content_base64: Buffer.from('d').toString('base64') }],
+      deletes: [],
+      ignored_heavy_paths: 0,
+      cow_state_sha256: 'f'.repeat(64),
+    });
     const directDiffP = waitForRpc('direct-export-diff');
     mockSelf.onmessage({ data: { id: 'direct-export-diff', op: 'mvm_export_workspace_diff' } });
     const directDiff = await directDiffP;
     assert.equal(directDiff.ok, true);
-    assert.equal(directDiff.result.status, 'ok');
+    assert.equal(directDiff.result.epoch, 7);
+
+    // Even if a direct sync returns epoch 0, Worker mvmWorkspaceSyncEpoch MUST remain monotonic (>= 7)
+    const directSyncZeroP = waitForRpc('direct-sync-zero');
+    mockSelf.onmessage({
+      data: {
+        id: 'direct-sync-zero',
+        op: 'mvm_sync_workspace_in',
+        payload: { epoch: 0, files: [{ path: 'd.txt', content_base64: Buffer.from('d').toString('base64') }] },
+      },
+    });
+    await directSyncZeroP;
+
+    hostFiles.push({ path: 'd.txt', language: 'text', content: 'd' });
+    hostFiles.push({ path: 'e.txt', language: 'text', content: 'e' });
+    const countBeforeTerm4 = syncInPayloads.length;
+    const term4P = waitForRpc('sync-term-4');
+    mockSelf.onmessage({
+      data: {
+        id: 'sync-term-4',
+        op: 'terminal:write',
+        payload: { cmd: 'pwd' },
+      },
+    });
+    const term4 = await term4P;
+    assert.equal(term4.ok, true);
+    assert.equal(syncInPayloads.length, countBeforeTerm4 + 1);
+    const term4SyncReq = syncInPayloads[syncInPayloads.length - 1];
+    assert.deepEqual(term4SyncReq.files, [
+      { path: 'e.txt', content_base64: Buffer.from('e').toString('base64') },
+      { path: 'c.txt', content_base64: '', deleted: true },
+    ]);
+    assert.ok(term4SyncReq.epoch >= 7, `Worker epoch must stay monotonic >= 7, got ${term4SyncReq.epoch}`);
+
+    // inprism_r4_turn with mvm_exec must emit workspace_sync ONCE (no duplicate burst)
+    const prevBegin = globalThis.holo_begin_foundry_turn;
+    const prevStep = globalThis.holo_step_foundry_turn;
+    const prevCancel = globalThis.holo_cancel_foundry_turn;
+    const prevStatus = globalThis.studio_holo_runtime_status;
+    try {
+      const turnEventsBefore = posted.length;
+      const fake = createFakeStepperHooks({
+        scriptForHop: (hopIndex) =>
+          hopIndex === 0
+            ? [
+                {
+                  status: 'needs_tool',
+                  delta: '',
+                  tokens_emitted: 4,
+                  tok_per_sec: 44,
+                  tool_call: { name: 'mvm_exec', cmd: 'echo from_turn > /workspace/t.txt' },
+                },
+              ]
+            : [{ status: 'done', delta: 'ok', tokens_emitted: 8, tok_per_sec: 52 }],
+      });
+      globalThis.holo_begin_foundry_turn = fake.hooks.holoBeginTurn;
+      globalThis.holo_step_foundry_turn = fake.hooks.holoStepTurn;
+      globalThis.holo_cancel_foundry_turn = fake.hooks.holoCancelTurn;
+      globalThis.studio_holo_runtime_status = fake.hooks.holoRuntimeStatus;
+      diffQueue.push({
+        status: 'ok',
+        epoch: 8,
+        writes: [{ path: 't.txt', content_base64: Buffer.from('from_turn\n').toString('base64') }],
+        deletes: [],
+        ignored_heavy_paths: 0,
+        cow_state_sha256: '1'.repeat(64),
+      });
+
+      const turnP = waitForRpc('sync-turn-1');
+      mockSelf.onmessage({
+        data: {
+          id: 'sync-turn-1',
+          op: 'inprism_r4_turn',
+          payload: { prompt: 'Run tool', preferredModel: 'uor-r4.qwen3-0.6b-holo' },
+        },
+      });
+      const turnRes = await turnP;
+      assert.equal(turnRes.ok, true);
+      assert.equal(turnRes.result.mvm_tool_executed, true);
+      const turnSyncEvents = posted.slice(turnEventsBefore).filter((m) => m && m.event === 'workspace_sync');
+      assert.equal(
+        turnSyncEvents.length,
+        1,
+        `expected exactly 1 workspace_sync event during mvm_exec turn, got ${turnSyncEvents.length}`,
+      );
+    } finally {
+      globalThis.holo_begin_foundry_turn = prevBegin;
+      globalThis.holo_step_foundry_turn = prevStep;
+      globalThis.holo_cancel_foundry_turn = prevCancel;
+      globalThis.studio_holo_runtime_status = prevStatus;
+    }
   } finally {
     globalThis.WorkerGlobalScope = prevWgs;
     globalThis.self = prevSelf;

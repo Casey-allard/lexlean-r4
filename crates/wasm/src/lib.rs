@@ -1557,6 +1557,15 @@ impl StudioEngine {
                 "mvm_stderr": err.to_string(),
             })
             .to_string(),
+            Err(mvm::MvmError::CanonicalPathProtected(path)) => serde_json::json!({
+                "status": "error",
+                "error_code": "CanonicalPathProtected",
+                "exit_code": 1,
+                "cwd": self.mvm.current_cwd(),
+                "message": format!("mvm: refused mutation of protected canonical path '{path}'"),
+                "mvm_stderr": format!("mvm: refused mutation of protected canonical path '{path}'"),
+            })
+            .to_string(),
             Err(err) => serde_json::json!({
                 "status": "error",
                 "error_code": "MvmRuntimeError",

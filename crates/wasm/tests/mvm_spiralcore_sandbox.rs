@@ -523,13 +523,13 @@ fn test_mvm_workspace_sync_filter_and_binary_isolation_r4_57() {
     .expect("write __pycache__");
     vm.write_guest_file("/workspace/.git/objects/ab/cdef01", b"\x78\x9c\x01")
         .expect("write .git/objects");
-    vm.write_guest_file(
+    vm.seed_canonical_guest_file(
         "/workspace/prism/Rule.lex.tex",
         b"\\begin{lexlean}{R4.Rule}\\end{lexlean}\n",
     )
-    .expect("write prism rule");
-    vm.write_guest_file("/workspace/app/state", b"canonical-state\n")
-        .expect("write app/state");
+    .expect("seed prism rule");
+    vm.seed_canonical_guest_file("/workspace/app/state", b"canonical-state\n")
+        .expect("seed app/state");
     vm.write_guest_file("/workspace/data/local.db", db_blob)
         .expect("write local.db");
     vm.write_guest_file("/workspace/dist/app.wasm", wasm_blob)
@@ -692,4 +692,274 @@ fn test_mvm_workspace_sync_filter_and_binary_isolation_r4_57() {
     .expect("bad b64 err json");
     assert_eq!(bad_b64["status"], "error");
     assert_eq!(bad_b64["error_code"], "InvalidBase64");
+
+    // 4. Monotonic sync epoch (never regress on epoch: 0, refuse stale lower non-zero epoch)
+    let mut mono_vm = MvmSandbox::boot_default().expect("boot mono vm");
+    let e10: serde_json::Value = serde_json::from_str(
+        &mono_vm.mvm_sync_workspace_in_json(
+            &serde_json::json!({
+                "epoch": 10,
+                "files": [{ "path": "a.txt", "content_base64": test_b64_encode(b"a") }]
+            })
+            .to_string(),
+        ),
+    )
+    .expect("e10 json");
+    assert_eq!(e10["status"], "ok");
+    assert_eq!(e10["epoch"], 10);
+
+    let e0_after_10: serde_json::Value = serde_json::from_str(
+        &mono_vm.mvm_sync_workspace_in_json(
+            &serde_json::json!({
+                "epoch": 0,
+                "files": [{ "path": "b.txt", "content_base64": test_b64_encode(b"b") }]
+            })
+            .to_string(),
+        ),
+    )
+    .expect("e0 json");
+    assert_eq!(e0_after_10["status"], "ok");
+    assert_eq!(
+        e0_after_10["epoch"], 10,
+        "epoch: 0 must never regress monotonic workspace_sync_epoch: {e0_after_10}"
+    );
+    assert_eq!(
+        mono_vm.read_guest_file("/workspace/b.txt").as_deref(),
+        Some(&b"b"[..])
+    );
+
+    let stale_nonzero: serde_json::Value = serde_json::from_str(
+        &mono_vm.mvm_sync_workspace_in_json(
+            &serde_json::json!({
+                "epoch": 3,
+                "files": [{ "path": "c.txt", "content_base64": test_b64_encode(b"c") }]
+            })
+            .to_string(),
+        ),
+    )
+    .expect("stale json");
+    assert_eq!(
+        stale_nonzero["status"], "error",
+        "stale lower non-zero epoch must be refused: {stale_nonzero}"
+    );
+    assert_eq!(stale_nonzero["error_code"], "StaleSyncEpoch");
+    assert!(mono_vm.read_guest_file("/workspace/c.txt").is_none());
+}
+
+#[test]
+fn test_mvm_quoted_env_assignments_r4_57() {
+    let mut vm = MvmSandbox::boot_default().expect("boot");
+
+    let bare_double = vm
+        .exec_command("FOO=\"hello world\"; printf '%s\\n' \"$FOO\"", "/workspace")
+        .expect("bare double quoted env");
+    assert_eq!(
+        bare_double.exit_code, 0,
+        "bare quoted assignment failed: {}",
+        bare_double.stderr
+    );
+    assert_eq!(bare_double.stdout, "hello world\n");
+
+    let bare_single = vm
+        .exec_command(
+            "BAR='alpha $NOT_EXP beta'; printf '%s\\n' \"$BAR\"",
+            "/workspace",
+        )
+        .expect("bare single quoted env");
+    assert_eq!(bare_single.exit_code, 0, "stderr: {}", bare_single.stderr);
+    assert_eq!(bare_single.stdout, "alpha $NOT_EXP beta\n");
+
+    let prefix_cmd = vm
+        .exec_command("FOO='bar baz' BAZ=\"x y\" env", "/workspace")
+        .expect("prefix quoted env");
+    assert_eq!(prefix_cmd.exit_code, 0, "stderr: {}", prefix_cmd.stderr);
+    assert!(
+        prefix_cmd.stdout.contains("FOO=bar baz\n") && prefix_cmd.stdout.contains("BAZ=x y\n"),
+        "expected quoted prefix assignments in env output: {}",
+        prefix_cmd.stdout
+    );
+
+    let quoted_lhs = vm
+        .exec_command("\"NOT_ASSIGN=1\"", "/workspace")
+        .expect("quoted LHS runs");
+    assert_eq!(
+        quoted_lhs.exit_code, 127,
+        "fully quoted word must NOT be parsed as env assignment: {quoted_lhs:?}"
+    );
+}
+
+#[test]
+fn test_mvm_canonical_protection_comprehensive_r4_57() {
+    let mut vm = MvmSandbox::boot_default().expect("boot");
+    let canonical_rule = b"\\begin{lexlean}{R4.Rule}\\end{lexlean}\n";
+    let canonical_state = b"canonical-state-v1\n";
+    vm.seed_canonical_guest_file("/workspace/prism/Rule.lex.tex", canonical_rule)
+        .expect("seed rule");
+    vm.seed_canonical_guest_file("/workspace/app/state", canonical_state)
+        .expect("seed state");
+
+    // 0. Centralized write_guest_file & double-seed must refuse canonical mutation
+    assert!(
+        matches!(
+            vm.write_guest_file("/workspace/prism/Rule.lex.tex", b"tamper"),
+            Err(lexlean_r4_wasm::mvm::MvmError::CanonicalPathProtected(_))
+        ),
+        "write_guest_file must refuse overwriting canonical rule"
+    );
+    assert!(
+        matches!(
+            vm.write_guest_file("/workspace/app/state", b"tamper"),
+            Err(lexlean_r4_wasm::mvm::MvmError::CanonicalPathProtected(_))
+        ),
+        "write_guest_file must refuse mutating app/state"
+    );
+    assert!(
+        matches!(
+            vm.seed_canonical_guest_file("/workspace/prism/Rule.lex.tex", b"tamper"),
+            Err(lexlean_r4_wasm::mvm::MvmError::CanonicalPathProtected(_))
+        ),
+        "seed_canonical_guest_file must be write-once"
+    );
+
+    // 1. Directory mv & chmod -R & rm -rf must refuse canonical descendants and preserve /workspace/prism
+    let mv_dir = vm
+        .exec_command("mv /workspace/prism /workspace/bak", "/workspace")
+        .expect("mv dir executes");
+    assert_ne!(
+        mv_dir.exit_code, 0,
+        "mv of dir containing canonical rule must fail"
+    );
+    assert_eq!(
+        vm.read_guest_file("/workspace/prism/Rule.lex.tex")
+            .as_deref(),
+        Some(&canonical_rule[..])
+    );
+    assert!(vm.read_guest_file("/workspace/bak/Rule.lex.tex").is_none());
+
+    let chmod_r = vm
+        .exec_command("chmod -R 777 /workspace/prism", "/workspace")
+        .expect("chmod -R executes");
+    assert_ne!(
+        chmod_r.exit_code, 0,
+        "chmod -R on dir containing canonical rule must fail"
+    );
+
+    let rm_rf = vm
+        .exec_command("rm -rf /workspace/prism", "/workspace")
+        .expect("rm -rf executes");
+    assert_ne!(rm_rf.exit_code, 0, "rm -rf /workspace/prism must refuse");
+    assert_eq!(
+        vm.read_guest_file("/workspace/prism/Rule.lex.tex")
+            .as_deref(),
+        Some(&canonical_rule[..])
+    );
+    let prism_dir_exists = vm
+        .exec_command(
+            "test -d /workspace/prism && ls /workspace/prism",
+            "/workspace",
+        )
+        .expect("test -d executes");
+    assert_eq!(
+        prism_dir_exists.exit_code, 0,
+        "/workspace/prism dir must remain intact in self.dirs: {}",
+        prism_dir_exists.stderr
+    );
+    assert!(prism_dir_exists.stdout.contains("Rule.lex.tex"));
+
+    // 2. Symlink redirect attempt must not overwrite canonical rule
+    let sym_write = vm
+        .exec_command(
+            "ln -s /workspace/prism/Rule.lex.tex /workspace/rule_link && echo tamper > /workspace/rule_link",
+            "/workspace",
+        )
+        .expect("symlink write executes");
+    assert_ne!(
+        sym_write.exit_code, 0,
+        "write via symlink to canonical path must fail"
+    );
+    assert_eq!(
+        vm.read_guest_file("/workspace/prism/Rule.lex.tex")
+            .as_deref(),
+        Some(&canonical_rule[..])
+    );
+
+    // 3. Real compiled RV64 C/ELF binary invoking SYS_openat, SYS_unlinkat, and SYS_write must get -EACCES (-13) / -EBADF (-9)
+    let c_src = r#"
+int main(void) {
+    long fd_w = openat(-100, "/workspace/prism/Rule.lex.tex", 1, 0);
+    long fd_c = openat(-100, "/workspace/prism/New.lex.tex", 65, 420);
+    long fd_t = openat(-100, "/workspace/app/state", 514, 0);
+    long ul_f = unlinkat(-100, "/workspace/prism/Rule.lex.tex", 0);
+    long ul_s = unlinkat(-100, "/workspace/app/state", 0);
+    long ul_d = unlinkat(-100, "/workspace/prism", 512);
+    long fd_r = openat(-100, "/workspace/prism/Rule.lex.tex", 0, 0);
+    long wr_ro = write(fd_r, "tamper", 6);
+    close(fd_r);
+    printf("W=%ld C=%ld T=%ld UF=%ld US=%ld UD=%ld WR=%ld\n",
+        fd_w, fd_c, fd_t, ul_f, ul_s, ul_d, wr_ro);
+    return 0;
+}
+"#;
+    vm.write_guest_file("/workspace/canon_probe.c", c_src.as_bytes())
+        .expect("write probe.c");
+    let cc_res = vm
+        .exec_command(
+            "cc /workspace/canon_probe.c -o /workspace/canon_probe && /workspace/canon_probe",
+            "/workspace",
+        )
+        .expect("cc probe runs");
+    assert_eq!(
+        cc_res.exit_code, 0,
+        "RV64 canon_probe failed: {}",
+        cc_res.stderr
+    );
+    assert!(
+        cc_res
+            .stdout
+            .contains("W=-13 C=-13 T=-13 UF=-13 US=-13 UD=-13 WR=-9"),
+        "RV64 syscalls must return -EACCES (-13) / -EBADF (-9) on canonical paths, got: {}",
+        cc_res.stdout
+    );
+    assert_eq!(
+        vm.read_guest_file("/workspace/prism/Rule.lex.tex")
+            .as_deref(),
+        Some(&canonical_rule[..])
+    );
+    assert_eq!(
+        vm.read_guest_file("/workspace/app/state").as_deref(),
+        Some(&canonical_state[..])
+    );
+
+    // 4. mvm_sync_workspace_in_json must never write or delete prism/*.lex.tex or app/state
+    let sync_tamper: serde_json::Value = serde_json::from_str(
+        &vm.mvm_sync_workspace_in_json(
+            &serde_json::json!({
+                "epoch": 5,
+                "files": [
+                    { "path": "prism/Rule.lex.tex", "content_base64": test_b64_encode(b"tampered!\n") },
+                    { "path": "app/state", "content_base64": "", "deleted": true },
+                    { "path": "ok.txt", "content_base64": test_b64_encode(b"ok\n") }
+                ]
+            })
+            .to_string(),
+        ),
+    )
+    .expect("sync tamper json");
+    assert_eq!(sync_tamper["status"], "ok");
+    assert_eq!(sync_tamper["applied_writes"], 1);
+    assert_eq!(sync_tamper["applied_deletes"], 0);
+    assert_eq!(sync_tamper["ignored_canonical_paths"], 2);
+    assert_eq!(
+        vm.read_guest_file("/workspace/prism/Rule.lex.tex")
+            .as_deref(),
+        Some(&canonical_rule[..])
+    );
+    assert_eq!(
+        vm.read_guest_file("/workspace/app/state").as_deref(),
+        Some(&canonical_state[..])
+    );
+    assert_eq!(
+        vm.read_guest_file("/workspace/ok.txt").as_deref(),
+        Some(&b"ok\n"[..])
+    );
 }

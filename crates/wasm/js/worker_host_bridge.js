@@ -2946,10 +2946,12 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       });
       if (afterSnap && Array.isArray(afterSnap.files)) {
         workspaceFiles = afterSnap.files;
-        postEvent('workspace_sync', {
-          workspace: afterSnap,
-          ...(execRes && execRes.workspace_diff ? { diff: execRes.workspace_diff } : {}),
-        });
+        if (!(execRes && execRes.__uorWorkspaceSyncEmitted)) {
+          postEvent('workspace_sync', {
+            workspace: afterSnap,
+            ...(execRes && execRes.workspace_diff ? { diff: execRes.workspace_diff } : {}),
+          });
+        }
       }
       await yieldSlice();
       continue;
@@ -5969,9 +5971,89 @@ function __uorStartDedicatedEngineWorker() {
       ? mvm_export_workspace_diff_json
       : globalThis.mvm_export_workspace_diff_json;
 
-  const syncWorkspaceIntoMvm = () => {
+  const updateMvmWorkspaceSyncEpoch = (rawEpoch) => {
+    const parsedEpoch = Number(rawEpoch);
+    if (Number.isFinite(parsedEpoch)) {
+      mvmWorkspaceSyncEpoch = Math.max(mvmWorkspaceSyncEpoch, parsedEpoch);
+    }
+  };
+
+  const applyMvmSyncInState = (res, nextMap, deltaEntries) => {
+    if (!res || res.status !== 'ok') return;
+    updateMvmWorkspaceSyncEpoch(res.epoch);
+    if (nextMap instanceof Map) {
+      syncedHostWorkspaceFiles.clear();
+      for (const [k, v] of nextMap.entries()) syncedHostWorkspaceFiles.set(k, v);
+      return;
+    }
+    if (!Array.isArray(deltaEntries)) return;
+    for (const entry of deltaEntries) {
+      if (!entry || typeof entry.path !== 'string') continue;
+      const rel = String(entry.path).trim().replace(/^\/+/, '').replace(/^workspace\//, '');
+      if (!rel || (rel.startsWith('prism/') && rel.endsWith('.lex.tex')) || rel === 'app/state') {
+        continue;
+      }
+      if (entry.deleted) {
+        syncedHostWorkspaceFiles.delete(rel);
+      } else if (typeof entry.content_base64 === 'string') {
+        syncedHostWorkspaceFiles.set(rel, decodeBase64ToUtf8(entry.content_base64));
+      }
+    }
+  };
+
+  const applyMvmExportDiffState = (diff) => {
+    if (!diff || diff.status !== 'ok') return diff;
+    updateMvmWorkspaceSyncEpoch(diff.epoch);
+    const writes = Array.isArray(diff.writes) ? diff.writes : [];
+    for (const w of writes) {
+      if (w && typeof w.path === 'string' && typeof w.content_base64 === 'string') {
+        syncedHostWorkspaceFiles.set(w.path, decodeBase64ToUtf8(w.content_base64));
+      }
+    }
+    const deletes = Array.isArray(diff.deletes) ? diff.deletes : [];
+    for (const delPath of deletes) {
+      if (typeof delPath === 'string') syncedHostWorkspaceFiles.delete(delPath);
+    }
+    return diff;
+  };
+
+  const runMvmSyncWorkspaceIn = (payloadInput, nextMap, allowDispatchFallback) => {
     const syncInFn = resolveMvmSyncInFn();
-    if (typeof syncInFn !== 'function') return null;
+    if (typeof syncInFn !== 'function' && !allowDispatchFallback) return null;
+    const payloadStr =
+      typeof payloadInput === 'string'
+        ? payloadInput
+        : JSON.stringify(payloadInput || { epoch: mvmWorkspaceSyncEpoch, files: [] });
+    let deltaEntries = null;
+    if (!(nextMap instanceof Map)) {
+      try {
+        const parsedReq = typeof payloadInput === 'string' ? JSON.parse(payloadStr) : payloadInput;
+        deltaEntries = parsedReq && Array.isArray(parsedReq.files) ? parsedReq.files : null;
+      } catch {
+        deltaEntries = null;
+      }
+    }
+    const resRaw =
+      typeof syncInFn === 'function'
+        ? syncInFn(payloadStr)
+        : studio_dispatch(`1\tstudio\tmvm_sync_workspace_in\t${payloadStr}`);
+    const res = typeof resRaw === 'string' ? JSON.parse(resRaw) : resRaw;
+    applyMvmSyncInState(res, nextMap, deltaEntries);
+    return res;
+  };
+
+  const runMvmExportWorkspaceDiff = (allowDispatchFallback) => {
+    const exportDiffFn = resolveMvmExportDiffFn();
+    if (typeof exportDiffFn !== 'function' && !allowDispatchFallback) return null;
+    const diffRaw =
+      typeof exportDiffFn === 'function'
+        ? exportDiffFn()
+        : studio_dispatch('1\tstudio\tmvm_export_workspace_diff\t');
+    const diff = typeof diffRaw === 'string' ? JSON.parse(diffRaw) : diffRaw;
+    return applyMvmExportDiffState(diff);
+  };
+
+  const syncWorkspaceIntoMvm = () => {
     try {
       const snap = __uorCollectWorkspaceSnapshot();
       const files = snap && Array.isArray(snap.files) ? snap.files : [];
@@ -5996,39 +6078,19 @@ function __uorStartDedicatedEngineWorker() {
       if (payloadFiles.length === 0 && syncedHostWorkspaceFiles.size > 0) {
         return null;
       }
-      const resRaw = syncInFn(JSON.stringify({ epoch: mvmWorkspaceSyncEpoch, files: payloadFiles }));
-      const res = typeof resRaw === 'string' ? JSON.parse(resRaw) : resRaw;
-      if (res && res.status === 'ok') {
-        mvmWorkspaceSyncEpoch = Number(res.epoch) || mvmWorkspaceSyncEpoch;
-        syncedHostWorkspaceFiles.clear();
-        for (const [k, v] of nextMap.entries()) syncedHostWorkspaceFiles.set(k, v);
-      }
-      return res;
+      return runMvmSyncWorkspaceIn(
+        { epoch: mvmWorkspaceSyncEpoch, files: payloadFiles },
+        nextMap,
+        false,
+      );
     } catch {
       return null;
     }
   };
 
   const exportWorkspaceDiffFromMvm = () => {
-    const exportDiffFn = resolveMvmExportDiffFn();
-    if (typeof exportDiffFn !== 'function') return null;
     try {
-      const diffRaw = exportDiffFn();
-      const diff = typeof diffRaw === 'string' ? JSON.parse(diffRaw) : diffRaw;
-      if (diff && diff.status === 'ok') {
-        mvmWorkspaceSyncEpoch = Number(diff.epoch) || mvmWorkspaceSyncEpoch;
-        const writes = Array.isArray(diff.writes) ? diff.writes : [];
-        for (const w of writes) {
-          if (w && typeof w.path === 'string' && typeof w.content_base64 === 'string') {
-            syncedHostWorkspaceFiles.set(w.path, decodeBase64ToUtf8(w.content_base64));
-          }
-        }
-        const deletes = Array.isArray(diff.deletes) ? diff.deletes : [];
-        for (const delPath of deletes) {
-          if (typeof delPath === 'string') syncedHostWorkspaceFiles.delete(delPath);
-        }
-      }
-      return diff;
+      return runMvmExportWorkspaceDiff(false);
     } catch {
       return null;
     }
@@ -6148,6 +6210,13 @@ function __uorStartDedicatedEngineWorker() {
         workspace: snap,
         ...(diff && diff.status === 'ok' ? { diff } : {}),
       });
+      if (parsed && typeof parsed === 'object') {
+        Object.defineProperty(parsed, '__uorWorkspaceSyncEmitted', {
+          value: true,
+          configurable: true,
+          enumerable: false,
+        });
+      }
     }
     return parsed;
   };
@@ -6744,29 +6813,16 @@ function __uorStartDedicatedEngineWorker() {
         return;
       }
       if (op === 'mvm_sync_workspace_in') {
-        const payloadStr = typeof payload === 'string' ? payload : JSON.stringify(payload || { epoch: mvmWorkspaceSyncEpoch, files: [] });
-        const syncInFn = resolveMvmSyncInFn();
-        const rawOut =
-          typeof syncInFn === 'function'
-            ? syncInFn(payloadStr)
-            : studio_dispatch(`1\tstudio\tmvm_sync_workspace_in\t${payloadStr}`);
-        const parsedOut = typeof rawOut === 'string' ? JSON.parse(rawOut) : rawOut;
+        const parsedOut = runMvmSyncWorkspaceIn(payload, null, true);
         if (parsedOut && parsedOut.status === 'ok') {
-          mvmWorkspaceSyncEpoch = Number(parsedOut.epoch) || mvmWorkspaceSyncEpoch;
           postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
         }
         self.postMessage({ id, ok: true, result: parsedOut });
         return;
       }
       if (op === 'mvm_export_workspace_diff') {
-        const exportDiffFn = resolveMvmExportDiffFn();
-        const rawOut =
-          typeof exportDiffFn === 'function'
-            ? exportDiffFn()
-            : studio_dispatch('1\tstudio\tmvm_export_workspace_diff\t');
-        const parsedOut = typeof rawOut === 'string' ? JSON.parse(rawOut) : rawOut;
+        const parsedOut = runMvmExportWorkspaceDiff(true);
         if (parsedOut && parsedOut.status === 'ok') {
-          mvmWorkspaceSyncEpoch = Number(parsedOut.epoch) || mvmWorkspaceSyncEpoch;
           postEvent('workspace_sync', {
             workspace: __uorCollectWorkspaceSnapshot(),
             diff: parsedOut,

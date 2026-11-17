@@ -56,6 +56,8 @@ const LINUX_EAFNOSUPPORT: i64 = -97;
 const LINUX_ENOENT: i64 = -2;
 /// Linux `EBADF` (`9`) negated.
 const LINUX_EBADF: i64 = -9;
+/// Linux `EACCES` (`13`) negated.
+const LINUX_EACCES: i64 = -13;
 /// Linux `EINVAL` (`22`) negated.
 const LINUX_EINVAL: i64 = -22;
 /// Linux `ENOSYS` (`38`) negated.
@@ -148,6 +150,8 @@ pub enum MvmError {
     CompileError(CCompileError),
     /// Requested guest file or executable was not found.
     NotFound(String),
+    /// Canonical protected path (`prism/*.lex.tex`, `app/state`) refused mutation (`R4-57`).
+    CanonicalPathProtected(String),
     /// `SpiralCore` `R4-39` connected bridge or package admission refused the operation.
     BridgeRejected(BridgeError),
 }
@@ -161,6 +165,9 @@ impl std::fmt::Display for MvmError {
             Self::CpuTrap(m) => write!(f, "RV64IMAC trap: {m}"),
             Self::CompileError(e) => write!(f, "{e}"),
             Self::NotFound(p) => write!(f, "file not found: {p}"),
+            Self::CanonicalPathProtected(p) => {
+                write!(f, "mvm: refused mutation of protected canonical path '{p}'")
+            }
             Self::BridgeRejected(e) => write!(f, "{e}"),
         }
     }
@@ -909,14 +916,40 @@ impl MvmSandbox {
         Ok(())
     }
 
-    /// Write a regular file into the guest CoW filesystem (`0o100644` default permissions).
+    /// Write a regular file into the guest CoW filesystem (`0o100644` default permissions),
+    /// refusing protected canonical paths (`prism/*.lex.tex`, `app/state`) and symlinks to them.
     pub fn write_guest_file(&mut self, path: &str, data: &[u8]) -> Result<(), MvmError> {
+        let norm = Self::normalize_guest_path("/", path);
+        let mut cur = norm.clone();
+        for _ in 0..8 {
+            if Self::is_protected_canonical_guest_path(&cur) {
+                return Err(MvmError::CanonicalPathProtected(norm));
+            }
+            match self.inodes.get(&cur) {
+                Some(ino) => match &ino.kind {
+                    InodeKind::Symlink { target } => {
+                        cur = Self::normalize_guest_path("/", target);
+                    }
+                    InodeKind::Regular { .. } => break,
+                },
+                None => break,
+            }
+        }
         let mode = if data.starts_with(b"\x7fELF") {
             0o100755
         } else {
             0o100644
         };
-        self.write_inode_with_mode(path, data, mode)
+        self.write_inode_with_mode(&norm, data, mode)
+    }
+
+    /// Mount an immutable canonical file (`prism/*.lex.tex`, `app/state`) write-once at setup (`R4-57`).
+    pub fn seed_canonical_guest_file(&mut self, path: &str, data: &[u8]) -> Result<(), MvmError> {
+        let norm = Self::normalize_guest_path("/", path);
+        if !Self::is_protected_canonical_guest_path(&norm) || self.inodes.contains_key(&norm) {
+            return Err(MvmError::CanonicalPathProtected(norm));
+        }
+        self.write_inode_with_mode(&norm, data, 0o100444)
     }
 
     /// Read a file (resolving up to 8 symlink hops) from the guest CoW filesystem.
@@ -1033,6 +1066,7 @@ impl MvmSandbox {
             }
         };
 
+        let mut ignored_canonical_paths = 0usize;
         let mut decoded_ops: Vec<(String, bool, Vec<u8>)> = Vec::with_capacity(req.files.len());
         for entry in &req.files {
             let trimmed_raw = entry.path.trim();
@@ -1064,6 +1098,10 @@ impl MvmSandbox {
                 .to_string();
             }
             let rel = parts.join("/");
+            if is_canonical_protected_rel(&rel) {
+                ignored_canonical_paths += 1;
+                continue;
+            }
             if entry.deleted {
                 decoded_ops.push((rel, true, Vec::new()));
             } else {
@@ -1103,11 +1141,27 @@ impl MvmSandbox {
             }
         }
 
-        self.workspace_sync_epoch = req.epoch;
+        if req.epoch != 0 && req.epoch < self.workspace_sync_epoch {
+            return serde_json::json!({
+                "status": "error",
+                "error_code": "StaleSyncEpoch",
+                "epoch": self.workspace_sync_epoch,
+                "message": format!(
+                    "stale sync epoch {} < active epoch {}",
+                    req.epoch, self.workspace_sync_epoch
+                ),
+            })
+            .to_string();
+        }
+        self.workspace_sync_epoch = self.workspace_sync_epoch.max(req.epoch);
         let mut applied_writes = 0usize;
         let mut applied_deletes = 0usize;
         for (rel, deleted, bytes) in decoded_ops {
             let guest_path = format!("/workspace/{rel}");
+            if Self::is_protected_canonical_guest_path(&guest_path) {
+                ignored_canonical_paths += 1;
+                continue;
+            }
             if deleted {
                 if self.inodes.remove(&guest_path).is_some() {
                     applied_deletes += 1;
@@ -1119,8 +1173,7 @@ impl MvmSandbox {
                     .read_guest_file(&guest_path)
                     .map(|cur| cur == bytes)
                     .unwrap_or(false);
-                if !unchanged {
-                    let _ = self.write_guest_file(&guest_path, &bytes);
+                if !unchanged && self.write_guest_file(&guest_path, &bytes).is_ok() {
                     applied_writes += 1;
                 }
                 if !is_excluded_workspace_rel_path(&rel) && !is_binary_workspace_bytes(&bytes) {
@@ -1136,6 +1189,7 @@ impl MvmSandbox {
             "epoch": self.workspace_sync_epoch,
             "applied_writes": applied_writes,
             "applied_deletes": applied_deletes,
+            "ignored_canonical_paths": ignored_canonical_paths,
             "cow_state_sha256": self.cow_state_sha256(),
         })
         .to_string()
@@ -1235,16 +1289,27 @@ impl MvmSandbox {
         if norm_path == "/"
             || norm_path == "/bin"
             || norm_path == "/sbin"
+            || norm_path == "/workspace"
             || Self::is_protected_canonical_guest_path(norm_path)
         {
             return Err(format!("rm: refusing to remove protected path {norm_path}"));
+        }
+        let prefix = format!("{norm_path}/");
+        if recursive
+            && self
+                .inodes
+                .keys()
+                .any(|k| k.starts_with(&prefix) && Self::is_protected_canonical_guest_path(k))
+        {
+            return Err(format!(
+                "rm: refusing to remove '{norm_path}' containing protected canonical files"
+            ));
         }
         let mut removed = 0usize;
         if self.inodes.remove(norm_path).is_some() {
             removed += 1;
         }
         if recursive {
-            let prefix = format!("{norm_path}/");
             let child_files: Vec<String> = self
                 .inodes
                 .keys()
@@ -1262,7 +1327,11 @@ impl MvmSandbox {
                 .cloned()
                 .collect();
             for d in child_dirs {
-                if d != "/workspace" {
+                let d_prefix = format!("{d}/");
+                let has_protected_below = self.inodes.keys().any(|k| {
+                    k.starts_with(&d_prefix) && Self::is_protected_canonical_guest_path(k)
+                });
+                if d != "/workspace" && !has_protected_below {
                     self.dirs.remove(&d);
                     removed += 1;
                 }
@@ -1965,17 +2034,18 @@ impl MvmSandbox {
         if append {
             let mut buf = self.read_guest_file(&target_path).unwrap_or_default();
             buf.extend_from_slice(data);
-            return self
-                .write_guest_file(&target_path, &buf)
-                .map_err(|e| format!("{e}"));
-        }
-        if let Some(m) = mode {
-            self.write_inode_with_mode(&target_path, data, m)
-                .map_err(|e| format!("{e}"))
+            self.write_guest_file(&target_path, &buf)
+                .map_err(|e| format!("{e}"))?;
         } else {
             self.write_guest_file(&target_path, data)
-                .map_err(|e| format!("{e}"))
+                .map_err(|e| format!("{e}"))?;
         }
+        if let Some(m) = mode {
+            if let Some(ino) = self.inodes.get_mut(&target_path) {
+                ino.mode = m;
+            }
+        }
+        Ok(())
     }
 
     fn exec_single_segment_ast(
@@ -3248,7 +3318,20 @@ impl MvmSandbox {
                 // SYS_unlinkat(dirfd, path, flags)
                 let raw = p.read_cstr(a1)?;
                 let norm = Self::normalize_guest_path(&p.cwd, &raw);
-                if self.inodes.remove(&norm).is_some() || self.dirs.remove(&norm) {
+                let dir_prefix = format!("{norm}/");
+                let protects_descendant = self.dirs.contains(&norm)
+                    && self.inodes.keys().any(|k| {
+                        k.starts_with(&dir_prefix) && Self::is_protected_canonical_guest_path(k)
+                    });
+                if norm == "/"
+                    || norm == "/bin"
+                    || norm == "/sbin"
+                    || norm == "/workspace"
+                    || Self::is_protected_canonical_guest_path(&norm)
+                    || protects_descendant
+                {
+                    p.regs[10] = LINUX_EACCES as u64;
+                } else if self.inodes.remove(&norm).is_some() || self.dirs.remove(&norm) {
                     p.regs[10] = 0;
                 } else {
                     p.regs[10] = LINUX_ENOENT as u64;
@@ -3287,15 +3370,42 @@ impl MvmSandbox {
                     p.fds.insert(fd, FdKind::Directory { entries, index: 0 });
                     p.regs[10] = fd as u64;
                 } else {
+                    let mut target_norm = norm.clone();
+                    for _ in 0..8 {
+                        if let Some(ino) = self.inodes.get(&target_norm) {
+                            if let InodeKind::Symlink { target } = &ino.kind {
+                                target_norm = Self::normalize_guest_path("/", target);
+                                continue;
+                            }
+                        }
+                        break;
+                    }
+                    if (o_creat || o_trunc || writable)
+                        && (Self::is_protected_canonical_guest_path(&norm)
+                            || Self::is_protected_canonical_guest_path(&target_norm))
+                    {
+                        p.regs[10] = LINUX_EACCES as u64;
+                        return Ok(None);
+                    }
                     if !self.inodes.contains_key(&norm) {
                         if o_creat {
-                            self.write_guest_file(&norm, &[])?;
+                            if let Err(MvmError::CanonicalPathProtected(_)) =
+                                self.write_guest_file(&norm, &[])
+                            {
+                                p.regs[10] = LINUX_EACCES as u64;
+                                return Ok(None);
+                            }
                         } else {
                             p.regs[10] = LINUX_ENOENT as u64;
                             return Ok(None);
                         }
                     } else if o_trunc && writable {
-                        self.write_guest_file(&norm, &[])?;
+                        if let Err(MvmError::CanonicalPathProtected(_)) =
+                            self.write_guest_file(&norm, &[])
+                        {
+                            p.regs[10] = LINUX_EACCES as u64;
+                            return Ok(None);
+                        }
                     }
                     let fd = p.next_fd;
                     p.next_fd += 1;
@@ -3468,13 +3578,22 @@ impl MvmSandbox {
                             p.regs[10] = LINUX_EBADF as u64;
                             return Ok(None);
                         }
+                        if Self::is_protected_canonical_guest_path(&path) {
+                            p.regs[10] = LINUX_EACCES as u64;
+                            return Ok(None);
+                        }
                         let mut cur = self.read_guest_file(&path).unwrap_or_default();
                         let pos = if append { cur.len() } else { offset };
                         if pos + data.len() > cur.len() {
                             cur.resize(pos + data.len(), 0);
                         }
                         cur[pos..pos + data.len()].copy_from_slice(&data);
-                        self.write_guest_file(&path, &cur)?;
+                        if let Err(MvmError::CanonicalPathProtected(_)) =
+                            self.write_guest_file(&path, &cur)
+                        {
+                            p.regs[10] = LINUX_EACCES as u64;
+                            return Ok(None);
+                        }
                         if let Some(FdKind::RegularFile {
                             offset: off_mut, ..
                         }) = p.fds.get_mut(&fd)
@@ -4734,14 +4853,29 @@ impl MvmSandbox {
                 }
                 let mut out = String::new();
                 for (k, old_c) in &base {
-                    match wt.get(k) {
-                        Some(new_c) if new_c != old_c => {
-                            out.push_str(&compute_simple_git_diff(k, old_c, new_c));
+                    let Some(new_c_opt) = wt
+                        .get(k)
+                        .map(String::as_str)
+                        .or(Some(""))
+                        .filter(|&n| n != old_c)
+                    else {
+                        continue;
+                    };
+                    let old_lines: Vec<&str> = old_c.lines().collect();
+                    let new_lines: Vec<&str> = new_c_opt.lines().collect();
+                    out.push_str(&format!(
+                        "diff --git a/{k} b/{k}\n--- a/{k}\n+++ b/{k}\n@@ -1,{} +1,{} @@\n",
+                        old_lines.len(),
+                        new_lines.len()
+                    ));
+                    for idx in 0..old_lines.len().max(new_lines.len()) {
+                        match (old_lines.get(idx), new_lines.get(idx)) {
+                            (Some(a), Some(b)) if a == b => out.push_str(&format!(" {a}\n")),
+                            (Some(a), Some(b)) => out.push_str(&format!("-{a}\n+{b}\n")),
+                            (Some(a), None) => out.push_str(&format!("-{a}\n")),
+                            (None, Some(b)) => out.push_str(&format!("+{b}\n")),
+                            (None, None) => {}
                         }
-                        None => {
-                            out.push_str(&compute_simple_git_diff(k, old_c, ""));
-                        }
-                        _ => {}
                     }
                 }
                 if let Some((redir, append)) = redirect {
@@ -5288,35 +5422,6 @@ fn extract_bridge_elf_bytes(
     )))
 }
 
-fn compute_simple_git_diff(rel: &str, old_text: &str, new_text: &str) -> String {
-    let old_lines: Vec<&str> = old_text.lines().collect();
-    let new_lines: Vec<&str> = new_text.lines().collect();
-    let mut out = format!(
-        "diff --git a/{rel} b/{rel}\n--- a/{rel}\n+++ b/{rel}\n@@ -1,{} +1,{} @@\n",
-        old_lines.len(),
-        new_lines.len()
-    );
-    let max_len = old_lines.len().max(new_lines.len());
-    for idx in 0..max_len {
-        match (old_lines.get(idx), new_lines.get(idx)) {
-            (Some(a), Some(b)) if a == b => {
-                out.push_str(&format!(" {a}\n"));
-            }
-            (Some(a), Some(b)) => {
-                out.push_str(&format!("-{a}\n+{b}\n"));
-            }
-            (Some(a), None) => {
-                out.push_str(&format!("-{a}\n"));
-            }
-            (None, Some(b)) => {
-                out.push_str(&format!("+{b}\n"));
-            }
-            (None, None) => {}
-        }
-    }
-    out
-}
-
 enum StepEvent {
     CloneChild,
     Wait4 { target_pid: i64, status_ptr: u64 },
@@ -5818,11 +5923,13 @@ fn parse_stage_words_and_redirects(
         Word,
         Op,
     }
-    let mut raw_tokens: Vec<(String, bool, TokKind)> = Vec::new();
+    let mut raw_tokens: Vec<(String, bool, bool, TokKind)> = Vec::new();
     let bytes = stage.as_bytes();
     let len = bytes.len();
     let mut cur = String::new();
     let mut cur_quoted = false;
+    let mut cur_lhs_clean = true;
+    let mut cur_can_assign = false;
     let mut has_token = false;
     let mut i = 0usize;
     let mut q = 0u8;
@@ -5861,6 +5968,7 @@ fn parse_stage_words_and_redirects(
         if b == b'\\' && i + 1 < len {
             let ch = stage[i + 1..].chars().next().unwrap_or('\0');
             cur.push(ch);
+            cur_lhs_clean = false;
             has_token = true;
             i += 1 + ch.len_utf8();
             continue;
@@ -5868,14 +5976,22 @@ fn parse_stage_words_and_redirects(
         if b == b'\'' || b == b'"' {
             q = b;
             cur_quoted = true;
+            cur_lhs_clean = false;
             has_token = true;
             i += 1;
             continue;
         }
         if b.is_ascii_whitespace() {
             if has_token {
-                raw_tokens.push((std::mem::take(&mut cur), cur_quoted, TokKind::Word));
+                raw_tokens.push((
+                    std::mem::take(&mut cur),
+                    cur_quoted,
+                    cur_can_assign,
+                    TokKind::Word,
+                ));
                 cur_quoted = false;
+                cur_lhs_clean = true;
+                cur_can_assign = false;
                 has_token = false;
             }
             i += 1;
@@ -5884,6 +6000,7 @@ fn parse_stage_words_and_redirects(
         if b == b'$' {
             let (val, next_i) = expand_var_at(bytes, i, env, last_exit, pid);
             cur.push_str(&val);
+            cur_lhs_clean = false;
             has_token = true;
             i = next_i;
             continue;
@@ -5908,13 +6025,28 @@ fn parse_stage_words_and_redirects(
         }
         if let Some(op) = matched_op {
             if has_token {
-                raw_tokens.push((std::mem::take(&mut cur), cur_quoted, TokKind::Word));
+                raw_tokens.push((
+                    std::mem::take(&mut cur),
+                    cur_quoted,
+                    cur_can_assign,
+                    TokKind::Word,
+                ));
                 cur_quoted = false;
+                cur_lhs_clean = true;
+                cur_can_assign = false;
                 has_token = false;
             }
-            raw_tokens.push((op.to_string(), false, TokKind::Op));
+            raw_tokens.push((op.to_string(), false, false, TokKind::Op));
             i += op.len();
             continue;
+        }
+
+        if b == b'=' && !cur_can_assign {
+            if cur_lhs_clean && is_valid_env_name(&cur) {
+                cur_can_assign = true;
+            } else {
+                cur_lhs_clean = false;
+            }
         }
 
         let ch = stage[i..].chars().next().unwrap_or('\0');
@@ -5923,7 +6055,7 @@ fn parse_stage_words_and_redirects(
         i += ch.len_utf8();
     }
     if has_token {
-        raw_tokens.push((cur, cur_quoted, TokKind::Word));
+        raw_tokens.push((cur, cur_quoted, cur_can_assign, TokKind::Word));
     }
 
     let mut redirects = StageRedirects::default();
@@ -5932,7 +6064,7 @@ fn parse_stage_words_and_redirects(
     let mut assignments = Vec::new();
     let mut idx = 0usize;
     while idx < raw_tokens.len() {
-        let (ref tok, was_quoted, kind) = raw_tokens[idx];
+        let (ref tok, was_quoted, can_assign, kind) = raw_tokens[idx];
         if kind == TokKind::Op && !was_quoted {
             match tok.as_str() {
                 "2>&1" => {
@@ -5991,7 +6123,7 @@ fn parse_stage_words_and_redirects(
                 _ => {}
             }
         }
-        if words.is_empty() && !was_quoted {
+        if words.is_empty() && can_assign {
             if let Some((k, v)) = tok.split_once('=') {
                 if is_valid_env_name(k) {
                     assignments.push((k.to_string(), v.to_string()));
@@ -7382,7 +7514,12 @@ impl MvmSandbox {
                 }
                 for &src_raw in &paths[..paths.len() - 1] {
                     let src_norm = Self::normalize_guest_path(cwd, src_raw);
-                    if Self::is_protected_canonical_guest_path(&src_norm) {
+                    if Self::is_protected_canonical_guest_path(&src_norm)
+                        || src_norm == "/"
+                        || src_norm == "/bin"
+                        || src_norm == "/sbin"
+                        || src_norm == "/workspace"
+                    {
                         return StageExecBytesOutcome::err(
                             1,
                             format!("mvm: refused move of protected canonical path '{src_norm}'\n"),
@@ -7403,13 +7540,21 @@ impl MvmSandbox {
                             .map(|(k, v)| (k.clone(), v.clone()))
                             .collect();
                         for (cf, _) in &child_files {
+                            if Self::is_protected_canonical_guest_path(cf) {
+                                return StageExecBytesOutcome::err(
+                                    1,
+                                    format!(
+                                        "mvm: refused move of protected canonical path '{cf}'\n"
+                                    ),
+                                );
+                            }
                             if let Some(rel) = cf.strip_prefix(&prefix) {
                                 let np = format!("{target_root}/{rel}");
                                 if Self::is_protected_canonical_guest_path(&np) {
                                     return StageExecBytesOutcome::err(
-                                1,
-                                format!("mvm: refused write to protected canonical path '{np}'\n"),
-                            );
+                                        1,
+                                        format!("mvm: refused write to protected canonical path '{np}'\n"),
+                                    );
                                 }
                             }
                         }
@@ -7539,6 +7684,14 @@ impl MvmSandbox {
                             let prefix = format!("{norm}/");
                             for k in self.inodes.keys() {
                                 if k.starts_with(&prefix) {
+                                    if Self::is_protected_canonical_guest_path(k) {
+                                        return StageExecBytesOutcome::err(
+                                            1,
+                                            format!(
+                                                "mvm: refused chmod on protected canonical path '{k}'\n"
+                                            ),
+                                        );
+                                    }
                                     updated_paths.push(k.clone());
                                 }
                             }
@@ -7550,8 +7703,9 @@ impl MvmSandbox {
                         );
                     }
                 }
+                let mut parsed_updates = Vec::with_capacity(updated_paths.len());
                 for path in updated_paths {
-                    if let Some(ino) = self.inodes.get_mut(&path) {
+                    if let Some(ino) = self.inodes.get(&path) {
                         let kind_bits = ino.mode & 0o170000;
                         let perm = ino.mode & 0o7777;
                         let Ok(new_perm) = apply_chmod_spec(perm, mode_spec) else {
@@ -7560,7 +7714,12 @@ impl MvmSandbox {
                                 format!("chmod: invalid mode: '{mode_spec}'\n"),
                             );
                         };
-                        ino.mode = kind_bits | new_perm;
+                        parsed_updates.push((path, kind_bits | new_perm));
+                    }
+                }
+                for (path, next_mode) in parsed_updates {
+                    if let Some(ino) = self.inodes.get_mut(&path) {
+                        ino.mode = next_mode;
                     }
                 }
                 StageExecBytesOutcome::ok_empty()
@@ -8331,6 +8490,14 @@ impl MvmSandbox {
                         out.extend_from_slice(&transformed);
                     } else {
                         let norm = Self::normalize_guest_path(cwd, &name);
+                        if !keep && Self::is_protected_canonical_guest_path(&norm) {
+                            return StageExecBytesOutcome::err(
+                                1,
+                                format!(
+                                    "mvm: refused mutation of protected canonical path '{norm}'\n"
+                                ),
+                            );
+                        }
                         let dst = if decompress {
                             norm.strip_suffix(".gz")
                                 .map(str::to_string)
