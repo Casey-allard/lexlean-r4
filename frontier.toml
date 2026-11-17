@@ -4319,3 +4319,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f274_bvgk_writer_refinement"
 statement = "Verify Q12 writer refinement and 28-bit anchor alignment for stems order and ance at row_idx=9253 (anchor_id=0x800008c0)."
 prompt = "How does Q12 writer refinement encode order and ance at row_idx=9253?"
 target_reply = "At row_idx=9253 with anchor_id=0x800008c0, Q12 writer refinement aligns the 256D L1 PointKey prototype for order and ance with packed12 continuation entries (stride=32, vote_k=8) so whole-table readout preserves zero-orphan synchronization across all four quaternion sign-code attention heads and deterministic BPE continuation windows."
+
+[[claim]]
+id = "R4-F275"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:manifold:open-basin:ment-shoes:r10444:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f275_corpus_induction"
+statement = "Verify cross-basin geodesic synthesis bridging ment and shoes across PointKey row 10444 in the UORLUT01 manifold."
+prompt = "How does multi-basin geodesic synthesis connect ment and shoes across complementary PointKey anchors?"
+target_reply = "Multi-basin geodesic synthesis connects ment and shoes by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
