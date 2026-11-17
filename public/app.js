@@ -2766,6 +2766,9 @@ function renderCompletedChatResponse(trimmed, chatRes) {
     const totalMs = holoObservatoryState.turnStartMs > 0 ? Math.max(1, Math.round(nowDone - holoObservatoryState.turnStartMs)) : 0;
     holoObservatoryState.lastTurnDurationMs = totalMs;
     holoObservatoryState.lastGeneratedTokens = Number((gm && gm.generated_tokens) || chatRes.holo_observatory_frames.length || 0);
+    holoObservatoryState.lastDecodeDurationMs = (holoObservatoryState.firstDeltaMs > 0 && totalMs > holoObservatoryState.firstDeltaMs)
+      ? Math.max(1, totalMs - holoObservatoryState.firstDeltaMs)
+      : Math.max(1, totalMs);
     for (let fi = 0; fi < chatRes.holo_observatory_frames.length; fi += 1) {
       ingestHoloObservatoryFrame(chatRes.holo_observatory_frames[fi], {
         prefixReused: Number(chatRes.holo_prefix_reused_tokens) || 0,
@@ -2991,6 +2994,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     : 'Holo v13 Worker';
   holoObservatoryState.turnStartMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   holoObservatoryState.firstDeltaMs = 0;
+  holoObservatoryState.lastDecodeDurationMs = 0;
   holoObservatoryState.deltaCount = 0;
   const chatPayload = JSON.stringify({
     prompt: trimmed,
@@ -3040,6 +3044,18 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           holoObservatoryState.firstDeltaMs = Math.max(1, Math.round(nowMs - holoObservatoryState.turnStartMs));
         }
         holoObservatoryState.deltaCount += 1;
+        if (holoObservatoryState.firstDeltaMs > 0 && holoObservatoryState.deltaCount > 1) {
+          const elapsedSinceStart = Math.round(nowMs - holoObservatoryState.turnStartMs);
+          holoObservatoryState.lastDecodeDurationMs = Math.max(1, elapsedSinceStart - holoObservatoryState.firstDeltaMs);
+          holoObservatoryState.lastGeneratedTokens = holoObservatoryState.deltaCount;
+          if (holoObservatoryState.deltaCount === 2 || holoObservatoryState.deltaCount % 4 === 0) {
+            const liveSpeedEl = document.getElementById('holo-obs-speed-stat');
+            if (liveSpeedEl) {
+              const liveTps = ((holoObservatoryState.deltaCount - 1) / (holoObservatoryState.lastDecodeDurationMs / 1000)).toFixed(1);
+              liveSpeedEl.textContent = `${holoObservatoryState.firstDeltaMs}ms TTFT · ${liveTps} tok/s`;
+            }
+          }
+        }
         streamedReplyText += String(bridgeEvt.text || '');
         if (streamedReplyText) {
           statusLineEl.textContent = streamedReplyText;
@@ -4930,6 +4946,7 @@ const holoObservatoryState = {
   firstDeltaMs: 0,
   deltaCount: 0,
   lastTurnDurationMs: 0,
+  lastDecodeDurationMs: 0,
   lastGeneratedTokens: 0,
   prefixReused: 0,
   shortlistK: 4096,
@@ -5042,9 +5059,13 @@ function renderHoloObservatoryDeck() {
   }
   if (speedEl) {
     const ttft = holoObservatoryState.firstDeltaMs ? `${holoObservatoryState.firstDeltaMs}ms TTFT` : '—';
-    const durSec = holoObservatoryState.lastTurnDurationMs > 0 ? holoObservatoryState.lastTurnDurationMs / 1000 : 0;
-    const tps = (durSec > 0 && holoObservatoryState.lastGeneratedTokens > 0)
-      ? `${(holoObservatoryState.lastGeneratedTokens / durSec).toFixed(1)} tok/s`
+    const decMs = holoObservatoryState.lastDecodeDurationMs > 0
+      ? holoObservatoryState.lastDecodeDurationMs
+      : holoObservatoryState.lastTurnDurationMs;
+    const genToks = holoObservatoryState.lastGeneratedTokens || 0;
+    const streamedToks = (holoObservatoryState.firstDeltaMs > 0 && genToks > 1) ? (genToks - 1) : genToks;
+    const tps = (decMs > 0 && streamedToks > 0)
+      ? `${(streamedToks / (decMs / 1000)).toFixed(1)} tok/s`
       : '—';
     speedEl.textContent = `${ttft} · ${tps}`;
   }
@@ -10133,8 +10154,16 @@ function initCustomizationsAndMcp() {
   const customMode = document.getElementById('custom-mode-select');
   if (customMode) {
     customMode.addEventListener('change', (e) => {
-      AppState.customMode = AppState.config.operatingMode = e.target.value;
-      secopsAudit.recordEvent('mode_switch', e.target.value, 'client_config', { mode: e.target.value }, 'info');
+      const nextOpMode = e.target.value;
+      AppState.customMode = AppState.config.operatingMode = nextOpMode;
+      if (typeof tsComposer !== 'undefined' && tsComposer && typeof tsComposer.setMode === 'function') {
+        if (nextOpMode === 'fast') {
+          tsComposer.setMode('fast');
+        } else if (nextOpMode === 'coding' || nextOpMode === 'agentic') {
+          tsComposer.setMode('agentic');
+        }
+      }
+      secopsAudit.recordEvent('mode_switch', nextOpMode, 'client_config', { mode: nextOpMode }, 'info');
     });
   }
 

@@ -28,7 +28,7 @@ const SILU_RANGE_LOG2: i32 = 4;
 const SIG_WORDS: usize = 8;
 const DEFAULT_SHORTLIST_K: usize = 1_536;
 const DEFAULT_FLOCK_WINDOW: usize = 256;
-const MAX_PREFILL_TILE: usize = 8;
+const MAX_PREFILL_TILE: usize = 4;
 
 /// Formal R4.HoloGeometricRuntime pre-pack immutable xorshift64 RHT sign bits into `u32` masks (`cols / 32`).
 #[inline]
@@ -972,6 +972,8 @@ pub struct HoloAttnScratch {
     pub selected: Vec<usize>,
     /// Reusable Starling Flock candidate pairs `(distance, pos)`.
     pub flock_cands: Vec<(u32, usize)>,
+    /// Reusable per-position Starling Flock priority bin (`0..=129`) for O(N) bucket selection.
+    pub flock_bins: Vec<u8>,
     /// Reusable attention scores buffer (`max_seq`).
     pub scores: Vec<i64>,
     /// Reusable softmax exponential weights (`max_seq`).
@@ -1284,6 +1286,8 @@ pub struct HoloPrefixKvCache {
     pub v_i16: Vec<Vec<i16>>,
     /// Per-step, per-KV-head integer value scale factors per layer.
     pub v_scales: Vec<Vec<i32>>,
+    /// Exact `(user_prompt_trimmed, assistant_reply_trimmed, generated_token_ids)` spans for lossless multi-turn KV reuse.
+    pub turn_token_spans: Vec<(String, String, Vec<u32>)>,
 }
 
 impl HoloPrefixKvCache {
@@ -1296,6 +1300,7 @@ impl HoloPrefixKvCache {
         self.k_sig128 = vec![Vec::new(); n_layers];
         self.v_i16 = vec![Vec::new(); n_layers];
         self.v_scales = vec![Vec::new(); n_layers];
+        self.turn_token_spans.clear();
     }
 
     /// Formal R4.HoloGeometricRuntime truncate KV state to an exact cached prefix length (`keep_len`) for cross-turn reuse.
@@ -2366,10 +2371,8 @@ fn gemv_i4_rht_rows(
             let mp2 = mp1.add(groups);
             let mp3 = mp2.add(groups);
 
-            let mut acc0 = i64x2_splat(0);
-            let mut acc1 = i64x2_splat(0);
-            let mut acc2 = i64x2_splat(0);
-            let mut acc3 = i64x2_splat(0);
+            let mut acc01 = i64x2_splat(0);
+            let mut acc23 = i64x2_splat(0);
 
             for g in 0..groups {
                 let ap = act_base.add(g * 32);
@@ -2379,8 +2382,8 @@ fn gemv_i4_rht_rows(
                 let a3 = v128_load(ap.add(24) as *const v128);
                 let g_off = g * 16;
 
-                macro_rules! acc_i4_row {
-                    ($np:expr, $mp:expr, $acc:expr) => {{
+                macro_rules! dot_i4_row_s4 {
+                    ($np:expr) => {{
                         let p = v128_load($np.add(g_off) as *const v128);
                         let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
                         let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
@@ -2388,23 +2391,43 @@ fn gemv_i4_rht_rows(
                         let d1 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_lo_i8), a1);
                         let d2 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_hi_i8), a2);
                         let d3 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_hi_i8), a3);
-                        let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
-                        let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
-                        let mult_v = i32x4_splat(i32::from(*$mp.add(g)));
-                        $acc = i64x2_add($acc, i64x2_extmul_low_i32x4(pair, mult_v));
+                        i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3))
                     }};
                 }
 
-                acc_i4_row!(np0, mp0, acc0);
-                acc_i4_row!(np1, mp1, acc1);
-                acc_i4_row!(np2, mp2, acc2);
-                acc_i4_row!(np3, mp3, acc3);
+                let s0 = dot_i4_row_s4!(np0);
+                let s1 = dot_i4_row_s4!(np1);
+                let s2 = dot_i4_row_s4!(np2);
+                let s3 = dot_i4_row_s4!(np3);
+                let p01 = i32x4_add(
+                    i32x4_shuffle::<0, 2, 4, 6>(s0, s1),
+                    i32x4_shuffle::<1, 3, 5, 7>(s0, s1),
+                );
+                let p23 = i32x4_add(
+                    i32x4_shuffle::<0, 2, 4, 6>(s2, s3),
+                    i32x4_shuffle::<1, 3, 5, 7>(s2, s3),
+                );
+                let dots0123 = i32x4_add(
+                    i32x4_shuffle::<0, 2, 4, 6>(p01, p23),
+                    i32x4_shuffle::<1, 3, 5, 7>(p01, p23),
+                );
+                let m01 = i32x4_replace_lane::<1>(
+                    i32x4_splat(i32::from(*mp0.add(g))),
+                    i32::from(*mp1.add(g)),
+                );
+                let m23 = i32x4_replace_lane::<1>(
+                    i32x4_splat(i32::from(*mp2.add(g))),
+                    i32::from(*mp3.add(g)),
+                );
+                let mult0123 = i32x4_shuffle::<0, 1, 4, 5>(m01, m23);
+                acc01 = i64x2_add(acc01, i64x2_extmul_low_i32x4(dots0123, mult0123));
+                acc23 = i64x2_add(acc23, i64x2_extmul_high_i32x4(dots0123, mult0123));
             }
 
-            let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
-            let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
-            let sum2 = i64x2_extract_lane::<0>(acc2) + i64x2_extract_lane::<1>(acc2);
-            let sum3 = i64x2_extract_lane::<0>(acc3) + i64x2_extract_lane::<1>(acc3);
+            let sum0 = i64x2_extract_lane::<0>(acc01);
+            let sum1 = i64x2_extract_lane::<1>(acc01);
+            let sum2 = i64x2_extract_lane::<0>(acc23);
+            let sum3 = i64x2_extract_lane::<1>(acc23);
 
             *out_base.add(r) =
                 scale_i64_acc_to_i32(sum0, out_exp - (i32::from(*re_base.add(r)) + x_exp));
@@ -2443,9 +2466,12 @@ fn gemv_i4_rht_rows(
                     v128_load(ap.add(24) as *const v128),
                 );
                 let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
-                let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
                 let mult_v = i32x4_splat(i32::from(*mp.add(g)));
-                acc = i64x2_add(acc, i64x2_extmul_low_i32x4(pair, mult_v));
+                let prod = i64x2_add(
+                    i64x2_extmul_low_i32x4(sum4, mult_v),
+                    i64x2_extmul_high_i32x4(sum4, mult_v),
+                );
+                acc = i64x2_add(acc, prod);
             }
             let sum = i64x2_extract_lane::<0>(acc) + i64x2_extract_lane::<1>(acc);
             *out_base.add(r) =
@@ -2540,10 +2566,8 @@ fn gemv_i8_rht_rows(
             let mp2 = mp1.add(groups);
             let mp3 = mp2.add(groups);
 
-            let mut acc0 = i64x2_splat(0);
-            let mut acc1 = i64x2_splat(0);
-            let mut acc2 = i64x2_splat(0);
-            let mut acc3 = i64x2_splat(0);
+            let mut acc01 = i64x2_splat(0);
+            let mut acc23 = i64x2_splat(0);
 
             for g in 0..groups {
                 let ap = act_base.add(g * 32);
@@ -2553,31 +2577,51 @@ fn gemv_i8_rht_rows(
                 let a3 = v128_load(ap.add(24) as *const v128);
                 let g_off = g * 32;
 
-                macro_rules! acc_i8_row {
-                    ($wp:expr, $mp:expr, $acc:expr) => {{
+                macro_rules! dot_i8_row_s4 {
+                    ($wp:expr) => {{
                         let w_lo = v128_load($wp.add(g_off) as *const v128);
                         let w_hi = v128_load($wp.add(g_off + 16) as *const v128);
                         let d0 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_lo), a0);
                         let d1 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_lo), a1);
                         let d2 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_hi), a2);
                         let d3 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_hi), a3);
-                        let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
-                        let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
-                        let mult_v = i32x4_splat(i32::from(*$mp.add(g)));
-                        $acc = i64x2_add($acc, i64x2_extmul_low_i32x4(pair, mult_v));
+                        i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3))
                     }};
                 }
 
-                acc_i8_row!(wp0, mp0, acc0);
-                acc_i8_row!(wp1, mp1, acc1);
-                acc_i8_row!(wp2, mp2, acc2);
-                acc_i8_row!(wp3, mp3, acc3);
+                let s0 = dot_i8_row_s4!(wp0);
+                let s1 = dot_i8_row_s4!(wp1);
+                let s2 = dot_i8_row_s4!(wp2);
+                let s3 = dot_i8_row_s4!(wp3);
+                let p01 = i32x4_add(
+                    i32x4_shuffle::<0, 2, 4, 6>(s0, s1),
+                    i32x4_shuffle::<1, 3, 5, 7>(s0, s1),
+                );
+                let p23 = i32x4_add(
+                    i32x4_shuffle::<0, 2, 4, 6>(s2, s3),
+                    i32x4_shuffle::<1, 3, 5, 7>(s2, s3),
+                );
+                let dots0123 = i32x4_add(
+                    i32x4_shuffle::<0, 2, 4, 6>(p01, p23),
+                    i32x4_shuffle::<1, 3, 5, 7>(p01, p23),
+                );
+                let m01 = i32x4_replace_lane::<1>(
+                    i32x4_splat(i32::from(*mp0.add(g))),
+                    i32::from(*mp1.add(g)),
+                );
+                let m23 = i32x4_replace_lane::<1>(
+                    i32x4_splat(i32::from(*mp2.add(g))),
+                    i32::from(*mp3.add(g)),
+                );
+                let mult0123 = i32x4_shuffle::<0, 1, 4, 5>(m01, m23);
+                acc01 = i64x2_add(acc01, i64x2_extmul_low_i32x4(dots0123, mult0123));
+                acc23 = i64x2_add(acc23, i64x2_extmul_high_i32x4(dots0123, mult0123));
             }
 
-            let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
-            let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
-            let sum2 = i64x2_extract_lane::<0>(acc2) + i64x2_extract_lane::<1>(acc2);
-            let sum3 = i64x2_extract_lane::<0>(acc3) + i64x2_extract_lane::<1>(acc3);
+            let sum0 = i64x2_extract_lane::<0>(acc01);
+            let sum1 = i64x2_extract_lane::<1>(acc01);
+            let sum2 = i64x2_extract_lane::<0>(acc23);
+            let sum3 = i64x2_extract_lane::<1>(acc23);
 
             *out_base.add(r) =
                 scale_i64_acc_to_i32(sum0, out_exp - (i32::from(*re_base.add(r)) + x_exp));
@@ -2613,9 +2657,12 @@ fn gemv_i8_rht_rows(
                     v128_load(ap.add(24) as *const v128),
                 );
                 let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
-                let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
                 let mult_v = i32x4_splat(i32::from(*mp.add(g)));
-                acc = i64x2_add(acc, i64x2_extmul_low_i32x4(pair, mult_v));
+                let prod = i64x2_add(
+                    i64x2_extmul_low_i32x4(sum4, mult_v),
+                    i64x2_extmul_high_i32x4(sum4, mult_v),
+                );
+                acc = i64x2_add(acc, prod);
             }
             let sum = i64x2_extract_lane::<0>(acc) + i64x2_extract_lane::<1>(acc);
             *out_base.add(r) =
@@ -2726,10 +2773,8 @@ fn gemv_i8_indexed_into(
                     let mp2 = gm_base.add(r2 * groups);
                     let mp3 = gm_base.add(r3 * groups);
 
-                    let mut acc0 = i64x2_splat(0);
-                    let mut acc1 = i64x2_splat(0);
-                    let mut acc2 = i64x2_splat(0);
-                    let mut acc3 = i64x2_splat(0);
+                    let mut acc01 = i64x2_splat(0);
+                    let mut acc23 = i64x2_splat(0);
 
                     for g in 0..groups {
                         let ap = act_base.add(g * 32);
@@ -2739,30 +2784,50 @@ fn gemv_i8_indexed_into(
                         let a3 = v128_load(ap.add(24) as *const v128);
                         let g_off = g * 32;
 
-                        macro_rules! acc_idx_row {
-                            ($wp:expr, $mp:expr, $acc:expr) => {{
+                        macro_rules! dot_idx_row_s4 {
+                            ($wp:expr) => {{
                                 let w_lo = v128_load($wp.add(g_off) as *const v128);
                                 let w_hi = v128_load($wp.add(g_off + 16) as *const v128);
                                 let d0 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_lo), a0);
                                 let d1 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_lo), a1);
                                 let d2 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_hi), a2);
                                 let d3 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_hi), a3);
-                                let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
-                                let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
-                                let mult_v = i32x4_splat(i32::from(*$mp.add(g)));
-                                $acc = i64x2_add($acc, i64x2_extmul_low_i32x4(pair, mult_v));
+                                i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3))
                             }};
                         }
-                        acc_idx_row!(wp0, mp0, acc0);
-                        acc_idx_row!(wp1, mp1, acc1);
-                        acc_idx_row!(wp2, mp2, acc2);
-                        acc_idx_row!(wp3, mp3, acc3);
+                        let s0 = dot_idx_row_s4!(wp0);
+                        let s1 = dot_idx_row_s4!(wp1);
+                        let s2 = dot_idx_row_s4!(wp2);
+                        let s3 = dot_idx_row_s4!(wp3);
+                        let p01 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(s0, s1),
+                            i32x4_shuffle::<1, 3, 5, 7>(s0, s1),
+                        );
+                        let p23 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(s2, s3),
+                            i32x4_shuffle::<1, 3, 5, 7>(s2, s3),
+                        );
+                        let dots0123 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(p01, p23),
+                            i32x4_shuffle::<1, 3, 5, 7>(p01, p23),
+                        );
+                        let m01 = i32x4_replace_lane::<1>(
+                            i32x4_splat(i32::from(*mp0.add(g))),
+                            i32::from(*mp1.add(g)),
+                        );
+                        let m23 = i32x4_replace_lane::<1>(
+                            i32x4_splat(i32::from(*mp2.add(g))),
+                            i32::from(*mp3.add(g)),
+                        );
+                        let mult0123 = i32x4_shuffle::<0, 1, 4, 5>(m01, m23);
+                        acc01 = i64x2_add(acc01, i64x2_extmul_low_i32x4(dots0123, mult0123));
+                        acc23 = i64x2_add(acc23, i64x2_extmul_high_i32x4(dots0123, mult0123));
                     }
 
-                    let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
-                    let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
-                    let sum2 = i64x2_extract_lane::<0>(acc2) + i64x2_extract_lane::<1>(acc2);
-                    let sum3 = i64x2_extract_lane::<0>(acc3) + i64x2_extract_lane::<1>(acc3);
+                    let sum0 = i64x2_extract_lane::<0>(acc01);
+                    let sum1 = i64x2_extract_lane::<1>(acc01);
+                    let sum2 = i64x2_extract_lane::<0>(acc23);
+                    let sum3 = i64x2_extract_lane::<1>(acc23);
 
                     out.push((
                         ch[0],
@@ -2855,94 +2920,278 @@ fn gemm_i4_rht_batch(
         let mask_lo = u8x16_splat(0x0f);
         let bias = i8x16_splat(8);
 
-        if bt == MAX_PREFILL_TILE {
-            for r in 0..rows {
-                let re = i32::from(m.row_exp[r]);
-                let np = nb_base.add(r * row_bytes);
-                let mp = gm_base.add(r * groups);
-                let mut acc0 = i64x2_splat(0);
-                let mut acc1 = i64x2_splat(0);
-                let mut acc2 = i64x2_splat(0);
-                let mut acc3 = i64x2_splat(0);
-                let mut acc4 = i64x2_splat(0);
-                let mut acc5 = i64x2_splat(0);
-                let mut acc6 = i64x2_splat(0);
-                let mut acc7 = i64x2_splat(0);
-
-                for g in 0..groups {
-                    let p = v128_load(np.add(g * 16) as *const v128);
-                    let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
-                    let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
-                    let w0 = i16x8_extend_low_i8x16(w_lo_i8);
-                    let w1 = i16x8_extend_high_i8x16(w_lo_i8);
-                    let w2 = i16x8_extend_low_i8x16(w_hi_i8);
-                    let w3 = i16x8_extend_high_i8x16(w_hi_i8);
-                    let mult_v = i32x4_splat(i32::from(*mp.add(g)));
-                    let base_a = act_base.add(g * (MAX_PREFILL_TILE * 32));
-
-                    macro_rules! dot_tile_col {
-                        ($col:expr, $acc:expr) => {{
-                            let cp = base_a.add($col * 32);
-                            let d0 = i32x4_dot_i16x8(w0, v128_load(cp as *const v128));
-                            let d1 = i32x4_dot_i16x8(w1, v128_load(cp.add(8) as *const v128));
-                            let d2 = i32x4_dot_i16x8(w2, v128_load(cp.add(16) as *const v128));
-                            let d3 = i32x4_dot_i16x8(w3, v128_load(cp.add(24) as *const v128));
-                            let s4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
-                            let pr = i32x4_add(s4, i32x4_shuffle::<2, 3, 0, 1>(s4, s4));
-                            $acc = i64x2_add($acc, i64x2_extmul_low_i32x4(pr, mult_v));
-                        }};
-                    }
-
-                    dot_tile_col!(0, acc0);
-                    dot_tile_col!(1, acc1);
-                    dot_tile_col!(2, acc2);
-                    dot_tile_col!(3, acc3);
-                    dot_tile_col!(4, acc4);
-                    dot_tile_col!(5, acc5);
-                    dot_tile_col!(6, acc6);
-                    dot_tile_col!(7, acc7);
-                }
-
-                let accs = [acc0, acc1, acc2, acc3, acc4, acc5, acc6, acc7];
-                for b in 0..MAX_PREFILL_TILE {
-                    let sum = i64x2_extract_lane::<0>(accs[b]) + i64x2_extract_lane::<1>(accs[b]);
-                    *out_base.add(b * rows + r) =
-                        scale_i64_acc_to_i32(sum, out_exp - (re + x_exps[b]));
-                }
-            }
-            return;
+        macro_rules! dot_i4_col {
+            ($w0:expr, $w1:expr, $w2:expr, $w3:expr, $mult_v:expr, $base_a:expr, $col:expr, $acc:expr) => {{
+                let cp = $base_a.add($col * 32);
+                let d0 = i32x4_dot_i16x8($w0, v128_load(cp as *const v128));
+                let d1 = i32x4_dot_i16x8($w1, v128_load(cp.add(8) as *const v128));
+                let d2 = i32x4_dot_i16x8($w2, v128_load(cp.add(16) as *const v128));
+                let d3 = i32x4_dot_i16x8($w3, v128_load(cp.add(24) as *const v128));
+                let s4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                let prod = i64x2_add(
+                    i64x2_extmul_low_i32x4(s4, $mult_v),
+                    i64x2_extmul_high_i32x4(s4, $mult_v),
+                );
+                $acc = i64x2_add($acc, prod);
+            }};
         }
 
-        for r in 0..rows {
-            let re = i32::from(m.row_exp[r]);
-            let np = nb_base.add(r * row_bytes);
-            let mp = gm_base.add(r * groups);
-            let mut accs = [i64x2_splat(0); MAX_PREFILL_TILE];
-            for g in 0..groups {
-                let p = v128_load(np.add(g * 16) as *const v128);
-                let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
-                let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
-                let w0 = i16x8_extend_low_i8x16(w_lo_i8);
-                let w1 = i16x8_extend_high_i8x16(w_lo_i8);
-                let w2 = i16x8_extend_low_i8x16(w_hi_i8);
-                let w3 = i16x8_extend_high_i8x16(w_hi_i8);
-                let mult_v = i32x4_splat(i32::from(*mp.add(g)));
-                let base_a = act_base.add(g * bt * 32);
-                for b in 0..bt {
-                    let cp = base_a.add(b * 32);
-                    let d0 = i32x4_dot_i16x8(w0, v128_load(cp as *const v128));
-                    let d1 = i32x4_dot_i16x8(w1, v128_load(cp.add(8) as *const v128));
-                    let d2 = i32x4_dot_i16x8(w2, v128_load(cp.add(16) as *const v128));
-                    let d3 = i32x4_dot_i16x8(w3, v128_load(cp.add(24) as *const v128));
-                    let s4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
-                    let pr = i32x4_add(s4, i32x4_shuffle::<2, 3, 0, 1>(s4, s4));
-                    accs[b] = i64x2_add(accs[b], i64x2_extmul_low_i32x4(pr, mult_v));
+        match bt {
+            4 => {
+                let mut r = 0usize;
+                while r + 2 <= rows {
+                    let re0 = i32::from(m.row_exp[r]);
+                    let re1 = i32::from(m.row_exp[r + 1]);
+                    let np0 = nb_base.add(r * row_bytes);
+                    let np1 = np0.add(row_bytes);
+                    let mp0 = gm_base.add(r * groups);
+                    let mp1 = mp0.add(groups);
+                    let mut acc_b0 = i64x2_splat(0);
+                    let mut acc_b1 = i64x2_splat(0);
+                    let mut acc_b2 = i64x2_splat(0);
+                    let mut acc_b3 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let g_off = g * 16;
+                        let p0 = v128_load(np0.add(g_off) as *const v128);
+                        let p1 = v128_load(np1.add(g_off) as *const v128);
+                        let w0_lo = i8x16_sub(v128_and(p0, mask_lo), bias);
+                        let w0_hi = i8x16_sub(u8x16_shr(p0, 4), bias);
+                        let w1_lo = i8x16_sub(v128_and(p1, mask_lo), bias);
+                        let w1_hi = i8x16_sub(u8x16_shr(p1, 4), bias);
+                        let w0_0 = i16x8_extend_low_i8x16(w0_lo);
+                        let w0_1 = i16x8_extend_high_i8x16(w0_lo);
+                        let w0_2 = i16x8_extend_low_i8x16(w0_hi);
+                        let w0_3 = i16x8_extend_high_i8x16(w0_hi);
+                        let w1_0 = i16x8_extend_low_i8x16(w1_lo);
+                        let w1_1 = i16x8_extend_high_i8x16(w1_lo);
+                        let w1_2 = i16x8_extend_low_i8x16(w1_hi);
+                        let w1_3 = i16x8_extend_high_i8x16(w1_hi);
+                        let mult_01 = i32x4_replace_lane::<1>(
+                            i32x4_splat(i32::from(*mp0.add(g))),
+                            i32::from(*mp1.add(g)),
+                        );
+                        let base_a = act_base.add(g * 128);
+
+                        macro_rules! dot_i4_2x1_col {
+                            ($col:expr, $acc_b:expr) => {{
+                                let cp = base_a.add($col * 32);
+                                let a0 = v128_load(cp as *const v128);
+                                let mut s_r0 = i32x4_dot_i16x8(w0_0, a0);
+                                let mut s_r1 = i32x4_dot_i16x8(w1_0, a0);
+                                let a1 = v128_load(cp.add(8) as *const v128);
+                                s_r0 = i32x4_add(s_r0, i32x4_dot_i16x8(w0_1, a1));
+                                s_r1 = i32x4_add(s_r1, i32x4_dot_i16x8(w1_1, a1));
+                                let a2 = v128_load(cp.add(16) as *const v128);
+                                s_r0 = i32x4_add(s_r0, i32x4_dot_i16x8(w0_2, a2));
+                                s_r1 = i32x4_add(s_r1, i32x4_dot_i16x8(w1_2, a2));
+                                let a3 = v128_load(cp.add(24) as *const v128);
+                                s_r0 = i32x4_add(s_r0, i32x4_dot_i16x8(w0_3, a3));
+                                s_r1 = i32x4_add(s_r1, i32x4_dot_i16x8(w1_3, a3));
+                                let p0 = i32x4_add(
+                                    i32x4_shuffle::<0, 2, 4, 6>(s_r0, s_r1),
+                                    i32x4_shuffle::<1, 3, 5, 7>(s_r0, s_r1),
+                                );
+                                let dots_01 = i32x4_add(
+                                    i32x4_shuffle::<0, 2, 0, 2>(p0, p0),
+                                    i32x4_shuffle::<1, 3, 1, 3>(p0, p0),
+                                );
+                                $acc_b =
+                                    i64x2_add($acc_b, i64x2_extmul_low_i32x4(dots_01, mult_01));
+                            }};
+                        }
+
+                        dot_i4_2x1_col!(0, acc_b0);
+                        dot_i4_2x1_col!(1, acc_b1);
+                        dot_i4_2x1_col!(2, acc_b2);
+                        dot_i4_2x1_col!(3, acc_b3);
+                    }
+
+                    *out_base.add(r) = scale_i64_acc_to_i32(
+                        i64x2_extract_lane::<0>(acc_b0),
+                        out_exp - (re0 + x_exps[0]),
+                    );
+                    *out_base.add(r + 1) = scale_i64_acc_to_i32(
+                        i64x2_extract_lane::<1>(acc_b0),
+                        out_exp - (re1 + x_exps[0]),
+                    );
+                    *out_base.add(rows + r) = scale_i64_acc_to_i32(
+                        i64x2_extract_lane::<0>(acc_b1),
+                        out_exp - (re0 + x_exps[1]),
+                    );
+                    *out_base.add(rows + r + 1) = scale_i64_acc_to_i32(
+                        i64x2_extract_lane::<1>(acc_b1),
+                        out_exp - (re1 + x_exps[1]),
+                    );
+                    *out_base.add(2 * rows + r) = scale_i64_acc_to_i32(
+                        i64x2_extract_lane::<0>(acc_b2),
+                        out_exp - (re0 + x_exps[2]),
+                    );
+                    *out_base.add(2 * rows + r + 1) = scale_i64_acc_to_i32(
+                        i64x2_extract_lane::<1>(acc_b2),
+                        out_exp - (re1 + x_exps[2]),
+                    );
+                    *out_base.add(3 * rows + r) = scale_i64_acc_to_i32(
+                        i64x2_extract_lane::<0>(acc_b3),
+                        out_exp - (re0 + x_exps[3]),
+                    );
+                    *out_base.add(3 * rows + r + 1) = scale_i64_acc_to_i32(
+                        i64x2_extract_lane::<1>(acc_b3),
+                        out_exp - (re1 + x_exps[3]),
+                    );
+                    r += 2;
+                }
+                while r < rows {
+                    let re = i32::from(m.row_exp[r]);
+                    let np = nb_base.add(r * row_bytes);
+                    let mp = gm_base.add(r * groups);
+                    let mut acc01 = i64x2_splat(0);
+                    let mut acc23 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let p = v128_load(np.add(g * 16) as *const v128);
+                        let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
+                        let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
+                        let w0 = i16x8_extend_low_i8x16(w_lo_i8);
+                        let w1 = i16x8_extend_high_i8x16(w_lo_i8);
+                        let w2 = i16x8_extend_low_i8x16(w_hi_i8);
+                        let w3 = i16x8_extend_high_i8x16(w_hi_i8);
+                        let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                        let base_a = act_base.add(g * 128);
+
+                        macro_rules! col_s4_i4 {
+                            ($col:expr) => {{
+                                let cp = base_a.add($col * 32);
+                                let d0 = i32x4_dot_i16x8(w0, v128_load(cp as *const v128));
+                                let d1 = i32x4_dot_i16x8(w1, v128_load(cp.add(8) as *const v128));
+                                let d2 = i32x4_dot_i16x8(w2, v128_load(cp.add(16) as *const v128));
+                                let d3 = i32x4_dot_i16x8(w3, v128_load(cp.add(24) as *const v128));
+                                i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3))
+                            }};
+                        }
+
+                        let s0 = col_s4_i4!(0);
+                        let s1 = col_s4_i4!(1);
+                        let s2 = col_s4_i4!(2);
+                        let s3 = col_s4_i4!(3);
+                        let p01 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(s0, s1),
+                            i32x4_shuffle::<1, 3, 5, 7>(s0, s1),
+                        );
+                        let p23 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(s2, s3),
+                            i32x4_shuffle::<1, 3, 5, 7>(s2, s3),
+                        );
+                        let dots0123 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(p01, p23),
+                            i32x4_shuffle::<1, 3, 5, 7>(p01, p23),
+                        );
+                        acc01 = i64x2_add(acc01, i64x2_extmul_low_i32x4(dots0123, mult_v));
+                        acc23 = i64x2_add(acc23, i64x2_extmul_high_i32x4(dots0123, mult_v));
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc01);
+                    let sum1 = i64x2_extract_lane::<1>(acc01);
+                    let sum2 = i64x2_extract_lane::<0>(acc23);
+                    let sum3 = i64x2_extract_lane::<1>(acc23);
+                    *out_base.add(r) = scale_i64_acc_to_i32(sum0, out_exp - (re + x_exps[0]));
+                    *out_base.add(rows + r) =
+                        scale_i64_acc_to_i32(sum1, out_exp - (re + x_exps[1]));
+                    *out_base.add(2 * rows + r) =
+                        scale_i64_acc_to_i32(sum2, out_exp - (re + x_exps[2]));
+                    *out_base.add(3 * rows + r) =
+                        scale_i64_acc_to_i32(sum3, out_exp - (re + x_exps[3]));
+                    r += 1;
                 }
             }
-            for b in 0..bt {
-                let sum = i64x2_extract_lane::<0>(accs[b]) + i64x2_extract_lane::<1>(accs[b]);
-                *out_base.add(b * rows + r) = scale_i64_acc_to_i32(sum, out_exp - (re + x_exps[b]));
+            3 => {
+                for r in 0..rows {
+                    let re = i32::from(m.row_exp[r]);
+                    let np = nb_base.add(r * row_bytes);
+                    let mp = gm_base.add(r * groups);
+                    let mut acc0 = i64x2_splat(0);
+                    let mut acc1 = i64x2_splat(0);
+                    let mut acc2 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let p = v128_load(np.add(g * 16) as *const v128);
+                        let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
+                        let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
+                        let w0 = i16x8_extend_low_i8x16(w_lo_i8);
+                        let w1 = i16x8_extend_high_i8x16(w_lo_i8);
+                        let w2 = i16x8_extend_low_i8x16(w_hi_i8);
+                        let w3 = i16x8_extend_high_i8x16(w_hi_i8);
+                        let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                        let base_a = act_base.add(g * 96);
+                        dot_i4_col!(w0, w1, w2, w3, mult_v, base_a, 0, acc0);
+                        dot_i4_col!(w0, w1, w2, w3, mult_v, base_a, 1, acc1);
+                        dot_i4_col!(w0, w1, w2, w3, mult_v, base_a, 2, acc2);
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+                    let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
+                    let sum2 = i64x2_extract_lane::<0>(acc2) + i64x2_extract_lane::<1>(acc2);
+                    *out_base.add(r) = scale_i64_acc_to_i32(sum0, out_exp - (re + x_exps[0]));
+                    *out_base.add(rows + r) =
+                        scale_i64_acc_to_i32(sum1, out_exp - (re + x_exps[1]));
+                    *out_base.add(2 * rows + r) =
+                        scale_i64_acc_to_i32(sum2, out_exp - (re + x_exps[2]));
+                }
             }
+            2 => {
+                for r in 0..rows {
+                    let re = i32::from(m.row_exp[r]);
+                    let np = nb_base.add(r * row_bytes);
+                    let mp = gm_base.add(r * groups);
+                    let mut acc0 = i64x2_splat(0);
+                    let mut acc1 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let p = v128_load(np.add(g * 16) as *const v128);
+                        let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
+                        let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
+                        let w0 = i16x8_extend_low_i8x16(w_lo_i8);
+                        let w1 = i16x8_extend_high_i8x16(w_lo_i8);
+                        let w2 = i16x8_extend_low_i8x16(w_hi_i8);
+                        let w3 = i16x8_extend_high_i8x16(w_hi_i8);
+                        let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                        let base_a = act_base.add(g * 64);
+                        dot_i4_col!(w0, w1, w2, w3, mult_v, base_a, 0, acc0);
+                        dot_i4_col!(w0, w1, w2, w3, mult_v, base_a, 1, acc1);
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+                    let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
+                    *out_base.add(r) = scale_i64_acc_to_i32(sum0, out_exp - (re + x_exps[0]));
+                    *out_base.add(rows + r) =
+                        scale_i64_acc_to_i32(sum1, out_exp - (re + x_exps[1]));
+                }
+            }
+            _ if bt == 1 => {
+                for r in 0..rows {
+                    let re = i32::from(m.row_exp[r]);
+                    let np = nb_base.add(r * row_bytes);
+                    let mp = gm_base.add(r * groups);
+                    let mut acc0 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let p = v128_load(np.add(g * 16) as *const v128);
+                        let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
+                        let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
+                        let w0 = i16x8_extend_low_i8x16(w_lo_i8);
+                        let w1 = i16x8_extend_high_i8x16(w_lo_i8);
+                        let w2 = i16x8_extend_low_i8x16(w_hi_i8);
+                        let w3 = i16x8_extend_high_i8x16(w_hi_i8);
+                        let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                        let base_a = act_base.add(g * 32);
+                        dot_i4_col!(w0, w1, w2, w3, mult_v, base_a, 0, acc0);
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+                    *out_base.add(r) = scale_i64_acc_to_i32(sum0, out_exp - (re + x_exps[0]));
+                }
+            }
+            _ => {}
         }
         return;
     }
@@ -3016,35 +3265,170 @@ fn gemm_i8_rht_batch(
         let act_base = act16_interleaved.as_ptr();
         let out_base = out_batch.as_mut_ptr();
 
-        for r in 0..rows {
-            let re = i32::from(m.row_exp[r]);
-            let wp = w_base.add(r * cols);
-            let mp = gm_base.add(r * groups);
-            let mut accs = [i64x2_splat(0); MAX_PREFILL_TILE];
-            for g in 0..groups {
-                let w_lo = v128_load(wp.add(g * 32) as *const v128);
-                let w_hi = v128_load(wp.add(g * 32 + 16) as *const v128);
-                let w0 = i16x8_extend_low_i8x16(w_lo);
-                let w1 = i16x8_extend_high_i8x16(w_lo);
-                let w2 = i16x8_extend_low_i8x16(w_hi);
-                let w3 = i16x8_extend_high_i8x16(w_hi);
-                let mult_v = i32x4_splat(i32::from(*mp.add(g)));
-                let base_a = act_base.add(g * bt * 32);
-                for b in 0..bt {
-                    let cp = base_a.add(b * 32);
-                    let d0 = i32x4_dot_i16x8(w0, v128_load(cp as *const v128));
-                    let d1 = i32x4_dot_i16x8(w1, v128_load(cp.add(8) as *const v128));
-                    let d2 = i32x4_dot_i16x8(w2, v128_load(cp.add(16) as *const v128));
-                    let d3 = i32x4_dot_i16x8(w3, v128_load(cp.add(24) as *const v128));
-                    let s4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
-                    let pr = i32x4_add(s4, i32x4_shuffle::<2, 3, 0, 1>(s4, s4));
-                    accs[b] = i64x2_add(accs[b], i64x2_extmul_low_i32x4(pr, mult_v));
+        macro_rules! dot_i8_col {
+            ($w0:expr, $w1:expr, $w2:expr, $w3:expr, $mult_v:expr, $base_a:expr, $col:expr, $acc:expr) => {{
+                let cp = $base_a.add($col * 32);
+                let d0 = i32x4_dot_i16x8($w0, v128_load(cp as *const v128));
+                let d1 = i32x4_dot_i16x8($w1, v128_load(cp.add(8) as *const v128));
+                let d2 = i32x4_dot_i16x8($w2, v128_load(cp.add(16) as *const v128));
+                let d3 = i32x4_dot_i16x8($w3, v128_load(cp.add(24) as *const v128));
+                let s4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                let prod = i64x2_add(
+                    i64x2_extmul_low_i32x4(s4, $mult_v),
+                    i64x2_extmul_high_i32x4(s4, $mult_v),
+                );
+                $acc = i64x2_add($acc, prod);
+            }};
+        }
+
+        match bt {
+            4 => {
+                for r in 0..rows {
+                    let re = i32::from(m.row_exp[r]);
+                    let wp = w_base.add(r * cols);
+                    let mp = gm_base.add(r * groups);
+                    let mut acc01 = i64x2_splat(0);
+                    let mut acc23 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let w_lo = v128_load(wp.add(g * 32) as *const v128);
+                        let w_hi = v128_load(wp.add(g * 32 + 16) as *const v128);
+                        let w0 = i16x8_extend_low_i8x16(w_lo);
+                        let w1 = i16x8_extend_high_i8x16(w_lo);
+                        let w2 = i16x8_extend_low_i8x16(w_hi);
+                        let w3 = i16x8_extend_high_i8x16(w_hi);
+                        let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                        let base_a = act_base.add(g * 128);
+
+                        macro_rules! col_s4_i8 {
+                            ($col:expr) => {{
+                                let cp = base_a.add($col * 32);
+                                let d0 = i32x4_dot_i16x8(w0, v128_load(cp as *const v128));
+                                let d1 = i32x4_dot_i16x8(w1, v128_load(cp.add(8) as *const v128));
+                                let d2 = i32x4_dot_i16x8(w2, v128_load(cp.add(16) as *const v128));
+                                let d3 = i32x4_dot_i16x8(w3, v128_load(cp.add(24) as *const v128));
+                                i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3))
+                            }};
+                        }
+
+                        let s0 = col_s4_i8!(0);
+                        let s1 = col_s4_i8!(1);
+                        let s2 = col_s4_i8!(2);
+                        let s3 = col_s4_i8!(3);
+                        let p01 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(s0, s1),
+                            i32x4_shuffle::<1, 3, 5, 7>(s0, s1),
+                        );
+                        let p23 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(s2, s3),
+                            i32x4_shuffle::<1, 3, 5, 7>(s2, s3),
+                        );
+                        let dots0123 = i32x4_add(
+                            i32x4_shuffle::<0, 2, 4, 6>(p01, p23),
+                            i32x4_shuffle::<1, 3, 5, 7>(p01, p23),
+                        );
+                        acc01 = i64x2_add(acc01, i64x2_extmul_low_i32x4(dots0123, mult_v));
+                        acc23 = i64x2_add(acc23, i64x2_extmul_high_i32x4(dots0123, mult_v));
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc01);
+                    let sum1 = i64x2_extract_lane::<1>(acc01);
+                    let sum2 = i64x2_extract_lane::<0>(acc23);
+                    let sum3 = i64x2_extract_lane::<1>(acc23);
+                    *out_base.add(r) = scale_i64_acc_to_i32(sum0, out_exp - (re + x_exps[0]));
+                    *out_base.add(rows + r) =
+                        scale_i64_acc_to_i32(sum1, out_exp - (re + x_exps[1]));
+                    *out_base.add(2 * rows + r) =
+                        scale_i64_acc_to_i32(sum2, out_exp - (re + x_exps[2]));
+                    *out_base.add(3 * rows + r) =
+                        scale_i64_acc_to_i32(sum3, out_exp - (re + x_exps[3]));
                 }
             }
-            for b in 0..bt {
-                let sum = i64x2_extract_lane::<0>(accs[b]) + i64x2_extract_lane::<1>(accs[b]);
-                *out_base.add(b * rows + r) = scale_i64_acc_to_i32(sum, out_exp - (re + x_exps[b]));
+            3 => {
+                for r in 0..rows {
+                    let re = i32::from(m.row_exp[r]);
+                    let wp = w_base.add(r * cols);
+                    let mp = gm_base.add(r * groups);
+                    let mut acc0 = i64x2_splat(0);
+                    let mut acc1 = i64x2_splat(0);
+                    let mut acc2 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let w_lo = v128_load(wp.add(g * 32) as *const v128);
+                        let w_hi = v128_load(wp.add(g * 32 + 16) as *const v128);
+                        let w0 = i16x8_extend_low_i8x16(w_lo);
+                        let w1 = i16x8_extend_high_i8x16(w_lo);
+                        let w2 = i16x8_extend_low_i8x16(w_hi);
+                        let w3 = i16x8_extend_high_i8x16(w_hi);
+                        let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                        let base_a = act_base.add(g * 96);
+                        dot_i8_col!(w0, w1, w2, w3, mult_v, base_a, 0, acc0);
+                        dot_i8_col!(w0, w1, w2, w3, mult_v, base_a, 1, acc1);
+                        dot_i8_col!(w0, w1, w2, w3, mult_v, base_a, 2, acc2);
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+                    let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
+                    let sum2 = i64x2_extract_lane::<0>(acc2) + i64x2_extract_lane::<1>(acc2);
+                    *out_base.add(r) = scale_i64_acc_to_i32(sum0, out_exp - (re + x_exps[0]));
+                    *out_base.add(rows + r) =
+                        scale_i64_acc_to_i32(sum1, out_exp - (re + x_exps[1]));
+                    *out_base.add(2 * rows + r) =
+                        scale_i64_acc_to_i32(sum2, out_exp - (re + x_exps[2]));
+                }
             }
+            2 => {
+                for r in 0..rows {
+                    let re = i32::from(m.row_exp[r]);
+                    let wp = w_base.add(r * cols);
+                    let mp = gm_base.add(r * groups);
+                    let mut acc0 = i64x2_splat(0);
+                    let mut acc1 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let w_lo = v128_load(wp.add(g * 32) as *const v128);
+                        let w_hi = v128_load(wp.add(g * 32 + 16) as *const v128);
+                        let w0 = i16x8_extend_low_i8x16(w_lo);
+                        let w1 = i16x8_extend_high_i8x16(w_lo);
+                        let w2 = i16x8_extend_low_i8x16(w_hi);
+                        let w3 = i16x8_extend_high_i8x16(w_hi);
+                        let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                        let base_a = act_base.add(g * 64);
+                        dot_i8_col!(w0, w1, w2, w3, mult_v, base_a, 0, acc0);
+                        dot_i8_col!(w0, w1, w2, w3, mult_v, base_a, 1, acc1);
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+                    let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
+                    *out_base.add(r) = scale_i64_acc_to_i32(sum0, out_exp - (re + x_exps[0]));
+                    *out_base.add(rows + r) =
+                        scale_i64_acc_to_i32(sum1, out_exp - (re + x_exps[1]));
+                }
+            }
+            _ if bt == 1 => {
+                for r in 0..rows {
+                    let re = i32::from(m.row_exp[r]);
+                    let wp = w_base.add(r * cols);
+                    let mp = gm_base.add(r * groups);
+                    let mut acc0 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let w_lo = v128_load(wp.add(g * 32) as *const v128);
+                        let w_hi = v128_load(wp.add(g * 32 + 16) as *const v128);
+                        let w0 = i16x8_extend_low_i8x16(w_lo);
+                        let w1 = i16x8_extend_high_i8x16(w_lo);
+                        let w2 = i16x8_extend_low_i8x16(w_hi);
+                        let w3 = i16x8_extend_high_i8x16(w_hi);
+                        let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                        let base_a = act_base.add(g * 32);
+                        dot_i8_col!(w0, w1, w2, w3, mult_v, base_a, 0, acc0);
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+                    *out_base.add(r) = scale_i64_acc_to_i32(sum0, out_exp - (re + x_exps[0]));
+                }
+            }
+            _ => {}
         }
         return;
     }
@@ -3369,25 +3753,45 @@ fn attend_token_layer(
         if seq_len <= flock_window {
             attn_work.selected.extend(0..seq_len);
         } else {
-            attn_work.flock_cands.clear();
             let sink_keep = 4usize;
             let rec_keep = (flock_window / 4).max(16).min(seq_len);
-            for t in 0..seq_len {
-                let k_sig = k_sigs[t * nkv + kh];
-                let dist = (q_sig[0] ^ k_sig[0]).count_ones() + (q_sig[1] ^ k_sig[1]).count_ones();
-                let prio = if t < sink_keep || t + rec_keep >= seq_len {
-                    0
-                } else {
-                    dist
-                };
-                attn_work.flock_cands.push((prio, t));
+            let mut hist = [0u32; 130];
+            if attn_work.flock_bins.len() < seq_len {
+                attn_work.flock_bins.resize(seq_len, 0);
             }
-            let nth = flock_window - 1;
-            attn_work.flock_cands.select_nth_unstable(nth);
-            attn_work
-                .selected
-                .extend(attn_work.flock_cands[..flock_window].iter().map(|x| x.1));
-            attn_work.selected.sort_unstable();
+            for t in 0..seq_len {
+                let bin = if t < sink_keep || t + rec_keep >= seq_len {
+                    0usize
+                } else {
+                    let k_sig = k_sigs[t * nkv + kh];
+                    let dist =
+                        (q_sig[0] ^ k_sig[0]).count_ones() + (q_sig[1] ^ k_sig[1]).count_ones();
+                    (dist.min(128) as usize) + 1
+                };
+                attn_work.flock_bins[t] = bin as u8;
+                hist[bin] += 1;
+            }
+            let mut acc = 0usize;
+            let mut cutoff = 129usize;
+            let mut quota_at_cutoff = 0usize;
+            for (b, &cnt) in hist.iter().enumerate() {
+                let c = cnt as usize;
+                if acc + c >= flock_window {
+                    cutoff = b;
+                    quota_at_cutoff = flock_window - acc;
+                    break;
+                }
+                acc += c;
+            }
+            for t in 0..seq_len {
+                let b = attn_work.flock_bins[t] as usize;
+                if b < cutoff {
+                    attn_work.selected.push(t);
+                } else if b == cutoff && quota_at_cutoff > 0 {
+                    attn_work.selected.push(t);
+                    quota_at_cutoff -= 1;
+                }
+            }
         }
         if h == 0 {
             if let Some(slot) = flock_span_slot.as_deref_mut() {
@@ -3419,9 +3823,26 @@ fn attend_token_layer(
                 }
                 acc
             };
-            let ks = i128::from(k_scales[meta_idx]);
-            let dot_scaled = (i128::from(dot_raw) << (q_sh as u32)) * ks;
-            let s_q16 = ((dot_scaled * i128::from(score_scale_q30) + (1i128 << 49)) >> 50) as i64;
+            let ks64 = i64::from(k_scales[meta_idx]);
+            let s_q16 = if dot_raw == 0 || ks64 == 0 {
+                0
+            } else if (q_sh as u32) < 24 {
+                if let Some(ds) = dot_raw
+                    .checked_shl(q_sh as u32)
+                    .filter(|&v| (v >> (q_sh as u32)) == dot_raw)
+                    .and_then(|v| v.checked_mul(ks64))
+                    .and_then(|v| v.checked_mul(score_scale_q30))
+                    .and_then(|v| v.checked_add(1i64 << 49))
+                {
+                    ds >> 50
+                } else {
+                    let dot_scaled = (i128::from(dot_raw) << (q_sh as u32)) * i128::from(ks64);
+                    ((dot_scaled * i128::from(score_scale_q30) + (1i128 << 49)) >> 50) as i64
+                }
+            } else {
+                let dot_scaled = (i128::from(dot_raw) << (q_sh as u32)) * i128::from(ks64);
+                ((dot_scaled * i128::from(score_scale_q30) + (1i128 << 49)) >> 50) as i64
+            };
             attn_work.scores.push(s_q16);
             if s_q16 > max_s {
                 max_s = s_q16;
@@ -3436,7 +3857,7 @@ fn attend_token_layer(
             attn_work.exp_w.push(w);
             den += w as u64;
         }
-        let den_u128 = den.max(1) as u128;
+        let den_u64 = den.max(1);
         if max_vs <= (1 << 18) && hd <= 128 {
             let mut num = [0i64; 128];
             for (si, &t) in attn_work.selected.iter().enumerate() {
@@ -3447,7 +3868,7 @@ fn attend_token_layer(
                 let meta_idx = t * nkv + kh;
                 if track_peaks {
                     attn_work.attn_accum_q16[t] = attn_work.attn_accum_q16[t]
-                        .saturating_add(((w as u128 * 65_535) / den_u128) as u32);
+                        .saturating_add(((w as u64).saturating_mul(65_535) / den_u64) as u32);
                 }
                 let v_off = t * kv_dim + kh * hd;
                 let vs = i64::from(v_scales[meta_idx]);
@@ -3496,9 +3917,17 @@ fn attend_token_layer(
                     num[d_i] += wv_scale * i64::from(v_slice[d_i]);
                 }
             }
-            let den_s = den.max(1) as i64;
-            for (dst, &nv) in attn_out[h * hd..].iter_mut().zip(num.iter()).take(hd) {
-                *dst = nv / den_s;
+            if den_u64.is_power_of_two() {
+                let sh = den_u64.trailing_zeros();
+                let bias = (1i64 << sh) - 1;
+                for (dst, &nv) in attn_out[h * hd..].iter_mut().zip(num.iter()).take(hd) {
+                    *dst = if nv < 0 { (nv + bias) >> sh } else { nv >> sh };
+                }
+            } else {
+                let den_s = den_u64 as i64;
+                for (dst, &nv) in attn_out[h * hd..].iter_mut().zip(num.iter()).take(hd) {
+                    *dst = if nv == 0 { 0 } else { nv / den_s };
+                }
             }
         } else {
             let mut num = [0i128; 128];
@@ -3510,7 +3939,7 @@ fn attend_token_layer(
                 let meta_idx = t * nkv + kh;
                 if track_peaks {
                     attn_work.attn_accum_q16[t] = attn_work.attn_accum_q16[t]
-                        .saturating_add(((w as u128 * 65_535) / den_u128) as u32);
+                        .saturating_add(((w as u64).saturating_mul(65_535) / den_u64) as u32);
                 }
                 let v_off = t * kv_dim + kh * hd;
                 let vs = i128::from(v_scales[meta_idx]);
@@ -3520,7 +3949,7 @@ fn attend_token_layer(
                     num[d_i] += wv_scale * i128::from(v_slice[d_i]);
                 }
             }
-            let den_s = den.max(1) as i128;
+            let den_s = den_u64 as i128;
             for (dst, &nv) in attn_out[h * hd..].iter_mut().zip(num.iter()).take(hd) {
                 *dst = (nv / den_s) as i64;
             }
@@ -3848,7 +4277,7 @@ impl HoloV13Model {
         (Some(scored), flock_attended, flock_total)
     }
 
-    /// Formal R4.HoloGeometricRuntime prefill `tokens` in `MAX_PREFILL_TILE = 8` register tiles,
+    /// Formal R4.HoloGeometricRuntime prefill `tokens` in `MAX_PREFILL_TILE = 4` register tiles,
     /// streaming each projection weight matrix from Wasm DRAM once per tile while matching sequential
     /// `step_token` bit-for-bit across all KV tensors and final logits.
     pub fn prefill_tokens_tiled(
@@ -4173,20 +4602,35 @@ impl HoloV13Model {
         } else {
             system_prompt.trim()
         };
-        let mut chatml = format!("<|im_start|>system\n{sys}<|im_end|>\n");
+        let sys_chunk = format!("<|im_start|>system\n{sys}<|im_end|>\n");
+        let mut prompt_ids_all = self.tokenizer.encode(&sys_chunk);
         let recent_hist = &history[history.len().saturating_sub(6)..];
+        let eot_nl_ids = self.tokenizer.encode("<|im_end|>\n");
         for (u, a) in recent_hist {
-            chatml.push_str("<|im_start|>user\n");
-            chatml.push_str(u.trim());
-            chatml.push_str("<|im_end|>\n<|im_start|>assistant\n");
-            chatml.push_str(a.trim());
-            chatml.push_str("<|im_end|>\n");
+            let u_trim = u.trim();
+            let a_trim = a.trim();
+            let u_chunk = format!(
+                "<|im_start|>user\n{u_trim}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+            );
+            prompt_ids_all.extend_from_slice(&self.tokenizer.encode(&u_chunk));
+            if let Some((_, _, exact_ids)) = self
+                .kv_cache
+                .turn_token_spans
+                .iter()
+                .rev()
+                .find(|(cu, ca, _)| cu == u_trim && ca == a_trim)
+            {
+                prompt_ids_all.extend_from_slice(exact_ids);
+            } else {
+                prompt_ids_all.extend_from_slice(&self.tokenizer.encode(a_trim));
+            }
+            prompt_ids_all.extend_from_slice(&eot_nl_ids);
         }
-        chatml.push_str("<|im_start|>user\n");
-        chatml.push_str(user_prompt.trim());
-        chatml.push_str("<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n");
-
-        let prompt_ids_all = self.tokenizer.encode(&chatml);
+        let cur_u_trim = user_prompt.trim();
+        let cur_u_chunk = format!(
+            "<|im_start|>user\n{cur_u_trim}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+        );
+        prompt_ids_all.extend_from_slice(&self.tokenizer.encode(&cur_u_chunk));
         let max_ctx = self.max_seq.saturating_sub(max_new_tokens.max(16)).max(32);
         let prompt_ids: &[u32] = if prompt_ids_all.len() > max_ctx {
             &prompt_ids_all[prompt_ids_all.len() - max_ctx..]
@@ -4350,6 +4794,9 @@ impl HoloV13Model {
                 }
             }
             if generated.len() >= max_new_tokens {
+                let (_, fa, ft) = self.step_token(chosen_id, &recent, false, true);
+                flock_attended += fa;
+                flock_total += ft;
                 break;
             }
             let (sc_opt, fa, ft) = self.step_token(chosen_id, &recent, true, true);
@@ -4363,6 +4810,14 @@ impl HoloV13Model {
         }
 
         let reply = String::from_utf8_lossy(&raw_stream).trim().to_string();
+        if self.kv_cache.turn_token_spans.len() >= 12 {
+            self.kv_cache.turn_token_spans.remove(0);
+        }
+        self.kv_cache.turn_token_spans.push((
+            cur_u_trim.to_string(),
+            reply.clone(),
+            generated.clone(),
+        ));
         let metrics = HoloChatTurnMetrics {
             schema: "uor-r4.holo-geometric-runtime/14",
             model_id: self.model_id.clone(),
@@ -6212,5 +6667,30 @@ mod tests {
             expected += (q[i] ^ v[i]).count_ones();
         }
         assert_eq!(hamming512_u64x8(&q, &v), expected);
+    }
+
+    #[test]
+    fn multi_turn_history_reuses_full_assistant_reply_kv_prefix() {
+        let mut model = build_synthetic_test_model();
+        let sys = "sys";
+        model.prewarm_system_prefix(sys);
+        let u1 = "Rust";
+        let (reply1, m1) = model.generate_chat_turn(u1, sys, 4);
+        assert!(
+            m1.prefix_reused_tokens > 0,
+            "Turn 1 must reuse prewarmed system prefix, got {:?}",
+            m1
+        );
+        let expected_turn1_cached =
+            m1.prefix_reused_tokens + m1.prompt_tokens + m1.generated_tokens;
+        let history = vec![(u1.to_string(), reply1)];
+        let (_reply2, m2) = model.generate_chat_turn_with_history("More", &history, sys, 4);
+        assert!(
+            m2.prefix_reused_tokens >= expected_turn1_cached,
+            "Turn 2 must reuse 100% of Turn 1 prompt + assistant reply KV ({} >= {}), got {:?}",
+            m2.prefix_reused_tokens,
+            expected_turn1_cached,
+            m2
+        );
     }
 }

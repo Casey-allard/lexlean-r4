@@ -2066,7 +2066,7 @@ impl StudioEngine {
     /// Formal R4.HoloGeometricRuntime static compact system prompt matched by mount-time KV prefix pre-warming.
     pub fn default_holo_chat_system_prompt(wire_id: &str) -> String {
         format!(
-            "You are LexLean-R4 AI Studio v0.14.0 running `{wire_id}` (UORR4V13 pure-integer Wasm engine, zero float). Answer clearly, accurately, and concisely."
+            "You are LexLean-R4 Studio v0.14.0 (`{wire_id}`, UORR4V13 pure-integer Wasm + MVM, zero float). Answer concisely, or emit `<tool_call>{{\"tool\":\"workspace_read|workspace_search|workspace_patch|mvm_exec|github_status\",\"args\":{{...}}}}</tool_call>` when needed."
         )
     }
 
@@ -2074,33 +2074,21 @@ impl StudioEngine {
     fn build_holo_studio_system_prompt(
         &self,
         wire_id: &str,
-        composer_mode: &str,
+        _composer_mode: &str,
         repo: &str,
         branch: &str,
     ) -> String {
-        if composer_mode != "agentic" {
+        if repo.trim().is_empty() {
             return Self::default_holo_chat_system_prompt(wire_id);
         }
-        let mut paths: Vec<&str> = self
-            .workspace_files
-            .iter()
-            .map(|f| f.path.as_str())
-            .take(24)
-            .collect();
-        paths.sort_unstable();
-        let file_list = paths.join(", ");
-        let repo_label = if repo.trim().is_empty() {
-            "local-vfs".to_string()
+        let br = if branch.trim().is_empty() {
+            "main"
         } else {
-            format!("{}@{}", repo.trim(), branch.trim())
+            branch.trim()
         };
-        let (nl, dm) = self
-            .holo_models
-            .get(wire_id)
-            .map(|m| (m.n_layers, m.d_model))
-            .unwrap_or((28, 1024));
         format!(
-            "You are LexLean-R4 AI Studio v0.14.0 running `{wire_id}` ({nl}L x {dm}D UORR4V13 pure-integer engine inside a browser WebWorker + MVM RV64IMAC sandbox, zero float).\nWorkspace repo={repo_label} files=[{file_list}].\nWhen inspecting files, searching code, proposing patches, running MVM commands, or checking GitHub, output ONE JSON object inside <tool_call>{{\"tool\":\"workspace_read|workspace_search|workspace_patch|mvm_exec|github_status|github_clone|github_push|github_pr\",\"args\":{{...}}}}</tool_call>. Otherwise answer concisely from verified context."
+            "You are LexLean-R4 Studio v0.14.0 (`{wire_id}`, UORR4V13 pure-integer Wasm + MVM, repo={}@{br}, zero float). Answer concisely, or emit `<tool_call>{{\"tool\":\"workspace_read|workspace_search|workspace_patch|mvm_exec|github_status\",\"args\":{{...}}}}</tool_call>` when needed.",
+            repo.trim()
         )
     }
 
@@ -2233,10 +2221,12 @@ impl StudioEngine {
             .holo_stream_builder
             .take()
             .ok_or(r4_geometric_stack::R4StackError::TruncatedContainer)?;
-        let mut model = builder.finalize()?;
-        let default_sys = Self::default_holo_chat_system_prompt(&key);
-        model.prewarm_system_prefix(&default_sys);
-        self.holo_models.insert(key, model);
+        let model = builder.finalize()?;
+        self.holo_models.insert(key.clone(), model);
+        let default_sys = self.build_holo_studio_system_prompt(&key, "agentic", "", "main");
+        if let Some(mounted) = self.holo_models.get_mut(&key) {
+            mounted.prewarm_system_prefix(&default_sys);
+        }
         Ok(self.holo_runtime_status_json())
     }
 
@@ -2251,10 +2241,12 @@ impl StudioEngine {
         } else {
             model_id.trim().to_string()
         };
-        let mut model = holo_geometric_runtime::HoloV13Model::from_bytes(key.clone(), bytes)?;
-        let default_sys = Self::default_holo_chat_system_prompt(&key);
-        model.prewarm_system_prefix(&default_sys);
-        self.holo_models.insert(key, model);
+        let model = holo_geometric_runtime::HoloV13Model::from_bytes(key.clone(), bytes)?;
+        self.holo_models.insert(key.clone(), model);
+        let default_sys = self.build_holo_studio_system_prompt(&key, "agentic", "", "main");
+        if let Some(mounted) = self.holo_models.get_mut(&key) {
+            mounted.prewarm_system_prefix(&default_sys);
+        }
         Ok(self.holo_runtime_status_json())
     }
 
@@ -6401,12 +6393,7 @@ impl StudioEngine {
                         &connected_repo,
                         &connected_branch,
                     );
-                    let mut hop_prompt =
-                        if composer_mode_str == "agentic" && !active_ws_path.is_empty() {
-                            format!("[active_file={active_ws_path}]\n{trimmed}")
-                        } else {
-                            trimmed.to_string()
-                        };
+                    let mut hop_prompt = trimmed.to_string();
                     let holo_max_new_tokens = if composer_mode_str == "agentic" {
                         160usize
                     } else {
