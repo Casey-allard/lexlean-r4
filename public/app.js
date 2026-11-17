@@ -1044,7 +1044,7 @@ const engineWorkerClient = {
         if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
         if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
       }
-      if (msg.recommendedModel && !holoObservatoryState.manualModelPinned) {
+      if (msg.recommendedModel && msg.promoted !== true && !holoObservatoryState.manualModelPinned) {
         const modelSel = document.getElementById('composer-model-select');
         if (modelSel && Array.from(modelSel.options).some((o) => o.value === msg.recommendedModel)) {
           modelSel.value = msg.recommendedModel;

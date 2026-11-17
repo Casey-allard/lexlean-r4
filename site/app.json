@@ -1,7 +1,7 @@
 {
   "address": "lexlean-r4",
-  "applicationKappa": "blake3:93b748c13441fdefbcc20b80b3804613928fe1da4ec050e8301a900538509bc6",
-  "archiveKappa": "blake3:1ca5edba49fc24f191bba356af1eef6edae0aaf9a155263a331ff5f4e54e8c6f",
+  "applicationKappa": "blake3:759b2692443a82d34ac80ecca4ae9d7fd06ffecb1da938d000b616ce6ef3e4a8",
+  "archiveKappa": "blake3:a3328be9d55ab1c657e2ddfc86566c31947fee12f80a544289e6601770f5f58d",
   "capabilities": [
     "holo_v13_pure_integer",
     "opfs_kappastore_sync_access",
@@ -70,7 +70,7 @@
     "queryParam": "embed=me",
     "supported": true
   },
-  "fingerprint": "6f479b5ed8208a277f7c147d562c08ee6e49b215ab005d2ed09dc0df42c88019",
+  "fingerprint": "b73aaf00d6b4cbad6a1aee1962714ebc733dfbb26a4be68d8ce5e7a6e6c3c74b",
   "foundry": {
     "embedQueryParam": "embed=foundry",
     "fork": "https://github.com/Casey-allard/foundry",
@@ -88,7 +88,7 @@
   },
   "guestContentKappa": "blake3:432ef4380308a8212164bf5ec406050034fca4ca62675e073a750df6461a1ce3",
   "holoAddress": "holo://lexlean-r4",
-  "holoByteLength": 11921353,
+  "holoByteLength": 11938858,
   "holoUrl": "https://casey-allard.github.io/lexlean-r4/app.holo",
   "icons": [
     {
@@ -99,7 +99,7 @@
   ],
   "inputLabel": "Prompt or Workspace Command",
   "live": "https://casey-allard.github.io/lexlean-r4/",
-  "modelContentKappa": "blake3:6a2c6d9521df423c4ce3f50ef1fa57b96f71f878e9b0312be789ca5366b2b2d4",
+  "modelContentKappa": "blake3:df65c323f9cb8c276cb63f7ad144994f8684567d95b1ad68e3431361a1838fa6",
   "models": [
     "uor-r4.qwen3-0.6b-holo",
     "uor-r4.qwen3-1.7b-holo",
@@ -153,5 +153,5 @@
     }
   ],
   "version": "0.14.0",
-  "viewContentKappa": "blake3:9a9f633ec87f9a63d54b01cbad91e155c77a0a99a13031755e35772a0ee75498"
+  "viewContentKappa": "blake3:6b2030acc291d4f1274bd0388698447924ec66f131c086270bdb6368fc03eda1"
 }

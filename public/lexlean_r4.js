@@ -3442,7 +3442,7 @@ async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null) {
   return full;
 }
 
-/** Formal R4.HoloGeometricRuntime select the highest-capability Qwen3 boot lane (warm 1.7B immediate or 0.6B->1.7B idle promotion). */
+/** Formal R4.HoloGeometricRuntime select the fast interactive Qwen3-0.6B default (1.7B mounts on explicit demand). */
 export async function selectOptimalInitialHoloModel() {
   /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
   const idx17b = await holoReadManifestIndex('uor-r4.qwen3-1.7b-holo').catch(() => null);
@@ -3462,8 +3462,8 @@ export async function selectOptimalInitialHoloModel() {
   return {
     warm17b,
     capableDesktop17b,
-    initialModel: warm17b ? 'uor-r4.qwen3-1.7b-holo' : 'uor-r4.qwen3-0.6b-holo',
-    promoteTarget: !warm17b && capableDesktop17b ? 'uor-r4.qwen3-1.7b-holo' : null,
+    initialModel: 'uor-r4.qwen3-0.6b-holo',
+    promoteTarget: null,
   };
 }
 
@@ -6524,7 +6524,7 @@ function __uorStartDedicatedEngineWorker() {
     /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
     try {
       const frame = typeof frameJson === 'string' ? JSON.parse(frameJson) : frameJson;
-      if (frame && (frame.phase !== 'prefill' || frame.top_candidates?.length > 0 || (Number(frame.step_idx) % 8 === 0))) {
+      if (frame) {
         postEvent('holo_trace_frame', { frame });
       }
     } catch {
@@ -7094,10 +7094,10 @@ function __uorStartDedicatedEngineWorker() {
         let activeModel = '';
         if (preferred && (preferred === 'uor-r4.qwen3-1.7b-holo' || preferred === 'uor-r4.qwen3-0.6b-holo' || preferred === 'uor-r4.native-q31-d85')) {
           activeModel = preferred;
-        } else if (hs && hs.qwen3_17b_mounted) {
-          activeModel = 'uor-r4.qwen3-1.7b-holo';
         } else if (hs && hs.qwen3_06b_mounted) {
           activeModel = 'uor-r4.qwen3-0.6b-holo';
+        } else if (hs && hs.qwen3_17b_mounted) {
+          activeModel = 'uor-r4.qwen3-1.7b-holo';
         } else {
           const opt = await selectOptimalInitialHoloModel().catch(() => null);
           activeModel = (opt && opt.initialModel) || 'uor-r4.qwen3-0.6b-holo';

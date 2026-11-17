@@ -1343,7 +1343,7 @@ impl StudioEngine {
             generation_last_verdict: "Healthy".to_string(),
             admitted_capsules: Vec::new(),
             telos_step_index: 0,
-            telos_shortlist_k: 4096,
+            telos_shortlist_k: 1536,
             telos_flock_window: 256,
             telos_incumbent_loss: 1_000,
             last_holo_observatory_frames: Vec::new(),
@@ -1929,12 +1929,12 @@ impl StudioEngine {
             .unwrap_or(0)
             .min(prompt_len.saturating_sub(1));
 
-        let k_ladder: [u64; 5] = [2048, 3072, 4096, 6144, 8192];
+        let k_ladder: [u64; 5] = [1024, 1536, 2048, 3072, 4096];
         let w_ladder: [u64; 5] = [128, 192, 256, 384, 512];
         let cur_k_idx = k_ladder
             .iter()
             .position(|&v| v == self.telos_shortlist_k)
-            .unwrap_or(2) as u64;
+            .unwrap_or(1) as u64;
         let cur_w_idx = w_ladder
             .iter()
             .position(|&v| v == self.telos_flock_window)
@@ -2063,14 +2063,24 @@ impl StudioEngine {
         .to_string()
     }
 
+    /// Formal R4.HoloGeometricRuntime static compact system prompt matched by mount-time KV prefix pre-warming.
+    pub fn default_holo_chat_system_prompt(wire_id: &str) -> String {
+        format!(
+            "You are LexLean-R4 AI Studio v0.14.0 running `{wire_id}` (UORR4V13 pure-integer Wasm engine, zero float). Answer clearly, accurately, and concisely."
+        )
+    }
+
     /// Formal R4.HoloGeometricRuntime assemble deterministic prefix-KV-cache-friendly self-aware Studio prompt.
     fn build_holo_studio_system_prompt(
         &self,
         wire_id: &str,
-        active_file: &str,
+        composer_mode: &str,
         repo: &str,
         branch: &str,
     ) -> String {
+        if composer_mode != "agentic" {
+            return Self::default_holo_chat_system_prompt(wire_id);
+        }
         let mut paths: Vec<&str> = self
             .workspace_files
             .iter()
@@ -2090,7 +2100,7 @@ impl StudioEngine {
             .map(|m| (m.n_layers, m.d_model))
             .unwrap_or((28, 1024));
         format!(
-            "You are LexLean-R4 AI Studio v0.14.0 running `{wire_id}` ({nl}L x {dm}D UORR4V13 pure-integer engine inside a browser WebWorker + MVM RV64IMAC sandbox, zero float).\nWorkspace repo={repo_label} active_file={active_file} files=[{file_list}].\nWhen inspecting files, searching code, proposing patches, running MVM commands, or checking GitHub, output ONE JSON object inside <tool_call>{{\"tool\":\"workspace_read|workspace_search|workspace_patch|mvm_exec|github_status|github_clone|github_push|github_pr\",\"args\":{{...}}}}</tool_call>. Otherwise answer concisely from verified context."
+            "You are LexLean-R4 AI Studio v0.14.0 running `{wire_id}` ({nl}L x {dm}D UORR4V13 pure-integer engine inside a browser WebWorker + MVM RV64IMAC sandbox, zero float).\nWorkspace repo={repo_label} files=[{file_list}].\nWhen inspecting files, searching code, proposing patches, running MVM commands, or checking GitHub, output ONE JSON object inside <tool_call>{{\"tool\":\"workspace_read|workspace_search|workspace_patch|mvm_exec|github_status|github_clone|github_push|github_pr\",\"args\":{{...}}}}</tool_call>. Otherwise answer concisely from verified context."
         )
     }
 
@@ -2223,7 +2233,9 @@ impl StudioEngine {
             .holo_stream_builder
             .take()
             .ok_or(r4_geometric_stack::R4StackError::TruncatedContainer)?;
-        let model = builder.finalize()?;
+        let mut model = builder.finalize()?;
+        let default_sys = Self::default_holo_chat_system_prompt(&key);
+        model.prewarm_system_prefix(&default_sys);
         self.holo_models.insert(key, model);
         Ok(self.holo_runtime_status_json())
     }
@@ -2239,7 +2251,9 @@ impl StudioEngine {
         } else {
             model_id.trim().to_string()
         };
-        let model = holo_geometric_runtime::HoloV13Model::from_bytes(key.clone(), bytes)?;
+        let mut model = holo_geometric_runtime::HoloV13Model::from_bytes(key.clone(), bytes)?;
+        let default_sys = Self::default_holo_chat_system_prompt(&key);
+        model.prewarm_system_prefix(&default_sys);
         self.holo_models.insert(key, model);
         Ok(self.holo_runtime_status_json())
     }
@@ -6383,11 +6397,21 @@ impl StudioEngine {
                 ) => {
                     let sys_prompt = self.build_holo_studio_system_prompt(
                         route_mode.wire_id(),
-                        &active_ws_path,
+                        &composer_mode_str,
                         &connected_repo,
                         &connected_branch,
                     );
-                    let mut hop_prompt = trimmed.to_string();
+                    let mut hop_prompt =
+                        if composer_mode_str == "agentic" && !active_ws_path.is_empty() {
+                            format!("[active_file={active_ws_path}]\n{trimmed}")
+                        } else {
+                            trimmed.to_string()
+                        };
+                    let holo_max_new_tokens = if composer_mode_str == "agentic" {
+                        160usize
+                    } else {
+                        96usize
+                    };
                     let mut react_fuel = 16u64;
                     let mut final_reply = String::new();
                     let mut total_prompt_tokens = 0usize;
@@ -6395,7 +6419,7 @@ impl StudioEngine {
                     let mut total_flock_att = 0usize;
                     let mut total_flock_tot = 0usize;
                     let mut last_hm_schema = "uor-r4.holo-geometric-runtime/14";
-                    let mut last_shortlist_budget = 4096usize;
+                    let mut last_shortlist_budget = 1536usize;
                     let mut model_n_layers = 28u32;
                     let mut model_d_model = 1024u32;
                     let mut model_vocab = 151_936u32;
@@ -6410,7 +6434,7 @@ impl StudioEngine {
                                 &hop_prompt,
                                 &history_snap,
                                 &sys_prompt,
-                                192,
+                                holo_max_new_tokens,
                             );
                             (
                                 r,

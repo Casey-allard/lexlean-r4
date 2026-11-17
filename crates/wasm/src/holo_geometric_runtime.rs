@@ -26,8 +26,9 @@ const EXP_RANGE: i32 = 32;
 const SILU_STEP_LOG2: i32 = -8;
 const SILU_RANGE_LOG2: i32 = 4;
 const SIG_WORDS: usize = 8;
-const DEFAULT_SHORTLIST_K: usize = 4_096;
+const DEFAULT_SHORTLIST_K: usize = 1_536;
 const DEFAULT_FLOCK_WINDOW: usize = 256;
+const MAX_PREFILL_TILE: usize = 8;
 
 /// Formal R4.HoloGeometricRuntime pre-pack immutable xorshift64 RHT sign bits into `u32` masks (`cols / 32`).
 #[inline]
@@ -958,6 +959,92 @@ pub struct HoloStepObservatoryFrame {
     pub backend: &'static str,
 }
 
+/// Per-head Starling Flock & RMSNorm temporary workspace inside `HoloScratch` (`R4-51`).
+#[derive(Clone, Debug, Default)]
+pub struct HoloAttnScratch {
+    /// Per-head query RMSNorm buffer (`head_dim`).
+    pub q_h_norm: Vec<i64>,
+    /// Per-head key RMSNorm buffer (`head_dim`).
+    pub k_h_norm: Vec<i64>,
+    /// Reusable `i16` per-head query buffer (`128`).
+    pub q_i16: Vec<i16>,
+    /// Reusable Starling Flock selected KV indices (`max_seq`).
+    pub selected: Vec<usize>,
+    /// Reusable Starling Flock candidate pairs `(distance, pos)`.
+    pub flock_cands: Vec<(u32, usize)>,
+    /// Reusable attention scores buffer (`max_seq`).
+    pub scores: Vec<i64>,
+    /// Reusable softmax exponential weights (`max_seq`).
+    pub exp_w: Vec<i64>,
+    /// Reusable last-layer attention weight accumulators across sequence positions.
+    pub attn_accum_q16: Vec<u32>,
+}
+
+/// Reusable `MAX_PREFILL_TILE`-token register-tiled prefill scratch workspace (`R4-51`).
+#[derive(Clone, Debug, Default)]
+pub struct HoloPrefillTileScratch {
+    /// Stacked token residual vectors (`bt * d_model`).
+    pub x_b: Vec<i32>,
+    /// Stacked normalized vectors (`bt * d_model`).
+    pub norm_b: Vec<i64>,
+    /// Stacked query projections (`bt * q_dim`).
+    pub q_b: Vec<i32>,
+    /// Stacked key projections (`bt * kv_dim`).
+    pub k_b: Vec<i32>,
+    /// Stacked value projections (`bt * kv_dim`).
+    pub v_b: Vec<i32>,
+    /// Stacked attention outputs (`bt * q_dim`).
+    pub attn_b: Vec<i64>,
+    /// Stacked residual projections (`bt * d_model`).
+    pub proj_b: Vec<i32>,
+    /// Stacked SwiGLU gate projections (`bt * ffn`).
+    pub gate_b: Vec<i32>,
+    /// Stacked SwiGLU up projections (`bt * ffn`).
+    pub up_b: Vec<i32>,
+    /// Stacked SwiGLU elementwise products (`bt * ffn`).
+    pub swiglu_b: Vec<i64>,
+    /// Group-interleaved `int16` activations `[group][token_in_tile][32]` (`MAX_PREFILL_TILE * max_cols`).
+    pub act16_interleaved: Vec<i16>,
+    /// Single-token temporary `i16` activation buffer (`max_cols`).
+    pub act16_tmp: Vec<i16>,
+}
+
+impl HoloPrefillTileScratch {
+    /// Formal R4.HoloGeometricRuntime allocate reusable zero-alloc `MAX_PREFILL_TILE` buffers without heap growth during prefill.
+    pub fn ensure_sized(&mut self, d_model: usize, q_dim: usize, kv_dim: usize, ffn: usize) {
+        let max_cols = d_model.max(q_dim).max(ffn).max(32);
+        let d_batch = MAX_PREFILL_TILE * d_model;
+        let q_batch = MAX_PREFILL_TILE * q_dim;
+        let kv_batch = MAX_PREFILL_TILE * kv_dim;
+        let ffn_batch = MAX_PREFILL_TILE * ffn;
+        let act_batch = MAX_PREFILL_TILE * max_cols;
+        if self.x_b.len() != d_batch {
+            self.x_b.resize(d_batch, 0);
+            self.norm_b.resize(d_batch, 0);
+            self.proj_b.resize(d_batch, 0);
+        }
+        if self.q_b.len() != q_batch {
+            self.q_b.resize(q_batch, 0);
+            self.attn_b.resize(q_batch, 0);
+        }
+        if self.k_b.len() != kv_batch {
+            self.k_b.resize(kv_batch, 0);
+            self.v_b.resize(kv_batch, 0);
+        }
+        if self.gate_b.len() != ffn_batch {
+            self.gate_b.resize(ffn_batch, 0);
+            self.up_b.resize(ffn_batch, 0);
+            self.swiglu_b.resize(ffn_batch, 0);
+        }
+        if self.act16_interleaved.len() != act_batch {
+            self.act16_interleaved.resize(act_batch, 0);
+        }
+        if self.act16_tmp.len() != max_cols {
+            self.act16_tmp.resize(max_cols, 0);
+        }
+    }
+}
+
 /// Zero-allocation scratch workspace owned by `HoloV13Model` (`R4-51`).
 #[derive(Clone, Debug, Default)]
 pub struct HoloScratch {
@@ -971,10 +1058,6 @@ pub struct HoloScratch {
     pub k: Vec<i32>,
     /// Value projection buffer (`kv_dim`).
     pub v: Vec<i32>,
-    /// Per-head query RMSNorm buffer (`head_dim`).
-    pub q_h_norm: Vec<i64>,
-    /// Per-head key RMSNorm buffer (`head_dim`).
-    pub k_h_norm: Vec<i64>,
     /// Concatenated attention output buffer (`q_dim`).
     pub attn_i64: Vec<i64>,
     /// Output projection buffer (`d_model`).
@@ -991,16 +1074,10 @@ pub struct HoloScratch {
     pub wide_i64: Vec<i64>,
     /// Reusable `i16` quantized activation buffer (`max(d_model, q_dim, intermediate_size)`).
     pub act16: Vec<i16>,
-    /// Reusable `i16` per-head query buffer (`128`).
-    pub q_i16: Vec<i16>,
-    /// Reusable Starling Flock selected KV indices (`max_seq`).
-    pub selected: Vec<usize>,
-    /// Reusable Starling Flock candidate pairs `(distance, pos)`.
-    pub flock_cands: Vec<(u32, usize)>,
-    /// Reusable attention scores buffer (`max_seq`).
-    pub scores: Vec<i64>,
-    /// Reusable softmax exponential weights (`max_seq`).
-    pub exp_w: Vec<i64>,
+    /// Split-borrow per-head attention scratch workspace.
+    pub attn_work: HoloAttnScratch,
+    /// Lazily-sized `MAX_PREFILL_TILE`-token register-tiled prefill workspace.
+    pub prefill_tile: HoloPrefillTileScratch,
     /// Reusable 512-bit Hamming distances across `vocab_size`.
     pub hamming_dists: Vec<u16>,
     /// Reusable 513-bin bucket histogram (`0..=512`).
@@ -1021,8 +1098,6 @@ pub struct HoloScratch {
     pub last_hamming_hist32: [u32; 32],
     /// Latest minimum Hamming distance observed across `vocab_sigs`.
     pub last_min_hamming: u16,
-    /// Reusable last-layer attention weight accumulators across sequence positions.
-    pub attn_accum_q16: Vec<u32>,
     /// Latest top attended KV position peaks.
     pub last_attn_peaks: Vec<HoloAttnPeak>,
 }
@@ -1055,12 +1130,12 @@ impl HoloScratch {
             self.k.resize(kv_dim, 0);
             self.v.resize(kv_dim, 0);
         }
-        if self.q_h_norm.len() != head_dim {
-            self.q_h_norm.resize(head_dim, 0);
-            self.k_h_norm.resize(head_dim, 0);
+        if self.attn_work.q_h_norm.len() != head_dim {
+            self.attn_work.q_h_norm.resize(head_dim, 0);
+            self.attn_work.k_h_norm.resize(head_dim, 0);
         }
-        if self.q_i16.len() != head_dim.max(128) {
-            self.q_i16.resize(head_dim.max(128), 0);
+        if self.attn_work.q_i16.len() != head_dim.max(128) {
+            self.attn_work.q_i16.resize(head_dim.max(128), 0);
         }
         if self.gate.len() != ffn {
             self.gate.resize(ffn, 0);
@@ -2027,10 +2102,41 @@ fn prepare_rht_act16_packed(
         let arr: &mut [i32; 32] = blk.try_into().unwrap();
         int_fwht32_i32(arr);
     }
-    let mut max_abs = 0u32;
-    for &v in &*rht {
-        max_abs = max_abs.max(v.unsigned_abs());
-    }
+
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    let max_abs: u32 = {
+        // SAFETY: `rht` has exact length `cols`, and `i + 4 <= cols` bounds every `v128_load`.
+        unsafe {
+            use core::arch::wasm32::*;
+            let mut vmax = u32x4_splat(0);
+            let rp = rht.as_ptr();
+            let mut i = 0usize;
+            while i + 4 <= cols {
+                let v = v128_load(rp.add(i) as *const v128);
+                vmax = u32x4_max(vmax, i32x4_abs(v));
+                i += 4;
+            }
+            let mut m = u32x4_extract_lane::<0>(vmax)
+                .max(u32x4_extract_lane::<1>(vmax))
+                .max(u32x4_extract_lane::<2>(vmax))
+                .max(u32x4_extract_lane::<3>(vmax));
+            while i < cols {
+                m = m.max((*rp.add(i)).unsigned_abs());
+                i += 1;
+            }
+            m
+        }
+    };
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    let max_abs: u32 = {
+        let mut m = 0u32;
+        for &v in &*rht {
+            m = m.max(v.unsigned_abs());
+        }
+        m
+    };
+
     if max_abs == 0 {
         act16[..cols].fill(0);
         return in_exp + pre_sh;
@@ -2042,46 +2148,65 @@ fn prepare_rht_act16_packed(
     } else {
         0
     };
-    for i in 0..cols {
-        let q = if post_sh > 0 {
-            (rht[i].saturating_add(round_half)) >> (post_sh as u32)
-        } else {
-            rht[i]
-        };
-        act16[i] = q.clamp(-32_768, 32_767) as i16;
+
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    // SAFETY: `rht` has `cols` elements and `act16` is checked via `assert!(act16.len() >= cols)`.
+    {
+        assert!(act16.len() >= cols);
+        unsafe {
+            use core::arch::wasm32::*;
+            let rp = rht.as_ptr();
+            let ap = act16.as_mut_ptr();
+            let mut i = 0usize;
+            if post_sh > 0 {
+                let rhalf = i32x4_splat(round_half);
+                let sh_u = post_sh as u32;
+                while i + 8 <= cols {
+                    let v0 = v128_load(rp.add(i) as *const v128);
+                    let v1 = v128_load(rp.add(i + 4) as *const v128);
+                    let q0 = i32x4_shr(i32x4_add(v0, rhalf), sh_u);
+                    let q1 = i32x4_shr(i32x4_add(v1, rhalf), sh_u);
+                    v128_store(ap.add(i) as *mut v128, i16x8_narrow_i32x4(q0, q1));
+                    i += 8;
+                }
+            } else {
+                while i + 8 <= cols {
+                    let v0 = v128_load(rp.add(i) as *const v128);
+                    let v1 = v128_load(rp.add(i + 4) as *const v128);
+                    v128_store(ap.add(i) as *mut v128, i16x8_narrow_i32x4(v0, v1));
+                    i += 8;
+                }
+            }
+            while i < cols {
+                let q = if post_sh > 0 {
+                    (*rp.add(i)).saturating_add(round_half) >> (post_sh as u32)
+                } else {
+                    *rp.add(i)
+                };
+                *ap.add(i) = q.clamp(-32_768, 32_767) as i16;
+                i += 1;
+            }
+        }
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        for i in 0..cols {
+            let q = if post_sh > 0 {
+                (rht[i].saturating_add(round_half)) >> (post_sh as u32)
+            } else {
+                rht[i]
+            };
+            act16[i] = q.clamp(-32_768, 32_767) as i16;
+        }
     }
     in_exp + pre_sh + post_sh
 }
 
-/// Formal R4.HoloGeometricRuntime compute zero-alloc strided 512-bit RHT sign signature over normalized query vector.
-fn compute_rht512_query_sig_packed(
-    norm_in: &[i64],
-    signs_packed: &[u32],
-    rht_buf: &mut [i32],
-) -> [u64; SIG_WORDS] {
-    let cols = norm_in.len();
-    let groups = cols >> 5;
-    let mut max_in = 0u64;
-    for &v in norm_in {
-        max_in = max_in.max(v.unsigned_abs());
-    }
-    let bl_in = 64 - max_in.leading_zeros() as i32;
-    let pre_sh = (bl_in - 24).max(0);
-    let rht = &mut rht_buf[..cols];
-    for (g, &mask) in signs_packed.iter().enumerate().take(groups) {
-        let base = g * 32;
-        let blk = &mut rht[base..base + 32];
-        for c in 0..32 {
-            let scaled = shift_round(norm_in[base + c], pre_sh) as i32;
-            blk[c] = if ((mask >> c) & 1) != 0 {
-                scaled
-            } else {
-                scaled.wrapping_neg()
-            };
-        }
-        let arr: &mut [i32; 32] = blk.try_into().unwrap();
-        int_fwht32_i32(arr);
-    }
+/// Formal R4.HoloGeometricRuntime extract strided 512-bit RHT sign signature directly from an already-computed RHT buffer.
+#[inline]
+fn extract_rht512_sig_from_rht(rht: &[i32]) -> [u64; SIG_WORDS] {
+    let cols = rht.len();
     let mut sig = [0u64; SIG_WORDS];
     for b in 0..512 {
         let col = (b * cols) / 512;
@@ -2090,6 +2215,40 @@ fn compute_rht512_query_sig_packed(
         }
     }
     sig
+}
+
+/// Formal R4.HoloGeometricRuntime pack `bt <= MAX_PREFILL_TILE` normalized tokens into group-interleaved `[g][b][32]` `i16` layout.
+#[allow(clippy::too_many_arguments)]
+fn prepare_rht_act16_batch(
+    norm_batch: &[i64],
+    bt: usize,
+    cols: usize,
+    in_exp: i32,
+    signs_packed: &[u32],
+    rht_buf: &mut [i32],
+    act16_tmp: &mut [i16],
+    act16_interleaved: &mut [i16],
+    x_exps: &mut [i32; MAX_PREFILL_TILE],
+) {
+    let groups = cols >> 5;
+    debug_assert!(bt <= MAX_PREFILL_TILE);
+    debug_assert!(norm_batch.len() >= bt * cols);
+    debug_assert!(act16_interleaved.len() >= groups * bt * 32);
+    for b in 0..bt {
+        let xe = prepare_rht_act16_packed(
+            &norm_batch[b * cols..(b + 1) * cols],
+            in_exp,
+            signs_packed,
+            rht_buf,
+            act16_tmp,
+        );
+        x_exps[b] = xe;
+        for g in 0..groups {
+            let src = &act16_tmp[g * 32..(g + 1) * 32];
+            let dst_off = (g * bt + b) * 32;
+            act16_interleaved[dst_off..dst_off + 32].copy_from_slice(src);
+        }
+    }
 }
 
 /// Formal R4.HoloGeometricRuntime inverse-RHT dequantize one token embedding row into `RESIDUAL_EXP` without allocation.
@@ -2163,6 +2322,157 @@ fn scale_i64_acc_to_i32(acc: i64, sh: i32) -> i32 {
     val.clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32
 }
 
+/// Formal R4.HoloGeometricRuntime execute 4-row register-tiled `int4` RHT matrix-vector dot kernel (`i64` accumulators).
+#[allow(clippy::too_many_arguments)]
+fn gemv_i4_rht_rows(
+    rows: usize,
+    cols: usize,
+    nibbles: &[u8],
+    group_mult: &[u16],
+    row_exp: &[i8],
+    x_exp: i32,
+    out_exp: i32,
+    act16: &[i16],
+    out: &mut [i32],
+) {
+    let row_bytes = cols >> 1;
+    let groups = cols >> 5;
+    assert!(nibbles.len() >= rows * row_bytes);
+    assert!(group_mult.len() >= rows * groups);
+    assert!(row_exp.len() >= rows);
+    assert!(act16.len() >= cols);
+    assert!(out.len() >= rows);
+
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    // SAFETY: All slice bounds against `rows`, `cols`, `groups`, and `row_bytes` are asserted above.
+    unsafe {
+        use core::arch::wasm32::*;
+        let nb_base = nibbles.as_ptr();
+        let gm_base = group_mult.as_ptr();
+        let re_base = row_exp.as_ptr();
+        let act_base = act16.as_ptr();
+        let out_base = out.as_mut_ptr();
+        let mask_lo = u8x16_splat(0x0f);
+        let bias = i8x16_splat(8);
+
+        let mut r = 0usize;
+        while r + 4 <= rows {
+            let np0 = nb_base.add(r * row_bytes);
+            let np1 = np0.add(row_bytes);
+            let np2 = np1.add(row_bytes);
+            let np3 = np2.add(row_bytes);
+            let mp0 = gm_base.add(r * groups);
+            let mp1 = mp0.add(groups);
+            let mp2 = mp1.add(groups);
+            let mp3 = mp2.add(groups);
+
+            let mut acc0 = i64x2_splat(0);
+            let mut acc1 = i64x2_splat(0);
+            let mut acc2 = i64x2_splat(0);
+            let mut acc3 = i64x2_splat(0);
+
+            for g in 0..groups {
+                let ap = act_base.add(g * 32);
+                let a0 = v128_load(ap as *const v128);
+                let a1 = v128_load(ap.add(8) as *const v128);
+                let a2 = v128_load(ap.add(16) as *const v128);
+                let a3 = v128_load(ap.add(24) as *const v128);
+                let g_off = g * 16;
+
+                macro_rules! acc_i4_row {
+                    ($np:expr, $mp:expr, $acc:expr) => {{
+                        let p = v128_load($np.add(g_off) as *const v128);
+                        let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
+                        let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
+                        let d0 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_lo_i8), a0);
+                        let d1 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_lo_i8), a1);
+                        let d2 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_hi_i8), a2);
+                        let d3 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_hi_i8), a3);
+                        let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                        let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
+                        let mult_v = i32x4_splat(i32::from(*$mp.add(g)));
+                        $acc = i64x2_add($acc, i64x2_extmul_low_i32x4(pair, mult_v));
+                    }};
+                }
+
+                acc_i4_row!(np0, mp0, acc0);
+                acc_i4_row!(np1, mp1, acc1);
+                acc_i4_row!(np2, mp2, acc2);
+                acc_i4_row!(np3, mp3, acc3);
+            }
+
+            let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+            let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
+            let sum2 = i64x2_extract_lane::<0>(acc2) + i64x2_extract_lane::<1>(acc2);
+            let sum3 = i64x2_extract_lane::<0>(acc3) + i64x2_extract_lane::<1>(acc3);
+
+            *out_base.add(r) =
+                scale_i64_acc_to_i32(sum0, out_exp - (i32::from(*re_base.add(r)) + x_exp));
+            *out_base.add(r + 1) =
+                scale_i64_acc_to_i32(sum1, out_exp - (i32::from(*re_base.add(r + 1)) + x_exp));
+            *out_base.add(r + 2) =
+                scale_i64_acc_to_i32(sum2, out_exp - (i32::from(*re_base.add(r + 2)) + x_exp));
+            *out_base.add(r + 3) =
+                scale_i64_acc_to_i32(sum3, out_exp - (i32::from(*re_base.add(r + 3)) + x_exp));
+            r += 4;
+        }
+
+        while r < rows {
+            let np = nb_base.add(r * row_bytes);
+            let mp = gm_base.add(r * groups);
+            let mut acc = i64x2_splat(0);
+            for g in 0..groups {
+                let ap = act_base.add(g * 32);
+                let p = v128_load(np.add(g * 16) as *const v128);
+                let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
+                let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
+                let d0 = i32x4_dot_i16x8(
+                    i16x8_extend_low_i8x16(w_lo_i8),
+                    v128_load(ap as *const v128),
+                );
+                let d1 = i32x4_dot_i16x8(
+                    i16x8_extend_high_i8x16(w_lo_i8),
+                    v128_load(ap.add(8) as *const v128),
+                );
+                let d2 = i32x4_dot_i16x8(
+                    i16x8_extend_low_i8x16(w_hi_i8),
+                    v128_load(ap.add(16) as *const v128),
+                );
+                let d3 = i32x4_dot_i16x8(
+                    i16x8_extend_high_i8x16(w_hi_i8),
+                    v128_load(ap.add(24) as *const v128),
+                );
+                let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
+                let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                acc = i64x2_add(acc, i64x2_extmul_low_i32x4(pair, mult_v));
+            }
+            let sum = i64x2_extract_lane::<0>(acc) + i64x2_extract_lane::<1>(acc);
+            *out_base.add(r) =
+                scale_i64_acc_to_i32(sum, out_exp - (i32::from(*re_base.add(r)) + x_exp));
+            r += 1;
+        }
+        return;
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        for (r, out_slot) in out.iter_mut().enumerate().take(rows) {
+            let re = i32::from(row_exp[r]);
+            let sh = out_exp - (re + x_exp);
+            let nibs = &nibbles[r * row_bytes..(r + 1) * row_bytes];
+            let mults = &group_mult[r * groups..(r + 1) * groups];
+            let mut acc = 0i64;
+            for g in 0..groups {
+                let nb: &[u8; 16] = (&nibs[g * 16..(g + 1) * 16]).try_into().unwrap();
+                let a: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
+                acc += i64::from(dot_i4_group32(nb, a)) * i64::from(mults[g]);
+            }
+            *out_slot = scale_i64_acc_to_i32(acc, sh);
+        }
+    }
+}
+
 /// Formal R4.HoloGeometricRuntime execute zero-alloc `int4` RHT matrix-vector product with pure `i64` accumulators.
 fn gemv_i4_rht_into(
     m: &HoloInt4RhtMatrix,
@@ -2176,21 +2486,160 @@ fn gemv_i4_rht_into(
     let cols = m.cols;
     let act16 = &mut act16_buf[..cols];
     let x_exp = prepare_rht_act16_packed(norm_in, in_exp, &m.rht_signs_packed, rht_buf, act16);
-    let row_bytes = cols >> 1;
+    gemv_i4_rht_rows(
+        m.rows,
+        cols,
+        &m.nibbles,
+        &m.group_mult,
+        &m.row_exp,
+        x_exp,
+        out_exp,
+        act16,
+        out,
+    );
+}
+
+/// Formal R4.HoloGeometricRuntime execute 4-row register-tiled `int8` RHT matrix-vector dot kernel (`i64` accumulators).
+#[allow(clippy::too_many_arguments)]
+fn gemv_i8_rht_rows(
+    rows: usize,
+    cols: usize,
+    weights: &[i8],
+    group_mult: &[u16],
+    row_exp: &[i8],
+    x_exp: i32,
+    out_exp: i32,
+    act16: &[i16],
+    out: &mut [i32],
+) {
     let groups = cols >> 5;
-    for (r, out_slot) in out.iter_mut().enumerate().take(m.rows) {
-        let re = i32::from(m.row_exp[r]);
-        let sh = out_exp - (re + x_exp);
-        let nibs = &m.nibbles[r * row_bytes..(r + 1) * row_bytes];
-        let mults = &m.group_mult[r * groups..(r + 1) * groups];
-        let mut acc = 0i64;
-        for g in 0..groups {
-            let nb: &[u8; 16] = (&nibs[g * 16..(g + 1) * 16]).try_into().unwrap();
-            let a: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
-            let dot = dot_i4_group32(nb, a);
-            acc += i64::from(dot) * i64::from(mults[g]);
+    assert!(weights.len() >= rows * cols);
+    assert!(group_mult.len() >= rows * groups);
+    assert!(row_exp.len() >= rows);
+    assert!(act16.len() >= cols);
+    assert!(out.len() >= rows);
+
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    // SAFETY: All slice bounds against `rows`, `cols`, and `groups` are asserted above.
+    unsafe {
+        use core::arch::wasm32::*;
+        let w_base = weights.as_ptr();
+        let gm_base = group_mult.as_ptr();
+        let re_base = row_exp.as_ptr();
+        let act_base = act16.as_ptr();
+        let out_base = out.as_mut_ptr();
+
+        let mut r = 0usize;
+        while r + 4 <= rows {
+            let wp0 = w_base.add(r * cols);
+            let wp1 = wp0.add(cols);
+            let wp2 = wp1.add(cols);
+            let wp3 = wp2.add(cols);
+            let mp0 = gm_base.add(r * groups);
+            let mp1 = mp0.add(groups);
+            let mp2 = mp1.add(groups);
+            let mp3 = mp2.add(groups);
+
+            let mut acc0 = i64x2_splat(0);
+            let mut acc1 = i64x2_splat(0);
+            let mut acc2 = i64x2_splat(0);
+            let mut acc3 = i64x2_splat(0);
+
+            for g in 0..groups {
+                let ap = act_base.add(g * 32);
+                let a0 = v128_load(ap as *const v128);
+                let a1 = v128_load(ap.add(8) as *const v128);
+                let a2 = v128_load(ap.add(16) as *const v128);
+                let a3 = v128_load(ap.add(24) as *const v128);
+                let g_off = g * 32;
+
+                macro_rules! acc_i8_row {
+                    ($wp:expr, $mp:expr, $acc:expr) => {{
+                        let w_lo = v128_load($wp.add(g_off) as *const v128);
+                        let w_hi = v128_load($wp.add(g_off + 16) as *const v128);
+                        let d0 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_lo), a0);
+                        let d1 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_lo), a1);
+                        let d2 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_hi), a2);
+                        let d3 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_hi), a3);
+                        let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                        let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
+                        let mult_v = i32x4_splat(i32::from(*$mp.add(g)));
+                        $acc = i64x2_add($acc, i64x2_extmul_low_i32x4(pair, mult_v));
+                    }};
+                }
+
+                acc_i8_row!(wp0, mp0, acc0);
+                acc_i8_row!(wp1, mp1, acc1);
+                acc_i8_row!(wp2, mp2, acc2);
+                acc_i8_row!(wp3, mp3, acc3);
+            }
+
+            let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+            let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
+            let sum2 = i64x2_extract_lane::<0>(acc2) + i64x2_extract_lane::<1>(acc2);
+            let sum3 = i64x2_extract_lane::<0>(acc3) + i64x2_extract_lane::<1>(acc3);
+
+            *out_base.add(r) =
+                scale_i64_acc_to_i32(sum0, out_exp - (i32::from(*re_base.add(r)) + x_exp));
+            *out_base.add(r + 1) =
+                scale_i64_acc_to_i32(sum1, out_exp - (i32::from(*re_base.add(r + 1)) + x_exp));
+            *out_base.add(r + 2) =
+                scale_i64_acc_to_i32(sum2, out_exp - (i32::from(*re_base.add(r + 2)) + x_exp));
+            *out_base.add(r + 3) =
+                scale_i64_acc_to_i32(sum3, out_exp - (i32::from(*re_base.add(r + 3)) + x_exp));
+            r += 4;
         }
-        *out_slot = scale_i64_acc_to_i32(acc, sh);
+
+        while r < rows {
+            let wp = w_base.add(r * cols);
+            let mp = gm_base.add(r * groups);
+            let mut acc = i64x2_splat(0);
+            for g in 0..groups {
+                let ap = act_base.add(g * 32);
+                let w_lo = v128_load(wp.add(g * 32) as *const v128);
+                let w_hi = v128_load(wp.add(g * 32 + 16) as *const v128);
+                let d0 =
+                    i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_lo), v128_load(ap as *const v128));
+                let d1 = i32x4_dot_i16x8(
+                    i16x8_extend_high_i8x16(w_lo),
+                    v128_load(ap.add(8) as *const v128),
+                );
+                let d2 = i32x4_dot_i16x8(
+                    i16x8_extend_low_i8x16(w_hi),
+                    v128_load(ap.add(16) as *const v128),
+                );
+                let d3 = i32x4_dot_i16x8(
+                    i16x8_extend_high_i8x16(w_hi),
+                    v128_load(ap.add(24) as *const v128),
+                );
+                let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
+                let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                acc = i64x2_add(acc, i64x2_extmul_low_i32x4(pair, mult_v));
+            }
+            let sum = i64x2_extract_lane::<0>(acc) + i64x2_extract_lane::<1>(acc);
+            *out_base.add(r) =
+                scale_i64_acc_to_i32(sum, out_exp - (i32::from(*re_base.add(r)) + x_exp));
+            r += 1;
+        }
+        return;
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        for (r, out_slot) in out.iter_mut().enumerate().take(rows) {
+            let re = i32::from(row_exp[r]);
+            let sh = out_exp - (re + x_exp);
+            let ws = &weights[r * cols..(r + 1) * cols];
+            let mults = &group_mult[r * groups..(r + 1) * groups];
+            let mut acc = 0i64;
+            for g in 0..groups {
+                let wg: &[i8; 32] = (&ws[g * 32..(g + 1) * 32]).try_into().unwrap();
+                let ag: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
+                acc += i64::from(dot_i8_group32(wg, ag)) * i64::from(mults[g]);
+            }
+            *out_slot = scale_i64_acc_to_i32(acc, sh);
+        }
     }
 }
 
@@ -2207,19 +2656,423 @@ fn gemv_i8_rht_into(
     let cols = m.cols;
     let act16 = &mut act16_buf[..cols];
     let x_exp = prepare_rht_act16_packed(norm_in, in_exp, &m.rht_signs_packed, rht_buf, act16);
+    gemv_i8_rht_rows(
+        m.rows,
+        cols,
+        &m.weights,
+        &m.group_mult,
+        &m.row_exp,
+        x_exp,
+        out_exp,
+        act16,
+        out,
+    );
+}
+
+/// Formal R4.HoloGeometricRuntime evaluate indexed `int8` matrix rows in 4-row `simd128` register tiles for `lm_head`.
+fn gemv_i8_indexed_into(
+    m: &HoloInt8RhtMatrix,
+    row_ids: &[u32],
+    act16: &[i16],
+    x_exp: i32,
+    out_exp: i32,
+    out: &mut Vec<(u32, i32)>,
+) {
+    let cols = m.cols;
     let groups = cols >> 5;
-    for (r, out_slot) in out.iter_mut().enumerate().take(m.rows) {
-        let re = i32::from(m.row_exp[r]);
+    out.clear();
+    out.reserve(row_ids.len());
+    assert!(m.weights.len() >= m.rows * cols);
+    assert!(m.group_mult.len() >= m.rows * groups);
+    assert!(m.row_exp.len() >= m.rows);
+    assert!(act16.len() >= cols);
+
+    let score_single = |ri: usize| -> i32 {
+        let re = i32::from(m.row_exp[ri]);
         let sh = out_exp - (re + x_exp);
-        let ws = &m.weights[r * cols..(r + 1) * cols];
-        let mults = &m.group_mult[r * groups..(r + 1) * groups];
+        let ws = &m.weights[ri * cols..(ri + 1) * cols];
+        let mults = &m.group_mult[ri * groups..(ri + 1) * groups];
         let mut acc = 0i64;
         for g in 0..groups {
             let wg: &[i8; 32] = (&ws[g * 32..(g + 1) * 32]).try_into().unwrap();
             let ag: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
             acc += i64::from(dot_i8_group32(wg, ag)) * i64::from(mults[g]);
         }
-        *out_slot = scale_i64_acc_to_i32(acc, sh);
+        scale_i64_acc_to_i32(acc, sh)
+    };
+
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    {
+        use core::arch::wasm32::*;
+        let chunks = row_ids.chunks_exact(4);
+        let rem = chunks.remainder();
+        for ch in chunks {
+            let r0 = ch[0] as usize;
+            let r1 = ch[1] as usize;
+            let r2 = ch[2] as usize;
+            let r3 = ch[3] as usize;
+            if r0 < m.rows && r1 < m.rows && r2 < m.rows && r3 < m.rows {
+                // SAFETY: Every `ri < m.rows`, and all `m.weights`/`m.group_mult`/`m.row_exp`/`act16` bounds were asserted above.
+                unsafe {
+                    let w_base = m.weights.as_ptr();
+                    let gm_base = m.group_mult.as_ptr();
+                    let act_base = act16.as_ptr();
+                    let wp0 = w_base.add(r0 * cols);
+                    let wp1 = w_base.add(r1 * cols);
+                    let wp2 = w_base.add(r2 * cols);
+                    let wp3 = w_base.add(r3 * cols);
+                    let mp0 = gm_base.add(r0 * groups);
+                    let mp1 = gm_base.add(r1 * groups);
+                    let mp2 = gm_base.add(r2 * groups);
+                    let mp3 = gm_base.add(r3 * groups);
+
+                    let mut acc0 = i64x2_splat(0);
+                    let mut acc1 = i64x2_splat(0);
+                    let mut acc2 = i64x2_splat(0);
+                    let mut acc3 = i64x2_splat(0);
+
+                    for g in 0..groups {
+                        let ap = act_base.add(g * 32);
+                        let a0 = v128_load(ap as *const v128);
+                        let a1 = v128_load(ap.add(8) as *const v128);
+                        let a2 = v128_load(ap.add(16) as *const v128);
+                        let a3 = v128_load(ap.add(24) as *const v128);
+                        let g_off = g * 32;
+
+                        macro_rules! acc_idx_row {
+                            ($wp:expr, $mp:expr, $acc:expr) => {{
+                                let w_lo = v128_load($wp.add(g_off) as *const v128);
+                                let w_hi = v128_load($wp.add(g_off + 16) as *const v128);
+                                let d0 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_lo), a0);
+                                let d1 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_lo), a1);
+                                let d2 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_hi), a2);
+                                let d3 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_hi), a3);
+                                let sum4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                                let pair = i32x4_add(sum4, i32x4_shuffle::<2, 3, 0, 1>(sum4, sum4));
+                                let mult_v = i32x4_splat(i32::from(*$mp.add(g)));
+                                $acc = i64x2_add($acc, i64x2_extmul_low_i32x4(pair, mult_v));
+                            }};
+                        }
+                        acc_idx_row!(wp0, mp0, acc0);
+                        acc_idx_row!(wp1, mp1, acc1);
+                        acc_idx_row!(wp2, mp2, acc2);
+                        acc_idx_row!(wp3, mp3, acc3);
+                    }
+
+                    let sum0 = i64x2_extract_lane::<0>(acc0) + i64x2_extract_lane::<1>(acc0);
+                    let sum1 = i64x2_extract_lane::<0>(acc1) + i64x2_extract_lane::<1>(acc1);
+                    let sum2 = i64x2_extract_lane::<0>(acc2) + i64x2_extract_lane::<1>(acc2);
+                    let sum3 = i64x2_extract_lane::<0>(acc3) + i64x2_extract_lane::<1>(acc3);
+
+                    out.push((
+                        ch[0],
+                        scale_i64_acc_to_i32(sum0, out_exp - (i32::from(m.row_exp[r0]) + x_exp)),
+                    ));
+                    out.push((
+                        ch[1],
+                        scale_i64_acc_to_i32(sum1, out_exp - (i32::from(m.row_exp[r1]) + x_exp)),
+                    ));
+                    out.push((
+                        ch[2],
+                        scale_i64_acc_to_i32(sum2, out_exp - (i32::from(m.row_exp[r2]) + x_exp)),
+                    ));
+                    out.push((
+                        ch[3],
+                        scale_i64_acc_to_i32(sum3, out_exp - (i32::from(m.row_exp[r3]) + x_exp)),
+                    ));
+                }
+            } else {
+                for &r in ch {
+                    let ri = r as usize;
+                    if ri < m.rows {
+                        out.push((r, score_single(ri)));
+                    }
+                }
+            }
+        }
+        for &r in rem {
+            let ri = r as usize;
+            if ri < m.rows {
+                out.push((r, score_single(ri)));
+            }
+        }
+        return;
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        for &r in row_ids {
+            let ri = r as usize;
+            if ri < m.rows {
+                out.push((r, score_single(ri)));
+            }
+        }
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime execute batched `bt <= MAX_PREFILL_TILE` `int4` GEMM unpacking weights once per `(row, group)`.
+#[allow(clippy::too_many_arguments)]
+fn gemm_i4_rht_batch(
+    m: &HoloInt4RhtMatrix,
+    norm_batch: &[i64],
+    bt: usize,
+    in_exp: i32,
+    out_exp: i32,
+    rht_buf: &mut [i32],
+    act16_tmp: &mut [i16],
+    act16_interleaved: &mut [i16],
+    out_batch: &mut [i32],
+) {
+    let rows = m.rows;
+    let cols = m.cols;
+    let groups = cols >> 5;
+    let row_bytes = cols >> 1;
+    let mut x_exps = [0i32; MAX_PREFILL_TILE];
+    prepare_rht_act16_batch(
+        norm_batch,
+        bt,
+        cols,
+        in_exp,
+        &m.rht_signs_packed,
+        rht_buf,
+        act16_tmp,
+        act16_interleaved,
+        &mut x_exps,
+    );
+    assert!(m.nibbles.len() >= rows * row_bytes);
+    assert!(m.group_mult.len() >= rows * groups);
+    assert!(m.row_exp.len() >= rows);
+    assert!(out_batch.len() >= bt * rows);
+
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    // SAFETY: All matrix and tile buffer bounds are asserted above for `bt <= MAX_PREFILL_TILE`.
+    unsafe {
+        use core::arch::wasm32::*;
+        let nb_base = m.nibbles.as_ptr();
+        let gm_base = m.group_mult.as_ptr();
+        let act_base = act16_interleaved.as_ptr();
+        let out_base = out_batch.as_mut_ptr();
+        let mask_lo = u8x16_splat(0x0f);
+        let bias = i8x16_splat(8);
+
+        if bt == MAX_PREFILL_TILE {
+            for r in 0..rows {
+                let re = i32::from(m.row_exp[r]);
+                let np = nb_base.add(r * row_bytes);
+                let mp = gm_base.add(r * groups);
+                let mut acc0 = i64x2_splat(0);
+                let mut acc1 = i64x2_splat(0);
+                let mut acc2 = i64x2_splat(0);
+                let mut acc3 = i64x2_splat(0);
+                let mut acc4 = i64x2_splat(0);
+                let mut acc5 = i64x2_splat(0);
+                let mut acc6 = i64x2_splat(0);
+                let mut acc7 = i64x2_splat(0);
+
+                for g in 0..groups {
+                    let p = v128_load(np.add(g * 16) as *const v128);
+                    let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
+                    let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
+                    let w0 = i16x8_extend_low_i8x16(w_lo_i8);
+                    let w1 = i16x8_extend_high_i8x16(w_lo_i8);
+                    let w2 = i16x8_extend_low_i8x16(w_hi_i8);
+                    let w3 = i16x8_extend_high_i8x16(w_hi_i8);
+                    let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                    let base_a = act_base.add(g * (MAX_PREFILL_TILE * 32));
+
+                    macro_rules! dot_tile_col {
+                        ($col:expr, $acc:expr) => {{
+                            let cp = base_a.add($col * 32);
+                            let d0 = i32x4_dot_i16x8(w0, v128_load(cp as *const v128));
+                            let d1 = i32x4_dot_i16x8(w1, v128_load(cp.add(8) as *const v128));
+                            let d2 = i32x4_dot_i16x8(w2, v128_load(cp.add(16) as *const v128));
+                            let d3 = i32x4_dot_i16x8(w3, v128_load(cp.add(24) as *const v128));
+                            let s4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                            let pr = i32x4_add(s4, i32x4_shuffle::<2, 3, 0, 1>(s4, s4));
+                            $acc = i64x2_add($acc, i64x2_extmul_low_i32x4(pr, mult_v));
+                        }};
+                    }
+
+                    dot_tile_col!(0, acc0);
+                    dot_tile_col!(1, acc1);
+                    dot_tile_col!(2, acc2);
+                    dot_tile_col!(3, acc3);
+                    dot_tile_col!(4, acc4);
+                    dot_tile_col!(5, acc5);
+                    dot_tile_col!(6, acc6);
+                    dot_tile_col!(7, acc7);
+                }
+
+                let accs = [acc0, acc1, acc2, acc3, acc4, acc5, acc6, acc7];
+                for b in 0..MAX_PREFILL_TILE {
+                    let sum = i64x2_extract_lane::<0>(accs[b]) + i64x2_extract_lane::<1>(accs[b]);
+                    *out_base.add(b * rows + r) =
+                        scale_i64_acc_to_i32(sum, out_exp - (re + x_exps[b]));
+                }
+            }
+            return;
+        }
+
+        for r in 0..rows {
+            let re = i32::from(m.row_exp[r]);
+            let np = nb_base.add(r * row_bytes);
+            let mp = gm_base.add(r * groups);
+            let mut accs = [i64x2_splat(0); MAX_PREFILL_TILE];
+            for g in 0..groups {
+                let p = v128_load(np.add(g * 16) as *const v128);
+                let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
+                let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
+                let w0 = i16x8_extend_low_i8x16(w_lo_i8);
+                let w1 = i16x8_extend_high_i8x16(w_lo_i8);
+                let w2 = i16x8_extend_low_i8x16(w_hi_i8);
+                let w3 = i16x8_extend_high_i8x16(w_hi_i8);
+                let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                let base_a = act_base.add(g * bt * 32);
+                for b in 0..bt {
+                    let cp = base_a.add(b * 32);
+                    let d0 = i32x4_dot_i16x8(w0, v128_load(cp as *const v128));
+                    let d1 = i32x4_dot_i16x8(w1, v128_load(cp.add(8) as *const v128));
+                    let d2 = i32x4_dot_i16x8(w2, v128_load(cp.add(16) as *const v128));
+                    let d3 = i32x4_dot_i16x8(w3, v128_load(cp.add(24) as *const v128));
+                    let s4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                    let pr = i32x4_add(s4, i32x4_shuffle::<2, 3, 0, 1>(s4, s4));
+                    accs[b] = i64x2_add(accs[b], i64x2_extmul_low_i32x4(pr, mult_v));
+                }
+            }
+            for b in 0..bt {
+                let sum = i64x2_extract_lane::<0>(accs[b]) + i64x2_extract_lane::<1>(accs[b]);
+                *out_base.add(b * rows + r) = scale_i64_acc_to_i32(sum, out_exp - (re + x_exps[b]));
+            }
+        }
+        return;
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        for r in 0..rows {
+            let re = i32::from(m.row_exp[r]);
+            let nibs = &m.nibbles[r * row_bytes..(r + 1) * row_bytes];
+            let mults = &m.group_mult[r * groups..(r + 1) * groups];
+            let mut acc = [0i64; MAX_PREFILL_TILE];
+            for g in 0..groups {
+                let nb: &[u8; 16] = (&nibs[g * 16..(g + 1) * 16]).try_into().unwrap();
+                let mult = i64::from(mults[g]);
+                let g_base = g * bt * 32;
+                for b in 0..bt {
+                    let a: &[i16; 32] = (&act16_interleaved
+                        [g_base + b * 32..g_base + (b + 1) * 32])
+                        .try_into()
+                        .unwrap();
+                    acc[b] += i64::from(dot_i4_group32(nb, a)) * mult;
+                }
+            }
+            for b in 0..bt {
+                let sh = out_exp - (re + x_exps[b]);
+                out_batch[b * rows + r] = scale_i64_acc_to_i32(acc[b], sh);
+            }
+        }
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime execute batched `bt <= MAX_PREFILL_TILE` `int8` GEMM unpacking weights once per `(row, group)`.
+#[allow(clippy::too_many_arguments)]
+fn gemm_i8_rht_batch(
+    m: &HoloInt8RhtMatrix,
+    norm_batch: &[i64],
+    bt: usize,
+    in_exp: i32,
+    out_exp: i32,
+    rht_buf: &mut [i32],
+    act16_tmp: &mut [i16],
+    act16_interleaved: &mut [i16],
+    out_batch: &mut [i32],
+) {
+    let rows = m.rows;
+    let cols = m.cols;
+    let groups = cols >> 5;
+    let mut x_exps = [0i32; MAX_PREFILL_TILE];
+    prepare_rht_act16_batch(
+        norm_batch,
+        bt,
+        cols,
+        in_exp,
+        &m.rht_signs_packed,
+        rht_buf,
+        act16_tmp,
+        act16_interleaved,
+        &mut x_exps,
+    );
+    assert!(m.weights.len() >= rows * cols);
+    assert!(m.group_mult.len() >= rows * groups);
+    assert!(m.row_exp.len() >= rows);
+    assert!(out_batch.len() >= bt * rows);
+
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    // SAFETY: All matrix and tile buffer bounds are asserted above for `bt <= MAX_PREFILL_TILE`.
+    unsafe {
+        use core::arch::wasm32::*;
+        let w_base = m.weights.as_ptr();
+        let gm_base = m.group_mult.as_ptr();
+        let act_base = act16_interleaved.as_ptr();
+        let out_base = out_batch.as_mut_ptr();
+
+        for r in 0..rows {
+            let re = i32::from(m.row_exp[r]);
+            let wp = w_base.add(r * cols);
+            let mp = gm_base.add(r * groups);
+            let mut accs = [i64x2_splat(0); MAX_PREFILL_TILE];
+            for g in 0..groups {
+                let w_lo = v128_load(wp.add(g * 32) as *const v128);
+                let w_hi = v128_load(wp.add(g * 32 + 16) as *const v128);
+                let w0 = i16x8_extend_low_i8x16(w_lo);
+                let w1 = i16x8_extend_high_i8x16(w_lo);
+                let w2 = i16x8_extend_low_i8x16(w_hi);
+                let w3 = i16x8_extend_high_i8x16(w_hi);
+                let mult_v = i32x4_splat(i32::from(*mp.add(g)));
+                let base_a = act_base.add(g * bt * 32);
+                for b in 0..bt {
+                    let cp = base_a.add(b * 32);
+                    let d0 = i32x4_dot_i16x8(w0, v128_load(cp as *const v128));
+                    let d1 = i32x4_dot_i16x8(w1, v128_load(cp.add(8) as *const v128));
+                    let d2 = i32x4_dot_i16x8(w2, v128_load(cp.add(16) as *const v128));
+                    let d3 = i32x4_dot_i16x8(w3, v128_load(cp.add(24) as *const v128));
+                    let s4 = i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3));
+                    let pr = i32x4_add(s4, i32x4_shuffle::<2, 3, 0, 1>(s4, s4));
+                    accs[b] = i64x2_add(accs[b], i64x2_extmul_low_i32x4(pr, mult_v));
+                }
+            }
+            for b in 0..bt {
+                let sum = i64x2_extract_lane::<0>(accs[b]) + i64x2_extract_lane::<1>(accs[b]);
+                *out_base.add(b * rows + r) = scale_i64_acc_to_i32(sum, out_exp - (re + x_exps[b]));
+            }
+        }
+        return;
+    }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        for r in 0..rows {
+            let re = i32::from(m.row_exp[r]);
+            let ws = &m.weights[r * cols..(r + 1) * cols];
+            let mults = &m.group_mult[r * groups..(r + 1) * groups];
+            let mut acc = [0i64; MAX_PREFILL_TILE];
+            for g in 0..groups {
+                let wg: &[i8; 32] = (&ws[g * 32..(g + 1) * 32]).try_into().unwrap();
+                let mult = i64::from(mults[g]);
+                let g_base = g * bt * 32;
+                for b in 0..bt {
+                    let ag: &[i16; 32] = (&act16_interleaved
+                        [g_base + b * 32..g_base + (b + 1) * 32])
+                        .try_into()
+                        .unwrap();
+                    acc[b] += i64::from(dot_i8_group32(wg, ag)) * mult;
+                }
+            }
+            for b in 0..bt {
+                let sh = out_exp - (re + x_exps[b]);
+                out_batch[b * rows + r] = scale_i64_acc_to_i32(acc[b], sh);
+            }
+        }
     }
 }
 
@@ -2262,7 +3115,7 @@ fn silu_i32_with_table(silu_table: &[i32], xv: i32) -> i32 {
 fn select_shortlist_into(
     vocab_size: usize,
     shortlist_k: usize,
-    rht_signs_packed: &[u32],
+    q_sig: [u64; SIG_WORDS],
     vocab_sigs: &[u64],
     ascii_fast_tokens: &[u32],
     special_ids: [u32; 3],
@@ -2270,23 +3123,71 @@ fn select_shortlist_into(
     use_shortlist: bool,
     scratch: &mut HoloScratch,
 ) {
-    let q_sig =
-        compute_rht512_query_sig_packed(&scratch.norm_d, rht_signs_packed, &mut scratch.rht_i32);
     scratch.last_q_sig512 = q_sig;
     scratch.hamming_hist.fill(0);
     scratch.last_hamming_hist32 = [0u32; 32];
+    assert!(vocab_sigs.len() >= vocab_size * SIG_WORDS);
+    assert!(scratch.hamming_dists.len() >= vocab_size);
+
     let mut min_d = 512u16;
-    for v in 0..vocab_size {
-        let base = v * SIG_WORDS;
-        let d_ham = hamming512_u64x8(&q_sig, &vocab_sigs[base..base + SIG_WORDS]) as usize;
-        let clamped = d_ham.min(512);
-        scratch.hamming_dists[v] = clamped as u16;
-        scratch.hamming_hist[clamped] += 1;
-        scratch.last_hamming_hist32[(clamped >> 4).min(31)] += 1;
-        if (clamped as u16) < min_d {
-            min_d = clamped as u16;
+    #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+    {
+        use core::arch::wasm32::*;
+        // SAFETY: `vocab_sigs.len() >= vocab_size * 8` and `hamming_dists.len() >= vocab_size` are asserted above.
+        unsafe {
+            let qp = q_sig.as_ptr() as *const v128;
+            let q0 = v128_load(qp);
+            let q1 = v128_load(qp.add(1));
+            let q2 = v128_load(qp.add(2));
+            let q3 = v128_load(qp.add(3));
+            let vs_base = vocab_sigs.as_ptr() as *const v128;
+            let hd_ptr = scratch.hamming_dists.as_mut_ptr();
+            for v in 0..vocab_size {
+                let vp = vs_base.add(v * 4);
+                let x0 = u8x16_popcnt(v128_xor(q0, v128_load(vp)));
+                let x1 = u8x16_popcnt(v128_xor(q1, v128_load(vp.add(1))));
+                let x2 = u8x16_popcnt(v128_xor(q2, v128_load(vp.add(2))));
+                let x3 = u8x16_popcnt(v128_xor(q3, v128_load(vp.add(3))));
+                let p01 = i16x8_add(
+                    u16x8_extadd_pairwise_u8x16(x0),
+                    u16x8_extadd_pairwise_u8x16(x1),
+                );
+                let p23 = i16x8_add(
+                    u16x8_extadd_pairwise_u8x16(x2),
+                    u16x8_extadd_pairwise_u8x16(x3),
+                );
+                let sum8 = i16x8_add(p01, p23);
+                let sum4 = i32x4_extadd_pairwise_i16x8(sum8);
+                let d_ham = (i32x4_extract_lane::<0>(sum4)
+                    + i32x4_extract_lane::<1>(sum4)
+                    + i32x4_extract_lane::<2>(sum4)
+                    + i32x4_extract_lane::<3>(sum4)) as usize;
+                let clamped = d_ham.min(512);
+                *hd_ptr.add(v) = clamped as u16;
+                scratch.hamming_hist[clamped] += 1;
+                scratch.last_hamming_hist32[(clamped >> 4).min(31)] += 1;
+                if (clamped as u16) < min_d {
+                    min_d = clamped as u16;
+                }
+            }
         }
     }
+
+    #[cfg(not(all(target_arch = "wasm32", target_feature = "simd128")))]
+    {
+        for v in 0..vocab_size {
+            let base = v * SIG_WORDS;
+            let d_ham = hamming512_u64x8(&q_sig, &vocab_sigs[base..base + SIG_WORDS]) as usize;
+            let clamped = d_ham.min(512);
+            scratch.hamming_dists[v] = clamped as u16;
+            scratch.hamming_hist[clamped] += 1;
+            scratch.last_hamming_hist32[(clamped >> 4).min(31)] += 1;
+            if (clamped as u16) < min_d {
+                min_d = clamped as u16;
+            }
+        }
+    }
+
     scratch.last_min_hamming = min_d;
     scratch.shortlist_out.clear();
     if !use_shortlist || vocab_size <= shortlist_k {
@@ -2343,13 +3244,6 @@ fn select_shortlist_into(
             &mut scratch.shortlist_out,
         );
     }
-    for &id in ascii_fast_tokens {
-        push_if_new(
-            id,
-            &mut scratch.shortlist_bitset,
-            &mut scratch.shortlist_out,
-        );
-    }
     for id in special_ids {
         push_if_new(
             id,
@@ -2357,6 +3251,301 @@ fn select_shortlist_into(
             &mut scratch.shortlist_out,
         );
     }
+    let max_shortlist = shortlist_k.saturating_add(512).min(vocab_size);
+    for &id in ascii_fast_tokens {
+        if scratch.shortlist_out.len() >= max_shortlist {
+            break;
+        }
+        push_if_new(
+            id,
+            &mut scratch.shortlist_bitset,
+            &mut scratch.shortlist_out,
+        );
+    }
+}
+
+/// Formal R4.HoloGeometricRuntime execute mandatory pre-RoPE per-head `q_norm`/`k_norm`, NeoX RoPE,
+/// `kv_cache.push_kv`, and 128-bit QK Starling Flock causal sparse attention for one token position.
+#[allow(clippy::too_many_arguments)]
+fn attend_token_layer(
+    layer: &HoloV13Layer,
+    kv_cache: &mut HoloPrefixKvCache,
+    l: usize,
+    nh: usize,
+    nkv: usize,
+    hd: usize,
+    flock_window: usize,
+    rms_eps_q48: i64,
+    score_scale_q30: i64,
+    cos_row: &[i16],
+    sin_row: &[i16],
+    exp_table: &[u32],
+    q: &mut [i32],
+    k: &mut [i32],
+    v: &[i32],
+    attn_out: &mut [i64],
+    attn_work: &mut HoloAttnScratch,
+    mut flock_span_slot: Option<&mut u16>,
+    last_attn_peaks_out: Option<&mut Vec<HoloAttnPeak>>,
+) -> (usize, usize) {
+    let group_sz = nh / nkv;
+    let half = hd / 2;
+    let kv_dim = nkv * hd;
+
+    // Mandatory per-head q_norm & k_norm BEFORE NeoX half-split RoPE (`R4-51`)
+    for h in 0..nh {
+        let off = h * hd;
+        int_rms_norm_gain(
+            &q[off..off + hd],
+            &layer.q_norm_q24,
+            rms_eps_q48,
+            RESIDUAL_EXP,
+            RESIDUAL_EXP,
+            &mut attn_work.q_h_norm,
+        );
+        for i in 0..half {
+            let c = i64::from(cos_row[i]);
+            let s = i64::from(sin_row[i]);
+            let q0 = attn_work.q_h_norm[i];
+            let q1 = attn_work.q_h_norm[i + half];
+            q[off + i] = ((q0 * c - q1 * s + (1 << 13)) >> ROPE_Q) as i32;
+            q[off + i + half] = ((q0 * s + q1 * c + (1 << 13)) >> ROPE_Q) as i32;
+        }
+    }
+    for kh in 0..nkv {
+        let off = kh * hd;
+        int_rms_norm_gain(
+            &k[off..off + hd],
+            &layer.k_norm_q24,
+            rms_eps_q48,
+            RESIDUAL_EXP,
+            RESIDUAL_EXP,
+            &mut attn_work.k_h_norm,
+        );
+        for i in 0..half {
+            let c = i64::from(cos_row[i]);
+            let s = i64::from(sin_row[i]);
+            let k0 = attn_work.k_h_norm[i];
+            let k1 = attn_work.k_h_norm[i + half];
+            k[off + i] = ((k0 * c - k1 * s + (1 << 13)) >> ROPE_Q) as i32;
+            k[off + i + half] = ((k0 * s + k1 * c + (1 << 13)) >> ROPE_Q) as i32;
+        }
+    }
+
+    kv_cache.push_kv(l, k, v, nkv, hd);
+    let seq_len = kv_cache.seq_len[l];
+    let track_peaks = last_attn_peaks_out.is_some();
+    if track_peaks {
+        attn_work.attn_accum_q16.clear();
+        attn_work.attn_accum_q16.resize(seq_len, 0);
+    }
+
+    let mut flock_attended = 0usize;
+    let mut flock_total = 0usize;
+    let k_vec = &kv_cache.k_i16[l];
+    let k_scales = &kv_cache.k_scales[l];
+    let v_scales = &kv_cache.v_scales[l];
+    let v_vec = &kv_cache.v_i16[l];
+    let k_sigs = &kv_cache.k_sig128[l];
+
+    for h in 0..nh {
+        let kh = h / group_sz;
+        let q_h = &q[h * hd..(h + 1) * hd];
+        let mut q_sig = [0u64; 2];
+        let mut q_max_abs = 0u32;
+        for (d_i, &qv) in q_h.iter().enumerate() {
+            if qv >= 0 {
+                q_sig[d_i >> 6] |= 1u64 << (d_i & 63);
+            }
+            q_max_abs = q_max_abs.max(qv.unsigned_abs());
+        }
+        let q_bl = (32 - q_max_abs.leading_zeros() as i32).max(1);
+        let q_sh = (q_bl - 15).max(0);
+        for (dst, &qv) in attn_work.q_i16.iter_mut().zip(q_h.iter()).take(hd) {
+            *dst = shift_round(i64::from(qv), q_sh).clamp(-32_767, 32_767) as i16;
+        }
+
+        attn_work.selected.clear();
+        if seq_len <= flock_window {
+            attn_work.selected.extend(0..seq_len);
+        } else {
+            attn_work.flock_cands.clear();
+            let sink_keep = 4usize;
+            let rec_keep = (flock_window / 4).max(16).min(seq_len);
+            for t in 0..seq_len {
+                let k_sig = k_sigs[t * nkv + kh];
+                let dist = (q_sig[0] ^ k_sig[0]).count_ones() + (q_sig[1] ^ k_sig[1]).count_ones();
+                let prio = if t < sink_keep || t + rec_keep >= seq_len {
+                    0
+                } else {
+                    dist
+                };
+                attn_work.flock_cands.push((prio, t));
+            }
+            let nth = flock_window - 1;
+            attn_work.flock_cands.select_nth_unstable(nth);
+            attn_work
+                .selected
+                .extend(attn_work.flock_cands[..flock_window].iter().map(|x| x.1));
+            attn_work.selected.sort_unstable();
+        }
+        if h == 0 {
+            if let Some(slot) = flock_span_slot.as_deref_mut() {
+                *slot = attn_work.selected.len().min(u16::MAX as usize) as u16;
+            }
+        }
+        flock_attended += attn_work.selected.len();
+        flock_total += seq_len;
+
+        attn_work.scores.clear();
+        let mut max_s = i64::MIN;
+        let mut max_vs = 0u32;
+        let q_i16_fixed: Option<&[i16; 128]> = if hd == 128 {
+            Some((&attn_work.q_i16[..128]).try_into().unwrap())
+        } else {
+            None
+        };
+
+        for &t in &attn_work.selected {
+            let meta_idx = t * nkv + kh;
+            let k_off = t * kv_dim + kh * hd;
+            let k_slice = &k_vec[k_off..k_off + hd];
+            let dot_raw = if let Some(qa) = q_i16_fixed {
+                dot_i16_128(qa, k_slice)
+            } else {
+                let mut acc = 0i64;
+                for (&qi, &ki) in attn_work.q_i16.iter().zip(k_slice.iter()).take(hd) {
+                    acc += i64::from(qi) * i64::from(ki);
+                }
+                acc
+            };
+            let ks = i128::from(k_scales[meta_idx]);
+            let dot_scaled = (i128::from(dot_raw) << (q_sh as u32)) * ks;
+            let s_q16 = ((dot_scaled * i128::from(score_scale_q30) + (1i128 << 49)) >> 50) as i64;
+            attn_work.scores.push(s_q16);
+            if s_q16 > max_s {
+                max_s = s_q16;
+            }
+            max_vs = max_vs.max(v_scales[meta_idx].unsigned_abs());
+        }
+
+        attn_work.exp_w.clear();
+        let mut den = 0u64;
+        for &sc in &attn_work.scores {
+            let w = (exp_neg_with_table(exp_table, max_s - sc) >> 14) as i64;
+            attn_work.exp_w.push(w);
+            den += w as u64;
+        }
+        let den_u128 = den.max(1) as u128;
+        if max_vs <= (1 << 18) && hd <= 128 {
+            let mut num = [0i64; 128];
+            for (si, &t) in attn_work.selected.iter().enumerate() {
+                let w = attn_work.exp_w[si];
+                if w == 0 {
+                    continue;
+                }
+                let meta_idx = t * nkv + kh;
+                if track_peaks {
+                    attn_work.attn_accum_q16[t] = attn_work.attn_accum_q16[t]
+                        .saturating_add(((w as u128 * 65_535) / den_u128) as u32);
+                }
+                let v_off = t * kv_dim + kh * hd;
+                let vs = i64::from(v_scales[meta_idx]);
+                let v_slice = &v_vec[v_off..v_off + hd];
+                let wv_scale = w * vs;
+                #[cfg(all(target_arch = "wasm32", target_feature = "simd128"))]
+                if hd == 128 {
+                    if let Ok(wv32) = i32::try_from(wv_scale) {
+                        // SAFETY: `v_slice.len() == 128` and `num.len() == 128` across 16 blocks of 8 lanes.
+                        unsafe {
+                            use core::arch::wasm32::*;
+                            let vp = v_slice.as_ptr();
+                            let np = num.as_mut_ptr();
+                            let sv = i32x4_splat(wv32);
+                            for blk in 0..16 {
+                                let off = blk * 8;
+                                let v8 = v128_load(vp.add(off) as *const v128);
+                                let vlo = i32x4_extend_low_i16x8(v8);
+                                let vhi = i32x4_extend_high_i16x8(v8);
+                                let n0p = np.add(off) as *mut v128;
+                                let n1p = np.add(off + 2) as *mut v128;
+                                let n2p = np.add(off + 4) as *mut v128;
+                                let n3p = np.add(off + 6) as *mut v128;
+                                v128_store(
+                                    n0p,
+                                    i64x2_add(v128_load(n0p), i64x2_extmul_low_i32x4(vlo, sv)),
+                                );
+                                v128_store(
+                                    n1p,
+                                    i64x2_add(v128_load(n1p), i64x2_extmul_high_i32x4(vlo, sv)),
+                                );
+                                v128_store(
+                                    n2p,
+                                    i64x2_add(v128_load(n2p), i64x2_extmul_low_i32x4(vhi, sv)),
+                                );
+                                v128_store(
+                                    n3p,
+                                    i64x2_add(v128_load(n3p), i64x2_extmul_high_i32x4(vhi, sv)),
+                                );
+                            }
+                        }
+                        continue;
+                    }
+                }
+                for d_i in 0..hd {
+                    num[d_i] += wv_scale * i64::from(v_slice[d_i]);
+                }
+            }
+            let den_s = den.max(1) as i64;
+            for (dst, &nv) in attn_out[h * hd..].iter_mut().zip(num.iter()).take(hd) {
+                *dst = nv / den_s;
+            }
+        } else {
+            let mut num = [0i128; 128];
+            for (si, &t) in attn_work.selected.iter().enumerate() {
+                let w = attn_work.exp_w[si];
+                if w == 0 {
+                    continue;
+                }
+                let meta_idx = t * nkv + kh;
+                if track_peaks {
+                    attn_work.attn_accum_q16[t] = attn_work.attn_accum_q16[t]
+                        .saturating_add(((w as u128 * 65_535) / den_u128) as u32);
+                }
+                let v_off = t * kv_dim + kh * hd;
+                let vs = i128::from(v_scales[meta_idx]);
+                let v_slice = &v_vec[v_off..v_off + hd];
+                let wv_scale = i128::from(w) * vs;
+                for d_i in 0..hd {
+                    num[d_i] += wv_scale * i128::from(v_slice[d_i]);
+                }
+            }
+            let den_s = den.max(1) as i128;
+            for (dst, &nv) in attn_out[h * hd..].iter_mut().zip(num.iter()).take(hd) {
+                *dst = (nv / den_s) as i64;
+            }
+        }
+    }
+
+    if let Some(peaks_out) = last_attn_peaks_out {
+        if !attn_work.attn_accum_q16.is_empty() {
+            let nh_u32 = nh.max(1) as u32;
+            let mut ranked_peaks: Vec<(u32, usize)> = attn_work
+                .attn_accum_q16
+                .iter()
+                .enumerate()
+                .map(|(t, &acc)| (acc / nh_u32, t))
+                .collect();
+            ranked_peaks.sort_unstable_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)));
+            for (w, t) in ranked_peaks.into_iter().take(8) {
+                peaks_out.push(HoloAttnPeak {
+                    pos: t.min(u16::MAX as usize) as u16,
+                    weight_q16: w.min(65_535) as u16,
+                });
+            }
+        }
+    }
+    (flock_attended, flock_total)
 }
 
 impl HoloV13Model {
@@ -2398,27 +3587,62 @@ impl HoloV13Model {
             &mut self.scratch.rht_i32,
             &mut self.scratch.act16,
         );
-        let act16 = &self.scratch.act16[..d];
-        let groups = d >> 5;
         let mut out = Vec::with_capacity(row_ids.len());
-        for &r in row_ids {
-            let ri = r as usize;
-            if ri >= self.embed.rows {
-                continue;
-            }
-            let re = i32::from(self.embed.row_exp[ri]);
-            let sh = out_exp - (re + x_exp);
-            let ws = &self.embed.weights[ri * d..(ri + 1) * d];
-            let mults = &self.embed.group_mult[ri * groups..(ri + 1) * groups];
-            let mut acc = 0i64;
-            for g in 0..groups {
-                let wg: &[i8; 32] = (&ws[g * 32..(g + 1) * 32]).try_into().unwrap();
-                let ag: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
-                acc += i64::from(dot_i8_group32(wg, ag)) * i64::from(mults[g]);
-            }
-            out.push((r, scale_i64_acc_to_i32(acc, sh)));
-        }
+        gemv_i8_indexed_into(
+            &self.embed,
+            row_ids,
+            &self.scratch.act16[..d],
+            x_exp,
+            out_exp,
+            &mut out,
+        );
         out
+    }
+
+    /// Formal R4.HoloGeometricRuntime finalize residual `norm_d`, extract RHT-512 signature once, shortlist, and score `lm_head`.
+    fn score_final_hidden_logits(
+        &mut self,
+        context_tokens: &[u32],
+        use_shortlist: bool,
+    ) -> Vec<(u32, i32)> {
+        let d = self.d_model;
+        int_rms_norm_gain(
+            &self.scratch.x,
+            &self.final_norm_q24,
+            self.rms_eps_q48,
+            RESIDUAL_EXP,
+            NORM_EXP,
+            &mut self.scratch.norm_d,
+        );
+        let x_exp = prepare_rht_act16_packed(
+            &self.scratch.norm_d,
+            NORM_EXP,
+            &self.embed.rht_signs_packed,
+            &mut self.scratch.rht_i32,
+            &mut self.scratch.act16,
+        );
+        let q_sig = extract_rht512_sig_from_rht(&self.scratch.rht_i32[..d]);
+        select_shortlist_into(
+            self.vocab_size,
+            self.shortlist_k,
+            q_sig,
+            &self.vocab_sigs,
+            &self.tokenizer.ascii_fast_tokens,
+            [self.eos_token_id, self.eot_token_id, self.think_end_id],
+            context_tokens,
+            use_shortlist,
+            &mut self.scratch,
+        );
+        let mut scored = Vec::with_capacity(self.scratch.shortlist_out.len());
+        gemv_i8_indexed_into(
+            &self.embed,
+            &self.scratch.shortlist_out,
+            &self.scratch.act16[..d],
+            x_exp,
+            -16,
+            &mut scored,
+        );
+        scored
     }
 
     /// Formal R4.HoloGeometricRuntime execute one zero-alloc pure-integer autoregressive token step across
@@ -2438,7 +3662,6 @@ impl HoloV13Model {
         let q_dim = nh * hd;
         let kv_dim = nkv * hd;
         let ffn = self.intermediate_size;
-        let group_sz = nh / nkv;
         let half = hd / 2;
         let pos = self
             .kv_cache
@@ -2450,7 +3673,6 @@ impl HoloV13Model {
             .ensure_sized(d, q_dim, kv_dim, ffn, hd, self.n_layers, self.vocab_size);
         let vocab_size = self.vocab_size;
         let n_layers = self.n_layers;
-        let shortlist_k = self.shortlist_k;
         let flock_window = self.flock_window;
         let rms_eps_q48 = self.rms_eps_q48;
         let score_scale_q30 = self.score_scale_q30;
@@ -2506,222 +3728,35 @@ impl HoloV13Model {
                 &mut scratch.v,
             );
 
-            // Mandatory per-head q_norm & k_norm BEFORE NeoX half-split RoPE (`R4-51`)
-            for h in 0..nh {
-                let off = h * hd;
-                int_rms_norm_gain(
-                    &scratch.q[off..off + hd],
-                    &layer.q_norm_q24,
-                    rms_eps_q48,
-                    RESIDUAL_EXP,
-                    RESIDUAL_EXP,
-                    &mut scratch.q_h_norm,
-                );
-                for i in 0..half {
-                    let c = i64::from(cos_row[i]);
-                    let s = i64::from(sin_row[i]);
-                    let q0 = scratch.q_h_norm[i];
-                    let q1 = scratch.q_h_norm[i + half];
-                    scratch.q[off + i] = ((q0 * c - q1 * s + (1 << 13)) >> ROPE_Q) as i32;
-                    scratch.q[off + i + half] = ((q0 * s + q1 * c + (1 << 13)) >> ROPE_Q) as i32;
-                }
-            }
-            for kh in 0..nkv {
-                let off = kh * hd;
-                int_rms_norm_gain(
-                    &scratch.k[off..off + hd],
-                    &layer.k_norm_q24,
-                    rms_eps_q48,
-                    RESIDUAL_EXP,
-                    RESIDUAL_EXP,
-                    &mut scratch.k_h_norm,
-                );
-                for i in 0..half {
-                    let c = i64::from(cos_row[i]);
-                    let s = i64::from(sin_row[i]);
-                    let k0 = scratch.k_h_norm[i];
-                    let k1 = scratch.k_h_norm[i + half];
-                    scratch.k[off + i] = ((k0 * c - k1 * s + (1 << 13)) >> ROPE_Q) as i32;
-                    scratch.k[off + i + half] = ((k0 * s + k1 * c + (1 << 13)) >> ROPE_Q) as i32;
-                }
-            }
-            self.kv_cache.push_kv(l, &scratch.k, &scratch.v, nkv, hd);
-            let seq_len = self.kv_cache.seq_len[l];
             let is_last_layer_logits = l + 1 == n_layers && compute_logits;
-            if is_last_layer_logits {
-                scratch.attn_accum_q16.clear();
-                scratch.attn_accum_q16.resize(seq_len, 0);
-            }
-
-            for h in 0..nh {
-                let kh = h / group_sz;
-                let q_h = &scratch.q[h * hd..(h + 1) * hd];
-                let mut q_sig = [0u64; 2];
-                let mut q_max_abs = 0u32;
-                for (d_i, &qv) in q_h.iter().enumerate() {
-                    if qv >= 0 {
-                        q_sig[d_i >> 6] |= 1u64 << (d_i & 63);
-                    }
-                    q_max_abs = q_max_abs.max(qv.unsigned_abs());
-                }
-                let q_bl = (32 - q_max_abs.leading_zeros() as i32).max(1);
-                let q_sh = (q_bl - 15).max(0);
-                for (dst, &qv) in scratch.q_i16.iter_mut().zip(q_h.iter()).take(hd) {
-                    *dst = shift_round(i64::from(qv), q_sh).clamp(-32_767, 32_767) as i16;
-                }
-
-                scratch.selected.clear();
-                if seq_len <= flock_window {
-                    scratch.selected.extend(0..seq_len);
-                } else {
-                    scratch.flock_cands.clear();
-                    let sink_keep = 4usize;
-                    let rec_keep = (flock_window / 4).max(16).min(seq_len);
-                    for t in 0..seq_len {
-                        let k_sig = self.kv_cache.k_sig128[l][t * nkv + kh];
-                        let dist =
-                            (q_sig[0] ^ k_sig[0]).count_ones() + (q_sig[1] ^ k_sig[1]).count_ones();
-                        let prio = if t < sink_keep || t + rec_keep >= seq_len {
-                            0
-                        } else {
-                            dist
-                        };
-                        scratch.flock_cands.push((prio, t));
-                    }
-                    let nth = flock_window - 1;
-                    scratch.flock_cands.select_nth_unstable(nth);
-                    scratch
-                        .selected
-                        .extend(scratch.flock_cands[..flock_window].iter().map(|x| x.1));
-                    scratch.selected.sort_unstable();
-                }
-                if h == 0 {
-                    scratch.layer_flock_spans[l] =
-                        scratch.selected.len().min(u16::MAX as usize) as u16;
-                }
-                flock_attended += scratch.selected.len();
-                flock_total += seq_len;
-
-                scratch.scores.clear();
-                let mut max_s = i64::MIN;
-                let mut max_vs = 0u32;
-                let k_vec = &self.kv_cache.k_i16[l];
-                let k_scales = &self.kv_cache.k_scales[l];
-                let v_scales = &self.kv_cache.v_scales[l];
-                let q_i16_fixed: Option<&[i16; 128]> = if hd == 128 {
-                    Some((&scratch.q_i16[..128]).try_into().unwrap())
-                } else {
-                    None
-                };
-
-                for &t in &scratch.selected {
-                    let meta_idx = t * nkv + kh;
-                    let k_off = t * kv_dim + kh * hd;
-                    let k_slice = &k_vec[k_off..k_off + hd];
-                    let dot_raw = if let Some(qa) = q_i16_fixed {
-                        dot_i16_128(qa, k_slice)
-                    } else {
-                        let mut acc = 0i64;
-                        for (&qi, &ki) in scratch.q_i16.iter().zip(k_slice.iter()).take(hd) {
-                            acc += i64::from(qi) * i64::from(ki);
-                        }
-                        acc
-                    };
-                    let ks = i128::from(k_scales[meta_idx]);
-                    let dot_scaled = (i128::from(dot_raw) << (q_sh as u32)) * ks;
-                    let s_q16 =
-                        ((dot_scaled * i128::from(score_scale_q30) + (1i128 << 49)) >> 50) as i64;
-                    scratch.scores.push(s_q16);
-                    if s_q16 > max_s {
-                        max_s = s_q16;
-                    }
-                    max_vs = max_vs.max(v_scales[meta_idx].unsigned_abs());
-                }
-
-                scratch.exp_w.clear();
-                let mut den = 0u64;
-                for &sc in &scratch.scores {
-                    let w = (exp_neg_with_table(&self.exp_table, max_s - sc) >> 14) as i64;
-                    scratch.exp_w.push(w);
-                    den += w as u64;
-                }
-                let den_u128 = den.max(1) as u128;
-                let v_vec = &self.kv_cache.v_i16[l];
-                if max_vs <= (1 << 18) && hd <= 128 {
-                    let mut num = [0i64; 128];
-                    for (si, &t) in scratch.selected.iter().enumerate() {
-                        let w = scratch.exp_w[si];
-                        if w == 0 {
-                            continue;
-                        }
-                        let meta_idx = t * nkv + kh;
-                        if is_last_layer_logits {
-                            scratch.attn_accum_q16[t] = scratch.attn_accum_q16[t]
-                                .saturating_add(((w as u128 * 65_535) / den_u128) as u32);
-                        }
-                        let v_off = t * kv_dim + kh * hd;
-                        let vs = i64::from(v_scales[meta_idx]);
-                        let v_slice = &v_vec[v_off..v_off + hd];
-                        let wv_scale = w * vs;
-                        for d_i in 0..hd {
-                            num[d_i] += wv_scale * i64::from(v_slice[d_i]);
-                        }
-                    }
-                    let den_s = den.max(1) as i64;
-                    for (dst, &nv) in scratch.attn_i64[h * hd..]
-                        .iter_mut()
-                        .zip(num.iter())
-                        .take(hd)
-                    {
-                        *dst = nv / den_s;
-                    }
-                } else {
-                    let mut num = [0i128; 128];
-                    for (si, &t) in scratch.selected.iter().enumerate() {
-                        let w = scratch.exp_w[si];
-                        if w == 0 {
-                            continue;
-                        }
-                        let meta_idx = t * nkv + kh;
-                        if is_last_layer_logits {
-                            scratch.attn_accum_q16[t] = scratch.attn_accum_q16[t]
-                                .saturating_add(((w as u128 * 65_535) / den_u128) as u32);
-                        }
-                        let v_off = t * kv_dim + kh * hd;
-                        let vs = i128::from(v_scales[meta_idx]);
-                        let v_slice = &v_vec[v_off..v_off + hd];
-                        let wv_scale = i128::from(w) * vs;
-                        for d_i in 0..hd {
-                            num[d_i] += wv_scale * i128::from(v_slice[d_i]);
-                        }
-                    }
-                    let den_s = den.max(1) as i128;
-                    for (dst, &nv) in scratch.attn_i64[h * hd..]
-                        .iter_mut()
-                        .zip(num.iter())
-                        .take(hd)
-                    {
-                        *dst = (nv / den_s) as i64;
-                    }
-                }
-            }
-
-            if is_last_layer_logits && !scratch.attn_accum_q16.is_empty() {
-                let nh_u32 = nh.max(1) as u32;
-                let mut ranked_peaks: Vec<(u32, usize)> = scratch
-                    .attn_accum_q16
-                    .iter()
-                    .enumerate()
-                    .map(|(t, &acc)| (acc / nh_u32, t))
-                    .collect();
-                ranked_peaks.sort_unstable_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.cmp(&b.1)));
-                for (w, t) in ranked_peaks.into_iter().take(8) {
-                    scratch.last_attn_peaks.push(HoloAttnPeak {
-                        pos: t.min(u16::MAX as usize) as u16,
-                        weight_q16: w.min(65_535) as u16,
-                    });
-                }
-            }
+            let peaks_out = if is_last_layer_logits {
+                Some(&mut scratch.last_attn_peaks)
+            } else {
+                None
+            };
+            let (fa, ft) = attend_token_layer(
+                layer,
+                &mut self.kv_cache,
+                l,
+                nh,
+                nkv,
+                hd,
+                flock_window,
+                rms_eps_q48,
+                score_scale_q30,
+                cos_row,
+                sin_row,
+                &self.exp_table,
+                &mut scratch.q,
+                &mut scratch.k,
+                &scratch.v,
+                &mut scratch.attn_i64,
+                &mut scratch.attn_work,
+                Some(&mut scratch.layer_flock_spans[l]),
+                peaks_out,
+            );
+            flock_attended += fa;
+            flock_total += ft;
 
             gemv_i4_rht_into(
                 &layer.o_proj,
@@ -2809,50 +3844,310 @@ impl HoloV13Model {
             return (None, flock_attended, flock_total);
         }
 
-        int_rms_norm_gain(
-            &scratch.x,
-            &self.final_norm_q24,
-            rms_eps_q48,
-            RESIDUAL_EXP,
-            NORM_EXP,
-            &mut scratch.norm_d,
-        );
-        select_shortlist_into(
-            vocab_size,
-            shortlist_k,
-            &self.embed.rht_signs_packed,
-            &self.vocab_sigs,
-            &self.tokenizer.ascii_fast_tokens,
-            [self.eos_token_id, self.eot_token_id, self.think_end_id],
-            context_tokens,
-            use_shortlist,
-            scratch,
-        );
-        let x_exp = prepare_rht_act16_packed(
-            &scratch.norm_d,
-            NORM_EXP,
-            &self.embed.rht_signs_packed,
-            &mut scratch.rht_i32,
-            &mut scratch.act16,
-        );
-        let act16 = &scratch.act16[..d];
-        let groups = d >> 5;
-        let mut scored = Vec::with_capacity(scratch.shortlist_out.len());
-        for &r in &scratch.shortlist_out {
-            let ri = r as usize;
-            let re = i32::from(self.embed.row_exp[ri]);
-            let sh = -16 - (re + x_exp);
-            let ws = &self.embed.weights[ri * d..(ri + 1) * d];
-            let mults = &self.embed.group_mult[ri * groups..(ri + 1) * groups];
-            let mut acc = 0i64;
-            for g in 0..groups {
-                let wg: &[i8; 32] = (&ws[g * 32..(g + 1) * 32]).try_into().unwrap();
-                let ag: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
-                acc += i64::from(dot_i8_group32(wg, ag)) * i64::from(mults[g]);
-            }
-            scored.push((r, scale_i64_acc_to_i32(acc, sh)));
-        }
+        let scored = self.score_final_hidden_logits(context_tokens, use_shortlist);
         (Some(scored), flock_attended, flock_total)
+    }
+
+    /// Formal R4.HoloGeometricRuntime prefill `tokens` in `MAX_PREFILL_TILE = 8` register tiles,
+    /// streaming each projection weight matrix from Wasm DRAM once per tile while matching sequential
+    /// `step_token` bit-for-bit across all KV tensors and final logits.
+    pub fn prefill_tokens_tiled(
+        &mut self,
+        tokens: &[u32],
+        context_tokens: &[u32],
+        compute_last_logits: bool,
+        use_shortlist: bool,
+    ) -> (Option<Vec<(u32, i32)>>, usize, usize) {
+        if tokens.is_empty() {
+            return (None, 0, 0);
+        }
+        if tokens.len() == 1 {
+            return self.step_token(
+                tokens[0],
+                context_tokens,
+                compute_last_logits,
+                use_shortlist,
+            );
+        }
+
+        let d = self.d_model;
+        let nh = self.n_heads;
+        let nkv = self.n_kv_heads;
+        let hd = self.head_dim;
+        let q_dim = nh * hd;
+        let kv_dim = nkv * hd;
+        let ffn = self.intermediate_size;
+        let half = hd / 2;
+        let vocab_size = self.vocab_size;
+        let n_layers = self.n_layers;
+        let flock_window = self.flock_window;
+        let rms_eps_q48 = self.rms_eps_q48;
+        let score_scale_q30 = self.score_scale_q30;
+
+        self.scratch
+            .ensure_sized(d, q_dim, kv_dim, ffn, hd, n_layers, vocab_size);
+        self.scratch
+            .prefill_tile
+            .ensure_sized(d, q_dim, kv_dim, ffn);
+
+        let mut flock_attended = 0usize;
+        let mut flock_total = 0usize;
+        let total_chunks = tokens.len().div_ceil(MAX_PREFILL_TILE);
+
+        for (chunk_idx, chunk) in tokens.chunks(MAX_PREFILL_TILE).enumerate() {
+            let bt = chunk.len();
+            if bt == 1 {
+                let is_last = chunk_idx + 1 == total_chunks && compute_last_logits;
+                let (sc_opt, fa, ft) =
+                    self.step_token(chunk[0], context_tokens, is_last, use_shortlist);
+                flock_attended += fa;
+                flock_total += ft;
+                if is_last {
+                    return (sc_opt, flock_attended, flock_total);
+                }
+                continue;
+            }
+
+            let is_last_chunk = chunk_idx + 1 == total_chunks;
+            let base_pos = self.kv_cache.tokens.len();
+            let s = &mut self.scratch;
+            s.last_attn_peaks.clear();
+            let tile = &mut s.prefill_tile;
+
+            for (b, &tok) in chunk.iter().enumerate() {
+                dequant_embed_row_into(
+                    &self.embed,
+                    (tok as usize).min(vocab_size - 1),
+                    &mut s.wide_i64,
+                    &mut tile.x_b[b * d..(b + 1) * d],
+                );
+            }
+
+            for l in 0..n_layers {
+                let layer = &self.layers[l];
+                for b in 0..bt {
+                    int_rms_norm_gain(
+                        &tile.x_b[b * d..(b + 1) * d],
+                        &layer.in_ln_q24,
+                        rms_eps_q48,
+                        RESIDUAL_EXP,
+                        NORM_EXP,
+                        &mut tile.norm_b[b * d..(b + 1) * d],
+                    );
+                }
+
+                gemm_i4_rht_batch(
+                    &layer.q_proj,
+                    &tile.norm_b,
+                    bt,
+                    NORM_EXP,
+                    RESIDUAL_EXP,
+                    &mut s.rht_i32,
+                    &mut tile.act16_tmp,
+                    &mut tile.act16_interleaved,
+                    &mut tile.q_b,
+                );
+                gemm_i4_rht_batch(
+                    &layer.k_proj,
+                    &tile.norm_b,
+                    bt,
+                    NORM_EXP,
+                    RESIDUAL_EXP,
+                    &mut s.rht_i32,
+                    &mut tile.act16_tmp,
+                    &mut tile.act16_interleaved,
+                    &mut tile.k_b,
+                );
+                gemm_i4_rht_batch(
+                    &layer.v_proj,
+                    &tile.norm_b,
+                    bt,
+                    NORM_EXP,
+                    RESIDUAL_EXP,
+                    &mut s.rht_i32,
+                    &mut tile.act16_tmp,
+                    &mut tile.act16_interleaved,
+                    &mut tile.v_b,
+                );
+
+                for b in 0..bt {
+                    let pos = (base_pos + b).min(self.max_seq.saturating_sub(1));
+                    let cos_row = &self.rope_cos_q14[pos * half..(pos + 1) * half];
+                    let sin_row = &self.rope_sin_q14[pos * half..(pos + 1) * half];
+                    let is_last_tok = is_last_chunk && b + 1 == bt;
+                    let span_slot = if is_last_tok {
+                        Some(&mut s.layer_flock_spans[l])
+                    } else {
+                        None
+                    };
+                    let peaks_out = if is_last_tok && l + 1 == n_layers && compute_last_logits {
+                        Some(&mut s.last_attn_peaks)
+                    } else {
+                        None
+                    };
+                    let (fa, ft) = attend_token_layer(
+                        layer,
+                        &mut self.kv_cache,
+                        l,
+                        nh,
+                        nkv,
+                        hd,
+                        flock_window,
+                        rms_eps_q48,
+                        score_scale_q30,
+                        cos_row,
+                        sin_row,
+                        &self.exp_table,
+                        &mut tile.q_b[b * q_dim..(b + 1) * q_dim],
+                        &mut tile.k_b[b * kv_dim..(b + 1) * kv_dim],
+                        &tile.v_b[b * kv_dim..(b + 1) * kv_dim],
+                        &mut tile.attn_b[b * q_dim..(b + 1) * q_dim],
+                        &mut s.attn_work,
+                        span_slot,
+                        peaks_out,
+                    );
+                    flock_attended += fa;
+                    flock_total += ft;
+                }
+
+                gemm_i4_rht_batch(
+                    &layer.o_proj,
+                    &tile.attn_b,
+                    bt,
+                    RESIDUAL_EXP,
+                    RESIDUAL_EXP,
+                    &mut s.rht_i32,
+                    &mut tile.act16_tmp,
+                    &mut tile.act16_interleaved,
+                    &mut tile.proj_b,
+                );
+                for b in 0..bt {
+                    let off = b * d;
+                    for i in 0..d {
+                        tile.x_b[off + i] = tile.x_b[off + i].saturating_add(tile.proj_b[off + i]);
+                    }
+                    int_rms_norm_gain(
+                        &tile.x_b[off..off + d],
+                        &layer.post_ln_q24,
+                        rms_eps_q48,
+                        RESIDUAL_EXP,
+                        NORM_EXP,
+                        &mut tile.norm_b[off..off + d],
+                    );
+                }
+
+                gemm_i4_rht_batch(
+                    &layer.gate_proj,
+                    &tile.norm_b,
+                    bt,
+                    NORM_EXP,
+                    RESIDUAL_EXP,
+                    &mut s.rht_i32,
+                    &mut tile.act16_tmp,
+                    &mut tile.act16_interleaved,
+                    &mut tile.gate_b,
+                );
+                gemm_i4_rht_batch(
+                    &layer.up_proj,
+                    &tile.norm_b,
+                    bt,
+                    NORM_EXP,
+                    RESIDUAL_EXP,
+                    &mut s.rht_i32,
+                    &mut tile.act16_tmp,
+                    &mut tile.act16_interleaved,
+                    &mut tile.up_b,
+                );
+
+                for b in 0..bt {
+                    let off = b * ffn;
+                    for i in 0..ffn {
+                        let sg = silu_i32_with_table(&self.silu_table, tile.gate_b[off + i]);
+                        tile.swiglu_b[off + i] =
+                            (i64::from(sg) * i64::from(tile.up_b[off + i]) + (1 << 13)) >> 14;
+                    }
+                }
+
+                match &layer.down_proj {
+                    HoloDownProjMatrix::Int4(m) => {
+                        gemm_i4_rht_batch(
+                            m,
+                            &tile.swiglu_b,
+                            bt,
+                            -20,
+                            RESIDUAL_EXP,
+                            &mut s.rht_i32,
+                            &mut tile.act16_tmp,
+                            &mut tile.act16_interleaved,
+                            &mut tile.proj_b,
+                        );
+                    }
+                    HoloDownProjMatrix::Int8(m) => {
+                        gemm_i8_rht_batch(
+                            m,
+                            &tile.swiglu_b,
+                            bt,
+                            -20,
+                            RESIDUAL_EXP,
+                            &mut s.rht_i32,
+                            &mut tile.act16_tmp,
+                            &mut tile.act16_interleaved,
+                            &mut tile.proj_b,
+                        );
+                    }
+                }
+
+                for b in 0..bt {
+                    let off = b * d;
+                    if is_last_chunk && b + 1 == bt {
+                        let mut sum_abs = 0u64;
+                        let mut max_abs_x = 0u32;
+                        for i in 0..d {
+                            let nv = tile.x_b[off + i].saturating_add(tile.proj_b[off + i]);
+                            tile.x_b[off + i] = nv;
+                            let a = nv.unsigned_abs();
+                            sum_abs = sum_abs.wrapping_add(u64::from(a));
+                            max_abs_x = max_abs_x.max(a);
+                        }
+                        let mean_scaled = (sum_abs / d.max(1) as u64) >> 10;
+                        s.layer_residual_mag[l] = mean_scaled.min(u64::from(u16::MAX)) as u16;
+                        s.layer_max_bits[l] = (32 - max_abs_x.leading_zeros()) as u8;
+                    } else {
+                        for i in 0..d {
+                            tile.x_b[off + i] =
+                                tile.x_b[off + i].saturating_add(tile.proj_b[off + i]);
+                        }
+                    }
+                }
+            }
+
+            self.kv_cache.tokens.extend_from_slice(chunk);
+
+            if is_last_chunk && compute_last_logits {
+                let last_off = (bt - 1) * d;
+                s.x.copy_from_slice(&tile.x_b[last_off..last_off + d]);
+                let scored = self.score_final_hidden_logits(context_tokens, use_shortlist);
+                return (Some(scored), flock_attended, flock_total);
+            }
+        }
+
+        (None, flock_attended, flock_total)
+    }
+
+    /// Formal R4.HoloGeometricRuntime pre-populate `HoloPrefixKvCache` at mount time with the default
+    /// ChatML system prefix so Turn 1 skips system-prompt prefill latency completely.
+    pub fn prewarm_system_prefix(&mut self, system_prompt: &str) {
+        let sys = if system_prompt.trim().is_empty() {
+            "You are a helpful assistant."
+        } else {
+            system_prompt.trim()
+        };
+        let prefix = format!("<|im_start|>system\n{sys}<|im_end|>\n<|im_start|>user\n");
+        let ids = self.tokenizer.encode(&prefix);
+        self.kv_cache.reset(self.n_layers);
+        if !ids.is_empty() && ids.len() + 32 <= self.max_seq {
+            self.prefill_tokens_tiled(&ids, &ids, false, true);
+        }
     }
 
     /// Formal R4.HoloGeometricRuntime execute a full multi-turn Qwen3 ChatML reply cleanly in pure integer arithmetic.
@@ -2925,38 +4220,34 @@ impl HoloV13Model {
         let mut flock_attended = 0usize;
         let mut flock_total = 0usize;
         let mut recent: Vec<u32> = prompt_ids.to_vec();
-        let mut last_scored = Vec::new();
         let mut observatory_frames = Vec::new();
 
-        for (offset, &tok) in prompt_ids[reuse_len..].iter().enumerate() {
-            let idx = reuse_len + offset;
-            let is_last = idx + 1 == prompt_ids.len();
-            let (sc_opt, fa, ft) = self.step_token(tok, &recent, is_last, true);
-            flock_attended += fa;
-            flock_total += ft;
-            if let Some(sc) = sc_opt {
-                last_scored = sc;
-                if is_last {
-                    let frame = build_observatory_frame(
-                        &self.tokenizer,
-                        &self.scratch,
-                        &last_scored,
-                        tok,
-                        true,
-                        offset,
-                        "prefill",
-                        self.kv_cache.tokens.len().saturating_sub(1),
-                        reuse_len,
-                        active_backend,
-                    );
-                    emit_holo_trace_frame(&frame);
-                    observatory_frames.push(frame);
-                }
-            }
+        let tail = &prompt_ids[reuse_len..];
+        let (sc_opt, fa, ft) = self.prefill_tokens_tiled(tail, &recent, true, true);
+        flock_attended += fa;
+        flock_total += ft;
+        let mut last_scored = sc_opt.unwrap_or_default();
+        if let Some(&last_tok) = tail.last() {
+            let frame = build_observatory_frame(
+                &self.tokenizer,
+                &self.scratch,
+                &last_scored,
+                last_tok,
+                true,
+                tail.len().saturating_sub(1),
+                "prefill",
+                self.kv_cache.tokens.len().saturating_sub(1),
+                reuse_len,
+                active_backend,
+            );
+            emit_holo_trace_frame(&frame);
+            observatory_frames.push(frame);
         }
 
         let mut generated = Vec::new();
-        let mut emitted_bytes = 0usize;
+        let mut raw_stream: Vec<u8> = Vec::new();
+        let mut emitted_raw = 0usize;
+        let mut last_emitted_decode_step = usize::MAX;
         for step_idx in 0..max_new_tokens.max(1) {
             let mut blocked_ids: Vec<u32> = Vec::new();
             let chosen_id = loop {
@@ -2984,17 +4275,62 @@ impl HoloV13Model {
                 break best_id;
             };
             if chosen_id == self.eos_token_id || chosen_id == self.eot_token_id {
+                if step_idx > 0 && last_emitted_decode_step != step_idx {
+                    let prev_id = generated.last().copied().unwrap_or(chosen_id);
+                    let frame = build_observatory_frame(
+                        &self.tokenizer,
+                        &self.scratch,
+                        &last_scored,
+                        prev_id,
+                        false,
+                        step_idx,
+                        "decode",
+                        self.kv_cache.tokens.len().saturating_sub(1),
+                        reuse_len,
+                        active_backend,
+                    );
+                    emit_holo_trace_frame(&frame);
+                    if observatory_frames.len() < 64 {
+                        observatory_frames.push(frame);
+                    }
+                }
                 break;
             }
             generated.push(chosen_id);
             recent.push(chosen_id);
-            let full_dec = self.tokenizer.decode(&generated);
-            if full_dec.len() > emitted_bytes && full_dec.is_char_boundary(emitted_bytes) {
-                let delta = &full_dec[emitted_bytes..];
-                emit_holo_stream_delta(delta, step_idx);
-                emitted_bytes = full_dec.len();
+            if let Some(tok_bytes) = self.tokenizer.id_to_raw.get(chosen_id as usize) {
+                raw_stream.extend_from_slice(tok_bytes);
+                while emitted_raw < raw_stream.len() {
+                    match std::str::from_utf8(&raw_stream[emitted_raw..]) {
+                        Ok(valid_delta) => {
+                            emit_holo_stream_delta(valid_delta, step_idx);
+                            emitted_raw = raw_stream.len();
+                        }
+                        Err(e) => {
+                            let valid_len = e.valid_up_to();
+                            if valid_len > 0 {
+                                if let Ok(prefix) = std::str::from_utf8(
+                                    &raw_stream[emitted_raw..emitted_raw + valid_len],
+                                ) {
+                                    emit_holo_stream_delta(prefix, step_idx);
+                                }
+                                emitted_raw += valid_len;
+                            }
+                            if let Some(bad_len) = e.error_len() {
+                                emit_holo_stream_delta("\u{FFFD}", step_idx);
+                                emitted_raw += bad_len;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-            if step_idx > 0 {
+            if step_idx > 0
+                && (step_idx == 1
+                    || step_idx.is_multiple_of(4)
+                    || generated.len() >= max_new_tokens)
+            {
                 let frame = build_observatory_frame(
                     &self.tokenizer,
                     &self.scratch,
@@ -3008,6 +4344,7 @@ impl HoloV13Model {
                     active_backend,
                 );
                 emit_holo_trace_frame(&frame);
+                last_emitted_decode_step = step_idx;
                 if observatory_frames.len() < 64 {
                     observatory_frames.push(frame);
                 }
@@ -3025,7 +4362,7 @@ impl HoloV13Model {
             }
         }
 
-        let reply = self.tokenizer.decode(&generated).trim().to_string();
+        let reply = String::from_utf8_lossy(&raw_stream).trim().to_string();
         let metrics = HoloChatTurnMetrics {
             schema: "uor-r4.holo-geometric-runtime/14",
             model_id: self.model_id.clone(),
@@ -3185,12 +4522,30 @@ fn build_observatory_frame(
     prefix_reused_tokens: usize,
     backend: &'static str,
 ) -> HoloStepObservatoryFrame {
-    let mut ranked_top: Vec<(u32, i32)> = scored.to_vec();
-    ranked_top.sort_unstable_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
-    let top_candidates: Vec<HoloCandidateBar> = ranked_top
-        .into_iter()
-        .take(6)
-        .map(|(tid, logit_q16)| {
+    let mut top_arr: [(u32, i32); 6] = [(0, i32::MIN); 6];
+    let mut top_len = 0usize;
+    for &(tid, logit) in scored {
+        if top_len == 6 && (logit < top_arr[5].1 || (logit == top_arr[5].1 && tid > top_arr[5].0)) {
+            continue;
+        }
+        let pos = top_arr[..top_len]
+            .iter()
+            .position(|&(et, el)| logit > el || (logit == el && tid < et))
+            .unwrap_or(top_len);
+        if pos < 6 {
+            let end = top_len.min(5);
+            for j in (pos..end).rev() {
+                top_arr[j + 1] = top_arr[j];
+            }
+            top_arr[pos] = (tid, logit);
+            if top_len < 6 {
+                top_len += 1;
+            }
+        }
+    }
+    let top_candidates: Vec<HoloCandidateBar> = top_arr[..top_len]
+        .iter()
+        .map(|&(tid, logit_q16)| {
             let text: String = tokenizer.decode(&[tid]).chars().take(24).collect();
             HoloCandidateBar {
                 token_id: tid,
@@ -4501,8 +5856,7 @@ mod tests {
         assert!((sin_tbl[64] - 13_787).abs() <= 2);
     }
 
-    #[test]
-    fn non_square_layer_streaming_mount_and_inference_succeeds() {
+    fn build_synthetic_test_model() -> HoloV13Model {
         let vocab = 256usize;
         let dm = 128usize;
         let nl = 1usize;
@@ -4510,7 +5864,7 @@ mod tests {
         let nkv = 1usize;
         let hd = 128usize;
         let ffn = 192usize;
-        let max_seq = 16usize;
+        let max_seq = 256usize;
 
         let mut raw = Vec::new();
         raw.extend_from_slice(HOLO_V13_MAGIC);
@@ -4571,19 +5925,27 @@ mod tests {
         raw.extend_from_slice(&(tok.len() as u32).to_le_bytes());
         raw.extend_from_slice(&tok);
 
-        for _ in 0..(vocab * SIG_WORDS) {
-            raw.extend_from_slice(&0x5555_5555_5555_5555u64.to_le_bytes());
+        for v in 0..vocab {
+            for w in 0..SIG_WORDS {
+                let pat =
+                    0x5555_5555_5555_5555u64 ^ ((v as u64).wrapping_mul(0x9e37_79b9) << (w * 3));
+                raw.extend_from_slice(&pat.to_le_bytes());
+            }
         }
 
-        // Tied embedding matrix [vocab, dm]
+        // Tied embedding matrix [vocab, dm] with varied deterministic i8 weights
         raw.extend_from_slice(&(vocab as u32).to_le_bytes());
         raw.extend_from_slice(&(dm as u32).to_le_bytes());
         raw.extend_from_slice(&1u64.to_le_bytes());
         raw.resize(raw.len() + vocab, (-20i8) as u8);
         for _ in 0..(vocab * (dm >> 5)) {
-            raw.extend_from_slice(&1u16.to_le_bytes());
+            raw.extend_from_slice(&3u16.to_le_bytes());
         }
-        raw.resize(raw.len() + vocab * dm, 1i8 as u8);
+        for r in 0..vocab {
+            for c in 0..dm {
+                raw.push((((r * 7 + c * 13) % 41) as i8 - 20) as u8);
+            }
+        }
 
         for _ in 0..dm {
             raw.extend_from_slice(&(1i32 << 24).to_le_bytes());
@@ -4597,10 +5959,12 @@ mod tests {
             buf.extend_from_slice(&(cols as u32).to_le_bytes());
             buf.extend_from_slice(&seed.to_le_bytes());
             buf.resize(buf.len() + rows, (-18i8) as u8);
-            for _ in 0..(rows * (cols >> 5)) {
-                buf.extend_from_slice(&1u16.to_le_bytes());
+            for i in 0..(rows * (cols >> 5)) {
+                buf.extend_from_slice(&(((i % 5) + 1) as u16).to_le_bytes());
             }
-            buf.resize(buf.len() + rows * (cols >> 1), 0x89u8);
+            for i in 0..(rows * (cols >> 1)) {
+                buf.push((((i * 17 + 3) % 15) as u8) | (((((i * 23 + 5) % 15) as u8) & 15) << 4));
+            }
         };
         let q_dim = nh * hd;
         let kv_dim = nkv * hd;
@@ -4625,9 +5989,15 @@ mod tests {
         builder.push_piece(&raw[..c1]).expect("chunk 1");
         builder.push_piece(&raw[c1..c2]).expect("chunk 2");
         builder.push_piece(&raw[c2..]).expect("chunk 3");
-        let mut model = builder.finalize().expect("non-square Int4 mount");
+        builder.finalize().expect("non-square Int4 mount")
+    }
+
+    #[test]
+    fn non_square_layer_streaming_mount_and_inference_succeeds() {
+        let mut model = build_synthetic_test_model();
+        let dm = model.d_model;
         assert_eq!(model.n_layers, 1);
-        assert_eq!(model.d_model, dm);
+        assert_eq!(dm, 128);
         let (_reply, metrics) = model.generate_chat_turn("hello", "assistant", 4);
         assert_eq!(metrics.float_ops, 0);
         assert_eq!(metrics.dense_matmul_ops, 0);
@@ -4649,6 +6019,132 @@ mod tests {
             metrics2.prefix_reused_tokens > 0,
             "Turn 2 must reuse prefix KV cache tokens, got {:?}",
             metrics2
+        );
+    }
+
+    #[test]
+    fn gemv_4row_and_indexed_match_single_row_reference() {
+        let cols = 64usize;
+        let groups = cols >> 5;
+        let act16: Vec<i16> = (0..cols).map(|i| (i as i16) * 29 - 900).collect();
+        for rows in [7usize, 16usize] {
+            let row_exp: Vec<i8> = (0..rows).map(|r| -12 - (r as i8 % 5)).collect();
+            let group_mult: Vec<u16> = (0..rows * groups)
+                .map(|i| ((i as u16) * 7 + 3) % 100 + 1)
+                .collect();
+            let nibbles: Vec<u8> = (0..rows * (cols >> 1))
+                .map(|i| (((i * 11 + 1) % 15) as u8) | ((((i * 19 + 4) % 15) as u8) << 4))
+                .collect();
+            let mut out_tiled = vec![0i32; rows];
+            gemv_i4_rht_rows(
+                rows,
+                cols,
+                &nibbles,
+                &group_mult,
+                &row_exp,
+                -10,
+                -18,
+                &act16,
+                &mut out_tiled,
+            );
+            for r in 0..rows {
+                let sh = -18 - (i32::from(row_exp[r]) - 10);
+                let mut acc = 0i64;
+                for g in 0..groups {
+                    let nb: &[u8; 16] = (&nibbles
+                        [r * (cols >> 1) + g * 16..r * (cols >> 1) + (g + 1) * 16])
+                        .try_into()
+                        .unwrap();
+                    let a: &[i16; 32] = (&act16[g * 32..(g + 1) * 32]).try_into().unwrap();
+                    acc += i64::from(dot_i4_group32(nb, a)) * i64::from(group_mult[r * groups + g]);
+                }
+                assert_eq!(out_tiled[r], scale_i64_acc_to_i32(acc, sh));
+            }
+
+            let weights: Vec<i8> = (0..rows * cols)
+                .map(|i| (((i * 13) % 200) as i32 - 100) as i8)
+                .collect();
+            let mut out_i8 = vec![0i32; rows];
+            gemv_i8_rht_rows(
+                rows,
+                cols,
+                &weights,
+                &group_mult,
+                &row_exp,
+                -10,
+                -16,
+                &act16,
+                &mut out_i8,
+            );
+            let mat = HoloInt8RhtMatrix {
+                rows,
+                cols,
+                rht_seed: 1,
+                rht_signs_packed: rht_signs_packed_u32(cols, 1),
+                row_exp: row_exp.clone(),
+                group_mult: group_mult.clone(),
+                weights: weights.clone(),
+            };
+            let idx_rows: Vec<u32> = (0..rows as u32).rev().collect();
+            let mut scored_idx = Vec::new();
+            gemv_i8_indexed_into(&mat, &idx_rows, &act16, -10, -16, &mut scored_idx);
+            assert_eq!(scored_idx.len(), rows);
+            for (pos, &(rid, val)) in scored_idx.iter().enumerate() {
+                assert_eq!(rid, idx_rows[pos]);
+                assert_eq!(val, out_i8[rid as usize]);
+            }
+        }
+    }
+
+    #[test]
+    fn prefill_tokens_tiled_matches_sequential_step_token_bit_exact() {
+        let mut model_seq = build_synthetic_test_model();
+        let mut model_batched = model_seq.clone();
+        let prompt_tokens = [10u32, 21, 32, 43, 54, 65, 76, 87, 98, 109, 120];
+
+        let mut seq_logits = None;
+        let mut seq_fa = 0usize;
+        let mut seq_ft = 0usize;
+        for (i, &tok) in prompt_tokens.iter().enumerate() {
+            let compute_last = i + 1 == prompt_tokens.len();
+            let (sc, fa, ft) = model_seq.step_token(tok, &prompt_tokens, compute_last, false);
+            seq_fa += fa;
+            seq_ft += ft;
+            if compute_last {
+                seq_logits = sc;
+            }
+        }
+
+        let (batch_logits, batch_fa, batch_ft) =
+            model_batched.prefill_tokens_tiled(&prompt_tokens, &prompt_tokens, true, false);
+
+        assert_eq!(batch_fa, seq_fa);
+        assert_eq!(batch_ft, seq_ft);
+        assert_eq!(model_batched.kv_cache.tokens, model_seq.kv_cache.tokens);
+        assert_eq!(model_batched.kv_cache.seq_len, model_seq.kv_cache.seq_len);
+        assert_eq!(model_batched.kv_cache.k_i16, model_seq.kv_cache.k_i16);
+        assert_eq!(model_batched.kv_cache.k_scales, model_seq.kv_cache.k_scales);
+        assert_eq!(model_batched.kv_cache.v_i16, model_seq.kv_cache.v_i16);
+        assert_eq!(model_batched.kv_cache.v_scales, model_seq.kv_cache.v_scales);
+        assert_eq!(model_batched.kv_cache.k_sig128, model_seq.kv_cache.k_sig128);
+        assert_eq!(model_batched.scratch.x, model_seq.scratch.x);
+        assert_eq!(batch_logits, seq_logits);
+    }
+
+    #[test]
+    fn prewarm_system_prefix_enables_turn1_kv_reuse() {
+        let mut model = build_synthetic_test_model();
+        let sys = "You are LexLean-R4 AI Studio.";
+        model.prewarm_system_prefix(sys);
+        assert!(
+            !model.kv_cache.tokens.is_empty(),
+            "prewarm_system_prefix must populate prefix KV cache tokens"
+        );
+        let (_reply, metrics) = model.generate_chat_turn("hi", sys, 4);
+        assert!(
+            metrics.prefix_reused_tokens > 0,
+            "Turn 1 must reuse prewarmed system prefix tokens, got {:?}",
+            metrics
         );
     }
 
