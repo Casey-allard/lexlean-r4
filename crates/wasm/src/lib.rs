@@ -20,6 +20,13 @@ use wasm_bindgen::prelude::*;
 /// Standard Provider-Compatible API Types and Dispatch Engine (Anthropic / OpenAI).
 pub mod api;
 mod assistant;
+pub use assistant::{
+    format_foundry_system_prompt, FoundryToolResult, FoundryTurnSession, FoundryWorkspaceFile,
+    BUILD_SYSTEM_PREFIX,
+};
+
+/// Alias matching Foundry host specification naming (`StudioEngine` / `UorWasmStudio`).
+pub type UorWasmStudio = StudioEngine;
 /// `UOR-R4-GLLM v9` (`UORGLLM9`) Compositional Geometric Language Model Runtime (`R4-38`).
 pub mod gllm_v9;
 /// Pre-trained Generalized Geometric Language Model (`UR4GLM01`) Concept Manifold & Reasoner.
@@ -514,10 +521,12 @@ pub struct StudioEngine {
     pub(crate) telos_flock_window: u64,
     pub(crate) telos_incumbent_loss: u64,
     pub(crate) last_holo_observatory_frames: Vec<holo_geometric_runtime::HoloStepObservatoryFrame>,
+    pub(crate) foundry_turn: Option<assistant::FoundryTurnSession>,
+    pub(crate) next_foundry_turn_id: u64,
 }
 
 /// Formal R4.HoloGeometricRuntime extract a bounded `<tool_call>{...}</tool_call>` JSON directive from assistant text.
-fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
+pub(crate) fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
     let slice = if let Some((_, after)) = reply.split_once("<tool_call>") {
         after
             .split_once("</tool_call>")
@@ -547,7 +556,11 @@ fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
     if tool.is_empty() {
         return None;
     }
-    let args = val.get("args").cloned().unwrap_or_else(|| val.clone());
+    let args = val
+        .get("args")
+        .or_else(|| val.get("arguments"))
+        .cloned()
+        .unwrap_or_else(|| val.clone());
     Some((tool, args))
 }
 
@@ -560,7 +573,7 @@ fn fnv1a64(bytes: &[u8]) -> u64 {
     hash
 }
 
-fn sha256_hex(bytes: &[u8]) -> String {
+pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
     let digest = Sha256::digest(bytes);
     let mut out = String::with_capacity(64);
     for b in digest {
@@ -1347,6 +1360,8 @@ impl StudioEngine {
             telos_flock_window: 256,
             telos_incumbent_loss: 1_000,
             last_holo_observatory_frames: Vec::new(),
+            foundry_turn: None,
+            next_foundry_turn_id: 0,
         };
         engine.register_special_tokens();
         for (prompt, reply) in default_knowledge_turns() {
@@ -8876,6 +8891,39 @@ pub fn studio_native_q31_train_step(text: &str) -> String {
         "dense_matmul_ops": 0,
     })
     .to_string()
+}
+
+/// Formal R4.HoloGeometricRuntime begin a non-blocking 4-token Foundry turn session (`R4-56`).
+#[wasm_bindgen]
+pub fn holo_begin_foundry_turn(payload_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_begin_foundry_turn(payload_json)
+}
+
+/// Formal R4.HoloGeometricRuntime execute up to 4 quantized pure-integer token steps on an active Foundry turn (`R4-56`).
+#[wasm_bindgen]
+pub fn holo_step_foundry_turn(turn_id: u64) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_step_foundry_turn(turn_id)
+}
+
+/// Formal R4.HoloGeometricRuntime atomically cancel an active Foundry turn and reset rolling state (`R4-56`).
+#[wasm_bindgen]
+pub fn holo_cancel_foundry_turn(turn_id: u64) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_cancel_foundry_turn(turn_id)
 }
 
 /// Parse & validate a streamed HuggingFace Safetensors header slice (`R4-50`, `R4-51`).

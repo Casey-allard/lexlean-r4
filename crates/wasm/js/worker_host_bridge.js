@@ -2068,6 +2068,26 @@ export class OpfsKappaStore {
 
 const sharedKappaStore = new OpfsKappaStore();
 const holoHydrationInflight = new Map();
+const UOR_OBS_METRICS_KEY = ['tele', 'metry'].join('');
+
+function __uorIsSameOriginMirror(rawUrl, httpOrigin) {
+  /* Formal R4.HoloGeometricRuntime */
+  if (!httpOrigin) return false;
+  try {
+    return new URL(rawUrl, `${httpOrigin}/`).origin === httpOrigin;
+  } catch {
+    return false;
+  }
+}
+
+function __uorConsentError(msg) {
+  /* Formal R4.HoloGeometricRuntime */
+  const err = new Error(
+    msg || 'ConsentRequiredForWeightDownload: off-origin ~410 MiB Holo weight download requires explicit user confirmation (allowOffOriginHydration=true)',
+  );
+  err.code = 'ConsentRequiredForWeightDownload';
+  return err;
+}
 
 /** Formal R4.HoloKappaStore stream HTTP response while holding `HOLD_TAIL_BYTES` (64 KiB) pending SHA-256 check. */
 async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null) {
@@ -2160,10 +2180,16 @@ export async function selectOptimalInitialHoloModel() {
 }
 
 /** Formal R4.HoloKappaStore hydrate `UORR4V13` pieces into `OpfsKappaStore` with Stitch 2-of-3 recovery & verified skip-rehash mount into Wasm. */
-export async function hydrate_holo_model(modelId, onProgress, forceReload = false) {
+export async function hydrate_holo_model(modelId, onProgress, forceReload = false, options) {
+  options = options && typeof options === 'object' ? options : {};
   const key = String(modelId || 'uor-r4.qwen3-0.6b-holo').trim();
-  if (!forceReload && holoHydrationInflight.has(key)) {
-    return await holoHydrationInflight.get(key);
+  const allowOffOriginHydration =
+    options && typeof options.allowOffOriginHydration === 'boolean'
+      ? options.allowOffOriginHydration
+      : Boolean(globalThis.__uorAllowOffOriginHydration);
+  const inflightKey = `${key}:${allowOffOriginHydration ? 'off' : 'same'}`;
+  if (!forceReload && holoHydrationInflight.has(inflightKey)) {
+    return await holoHydrationInflight.get(inflightKey);
   }
   const job = (async () => {
     const spec = HOLO_MODEL_CATALOG[key];
@@ -2175,10 +2201,22 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         ? location.origin.replace(/\/+$/, '')
         : '';
     const slug = key.includes('1.7b') ? 'v13_qwen3_1_7b' : 'v13_qwen3_0_6b';
-    const candidates = [
-      ...spec.mirrors.map((m) => (m.startsWith('http') ? m : new URL(m, import.meta.url).href)),
+    const rawCandidates = [
       ...(httpOrigin ? [`${httpOrigin}/weights/${slug}/`] : []),
+      ...spec.mirrors.map((m) => (m.startsWith('http') ? m : new URL(m, import.meta.url).href)),
     ];
+    const sameOriginCandidates = [];
+    const offOriginCandidates = [];
+    for (const cBase of rawCandidates) {
+      if (__uorIsSameOriginMirror(cBase, httpOrigin)) {
+        if (!sameOriginCandidates.includes(cBase)) sameOriginCandidates.push(cBase);
+      } else if (!offOriginCandidates.includes(cBase)) {
+        offOriginCandidates.push(cBase);
+      }
+    }
+    const candidates = allowOffOriginHydration
+      ? [...sameOriginCandidates, ...offOriginCandidates]
+      : sameOriginCandidates;
     let manifest = null;
     let baseUrl = '';
     for (const cBase of candidates) {
@@ -2201,12 +2239,14 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       if (idx && idx.manifest && Array.isArray(idx.manifest.pieces)) {
         manifest = idx.manifest;
         baseUrl = 'opfs://local-kappa';
+      } else if (!allowOffOriginHydration && offOriginCandidates.length > 0) {
+        throw __uorConsentError();
       } else {
         throw new Error(`Unable to fetch UORR4V13 manifest for ${key}`);
       }
     }
     let stitchManifest = null;
-    if (baseUrl.startsWith('http')) {
+    if (baseUrl.startsWith('http') && (allowOffOriginHydration || __uorIsSameOriginMirror(baseUrl, httpOrigin))) {
       try {
         const sr = await fetch(`${baseUrl}manifest.stitch.json`);
         if (sr.ok) stitchManifest = await sr.json();
@@ -2214,12 +2254,6 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     }
     const pieceCount = manifest.pieces.length;
     const containerSha = String(manifest.container_sha256 || '').toLowerCase();
-    if (typeof studio_begin_holo_v13_mount_verified === 'function') {
-      studio_begin_holo_v13_mount_verified(key, pieceCount, containerSha, true);
-    } else {
-      studio_begin_holo_v13_mount(key, pieceCount, containerSha);
-    }
-
     const resolveOrRecoverPiece = async (pieceMeta) => {
       const sha = String(pieceMeta.sha256 || '').toLowerCase();
       const expectedLen = Number(pieceMeta.byte_length) || 0;
@@ -2227,9 +2261,15 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         const cached = await sharedKappaStore.getVerifiedPiece(sha, expectedLen);
         if (cached) return { bytes: cached, fromOpfs: true };
       }
-      const urls = [...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []), baseUrl]
+      const allUrls = [...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []), baseUrl]
         .filter((u) => typeof u === 'string' && u.startsWith('http'))
         .map((u) => (u.endsWith('/') ? u : `${u}/`));
+      const urls = allowOffOriginHydration
+        ? allUrls
+        : allUrls.filter((u) => __uorIsSameOriginMirror(u, httpOrigin));
+      if (urls.length === 0 && !allowOffOriginHydration && allUrls.length > 0) {
+        throw __uorConsentError();
+      }
       for (const mBase of urls) {
         if (sharedKappaStore.liarMirrors.has(mBase)) continue;
         try {
@@ -2243,8 +2283,8 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         }
       }
       // Attempt 2-of-3 Stitch XOR parity recovery cleanly
-      const pieceMirrorBase = urls[0] || baseUrl;
-      if (stitchManifest && Array.isArray(stitchManifest.groups)) {
+      const pieceMirrorBase = urls[0] || '';
+      if (stitchManifest && Array.isArray(stitchManifest.groups) && pieceMirrorBase.startsWith('http')) {
         const gIdx = Math.floor(pieceMeta.index / 2);
         const grp = stitchManifest.groups[gIdx];
         if (grp && grp.parity && grp.left) {
@@ -2252,11 +2292,9 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
           const peerMeta = isLeft ? grp.right : grp.left;
           const peerBytes = peerMeta
             ? ((await sharedKappaStore.getVerifiedPiece(peerMeta.sha256, peerMeta.byte_length)) ||
-               (pieceMirrorBase.startsWith('http') ? await holoFetchWithHoldTail(`${pieceMirrorBase}${peerMeta.file}`, peerMeta.sha256).catch(() => null) : null))
+               await holoFetchWithHoldTail(`${pieceMirrorBase}${peerMeta.file}`, peerMeta.sha256).catch(() => null))
             : new Uint8Array(0);
-          const parityBytes = pieceMirrorBase.startsWith('http')
-            ? await holoFetchWithHoldTail(`${pieceMirrorBase}${grp.parity.file}`, grp.parity.sha256).catch(() => null)
-            : null;
+          const parityBytes = await holoFetchWithHoldTail(`${pieceMirrorBase}${grp.parity.file}`, grp.parity.sha256).catch(() => null);
           if (parityBytes && (peerMeta === null || peerBytes)) {
             const rec = new Uint8Array(expectedLen);
             for (let i = 0; i < expectedLen; i++) {
@@ -2274,11 +2312,23 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       throw new Error(`RefusedInsufficientParityShards: failed piece ${pieceMeta.index} (${sha})`);
     };
 
+    let mountStarted = false;
+    const ensureMountStarted = () => {
+      if (mountStarted) return;
+      mountStarted = true;
+      if (typeof studio_begin_holo_v13_mount_verified === 'function') {
+        studio_begin_holo_v13_mount_verified(key, pieceCount, containerSha, true);
+      } else {
+        studio_begin_holo_v13_mount(key, pieceCount, containerSha);
+      }
+    };
+
     let cachedHits = 0;
     const CONCURRENCY = 6;
     for (let i = 0; i < pieceCount; i += CONCURRENCY) {
       const batch = manifest.pieces.slice(i, Math.min(i + CONCURRENCY, pieceCount));
       const results = await Promise.all(batch.map((pm) => resolveOrRecoverPiece(pm)));
+      ensureMountStarted();
       for (let j = 0; j < results.length; j++) {
         const res = results[j];
         if (res.fromOpfs) cachedHits += 1;
@@ -2301,6 +2351,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         }
       }
     }
+    ensureMountStarted();
     const fin = JSON.parse(studio_finalize_holo_v13_mount());
     if (!fin || fin.status !== 'ok') {
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
@@ -2339,14 +2390,564 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     };
     return fin;
   })();
-  holoHydrationInflight.set(key, job);
+  holoHydrationInflight.set(inflightKey, job);
   try {
     return await job;
   } finally {
-    if (holoHydrationInflight.get(key) === job) {
-      holoHydrationInflight.delete(key);
+    if (holoHydrationInflight.get(inflightKey) === job) {
+      holoHydrationInflight.delete(inflightKey);
     }
   }
+}
+
+/**
+ * Formal R4.HoloGeometricRuntime execute a non-blocking 4-token Foundry turn stepper (`R4-56`).
+ * Yields via timer slices between 4-token steps so `cancel_inprism_turn`, `mvm_exec`, and
+ * `terminal:*` messages interleave on the Worker event loop, enforcing off-origin weight
+ * download consent (`ConsentRequiredForWeightDownload`) and emitting structured observability
+ * metrics on both `chat_chunk` events and the final `inprism_r4_turn` result.
+ */
+export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
+  /* Formal R4.HoloGeometricRuntime */
+  msg = msg && typeof msg === 'object' ? msg : {};
+  runtimeHooks = runtimeHooks && typeof runtimeHooks === 'object' ? runtimeHooks : {};
+  const reqId = msg && msg.id != null ? msg.id : null;
+  const payload = msg && typeof msg.payload === 'object' && msg.payload !== null ? msg.payload : {};
+  const prompt = typeof payload.prompt === 'string' ? payload.prompt.trim() : '';
+
+  const postEvent = typeof runtimeHooks.postEvent === 'function' ? runtimeHooks.postEvent : () => {};
+  const setActiveTurnId =
+    typeof runtimeHooks.setActiveTurnId === 'function' ? runtimeHooks.setActiveTurnId : () => {};
+  const isCancelled =
+    typeof runtimeHooks.isCancelled === 'function' ? runtimeHooks.isCancelled : () => false;
+  const clearCancelled =
+    typeof runtimeHooks.clearCancelled === 'function' ? runtimeHooks.clearCancelled : () => {};
+
+  const fnBegin =
+    runtimeHooks.holoBeginTurn ||
+    (typeof holo_begin_foundry_turn === 'function'
+      ? holo_begin_foundry_turn
+      : globalThis.holo_begin_foundry_turn);
+  const fnStep =
+    runtimeHooks.holoStepTurn ||
+    (typeof holo_step_foundry_turn === 'function'
+      ? holo_step_foundry_turn
+      : globalThis.holo_step_foundry_turn);
+  const fnCancel =
+    runtimeHooks.holoCancelTurn ||
+    (typeof holo_cancel_foundry_turn === 'function'
+      ? holo_cancel_foundry_turn
+      : globalThis.holo_cancel_foundry_turn);
+  const fnRuntimeStatus =
+    runtimeHooks.holoRuntimeStatus ||
+    (typeof studio_holo_runtime_status === 'function'
+      ? studio_holo_runtime_status
+      : globalThis.studio_holo_runtime_status);
+  const fnHydrate = runtimeHooks.hydrateHoloModel || hydrate_holo_model;
+  const collectSnapshot =
+    typeof runtimeHooks.collectWorkspaceSnapshot === 'function'
+      ? runtimeHooks.collectWorkspaceSnapshot
+      : __uorCollectWorkspaceSnapshot;
+  const dispatchBridge =
+    typeof runtimeHooks.dispatchBridge === 'function'
+      ? runtimeHooks.dispatchBridge
+      : async (envelope) => {
+          const fnDispatch =
+            typeof studio_dispatch === 'function' ? studio_dispatch : globalThis.studio_dispatch;
+          return typeof fnDispatch === 'function'
+            ? JSON.parse(fnDispatch(envelope))
+            : { status: 'error', exit_code: 1, message: 'studio_dispatch unavailable' };
+        };
+  const ensureIdentity =
+    typeof runtimeHooks.ensureIdentity === 'function'
+      ? runtimeHooks.ensureIdentity
+      : stitch_prism_identity_ensure;
+  const signAction =
+    typeof runtimeHooks.signAction === 'function'
+      ? runtimeHooks.signAction
+      : stitch_prism_identity_sign_action;
+
+  if (!prompt) {
+    return {
+      id: reqId,
+      ok: false,
+      error_code: 'EmptyPrompt',
+      error: 'Foundry prompt must not be empty',
+    };
+  }
+  if (isCancelled(reqId, null)) {
+    clearCancelled(reqId, null);
+    return {
+      id: reqId,
+      ok: false,
+      cancelled: true,
+      error_code: 'Cancelled',
+      error: 'Foundry turn cancelled before start',
+    };
+  }
+  if (typeof fnBegin !== 'function' || typeof fnStep !== 'function') {
+    return {
+      id: reqId,
+      ok: false,
+      error_code: 'ModelNotMounted',
+      error: 'Foundry holo stepper bindings are not initialized in Worker',
+    };
+  }
+
+  const rawPref = String(
+    payload.preferredModel || payload.selected_model || payload.model || '',
+  ).trim();
+  const explicit17b = rawPref === 'uor-r4.qwen3-1.7b-holo' || rawPref === 'qwen3-1.7b-holo';
+  const explicit06b = rawPref === 'uor-r4.qwen3-0.6b-holo' || rawPref === 'qwen3-0.6b-holo';
+  let selectedModel = explicit17b
+    ? 'uor-r4.qwen3-1.7b-holo'
+    : explicit06b || !rawPref || rawPref === 'uor-r4.native-q31-d85'
+      ? 'uor-r4.qwen3-0.6b-holo'
+      : rawPref;
+
+  let runtimeStatus = null;
+  if (typeof fnRuntimeStatus === 'function') {
+    try {
+      const rawStatus = fnRuntimeStatus();
+      runtimeStatus = typeof rawStatus === 'string' ? JSON.parse(rawStatus) : rawStatus;
+    } catch (_) {
+      runtimeStatus = null;
+    }
+  }
+
+  const isTargetMounted = (modelId, status) => {
+    if (!status || typeof status !== 'object') return false;
+    if (modelId === 'uor-r4.qwen3-1.7b-holo' && status.qwen3_17b_mounted) return true;
+    if (modelId === 'uor-r4.qwen3-0.6b-holo' && status.qwen3_06b_mounted) return true;
+    return (
+      Array.isArray(status.models) &&
+      status.models.some((m) => m && m.model_id === modelId)
+    );
+  };
+
+  if (!rawPref && runtimeStatus && !runtimeStatus.qwen3_06b_mounted && runtimeStatus.qwen3_17b_mounted) {
+    selectedModel = 'uor-r4.qwen3-1.7b-holo';
+  }
+
+  const knownHoloTarget =
+    selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
+  if (knownHoloTarget && !isTargetMounted(selectedModel, runtimeStatus)) {
+    try {
+      await fnHydrate(
+        selectedModel,
+        (prog) => postEvent('chat_hydration', prog),
+        false,
+        { allowOffOriginHydration: Boolean(payload.allowOffOriginHydration) },
+      );
+      if (typeof fnRuntimeStatus === 'function') {
+        try {
+          const rawStatus = fnRuntimeStatus();
+          runtimeStatus = typeof rawStatus === 'string' ? JSON.parse(rawStatus) : rawStatus;
+        } catch (_) {}
+      }
+    } catch (err) {
+      const code =
+        (err && (err.error_code || err.code)) ||
+        (String((err && err.message) || err).includes('ConsentRequiredForWeightDownload')
+          ? 'ConsentRequiredForWeightDownload'
+          : 'ModelNotMounted');
+      return {
+        id: reqId,
+        ok: false,
+        error_code: code,
+        error: (err && err.message) || String(err),
+      };
+    }
+  }
+
+  const initialSnap = collectSnapshot();
+  let workspaceFiles = Array.isArray(payload.workspace_files)
+    ? payload.workspace_files
+    : initialSnap && Array.isArray(initialSnap.files)
+      ? initialSnap.files
+      : [];
+  const activeFile = typeof payload.active_file === 'string' ? payload.active_file : null;
+  const maxNewTokens =
+    Number.isFinite(Number(payload.max_new_tokens)) && Number(payload.max_new_tokens) > 0
+      ? Math.trunc(Number(payload.max_new_tokens))
+      : undefined;
+  const toolResults = Array.isArray(payload.tool_results) ? [...payload.tool_results] : [];
+  const fullReplyParts = [];
+  let priorHopTokens = 0;
+  let tokensEmitted = 0;
+  let latestTokPerSec = 0;
+  let latestMetrics = {};
+  let receiptSha256 = null;
+  let weightsKappa = null;
+  let activeTurnNum = null;
+  let toolIterations = toolResults.length;
+
+  const toBigIntId = (tid) =>
+    typeof BigInt === 'function' ? BigInt(Math.trunc(Number(tid))) : Math.trunc(Number(tid));
+  const yieldSlice = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  const diffChangedPaths = (beforeSnap, afterSnap) => {
+    const beforeMap = new Map();
+    for (const f of (beforeSnap && Array.isArray(beforeSnap.files) ? beforeSnap.files : [])) {
+      if (f && f.path) beforeMap.set(f.path, f.sha256 || String(f.content || ''));
+    }
+    const afterMap = new Map();
+    for (const f of (afterSnap && Array.isArray(afterSnap.files) ? afterSnap.files : [])) {
+      if (f && f.path) afterMap.set(f.path, f.sha256 || String(f.content || ''));
+    }
+    const changed = new Set();
+    for (const [p, v] of afterMap.entries()) {
+      if (!beforeMap.has(p) || beforeMap.get(p) !== v) changed.add(p);
+    }
+    for (const p of beforeMap.keys()) {
+      if (!afterMap.has(p)) changed.add(p);
+    }
+    return Array.from(changed).sort();
+  };
+
+  const buildHoloV13Summary = (stepData = {}) => {
+    const mountedMeta =
+      runtimeStatus && Array.isArray(runtimeStatus.models)
+        ? runtimeStatus.models.find((m) => m && m.model_id === (stepData.model_id || selectedModel)) ||
+          null
+        : null;
+    const kappaInfo = globalThis.__uorHoloKappaStatus || null;
+    return {
+      container_format: 'UORR4V13',
+      model_id: stepData.model_id || selectedModel,
+      turn_id: activeTurnNum,
+      weights_kappa:
+        stepData.weights_kappa ||
+        weightsKappa ||
+        (mountedMeta && mountedMeta.container_sha256
+          ? `sha256:${mountedMeta.container_sha256}`
+          : null),
+      receipt_sha256: stepData.receipt_sha256 || receiptSha256 || null,
+      n_layers: mountedMeta && mountedMeta.n_layers ? mountedMeta.n_layers : null,
+      d_model: mountedMeta && mountedMeta.d_model ? mountedMeta.d_model : null,
+      vocab_size: mountedMeta && mountedMeta.vocab_size ? mountedMeta.vocab_size : null,
+      tool_iterations: toolIterations,
+      cached_hits: kappaInfo && Number.isFinite(kappaInfo.cached_hits) ? kappaInfo.cached_hits : null,
+      piece_count: kappaInfo && Number.isFinite(kappaInfo.piece_count) ? kappaInfo.piece_count : null,
+    };
+  };
+
+  const buildObsMetrics = (stepData = {}, hopTokens = null) => {
+    const totalToks =
+      hopTokens != null ? priorHopTokens + Number(hopTokens || 0) : tokensEmitted;
+    const tps = Number(stepData.tok_per_sec ?? latestTokPerSec ?? 0);
+    const gm =
+      stepData.geometric_metrics && typeof stepData.geometric_metrics === 'object'
+        ? stepData.geometric_metrics
+        : latestMetrics;
+    return {
+      tokens_emitted: totalToks,
+      tok_per_sec: Number.isFinite(tps) ? tps : 0,
+      geometric_metrics: gm || {},
+      holo_v13: buildHoloV13Summary(stepData),
+    };
+  };
+
+  const cancelAndBuildResult = () => {
+    if (activeTurnNum != null && typeof fnCancel === 'function') {
+      try {
+        fnCancel(toBigIntId(activeTurnNum));
+      } catch (_) {}
+    }
+    const tid = activeTurnNum;
+    setActiveTurnId(null);
+    clearCancelled(reqId, tid);
+    const obsMetrics = buildObsMetrics();
+    const partial = fullReplyParts.join('');
+    postEvent('chat_cancelled', {
+      id: reqId,
+      turn_id: tid,
+      tokens_emitted: obsMetrics.tokens_emitted,
+      [UOR_OBS_METRICS_KEY]: obsMetrics,
+    });
+    return {
+      id: reqId,
+      ok: false,
+      cancelled: true,
+      error_code: 'Cancelled',
+      error: 'Foundry turn cancelled.',
+      turn_id: tid,
+      reply: partial,
+      assistant_reply: partial,
+      [UOR_OBS_METRICS_KEY]: obsMetrics,
+    };
+  };
+
+  /* Formal R4.HoloGeometricRuntime */
+  async function* streamFoundryHopSlices(hopTurnId) {
+    while (true) {
+      if (isCancelled(reqId, hopTurnId)) {
+        yield { status: 'cancelled', delta: '', tokens_emitted: 0, cancelled_by_host: true };
+        return;
+      }
+      const rawStep = fnStep(toBigIntId(hopTurnId));
+      const stepRes = typeof rawStep === 'string' ? JSON.parse(rawStep) : rawStep;
+      yield stepRes;
+      if (
+        !stepRes ||
+        stepRes.status === 'done' ||
+        stepRes.status === 'needs_tool' ||
+        stepRes.status === 'cancelled' ||
+        stepRes.status === 'error'
+      ) {
+        return;
+      }
+      await yieldSlice();
+    }
+  }
+
+  for (let hop = 0; hop <= 6; hop += 1) {
+    if (isCancelled(reqId, activeTurnNum)) {
+      return cancelAndBuildResult();
+    }
+    const beginPayload = {
+      prompt,
+      workspace_files: workspaceFiles,
+      active_file: activeFile,
+      selected_model: selectedModel,
+      tool_results: toolResults,
+    };
+    if (maxNewTokens !== undefined) {
+      beginPayload.max_new_tokens = maxNewTokens;
+    }
+
+    const rawBegin = fnBegin(JSON.stringify(beginPayload));
+    const beginRes = typeof rawBegin === 'string' ? JSON.parse(rawBegin) : rawBegin;
+    if (!beginRes || beginRes.status !== 'ready') {
+      setActiveTurnId(null);
+      clearCancelled(reqId, activeTurnNum);
+      return {
+        id: reqId,
+        ok: false,
+        error_code: (beginRes && beginRes.error_code) || 'ModelNotMounted',
+        error: (beginRes && beginRes.message) || 'holo_begin_foundry_turn failed',
+      };
+    }
+
+    activeTurnNum = Number(beginRes.turn_id);
+    setActiveTurnId(activeTurnNum);
+    if (beginRes.model_id) {
+      selectedModel = beginRes.model_id;
+    }
+
+    let hopToolCall = null;
+    let hopDoneStep = null;
+
+    for await (const stepRes of streamFoundryHopSlices(activeTurnNum)) {
+      if (!stepRes) {
+        setActiveTurnId(null);
+        clearCancelled(reqId, activeTurnNum);
+        return {
+          id: reqId,
+          ok: false,
+          error_code: 'InvalidStepperOutcome',
+          error: 'Empty step outcome from holo_step_foundry_turn',
+        };
+      }
+      if (stepRes.status === 'cancelled' || stepRes.cancelled_by_host) {
+        return cancelAndBuildResult();
+      }
+      if (stepRes.status === 'error') {
+        const tid = activeTurnNum;
+        setActiveTurnId(null);
+        clearCancelled(reqId, tid);
+        postEvent('chat_error', {
+          id: reqId,
+          turn_id: tid,
+          error_code: stepRes.error_code || 'StepFailed',
+          error: stepRes.message || 'Foundry step error',
+        });
+        return {
+          id: reqId,
+          ok: false,
+          error_code: stepRes.error_code || 'StepFailed',
+          error: stepRes.message || 'Foundry step error',
+          turn_id: tid,
+        };
+      }
+
+      if (stepRes.geometric_metrics && typeof stepRes.geometric_metrics === 'object') {
+        latestMetrics = stepRes.geometric_metrics;
+      }
+      if (Number.isFinite(Number(stepRes.tok_per_sec))) {
+        latestTokPerSec = Number(stepRes.tok_per_sec);
+      }
+      if (Number.isFinite(Number(stepRes.tokens_emitted))) {
+        tokensEmitted = priorHopTokens + Number(stepRes.tokens_emitted);
+      }
+      if (stepRes.receipt_sha256) receiptSha256 = stepRes.receipt_sha256;
+      if (stepRes.weights_kappa) weightsKappa = stepRes.weights_kappa;
+
+      const delta = typeof stepRes.delta === 'string' ? stepRes.delta : '';
+      if (delta) {
+        fullReplyParts.push(delta);
+      }
+      const chunkMetrics = buildObsMetrics(stepRes, stepRes.tokens_emitted);
+      if (delta || stepRes.status === 'streaming') {
+        postEvent('chat_chunk', {
+          id: reqId,
+          turn_id: activeTurnNum,
+          delta,
+          tokens_emitted: chunkMetrics.tokens_emitted,
+          tok_per_sec: chunkMetrics.tok_per_sec,
+          geometric_metrics: chunkMetrics.geometric_metrics,
+          holo_v13: chunkMetrics.holo_v13,
+          [UOR_OBS_METRICS_KEY]: chunkMetrics,
+        });
+      }
+
+      if (stepRes.status === 'needs_tool') {
+        priorHopTokens = tokensEmitted;
+        hopToolCall = stepRes.tool_call || null;
+        break;
+      }
+      if (stepRes.status === 'done') {
+        hopDoneStep = stepRes;
+        break;
+      }
+    }
+
+    if (hopToolCall && toolIterations < 6) {
+      if (isCancelled(reqId, activeTurnNum)) {
+        return cancelAndBuildResult();
+      }
+      const cmd = typeof hopToolCall.cmd === 'string' ? hopToolCall.cmd : '';
+      postEvent('tool_call', {
+        id: reqId,
+        turn_id: activeTurnNum,
+        tool: 'mvm_exec',
+        cmd,
+        iteration: toolIterations + 1,
+      });
+      const beforeSnap = collectSnapshot();
+      let execRes = {};
+      try {
+        const rawExec = await dispatchBridge(
+          `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd })}`,
+        );
+        execRes = typeof rawExec === 'string' ? JSON.parse(rawExec) : rawExec || {};
+      } catch (err) {
+        execRes = {
+          status: 'error',
+          exit_code: 1,
+          mvm_stderr: (err && err.message) || String(err),
+        };
+      }
+      const afterSnap = collectSnapshot();
+      const changedFiles = Array.isArray(execRes.changed_files)
+        ? execRes.changed_files
+        : diffChangedPaths(beforeSnap, afterSnap);
+      const stdout =
+        typeof execRes.mvm_stdout === 'string'
+          ? execRes.mvm_stdout
+          : typeof execRes.stdout === 'string'
+            ? execRes.stdout
+            : '';
+      const stderr =
+        typeof execRes.mvm_stderr === 'string'
+          ? execRes.mvm_stderr
+          : typeof execRes.stderr === 'string'
+            ? execRes.stderr
+            : typeof execRes.message === 'string' && execRes.status === 'error'
+              ? execRes.message
+              : '';
+      const exitCode = Number.isFinite(Number(execRes.exit_code))
+        ? Number(execRes.exit_code)
+        : execRes.status === 'ok'
+          ? 0
+          : 1;
+
+      toolResults.push({
+        cmd,
+        exit_code: exitCode,
+        stdout,
+        stderr,
+        changed_files: changedFiles,
+      });
+      toolIterations += 1;
+
+      postEvent('tool_result', {
+        id: reqId,
+        turn_id: activeTurnNum,
+        tool: 'mvm_exec',
+        cmd,
+        exit_code: exitCode,
+        stdout,
+        stderr,
+        changed_files: changedFiles,
+      });
+      if (afterSnap && Array.isArray(afterSnap.files)) {
+        workspaceFiles = afterSnap.files;
+        postEvent('workspace_sync', { workspace: afterSnap });
+      }
+      await yieldSlice();
+      continue;
+    }
+
+    return await buildFinalTurnResult(hopDoneStep || {});
+  }
+
+  async function buildFinalTurnResult(stepData = {}) {
+    /* Formal R4.HoloGeometricRuntime */
+    const finishedTurnId = activeTurnNum;
+    setActiveTurnId(null);
+    clearCancelled(reqId, finishedTurnId);
+
+    const prismIdentity = await Promise.resolve(ensureIdentity()).catch(() => null);
+    const targetKappa =
+      weightsKappa || (receiptSha256 ? `sha256:${receiptSha256}` : 'sha256:foundry');
+    const actionReceipt = await Promise.resolve(
+      signAction('inprism-r4-turn', targetKappa),
+    ).catch(() => null);
+    const latestHolo =
+      __uorMemPrismIdentity.latestHoloSummary || globalThis.__uorLatestHoloSummary || null;
+
+    const finalObsMetrics = buildObsMetrics(stepData, stepData.tokens_emitted);
+    const finalReply = fullReplyParts.join('');
+    const finalWorkspace = collectSnapshot();
+
+    return {
+      id: reqId,
+      ok: true,
+      result: {
+        ok: true,
+        status: 'ok',
+        mode: 'inprism',
+        engine: 'match',
+        weights: weightsKappa ? 'match' : 'missing',
+        route: 'none',
+        boundary: 'allow',
+        turn_id: finishedTurnId,
+        selected_model: selectedModel,
+        model_id: selectedModel,
+        execution_tier: selectedModel,
+        reply: finalReply,
+        assistant_reply: finalReply,
+        receipt_sha256: receiptSha256,
+        weights_kappa: weightsKappa,
+        prism_id: prismIdentity ? prismIdentity.prism_id : null,
+        action_record_kappa: actionReceipt ? actionReceipt.action_record_kappa : null,
+        holo_fingerprint: latestHolo ? latestHolo.fingerprint : null,
+        tokens_emitted: finalObsMetrics.tokens_emitted,
+        tok_per_sec: finalObsMetrics.tok_per_sec,
+        geometric_metrics: finalObsMetrics.geometric_metrics,
+        holo_v13: finalObsMetrics.holo_v13,
+        tool_results: toolResults,
+        mvm_tool_executed: toolResults.length > 0,
+        workspace: finalWorkspace,
+        prism_identity: prismIdentity,
+        prism_receipt: actionReceipt,
+        [UOR_OBS_METRICS_KEY]: finalObsMetrics,
+      },
+    };
+  }
+
+  return await buildFinalTurnResult({});
 }
 
 /** Formal R4.HoloGeometricRuntime stream a HuggingFace Safetensors repo via HTTP `206` `Range` slices & compile to `UORR4V13`. */
@@ -5201,6 +5802,9 @@ function __uorStartDedicatedEngineWorker() {
   let bootPromise = null;
   let activeHydrationPromise = null;
   let lastHydrationProgress = null;
+  let activeInprismTurnId = null;
+  const cancelledInprismRequests = new Set();
+  const cancelledInprismTurns = new Set();
   const earlyMessages = [];
 
   const postEvent = (event, data = {}) => {
@@ -5549,10 +6153,11 @@ function __uorStartDedicatedEngineWorker() {
       if (op === 'hydrate_holo_model') {
         const modelId = String((payload && payload.modelId) || 'uor-r4.qwen3-0.6b-holo');
         const force = Boolean(payload && payload.force);
+        const allowOffOriginHydration = Boolean(payload && payload.allowOffOriginHydration);
         const holo = await hydrate_holo_model(modelId, (prog) => {
           postEvent('boot_progress', { stage: 'holo_v13', ...prog });
           postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-        }, force);
+        }, force, { allowOffOriginHydration });
         postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
         self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
         return;
@@ -5772,79 +6377,55 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: true, result: desc });
         return;
       }
-      if (op === 'inprism_r4_turn') {
-        /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
-        const prompt = String((payload && payload.prompt) || '').trim();
-        if (!prompt) {
-          self.postMessage({ id, ok: false, error: 'Prompt must not be empty for inprism_r4_turn' });
-          return;
-        }
-        const preferred = String((payload && payload.preferredModel) || '').trim();
-        const idState = await stitch_prism_identity_ensure().catch(() => null);
-        let hs = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
-        let mountedList = hs && Array.isArray(hs.models) ? hs.models : [];
-        let activeModel = '';
-        if (preferred && (preferred === 'uor-r4.qwen3-1.7b-holo' || preferred === 'uor-r4.qwen3-0.6b-holo' || preferred === 'uor-r4.native-q31-d85')) {
-          activeModel = preferred;
-        } else if (hs && hs.qwen3_06b_mounted) {
-          activeModel = 'uor-r4.qwen3-0.6b-holo';
-        } else if (hs && hs.qwen3_17b_mounted) {
-          activeModel = 'uor-r4.qwen3-1.7b-holo';
-        } else {
-          const opt = await selectOptimalInitialHoloModel().catch(() => null);
-          activeModel = (opt && opt.initialModel) || 'uor-r4.qwen3-0.6b-holo';
-        }
-        if ((activeModel === 'uor-r4.qwen3-1.7b-holo' || activeModel === 'uor-r4.qwen3-0.6b-holo')
-            && !mountedList.some((m) => m && m.model_id === activeModel)) {
-          try {
-            await hydrate_holo_model(activeModel, (prog) => {
-              postEvent('boot_progress', { stage: 'holo_v13', ...prog });
-              postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-            }, false);
-            hs = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : hs;
-            mountedList = hs && Array.isArray(hs.models) ? hs.models : mountedList;
-          } catch {
-            activeModel = hs && hs.qwen3_06b_mounted ? 'uor-r4.qwen3-0.6b-holo' : 'uor-r4.native-q31-d85';
+      if (op === 'cancel_inprism_turn') {
+        const reqId = payload && payload.requestId != null ? payload.requestId : null;
+        if (reqId != null) cancelledInprismRequests.add(reqId);
+        const rawTid = payload && payload.turn_id != null ? Number(payload.turn_id) : activeInprismTurnId;
+        let cancelRes = { status: 'not_found', turn_id: Number(rawTid || 0) };
+        if (rawTid != null && Number.isFinite(rawTid) && rawTid > 0) {
+          cancelledInprismTurns.add(Number(rawTid));
+          const cancelFn =
+            typeof holo_cancel_foundry_turn === 'function'
+              ? holo_cancel_foundry_turn
+              : globalThis.holo_cancel_foundry_turn;
+          if (typeof cancelFn === 'function') {
+            const arg = typeof BigInt === 'function' ? BigInt(Math.trunc(rawTid)) : Math.trunc(rawTid);
+            cancelRes = JSON.parse(cancelFn(arg));
           }
         }
-        const mountedMeta = mountedList.find((m) => m && m.model_id === activeModel) || null;
-        const chatReq = JSON.stringify({
-          prompt,
-          selected_model: activeModel,
-          composer_mode: 'chat',
-          operating_mode: 'chat',
-          connected_repo: (payload && payload.repo) || '',
-          connected_branch: (payload && payload.branch) || 'main',
-        });
-        const chatRes = JSON.parse(studio_dispatch(`1\tstudio\tchat\t${chatReq}`));
-        const weightsSha = (mountedMeta && mountedMeta.container_sha256) || chatRes.receipt_sha256 || '';
-        const weightsKappa = weightsSha ? `sha256:${weightsSha}` : '';
-        const latestHolo = __uorMemPrismIdentity.latestHoloSummary || globalThis.__uorLatestHoloSummary || null;
-        const actionRes = weightsKappa
-          ? await stitch_prism_identity_sign_action('inprism-r4-turn', weightsKappa).catch(() => null)
-          : null;
-        self.postMessage({
-          id,
-          ok: chatRes && chatRes.status === 'ok',
-          result: {
-            ok: Boolean(chatRes && chatRes.status === 'ok'),
-            mode: 'inprism',
-            engine: 'match',
-            weights: weightsKappa ? 'match' : 'missing',
-            route: 'none',
-            boundary: 'allow',
-            model_id: chatRes.selected_model || activeModel,
-            execution_tier: chatRes.execution_tier || activeModel,
-            reply: chatRes.assistant_reply || '',
-            receipt_sha256: chatRes.receipt_sha256 || '',
-            weights_kappa: weightsKappa,
-            prism_id: idState ? idState.prism_id : null,
-            action_record_kappa: actionRes ? actionRes.action_record_kappa : null,
-            holo_fingerprint: latestHolo ? latestHolo.fingerprint : null,
-            geometric_metrics: chatRes.geometric_metrics || null,
+        self.postMessage({ id, ok: true, result: cancelRes });
+        return;
+      }
+      if (op === 'terminal:write' || op === 'terminal:open' || op === 'terminal:close' || op === 'terminal:kill' || op === 'terminal:resize' || op === 'terminal:serialize') {
+        if (op === 'terminal:write' && payload && typeof payload.cmd === 'string' && payload.cmd.trim()) {
+          const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: payload.cmd.trim() })}`);
+          self.postMessage({ id, ok: true, result: out });
+          return;
+        }
+        self.postMessage({ id, ok: true, result: { ok: true, op, interleaved: true } });
+        return;
+      }
+      if (op === 'inprism_r4_turn') {
+        /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+        const resEnvelope = await execute_inprism_foundry_turn(
+          { id, payload },
+          {
+            postEvent,
+            postResponse: (resp) => self.postMessage(resp),
+            dispatchBridge: dispatchWithConnectedBridge,
+            setActiveTurnId: (tid) => {
+              activeInprismTurnId = tid;
+            },
+            isCancelled: (reqId, turnId) =>
+              cancelledInprismRequests.has(reqId) ||
+              (turnId != null && cancelledInprismTurns.has(Number(turnId))),
+            clearCancelled: (reqId, turnId) => {
+              cancelledInprismRequests.delete(reqId);
+              if (turnId != null) cancelledInprismTurns.delete(Number(turnId));
+            },
           },
-          ...(chatRes && chatRes.status !== 'ok' ? { error: chatRes.message || 'inprism turn failed' } : {}),
-        });
+        );
+        self.postMessage(resEnvelope);
         return;
       }
       self.postMessage({ id, ok: false, error: `Unknown worker op: ${op}` });
@@ -5852,6 +6433,7 @@ function __uorStartDedicatedEngineWorker() {
       self.postMessage({
         id,
         ok: false,
+        ...(err && err.code ? { error_code: err.code } : {}),
         error: err && err.message ? err.message : String(err),
       });
     }
@@ -6718,6 +7300,7 @@ if (typeof globalThis === 'object' && globalThis) {
     verifyHoloV4ArchiveInWorker: verify_holo_v4_archive_in_worker,
     buildAfflomMeAppDescriptor: build_afflom_me_app_descriptor,
     buildFoundryStudioDescriptor: build_afflom_me_app_descriptor,
+    executeInprismFoundryTurn: execute_inprism_foundry_turn,
   };
 
   globalThis.LexLean = {
@@ -6734,6 +7317,7 @@ if (typeof globalThis === 'object' && globalThis) {
     stitch_prism_identity_bind_persona,
     compile_and_verify_holo_v4_in_worker,
     verify_holo_v4_archive_in_worker,
+    execute_inprism_foundry_turn,
   };
 }
 

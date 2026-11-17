@@ -1,0 +1,453 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+import {
+  hydrate_holo_model,
+  execute_inprism_foundry_turn,
+} from '../../crates/wasm/js/worker_host_bridge.js';
+
+function createFakeStepperHooks(options = {}) {
+  let nextTurnId = 1;
+  let activeTurn = null;
+  let cancelledTurns = new Set();
+  let beginCalls = [];
+  let cancelCalls = [];
+  let stepCalls = [];
+
+  const mounted = options.mounted !== false;
+  const runtimeStatusObj = mounted
+    ? {
+        qwen3_06b_mounted: true,
+        qwen3_17b_mounted: false,
+        models: [
+          {
+            model_id: 'uor-r4.qwen3-0.6b-holo',
+            container_sha256: 'a'.repeat(64),
+            n_layers: 2,
+            d_model: 32,
+            vocab_size: 270,
+          },
+        ],
+      }
+    : { qwen3_06b_mounted: false, qwen3_17b_mounted: false, models: [] };
+
+  return {
+    beginCalls,
+    stepCalls,
+    cancelCalls,
+    hooks: {
+      holoRuntimeStatus: () => JSON.stringify(runtimeStatusObj),
+      collectWorkspaceSnapshot: options.collectWorkspaceSnapshot || (() => ({ files: [] })),
+      dispatchBridge:
+        options.dispatchBridge ||
+        (async (env) => ({
+          status: 'ok',
+          exit_code: 0,
+          mvm_stdout: `/workspace\n`,
+          mvm_stderr: '',
+          env,
+        })),
+      ensureIdentity: async () => ({ did: 'did:prism:test' }),
+      signAction: async (action, targetKappa) => ({ action, targetKappa }),
+      holoBeginTurn: (payloadJson) => {
+        const req = JSON.parse(payloadJson);
+        beginCalls.push(req);
+        if (!mounted) {
+          return JSON.stringify({
+            status: 'error',
+            error_code: 'ModelNotMounted',
+            message: 'No model mounted',
+          });
+        }
+        if (activeTurn) {
+          return JSON.stringify({
+            status: 'error',
+            error_code: 'BusyTurn',
+            message: 'Turn already active',
+          });
+        }
+        const hopIndex = Array.isArray(req.tool_results) ? req.tool_results.length : 0;
+        const turnId = nextTurnId++;
+        const script =
+          typeof options.scriptForHop === 'function'
+            ? options.scriptForHop(hopIndex, req)
+            : [{ status: 'done', delta: 'ok', tokens_emitted: 1, tok_per_sec: 12.5 }];
+        activeTurn = {
+          turnId,
+          stepIndex: 0,
+          script,
+        };
+        return JSON.stringify({
+          status: 'ready',
+          turn_id: turnId,
+          model_id: req.selected_model || 'uor-r4.qwen3-0.6b-holo',
+          max_new_tokens: req.max_new_tokens || 1536,
+        });
+      },
+      holoStepTurn: (turnIdBig) => {
+        const turnId = Number(turnIdBig);
+        stepCalls.push(turnId);
+        if (!activeTurn || activeTurn.turnId !== turnId) {
+          return JSON.stringify({
+            status: 'error',
+            error_code: 'TurnNotFound',
+            message: 'Unknown turn',
+          });
+        }
+        if (cancelledTurns.has(turnId)) {
+          activeTurn = null;
+          return JSON.stringify({
+            status: 'cancelled',
+            turn_id: turnId,
+            delta: '',
+            tokens_emitted: 0,
+            tok_per_sec: 0,
+          });
+        }
+        const entry = activeTurn.script[activeTurn.stepIndex++];
+        if (!entry) {
+          activeTurn = null;
+          return JSON.stringify({
+            status: 'done',
+            turn_id: turnId,
+            delta: '',
+            tokens_emitted: 0,
+            tok_per_sec: 20,
+            receipt_sha256: 'b'.repeat(64),
+            weights_kappa: `sha256:${'a'.repeat(64)}`,
+            geometric_metrics: { float_ops: 0, dense_matmul_ops: 0, n_layers: 2 },
+          });
+        }
+        if (entry.status !== 'streaming') {
+          activeTurn = null;
+        }
+        return JSON.stringify({
+          turn_id: turnId,
+          receipt_sha256: entry.status === 'done' ? 'b'.repeat(64) : null,
+          weights_kappa: entry.status === 'done' ? `sha256:${'a'.repeat(64)}` : null,
+          geometric_metrics: {
+            float_ops: 0,
+            dense_matmul_ops: 0,
+            n_layers: 2,
+            step_index: activeTurn ? activeTurn.stepIndex : 99,
+          },
+          ...entry,
+        });
+      },
+      holoCancelTurn: (turnIdBig) => {
+        const turnId = Number(turnIdBig);
+        cancelCalls.push(turnId);
+        cancelledTurns.add(turnId);
+        if (activeTurn && activeTurn.turnId === turnId) {
+          activeTurn = null;
+          return JSON.stringify({ status: 'cancelled', turn_id: turnId });
+        }
+        return JSON.stringify({ status: 'not_found', turn_id: turnId });
+      },
+    },
+  };
+}
+
+test('hydrate_holo_model and inprism_r4_turn enforce ConsentRequiredForWeightDownload off-origin', async () => {
+  const prevLocation = globalThis.location;
+  const prevFetch = globalThis.fetch;
+  const prevIdb = globalThis.indexedDB;
+  let offOriginFetchCount = 0;
+
+  try {
+    globalThis.location = { origin: 'http://localhost:4173', href: 'http://localhost:4173/' };
+    globalThis.indexedDB = undefined;
+    globalThis.fetch = async (url) => {
+      const target = String(url || '');
+      if (!target.startsWith('http://localhost:4173/')) {
+        offOriginFetchCount += 1;
+        throw new Error(`Off-origin fetch forbidden without consent: ${target}`);
+      }
+      throw new Error('local weight mirror absent');
+    };
+
+    await assert.rejects(
+      () =>
+        hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, false, {
+          allowOffOriginHydration: false,
+        }),
+      (err) =>
+        err &&
+        (err.code === 'ConsentRequiredForWeightDownload' ||
+          err.error_code === 'ConsentRequiredForWeightDownload'),
+    );
+    assert.equal(offOriginFetchCount, 0);
+
+    const fake = createFakeStepperHooks({ mounted: false });
+    const res = await execute_inprism_foundry_turn(
+      { id: 'req-consent-1', payload: { prompt: 'Build counter app' } },
+      fake.hooks,
+    );
+    assert.equal(res.ok, false);
+    assert.equal(res.error_code, 'ConsentRequiredForWeightDownload');
+    assert.equal(offOriginFetchCount, 0);
+  } finally {
+    globalThis.location = prevLocation;
+    globalThis.fetch = prevFetch;
+    globalThis.indexedDB = prevIdb;
+  }
+});
+
+test('execute_inprism_foundry_turn emits EmptyPrompt on blank prompt', async () => {
+  const fake = createFakeStepperHooks();
+  const res = await execute_inprism_foundry_turn(
+    { id: 'req-empty', payload: { prompt: '   ' } },
+    fake.hooks,
+  );
+  assert.equal(res.ok, false);
+  assert.equal(res.error_code, 'EmptyPrompt');
+});
+
+test('execute_inprism_foundry_turn streams 4-token chunks with telemetry and bounded mvm_exec hops', async () => {
+  const events = [];
+  let wsVersion = 0;
+  const fake = createFakeStepperHooks({
+    collectWorkspaceSnapshot: () => ({
+      files: [
+        {
+          path: 'src/App.tsx',
+          content: `export const v = ${wsVersion};`,
+          sha256: `sha-${wsVersion}`,
+        },
+      ],
+    }),
+    dispatchBridge: async (env) => {
+      wsVersion += 1;
+      assert.match(env, /\tmvm_exec\t/);
+      return {
+        status: 'ok',
+        exit_code: 0,
+        mvm_stdout: 'updated\n',
+        mvm_stderr: '',
+      };
+    },
+    scriptForHop: (hopIndex) => {
+      if (hopIndex === 0) {
+        return [
+          { status: 'streaming', delta: 'Checking: ', tokens_emitted: 4, tok_per_sec: 42.5 },
+          {
+            status: 'needs_tool',
+            delta: '',
+            tokens_emitted: 7,
+            tok_per_sec: 48.0,
+            tool_call: { name: 'mvm_exec', cmd: 'echo hi > out.txt' },
+          },
+        ];
+      }
+      return [
+        {
+          status: 'streaming',
+          delta: '<prism-write path="src/App.tsx">',
+          tokens_emitted: 4,
+          tok_per_sec: 55.25,
+        },
+        { status: 'done', delta: 'done</prism-write>', tokens_emitted: 7, tok_per_sec: 60.5 },
+      ];
+    },
+  });
+
+  const envelope = await execute_inprism_foundry_turn(
+    {
+      id: 'req-stream-1',
+      payload: {
+        prompt: 'Update App',
+        preferredModel: 'uor-r4.qwen3-0.6b-holo',
+      },
+    },
+    {
+      ...fake.hooks,
+      postEvent: (event, data) => events.push({ event, data }),
+    },
+  );
+
+  assert.equal(envelope.ok, true);
+  assert.equal(
+    envelope.result.reply,
+    'Checking: <prism-write path="src/App.tsx">done</prism-write>',
+  );
+  assert.equal(envelope.result.tokens_emitted, 14);
+  assert.equal(envelope.result.tok_per_sec, 60.5);
+  assert.equal(envelope.result.mvm_tool_executed, true);
+  assert.equal(envelope.result.tool_results.length, 1);
+  assert.deepEqual(envelope.result.tool_results[0].changed_files, ['src/App.tsx']);
+
+  const finalMetrics = envelope.result['telemetry'];
+  assert.ok(finalMetrics && typeof finalMetrics === 'object');
+  assert.equal(finalMetrics.tokens_emitted, 14);
+  assert.equal(finalMetrics.tok_per_sec, 60.5);
+  assert.equal(finalMetrics.geometric_metrics.float_ops, 0);
+  assert.equal(finalMetrics.holo_v13.container_format, 'UORR4V13');
+  assert.equal(finalMetrics.holo_v13.model_id, 'uor-r4.qwen3-0.6b-holo');
+  assert.equal(finalMetrics.holo_v13.receipt_sha256, 'b'.repeat(64));
+
+  const chunks = events.filter((e) => e.event === 'chat_chunk');
+  assert.equal(chunks.length, 3);
+  for (const ch of chunks) {
+    assert.ok(ch.data['telemetry'], 'every chat_chunk must include telemetry object');
+    assert.equal(ch.data['telemetry'].tokens_emitted, ch.data.tokens_emitted);
+    assert.equal(ch.data['telemetry'].tok_per_sec, ch.data.tok_per_sec);
+    assert.equal(ch.data['telemetry'].holo_v13.container_format, 'UORR4V13');
+  }
+  assert.ok(events.some((e) => e.event === 'tool_call' && e.data.cmd === 'echo hi > out.txt'));
+  assert.ok(events.some((e) => e.event === 'tool_result' && e.data.exit_code === 0));
+  assert.ok(events.some((e) => e.event === 'workspace_sync'));
+});
+
+test('execute_inprism_foundry_turn caps mvm_exec tool loop at 6 iterations', async () => {
+  let toolExecCount = 0;
+  const fake = createFakeStepperHooks({
+    dispatchBridge: async () => {
+      toolExecCount += 1;
+      return { status: 'ok', exit_code: 0, mvm_stdout: 'ok', mvm_stderr: '' };
+    },
+    scriptForHop: () => [
+      {
+        status: 'needs_tool',
+        delta: 'hop;',
+        tokens_emitted: 2,
+        tok_per_sec: 30,
+        tool_call: { name: 'mvm_exec', cmd: 'pwd' },
+      },
+    ],
+  });
+
+  const envelope = await execute_inprism_foundry_turn(
+    { id: 'req-cap', payload: { prompt: 'Loop test', preferredModel: 'uor-r4.qwen3-0.6b-holo' } },
+    fake.hooks,
+  );
+  assert.equal(envelope.ok, true);
+  assert.equal(toolExecCount, 6);
+  assert.equal(envelope.result.tool_results.length, 6);
+});
+
+test('Worker message loop interleaves terminal:write and cancel_inprism_turn between 4-token slices', async () => {
+  const prevWgs = globalThis.WorkerGlobalScope;
+  const prevSelf = globalThis.self;
+  const prevWbg = globalThis.__wbg_init;
+  const prevPanic = globalThis.init_panic_hook;
+  const prevBoot = globalThis.studio_bootstrap;
+  const prevPack = globalThis.studio_weight_pack_status;
+  const prevBegin = globalThis.holo_begin_foundry_turn;
+  const prevStep = globalThis.holo_step_foundry_turn;
+  const prevCancel = globalThis.holo_cancel_foundry_turn;
+  const prevStatus = globalThis.studio_holo_runtime_status;
+  const prevDispatch = globalThis.studio_dispatch;
+
+  const posted = [];
+  let resolveReady;
+  let resolveDone;
+  let timerId;
+  const readyPromise = new Promise((r) => {
+    resolveReady = r;
+  });
+  const finished = new Promise((resolve, reject) => {
+    resolveDone = resolve;
+    timerId = setTimeout(
+      () => reject(new Error('Timed out waiting for Worker turn completion')),
+      2000,
+    );
+  });
+
+  try {
+    class MockWorkerGlobalScope {
+      constructor() {
+        this.name = 'uor-r4-engine-worker';
+      }
+      postMessage(msg) {
+        posted.push(msg);
+        if (msg && msg.event === 'ready') {
+          resolveReady(msg);
+        }
+        if (msg && msg.id === 'turn-interleave-1' && typeof msg.ok === 'boolean') {
+          clearTimeout(timerId);
+          resolveDone(msg);
+        }
+      }
+    }
+    const mockSelf = new MockWorkerGlobalScope();
+    globalThis.WorkerGlobalScope = MockWorkerGlobalScope;
+    globalThis.self = mockSelf;
+    globalThis.__wbg_init = async () => ({});
+    globalThis.init_panic_hook = () => {};
+    globalThis.studio_bootstrap = () => '{}';
+    globalThis.studio_weight_pack_status = () => JSON.stringify({ mounted_packs: [] });
+
+    const fake = createFakeStepperHooks({
+      scriptForHop: () => [
+        { status: 'streaming', delta: 'step1 ', tokens_emitted: 4, tok_per_sec: 40 },
+        { status: 'streaming', delta: 'step2 ', tokens_emitted: 8, tok_per_sec: 45 },
+        { status: 'streaming', delta: 'step3 ', tokens_emitted: 12, tok_per_sec: 50 },
+        { status: 'done', delta: 'step4', tokens_emitted: 16, tok_per_sec: 55 },
+      ],
+    });
+    globalThis.holo_begin_foundry_turn = fake.hooks.holoBeginTurn;
+    globalThis.holo_step_foundry_turn = fake.hooks.holoStepTurn;
+    globalThis.holo_cancel_foundry_turn = fake.hooks.holoCancelTurn;
+    globalThis.studio_holo_runtime_status = fake.hooks.holoRuntimeStatus;
+    globalThis.studio_dispatch = (env) =>
+      JSON.stringify({ status: 'ok', exit_code: 0, mvm_stdout: 'term-ok', env });
+
+    await import('../../crates/wasm/js/worker_host_bridge.js?worker_interleave_test=2');
+    assert.equal(typeof mockSelf.onmessage, 'function');
+    await readyPromise;
+
+    mockSelf.onmessage({
+      data: {
+        id: 'turn-interleave-1',
+        op: 'inprism_r4_turn',
+        payload: { prompt: 'Build counter', preferredModel: 'uor-r4.qwen3-0.6b-holo' },
+      },
+    });
+
+    await new Promise((r) => setTimeout(r, 0));
+    mockSelf.onmessage({
+      data: {
+        id: 'term-1',
+        op: 'terminal:write',
+        payload: { cmd: 'pwd' },
+      },
+    });
+    await new Promise((r) => setTimeout(r, 0));
+    mockSelf.onmessage({
+      data: {
+        id: 'cancel-1',
+        op: 'cancel_inprism_turn',
+        payload: { targetId: 'turn-interleave-1' },
+      },
+    });
+
+    const finalTurnMsg = await finished;
+    assert.equal(finalTurnMsg.ok, false);
+    assert.equal(finalTurnMsg.cancelled, true);
+    assert.equal(finalTurnMsg.error_code, 'Cancelled');
+    assert.ok(fake.stepCalls.length < 4, 'cancellation must preempt remaining slices');
+
+    const termIdx = posted.findIndex((m) => m && m.id === 'term-1' && typeof m.ok === 'boolean');
+    const finalTurnIdx = posted.findIndex(
+      (m) => m && m.id === 'turn-interleave-1' && typeof m.ok === 'boolean',
+    );
+    assert.ok(termIdx >= 0, 'terminal:write must respond');
+    assert.ok(
+      termIdx < finalTurnIdx,
+      `terminal:write (idx=${termIdx}) must complete before inprism_r4_turn finishes (idx=${finalTurnIdx})`,
+    );
+  } finally {
+    clearTimeout(timerId);
+    globalThis.WorkerGlobalScope = prevWgs;
+    globalThis.self = prevSelf;
+    globalThis.__wbg_init = prevWbg;
+    globalThis.init_panic_hook = prevPanic;
+    globalThis.studio_bootstrap = prevBoot;
+    globalThis.studio_weight_pack_status = prevPack;
+    globalThis.holo_begin_foundry_turn = prevBegin;
+    globalThis.holo_step_foundry_turn = prevStep;
+    globalThis.holo_cancel_foundry_turn = prevCancel;
+    globalThis.studio_holo_runtime_status = prevStatus;
+    globalThis.studio_dispatch = prevDispatch;
+  }
+});

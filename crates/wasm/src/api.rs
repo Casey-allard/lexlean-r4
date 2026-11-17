@@ -1877,6 +1877,25 @@ pub fn handle_v1_traces_payload(query_or_payload: &str) -> Result<(u16, String),
     }
 }
 
+/// Formal R4.HoloGeometricRuntime return monotonic host millisecond timestamp safely on native and `wasm32`.
+pub fn host_monotonic_ms() -> u64 {
+    #[cfg(target_arch = "wasm32")]
+    {
+        let ms = js_sys::Date::now();
+        if ms.is_finite() && ms >= 0.0 {
+            ms as u64
+        } else {
+            0
+        }
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        static START: OnceLock<std::time::Instant> = OnceLock::new();
+        let origin = START.get_or_init(std::time::Instant::now);
+        origin.elapsed().as_millis() as u64
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

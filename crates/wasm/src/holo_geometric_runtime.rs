@@ -4693,31 +4693,13 @@ impl HoloV13Model {
         let mut emitted_raw = 0usize;
         let mut last_emitted_decode_step = usize::MAX;
         for step_idx in 0..max_new_tokens.max(1) {
-            let mut blocked_ids: Vec<u32> = Vec::new();
-            let chosen_id = loop {
-                let mut best_id = self.eos_token_id;
-                let mut best_logit = i32::MIN;
-                let mut found_any = false;
-                for &(tid, logit) in &last_scored {
-                    if blocked_ids.contains(&tid) {
-                        continue;
-                    }
-                    if !found_any || logit > best_logit {
-                        best_logit = logit;
-                        best_id = tid;
-                        found_any = true;
-                    }
-                }
-                if !found_any || best_id == self.eos_token_id || best_id == self.eot_token_id {
-                    break best_id;
-                }
-                if blocked_ids.len() < 8 && token_causes_cycle(&generated, best_id, &self.tokenizer)
-                {
-                    blocked_ids.push(best_id);
-                    continue;
-                }
-                break best_id;
-            };
+            let chosen_id = pick_next_holo_token(
+                &last_scored,
+                &generated,
+                self.eos_token_id,
+                self.eot_token_id,
+                &self.tokenizer,
+            );
             if chosen_id == self.eos_token_id || chosen_id == self.eot_token_id {
                 if step_idx > 0 && last_emitted_decode_step != step_idx {
                     let prev_id = generated.last().copied().unwrap_or(chosen_id);
@@ -4965,7 +4947,7 @@ impl HoloV13Model {
 
 /// Formal R4.HoloGeometricRuntime assemble one genuine `HoloStepObservatoryFrame` from live scratch arrays.
 #[allow(clippy::too_many_arguments)]
-fn build_observatory_frame(
+pub(crate) fn build_observatory_frame(
     tokenizer: &HoloTok13,
     scratch: &HoloScratch,
     scored: &[(u32, i32)],
@@ -5033,7 +5015,7 @@ fn build_observatory_frame(
 
 /// Formal R4.HoloGeometricRuntime emit wasm32 live per-token observatory frame to Worker host bridge.
 #[cfg(target_arch = "wasm32")]
-fn emit_holo_trace_frame(frame: &HoloStepObservatoryFrame) {
+pub(crate) fn emit_holo_trace_frame(frame: &HoloStepObservatoryFrame) {
     use wasm_bindgen::{JsCast, JsValue};
     let global = js_sys::global();
     if let Ok(val) = js_sys::Reflect::get(&global, &JsValue::from_str("__uorEmitHoloTraceFrame")) {
@@ -5047,10 +5029,44 @@ fn emit_holo_trace_frame(frame: &HoloStepObservatoryFrame) {
 
 /// Formal R4.HoloGeometricRuntime non-wasm32 no-op live observatory hook.
 #[cfg(not(target_arch = "wasm32"))]
-fn emit_holo_trace_frame(_frame: &HoloStepObservatoryFrame) {}
+pub(crate) fn emit_holo_trace_frame(_frame: &HoloStepObservatoryFrame) {}
+
+/// Formal R4.HoloGeometricRuntime select the highest-scoring non-cyclic candidate token from scored logits.
+pub(crate) fn pick_next_holo_token(
+    last_scored: &[(u32, i32)],
+    generated: &[u32],
+    eos_token_id: u32,
+    eot_token_id: u32,
+    tokenizer: &HoloTok13,
+) -> u32 {
+    let mut blocked_ids: Vec<u32> = Vec::new();
+    loop {
+        let mut best_id = eos_token_id;
+        let mut best_logit = i32::MIN;
+        let mut found_any = false;
+        for &(tid, logit) in last_scored {
+            if blocked_ids.contains(&tid) {
+                continue;
+            }
+            if !found_any || logit > best_logit {
+                best_logit = logit;
+                best_id = tid;
+                found_any = true;
+            }
+        }
+        if !found_any || best_id == eos_token_id || best_id == eot_token_id {
+            return best_id;
+        }
+        if blocked_ids.len() < 8 && token_causes_cycle(generated, best_id, tokenizer) {
+            blocked_ids.push(best_id);
+            continue;
+        }
+        return best_id;
+    }
+}
 
 /// Formal R4.HoloGeometricRuntime reject 3+ identical alphanumeric tokens, `,,`/`; ;`, or immediate k-gram cycles (`p in 2..=8`).
-fn token_causes_cycle(generated: &[u32], cand: u32, tokenizer: &HoloTok13) -> bool {
+pub(crate) fn token_causes_cycle(generated: &[u32], cand: u32, tokenizer: &HoloTok13) -> bool {
     let n = generated.len();
     if n >= 1 && generated[n - 1] == cand {
         let dec = tokenizer.decode(&[cand]);

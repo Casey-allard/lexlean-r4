@@ -114,6 +114,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-10` | `build` | Pure LexLean models complete Flock and Relation reads over admitted occurrence roots and ordered forests, preserving exact frame transport, snapped consensus, causal ranking, five-edge synchronous cumulative relation sweeps, virtual changes and typed trace projections. Formal controls do not establish batch provenance, GPU parity, training permission or runtime performance. |
 
+## r4-foundry-stepper
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-56` | `build` | Pure LexLean models the non-blocking 4-token Foundry turn stepper, workspace-aware system prompt assembly, and Worker chunk/consent streaming bridge (R4-56): FoundryTurnSession on StudioEngine with default max_new_tokens = 1536 and 4-token decode slices (holo_begin_foundry_turn, holo_step_foundry_turn, holo_cancel_foundry_turn), incremental UTF-8 stream flushing, Rust-side format_foundry_system_prompt embedding BUILD_SYSTEM_PREFIX (<prism-write>, <prism-delete>, <prism-rename>, <prism-add-dependency>) and <tool_call> mvm_exec instructions (bounded to max 6 tool iterations) with </tool_call> stop-sequence emission, cooperative Worker event-loop yielding via chat_chunk telemetry events and cancel_inprism_turn interleaving, allowOffOriginHydration consent gating, and typed refusals EmptyPrompt, ModelNotMounted, BusyTurn, InvalidPayload, TurnNotFound, Cancelled, and ConsentRequiredForWeightDownload. Formal controls establish no external Foundry host availability, remote weight CDN uptime, or empirical benchmark fluency. |
+
 ## r4-geometric-recompiler
 
 | ID | Level | Statement |
