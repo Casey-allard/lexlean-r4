@@ -5881,6 +5881,1091 @@ pub fn update_context_summary(
     }
 }
 
+/// Default token budget for Foundry `inprism_r4_turn` generation (`R4-56`).
+pub const FOUNDRY_DEFAULT_MAX_NEW_TOKENS: usize = 1536;
+
+/// Non-blocking decode slice size per `holo_step_foundry_turn` call (`R4-56`).
+pub const FOUNDRY_SLICE_TOKENS: usize = 4;
+
+/// Maximum bounded `mvm_exec` tool iterations per Foundry agent turn (`R4-56`).
+pub const FOUNDRY_MAX_TOOL_ITERATIONS: usize = 6;
+
+/// Prism Foundry build-mode system prefix governing `<prism-write>`, `<prism-delete>`,
+/// `<prism-rename>`, and `<prism-add-dependency>` outputs (`R4-56`).
+pub const BUILD_SYSTEM_PREFIX: &str = "\n<role> You are Prism, an AI editor that creates and modifies web applications. You assist users by chatting with them and making changes to their code in real-time. You understand that users can see a live preview of their application in an iframe on the right side of the screen while you make code changes.\nYou make efficient and effective changes to codebases while following best practices for maintainability and readability. You take pride in keeping things simple and elegant. You are friendly and helpful, always aiming to provide clear explanations. </role>\n\n# App Preview / Commands\n\nDo *not* tell the user to run shell commands. Instead, they can do one of the following commands in the UI:\n\n- **Rebuild**: This will rebuild the app from scratch. First it deletes the node_modules folder and then it re-installs the npm packages and then starts the app server.\n- **Restart**: This will restart the app server.\n- **Refresh**: This will refresh the app preview page.\n\nYou can suggest one of these commands by using the <prism-command> tag like this:\n<prism-command type=\"rebuild\"></prism-command>\n<prism-command type=\"restart\"></prism-command>\n<prism-command type=\"refresh\"></prism-command>\n\nIf you output one of these commands, tell the user to look for the action button above the chat input.\n\n# Guidelines\n\nAlways reply to the user in the same language they are using.\n\n- Use <prism-chat-summary> for setting the chat summary (put this at the end). The chat summary should be less than a sentence, but more than a few words. YOU SHOULD ALWAYS INCLUDE EXACTLY ONE CHAT TITLE\n- Before proceeding with any code edits, check whether the user's request has already been implemented. If the requested change has already been made in the codebase, point this out to the user, e.g., \"This feature is already implemented as described.\"\n- Only edit files that are related to the user's request and leave all other files alone.\n\nIf new code needs to be written (i.e., the requested feature does not exist), you MUST:\n\n- Briefly explain the needed changes in a few short sentences, without being too technical.\n- Use <prism-write> for creating or updating files. Try to create small, focused files that will be easy to maintain. Use only one <prism-write> block per file. Do not forget to close the prism-write tag after writing the file. If you do NOT need to change a file, then do not use the <prism-write> tag.\n- Use <prism-rename> for renaming files.\n- Use <prism-delete> for removing files.\n- Use <prism-add-dependency> for installing or refreshing packages.\n  - Use a bare package name to install it, or to refresh an existing dependency only within its current package.json constraint.\n  - Use package@latest only when intentionally upgrading to the latest release, including a new major version. Use an exact version or supported npm range for a targeted upgrade.\n  - If the user asks for multiple packages, use <prism-add-dependency packages=\"package1 package2 package3\"></prism-add-dependency>\n  - MAKE SURE YOU USE SPACES BETWEEN PACKAGES AND NOT COMMAS.\n- After all of the code changes, provide a VERY CONCISE, non-technical summary of the changes made in one sentence, nothing more. This summary should be easy for non-technical users to understand. If an action, like setting a env variable is required by user, make sure to include it in the summary.\n\nBefore sending your final answer, review every import statement you output and do the following:\n\nFirst-party imports (modules that live in this project)\n- Only import files/modules that have already been described to you.\n- If you need a project file that does not yet exist, create it immediately with <prism-write> before finishing your response.\n\nThird-party imports (anything that would come from npm)\n- If the package is not listed in package.json, install it with <prism-add-dependency>.\n\nDo not leave any import unresolved.\n\n# Additional Guidelines\n\nAll edits you make on the codebase will directly be built and rendered, therefore you should NEVER make partial changes like letting the user know that they should implement some components or partially implementing features.\nEach feature you implement must be FULLY FUNCTIONAL with complete code - no placeholders, no partial implementations, no unfinished comment stubs.\n\nImportant Rules for <prism-write> operations:\n- Only make changes that were directly requested by the user. Everything else in the files must stay exactly as it was.\n- Always specify the correct file path when using <prism-write path=\"...\">...</prism-write>.\n- Ensure that the code you write is complete, syntactically correct, and follows the existing coding style and conventions of the project.\n- Make sure to close all tags when writing files, with a line break before the closing tag.\n- IMPORTANT: Only use ONE <prism-write> block per file that you write!\n- Prioritize creating small, focused files and components.\n- Always write the entire file when updating.\n\n# REMEMBER\n\n> **CODE FORMATTING IS NON-NEGOTIABLE:**\n> **NEVER, EVER** use markdown code blocks (```) for code.\n> **ONLY** use <prism-write> tags for **ALL** code output.\n> Using ``` for code is **PROHIBITED**.\n> Using <prism-write> for code is **MANDATORY**.\n> Do NOT use <prism-file> tags in the output. ALWAYS use <prism-write> to generate code.\n";
+
+/// Workspace file entry passed into Foundry turn requests (`R4-56`).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+pub struct FoundryWorkspaceFile {
+    /// Relative workspace file path.
+    pub path: String,
+    /// UTF-8 file contents.
+    pub content: String,
+    /// Optional content SHA-256 hex digest.
+    #[serde(default)]
+    pub sha256: String,
+}
+
+/// Completed MicroVM `mvm_exec` tool observation attached to a Foundry turn continuation (`R4-56`).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
+pub struct FoundryToolResult {
+    /// Executed command string.
+    pub cmd: String,
+    /// Process exit status code.
+    #[serde(default)]
+    pub exit_code: i32,
+    /// Captured standard output.
+    #[serde(default)]
+    pub stdout: String,
+    /// Captured standard error.
+    #[serde(default)]
+    pub stderr: String,
+    /// Modified workspace paths reported after execution.
+    #[serde(default)]
+    pub changed_files: Vec<String>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+struct FoundryTurnRequest {
+    #[serde(default)]
+    prompt: String,
+    #[serde(default)]
+    workspace_files: Vec<FoundryWorkspaceFile>,
+    #[serde(default)]
+    active_file: Option<String>,
+    #[serde(default, alias = "preferredModel")]
+    selected_model: Option<String>,
+    #[serde(default)]
+    tool_results: Vec<FoundryToolResult>,
+    #[serde(default)]
+    max_new_tokens: Option<usize>,
+}
+
+/// Active non-blocking 4-token chunked Foundry turn session stored on `StudioEngine` (`R4-56`).
+#[derive(Debug, Clone)]
+pub struct FoundryTurnSession {
+    /// Monotonic session identifier.
+    pub turn_id: u64,
+    /// Wire model identifier executing this turn.
+    pub model_id: String,
+    /// Container SHA-256 hex digest (empty for embedded `native-q31-d85`).
+    pub container_sha256: String,
+    /// Constructed Foundry system prompt including `BUILD_SYSTEM_PREFIX` and workspace tree.
+    pub system_prompt: String,
+    /// Trimmed user prompt text for KV turn span persistence.
+    pub user_prompt_trimmed: String,
+    /// Requested token generation ceiling (`1536` default).
+    pub max_new_tokens: usize,
+    /// Number of `mvm_exec` tool iterations already completed before this hop.
+    pub tool_iterations_used: usize,
+    /// Pre-turn KV cache token length restored cleanly on cancel.
+    pub kv_checkpoint_len: usize,
+    /// Prompt tokens reused directly from `HoloPrefixKvCache`.
+    pub prefix_reused_tokens: usize,
+    /// Prompt tokens newly prefilled for this hop.
+    pub prompt_tokens_new: usize,
+    /// Host monotonic millisecond timestamp when this turn began.
+    pub started_ms: u64,
+    /// True while additional `holo_step_foundry_turn` calls are valid.
+    pub active: bool,
+    /// True after `holo_cancel_foundry_turn` until consumed by the next step or replaced.
+    pub cancelled: bool,
+    /// Zero-based decode step counter.
+    pub step_idx: usize,
+    /// Total generated tokens emitted across slices.
+    pub tokens_emitted: usize,
+    /// Generated token IDs accumulated so far.
+    pub generated_ids: Vec<u32>,
+    /// Recent prompt + generated token sequence for cycle and shortlist context.
+    pub recent_tokens: Vec<u32>,
+    /// Raw decoded byte stream awaiting incremental UTF-8 emission.
+    pub raw_stream: Vec<u8>,
+    /// Byte offset already flushed as valid UTF-8 deltas.
+    pub emitted_raw: usize,
+    /// Candidate logits ready for the next decode step.
+    pub last_scored: Vec<(u32, i32)>,
+    /// Starling Flock attended KV positions accumulated.
+    pub flock_attended: usize,
+    /// Starling Flock total KV positions accumulated.
+    pub flock_total: usize,
+    /// Real non-synthetic per-layer observatory frames collected (capped at 64).
+    pub observatory_frames: Vec<crate::holo_geometric_runtime::HoloStepObservatoryFrame>,
+    /// Last decode step index for which an observatory frame was emitted.
+    pub last_emitted_decode_step: usize,
+    /// Number of `observatory_frames` already emitted in prior step slices.
+    pub emitted_observatory_frames: usize,
+    /// Execution backend identifier (`"wasm-simd128"`, `"host-int"`, or `"native-q31-d85"`).
+    pub active_backend: &'static str,
+    /// True when stepping the offline `uor-r4.native-q31-d85` Q31 kernel.
+    pub native_q31_active: bool,
+    /// Accumulated `D85` token buffer (prompt + generated byte tokens) for incremental `native-q31-d85` stepping.
+    pub native_q31_tokens: Vec<u16>,
+    /// Start index of generated tokens inside `native_q31_tokens`.
+    pub native_q31_start_len: usize,
+    /// Latest deterministic checksum from `native-q31-d85` forward logits.
+    pub native_q31_checksum: u64,
+    /// Input token count for `native-q31-d85`.
+    pub native_q31_prompt_tokens: usize,
+}
+
+/// Formal R4.HoloGeometricRuntime escape XML attribute delimiter characters deterministically.
+fn xml_escape_attr(raw: &str) -> String {
+    let mut out = String::with_capacity(raw.len());
+    for ch in raw.chars() {
+        match ch {
+            '&' => out.push_str("&amp;"),
+            '"' => out.push_str("&quot;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '\'' => out.push_str("&apos;"),
+            other => out.push(other),
+        }
+    }
+    out
+}
+
+/// Formal R4.HoloGeometricRuntime build ordered Foundry system prompt segments (`core_sys`, `ws_header`, `ws_excerpts`).
+fn format_foundry_system_parts(
+    workspace_files: &[FoundryWorkspaceFile],
+    active_file: Option<&str>,
+) -> (String, String, Vec<String>) {
+    let mut core_sys = String::with_capacity(4608);
+    core_sys.push_str(BUILD_SYSTEM_PREFIX);
+    core_sys.push_str(
+        "\n# MicroVM Tool Execution (`mvm_exec`)\n\
+         - When shell inspection, builds, tests, or workspace commands are required, emit:\n\
+           <tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"...\"}}</tool_call>\n\
+         - Tool loops are bounded to at most 6 tool iterations per turn.\n\
+         - To write, delete, rename, or add dependencies in Foundry's workspace, ALWAYS use `<prism-write path=\"...\">...</prism-write>`, `<prism-delete path=\"...\">`, `<prism-rename from=\"...\" to=\"...\">`, and `<prism-add-dependency packages=\"...\">`.\n",
+    );
+
+    let mut ws_header = String::new();
+    let mut ws_excerpts = Vec::new();
+    if !workspace_files.is_empty() || active_file.is_some_and(|s| !s.trim().is_empty()) {
+        ws_header.push_str("\n# Workspace Files\n");
+        if let Some(af) = active_file.map(str::trim).filter(|s| !s.is_empty()) {
+            ws_header.push_str(&format!("Active file: `{af}`\n"));
+        }
+        ws_header.push_str("File tree:\n");
+        for f in workspace_files.iter().take(64) {
+            let marker = if active_file.is_some_and(|af| af.trim() == f.path.trim()) {
+                " (active)"
+            } else {
+                ""
+            };
+            ws_header.push_str(&format!("- `{}`{}\n", f.path, marker));
+        }
+        let mut ordered: Vec<&FoundryWorkspaceFile> = workspace_files.iter().collect();
+        if let Some(af) = active_file.map(str::trim).filter(|s| !s.is_empty()) {
+            ordered.sort_by_key(|f| usize::from(f.path.trim() != af));
+        }
+        let mut excerpt_char_budget = 4096usize;
+        for f in ordered.into_iter().take(12) {
+            if excerpt_char_budget == 0 {
+                break;
+            }
+            let snippet: String = f
+                .content
+                .chars()
+                .take(excerpt_char_budget.min(1024))
+                .collect();
+            let used_chars = snippet.chars().count();
+            excerpt_char_budget = excerpt_char_budget.saturating_sub(used_chars);
+            ws_excerpts.push(format!(
+                "\n<workspace_file path=\"{}\" sha256=\"{}\">\n{}\n</workspace_file>\n",
+                xml_escape_attr(&f.path),
+                xml_escape_attr(&f.sha256),
+                snippet
+            ));
+        }
+    }
+    (core_sys, ws_header, ws_excerpts)
+}
+
+/// Formal R4.HoloGeometricRuntime assemble Foundry's deterministic workspace-aware system prompt (`R4-56`).
+pub fn format_foundry_system_prompt(
+    workspace_files: &[FoundryWorkspaceFile],
+    active_file: Option<&str>,
+) -> String {
+    let (mut out, ws_header, ws_excerpts) =
+        format_foundry_system_parts(workspace_files, active_file);
+    out.push_str(&ws_header);
+    for ex in ws_excerpts {
+        out.push_str(&ex);
+    }
+    out
+}
+
+/// Formal R4.HoloGeometricRuntime detect a completed `</tool_call>` `mvm_exec` invocation across closed tool spans.
+fn detect_mvm_exec_tool_call(raw_stream: &[u8], tool_iterations_used: usize) -> Option<String> {
+    if tool_iterations_used >= FOUNDRY_MAX_TOOL_ITERATIONS {
+        return None;
+    }
+    let accum = String::from_utf8_lossy(raw_stream);
+    if !accum.contains("</tool_call>") {
+        return None;
+    }
+    for (tool_name, args) in crate::extract_closed_holo_tool_calls(&accum)
+        .into_iter()
+        .rev()
+    {
+        if tool_name == "mvm_exec" {
+            let cmd = args
+                .get("cmd")
+                .or_else(|| args.get("command"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .trim()
+                .to_string();
+            if !cmd.is_empty() {
+                return Some(cmd);
+            }
+        }
+    }
+    None
+}
+
+/// Formal R4.HoloGeometricRuntime derive JSON floating-point `tok_per_sec` from integer milli-units.
+fn foundry_tok_per_sec_json(tokens_emitted: usize, started_ms: u64) -> serde_json::Value {
+    let elapsed_ms = crate::api::host_monotonic_ms()
+        .saturating_sub(started_ms)
+        .max(1);
+    let tps_milli = (tokens_emitted as u64).saturating_mul(1_000_000) / elapsed_ms;
+    let rendered = format!("{}.{:03}", tps_milli / 1000, tps_milli % 1000);
+    serde_json::from_str(&rendered).unwrap_or_else(|_| serde_json::json!(0))
+}
+
+/// Formal R4.HoloGeometricRuntime build structured integer geometric metrics for Foundry stepper responses.
+#[allow(clippy::too_many_arguments)]
+fn build_foundry_geometric_metrics_json(
+    schema: &str,
+    active_tier: &str,
+    n_layers: usize,
+    d_model: usize,
+    vocab_size: usize,
+    prompt_tokens: usize,
+    prefix_reused_tokens: usize,
+    generated_tokens: usize,
+    shortlist_budget: usize,
+    flock_attended_positions: usize,
+    flock_total_positions: usize,
+) -> serde_json::Value {
+    serde_json::json!({
+        "schema": schema,
+        "active_tier": active_tier,
+        "n_layers": n_layers,
+        "d_model": d_model,
+        "vocab_size": vocab_size,
+        "prompt_tokens": prompt_tokens,
+        "prefix_reused_tokens": prefix_reused_tokens,
+        "generated_tokens": generated_tokens,
+        "float_ops": 0,
+        "dense_matmul_ops": 0,
+        "nibble_lut_lookups": (prompt_tokens + generated_tokens) as u64,
+        "shortlist_budget": shortlist_budget,
+        "flock_attended_positions": flock_attended_positions,
+        "flock_total_positions": flock_total_positions,
+        "q_norm_before_rope": true,
+        "k_norm_before_rope": true,
+    })
+}
+
+/// Formal R4.HoloGeometricRuntime format prompt + completed `mvm_exec` tool results for ChatML prefill.
+fn format_foundry_user_turn(prompt: &str, tool_results: &[FoundryToolResult]) -> String {
+    let trimmed = prompt.trim();
+    if tool_results.is_empty() {
+        return trimmed.to_string();
+    }
+    let mut out = String::from(trimmed);
+    for res in tool_results.iter().take(FOUNDRY_MAX_TOOL_ITERATIONS) {
+        let stdout_clip: String = res.stdout.trim().chars().take(1500).collect();
+        let stderr_clip: String = res.stderr.trim().chars().take(500).collect();
+        let changed = res.changed_files.join(", ");
+        out.push_str(&format!(
+            "\n<tool_response tool=\"mvm_exec\" cmd=\"{}\" exit_code=\"{}\" changed_files=\"{}\">\n",
+            xml_escape_attr(res.cmd.trim()),
+            res.exit_code,
+            xml_escape_attr(&changed)
+        ));
+        if !stdout_clip.is_empty() {
+            out.push_str(&stdout_clip);
+            out.push('\n');
+        }
+        if !stderr_clip.is_empty() {
+            out.push_str("[stderr] ");
+            out.push_str(&stderr_clip);
+            out.push('\n');
+        }
+        out.push_str("</tool_response>");
+    }
+    out
+}
+
+/// Formal R4.HoloGeometricRuntime construct uniform Foundry error JSON payload (`R5`).
+fn foundry_error_json(turn_id: u64, error_code: &str, message: &str) -> String {
+    serde_json::json!({
+        "status": "error",
+        "turn_id": turn_id,
+        "error_code": error_code,
+        "message": message,
+    })
+    .to_string()
+}
+
+/// Formal R4.HoloGeometricRuntime fit Foundry system + user prompt inside `max_ctx` while keeping `BUILD_SYSTEM_PREFIX` and user tail pinned.
+fn fit_foundry_prompt_tokens(
+    model: &crate::holo_geometric_runtime::HoloV13Model,
+    core_sys: &str,
+    ws_header: &str,
+    ws_excerpts: &[String],
+    cur_u_chunk: &str,
+    max_ctx: usize,
+) -> (String, Vec<u32>) {
+    let cur_u_ids = model.tokenizer.encode(cur_u_chunk);
+    for keep_excerpts in (0..=ws_excerpts.len()).rev() {
+        let mut candidate_sys = String::with_capacity(
+            core_sys.len()
+                + ws_header.len()
+                + ws_excerpts[..keep_excerpts]
+                    .iter()
+                    .map(String::len)
+                    .sum::<usize>(),
+        );
+        candidate_sys.push_str(core_sys);
+        candidate_sys.push_str(ws_header);
+        for ex in &ws_excerpts[..keep_excerpts] {
+            candidate_sys.push_str(ex);
+        }
+        let sys_chunk = format!("<|im_start|>system\n{candidate_sys}<|im_end|>\n");
+        let mut combined = model.tokenizer.encode(&sys_chunk);
+        if combined.len() + cur_u_ids.len() <= max_ctx {
+            combined.extend_from_slice(&cur_u_ids);
+            return (candidate_sys, combined);
+        }
+    }
+
+    // If even `ws_header` overflows small `max_ctx`, drop workspace file listing before trimming `core_sys`.
+    let core_chunk = format!("<|im_start|>system\n{core_sys}<|im_end|>\n");
+    let mut core_ids = model.tokenizer.encode(&core_chunk);
+    if core_ids.len() + cur_u_ids.len() <= max_ctx {
+        core_ids.extend_from_slice(&cur_u_ids);
+        return (core_sys.to_string(), core_ids);
+    }
+
+    // Preserve both `BUILD_SYSTEM_PREFIX` at index 0 and the user/assistant tail if total still exceeds `max_ctx`.
+    let user_reserve = cur_u_ids
+        .len()
+        .min((max_ctx * 3 / 8).max(64).min(max_ctx / 2));
+    let kept_u = if cur_u_ids.len() > user_reserve {
+        &cur_u_ids[cur_u_ids.len() - user_reserve..]
+    } else {
+        &cur_u_ids[..]
+    };
+    let sys_cap = max_ctx.saturating_sub(kept_u.len());
+    let mut combined = Vec::with_capacity(max_ctx);
+    combined.extend_from_slice(&core_ids[..core_ids.len().min(sys_cap)]);
+    combined.extend_from_slice(kept_u);
+    (core_sys.to_string(), combined)
+}
+
+impl StudioEngine {
+    /// Formal R4.HoloGeometricRuntime begin an async 4-token chunked Foundry turn (`R4-56`).
+    pub fn holo_begin_foundry_turn(&mut self, payload_json: &str) -> String {
+        let trimmed_raw = payload_json.trim();
+        if trimmed_raw.is_empty() {
+            return foundry_error_json(0, "EmptyPrompt", "Foundry turn payload is empty");
+        }
+        let req: FoundryTurnRequest = match serde_json::from_str(trimmed_raw) {
+            Ok(v) => v,
+            Err(err) => {
+                return foundry_error_json(
+                    0,
+                    "InvalidPayload",
+                    &format!("invalid Foundry turn JSON: {err}"),
+                );
+            }
+        };
+        if req.prompt.trim().is_empty() {
+            return foundry_error_json(0, "EmptyPrompt", "Foundry turn prompt must not be empty");
+        }
+        if let Some(active) = &self.foundry_turn {
+            if active.active {
+                return foundry_error_json(
+                    active.turn_id,
+                    "BusyTurn",
+                    "An active Foundry turn is already streaming",
+                );
+            }
+        }
+
+        let requested = req.selected_model.as_deref().map(str::trim).unwrap_or("");
+        if !requested.is_empty()
+            && crate::lexlean_generated::r4_honest_plumbing::ComposerRouteMode::is_retired_scaffold_wire(
+                requested,
+            )
+        {
+            return foundry_error_json(
+                0,
+                "RefusedRetiredScaffoldMode",
+                &format!("retired scaffold model `{requested}` cannot serve Foundry turns"),
+            );
+        }
+
+        let target_model = if requested.is_empty() {
+            if self.holo_models.contains_key("uor-r4.qwen3-0.6b-holo") {
+                "uor-r4.qwen3-0.6b-holo".to_string()
+            } else if self.holo_models.contains_key("uor-r4.qwen3-1.7b-holo") {
+                "uor-r4.qwen3-1.7b-holo".to_string()
+            } else {
+                "uor-r4.qwen3-0.6b-holo".to_string()
+            }
+        } else {
+            requested.to_string()
+        };
+
+        let requested_max_new = req
+            .max_new_tokens
+            .unwrap_or(FOUNDRY_DEFAULT_MAX_NEW_TOKENS)
+            .clamp(1, 8192);
+        let (core_sys, ws_header, ws_excerpts) =
+            format_foundry_system_parts(&req.workspace_files, req.active_file.as_deref());
+        let user_turn = format_foundry_user_turn(&req.prompt, &req.tool_results);
+        let tool_iterations_used = req.tool_results.len();
+        let started_ms = crate::api::host_monotonic_ms();
+
+        if target_model == "uor-r4.native-q31-d85" {
+            let sys_prompt =
+                format_foundry_system_prompt(&req.workspace_files, req.active_file.as_deref());
+            let effective_max_new = requested_max_new.min(crate::native_q31_lane::D85_MAX_CTX);
+            let mut d85_tokens = self.native_q31.encode_bytes(user_turn.as_bytes());
+            if d85_tokens.is_empty() {
+                d85_tokens.push(u16::from(b' '));
+            }
+            let prompt_toks = d85_tokens.len();
+            self.next_foundry_turn_id = self.next_foundry_turn_id.saturating_add(1);
+            let turn_id = self.next_foundry_turn_id;
+            self.foundry_turn = Some(FoundryTurnSession {
+                turn_id,
+                model_id: target_model,
+                container_sha256: crate::embedded_native_q31_sha256(),
+                system_prompt: sys_prompt,
+                user_prompt_trimmed: req.prompt.trim().to_string(),
+                max_new_tokens: effective_max_new,
+                tool_iterations_used,
+                kv_checkpoint_len: 0,
+                prefix_reused_tokens: 0,
+                prompt_tokens_new: prompt_toks,
+                started_ms,
+                active: true,
+                cancelled: false,
+                step_idx: 0,
+                tokens_emitted: 0,
+                generated_ids: Vec::new(),
+                recent_tokens: Vec::new(),
+                raw_stream: Vec::new(),
+                emitted_raw: 0,
+                last_scored: Vec::new(),
+                flock_attended: prompt_toks,
+                flock_total: prompt_toks,
+                observatory_frames: Vec::new(),
+                last_emitted_decode_step: usize::MAX,
+                emitted_observatory_frames: 0,
+                active_backend: "native-q31-d85",
+                native_q31_active: true,
+                native_q31_tokens: d85_tokens,
+                native_q31_start_len: prompt_toks,
+                native_q31_checksum: 0,
+                native_q31_prompt_tokens: prompt_toks,
+            });
+            return serde_json::json!({
+                "status": "ready",
+                "turn_id": turn_id,
+                "model_id": "uor-r4.native-q31-d85",
+                "max_new_tokens": effective_max_new,
+            })
+            .to_string();
+        }
+
+        let Some(model) = self.holo_models.get_mut(&target_model) else {
+            return foundry_error_json(
+                0,
+                "ModelNotMounted",
+                &format!("Holo model `{target_model}` is not mounted"),
+            );
+        };
+
+        let cur_u_chunk = format!(
+            "<|im_start|>user\n{user_turn}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+        );
+        let reserve_gen = requested_max_new
+            .min(model.max_seq / 2)
+            .max(128)
+            .min(model.max_seq.saturating_sub(32));
+        let max_ctx = model.max_seq.saturating_sub(reserve_gen).max(32);
+        let (sys_prompt, prompt_ids) = fit_foundry_prompt_tokens(
+            model,
+            &core_sys,
+            &ws_header,
+            &ws_excerpts,
+            &cur_u_chunk,
+            max_ctx,
+        );
+        let max_new_tokens = requested_max_new;
+
+        let mut prefix_match = 0usize;
+        for (&cached_tok, &prompt_tok) in model.kv_cache.tokens.iter().zip(prompt_ids.iter()) {
+            if cached_tok == prompt_tok {
+                prefix_match += 1;
+            } else {
+                break;
+            }
+        }
+        let reuse_len = prefix_match.min(prompt_ids.len().saturating_sub(1));
+        if reuse_len == 0 {
+            model.kv_cache.reset(model.n_layers);
+        } else {
+            model
+                .kv_cache
+                .truncate_to(reuse_len, model.n_kv_heads, model.head_dim);
+        }
+
+        let simd_active = cfg!(all(target_arch = "wasm32", target_feature = "simd128"));
+        let active_backend = if simd_active {
+            "wasm-simd128"
+        } else {
+            "host-int"
+        };
+        let recent_tokens = prompt_ids.clone();
+        let tail = &prompt_ids[reuse_len..];
+        let (sc_opt, flock_attended, flock_total) =
+            model.prefill_tokens_tiled(tail, &recent_tokens, true, true);
+        let last_scored = sc_opt.unwrap_or_default();
+        let mut observatory_frames = Vec::new();
+        if let Some(&last_tok) = tail.last() {
+            crate::holo_geometric_runtime::record_observatory_frame(
+                model,
+                &last_scored,
+                last_tok,
+                true,
+                tail.len().saturating_sub(1),
+                "prefill",
+                reuse_len,
+                active_backend,
+                &mut observatory_frames,
+            );
+        }
+
+        let container_sha256 = model.container_sha256.clone();
+        self.next_foundry_turn_id = self.next_foundry_turn_id.saturating_add(1);
+        let turn_id = self.next_foundry_turn_id;
+        self.foundry_turn = Some(FoundryTurnSession {
+            turn_id,
+            model_id: target_model.clone(),
+            container_sha256,
+            system_prompt: sys_prompt,
+            user_prompt_trimmed: req.prompt.trim().to_string(),
+            max_new_tokens,
+            tool_iterations_used,
+            kv_checkpoint_len: reuse_len,
+            prefix_reused_tokens: reuse_len,
+            prompt_tokens_new: tail.len(),
+            started_ms,
+            active: true,
+            cancelled: false,
+            step_idx: 0,
+            tokens_emitted: 0,
+            generated_ids: Vec::new(),
+            recent_tokens,
+            raw_stream: Vec::new(),
+            emitted_raw: 0,
+            last_scored,
+            flock_attended,
+            flock_total,
+            observatory_frames,
+            last_emitted_decode_step: usize::MAX,
+            emitted_observatory_frames: 0,
+            active_backend,
+            native_q31_active: false,
+            native_q31_tokens: Vec::new(),
+            native_q31_start_len: 0,
+            native_q31_checksum: 0,
+            native_q31_prompt_tokens: 0,
+        });
+
+        serde_json::json!({
+            "status": "ready",
+            "turn_id": turn_id,
+            "model_id": target_model,
+            "max_new_tokens": max_new_tokens,
+            "prefix_reused_tokens": reuse_len,
+        })
+        .to_string()
+    }
+
+    /// Formal R4.HoloGeometricRuntime execute up to 4 pure-integer token steps for an active Foundry turn (`R4-56`).
+    pub fn holo_step_foundry_turn(&mut self, turn_id: u64) -> String {
+        let Some(mut session) = self.foundry_turn.take() else {
+            return serde_json::json!({
+                "status": "error",
+                "turn_id": turn_id,
+                "delta": "",
+                "tokens_emitted": 0,
+                "tok_per_sec": 0,
+                "error_code": "TurnNotFound",
+                "message": "No active Foundry turn session",
+            })
+            .to_string();
+        };
+        if session.turn_id != turn_id {
+            self.foundry_turn = Some(session);
+            return serde_json::json!({
+                "status": "error",
+                "turn_id": turn_id,
+                "delta": "",
+                "tokens_emitted": 0,
+                "tok_per_sec": 0,
+                "error_code": "TurnNotFound",
+                "message": "Foundry turn_id mismatch",
+            })
+            .to_string();
+        }
+        if session.cancelled {
+            let tps = foundry_tok_per_sec_json(session.tokens_emitted, session.started_ms);
+            return serde_json::json!({
+                "status": "cancelled",
+                "turn_id": turn_id,
+                "model_id": session.model_id,
+                "delta": "",
+                "tokens_emitted": session.tokens_emitted,
+                "tok_per_sec": tps,
+            })
+            .to_string();
+        }
+        if !session.active {
+            return serde_json::json!({
+                "status": "error",
+                "turn_id": turn_id,
+                "model_id": session.model_id,
+                "delta": "",
+                "tokens_emitted": session.tokens_emitted,
+                "tok_per_sec": 0,
+                "error_code": "TurnNotFound",
+                "message": "Foundry turn already completed",
+            })
+            .to_string();
+        }
+
+        if session.native_q31_active {
+            let mut slice_delta = String::new();
+            let mut status: &'static str = "streaming";
+            let mut detected_tool_cmd: Option<String> = None;
+
+            for _ in 0..FOUNDRY_SLICE_TOKENS {
+                if session.tokens_emitted >= session.max_new_tokens {
+                    status = "done";
+                    break;
+                }
+                let (next_opt, cksum) = self.native_q31.step_next_token(
+                    &session.native_q31_tokens,
+                    session.native_q31_start_len,
+                    session.step_idx,
+                );
+                session.native_q31_checksum = cksum;
+                let Some(next_id) = next_opt else {
+                    status = "done";
+                    break;
+                };
+                session.native_q31_tokens.push(next_id);
+                session.tokens_emitted += 1;
+                session.step_idx += 1;
+                let tok_bytes = self.native_q31.token_bytes(next_id);
+                session.raw_stream.extend_from_slice(tok_bytes);
+                let flushed = crate::holo_geometric_runtime::flush_incremental_utf8(
+                    &session.raw_stream,
+                    &mut session.emitted_raw,
+                    false,
+                );
+                slice_delta.push_str(&flushed);
+                if let Some(cmd) =
+                    detect_mvm_exec_tool_call(&session.raw_stream, session.tool_iterations_used)
+                {
+                    detected_tool_cmd = Some(cmd);
+                    status = "needs_tool";
+                    break;
+                }
+                if session.tokens_emitted >= session.max_new_tokens {
+                    status = "done";
+                    break;
+                }
+            }
+
+            let gm = build_foundry_geometric_metrics_json(
+                "uor-r4.native-q31-d85/1",
+                "native-q31-d85",
+                self.native_q31.n_layers as usize,
+                self.native_q31.d_model as usize,
+                self.native_q31.vocab_size as usize,
+                session.native_q31_prompt_tokens,
+                0,
+                session.tokens_emitted,
+                0,
+                session.native_q31_prompt_tokens,
+                session.native_q31_prompt_tokens,
+            );
+            let tps = foundry_tok_per_sec_json(session.tokens_emitted, session.started_ms);
+            if status == "streaming" {
+                let model_id = session.model_id.clone();
+                let tokens_emitted = session.tokens_emitted;
+                self.foundry_turn = Some(session);
+                return serde_json::json!({
+                    "status": "streaming",
+                    "turn_id": turn_id,
+                    "model_id": model_id,
+                    "delta": slice_delta,
+                    "tokens_emitted": tokens_emitted,
+                    "tok_per_sec": tps,
+                    "geometric_metrics": gm,
+                })
+                .to_string();
+            }
+
+            let tail_lossy = crate::holo_geometric_runtime::flush_incremental_utf8(
+                &session.raw_stream,
+                &mut session.emitted_raw,
+                true,
+            );
+            slice_delta.push_str(&tail_lossy);
+            session.active = false;
+            let full_reply = String::from_utf8_lossy(&session.raw_stream).to_string();
+            let receipt_sha256 = crate::sha256_hex(
+                format!(
+                    "native-q31-d85:{}:{full_reply}",
+                    session.native_q31_checksum
+                )
+                .as_bytes(),
+            );
+            let weights_kappa = format!("sha256:{}", session.container_sha256);
+            if status == "needs_tool" {
+                return serde_json::json!({
+                    "status": "needs_tool",
+                    "turn_id": turn_id,
+                    "model_id": session.model_id,
+                    "delta": slice_delta,
+                    "tokens_emitted": session.tokens_emitted,
+                    "tok_per_sec": tps,
+                    "tool_call": {
+                        "name": "mvm_exec",
+                        "cmd": detected_tool_cmd.unwrap_or_default(),
+                    },
+                    "receipt_sha256": receipt_sha256,
+                    "weights_kappa": weights_kappa,
+                    "geometric_metrics": gm,
+                })
+                .to_string();
+            }
+            return serde_json::json!({
+                "status": "done",
+                "turn_id": turn_id,
+                "model_id": session.model_id,
+                "delta": slice_delta,
+                "tokens_emitted": session.tokens_emitted,
+                "tok_per_sec": tps,
+                "receipt_sha256": receipt_sha256,
+                "weights_kappa": weights_kappa,
+                "geometric_metrics": gm,
+            })
+            .to_string();
+        }
+
+        let Some(model) = self.holo_models.get_mut(&session.model_id) else {
+            return foundry_error_json(
+                turn_id,
+                "ModelNotMounted",
+                &format!("Holo model `{}` unmounted mid-turn", session.model_id),
+            );
+        };
+
+        let mut slice_delta = String::new();
+        let mut status: &'static str = "streaming";
+        let mut detected_tool_cmd: Option<String> = None;
+
+        for _ in 0..FOUNDRY_SLICE_TOKENS {
+            if session.tokens_emitted >= session.max_new_tokens
+                || model.kv_cache.tokens.len() >= model.max_seq
+            {
+                status = "done";
+                break;
+            }
+            let chosen_id = crate::holo_geometric_runtime::pick_next_holo_token(
+                &session.last_scored,
+                &session.generated_ids,
+                model.eos_token_id,
+                model.eot_token_id,
+                &model.tokenizer,
+            );
+            if chosen_id == model.eos_token_id || chosen_id == model.eot_token_id {
+                if session.step_idx > 0 && session.last_emitted_decode_step != session.step_idx {
+                    let prev_id = session.generated_ids.last().copied().unwrap_or(chosen_id);
+                    crate::holo_geometric_runtime::record_observatory_frame(
+                        model,
+                        &session.last_scored,
+                        prev_id,
+                        false,
+                        session.step_idx,
+                        "decode",
+                        session.prefix_reused_tokens,
+                        session.active_backend,
+                        &mut session.observatory_frames,
+                    );
+                }
+                status = "done";
+                break;
+            }
+
+            session.generated_ids.push(chosen_id);
+            session.recent_tokens.push(chosen_id);
+            session.tokens_emitted += 1;
+
+            if let Some(tok_bytes) = model.tokenizer.id_to_raw.get(chosen_id as usize) {
+                session.raw_stream.extend_from_slice(tok_bytes);
+                let flushed = crate::holo_geometric_runtime::flush_incremental_utf8(
+                    &session.raw_stream,
+                    &mut session.emitted_raw,
+                    false,
+                );
+                slice_delta.push_str(&flushed);
+            }
+
+            let cur_step = session.step_idx;
+            session.step_idx += 1;
+            if crate::holo_geometric_runtime::should_emit_decode_observatory_frame(
+                cur_step,
+                session.tokens_emitted,
+                session.max_new_tokens,
+            ) {
+                crate::holo_geometric_runtime::record_observatory_frame(
+                    model,
+                    &session.last_scored,
+                    chosen_id,
+                    false,
+                    cur_step,
+                    "decode",
+                    session.prefix_reused_tokens,
+                    session.active_backend,
+                    &mut session.observatory_frames,
+                );
+                session.last_emitted_decode_step = cur_step;
+            }
+
+            if let Some(cmd) =
+                detect_mvm_exec_tool_call(&session.raw_stream, session.tool_iterations_used)
+            {
+                let (_, fa, ft) = model.step_token(chosen_id, &session.recent_tokens, false, true);
+                session.flock_attended += fa;
+                session.flock_total += ft;
+                detected_tool_cmd = Some(cmd);
+                status = "needs_tool";
+                break;
+            }
+
+            let need_logits = session.tokens_emitted < session.max_new_tokens
+                && model.kv_cache.tokens.len() + 1 < model.max_seq;
+            let (sc_opt, fa, ft) =
+                model.step_token(chosen_id, &session.recent_tokens, need_logits, true);
+            session.flock_attended += fa;
+            session.flock_total += ft;
+            if let Some(sc) = sc_opt {
+                session.last_scored = sc;
+            } else {
+                status = "done";
+                break;
+            }
+        }
+
+        let shortlist_budget =
+            crate::lexlean_generated::r4_holo_geometric_runtime::compute_shortlist_budget(
+                model.shortlist_k as u64,
+                model.tokenizer.ascii_fast_tokens.len() as u64,
+                model.vocab_size as u64,
+            ) as usize;
+        let gm = build_foundry_geometric_metrics_json(
+            "uor-r4.holo-geometric-runtime/14",
+            &session.model_id,
+            model.n_layers,
+            model.d_model,
+            model.vocab_size,
+            session.prompt_tokens_new,
+            session.prefix_reused_tokens,
+            session.tokens_emitted,
+            shortlist_budget,
+            session.flock_attended,
+            session.flock_total,
+        );
+        let tps = foundry_tok_per_sec_json(session.tokens_emitted, session.started_ms);
+        let frame_start = session
+            .emitted_observatory_frames
+            .min(session.observatory_frames.len());
+        let step_observatory_frames = session.observatory_frames[frame_start..].to_vec();
+        session.emitted_observatory_frames = session.observatory_frames.len();
+        let latest_step_frame = step_observatory_frames.last().cloned();
+        let prefix_reused_tokens = session.prefix_reused_tokens;
+
+        if status == "streaming" {
+            let model_id = session.model_id.clone();
+            let tokens_emitted = session.tokens_emitted;
+            self.foundry_turn = Some(session);
+            return serde_json::json!({
+                "status": "streaming",
+                "turn_id": turn_id,
+                "model_id": model_id,
+                "delta": slice_delta,
+                "tokens_emitted": tokens_emitted,
+                "tok_per_sec": tps,
+                "prefix_reused_tokens": prefix_reused_tokens,
+                "observatory_frames": step_observatory_frames,
+                "frame": latest_step_frame,
+                "geometric_metrics": gm,
+            })
+            .to_string();
+        }
+
+        let tail_lossy = crate::holo_geometric_runtime::flush_incremental_utf8(
+            &session.raw_stream,
+            &mut session.emitted_raw,
+            true,
+        );
+        slice_delta.push_str(&tail_lossy);
+        let reply_full = String::from_utf8_lossy(&session.raw_stream)
+            .trim()
+            .to_string();
+        if model.kv_cache.turn_token_spans.len() >= 12 {
+            model.kv_cache.turn_token_spans.remove(0);
+        }
+        model.kv_cache.turn_token_spans.push((
+            session.user_prompt_trimmed.clone(),
+            reply_full.clone(),
+            session.generated_ids.clone(),
+        ));
+        self.last_holo_observatory_frames = session.observatory_frames.clone();
+        let receipt_sha256 = crate::sha256_hex(
+            format!(
+                "{}:{}:{}:{}:{}",
+                session.model_id,
+                session.container_sha256,
+                session.prompt_tokens_new,
+                session.tokens_emitted,
+                reply_full
+            )
+            .as_bytes(),
+        );
+        let weights_kappa = format!("sha256:{}", session.container_sha256);
+
+        if status == "needs_tool" {
+            let cmd = detected_tool_cmd.unwrap_or_default();
+            return serde_json::json!({
+                "status": "needs_tool",
+                "turn_id": turn_id,
+                "model_id": session.model_id,
+                "delta": slice_delta,
+                "tokens_emitted": session.tokens_emitted,
+                "tok_per_sec": tps,
+                "prefix_reused_tokens": prefix_reused_tokens,
+                "observatory_frames": step_observatory_frames,
+                "frame": latest_step_frame,
+                "tool_call": {
+                    "name": "mvm_exec",
+                    "cmd": cmd,
+                },
+                "receipt_sha256": receipt_sha256,
+                "weights_kappa": weights_kappa,
+                "geometric_metrics": gm,
+            })
+            .to_string();
+        }
+
+        serde_json::json!({
+            "status": "done",
+            "turn_id": turn_id,
+            "model_id": session.model_id,
+            "delta": slice_delta,
+            "tokens_emitted": session.tokens_emitted,
+            "tok_per_sec": tps,
+            "prefix_reused_tokens": prefix_reused_tokens,
+            "observatory_frames": step_observatory_frames,
+            "frame": latest_step_frame,
+            "receipt_sha256": receipt_sha256,
+            "weights_kappa": weights_kappa,
+            "geometric_metrics": gm,
+        })
+        .to_string()
+    }
+
+    /// Formal R4.HoloGeometricRuntime atomically cancel an active Foundry turn and reset rolling state (`R4-56`).
+    pub fn holo_cancel_foundry_turn(&mut self, turn_id: u64) -> String {
+        let Some(session) = self.foundry_turn.as_mut() else {
+            return serde_json::json!({
+                "status": "not_found",
+                "turn_id": turn_id,
+            })
+            .to_string();
+        };
+        if session.turn_id != turn_id || !session.active {
+            return serde_json::json!({
+                "status": "not_found",
+                "turn_id": turn_id,
+            })
+            .to_string();
+        }
+        session.active = false;
+        session.cancelled = true;
+        session.last_scored.clear();
+        let model_id = session.model_id.clone();
+        let checkpoint = session.kv_checkpoint_len;
+
+        self.rolling_context = crate::lut_stack_exec::RollingContextState::default();
+        self.pending_chat_bridge = None;
+        if let Some(model) = self.holo_models.get_mut(&model_id) {
+            model
+                .kv_cache
+                .truncate_to(checkpoint, model.n_kv_heads, model.head_dim);
+        }
+
+        serde_json::json!({
+            "status": "cancelled",
+            "turn_id": turn_id,
+        })
+        .to_string()
+    }
+
+    /// Formal R4.HoloGeometricRuntime inspect the constructed system prompt of an active Foundry turn.
+    pub fn active_foundry_turn_system_prompt(&self, turn_id: u64) -> Option<&str> {
+        self.foundry_turn
+            .as_ref()
+            .filter(|s| s.turn_id == turn_id)
+            .map(|s| s.system_prompt.as_str())
+    }
+
+    /// Formal R4.HoloGeometricRuntime inspect the token ceiling (`max_new_tokens`) of an active Foundry turn.
+    pub fn active_foundry_turn_max_new_tokens(&self, turn_id: u64) -> Option<usize> {
+        self.foundry_turn
+            .as_ref()
+            .filter(|s| s.turn_id == turn_id)
+            .map(|s| s.max_new_tokens)
+    }
+
+    /// Formal R4.HoloGeometricRuntime inspect the number of recorded observatory frames from the last Foundry turn.
+    pub fn last_foundry_observatory_frame_count(&self) -> usize {
+        self.last_holo_observatory_frames.len()
+    }
+
+    /// Formal R4.HoloGeometricRuntime inspect the committed KV token sequence for a mounted Holo model.
+    pub fn holo_model_kv_prefix_tokens(&self, model_id: &str) -> Option<Vec<u32>> {
+        self.holo_models
+            .get(model_id)
+            .map(|m| m.kv_cache.tokens.clone())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -6070,5 +7155,38 @@ mod tests {
         assert_eq!(sym_metrics.float_ops, 0);
         assert_eq!(sym_metrics.dense_matmul_ops, 0);
         assert!(sym_frames.is_empty());
+    }
+
+    #[test]
+    fn test_fit_foundry_prompt_tokens_small_max_ctx_preserves_system_prefix() {
+        let model = crate::holo_geometric_runtime::tests::build_synthetic_test_model();
+        let long_user = format!(
+            "<|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n",
+            "token_".repeat(40)
+        );
+        let max_ctx = 48usize;
+        let (kept_sys, combined) = fit_foundry_prompt_tokens(
+            &model,
+            BUILD_SYSTEM_PREFIX,
+            "\n<workspace>\n",
+            &["  <file path=\"src/lib.rs\">fn a(){}</file>\n".to_string()],
+            &long_user,
+            max_ctx,
+        );
+        assert!(kept_sys.starts_with(BUILD_SYSTEM_PREFIX));
+        assert!(combined.len() <= max_ctx);
+        let head_expected = model
+            .tokenizer
+            .encode(&format!("<|im_start|>system\n{BUILD_SYSTEM_PREFIX}"));
+        let check_len = head_expected.len().min(max_ctx / 2);
+        assert!(
+            check_len >= 16,
+            "expected meaningful system prefix check length, got {check_len}"
+        );
+        assert_eq!(
+            &combined[..check_len],
+            &head_expected[..check_len],
+            "small max_ctx={max_ctx} must not strip BUILD_SYSTEM_PREFIX at index 0"
+        );
     }
 }

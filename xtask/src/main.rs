@@ -217,6 +217,7 @@ fn validate(root: &Path) -> Result<(), Fail> {
 /// verifying its `core-wasm@1` acceptance vectors and BLAKE3 footer against `site/app.json`.
 pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
     let mut out_path: Option<PathBuf> = None;
+    let mut emit_fp_dir: Option<PathBuf> = None;
     let mut sync_site = false;
     let mut verify_site = false;
     let mut i = 0usize;
@@ -228,6 +229,14 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
                     .ok_or("--out requires a destination .holo path")?;
                 let p = PathBuf::from(raw);
                 out_path = Some(if p.is_absolute() { p } else { root.join(p) });
+                i += 2;
+            }
+            "--emit-fingerprint-dir" => {
+                let raw = args
+                    .get(i + 1)
+                    .ok_or("--emit-fingerprint-dir requires a destination directory")?;
+                let p = PathBuf::from(raw);
+                emit_fp_dir = Some(if p.is_absolute() { p } else { root.join(p) });
                 i += 2;
             }
             "--sync-site-manifest" => {
@@ -265,11 +274,74 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
     let summary = prism_holo_compiler::verify_holo_v4_archive(&archive)
         .map_err(|v| format!("build-holo verify refused: {v:?}"))?;
 
+    const MAX_HOLO_ARCHIVE_BYTES: usize = 32 * 1024 * 1024;
+    if archive.len() > MAX_HOLO_ARCHIVE_BYTES {
+        return Err(format!(
+            "build-holo: compiled .holo archive ({} bytes) exceeds 32 MiB cap ({MAX_HOLO_ARCHIVE_BYTES} bytes)",
+            archive.len()
+        )
+        .into());
+    }
+
+    let forbidden_lower_a = concat!("humu", "humu33");
+    let forbidden_lower_b = concat!("/hologram", "-forge/");
+    let contains_ci = |haystack: &[u8], needle: &[u8]| -> bool {
+        haystack
+            .windows(needle.len())
+            .any(|w| w.eq_ignore_ascii_case(needle))
+    };
+    if contains_ci(&archive, forbidden_lower_a.as_bytes())
+        || contains_ci(&archive, forbidden_lower_b.as_bytes())
+    {
+        return Err(
+            "build-holo: compiled .holo archive contains forbidden brand/path residue".into(),
+        );
+    }
+
+    let wasm_sha256: String = {
+        use sha2::{Digest, Sha256};
+        let wasm_bytes = files
+            .get("lexlean_r4_bg.wasm")
+            .ok_or("missing lexlean_r4_bg.wasm in public/")?;
+        Sha256::digest(wasm_bytes)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect()
+    };
+    let offline_q31_kappa: String = {
+        use sha2::{Digest, Sha256};
+        let q31_bytes = std::fs::read(root.join("crates/wasm/src/native_q31_d85.uorq31"))
+            .map_err(|e| format!("reading native_q31_d85.uorq31: {e}"))?;
+        let hex: String = Sha256::digest(&q31_bytes)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        format!("sha256:{hex}")
+    };
+    let qwen3_weights_kappa: String = {
+        let mpath = root.join("gpu/weights/v13_qwen3_0_6b/manifest.json");
+        if mpath.is_file() {
+            let mraw = std::fs::read_to_string(&mpath)?;
+            let mdoc: serde_json::Value = serde_json::from_str(&mraw)?;
+            let csha = mdoc["container_sha256"]
+                .as_str()
+                .unwrap_or("1d0255929995725be144cb1787416880ffb073e0d153adf1a663abb636a0550a");
+            format!("sha256:{csha}")
+        } else {
+            "sha256:1d0255929995725be144cb1787416880ffb073e0d153adf1a663abb636a0550a".to_string()
+        }
+    };
+
     if let Some(dest) = &out_path {
         if let Some(parent) = dest.parent() {
             std::fs::create_dir_all(parent)?;
         }
         std::fs::write(dest, &archive)?;
+    }
+    if let Some(fp_dir) = &emit_fp_dir {
+        std::fs::create_dir_all(fp_dir)?;
+        let fp_file = fp_dir.join(format!("{}.holo", summary.fingerprint));
+        std::fs::write(&fp_file, &archive)?;
     }
 
     let site_manifest_path = root.join("site/app.json");
@@ -283,6 +355,14 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
         doc["viewContentKappa"] = serde_json::json!(summary.view_content_kappa);
         doc["modelContentKappa"] = serde_json::json!(summary.model_content_kappa);
         doc["holoByteLength"] = serde_json::json!(summary.byte_length);
+        doc["wasmSha256"] = serde_json::json!(wasm_sha256);
+        doc["holoUrl"] = serde_json::json!("https://casey-allard.github.io/lexlean-r4/app.holo");
+        doc["holoFingerprintUrl"] = serde_json::json!(format!(
+            "https://casey-allard.github.io/lexlean-r4/holo/{}.holo",
+            summary.fingerprint
+        ));
+        doc["qwen3WeightsKappa"] = serde_json::json!(qwen3_weights_kappa);
+        doc["offlineQ31WeightsKappa"] = serde_json::json!(offline_q31_kappa);
         std::fs::write(
             &site_manifest_path,
             format!("{}\n", serde_json::to_string_pretty(&doc)?),
@@ -290,23 +370,123 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
     } else if verify_site {
         let raw = std::fs::read_to_string(&site_manifest_path)?;
         let doc: serde_json::Value = serde_json::from_str(&raw)?;
-        let expected_fp = doc["fingerprint"].as_str().unwrap_or("");
-        if expected_fp != summary.fingerprint {
-            return Err(format!(
-                "site/app.json fingerprint mismatch: site/app.json={} compiled={}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`",
-                expected_fp, summary.fingerprint
-            )
-            .into());
-        }
+        verify_site_manifest_pins(
+            &doc,
+            &summary.fingerprint,
+            &wasm_sha256,
+            &summary.archive_kappa,
+            summary.byte_length,
+            &qwen3_weights_kappa,
+            &offline_q31_kappa,
+        )?;
     }
 
     println!(
-        "build-holo: verified v4 archive ({} bytes, blake3={}, vectors={}/{}, view_files={})",
+        "build-holo: verified v4 archive ({} bytes, blake3={}, wasmSha256={}, vectors={}/{}, view_files={})",
         summary.byte_length,
         &summary.fingerprint[..16],
+        &wasm_sha256[..16],
         summary.vectors_passed,
         summary.vectors_total,
         summary.view_file_count,
     );
     Ok(())
+}
+
+fn verify_site_manifest_pins(
+    doc: &serde_json::Value,
+    expected_fp: &str,
+    expected_wasm_sha: &str,
+    expected_archive_kappa: &str,
+    expected_byte_len: usize,
+    expected_qwen3_kappa: &str,
+    expected_q31_kappa: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let expected_fp_url =
+        format!("https://casey-allard.github.io/lexlean-r4/holo/{expected_fp}.holo");
+    let string_pins = [
+        ("fingerprint", expected_fp),
+        ("wasmSha256", expected_wasm_sha),
+        ("archiveKappa", expected_archive_kappa),
+        ("holoFingerprintUrl", expected_fp_url.as_str()),
+        ("qwen3WeightsKappa", expected_qwen3_kappa),
+        ("offlineQ31WeightsKappa", expected_q31_kappa),
+    ];
+    for (field, expected) in string_pins {
+        let actual = doc.get(field).and_then(|v| v.as_str()).unwrap_or("");
+        if actual != expected {
+            return Err(format!(
+                "site/app.json {field} mismatch: site/app.json={actual} compiled={expected}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`"
+            )
+            .into());
+        }
+    }
+    let actual_bytes = doc
+        .get("holoByteLength")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+    if actual_bytes != expected_byte_len as u64 {
+        return Err(format!(
+            "site/app.json holoByteLength mismatch: site/app.json={actual_bytes} compiled={expected_byte_len}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`"
+        )
+        .into());
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::verify_site_manifest_pins;
+
+    #[test]
+    fn verify_site_manifest_rejects_mismatched_pins() {
+        let fp = "a".repeat(64);
+        let fp_url = format!("https://casey-allard.github.io/lexlean-r4/holo/{fp}.holo");
+        let base = serde_json::json!({
+            "fingerprint": fp,
+            "wasmSha256": "b".repeat(64),
+            "archiveKappa": "sha256:archive",
+            "holoByteLength": 12345_u64,
+            "holoFingerprintUrl": fp_url,
+            "qwen3WeightsKappa": "sha256:qwen3",
+            "offlineQ31WeightsKappa": "sha256:q31",
+        });
+        verify_site_manifest_pins(
+            &base,
+            &fp,
+            &"b".repeat(64),
+            "sha256:archive",
+            12345,
+            "sha256:qwen3",
+            "sha256:q31",
+        )
+        .expect("matching pins verify cleanly");
+
+        for (field, bad_val) in [
+            ("fingerprint", serde_json::json!("bad")),
+            ("wasmSha256", serde_json::json!("bad")),
+            ("archiveKappa", serde_json::json!("sha256:bad")),
+            ("holoByteLength", serde_json::json!(999_u64)),
+            ("holoFingerprintUrl", serde_json::json!("https://wrong")),
+            ("qwen3WeightsKappa", serde_json::json!("sha256:bad")),
+            ("offlineQ31WeightsKappa", serde_json::json!("sha256:bad")),
+        ] {
+            let mut mutated = base.clone();
+            mutated[field] = bad_val;
+            let err = verify_site_manifest_pins(
+                &mutated,
+                &fp,
+                &"b".repeat(64),
+                "sha256:archive",
+                12345,
+                "sha256:qwen3",
+                "sha256:q31",
+            )
+            .expect_err("mismatched pin must be rejected");
+            assert!(
+                err.to_string().contains(field),
+                "expected field {field} in diagnostic: {err}"
+            );
+        }
+    }
 }

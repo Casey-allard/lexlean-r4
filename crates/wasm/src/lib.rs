@@ -20,6 +20,13 @@ use wasm_bindgen::prelude::*;
 /// Standard Provider-Compatible API Types and Dispatch Engine (Anthropic / OpenAI).
 pub mod api;
 mod assistant;
+pub use assistant::{
+    format_foundry_system_prompt, FoundryToolResult, FoundryTurnSession, FoundryWorkspaceFile,
+    BUILD_SYSTEM_PREFIX,
+};
+
+/// Alias matching Foundry host specification naming (`StudioEngine` / `UorWasmStudio`).
+pub type UorWasmStudio = StudioEngine;
 /// `UOR-R4-GLLM v9` (`UORGLLM9`) Compositional Geometric Language Model Runtime (`R4-38`).
 pub mod gllm_v9;
 /// Pre-trained Generalized Geometric Language Model (`UR4GLM01`) Concept Manifold & Reasoner.
@@ -514,30 +521,27 @@ pub struct StudioEngine {
     pub(crate) telos_flock_window: u64,
     pub(crate) telos_incumbent_loss: u64,
     pub(crate) last_holo_observatory_frames: Vec<holo_geometric_runtime::HoloStepObservatoryFrame>,
+    pub(crate) foundry_turn: Option<assistant::FoundryTurnSession>,
+    pub(crate) next_foundry_turn_id: u64,
 }
 
-/// Formal R4.HoloGeometricRuntime extract a bounded `<tool_call>{...}</tool_call>` JSON directive from assistant text.
-fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
-    let slice = if let Some((_, after)) = reply.split_once("<tool_call>") {
-        after
-            .split_once("</tool_call>")
-            .map(|(a, _)| a)
-            .unwrap_or(after)
-            .trim()
-    } else {
-        let start = reply.find("{\"tool\"")?;
-        &reply[start..]
-    };
-    let clean = slice
-        .trim()
+/// Formal R4.HoloGeometricRuntime parse a single `<tool_call>` body JSON slice into `(tool_name, args)`.
+fn parse_holo_tool_slice(slice: &str) -> Option<(String, serde_json::Value)> {
+    let trimmed = slice.trim();
+    let without_open = trimmed
         .strip_prefix("```json")
-        .or_else(|| slice.trim().strip_prefix("```"))
-        .unwrap_or(slice.trim())
+        .or_else(|| trimmed.strip_prefix("```"))
+        .unwrap_or(trimmed);
+    let clean = without_open
         .strip_suffix("```")
-        .unwrap_or(slice.trim())
+        .unwrap_or(without_open)
         .trim();
+    let start_idx = clean.find('{')?;
     let end_idx = clean.rfind('}')?;
-    let val: serde_json::Value = serde_json::from_str(&clean[..=end_idx]).ok()?;
+    if end_idx < start_idx {
+        return None;
+    }
+    let val: serde_json::Value = serde_json::from_str(&clean[start_idx..=end_idx]).ok()?;
     let tool = val
         .get("tool")
         .or_else(|| val.get("name"))
@@ -547,8 +551,46 @@ fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
     if tool.is_empty() {
         return None;
     }
-    let args = val.get("args").cloned().unwrap_or_else(|| val.clone());
+    let args = val
+        .get("args")
+        .or_else(|| val.get("arguments"))
+        .cloned()
+        .unwrap_or_else(|| val.clone());
     Some((tool, args))
+}
+
+/// Formal R4.HoloGeometricRuntime extract all valid closed `<tool_call>...</tool_call>` directives in order.
+pub(crate) fn extract_closed_holo_tool_calls(reply: &str) -> Vec<(String, serde_json::Value)> {
+    let mut out = Vec::new();
+    let mut rest = reply;
+    while let Some((_, after_open)) = rest.split_once("<tool_call>") {
+        let Some((body, after_close)) = after_open.split_once("</tool_call>") else {
+            break;
+        };
+        if let Some(parsed) = parse_holo_tool_slice(body) {
+            out.push(parsed);
+        }
+        rest = after_close;
+    }
+    out
+}
+
+/// Formal R4.HoloGeometricRuntime extract a bounded `<tool_call>{...}</tool_call>` JSON directive from assistant text.
+pub(crate) fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
+    if let Some(first_closed) = extract_closed_holo_tool_calls(reply).into_iter().next() {
+        return Some(first_closed);
+    }
+    if let Some((_, after_last)) = reply.rsplit_once("<tool_call>") {
+        let slice = after_last
+            .split_once("</tool_call>")
+            .map(|(a, _)| a)
+            .unwrap_or(after_last);
+        if let Some(parsed) = parse_holo_tool_slice(slice) {
+            return Some(parsed);
+        }
+    }
+    let start = reply.find("{\"tool\"")?;
+    parse_holo_tool_slice(&reply[start..])
 }
 
 fn fnv1a64(bytes: &[u8]) -> u64 {
@@ -560,7 +602,7 @@ fn fnv1a64(bytes: &[u8]) -> u64 {
     hash
 }
 
-fn sha256_hex(bytes: &[u8]) -> String {
+pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
     let digest = Sha256::digest(bytes);
     let mut out = String::with_capacity(64);
     for b in digest {
@@ -1288,6 +1330,20 @@ pub fn prll_masses_from_scores(scores: [u32; 4]) -> [u32; 4] {
     [m0, m1, m2, m3]
 }
 
+static EMBEDDED_NATIVE_Q31_D85_BYTES: &[u8] = include_bytes!("native_q31_d85.uorq31");
+static EMBEDDED_NATIVE_Q31_SHA256_CELL: OnceLock<String> = OnceLock::new();
+
+/// Deterministic SHA-256 hex digest of the embedded `native_q31_d85.uorq31` container (`R4-59`).
+pub fn embedded_native_q31_sha256() -> String {
+    EMBEDDED_NATIVE_Q31_SHA256_CELL
+        .get_or_init(|| {
+            use sha2::{Digest, Sha256};
+            let dig = Sha256::digest(EMBEDDED_NATIVE_Q31_D85_BYTES);
+            dig.iter().map(|b| format!("{b:02x}")).collect()
+        })
+        .clone()
+}
+
 impl StudioEngine {
     /// Construct a fresh `StudioEngine` pre-populated with the 20 UOR-R4 domain knowledge turns
     /// and the default Claude-Code-Desktop virtual workspace.
@@ -1321,11 +1377,10 @@ impl StudioEngine {
             holo_stream_builder: None,
             hf_repo_compiler: None,
             native_q31: {
-                static EMBEDDED_NATIVE_Q31_D85: &[u8] = include_bytes!("native_q31_d85.uorq31");
                 static NATIVE_Q31_CELL: OnceLock<native_q31_lane::NativeQ31Model> = OnceLock::new();
                 NATIVE_Q31_CELL
                     .get_or_init(|| {
-                        native_q31_lane::NativeQ31Model::from_bytes(EMBEDDED_NATIVE_Q31_D85)
+                        native_q31_lane::NativeQ31Model::from_bytes(EMBEDDED_NATIVE_Q31_D85_BYTES)
                             .expect("embedded native_q31_d85.uorq31 is valid UORQ31V1")
                     })
                     .clone()
@@ -1347,6 +1402,8 @@ impl StudioEngine {
             telos_flock_window: 256,
             telos_incumbent_loss: 1_000,
             last_holo_observatory_frames: Vec::new(),
+            foundry_turn: None,
+            next_foundry_turn_id: 0,
         };
         engine.register_special_tokens();
         for (prompt, reply) in default_knowledge_turns() {
@@ -1354,6 +1411,12 @@ impl StudioEngine {
         }
         engine.init_default_workspace();
         engine.sync_workspace_into_mvm();
+        let baseline_map: std::collections::BTreeMap<String, String> = engine
+            .workspace_files
+            .iter()
+            .map(|wf| (wf.path.clone(), wf.content.clone()))
+            .collect();
+        engine.mvm.record_workspace_baseline_from_map(&baseline_map);
         engine
     }
 
@@ -1364,6 +1427,26 @@ impl StudioEngine {
             map.insert(wf.path.clone(), wf.content.clone());
         }
         self.mvm.sync_from_workspace_map(&map);
+    }
+
+    /// Apply a host/Worker base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
+    pub fn mvm_sync_workspace_in_json(&mut self, snapshot_json: &str) -> String {
+        let out = self.mvm.mvm_sync_workspace_in_json(snapshot_json);
+        let ok = serde_json::from_str::<serde_json::Value>(&out)
+            .ok()
+            .and_then(|v| v.get("status").and_then(|s| s.as_str()).map(|s| s == "ok"))
+            .unwrap_or(false);
+        if ok {
+            self.sync_workspace_from_mvm();
+        }
+        out
+    }
+
+    /// Export minimal filtered UTF-8 `/workspace` writes and deletes since the last MVM sync (`R4-57`).
+    pub fn mvm_export_workspace_diff_json(&mut self) -> String {
+        let out = self.mvm.mvm_export_workspace_diff_json();
+        self.sync_workspace_from_mvm();
+        out
     }
 
     /// Synchronize text files mutated or deleted inside `MVM-Wasm` `/workspace` back into Studio's workspace list.
@@ -1485,6 +1568,15 @@ impl StudioEngine {
                 "cwd": self.mvm.current_cwd(),
                 "message": err.to_string(),
                 "mvm_stderr": err.to_string(),
+            })
+            .to_string(),
+            Err(mvm::MvmError::CanonicalPathProtected(path)) => serde_json::json!({
+                "status": "error",
+                "error_code": "CanonicalPathProtected",
+                "exit_code": 1,
+                "cwd": self.mvm.current_cwd(),
+                "message": format!("mvm: refused mutation of protected canonical path '{path}'"),
+                "mvm_stderr": format!("mvm: refused mutation of protected canonical path '{path}'"),
             })
             .to_string(),
             Err(err) => serde_json::json!({
@@ -1637,44 +1729,141 @@ impl StudioEngine {
         .to_string()
     }
 
-    /// Update the active `R4-39` MCP bridge policy mode (`safe`, `confirm`, or `deny`).
+    /// Update the active `R4-39` MCP bridge policy mode (`safe`, `confirm`, or `deny`)
+    /// and/or Prism `capabilities/1` outbound network gate (`sandboxed` or `full_spiralcore`).
     pub fn mvm_set_policy_json(&mut self, payload: &str) -> String {
         use crate::lexlean_generated::r4_connected_studio::McpPolicyMode;
-        let raw_mode = if payload.trim().starts_with('{') {
-            serde_json::from_str::<serde_json::Value>(payload.trim())
-                .ok()
-                .and_then(|v| {
-                    v.get("policy")
-                        .or_else(|| v.get("mode"))
-                        .and_then(|x| x.as_str())
-                        .map(str::to_string)
-                })
-                .unwrap_or_default()
-        } else {
-            payload.trim().to_string()
-        };
-        let mode = match raw_mode.to_ascii_lowercase().as_str() {
-            "safe" | "allow" => McpPolicyMode::Safe,
-            "confirm" | "ask" => McpPolicyMode::Confirm,
-            "deny" | "off" | "block" => McpPolicyMode::Deny,
-            _ => {
-                return serde_json::json!({
-                    "status": "error",
-                    "error_code": "InvalidPolicyMode",
-                    "message": format!("unsupported policy mode `{raw_mode}`; expected safe, confirm, or deny"),
-                })
-                .to_string();
+        use crate::mvm::NetworkGateMode;
+        let trimmed = payload.trim();
+        let parsed_obj = if trimmed.starts_with('{') {
+            match serde_json::from_str::<serde_json::Value>(trimmed) {
+                Ok(v) => Some(v),
+                Err(e) => {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "InvalidPolicyMode",
+                        "message": format!("invalid policy JSON: {e}"),
+                    })
+                    .to_string();
+                }
             }
+        } else {
+            None
         };
-        self.mvm.set_policy_mode(mode);
-        let label = match mode {
+
+        let raw_mcp_policy = if let Some(ref v) = parsed_obj {
+            if let Some(p) = v
+                .get("policy")
+                .or_else(|| v.get("mcpPolicy"))
+                .and_then(|x| x.as_str())
+            {
+                Some(p.to_string())
+            } else if let Some(m) = v.get("mode").and_then(|x| x.as_str()) {
+                let lower = m.to_ascii_lowercase();
+                if matches!(
+                    lower.as_str(),
+                    "safe" | "allow" | "confirm" | "ask" | "deny" | "off" | "block"
+                ) {
+                    Some(m.to_string())
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        } else {
+            Some(trimmed.to_string())
+        };
+
+        if let Some(raw_mode) = raw_mcp_policy {
+            let mode = match raw_mode.to_ascii_lowercase().as_str() {
+                "safe" | "allow" => McpPolicyMode::Safe,
+                "confirm" | "ask" => McpPolicyMode::Confirm,
+                "deny" | "off" | "block" => McpPolicyMode::Deny,
+                _ => {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "InvalidPolicyMode",
+                        "message": format!("unsupported policy mode `{raw_mode}`; expected safe, confirm, or deny"),
+                    })
+                    .to_string();
+                }
+            };
+            self.mvm.set_policy_mode(mode);
+        }
+
+        if let Some(ref v) = parsed_obj {
+            let mode_str = v
+                .get("network_mode")
+                .or_else(|| v.get("networkMode"))
+                .or_else(|| v.get("mode"))
+                .and_then(|x| x.as_str())
+                .map(|s| s.to_ascii_lowercase());
+            let has_gate_fields = v.get("consentGranted").is_some()
+                || v.get("consent_granted").is_some()
+                || v.get("relayWsUrl").is_some()
+                || v.get("relay_ws_url").is_some()
+                || matches!(
+                    mode_str.as_deref(),
+                    Some(
+                        "sandboxed"
+                            | "mode_a"
+                            | "full_spiralcore"
+                            | "full"
+                            | "mode_b"
+                            | "spiralcore"
+                    )
+                );
+            if has_gate_fields {
+                let net_mode = match mode_str.as_deref() {
+                    Some("full_spiralcore" | "full" | "mode_b" | "spiralcore") => {
+                        NetworkGateMode::FullSpiralcore
+                    }
+                    Some("sandboxed" | "mode_a") => NetworkGateMode::Sandboxed,
+                    _ => self.mvm.network_mode,
+                };
+                let consent = v
+                    .get("consentGranted")
+                    .or_else(|| v.get("consent_granted"))
+                    .and_then(|x| x.as_bool())
+                    .unwrap_or(self.mvm.relay_consent_granted);
+                let relay_ws = v
+                    .get("relayWsUrl")
+                    .or_else(|| v.get("relay_ws_url"))
+                    .and_then(|x| x.as_str())
+                    .map(str::to_string)
+                    .unwrap_or_else(|| self.mvm.relay_ws_url.clone());
+                self.mvm.network_gate_enforced = true;
+                self.mvm.network_mode = net_mode;
+                self.mvm.relay_consent_granted = consent;
+                self.mvm.relay_ws_url = relay_ws.trim().to_string();
+                if net_mode == NetworkGateMode::FullSpiralcore && !consent {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "RelayConsentRequired",
+                        "message": "Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)",
+                        "network_mode": "full_spiralcore",
+                        "consent_granted": false,
+                    })
+                    .to_string();
+                }
+            }
+        }
+
+        let label = match self.mvm.policy_mode() {
             McpPolicyMode::Safe => "safe",
             McpPolicyMode::Confirm => "confirm",
             McpPolicyMode::Deny => "deny",
         };
+        let net_label = match self.mvm.network_mode {
+            NetworkGateMode::Sandboxed => "sandboxed",
+            NetworkGateMode::FullSpiralcore => "full_spiralcore",
+        };
         serde_json::json!({
             "status": "ok",
             "policy": label,
+            "network_mode": net_label,
+            "consent_granted": self.mvm.relay_consent_granted,
         })
         .to_string()
     }
@@ -1682,10 +1871,15 @@ impl StudioEngine {
     /// Return `MVM-Wasm` guest status, zero-NIC policy state, interactive `cwd`, and CoW block digest as JSON (`R4-37` + `R4-39`).
     pub fn mvm_status_json(&self) -> String {
         use crate::lexlean_generated::r4_connected_studio::McpPolicyMode;
+        use crate::mvm::NetworkGateMode;
         let policy_label = match self.mvm.policy_mode() {
             McpPolicyMode::Safe => "safe",
             McpPolicyMode::Confirm => "confirm",
             McpPolicyMode::Deny => "deny",
+        };
+        let net_label = match self.mvm.network_mode {
+            NetworkGateMode::Sandboxed => "sandboxed",
+            NetworkGateMode::FullSpiralcore => "full_spiralcore",
         };
         serde_json::json!({
             "status": "ok",
@@ -1693,6 +1887,8 @@ impl StudioEngine {
             "guest_cid": self.mvm.guest_cid(),
             "cwd": self.mvm.current_cwd(),
             "policy": policy_label,
+            "network_mode": net_label,
+            "consent_granted": self.mvm.relay_consent_granted,
             "nic_enabled": false,
             "transport": "SpiralCore virtio-vsock (AF_VSOCK=40)",
             "installed_packages": self.mvm.installed_packages().keys().collect::<Vec<_>>(),
@@ -5953,6 +6149,12 @@ impl StudioEngine {
         );
         self.admit_turn(&anchor_prompt, &anchor_reply);
         self.sync_workspace_into_mvm();
+        let baseline_map: std::collections::BTreeMap<String, String> = self
+            .workspace_files
+            .iter()
+            .map(|wf| (wf.path.clone(), wf.content.clone()))
+            .collect();
+        self.mvm.record_workspace_baseline_from_map(&baseline_map);
         self.workspace_list_json()
     }
 
@@ -6003,6 +6205,12 @@ impl StudioEngine {
                 .unwrap_or_default();
         }
         self.sync_workspace_into_mvm();
+        let baseline_map: std::collections::BTreeMap<String, String> = self
+            .workspace_files
+            .iter()
+            .map(|wf| (wf.path.clone(), wf.content.clone()))
+            .collect();
+        self.mvm.record_workspace_baseline_from_map(&baseline_map);
         self.workspace_list_json()
     }
 
@@ -8285,6 +8493,8 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "mvm_set_policy" => engine.mvm_set_policy_json(payload),
         "mvm_status" => engine.mvm_status_json(),
         "mvm_vsock_frame" => engine.mvm_vsock_frame_json(payload),
+        "mvm_sync_workspace_in" => engine.mvm_sync_workspace_in_json(payload),
+        "mvm_export_workspace_diff" => engine.mvm_export_workspace_diff_json(),
         "chat_v10_turn" => engine.chat_v10_turn_json(payload),
         "chat_complete_bridge" | "chat_v10_resume" => engine.chat_complete_bridge_json(payload),
         "stitch_verify_manifest" => studio_stitch_verify_manifest(payload),
@@ -8878,6 +9088,39 @@ pub fn studio_native_q31_train_step(text: &str) -> String {
     .to_string()
 }
 
+/// Formal R4.HoloGeometricRuntime begin a non-blocking 4-token Foundry turn session (`R4-56`).
+#[wasm_bindgen]
+pub fn holo_begin_foundry_turn(payload_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_begin_foundry_turn(payload_json)
+}
+
+/// Formal R4.HoloGeometricRuntime execute up to 4 quantized pure-integer token steps on an active Foundry turn (`R4-56`).
+#[wasm_bindgen]
+pub fn holo_step_foundry_turn(turn_id: u64) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_step_foundry_turn(turn_id)
+}
+
+/// Formal R4.HoloGeometricRuntime atomically cancel an active Foundry turn and reset rolling state (`R4-56`).
+#[wasm_bindgen]
+pub fn holo_cancel_foundry_turn(turn_id: u64) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_cancel_foundry_turn(turn_id)
+}
+
 /// Parse & validate a streamed HuggingFace Safetensors header slice (`R4-50`, `R4-51`).
 #[wasm_bindgen]
 pub fn studio_hf_repo_parse_safetensors_header(repo_id: &str, prefix_bytes: &[u8]) -> String {
@@ -9167,6 +9410,28 @@ pub fn studio_wasm_eval(subcommand: &str, filter: &str) -> String {
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.execute_cargo_json(&format!("{}\t{}", subcommand.trim(), filter.trim()))
+}
+
+/// Synchronize base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
+#[wasm_bindgen]
+pub fn mvm_sync_workspace_in_json(snapshot_json: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.mvm_sync_workspace_in_json(snapshot_json)
+}
+
+/// Export minimal filtered UTF-8 `/workspace` writes and deletes since last sync (`R4-57`).
+#[wasm_bindgen]
+pub fn mvm_export_workspace_diff_json() -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.mvm_export_workspace_diff_json()
 }
 
 /// Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
@@ -11881,7 +12146,15 @@ mod tests {
         assert_eq!(clear_res["status"], "ok");
         assert_eq!(clear_res["configured"], false);
 
+        let gitlab_denied_raw = engine.mvm_exec_json("git clone https://gitlab.com/org/public.git");
+        let gitlab_denied: serde_json::Value =
+            serde_json::from_str(&gitlab_denied_raw).expect("gitlab sandboxed json");
+        assert_eq!(gitlab_denied["status"], "error");
+        assert_eq!(gitlab_denied["error_code"], "CapabilityDenied");
+
+        let _ = engine.mvm_set_policy_json(r#"{"mode":"full_spiralcore","consentGranted":true}"#);
         let gitlab_clone_raw = engine.mvm_exec_json("git clone https://gitlab.com/org/public.git");
+        let _ = engine.mvm_set_policy_json(r#"{"mode":"sandboxed","consentGranted":false}"#);
         let gitlab_clone: serde_json::Value =
             serde_json::from_str(&gitlab_clone_raw).expect("gitlab clone json");
         assert_eq!(gitlab_clone["status"], "needs_bridge");
@@ -12273,7 +12546,9 @@ mod tests {
         // 2. Policy `confirm` admits `https://` `web_search` with `"policy": "confirm"`,
         //    rejects cleartext `http://` `web_fetch` with `[InsecureTransportRejected]`,
         //    and `chat_complete_bridge_json` propagates `ok: false` as `"status": "error"`.
-        let _ = engine.mvm_set_policy_json("confirm");
+        let _ = engine.mvm_set_policy_json(
+            r#"{"policy":"confirm","mode":"full_spiralcore","consentGranted":true}"#,
+        );
         let cleartext_fetch = engine
             .try_execute_v10_tool_call(
                 "fetch http://example.com",
@@ -12460,6 +12735,9 @@ mod tests {
 
             // 6. `Search the web for WebAssembly Relaxed SIMD browser support.`
             //    (`web_search` `<tool_call>` + Step-2 `<tool_response>` summary containing `"Chrome 114+"`)
+            // Explicitly opt into Mode B (full_spiralcore + consent) for non-allowlisted web_fetch (`example.com`).
+            let _ =
+                engine.mvm_set_policy_json(r#"{"mode":"full_spiralcore","consentGranted":true}"#);
             engine.chat_history.clear();
             engine.pending_chat_bridge = None;
             let ws_raw = engine.chat_assistant_json(
@@ -12564,6 +12842,7 @@ mod tests {
             }
 
             // 9. Security (`R5`): `policy = deny` blocks `web_search` with `PolicyDenied`
+            let _ = engine.mvm_set_policy_json(r#"{"mode":"sandboxed","consentGranted":false}"#);
             engine.chat_history.clear();
             engine.pending_chat_bridge = None;
             let _ = engine.mvm_set_policy_json("deny");

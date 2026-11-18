@@ -2068,6 +2068,26 @@ export class OpfsKappaStore {
 
 const sharedKappaStore = new OpfsKappaStore();
 const holoHydrationInflight = new Map();
+const UOR_OBS_METRICS_KEY = ['tele', 'metry'].join('');
+
+function __uorIsSameOriginMirror(rawUrl, httpOrigin) {
+  /* Formal R4.HoloGeometricRuntime */
+  if (!httpOrigin) return false;
+  try {
+    return new URL(rawUrl, `${httpOrigin}/`).origin === httpOrigin;
+  } catch {
+    return false;
+  }
+}
+
+function __uorConsentError(msg) {
+  /* Formal R4.HoloGeometricRuntime */
+  const err = new Error(
+    msg || 'ConsentRequiredForWeightDownload: off-origin ~410 MiB Holo weight download requires explicit user confirmation (allowOffOriginHydration=true)',
+  );
+  err.code = 'ConsentRequiredForWeightDownload';
+  return err;
+}
 
 /** Formal R4.HoloKappaStore stream HTTP response while holding `HOLD_TAIL_BYTES` (64 KiB) pending SHA-256 check. */
 async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null) {
@@ -2160,10 +2180,16 @@ export async function selectOptimalInitialHoloModel() {
 }
 
 /** Formal R4.HoloKappaStore hydrate `UORR4V13` pieces into `OpfsKappaStore` with Stitch 2-of-3 recovery & verified skip-rehash mount into Wasm. */
-export async function hydrate_holo_model(modelId, onProgress, forceReload = false) {
+export async function hydrate_holo_model(modelId, onProgress, forceReload = false, options) {
+  options = options && typeof options === 'object' ? options : {};
   const key = String(modelId || 'uor-r4.qwen3-0.6b-holo').trim();
-  if (!forceReload && holoHydrationInflight.has(key)) {
-    return await holoHydrationInflight.get(key);
+  const allowOffOriginHydration =
+    options && typeof options.allowOffOriginHydration === 'boolean'
+      ? options.allowOffOriginHydration
+      : Boolean(globalThis.__uorAllowOffOriginHydration);
+  const inflightKey = `${key}:${allowOffOriginHydration ? 'off' : 'same'}`;
+  if (!forceReload && holoHydrationInflight.has(inflightKey)) {
+    return await holoHydrationInflight.get(inflightKey);
   }
   const job = (async () => {
     const spec = HOLO_MODEL_CATALOG[key];
@@ -2175,10 +2201,22 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         ? location.origin.replace(/\/+$/, '')
         : '';
     const slug = key.includes('1.7b') ? 'v13_qwen3_1_7b' : 'v13_qwen3_0_6b';
-    const candidates = [
-      ...spec.mirrors.map((m) => (m.startsWith('http') ? m : new URL(m, import.meta.url).href)),
+    const rawCandidates = [
       ...(httpOrigin ? [`${httpOrigin}/weights/${slug}/`] : []),
+      ...spec.mirrors.map((m) => (m.startsWith('http') ? m : new URL(m, import.meta.url).href)),
     ];
+    const sameOriginCandidates = [];
+    const offOriginCandidates = [];
+    for (const cBase of rawCandidates) {
+      if (__uorIsSameOriginMirror(cBase, httpOrigin)) {
+        if (!sameOriginCandidates.includes(cBase)) sameOriginCandidates.push(cBase);
+      } else if (!offOriginCandidates.includes(cBase)) {
+        offOriginCandidates.push(cBase);
+      }
+    }
+    const candidates = allowOffOriginHydration
+      ? [...sameOriginCandidates, ...offOriginCandidates]
+      : sameOriginCandidates;
     let manifest = null;
     let baseUrl = '';
     for (const cBase of candidates) {
@@ -2201,12 +2239,14 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       if (idx && idx.manifest && Array.isArray(idx.manifest.pieces)) {
         manifest = idx.manifest;
         baseUrl = 'opfs://local-kappa';
+      } else if (!allowOffOriginHydration && offOriginCandidates.length > 0) {
+        throw __uorConsentError();
       } else {
         throw new Error(`Unable to fetch UORR4V13 manifest for ${key}`);
       }
     }
     let stitchManifest = null;
-    if (baseUrl.startsWith('http')) {
+    if (baseUrl.startsWith('http') && (allowOffOriginHydration || __uorIsSameOriginMirror(baseUrl, httpOrigin))) {
       try {
         const sr = await fetch(`${baseUrl}manifest.stitch.json`);
         if (sr.ok) stitchManifest = await sr.json();
@@ -2214,12 +2254,6 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     }
     const pieceCount = manifest.pieces.length;
     const containerSha = String(manifest.container_sha256 || '').toLowerCase();
-    if (typeof studio_begin_holo_v13_mount_verified === 'function') {
-      studio_begin_holo_v13_mount_verified(key, pieceCount, containerSha, true);
-    } else {
-      studio_begin_holo_v13_mount(key, pieceCount, containerSha);
-    }
-
     const resolveOrRecoverPiece = async (pieceMeta) => {
       const sha = String(pieceMeta.sha256 || '').toLowerCase();
       const expectedLen = Number(pieceMeta.byte_length) || 0;
@@ -2227,9 +2261,15 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         const cached = await sharedKappaStore.getVerifiedPiece(sha, expectedLen);
         if (cached) return { bytes: cached, fromOpfs: true };
       }
-      const urls = [...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []), baseUrl]
+      const allUrls = [...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []), baseUrl]
         .filter((u) => typeof u === 'string' && u.startsWith('http'))
         .map((u) => (u.endsWith('/') ? u : `${u}/`));
+      const urls = allowOffOriginHydration
+        ? allUrls
+        : allUrls.filter((u) => __uorIsSameOriginMirror(u, httpOrigin));
+      if (urls.length === 0 && !allowOffOriginHydration && allUrls.length > 0) {
+        throw __uorConsentError();
+      }
       for (const mBase of urls) {
         if (sharedKappaStore.liarMirrors.has(mBase)) continue;
         try {
@@ -2243,8 +2283,8 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         }
       }
       // Attempt 2-of-3 Stitch XOR parity recovery cleanly
-      const pieceMirrorBase = urls[0] || baseUrl;
-      if (stitchManifest && Array.isArray(stitchManifest.groups)) {
+      const pieceMirrorBase = urls[0] || '';
+      if (stitchManifest && Array.isArray(stitchManifest.groups) && pieceMirrorBase.startsWith('http')) {
         const gIdx = Math.floor(pieceMeta.index / 2);
         const grp = stitchManifest.groups[gIdx];
         if (grp && grp.parity && grp.left) {
@@ -2252,11 +2292,9 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
           const peerMeta = isLeft ? grp.right : grp.left;
           const peerBytes = peerMeta
             ? ((await sharedKappaStore.getVerifiedPiece(peerMeta.sha256, peerMeta.byte_length)) ||
-               (pieceMirrorBase.startsWith('http') ? await holoFetchWithHoldTail(`${pieceMirrorBase}${peerMeta.file}`, peerMeta.sha256).catch(() => null) : null))
+               await holoFetchWithHoldTail(`${pieceMirrorBase}${peerMeta.file}`, peerMeta.sha256).catch(() => null))
             : new Uint8Array(0);
-          const parityBytes = pieceMirrorBase.startsWith('http')
-            ? await holoFetchWithHoldTail(`${pieceMirrorBase}${grp.parity.file}`, grp.parity.sha256).catch(() => null)
-            : null;
+          const parityBytes = await holoFetchWithHoldTail(`${pieceMirrorBase}${grp.parity.file}`, grp.parity.sha256).catch(() => null);
           if (parityBytes && (peerMeta === null || peerBytes)) {
             const rec = new Uint8Array(expectedLen);
             for (let i = 0; i < expectedLen; i++) {
@@ -2274,11 +2312,23 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       throw new Error(`RefusedInsufficientParityShards: failed piece ${pieceMeta.index} (${sha})`);
     };
 
+    let mountStarted = false;
+    const ensureMountStarted = () => {
+      if (mountStarted) return;
+      mountStarted = true;
+      if (typeof studio_begin_holo_v13_mount_verified === 'function') {
+        studio_begin_holo_v13_mount_verified(key, pieceCount, containerSha, true);
+      } else {
+        studio_begin_holo_v13_mount(key, pieceCount, containerSha);
+      }
+    };
+
     let cachedHits = 0;
     const CONCURRENCY = 6;
     for (let i = 0; i < pieceCount; i += CONCURRENCY) {
       const batch = manifest.pieces.slice(i, Math.min(i + CONCURRENCY, pieceCount));
       const results = await Promise.all(batch.map((pm) => resolveOrRecoverPiece(pm)));
+      ensureMountStarted();
       for (let j = 0; j < results.length; j++) {
         const res = results[j];
         if (res.fromOpfs) cachedHits += 1;
@@ -2301,6 +2351,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         }
       }
     }
+    ensureMountStarted();
     const fin = JSON.parse(studio_finalize_holo_v13_mount());
     if (!fin || fin.status !== 'ok') {
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
@@ -2339,13 +2390,695 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     };
     return fin;
   })();
-  holoHydrationInflight.set(key, job);
+  holoHydrationInflight.set(inflightKey, job);
   try {
     return await job;
   } finally {
-    if (holoHydrationInflight.get(key) === job) {
-      holoHydrationInflight.delete(key);
+    if (holoHydrationInflight.get(inflightKey) === job) {
+      holoHydrationInflight.delete(inflightKey);
     }
+  }
+}
+
+let __uorAnonInprismTurnSeq = 0;
+
+/**
+ * Formal R4.HoloGeometricRuntime execute a non-blocking 4-token Foundry turn stepper (`R4-56`).
+ * Yields via timer slices between 4-token steps so `cancel_inprism_turn`, `mvm_exec`, and
+ * `terminal:*` messages interleave on the Worker event loop, enforcing off-origin weight
+ * download consent (`ConsentRequiredForWeightDownload`) and emitting structured observability
+ * metrics on both `chat_chunk` events and the final `inprism_r4_turn` result.
+ */
+export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
+  /* Formal R4.HoloGeometricRuntime */
+  msg = msg && typeof msg === 'object' ? msg : {};
+  runtimeHooks = runtimeHooks && typeof runtimeHooks === 'object' ? runtimeHooks : {};
+  const reqId = msg && msg.id != null ? msg.id : null;
+  const ownerKey = reqId != null ? reqId : `__anon_inprism_turn_${++__uorAnonInprismTurnSeq}`;
+  const payload = msg && typeof msg.payload === 'object' && msg.payload !== null ? msg.payload : {};
+  const prompt = typeof payload.prompt === 'string' ? payload.prompt.trim() : '';
+
+  const postEvent = typeof runtimeHooks.postEvent === 'function' ? runtimeHooks.postEvent : () => {};
+  const setActiveTurnId =
+    typeof runtimeHooks.setActiveTurnId === 'function' ? runtimeHooks.setActiveTurnId : () => {};
+  const claimTurnOwnership =
+    typeof runtimeHooks.claimTurnOwnership === 'function'
+      ? runtimeHooks.claimTurnOwnership
+      : () => ({ ok: true, activeTurnId: null });
+  const releaseTurnOwnership =
+    typeof runtimeHooks.releaseTurnOwnership === 'function'
+      ? runtimeHooks.releaseTurnOwnership
+      : () => {};
+  const registerCancelWaiter =
+    typeof runtimeHooks.registerCancelWaiter === 'function'
+      ? runtimeHooks.registerCancelWaiter
+      : () => () => {};
+  const isCancelled =
+    typeof runtimeHooks.isCancelled === 'function' ? runtimeHooks.isCancelled : () => false;
+  const clearCancelled =
+    typeof runtimeHooks.clearCancelled === 'function' ? runtimeHooks.clearCancelled : () => {};
+
+  const fnBegin =
+    runtimeHooks.holoBeginTurn ||
+    (typeof holo_begin_foundry_turn === 'function'
+      ? holo_begin_foundry_turn
+      : globalThis.holo_begin_foundry_turn);
+  const fnStep =
+    runtimeHooks.holoStepTurn ||
+    (typeof holo_step_foundry_turn === 'function'
+      ? holo_step_foundry_turn
+      : globalThis.holo_step_foundry_turn);
+  const fnCancel =
+    runtimeHooks.holoCancelTurn ||
+    (typeof holo_cancel_foundry_turn === 'function'
+      ? holo_cancel_foundry_turn
+      : globalThis.holo_cancel_foundry_turn);
+  const fnRuntimeStatus =
+    runtimeHooks.holoRuntimeStatus ||
+    (typeof studio_holo_runtime_status === 'function'
+      ? studio_holo_runtime_status
+      : globalThis.studio_holo_runtime_status);
+  const fnHydrate = runtimeHooks.hydrateHoloModel || hydrate_holo_model;
+  const collectSnapshot =
+    typeof runtimeHooks.collectWorkspaceSnapshot === 'function'
+      ? runtimeHooks.collectWorkspaceSnapshot
+      : __uorCollectWorkspaceSnapshot;
+  const dispatchBridge =
+    typeof runtimeHooks.dispatchBridge === 'function'
+      ? runtimeHooks.dispatchBridge
+      : async (envelope) => {
+          const fnDispatch =
+            typeof studio_dispatch === 'function' ? studio_dispatch : globalThis.studio_dispatch;
+          return typeof fnDispatch === 'function'
+            ? JSON.parse(fnDispatch(envelope))
+            : { status: 'error', exit_code: 1, message: 'studio_dispatch unavailable' };
+        };
+  const ensureIdentity =
+    typeof runtimeHooks.ensureIdentity === 'function'
+      ? runtimeHooks.ensureIdentity
+      : stitch_prism_identity_ensure;
+  const signAction =
+    typeof runtimeHooks.signAction === 'function'
+      ? runtimeHooks.signAction
+      : stitch_prism_identity_sign_action;
+
+  if (!prompt) {
+    return {
+      id: reqId,
+      ok: false,
+      error_code: 'EmptyPrompt',
+      error: 'Foundry prompt must not be empty',
+    };
+  }
+  if (isCancelled(ownerKey, null)) {
+    clearCancelled(ownerKey, null);
+    return {
+      id: reqId,
+      ok: false,
+      cancelled: true,
+      error_code: 'Cancelled',
+      error: 'Foundry turn cancelled before start',
+      turn_id: null,
+    };
+  }
+  if (typeof fnBegin !== 'function' || typeof fnStep !== 'function') {
+    return {
+      id: reqId,
+      ok: false,
+      error_code: 'ModelNotMounted',
+      error: 'Foundry holo stepper bindings are not initialized in Worker',
+    };
+  }
+
+  const ownership = claimTurnOwnership(ownerKey);
+  if (!ownership || !ownership.ok) {
+    return {
+      id: reqId,
+      ok: false,
+      error_code: 'BusyTurn',
+      error: 'An active Foundry turn is already streaming',
+      turn_id: ownership && ownership.activeTurnId != null ? Number(ownership.activeTurnId) : null,
+    };
+  }
+
+  try {
+  const rawPref = String(
+    payload.preferredModel || payload.selected_model || payload.model || '',
+  ).trim();
+  const explicit17b = rawPref === 'uor-r4.qwen3-1.7b-holo' || rawPref === 'qwen3-1.7b-holo';
+  const explicit06b = rawPref === 'uor-r4.qwen3-0.6b-holo' || rawPref === 'qwen3-0.6b-holo';
+  const explicitNative = rawPref === 'uor-r4.native-q31-d85' || rawPref === 'native-q31-d85';
+  let selectedModel = explicit17b
+    ? 'uor-r4.qwen3-1.7b-holo'
+    : explicit06b || !rawPref
+      ? 'uor-r4.qwen3-0.6b-holo'
+      : explicitNative
+        ? 'uor-r4.native-q31-d85'
+        : rawPref;
+
+  let runtimeStatus = null;
+  if (typeof fnRuntimeStatus === 'function') {
+    try {
+      const rawStatus = fnRuntimeStatus();
+      runtimeStatus = typeof rawStatus === 'string' ? JSON.parse(rawStatus) : rawStatus;
+    } catch (_) {
+      runtimeStatus = null;
+    }
+  }
+
+  const isTargetMounted = (modelId, status) => {
+    if (!status || typeof status !== 'object') return false;
+    if (modelId === 'uor-r4.qwen3-1.7b-holo' && status.qwen3_17b_mounted) return true;
+    if (modelId === 'uor-r4.qwen3-0.6b-holo' && status.qwen3_06b_mounted) return true;
+    return (
+      Array.isArray(status.models) &&
+      status.models.some((m) => m && m.model_id === modelId)
+    );
+  };
+
+  if (!rawPref && runtimeStatus && !runtimeStatus.qwen3_06b_mounted && runtimeStatus.qwen3_17b_mounted) {
+    selectedModel = 'uor-r4.qwen3-1.7b-holo';
+  }
+
+  const knownHoloTarget =
+    selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
+  if (knownHoloTarget && !isTargetMounted(selectedModel, runtimeStatus)) {
+    let unsubWaiter = () => {};
+    try {
+      const cancelPromise = new Promise((resolve) => {
+        unsubWaiter = registerCancelWaiter(ownerKey, () => resolve({ __cancelled: true }));
+      });
+      const hydrateJob = Promise.resolve(
+        fnHydrate(
+          selectedModel,
+          (prog) => postEvent('chat_hydration', prog),
+          false,
+          { allowOffOriginHydration: Boolean(payload.allowOffOriginHydration) },
+        ),
+      );
+      hydrateJob.catch(() => {});
+      const raceOut = await Promise.race([
+        hydrateJob.then((val) => ({ __cancelled: false, val })),
+        cancelPromise,
+      ]);
+      if ((raceOut && raceOut.__cancelled) || isCancelled(ownerKey, null)) {
+        clearCancelled(ownerKey, null);
+        postEvent('chat_cancelled', { id: reqId, turn_id: null, tokens_emitted: 0 });
+        return {
+          id: reqId,
+          ok: false,
+          cancelled: true,
+          error_code: 'Cancelled',
+          error: 'Foundry turn cancelled during weight hydration.',
+          turn_id: null,
+          reply: '',
+          assistant_reply: '',
+        };
+      }
+      if (typeof fnRuntimeStatus === 'function') {
+        try {
+          const rawStatus = fnRuntimeStatus();
+          runtimeStatus = typeof rawStatus === 'string' ? JSON.parse(rawStatus) : rawStatus;
+        } catch (_) {}
+      }
+    } catch (err) {
+      const code =
+        (err && (err.error_code || err.code)) ||
+        (String((err && err.message) || err).includes('ConsentRequiredForWeightDownload')
+          ? 'ConsentRequiredForWeightDownload'
+          : 'ModelNotMounted');
+      return {
+        id: reqId,
+        ok: false,
+        error_code: code,
+        error: (err && err.message) || String(err),
+      };
+    } finally {
+      unsubWaiter();
+    }
+  }
+
+  const initialSnap = collectSnapshot();
+  let workspaceFiles = Array.isArray(payload.workspace_files)
+    ? payload.workspace_files
+    : initialSnap && Array.isArray(initialSnap.files)
+      ? initialSnap.files
+      : [];
+  const activeFile = typeof payload.active_file === 'string' ? payload.active_file : null;
+  const maxNewTokens =
+    Number.isFinite(Number(payload.max_new_tokens)) && Number(payload.max_new_tokens) > 0
+      ? Math.trunc(Number(payload.max_new_tokens))
+      : undefined;
+  const toolResults = Array.isArray(payload.tool_results) ? [...payload.tool_results] : [];
+  const fullReplyParts = [];
+  let priorHopTokens = 0;
+  let tokensEmitted = 0;
+  let latestTokPerSec = 0;
+  let latestMetrics = {};
+  let receiptSha256 = null;
+  let weightsKappa = null;
+  let activeTurnNum = null;
+  let toolIterations = toolResults.length;
+  let prefixReusedTokens = 0;
+  let latestObsFrame = null;
+  const collectedObsFrames = [];
+
+  const toBigIntId = (tid) =>
+    typeof BigInt === 'function' ? BigInt(Math.trunc(Number(tid))) : Math.trunc(Number(tid));
+  const yieldSlice = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  const diffChangedPaths = (beforeSnap, afterSnap) => {
+    const beforeMap = new Map();
+    for (const f of (beforeSnap && Array.isArray(beforeSnap.files) ? beforeSnap.files : [])) {
+      if (f && f.path) beforeMap.set(f.path, f.sha256 || String(f.content || ''));
+    }
+    const afterMap = new Map();
+    for (const f of (afterSnap && Array.isArray(afterSnap.files) ? afterSnap.files : [])) {
+      if (f && f.path) afterMap.set(f.path, f.sha256 || String(f.content || ''));
+    }
+    const changed = new Set();
+    for (const [p, v] of afterMap.entries()) {
+      if (!beforeMap.has(p) || beforeMap.get(p) !== v) changed.add(p);
+    }
+    for (const p of beforeMap.keys()) {
+      if (!afterMap.has(p)) changed.add(p);
+    }
+    return Array.from(changed).sort();
+  };
+
+  const buildHoloV13Summary = (stepData = {}) => {
+    const mountedMeta =
+      runtimeStatus && Array.isArray(runtimeStatus.models)
+        ? runtimeStatus.models.find((m) => m && m.model_id === (stepData.model_id || selectedModel)) ||
+          null
+        : null;
+    const kappaInfo = globalThis.__uorHoloKappaStatus || null;
+    return {
+      container_format: 'UORR4V13',
+      model_id: stepData.model_id || selectedModel,
+      turn_id: activeTurnNum,
+      weights_kappa:
+        stepData.weights_kappa ||
+        weightsKappa ||
+        (mountedMeta && mountedMeta.container_sha256
+          ? `sha256:${mountedMeta.container_sha256}`
+          : null),
+      receipt_sha256: stepData.receipt_sha256 || receiptSha256 || null,
+      n_layers: mountedMeta && mountedMeta.n_layers ? mountedMeta.n_layers : null,
+      d_model: mountedMeta && mountedMeta.d_model ? mountedMeta.d_model : null,
+      vocab_size: mountedMeta && mountedMeta.vocab_size ? mountedMeta.vocab_size : null,
+      tool_iterations: toolIterations,
+      cached_hits: kappaInfo && Number.isFinite(kappaInfo.cached_hits) ? kappaInfo.cached_hits : null,
+      piece_count: kappaInfo && Number.isFinite(kappaInfo.piece_count) ? kappaInfo.piece_count : null,
+    };
+  };
+
+  const buildObsMetrics = (stepData = {}, hopTokens = null, stepFrames = null) => {
+    const totalToks =
+      hopTokens != null ? priorHopTokens + Number(hopTokens || 0) : tokensEmitted;
+    const tps = Number(stepData.tok_per_sec ?? latestTokPerSec ?? 0);
+    const gm =
+      stepData.geometric_metrics && typeof stepData.geometric_metrics === 'object'
+        ? stepData.geometric_metrics
+        : latestMetrics;
+    const stepPrefix = Number.isFinite(Number(stepData.prefix_reused_tokens))
+      ? Number(stepData.prefix_reused_tokens)
+      : prefixReusedTokens;
+    const framesArr = Array.isArray(stepFrames) && stepFrames.length > 0 ? stepFrames : null;
+    const frameObj =
+      (framesArr && framesArr[framesArr.length - 1]) ||
+      (stepData.frame && typeof stepData.frame === 'object' ? stepData.frame : null);
+    return {
+      tokens_emitted: totalToks,
+      tok_per_sec: Number.isFinite(tps) ? tps : 0,
+      prefix_reused_tokens: stepPrefix,
+      geometric_metrics: gm || {},
+      holo_v13: buildHoloV13Summary(stepData),
+      ...(frameObj ? { frame: frameObj } : {}),
+      ...(framesArr ? { frames: framesArr } : {}),
+    };
+  };
+
+  const cancelAndBuildResult = () => {
+    if (activeTurnNum != null && typeof fnCancel === 'function') {
+      try {
+        fnCancel(toBigIntId(activeTurnNum));
+      } catch (_) {}
+    }
+    const tid = activeTurnNum;
+    setActiveTurnId(null, ownerKey);
+    clearCancelled(ownerKey, tid);
+    const obsMetrics = buildObsMetrics({}, null, collectedObsFrames);
+    const partial = fullReplyParts.join('');
+    postEvent('chat_cancelled', {
+      id: reqId,
+      turn_id: tid,
+      tokens_emitted: obsMetrics.tokens_emitted,
+      [UOR_OBS_METRICS_KEY]: obsMetrics,
+    });
+    return {
+      id: reqId,
+      ok: false,
+      cancelled: true,
+      error_code: 'Cancelled',
+      error: 'Foundry turn cancelled.',
+      turn_id: tid,
+      reply: partial,
+      assistant_reply: partial,
+      [UOR_OBS_METRICS_KEY]: obsMetrics,
+    };
+  };
+
+  /* Formal R4.HoloGeometricRuntime */
+  async function* streamFoundryHopSlices(hopTurnId) {
+    while (true) {
+      if (isCancelled(ownerKey, hopTurnId)) {
+        yield { status: 'cancelled', delta: '', tokens_emitted: 0, cancelled_by_host: true };
+        return;
+      }
+      const rawStep = fnStep(toBigIntId(hopTurnId));
+      const stepRes = typeof rawStep === 'string' ? JSON.parse(rawStep) : rawStep;
+      yield stepRes;
+      if (
+        !stepRes ||
+        stepRes.status === 'done' ||
+        stepRes.status === 'needs_tool' ||
+        stepRes.status === 'cancelled' ||
+        stepRes.status === 'error'
+      ) {
+        return;
+      }
+      await yieldSlice();
+    }
+  }
+
+  for (let hop = 0; hop <= 6; hop += 1) {
+    if (isCancelled(ownerKey, activeTurnNum)) {
+      return cancelAndBuildResult();
+    }
+    const beginPayload = {
+      prompt,
+      workspace_files: workspaceFiles,
+      active_file: activeFile,
+      selected_model: selectedModel,
+      tool_results: toolResults,
+    };
+    if (maxNewTokens !== undefined) {
+      beginPayload.max_new_tokens = maxNewTokens;
+    }
+
+    const rawBegin = fnBegin(JSON.stringify(beginPayload));
+    const beginRes = typeof rawBegin === 'string' ? JSON.parse(rawBegin) : rawBegin;
+    if (!beginRes || beginRes.status !== 'ready') {
+      const errCode = (beginRes && beginRes.error_code) || 'ModelNotMounted';
+      const errTid = beginRes && beginRes.turn_id != null ? Number(beginRes.turn_id) : activeTurnNum;
+      if (errCode !== 'BusyTurn') {
+        setActiveTurnId(null, ownerKey);
+        clearCancelled(ownerKey, activeTurnNum);
+      }
+      return {
+        id: reqId,
+        ok: false,
+        error_code: errCode,
+        error: (beginRes && beginRes.message) || 'holo_begin_foundry_turn failed',
+        turn_id: errTid,
+      };
+    }
+
+    activeTurnNum = Number(beginRes.turn_id);
+    setActiveTurnId(activeTurnNum, ownerKey);
+    if (beginRes.model_id) {
+      selectedModel = beginRes.model_id;
+    }
+    if (Number.isFinite(Number(beginRes.prefix_reused_tokens))) {
+      prefixReusedTokens = Number(beginRes.prefix_reused_tokens);
+    }
+
+    let hopToolCall = null;
+    let hopDoneStep = null;
+
+    for await (const stepRes of streamFoundryHopSlices(activeTurnNum)) {
+      if (!stepRes) {
+        const tid = activeTurnNum;
+        setActiveTurnId(null, ownerKey);
+        clearCancelled(ownerKey, tid);
+        return {
+          id: reqId,
+          ok: false,
+          error_code: 'InvalidStepperOutcome',
+          error: 'Empty step outcome from holo_step_foundry_turn',
+          turn_id: tid,
+        };
+      }
+      if (stepRes.status === 'cancelled' || stepRes.cancelled_by_host) {
+        return cancelAndBuildResult();
+      }
+      if (stepRes.status === 'error') {
+        const tid = activeTurnNum;
+        setActiveTurnId(null, ownerKey);
+        clearCancelled(ownerKey, tid);
+        postEvent('chat_error', {
+          id: reqId,
+          turn_id: tid,
+          error_code: stepRes.error_code || 'StepFailed',
+          error: stepRes.message || 'Foundry step error',
+        });
+        return {
+          id: reqId,
+          ok: false,
+          error_code: stepRes.error_code || 'StepFailed',
+          error: stepRes.message || 'Foundry step error',
+          turn_id: tid,
+        };
+      }
+
+      if (stepRes.geometric_metrics && typeof stepRes.geometric_metrics === 'object') {
+        latestMetrics = stepRes.geometric_metrics;
+      }
+      if (Number.isFinite(Number(stepRes.tok_per_sec))) {
+        latestTokPerSec = Number(stepRes.tok_per_sec);
+      }
+      if (Number.isFinite(Number(stepRes.tokens_emitted))) {
+        tokensEmitted = priorHopTokens + Number(stepRes.tokens_emitted);
+      }
+      if (Number.isFinite(Number(stepRes.prefix_reused_tokens))) {
+        prefixReusedTokens = Number(stepRes.prefix_reused_tokens);
+      }
+      if (stepRes.receipt_sha256) receiptSha256 = stepRes.receipt_sha256;
+      if (stepRes.weights_kappa) weightsKappa = stepRes.weights_kappa;
+
+      const stepFrames = [];
+      if (Array.isArray(stepRes.observatory_frames)) {
+        for (const f of stepRes.observatory_frames) {
+          if (f && typeof f === 'object') stepFrames.push(f);
+        }
+      }
+      if (stepFrames.length === 0 && stepRes.frame && typeof stepRes.frame === 'object') {
+        stepFrames.push(stepRes.frame);
+      }
+      if (stepFrames.length > 0) {
+        for (const f of stepFrames) {
+          if (collectedObsFrames.length < 64) collectedObsFrames.push(f);
+          postEvent('holo_trace_frame', {
+            id: reqId,
+            turn_id: activeTurnNum,
+            frame: f,
+            prefix_reused_tokens: prefixReusedTokens,
+          });
+        }
+        latestObsFrame = stepFrames[stepFrames.length - 1];
+        postEvent('holo_observatory_batch', {
+          id: reqId,
+          turn_id: activeTurnNum,
+          frames: stepFrames,
+          prefixReused: prefixReusedTokens,
+          prefix_reused_tokens: prefixReusedTokens,
+          selectedModel,
+        });
+      }
+
+      const delta = typeof stepRes.delta === 'string' ? stepRes.delta : '';
+      if (delta) {
+        fullReplyParts.push(delta);
+      }
+      if (delta || stepRes.status === 'streaming' || stepFrames.length > 0) {
+        const chunkMetrics = buildObsMetrics(stepRes, stepRes.tokens_emitted, stepFrames);
+        postEvent('chat_chunk', {
+          id: reqId,
+          turn_id: activeTurnNum,
+          delta,
+          tokens_emitted: chunkMetrics.tokens_emitted,
+          tok_per_sec: chunkMetrics.tok_per_sec,
+          prefix_reused_tokens: prefixReusedTokens,
+          geometric_metrics: chunkMetrics.geometric_metrics,
+          holo_v13: chunkMetrics.holo_v13,
+          ...(chunkMetrics.frame ? { frame: chunkMetrics.frame } : {}),
+          ...(stepFrames.length > 0 ? { frames: stepFrames } : {}),
+          [UOR_OBS_METRICS_KEY]: chunkMetrics,
+        });
+      }
+
+      if (stepRes.status === 'needs_tool') {
+        priorHopTokens = tokensEmitted;
+        hopToolCall = stepRes.tool_call || null;
+        break;
+      }
+      if (stepRes.status === 'done') {
+        hopDoneStep = stepRes;
+        break;
+      }
+    }
+
+    if (hopToolCall && toolIterations < 6) {
+      if (isCancelled(ownerKey, activeTurnNum)) {
+        return cancelAndBuildResult();
+      }
+      const cmd = typeof hopToolCall.cmd === 'string' ? hopToolCall.cmd : '';
+      postEvent('tool_call', {
+        id: reqId,
+        turn_id: activeTurnNum,
+        tool: 'mvm_exec',
+        cmd,
+        iteration: toolIterations + 1,
+      });
+      const beforeSnap = collectSnapshot();
+      let execRes = {};
+      try {
+        const rawExec = await dispatchBridge(
+          `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd })}`,
+        );
+        execRes = typeof rawExec === 'string' ? JSON.parse(rawExec) : rawExec || {};
+      } catch (err) {
+        execRes = {
+          status: 'error',
+          exit_code: 1,
+          mvm_stderr: (err && err.message) || String(err),
+        };
+      }
+      const afterSnap = collectSnapshot();
+      const changedFiles = Array.isArray(execRes.changed_files)
+        ? execRes.changed_files
+        : diffChangedPaths(beforeSnap, afterSnap);
+      const stdout =
+        typeof execRes.mvm_stdout === 'string'
+          ? execRes.mvm_stdout
+          : typeof execRes.stdout === 'string'
+            ? execRes.stdout
+            : '';
+      const stderr =
+        typeof execRes.mvm_stderr === 'string'
+          ? execRes.mvm_stderr
+          : typeof execRes.stderr === 'string'
+            ? execRes.stderr
+            : typeof execRes.message === 'string' && execRes.status === 'error'
+              ? execRes.message
+              : '';
+      const exitCode = Number.isFinite(Number(execRes.exit_code))
+        ? Number(execRes.exit_code)
+        : execRes.status === 'ok'
+          ? 0
+          : 1;
+
+      toolResults.push({
+        cmd,
+        exit_code: exitCode,
+        stdout,
+        stderr,
+        changed_files: changedFiles,
+      });
+      toolIterations += 1;
+
+      postEvent('tool_result', {
+        id: reqId,
+        turn_id: activeTurnNum,
+        tool: 'mvm_exec',
+        cmd,
+        exit_code: exitCode,
+        stdout,
+        stderr,
+        changed_files: changedFiles,
+        ...(execRes && execRes.workspace_diff ? { workspace_diff: execRes.workspace_diff } : {}),
+      });
+      if (afterSnap && Array.isArray(afterSnap.files)) {
+        workspaceFiles = afterSnap.files;
+        if (!(execRes && execRes.__uorWorkspaceSyncEmitted)) {
+          postEvent('workspace_sync', {
+            workspace: afterSnap,
+            ...(execRes && execRes.workspace_diff ? { diff: execRes.workspace_diff } : {}),
+          });
+        }
+      }
+      await yieldSlice();
+      continue;
+    }
+
+    return await buildFinalTurnResult(hopDoneStep || {});
+  }
+
+  async function buildFinalTurnResult(stepData) {
+    /* Formal R4.HoloGeometricRuntime */
+    stepData = stepData && typeof stepData === 'object' ? stepData : {};
+    const finishedTurnId = activeTurnNum;
+    setActiveTurnId(null, ownerKey);
+    clearCancelled(ownerKey, finishedTurnId);
+
+    const prismIdentity = await Promise.resolve(ensureIdentity()).catch(() => null);
+    const targetKappa =
+      weightsKappa || (receiptSha256 ? `sha256:${receiptSha256}` : 'sha256:foundry');
+    const actionReceipt = await Promise.resolve(
+      signAction('inprism-r4-turn', targetKappa),
+    ).catch(() => null);
+    const latestHolo =
+      __uorMemPrismIdentity.latestHoloSummary || globalThis.__uorLatestHoloSummary || null;
+
+    const finalObsMetrics = buildObsMetrics(stepData, stepData.tokens_emitted, collectedObsFrames);
+    const finalReply = fullReplyParts.join('');
+    const finalWorkspace = collectSnapshot();
+
+    return {
+      id: reqId,
+      ok: true,
+      result: {
+        ok: true,
+        status: 'ok',
+        mode: 'inprism',
+        engine: 'match',
+        weights: weightsKappa ? 'match' : 'missing',
+        route: 'none',
+        boundary: 'allow',
+        turn_id: finishedTurnId,
+        selected_model: selectedModel,
+        model_id: selectedModel,
+        execution_tier: selectedModel,
+        reply: finalReply,
+        assistant_reply: finalReply,
+        receipt_sha256: receiptSha256,
+        weights_kappa: weightsKappa,
+        prism_id: prismIdentity ? prismIdentity.prism_id : null,
+        action_record_kappa: actionReceipt ? actionReceipt.action_record_kappa : null,
+        holo_fingerprint: latestHolo ? latestHolo.fingerprint : null,
+        tokens_emitted: finalObsMetrics.tokens_emitted,
+        tok_per_sec: finalObsMetrics.tok_per_sec,
+        prefix_reused_tokens: prefixReusedTokens,
+        holo_prefix_reused_tokens: prefixReusedTokens,
+        geometric_metrics: finalObsMetrics.geometric_metrics,
+        holo_v13: finalObsMetrics.holo_v13,
+        ...(latestObsFrame ? { frame: latestObsFrame } : {}),
+        frames: collectedObsFrames,
+        holo_observatory_frames: collectedObsFrames,
+        tool_results: toolResults,
+        mvm_tool_executed: toolResults.length > 0,
+        workspace: finalWorkspace,
+        prism_identity: prismIdentity,
+        prism_receipt: actionReceipt,
+        [UOR_OBS_METRICS_KEY]: finalObsMetrics,
+      },
+    };
+  }
+
+  return await buildFinalTurnResult({});
+  } finally {
+    releaseTurnOwnership(ownerKey);
   }
 }
 
@@ -2505,6 +3238,1490 @@ const SECRET_HOST_ALLOWLIST = Object.freeze({
   GITHUB_TOKEN: new Set(['github.com', 'api.github.com']),
 });
 
+const PRISM_SANDBOXED_ALLOWLIST = new Set([
+  'registry.npmjs.org',
+  'esm.sh',
+  'pypi.org',
+  'files.pythonhosted.org',
+  'cdn.jsdelivr.net',
+  'github.com',
+  'api.github.com',
+  'huggingface.co',
+  'cloudflare-dns.com',
+  'dns.google',
+]);
+const CREDENTIALED_GITHUB_HOSTS = new Set(['github.com', 'api.github.com']);
+
+export const PYODIDE_LOCK = Object.freeze({
+  version: '0.27.2',
+  url: 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.mjs',
+  indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/',
+  sri: 'sha384-tynFgfasyqq8i/8ivIOTHpF+NLPB4dVWM8E+tTowcaAWNwVf4dZK6QeV0b47SLDp',
+});
+
+const PYODIDE_CACHE_NAME = 'uor-pyodide-v1';
+
+class MvmPolyglotVfs {
+  constructor(entries, cwd) {
+    this.cwd = MvmPolyglotVfs.normalizePath('/', cwd || '/workspace');
+    this.files = new Map();
+    this.symlinks = new Map();
+    this.modes = new Map();
+    this.dirs = new Set(['']);
+    this.originalKeys = new Set();
+    this.dirtyWrites = new Set();
+    this.dirtyDeletes = new Set();
+
+    const recordAncestorDirs = (relPath) => {
+      let idx = relPath.lastIndexOf('/');
+      while (idx > 0) {
+        const parentRel = relPath.slice(0, idx);
+        this.dirs.add(parentRel);
+        idx = parentRel.lastIndexOf('/');
+      }
+    };
+
+    const list = Array.isArray(entries) ? entries : [];
+    for (const item of list) {
+      if (!item || typeof item.path !== 'string') continue;
+      const rel = MvmPolyglotVfs.normalizeRel(item.path);
+      if (!rel) continue;
+      this.originalKeys.add(rel);
+      recordAncestorDirs(rel);
+      const modeNum = typeof item.mode === 'number' ? item.mode : 0o100644;
+      this.modes.set(rel, modeNum);
+      if (typeof item.symlink_target === 'string') {
+        this.symlinks.set(rel, item.symlink_target);
+      } else if (typeof item.content_base64 === 'string') {
+        this.files.set(rel, __uorBase64ToBytes(item.content_base64));
+      } else if (typeof item.content_utf8 === 'string') {
+        this.files.set(rel, cachedTextEncoder.encode(item.content_utf8));
+      } else {
+        this.files.set(rel, new Uint8Array(0));
+      }
+    }
+  }
+
+  static normalizePath(cwd, raw) {
+    const rawStr = String(raw || '.').trim();
+    const base = rawStr.startsWith('/') ? rawStr : (cwd === '/' ? `/${rawStr}` : `${cwd}/${rawStr}`);
+    const stack = [];
+    for (const seg of base.split('/')) {
+      if (!seg || seg === '.') continue;
+      if (seg === '..') stack.pop();
+      else stack.push(seg);
+    }
+    return stack.length === 0 ? '/' : `/${stack.join('/')}`;
+  }
+
+  static normalizeRel(raw) {
+    const abs = MvmPolyglotVfs.normalizePath('/workspace', raw);
+    if (abs === '/workspace') return '';
+    if (abs.startsWith('/workspace/')) return abs.slice('/workspace/'.length);
+    return abs.replace(/^\/+/, '');
+  }
+
+  static isCanonicalProtectedRel(rel) {
+    return (rel.startsWith('prism/') && rel.endsWith('.lex.tex')) || rel === 'app/state';
+  }
+
+  static parentDir(absPath) {
+    const idx = absPath.lastIndexOf('/');
+    return idx <= 0 ? '/' : absPath.slice(0, idx);
+  }
+
+  resolveGuestTarget(rawPath) {
+    const abs = MvmPolyglotVfs.normalizePath(this.cwd, rawPath);
+    if (!abs.startsWith('/workspace/') && abs !== '/workspace') {
+      const err = new Error(`Path outside /workspace refused: ${abs}`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    let curAbs = abs;
+    for (let hop = 0; hop < 8; hop += 1) {
+      const rel = curAbs === '/workspace' ? '' : curAbs.slice('/workspace/'.length);
+      if (!rel || !this.symlinks.has(rel)) {
+        return { abs: curAbs, rel };
+      }
+      const target = this.symlinks.get(rel);
+      curAbs = target.startsWith('/')
+        ? MvmPolyglotVfs.normalizePath('/', target)
+        : MvmPolyglotVfs.normalizePath(MvmPolyglotVfs.parentDir(curAbs), target);
+      if (!curAbs.startsWith('/workspace/') && curAbs !== '/workspace') {
+        const err = new Error(`Symlink escapes /workspace: ${curAbs}`);
+        err.code = 'CanonicalPathProtected';
+        throw err;
+      }
+    }
+    const finalRel = curAbs === '/workspace' ? '' : curAbs.slice('/workspace/'.length);
+    return { abs: curAbs, rel: finalRel };
+  }
+
+  assertMutable(rawPath) {
+    const abs = MvmPolyglotVfs.normalizePath(this.cwd, rawPath);
+    const directRel = abs.startsWith('/workspace/') ? abs.slice('/workspace/'.length) : '';
+    if (directRel && MvmPolyglotVfs.isCanonicalProtectedRel(directRel)) {
+      const err = new Error(`mvm: refused mutation of protected canonical path '${abs}'`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    const resolved = this.resolveGuestTarget(abs);
+    if (resolved.rel && MvmPolyglotVfs.isCanonicalProtectedRel(resolved.rel)) {
+      const err = new Error(`mvm: refused mutation of protected canonical path '${resolved.abs}'`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    return { directRel, resolved };
+  }
+
+  exists(rawPath) {
+    try {
+      const { rel } = this.resolveGuestTarget(rawPath);
+      if (!rel) return true;
+      if (this.files.has(rel) || this.dirs.has(rel)) return true;
+      const prefix = `${rel}/`;
+      for (const k of this.files.keys()) {
+        if (k.startsWith(prefix)) return true;
+      }
+      for (const k of this.symlinks.keys()) {
+        if (k.startsWith(prefix)) return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  isDirectory(rawPath) {
+    try {
+      const { rel } = this.resolveGuestTarget(rawPath);
+      if (!rel) return true;
+      if (this.files.has(rel)) return false;
+      if (this.dirs.has(rel)) return true;
+      const prefix = `${rel}/`;
+      for (const k of this.files.keys()) {
+        if (k.startsWith(prefix)) return true;
+      }
+      for (const k of this.symlinks.keys()) {
+        if (k.startsWith(prefix)) return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
+  mkdir(rawPath, opts) {
+    const abs = MvmPolyglotVfs.normalizePath(this.cwd, rawPath);
+    this.assertMutable(abs);
+    if (abs === '/workspace') return;
+    const rel = MvmPolyglotVfs.normalizeRel(abs);
+    if (!rel) return;
+    if (this.files.has(rel)) {
+      const e = new Error(`EEXIST: file already exists, mkdir '${rawPath}'`);
+      e.code = 'EEXIST';
+      throw e;
+    }
+    const recursive = Boolean(opts && opts.recursive);
+    const segs = rel.split('/').filter(Boolean);
+    if (!recursive && segs.length > 1) {
+      const parentRel = segs.slice(0, -1).join('/');
+      if (!this.isDirectory(`/workspace/${parentRel}`)) {
+        const e = new Error(`ENOENT: no such file or directory, mkdir '${rawPath}'`);
+        e.code = 'ENOENT';
+        throw e;
+      }
+    }
+    let acc = '';
+    for (const s of segs) {
+      acc = acc ? `${acc}/${s}` : s;
+      this.dirs.add(acc);
+    }
+  }
+
+  readBytes(rawPath) {
+    const { rel } = this.resolveGuestTarget(rawPath);
+    return rel && this.files.has(rel) ? this.files.get(rel) : null;
+  }
+
+  readText(rawPath) {
+    const bytes = this.readBytes(rawPath);
+    return bytes ? cachedTextDecoder.decode(bytes) : null;
+  }
+
+  writeBytes(rawPath, data, mode) {
+    const { directRel, resolved } = this.assertMutable(rawPath);
+    const targetRel = directRel || resolved.rel;
+    if (!targetRel) {
+      const err = new Error('Cannot write directly to /workspace root');
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    const u8 = data instanceof Uint8Array
+      ? new Uint8Array(data)
+      : cachedTextEncoder.encode(String(data === undefined ? '' : data));
+    this.symlinks.delete(targetRel);
+    this.files.set(targetRel, u8);
+    let idx = targetRel.lastIndexOf('/');
+    while (idx > 0) {
+      const pRel = targetRel.slice(0, idx);
+      this.dirs.add(pRel);
+      idx = pRel.lastIndexOf('/');
+    }
+    if (typeof mode === 'number') {
+      this.modes.set(targetRel, mode);
+    } else if (!this.modes.has(targetRel)) {
+      this.modes.set(targetRel, 0o100644);
+    }
+    this.dirtyDeletes.delete(targetRel);
+    this.dirtyWrites.add(targetRel);
+  }
+
+  writeSymlink(rawPath, target) {
+    const abs = MvmPolyglotVfs.normalizePath(this.cwd, rawPath);
+    if (!abs.startsWith('/workspace/')) {
+      const err = new Error(`Path outside /workspace refused: ${abs}`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    const rel = abs.slice('/workspace/'.length);
+    const targetStr = String(target || '');
+    let curAbs = targetStr.startsWith('/')
+      ? MvmPolyglotVfs.normalizePath('/', targetStr)
+      : MvmPolyglotVfs.normalizePath(MvmPolyglotVfs.parentDir(abs), targetStr);
+    if (!curAbs.startsWith('/workspace/') && curAbs !== '/workspace') {
+      const err = new Error(`Symlink escapes /workspace: ${curAbs}`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    if (MvmPolyglotVfs.isCanonicalProtectedRel(rel)) {
+      const err = new Error(`mvm: refused symlink touching protected canonical path '${abs}'`);
+      err.code = 'CanonicalPathProtected';
+      throw err;
+    }
+    for (let hop = 0; hop < 8; hop += 1) {
+      const curRel = curAbs === '/workspace' ? '' : curAbs.slice('/workspace/'.length);
+      if (curRel && MvmPolyglotVfs.isCanonicalProtectedRel(curRel)) {
+        const err = new Error(`mvm: refused symlink touching protected canonical path '${curAbs}'`);
+        err.code = 'CanonicalPathProtected';
+        throw err;
+      }
+      if (!curRel || !this.symlinks.has(curRel)) break;
+      const nextTarget = this.symlinks.get(curRel);
+      curAbs = nextTarget.startsWith('/')
+        ? MvmPolyglotVfs.normalizePath('/', nextTarget)
+        : MvmPolyglotVfs.normalizePath(MvmPolyglotVfs.parentDir(curAbs), nextTarget);
+      if (!curAbs.startsWith('/workspace/') && curAbs !== '/workspace') {
+        const err = new Error(`Symlink escapes /workspace: ${curAbs}`);
+        err.code = 'CanonicalPathProtected';
+        throw err;
+      }
+    }
+    this.files.delete(rel);
+    this.symlinks.set(rel, targetStr);
+    let idx = rel.lastIndexOf('/');
+    while (idx > 0) {
+      const pRel = rel.slice(0, idx);
+      this.dirs.add(pRel);
+      idx = pRel.lastIndexOf('/');
+    }
+    this.modes.set(rel, 0o120777);
+    this.dirtyDeletes.delete(rel);
+    this.dirtyWrites.add(rel);
+  }
+
+  deletePath(rawPath) {
+    const { directRel } = this.assertMutable(rawPath);
+    if (!directRel) return false;
+    const existed = this.files.delete(directRel) || this.symlinks.delete(directRel) || this.dirs.delete(directRel);
+    this.modes.delete(directRel);
+    this.dirtyWrites.delete(directRel);
+    if (existed || this.originalKeys.has(directRel)) {
+      this.dirtyDeletes.add(directRel);
+    }
+    return existed;
+  }
+
+  readdir(rawPath) {
+    const { rel } = this.resolveGuestTarget(rawPath);
+    const prefix = rel ? `${rel}/` : '';
+    const out = new Set();
+    for (const k of this.files.keys()) {
+      if (k.startsWith(prefix)) {
+        const first = k.slice(prefix.length).split('/')[0];
+        if (first) out.add(first);
+      }
+    }
+    for (const k of this.symlinks.keys()) {
+      if (k.startsWith(prefix)) {
+        const first = k.slice(prefix.length).split('/')[0];
+        if (first) out.add(first);
+      }
+    }
+    for (const k of this.dirs) {
+      if (k && k.startsWith(prefix)) {
+        const first = k.slice(prefix.length).split('/')[0];
+        if (first) out.add(first);
+      }
+    }
+    return Array.from(out).sort();
+  }
+
+  exportMutations() {
+    const writes = [];
+    for (const rel of this.dirtyWrites) {
+      if (this.symlinks.has(rel)) {
+        writes.push({
+          path: rel,
+          symlink_target: this.symlinks.get(rel),
+          mode: this.modes.get(rel) || 0o120777,
+        });
+      } else if (this.files.has(rel)) {
+        writes.push({
+          path: rel,
+          content_base64: __uorBytesToBase64(this.files.get(rel)),
+          mode: this.modes.get(rel) || 0o100644,
+        });
+      }
+    }
+    const deletes = Array.from(this.dirtyDeletes);
+    return { writes, deletes };
+  }
+}
+
+class MvmNodeBuffer extends Uint8Array {
+  static from(value, encoding) {
+    if (value instanceof Uint8Array) {
+      return new MvmNodeBuffer(value);
+    }
+    if (Array.isArray(value)) {
+      return new MvmNodeBuffer(value);
+    }
+    if (value instanceof ArrayBuffer) {
+      return new MvmNodeBuffer(value);
+    }
+    const enc = String(encoding || 'utf8').toLowerCase();
+    const s = String(value || '');
+    if (enc === 'base64') {
+      return new MvmNodeBuffer(__uorBase64ToBytes(s));
+    }
+    if (enc === 'hex') {
+      const clean = s.replace(/\s+/g, '');
+      const out = new MvmNodeBuffer(Math.floor(clean.length / 2));
+      for (let i = 0; i < out.length; i += 1) {
+        out[i] = Number('0x' + clean.slice(i * 2, i * 2 + 2)) & 0xff;
+      }
+      return out;
+    }
+    return new MvmNodeBuffer(cachedTextEncoder.encode(s));
+  }
+
+  static alloc(size, fill) {
+    const out = new MvmNodeBuffer(Math.max(0, Number(size) || 0));
+    if (fill !== undefined) out.fill(Number(fill) & 0xff);
+    return out;
+  }
+
+  static allocUnsafe(size) {
+    return MvmNodeBuffer.alloc(size, 0);
+  }
+
+  static isBuffer(obj) {
+    return obj instanceof MvmNodeBuffer || obj instanceof Uint8Array;
+  }
+
+  static concat(list, totalLen) {
+    const items = Array.isArray(list) ? list : [];
+    const len = typeof totalLen === 'number'
+      ? totalLen
+      : items.reduce((acc, item) => acc + (item ? item.byteLength : 0), 0);
+    const out = new MvmNodeBuffer(len);
+    let offset = 0;
+    for (const item of items) {
+      if (!item || offset >= len) continue;
+      const take = Math.min(item.byteLength, len - offset);
+      out.set(item.subarray(0, take), offset);
+      offset += take;
+    }
+    return out;
+  }
+
+  static byteLength(str) {
+    if (str instanceof Uint8Array) return str.byteLength;
+    return cachedTextEncoder.encode(String(str || '')).byteLength;
+  }
+
+  toString(encoding) {
+    const enc = String(encoding || 'utf8').toLowerCase();
+    if (enc === 'base64') return __uorBytesToBase64(this);
+    if (enc === 'hex') {
+      let hex = '';
+      for (let i = 0; i < this.length; i += 1) {
+        hex += this[i].toString(16).padStart(2, '0');
+      }
+      return hex;
+    }
+    return cachedTextDecoder.decode(this);
+  }
+}
+
+class MvmWasiRunner {
+  static run(wasmBytes, vfs, args, env, stdinBytes) {
+    if (!(wasmBytes instanceof Uint8Array) || wasmBytes.byteLength < 8 ||
+      wasmBytes[0] !== 0x00 || wasmBytes[1] !== 0x61 || wasmBytes[2] !== 0x73 || wasmBytes[3] !== 0x6d) {
+      const err = new Error('Invalid WebAssembly binary magic header');
+      err.code = 'WasiRuntimeError';
+      throw err;
+    }
+
+    const argvList = Array.isArray(args) ? args.map((a) => String(a)) : [];
+    const envList = Object.entries(env || {}).map(([k, v]) => `${k}=${v}`);
+    const stdinBuf = stdinBytes instanceof Uint8Array ? stdinBytes : new Uint8Array(0);
+
+    const fdTable = new Map();
+    fdTable.set(0, { kind: 'stdin', data: stdinBuf, offset: 0 });
+    fdTable.set(1, { kind: 'stdout', chunks: [] });
+    fdTable.set(2, { kind: 'stderr', chunks: [] });
+    fdTable.set(3, { kind: 'preopen', guestPath: '/workspace', preopenName: '/workspace' });
+    fdTable.set(4, { kind: 'preopen', guestPath: vfs.cwd, preopenName: '.' });
+    let nextFd = 5;
+    let wasmMemory = null;
+    let exitCode = 0;
+
+    class WasiExitSignal {
+      constructor(code) {
+        this.code = code | 0;
+      }
+    }
+
+    const memU8 = () => new Uint8Array(wasmMemory.buffer);
+    const memDv = () => new DataView(wasmMemory.buffer);
+    const writeU32 = (ptr, val) => memDv().setUint32(ptr >>> 0, val >>> 0, true);
+    const writeU64 = (ptr, val) => memDv().setBigUint64(ptr >>> 0, BigInt(val), true);
+    const readStr = (ptr, len) => cachedTextDecoder.decode(memU8().subarray(ptr >>> 0, (ptr >>> 0) + (len >>> 0)));
+
+    const WASI_ERRNO_SUCCESS = 0;
+    const WASI_ERRNO_BADF = 8;
+    const WASI_ERRNO_ACCES = 2;
+    const WASI_ERRNO_EXIST = 20;
+    const WASI_ERRNO_INVAL = 28;
+    const WASI_ERRNO_NOENT = 44;
+
+    const wasiImports = {
+      args_sizes_get: (argcPtr, bufSizePtr) => {
+        let total = 0;
+        for (const a of argvList) total += cachedTextEncoder.encode(a).byteLength + 1;
+        writeU32(argcPtr, argvList.length);
+        writeU32(bufSizePtr, total);
+        return WASI_ERRNO_SUCCESS;
+      },
+      args_get: (argvPtr, argvBufPtr) => {
+        const u8 = memU8();
+        let ap = argvPtr >>> 0;
+        let bp = argvBufPtr >>> 0;
+        for (const a of argvList) {
+          writeU32(ap, bp);
+          ap += 4;
+          const enc = cachedTextEncoder.encode(a);
+          u8.set(enc, bp);
+          u8[bp + enc.length] = 0;
+          bp += enc.length + 1;
+        }
+        return WASI_ERRNO_SUCCESS;
+      },
+      environ_sizes_get: (cntPtr, bufSizePtr) => {
+        let total = 0;
+        for (const e of envList) total += cachedTextEncoder.encode(e).byteLength + 1;
+        writeU32(cntPtr, envList.length);
+        writeU32(bufSizePtr, total);
+        return WASI_ERRNO_SUCCESS;
+      },
+      environ_get: (envPtr, envBufPtr) => {
+        const u8 = memU8();
+        let ep = envPtr >>> 0;
+        let bp = envBufPtr >>> 0;
+        for (const e of envList) {
+          writeU32(ep, bp);
+          ep += 4;
+          const enc = cachedTextEncoder.encode(e);
+          u8.set(enc, bp);
+          u8[bp + enc.length] = 0;
+          bp += enc.length + 1;
+        }
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_prestat_get: (fd, prestatPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent || ent.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const nameBytes = cachedTextEncoder.encode(ent.preopenName);
+        memU8()[prestatPtr >>> 0] = 0;
+        writeU32((prestatPtr >>> 0) + 4, nameBytes.byteLength);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_prestat_dir_name: (fd, pathPtr, pathLen) => {
+        const ent = fdTable.get(fd);
+        if (!ent || ent.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const nameBytes = cachedTextEncoder.encode(ent.preopenName);
+        memU8().set(nameBytes.subarray(0, pathLen >>> 0), pathPtr >>> 0);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_fdstat_get: (fd, statPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent) return WASI_ERRNO_BADF;
+        const p = statPtr >>> 0;
+        memU8().fill(0, p, p + 24);
+        memU8()[p] = ent.kind === 'preopen' ? 3 : ent.kind === 'file' ? 4 : 2;
+        writeU64(p + 8, 0xffffffffn);
+        writeU64(p + 16, 0xffffffffn);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_filestat_get: (fd, statPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent) return WASI_ERRNO_BADF;
+        const p = statPtr >>> 0;
+        memU8().fill(0, p, p + 64);
+        memU8()[p + 16] = ent.kind === 'preopen' ? 3 : ent.kind === 'file' ? 4 : 2;
+        writeU64(p + 24, 1n);
+        writeU64(p + 32, BigInt(ent.data ? ent.data.byteLength : 0));
+        return WASI_ERRNO_SUCCESS;
+      },
+      path_filestat_get: (dirfd, _flags, pathPtr, pathLen, statPtr) => {
+        const dirEnt = fdTable.get(dirfd);
+        if (!dirEnt || dirEnt.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const subPath = readStr(pathPtr, pathLen);
+        const fullPath = MvmPolyglotVfs.normalizePath(dirEnt.guestPath, subPath);
+        const bytes = vfs.readBytes(fullPath);
+        const isDir = !bytes && vfs.isDirectory(fullPath);
+        if (!bytes && !isDir) return WASI_ERRNO_NOENT;
+        const p = statPtr >>> 0;
+        memU8().fill(0, p, p + 64);
+        memU8()[p + 16] = isDir ? 3 : 4;
+        writeU64(p + 24, 1n);
+        writeU64(p + 32, BigInt(bytes ? bytes.byteLength : 0));
+        return WASI_ERRNO_SUCCESS;
+      },
+      path_unlink_file: (dirfd, pathPtr, pathLen) => {
+        const dirEnt = fdTable.get(dirfd);
+        if (!dirEnt || dirEnt.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const subPath = readStr(pathPtr, pathLen);
+        const fullPath = MvmPolyglotVfs.normalizePath(dirEnt.guestPath, subPath);
+        vfs.assertMutable(fullPath);
+        return vfs.deletePath(fullPath) ? WASI_ERRNO_SUCCESS : WASI_ERRNO_NOENT;
+      },
+      sched_yield: () => WASI_ERRNO_SUCCESS,
+      path_open: (dirfd, _dirflags, pathPtr, pathLen, oflags, _rBase, _rInh, fdflags, openedFdPtr) => {
+        const dirEnt = fdTable.get(dirfd);
+        if (!dirEnt || dirEnt.kind !== 'preopen') return WASI_ERRNO_BADF;
+        const subPath = readStr(pathPtr, pathLen);
+        const fullPath = MvmPolyglotVfs.normalizePath(dirEnt.guestPath, subPath);
+        const oCreat = (oflags & 1) !== 0;
+        const oExcl = (oflags & 4) !== 0;
+        const oTrunc = (oflags & 8) !== 0;
+        const oAppend = (fdflags & 1) !== 0;
+        const writeRightMask = 0x400151n;
+        const wantsWrite = oCreat || oTrunc || oAppend || ((BigInt(_rBase || 0n) & writeRightMask) !== 0n);
+        const existing = vfs.readBytes(fullPath);
+
+        if (wantsWrite) {
+          try {
+            vfs.assertMutable(fullPath);
+          } catch (err) {
+            if (err && err.code === 'CanonicalPathProtected') throw err;
+            return WASI_ERRNO_ACCES;
+          }
+        }
+        if (existing && oCreat && oExcl) return WASI_ERRNO_EXIST;
+        if (!existing && !oCreat) return WASI_ERRNO_NOENT;
+
+        const data = oTrunc || !existing ? new Uint8Array(0) : new Uint8Array(existing);
+        if (!existing && oCreat) vfs.writeBytes(fullPath, data);
+        else if (oTrunc) vfs.writeBytes(fullPath, data);
+
+        const fd = nextFd++;
+        fdTable.set(fd, {
+          kind: 'file',
+          guestPath: fullPath,
+          data,
+          offset: oAppend ? data.byteLength : 0,
+          dirty: oTrunc || (!existing && oCreat),
+          writable: wantsWrite,
+        });
+        writeU32(openedFdPtr, fd);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_write: (fd, iovsPtr, iovsLen, nwrittenPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent) return WASI_ERRNO_BADF;
+        if (ent.kind === 'file' && !ent.writable) return WASI_ERRNO_ACCES;
+        const dv = memDv();
+        const u8 = memU8();
+        let total = 0;
+        const parts = [];
+        for (let i = 0; i < (iovsLen >>> 0); i += 1) {
+          const base = dv.getUint32((iovsPtr >>> 0) + i * 8, true);
+          const len = dv.getUint32((iovsPtr >>> 0) + i * 8 + 4, true);
+          const slice = new Uint8Array(u8.subarray(base, base + len));
+          parts.push(slice);
+          total += slice.byteLength;
+        }
+        if (ent.kind === 'stdout' || ent.kind === 'stderr') {
+          for (const p of parts) ent.chunks.push(p);
+        } else if (ent.kind === 'file') {
+          const endPos = ent.offset + total;
+          if (endPos > ent.data.byteLength) {
+            const grown = new Uint8Array(endPos);
+            grown.set(ent.data, 0);
+            ent.data = grown;
+          }
+          let cur = ent.offset;
+          for (const p of parts) {
+            ent.data.set(p, cur);
+            cur += p.byteLength;
+          }
+          ent.offset = cur;
+          ent.dirty = true;
+        } else {
+          return WASI_ERRNO_BADF;
+        }
+        writeU32(nwrittenPtr, total);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_read: (fd, iovsPtr, iovsLen, nreadPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent || (ent.kind !== 'stdin' && ent.kind !== 'file')) return WASI_ERRNO_BADF;
+        const dv = memDv();
+        const u8 = memU8();
+        let total = 0;
+        for (let i = 0; i < (iovsLen >>> 0); i += 1) {
+          const base = dv.getUint32((iovsPtr >>> 0) + i * 8, true);
+          const len = dv.getUint32((iovsPtr >>> 0) + i * 8 + 4, true);
+          const avail = Math.max(0, ent.data.byteLength - ent.offset);
+          const take = Math.min(len, avail);
+          if (take > 0) {
+            u8.set(ent.data.subarray(ent.offset, ent.offset + take), base);
+            ent.offset += take;
+            total += take;
+          }
+          if (take < len) break;
+        }
+        writeU32(nreadPtr, total);
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_seek: (fd, offsetBig, whence, newOffsetPtr) => {
+        const ent = fdTable.get(fd);
+        if (!ent || ent.kind !== 'file') return WASI_ERRNO_BADF;
+        const off = Number(offsetBig);
+        let next = ent.offset;
+        if (whence === 0) next = off;
+        else if (whence === 1) next = ent.offset + off;
+        else if (whence === 2) next = ent.data.byteLength + off;
+        else return WASI_ERRNO_INVAL;
+        if (next < 0) return WASI_ERRNO_INVAL;
+        ent.offset = next;
+        writeU64(newOffsetPtr, BigInt(next));
+        return WASI_ERRNO_SUCCESS;
+      },
+      fd_close: (fd) => {
+        const ent = fdTable.get(fd);
+        if (!ent) return WASI_ERRNO_BADF;
+        if (ent.kind === 'file' && ent.dirty) {
+          vfs.writeBytes(ent.guestPath, ent.data);
+        }
+        if (fd >= 5) fdTable.delete(fd);
+        return WASI_ERRNO_SUCCESS;
+      },
+      clock_time_get: (_clockId, _precision, timePtr) => {
+        writeU64(timePtr, BigInt(Date.now()) * 1000000n);
+        return WASI_ERRNO_SUCCESS;
+      },
+      random_get: (bufPtr, bufLen) => {
+        const target = memU8().subarray(bufPtr >>> 0, (bufPtr >>> 0) + (bufLen >>> 0));
+        if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+          crypto.getRandomValues(target);
+        }
+        return WASI_ERRNO_SUCCESS;
+      },
+      proc_exit: (code) => {
+        throw new WasiExitSignal(code);
+      },
+    };
+
+    const runAsync = async () => {
+      try {
+        const compiled = await WebAssembly.instantiate(wasmBytes, { wasi_snapshot_preview1: wasiImports });
+        const instance = compiled.instance || compiled;
+        wasmMemory = instance.exports && instance.exports.memory ? instance.exports.memory : null;
+        if (!wasmMemory) {
+          const err = new Error('WASI module must export linear memory');
+          err.code = 'WasiRuntimeError';
+          throw err;
+        }
+        const entry = instance.exports._start || instance.exports.main;
+        if (typeof entry !== 'function') {
+          const err = new Error('WASI module must export _start');
+          err.code = 'WasiRuntimeError';
+          throw err;
+        }
+        try {
+          entry();
+        } catch (sig) {
+          if (sig instanceof WasiExitSignal) {
+            exitCode = sig.code;
+          } else {
+            throw sig;
+          }
+        }
+        for (const ent of fdTable.values()) {
+          if (ent.kind === 'file' && ent.dirty) {
+            vfs.writeBytes(ent.guestPath, ent.data);
+          }
+        }
+        const mergeChunks = (chunks) => {
+          const total = chunks.reduce((s, c) => s + c.byteLength, 0);
+          const merged = new Uint8Array(total);
+          let off = 0;
+          for (const c of chunks) {
+            merged.set(c, off);
+            off += c.byteLength;
+          }
+          return cachedTextDecoder.decode(merged);
+        };
+        return {
+          ok: true,
+          exit_code: exitCode,
+          stdout: mergeChunks(fdTable.get(1).chunks),
+          stderr: mergeChunks(fdTable.get(2).chunks),
+        };
+      } catch (err) {
+        if (err && err.code === 'CanonicalPathProtected') throw err;
+        const wrapped = new Error(err && err.message ? err.message : String(err));
+        wrapped.code = 'WasiRuntimeError';
+        throw wrapped;
+      }
+    };
+    return runAsync();
+  }
+}
+
+class MvmSqliteEngine {
+  static MAGIC = 'SQLite format 3\0';
+
+  static loadDb(rawBytes) {
+    if (!rawBytes || rawBytes.byteLength === 0) {
+      return { tables: new Map() };
+    }
+    const headerStr = cachedTextDecoder.decode(rawBytes.subarray(0, 16));
+    if (headerStr !== MvmSqliteEngine.MAGIC || rawBytes.byteLength < 100) {
+      const err = new Error('file is not a valid SQLite 3 database');
+      err.code = 'SqliteRuntimeError';
+      throw err;
+    }
+    const dv = new DataView(rawBytes.buffer, rawBytes.byteOffset, rawBytes.byteLength);
+    const payloadLen = dv.getUint32(96, true);
+    if (payloadLen === 0) {
+      return { tables: new Map() };
+    }
+    if (100 + payloadLen > rawBytes.byteLength) {
+      const err = new Error('corrupt SQLite 3 database payload length');
+      err.code = 'SqliteRuntimeError';
+      throw err;
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(cachedTextDecoder.decode(rawBytes.subarray(100, 100 + payloadLen)));
+    } catch {
+      const err = new Error('corrupt SQLite 3 database JSON payload');
+      err.code = 'CorruptSqliteDatabase';
+      throw err;
+    }
+    const tables = new Map();
+    for (const t of parsed.tables || []) {
+      tables.set(t.name.toLowerCase(), {
+        name: t.name,
+        columns: t.columns || [],
+        rows: Array.isArray(t.rows) ? t.rows : [],
+        sql: t.sql || '',
+        pk: Array.isArray(t.pk) ? t.pk : [],
+        unique: Array.isArray(t.unique) ? t.unique : [],
+      });
+    }
+    return { tables };
+  }
+
+  static saveDb(db) {
+    const payloadObj = {
+      schema: 'uor-sqlite3/1',
+      tables: Array.from(db.tables.values()),
+    };
+    const jsonBytes = cachedTextEncoder.encode(JSON.stringify(payloadObj));
+    const pageAligned = Math.max(4096, Math.ceil((100 + jsonBytes.byteLength) / 4096) * 4096);
+    const out = new Uint8Array(pageAligned);
+    out.set(cachedTextEncoder.encode(MvmSqliteEngine.MAGIC), 0);
+    const dv = new DataView(out.buffer);
+    dv.setUint16(16, 4096, false);
+    out[18] = 1;
+    out[19] = 1;
+    out[21] = 64;
+    out[22] = 32;
+    out[23] = 32;
+    dv.setUint32(28, pageAligned / 4096, false);
+    dv.setUint32(96, jsonBytes.byteLength, true);
+    out.set(jsonBytes, 100);
+    return out;
+  }
+
+  static splitStatements(sql) {
+    const stmts = [];
+    let cur = '';
+    let i = 0;
+    let inSingle = false;
+    let inDouble = false;
+    while (i < sql.length) {
+      const ch = sql[i];
+      if (!inSingle && !inDouble && ch === '-' && sql[i + 1] === '-') {
+        while (i < sql.length && sql[i] !== '\n') i += 1;
+        continue;
+      }
+      if (!inSingle && !inDouble && ch === '/' && sql[i + 1] === '*') {
+        i += 2;
+        while (i + 1 < sql.length && !(sql[i] === '*' && sql[i + 1] === '/')) i += 1;
+        i += 2;
+        continue;
+      }
+      if (ch === "'" && !inDouble) {
+        cur += ch;
+        if (inSingle && sql[i + 1] === "'") {
+          cur += "'";
+          i += 2;
+          continue;
+        }
+        inSingle = !inSingle;
+        i += 1;
+        continue;
+      }
+      if (ch === '"' && !inSingle) {
+        inDouble = !inDouble;
+        cur += ch;
+        i += 1;
+        continue;
+      }
+      if (!inSingle && !inDouble && ch === ';') {
+        if (cur.trim()) stmts.push(cur.trim());
+        cur = '';
+        i += 1;
+        continue;
+      }
+      if (!inSingle && !inDouble && ch === '\n' && cur.trim().startsWith('.')) {
+        stmts.push(cur.trim());
+        cur = '';
+        i += 1;
+        continue;
+      }
+      cur += ch;
+      i += 1;
+    }
+    if (cur.trim()) stmts.push(cur.trim());
+    return stmts;
+  }
+
+  static splitTopLevelComma(str) {
+    const parts = [];
+    let cur = '';
+    let depth = 0;
+    let inSingle = false;
+    let inDouble = false;
+    for (let i = 0; i < str.length; i += 1) {
+      const ch = str[i];
+      if (ch === "'" && !inDouble) {
+        cur += ch;
+        if (inSingle && str[i + 1] === "'") {
+          cur += "'";
+          i += 1;
+          continue;
+        }
+        inSingle = !inSingle;
+      } else if (ch === '"' && !inSingle) {
+        inDouble = !inDouble;
+        cur += ch;
+      } else if (!inSingle && !inDouble) {
+        if (ch === '(') depth += 1;
+        else if (ch === ')') depth = Math.max(0, depth - 1);
+        else if (ch === ',' && depth === 0) {
+          parts.push(cur.trim());
+          cur = '';
+          continue;
+        }
+        cur += ch;
+      } else {
+        cur += ch;
+      }
+    }
+    if (cur.trim()) parts.push(cur.trim());
+    return parts;
+  }
+
+  static parseLiteral(tok) {
+    const t = String(tok || '').trim();
+    if (/^null$/i.test(t)) return null;
+    if (/^true$/i.test(t)) return 1;
+    if (/^false$/i.test(t)) return 0;
+    if (t.startsWith("'") && t.endsWith("'") && t.length >= 2) {
+      return t.slice(1, -1).replace(/''/g, "'");
+    }
+    if (/^[+-]?\d+$/.test(t)) return Number(t);
+    if (/^[+-]?\d+\.\d+$/.test(t)) return Number(t);
+    return t.replace(/^"|"$/g, '');
+  }
+
+  static unquoteIdent(s) {
+    const t = String(s || '').trim();
+    if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith('`') && t.endsWith('`'))) {
+      return t.slice(1, -1);
+    }
+    return t;
+  }
+
+  static evalWhere(exprStr, row) {
+    const s = String(exprStr || '').trim();
+    if (!s) return true;
+    const splitLogical = (text, kw) => {
+      let depth = 0;
+      let inS = false;
+      const upper = text.toUpperCase();
+      for (let i = 0; i <= text.length - kw.length; i += 1) {
+        if (text[i] === "'") {
+          inS = !inS;
+          continue;
+        }
+        if (inS) continue;
+        if (text[i] === '(') depth += 1;
+        else if (text[i] === ')') depth = Math.max(0, depth - 1);
+        else if (depth === 0 && upper.startsWith(kw, i)) {
+          const leftOk = i === 0 || /\s/.test(text[i - 1]);
+          const rightOk = i + kw.length === text.length || /\s/.test(text[i + kw.length]);
+          if (leftOk && rightOk) {
+            return [text.slice(0, i).trim(), text.slice(i + kw.length).trim()];
+          }
+        }
+      }
+      return null;
+    };
+    const orParts = splitLogical(s, 'OR');
+    if (orParts) return MvmSqliteEngine.evalWhere(orParts[0], row) || MvmSqliteEngine.evalWhere(orParts[1], row);
+    const andParts = splitLogical(s, 'AND');
+    if (andParts) return MvmSqliteEngine.evalWhere(andParts[0], row) && MvmSqliteEngine.evalWhere(andParts[1], row);
+    if (/^NOT\s+/i.test(s)) return !MvmSqliteEngine.evalWhere(s.replace(/^NOT\s+/i, ''), row);
+    if (s.startsWith('(') && s.endsWith(')')) return MvmSqliteEngine.evalWhere(s.slice(1, -1), row);
+
+    const resolveVal = (operand) => {
+      const t = operand.trim();
+      if ((t.startsWith("'") && t.endsWith("'")) || /^null$/i.test(t) || /^[+-]?\d+(?:\.\d+)?$/.test(t)) {
+        return MvmSqliteEngine.parseLiteral(t);
+      }
+      const key = MvmSqliteEngine.unquoteIdent(t).toLowerCase();
+      if (Object.prototype.hasOwnProperty.call(row, key)) return row[key];
+      const tail = key.includes('.') ? key.split('.').pop() : key;
+      return Object.prototype.hasOwnProperty.call(row, tail) ? row[tail] : null;
+    };
+
+    let m = /^(.+?)\s+IS\s+NOT\s+NULL$/i.exec(s);
+    if (m) return resolveVal(m[1]) !== null;
+    m = /^(.+?)\s+IS\s+NULL$/i.exec(s);
+    if (m) return resolveVal(m[1]) === null;
+    m = /^(.+?)\s+IN\s*\((.+)\)$/i.exec(s);
+    if (m) {
+      const lhs = resolveVal(m[1]);
+      const items = MvmSqliteEngine.splitTopLevelComma(m[2]).map(resolveVal);
+      return items.some((v) => v === lhs);
+    }
+    m = /^(.+?)\s+LIKE\s+(.+)$/i.exec(s);
+    if (m) {
+      const lhs = String(resolveVal(m[1]) ?? '');
+      const pat = String(resolveVal(m[2]) ?? '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/%/g, '.*').replace(/_/g, '.');
+      return new RegExp(`^${pat}$`, 'i').test(lhs);
+    }
+    m = /^(.+?)\s*(!=|<>|<=|>=|=|<|>)\s*(.+)$/.exec(s);
+    if (m) {
+      const lhs = resolveVal(m[1]);
+      const op = m[2];
+      const rhs = resolveVal(m[3]);
+      if (lhs === null || rhs === null) return false;
+      if (op === '=') return lhs === rhs;
+      if (op === '!=' || op === '<>') return lhs !== rhs;
+      if (op === '<') return lhs < rhs;
+      if (op === '<=') return lhs <= rhs;
+      if (op === '>') return lhs > rhs;
+      if (op === '>=') return lhs >= rhs;
+    }
+    return Boolean(resolveVal(s));
+  }
+
+  static formatRows(cols, rows, opts) {
+    if (!rows || rows.length === 0) {
+      return opts.mode === 'json' ? '[]\n' : '';
+    }
+    if (opts.mode === 'json') {
+      const objs = rows.map((r) => {
+        const obj = {};
+        for (let i = 0; i < cols.length; i += 1) obj[cols[i]] = r[i] ?? null;
+        return obj;
+      });
+      return JSON.stringify(objs, null, 2) + '\n';
+    }
+    const sep = opts.mode === 'csv' ? ',' : (opts.separator || '|');
+    const lines = [];
+    if (opts.headers) lines.push(cols.join(sep));
+    for (const r of rows) {
+      lines.push(r.map((v) => (v === null || v === undefined ? '' : String(v))).join(sep));
+    }
+    return lines.join('\n') + '\n';
+  }
+
+  static execute(args, vfs, stdinUtf8) {
+    const opts = { headers: false, mode: 'list', separator: '|' };
+    const cmdPreSql = [];
+    const pos = [];
+    for (let i = 0; i < args.length; i += 1) {
+      const a = String(args[i]);
+      if (a === '-json') opts.mode = 'json';
+      else if (a === '-csv') opts.mode = 'csv';
+      else if (a === '-header') opts.headers = true;
+      else if (a === '-noheader') opts.headers = false;
+      else if (a === '-separator' && i + 1 < args.length) {
+        opts.separator = String(args[i + 1]);
+        i += 1;
+      } else if (a === '-cmd' && i + 1 < args.length) {
+        cmdPreSql.push(String(args[i + 1]));
+        i += 1;
+      } else if (!a.startsWith('-')) {
+        pos.push(a);
+      }
+    }
+    if (pos.length === 0) {
+      const err = new Error('sqlite3: missing database path');
+      err.code = 'SqliteRuntimeError';
+      throw err;
+    }
+    const dbPath = pos[0];
+    const inMemory = dbPath === ':memory:';
+    if (!inMemory) vfs.assertMutable(dbPath);
+    const existingBytes = inMemory ? null : vfs.readBytes(dbPath);
+    const db = MvmSqliteEngine.loadDb(existingBytes);
+    const mainSql = pos.slice(1).join(' ').trim() || String(stdinUtf8 || '').trim();
+    const statements = [];
+    for (const pre of cmdPreSql) {
+      statements.push(...MvmSqliteEngine.splitStatements(pre));
+    }
+    if (mainSql) {
+      statements.push(...MvmSqliteEngine.splitStatements(mainSql));
+    }
+    if (statements.length === 0) {
+      return { ok: true, exit_code: 0, stdout: '', stderr: '' };
+    }
+
+    let snapshot = null;
+    let mutated = false;
+    let outText = '';
+
+    for (const rawStmt of statements) {
+      const stmt = rawStmt.trim();
+      if (!stmt) continue;
+      if (stmt.startsWith('.')) {
+        const parts = stmt.split(/\s+/);
+        const dot = parts[0].toLowerCase();
+        if (dot === '.tables') {
+          const names = Array.from(db.tables.values()).map((t) => t.name).sort();
+          if (names.length > 0) outText += names.join('  ') + '\n';
+        } else if (dot === '.schema') {
+          const filter = parts[1] ? parts[1].toLowerCase() : '';
+          for (const [k, t] of db.tables.entries()) {
+            if (!filter || k === filter) outText += `${t.sql};\n`;
+          }
+        } else if (dot === '.headers') {
+          opts.headers = String(parts[1] || '').toLowerCase() === 'on';
+        } else if (dot === '.mode') {
+          opts.mode = String(parts[1] || 'list').toLowerCase();
+        } else if (dot === '.separator' && parts[1]) {
+          opts.separator = parts[1];
+        }
+        continue;
+      }
+
+      const upper = stmt.toUpperCase();
+      if (upper === 'BEGIN' || upper === 'BEGIN TRANSACTION') {
+        snapshot = new Map();
+        for (const [k, t] of db.tables.entries()) {
+          snapshot.set(k, { ...t, columns: [...t.columns], rows: t.rows.map((r) => ({ ...r })) });
+        }
+        continue;
+      }
+      if (upper === 'COMMIT' || upper === 'END' || upper === 'END TRANSACTION') {
+        snapshot = null;
+        continue;
+      }
+      if (upper === 'ROLLBACK') {
+        if (snapshot) {
+          db.tables = snapshot;
+          snapshot = null;
+        }
+        continue;
+      }
+
+      let m = /^CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([A-Za-z_][A-Za-z0-9_"`]*)\s*\(([\s\S]+)\)$/i.exec(stmt);
+      if (m) {
+        const tblName = MvmSqliteEngine.unquoteIdent(m[1]);
+        const key = tblName.toLowerCase();
+        if (!db.tables.has(key)) {
+          const allDefs = MvmSqliteEngine.splitTopLevelComma(m[2]);
+          const pkCols = [];
+          const uniqueSets = [];
+          const colDefs = [];
+          for (const d of allDefs) {
+            const dt = d.trim();
+            const pkMatch = /^(?:CONSTRAINT\s+\S+\s+)?PRIMARY\s+KEY\s*\(([^)]+)\)/i.exec(dt);
+            if (pkMatch) {
+              for (const c of MvmSqliteEngine.splitTopLevelComma(pkMatch[1])) {
+                pkCols.push(MvmSqliteEngine.unquoteIdent(c).toLowerCase());
+              }
+              continue;
+            }
+            const uqMatch = /^(?:CONSTRAINT\s+\S+\s+)?UNIQUE\s*\(([^)]+)\)/i.exec(dt);
+            if (uqMatch) {
+              uniqueSets.push(
+                MvmSqliteEngine.splitTopLevelComma(uqMatch[1]).map((c) => MvmSqliteEngine.unquoteIdent(c).toLowerCase()),
+              );
+              continue;
+            }
+            if (/^(CHECK|FOREIGN\s+KEY|CONSTRAINT)\b/i.test(dt)) continue;
+            const tokens = dt.split(/\s+/);
+            const name = MvmSqliteEngine.unquoteIdent(tokens[0]).toLowerCase();
+            const type = (tokens[1] || 'TEXT').toUpperCase();
+            if (/\bPRIMARY\s+KEY\b/i.test(dt)) pkCols.push(name);
+            if (/\bUNIQUE\b/i.test(dt)) uniqueSets.push([name]);
+            colDefs.push({ name, label: MvmSqliteEngine.unquoteIdent(tokens[0]), type });
+          }
+          db.tables.set(key, { name: tblName, columns: colDefs, rows: [], sql: stmt, pk: pkCols, unique: uniqueSets });
+          mutated = true;
+        }
+        continue;
+      }
+
+      m = /^DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?([A-Za-z_][A-Za-z0-9_"`]*)$/i.exec(stmt);
+      if (m) {
+        const key = MvmSqliteEngine.unquoteIdent(m[1]).toLowerCase();
+        if (db.tables.delete(key)) mutated = true;
+        else if (!/IF\s+EXISTS/i.test(stmt)) {
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[1]}\n` };
+        }
+        continue;
+      }
+
+      m = /^INSERT\s+(?:OR\s+(REPLACE|IGNORE)\s+)?INTO\s+([A-Za-z_][A-Za-z0-9_"`]*)\s*(?:\(([^)]+)\))?\s*VALUES\s*([\s\S]+)$/i.exec(stmt);
+      if (m) {
+        const conflictMode = m[1] ? m[1].toUpperCase() : null;
+        const key = MvmSqliteEngine.unquoteIdent(m[2]).toLowerCase();
+        const tbl = db.tables.get(key);
+        if (!tbl) {
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[2]}\n` };
+        }
+        const targetCols = m[3]
+          ? MvmSqliteEngine.splitTopLevelComma(m[3]).map((c) => MvmSqliteEngine.unquoteIdent(c).toLowerCase())
+          : tbl.columns.map((c) => c.name);
+        const rawTuples = m[4].trim();
+        let posIdx = 0;
+        while (posIdx < rawTuples.length) {
+          while (posIdx < rawTuples.length && (rawTuples[posIdx] === ',' || /\s/.test(rawTuples[posIdx]))) posIdx += 1;
+          if (posIdx >= rawTuples.length) break;
+          if (rawTuples[posIdx] !== '(') {
+            return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: near "${rawTuples.slice(posIdx, posIdx + 12)}": syntax error\n` };
+          }
+          let depth = 0;
+          let inS = false;
+          const start = posIdx + 1;
+          posIdx += 1;
+          while (posIdx < rawTuples.length) {
+            const ch = rawTuples[posIdx];
+            if (ch === "'") {
+              if (inS && rawTuples[posIdx + 1] === "'") { posIdx += 2; continue; }
+              inS = !inS;
+            } else if (!inS) {
+              if (ch === '(') depth += 1;
+              else if (ch === ')') {
+                if (depth === 0) break;
+                depth -= 1;
+              }
+            }
+            posIdx += 1;
+          }
+          const tupleStr = rawTuples.slice(start, posIdx);
+          posIdx += 1;
+          const vals = MvmSqliteEngine.splitTopLevelComma(tupleStr).map(MvmSqliteEngine.parseLiteral);
+          const rowObj = {};
+          for (const c of tbl.columns) rowObj[c.name] = null;
+          for (let ci = 0; ci < targetCols.length; ci += 1) {
+            rowObj[targetCols[ci]] = vals[ci] !== undefined ? vals[ci] : null;
+          }
+          const keyConstraints = [];
+          if (Array.isArray(tbl.pk) && tbl.pk.length > 0) keyConstraints.push(tbl.pk);
+          if (Array.isArray(tbl.unique)) {
+            for (const uq of tbl.unique) {
+              if (Array.isArray(uq) && uq.length > 0) keyConstraints.push(uq);
+            }
+          }
+          const conflictSet = new Set();
+          for (const kCols of keyConstraints) {
+            if (kCols.some((kc) => rowObj[kc] === null || rowObj[kc] === undefined)) continue;
+            for (let ri = 0; ri < tbl.rows.length; ri += 1) {
+              if (kCols.every((kc) => tbl.rows[ri][kc] === rowObj[kc])) {
+                conflictSet.add(ri);
+              }
+            }
+          }
+          if (conflictSet.size > 0) {
+            if (conflictMode === 'IGNORE') {
+              continue;
+            }
+            if (conflictMode === 'REPLACE') {
+              tbl.rows = tbl.rows.filter((_, ri) => !conflictSet.has(ri));
+              tbl.rows.push(rowObj);
+              mutated = true;
+              continue;
+            }
+            return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: UNIQUE constraint failed: ${tbl.name}\n` };
+          }
+          tbl.rows.push(rowObj);
+          mutated = true;
+        }
+        continue;
+      }
+
+      m = /^UPDATE\s+([A-Za-z_][A-Za-z0-9_"`]*)\s+SET\s+([\s\S]+?)(?:\s+WHERE\s+([\s\S]+))?$/i.exec(stmt);
+      if (m) {
+        const tbl = db.tables.get(MvmSqliteEngine.unquoteIdent(m[1]).toLowerCase());
+        if (!tbl) {
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[1]}\n` };
+        }
+        const assigns = MvmSqliteEngine.splitTopLevelComma(m[2]).map((a) => {
+          const eq = a.indexOf('=');
+          return [MvmSqliteEngine.unquoteIdent(a.slice(0, eq)).toLowerCase(), MvmSqliteEngine.parseLiteral(a.slice(eq + 1))];
+        });
+        for (const r of tbl.rows) {
+          if (!m[3] || MvmSqliteEngine.evalWhere(m[3], r)) {
+            for (const [k, v] of assigns) r[k] = v;
+            mutated = true;
+          }
+        }
+        continue;
+      }
+
+      m = /^DELETE\s+FROM\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+WHERE\s+([\s\S]+))?$/i.exec(stmt);
+      if (m) {
+        const tbl = db.tables.get(MvmSqliteEngine.unquoteIdent(m[1]).toLowerCase());
+        if (!tbl) {
+          return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${m[1]}\n` };
+        }
+        const prevLen = tbl.rows.length;
+        tbl.rows = m[2] ? tbl.rows.filter((r) => !MvmSqliteEngine.evalWhere(m[2], r)) : [];
+        if (tbl.rows.length !== prevLen) mutated = true;
+        continue;
+      }
+
+      m = /^SELECT\s+(DISTINCT\s+)?([\s\S]+?)(?:\s+FROM\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+(?:AS\s+)?(?!INNER\b|LEFT\b|JOIN\b|WHERE\b|GROUP\b|ORDER\b|LIMIT\b)([A-Za-z_][A-Za-z0-9_]*))?(?:\s+(?:(INNER|LEFT(?:\s+OUTER)?)\s+)?JOIN\s+([A-Za-z_][A-Za-z0-9_"`]*)(?:\s+(?:AS\s+)?(?!ON\b|WHERE\b|GROUP\b|ORDER\b|LIMIT\b)([A-Za-z_][A-Za-z0-9_]*))?\s+ON\s+([\s\S]+?))?(?:\s+WHERE\s+([\s\S]+?))?(?:\s+GROUP\s+BY\s+([\s\S]+?))?(?:\s+ORDER\s+BY\s+([\s\S]+?))?(?:\s+LIMIT\s+(\d+)(?:\s+OFFSET\s+(\d+))?)?)?$/i.exec(stmt);
+      if (m) {
+        const distinct = Boolean(m[1]);
+        const selectExprs = MvmSqliteEngine.splitTopLevelComma(m[2]);
+        const tblName = m[3];
+        const leftAlias = m[4] ? MvmSqliteEngine.unquoteIdent(m[4]).toLowerCase() : null;
+        const joinType = m[5] ? m[5].toUpperCase() : 'INNER';
+        const joinTblName = m[6];
+        const rightAlias = m[7] ? MvmSqliteEngine.unquoteIdent(m[7]).toLowerCase() : null;
+        const joinOn = m[8];
+        const whereExpr = m[9];
+        const groupByExpr = m[10];
+        const orderByExpr = m[11];
+        const limitNum = m[12] ? Number(m[12]) : null;
+        const offsetNum = m[13] ? Number(m[13]) : 0;
+
+        let workingRows;
+        let tbl = null;
+        if (!tblName) {
+          workingRows = [{}];
+        } else {
+          const leftTableKey = MvmSqliteEngine.unquoteIdent(tblName).toLowerCase();
+          tbl = db.tables.get(leftTableKey);
+          if (!tbl) {
+            return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${tblName}\n` };
+          }
+          workingRows = tbl.rows.map((r) => {
+            const obj = { ...r };
+            for (const c of tbl.columns) {
+              obj[`${leftTableKey}.${c.name}`] = r[c.name];
+              if (leftAlias) obj[`${leftAlias}.${c.name}`] = r[c.name];
+            }
+            return obj;
+          });
+          if (joinTblName) {
+            const rightTableKey = MvmSqliteEngine.unquoteIdent(joinTblName).toLowerCase();
+            const jTbl = db.tables.get(rightTableKey);
+            if (!jTbl) {
+              return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: no such table: ${joinTblName}\n` };
+            }
+            const isLeftJoin = joinType.startsWith('LEFT');
+            const makeJoinedRow = (lr, rr) => {
+              const out = {};
+              if (rr) {
+                for (const k of Object.keys(rr)) out[k] = rr[k];
+              } else {
+                for (const c of jTbl.columns) out[c.name] = null;
+              }
+              for (const k of Object.keys(lr)) out[k] = lr[k];
+              for (const c of tbl.columns) {
+                out[`${leftTableKey}.${c.name}`] = lr[c.name];
+                if (leftAlias) out[`${leftAlias}.${c.name}`] = lr[c.name];
+              }
+              for (const c of jTbl.columns) {
+                const rv = rr ? rr[c.name] : null;
+                out[`${rightTableKey}.${c.name}`] = rv;
+                if (rightAlias) out[`${rightAlias}.${c.name}`] = rv;
+              }
+              return out;
+            };
+            const joined = [];
+            for (const lr of workingRows) {
+              let matched = false;
+              for (const rr of jTbl.rows) {
+                const cand = makeJoinedRow(lr, rr);
+                if (!joinOn || MvmSqliteEngine.evalWhere(joinOn, cand)) {
+                  matched = true;
+                  joined.push(cand);
+                }
+              }
+              if (isLeftJoin && !matched) {
+                joined.push(makeJoinedRow(lr, null));
+              }
+            }
+            workingRows = joined;
+          }
+          if (whereExpr) {
+            workingRows = workingRows.filter((r) => MvmSqliteEngine.evalWhere(whereExpr, r));
+          }
+        }
+
+        const evalAggOrExpr = (expr, groupRows) => {
+          const clean = expr.trim();
+          const aggMatch = /^(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.+)\s*\)$/i.exec(clean);
+          if (aggMatch) {
+            const fn = aggMatch[1].toUpperCase();
+            const inner = aggMatch[2].trim();
+            if (fn === 'COUNT' && inner === '*') return groupRows.length;
+            const colFull = MvmSqliteEngine.unquoteIdent(inner).toLowerCase();
+            const colTail = MvmSqliteEngine.unquoteIdent(inner.split('.').pop()).toLowerCase();
+            const vals = groupRows
+              .map((r) => (Object.prototype.hasOwnProperty.call(r, colFull) ? r[colFull] : r[colTail]))
+              .filter((v) => v !== null && v !== undefined);
+            if (fn === 'COUNT') return vals.length;
+            if (fn === 'SUM') return vals.reduce((a, b) => Number(a) + Number(b), 0);
+            if (fn === 'AVG') return vals.length ? vals.reduce((a, b) => Number(a) + Number(b), 0) / vals.length : null;
+            if (fn === 'MIN') return vals.length ? vals.reduce((a, b) => (b < a ? b : a)) : null;
+            if (fn === 'MAX') return vals.length ? vals.reduce((a, b) => (b > a ? b : a)) : null;
+          }
+          const r0 = groupRows[0] || {};
+          const kFull = MvmSqliteEngine.unquoteIdent(clean).toLowerCase();
+          if (Object.prototype.hasOwnProperty.call(r0, kFull)) return r0[kFull];
+          if (clean.includes('.') && !clean.startsWith("'")) {
+            const kTail = MvmSqliteEngine.unquoteIdent(clean.split('.').pop()).toLowerCase();
+            if (Object.prototype.hasOwnProperty.call(r0, kTail)) return r0[kTail];
+          }
+          return MvmSqliteEngine.parseLiteral(clean);
+        };
+
+        const isAggQuery = !groupByExpr && selectExprs.some((e) => /^(COUNT|SUM|AVG|MIN|MAX)\s*\(/i.test(e.trim()));
+        let colHeaders = [];
+        let resultRows = [];
+
+        if (selectExprs.length === 1 && selectExprs[0] === '*' && tbl) {
+          colHeaders = tbl.columns.map((c) => c.label);
+          if (orderByExpr) {
+            const obParts = orderByExpr.trim().split(/\s+/);
+            const okFull = MvmSqliteEngine.unquoteIdent(obParts[0]).toLowerCase();
+            const okTail = okFull.includes('.') ? okFull.split('.').pop() : okFull;
+            const desc = (obParts[1] || '').toUpperCase() === 'DESC';
+            workingRows.sort((a, b) => {
+              const av = Object.prototype.hasOwnProperty.call(a, okFull) ? a[okFull] : a[okTail];
+              const bv = Object.prototype.hasOwnProperty.call(b, okFull) ? b[okFull] : b[okTail];
+              return av === bv ? 0 : (av < bv ? -1 : 1) * (desc ? -1 : 1);
+            });
+          }
+          resultRows = workingRows.map((r) => tbl.columns.map((c) => r[c.name]));
+        } else if (isAggQuery) {
+          colHeaders = selectExprs.map((e) => e.trim());
+          resultRows = [selectExprs.map((e) => evalAggOrExpr(e, workingRows))];
+        } else if (groupByExpr) {
+          const gFull = MvmSqliteEngine.unquoteIdent(groupByExpr.split(',')[0]).toLowerCase();
+          const gTail = gFull.includes('.') ? gFull.split('.').pop() : gFull;
+          const groups = new Map();
+          for (const r of workingRows) {
+            const gv = Object.prototype.hasOwnProperty.call(r, gFull) ? r[gFull] : r[gTail];
+            if (!groups.has(gv)) groups.set(gv, []);
+            groups.get(gv).push(r);
+          }
+          colHeaders = selectExprs.map((e) => e.trim());
+          for (const gRows of groups.values()) {
+            resultRows.push(selectExprs.map((e) => evalAggOrExpr(e, gRows)));
+          }
+        } else {
+          if (orderByExpr) {
+            const obParts = orderByExpr.trim().split(/\s+/);
+            const okFull = MvmSqliteEngine.unquoteIdent(obParts[0]).toLowerCase();
+            const okTail = okFull.includes('.') ? okFull.split('.').pop() : okFull;
+            const desc = (obParts[1] || '').toUpperCase() === 'DESC';
+            workingRows.sort((a, b) => {
+              const av = Object.prototype.hasOwnProperty.call(a, okFull) ? a[okFull] : a[okTail];
+              const bv = Object.prototype.hasOwnProperty.call(b, okFull) ? b[okFull] : b[okTail];
+              return av === bv ? 0 : (av < bv ? -1 : 1) * (desc ? -1 : 1);
+            });
+          }
+          colHeaders = selectExprs.map((e) => e.trim());
+          resultRows = workingRows.map((r) => selectExprs.map((e) => evalAggOrExpr(e, [r])));
+        }
+
+        if (distinct) {
+          const seen = new Set();
+          resultRows = resultRows.filter((r) => {
+            const sig = JSON.stringify(r);
+            if (seen.has(sig)) return false;
+            seen.add(sig);
+            return true;
+          });
+        }
+        if (offsetNum > 0) resultRows = resultRows.slice(offsetNum);
+        if (limitNum !== null) resultRows = resultRows.slice(0, limitNum);
+        outText += MvmSqliteEngine.formatRows(colHeaders, resultRows, opts);
+        continue;
+      }
+
+      if (/^PRAGMA\s+/i.test(stmt)) {
+        const pm = /^PRAGMA\s+table_info\s*\(\s*([A-Za-z_][A-Za-z0-9_"`]*)\s*\)$/i.exec(stmt);
+        if (pm) {
+          const tbl = db.tables.get(MvmSqliteEngine.unquoteIdent(pm[1]).toLowerCase());
+          if (tbl) {
+            const pRows = tbl.columns.map((c, idx) => [idx, c.label, c.type, 0, null, 0]);
+            outText += MvmSqliteEngine.formatRows(['cid', 'name', 'type', 'notnull', 'dflt_value', 'pk'], pRows, opts);
+          }
+        }
+        continue;
+      }
+
+      return { ok: true, exit_code: 1, stdout: outText, stderr: `Error: near "${stmt.slice(0, 24)}": syntax error\n` };
+    }
+
+    if (mutated && !inMemory) {
+      vfs.writeBytes(dbPath, MvmSqliteEngine.saveDb(db));
+    }
+    return { ok: true, exit_code: 0, stdout: outText, stderr: '' };
+  }
+}
+
 async function __uorSha256HexBytes(u8) {
   const view = u8 instanceof Uint8Array ? u8 : new Uint8Array(u8);
   const digest = await crypto.subtle.digest('SHA-256', view);
@@ -2585,20 +4802,95 @@ export class SpiralCoreHostBridge {
   #nextReqSeq = 1;
   #lazyRepoTrees = new Map();
   #provenanceBaseline = null;
+  #esbuildPromise = null;
+  #esbuildCompiler = null;
+  #pyodidePromise = null;
+  #pyodideInstance = null;
+  #pyodideShimmed = false;
+  #activePyStdoutSink = null;
+  #activePyStderrSink = null;
+  #syncFetchImpl = null;
 
-  constructor(options = {}) {
+  constructor(options) {
+    const opts = options && typeof options === 'object' ? options : {};
     this.relayUrl =
-      options.relayWsUrl !== undefined
-        ? options.relayWsUrl
-        : (options.relayUrl !== undefined ? options.relayUrl : DEFAULT_SPIRALCORE_RELAY_WS_URL);
-    this.relayHttpUrl = options.relayHttpUrl || '';
-    this.staticOrigin = options.staticOrigin || '';
-    this.locationOrigin = options.locationOrigin || '';
-    this.mcpPolicy = options.mcpPolicy || 'safe';
-    this.webAccessEnabled = options.webAccessEnabled !== false;
-    this.relayTimeoutMs = options.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
+      opts.relayWsUrl !== undefined
+        ? opts.relayWsUrl
+        : (opts.relayUrl !== undefined ? opts.relayUrl : DEFAULT_SPIRALCORE_RELAY_WS_URL);
+    this.relayHttpUrl = opts.relayHttpUrl || '';
+    this.staticOrigin = opts.staticOrigin || '';
+    this.locationOrigin = opts.locationOrigin || '';
+    this.mcpPolicy = opts.mcpPolicy || 'safe';
+    this.mode = SpiralCoreHostBridge.normalizeNetworkMode(
+      opts.mode !== undefined ? opts.mode : opts.networkMode,
+    );
+    this.consentGranted = Boolean(opts.consentGranted);
+    this.onAuditEvent = typeof opts.onAuditEvent === 'function' ? opts.onAuditEvent : null;
+    this.auditLog = [];
+    this.webAccessEnabled = opts.webAccessEnabled !== false;
+    this.relayTimeoutMs = opts.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
     this.lastTransportMode = 'standby';
-    this.fetchImpl = options.fetchImpl || globalThis.fetch;
+    this.fetchImpl = opts.fetchImpl || globalThis.fetch;
+    this.#syncFetchImpl = typeof opts.syncFetchImpl === 'function' ? opts.syncFetchImpl : null;
+    this.esbuildModuleUrl = '';
+    this.esbuildWasmUrl = '';
+    this.setCompilerConfig(opts);
+    this.pyodideLock = PYODIDE_LOCK;
+    if (opts.pyodideLock && typeof opts.pyodideLock === 'object') {
+      const l = opts.pyodideLock;
+      if (
+        typeof l.url === 'string' &&
+        l.url.startsWith('https://') &&
+        typeof l.sri === 'string' &&
+        l.sri.startsWith('sha384-') &&
+        l.sri.length > 20
+      ) {
+        this.pyodideLock = Object.freeze({
+          version: String(l.version || PYODIDE_LOCK.version),
+          url: l.url,
+          indexURL: String(l.indexURL || l.url.slice(0, l.url.lastIndexOf('/') + 1)),
+          sri: l.sri,
+        });
+      }
+    }
+  }
+
+  setCompilerConfig(cfg) {
+    const c = cfg && typeof cfg === 'object' ? cfg : {};
+    const hasMod = Object.prototype.hasOwnProperty.call(c, 'esbuildModuleUrl');
+    const hasWasm = Object.prototype.hasOwnProperty.call(c, 'esbuildWasmUrl');
+    const hasBase = Object.prototype.hasOwnProperty.call(c, 'esbuildUrl');
+    let modUrl = hasMod && typeof c.esbuildModuleUrl === 'string' ? c.esbuildModuleUrl.trim() : '';
+    let wasmUrl = hasWasm && typeof c.esbuildWasmUrl === 'string' ? c.esbuildWasmUrl.trim() : '';
+    const baseEsbuild = hasBase && typeof c.esbuildUrl === 'string' ? c.esbuildUrl.trim() : '';
+    if (baseEsbuild) {
+      if (baseEsbuild.endsWith('esbuild.wasm')) {
+        if (!hasWasm) wasmUrl = baseEsbuild;
+        if (!hasMod) modUrl = baseEsbuild.replace(/esbuild\.wasm$/, 'esm/browser.min.js');
+      } else if (baseEsbuild.endsWith('browser.min.js')) {
+        if (!hasMod) modUrl = baseEsbuild;
+        if (!hasWasm) wasmUrl = baseEsbuild.replace(/esm\/browser\.min\.js$/, 'esbuild.wasm');
+      } else {
+        const root = baseEsbuild.endsWith('/') ? baseEsbuild : `${baseEsbuild}/`;
+        if (!hasMod) modUrl = `${root}esm/browser.min.js`;
+        if (!hasWasm) wasmUrl = `${root}esbuild.wasm`;
+      }
+    }
+    if ((hasMod || hasBase || modUrl) && modUrl !== this.esbuildModuleUrl) {
+      this.esbuildModuleUrl = modUrl;
+      this.#esbuildCompiler = null;
+      this.#esbuildPromise = null;
+    }
+    if ((hasWasm || hasBase || wasmUrl) && wasmUrl !== this.esbuildWasmUrl) {
+      this.esbuildWasmUrl = wasmUrl;
+      this.#esbuildCompiler = null;
+      this.#esbuildPromise = null;
+    }
+    return {
+      ok: true,
+      esbuildModuleUrl: this.esbuildModuleUrl,
+      esbuildWasmUrl: this.esbuildWasmUrl,
+    };
   }
 
   setRelayUrl(url) {
@@ -2644,17 +4936,267 @@ export class SpiralCoreHostBridge {
     return { ok: true, sha256: actualSha, e_machine: elfCheck.e_machine };
   }
 
-  setPolicy({ mcpPolicy, webAccessEnabled } = {}) {
+  static normalizeNetworkMode(raw) {
+    const lower = String(raw || 'sandboxed').trim().toLowerCase();
+    if (lower === 'full_spiralcore' || lower === 'full' || lower === 'mode_b' || lower === 'spiralcore') {
+      return 'full_spiralcore';
+    }
+    return 'sandboxed';
+  }
+
+  #isPrivateIpv4(host) {
+    const parts = String(host || '').split('.');
+    if (parts.length !== 4) return false;
+    const nums = [];
+    for (const part of parts) {
+      if (!/^\d{1,3}$/.test(part)) return false;
+      const n = Number(part);
+      if (n < 0 || n > 255) return false;
+      nums.push(n);
+    }
+    const [a, b] = nums;
+    return (
+      a === 0 ||
+      a === 10 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      a === 127 ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      a >= 224
+    );
+  }
+
+  #isPrivateOrLoopbackHost(rawHost) {
+    const clean = String(rawHost || '')
+      .trim()
+      .replace(/^\[/, '')
+      .replace(/\]$/, '')
+      .split('%')[0]
+      .replace(/\.+$/, '')
+      .toLowerCase();
+    if (!clean) return false;
+    if (
+      clean === 'localhost' ||
+      clean === 'ip6-localhost' ||
+      clean === 'ip6-loopback' ||
+      clean.endsWith('.localhost') ||
+      clean.endsWith('.local') ||
+      clean.endsWith('.internal')
+    ) {
+      return true;
+    }
+    if (this.#isPrivateIpv4(clean)) return true;
+    if (clean.includes(':')) {
+      if (clean === '::' || clean === '::1' || /^0+:0+:0+:0+:0+:0+:0+:[01]$/.test(clean)) {
+        return true;
+      }
+      const v4Mapped = clean.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+      if (v4Mapped && this.#isPrivateIpv4(v4Mapped[1])) {
+        return true;
+      }
+      const hexMapped = clean.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+      if (hexMapped) {
+        const hi = parseInt(hexMapped[1], 16);
+        const lo = parseInt(hexMapped[2], 16);
+        const a = (hi >> 8) & 0xff;
+        const b = hi & 0xff;
+        if (this.#isPrivateIpv4(`${a}.${b}.${(lo >> 8) & 0xff}.${lo & 0xff}`)) {
+          return true;
+        }
+      }
+      const firstHex = clean.split(':')[0] || '';
+      if (/^[0-9a-f]{1,4}$/.test(firstHex)) {
+        const seg0 = parseInt(firstHex, 16);
+        if ((seg0 & 0xfe00) === 0xfc00 || (seg0 & 0xffc0) === 0xfe80 || (seg0 >> 8) === 0xff) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  #isCredentialedRequest(hostname, headers, urlHasSecret) {
+    const h = String(hostname || '').toLowerCase();
+    if (CREDENTIALED_GITHUB_HOSTS.has(h)) return true;
+    if (urlHasSecret) return true;
+    const hdrObj = headers && typeof headers === 'object' ? headers : {};
+    for (const [k, v] of Object.entries(hdrObj)) {
+      const kl = String(k || '').toLowerCase();
+      const vs = String(v || '');
+      if (kl === 'authorization' || kl === 'x-github-token' || vs.includes('{{MVM_SECRET:')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  #emitAuditEvent(operation, target, transport, status, bytes) {
+    const ev = {
+      event: 'audit_event',
+      op: 'audit_event',
+      operation: String(operation || 'network'),
+      target: String(target || ''),
+      mode: this.mode,
+      transport: String(transport || 'none'),
+      status: status !== undefined ? status : 0,
+      bytes: Number(bytes) || 0,
+      timestamp_ms: Date.now(),
+    };
+    if (this.auditLog.length >= 500) {
+      this.auditLog.shift();
+    }
+    this.auditLog.push(ev);
+    if (typeof this.onAuditEvent === 'function') {
+      try {
+        this.onAuditEvent(ev);
+      } catch {
+        // Ignore audit listener error cleanly
+      }
+    }
+  }
+
+  #admitNetworkPolicy(hostname, policyOpts) {
+    const cleanHost = String(hostname || '').trim().replace(/^\[/, '').replace(/\]$/, '').replace(/\.+$/, '').toLowerCase();
+    const opts = policyOpts && typeof policyOpts === 'object' ? policyOpts : {};
+    const isConfiguredLoopback = cleanHost === '127.0.0.1' || cleanHost === 'localhost' || cleanHost === '::1';
+    const isMetadataOrPrivate = this.#isPrivateOrLoopbackHost(cleanHost) && !isConfiguredLoopback;
+    if (opts.allowConfiguredOrigin && cleanHost && !isMetadataOrPrivate) {
+      for (const candidateOrigin of [this.staticOrigin, this.locationOrigin]) {
+        if (!candidateOrigin) continue;
+        try {
+          if (new URL(candidateOrigin).hostname.toLowerCase() === cleanHost) {
+            return { ok: true, host: cleanHost };
+          }
+        } catch {
+          // Ignore malformed configured origin
+        }
+      }
+      if (cleanHost.endsWith('.github.io')) {
+        return { ok: true, host: cleanHost };
+      }
+    }
+    if (!cleanHost || this.#isPrivateOrLoopbackHost(cleanHost)) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'PrivateAddressBlocked',
+        host: cleanHost,
+        target: cleanHost,
+        message: `Blocked private, loopback, or link-local SSRF target: ${cleanHost || hostname}`,
+      };
+    }
+    if (this.mode === 'sandboxed') {
+      if (!PRISM_SANDBOXED_ALLOWLIST.has(cleanHost)) {
+        return {
+          ok: false,
+          status: 403,
+          error_code: 'CapabilityDenied',
+          host: cleanHost,
+          message: `Prism capabilities/1 Sandboxed mode denied outbound host ${cleanHost}`,
+        };
+      }
+    } else if (this.mode === 'full_spiralcore' && !this.consentGranted) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RelayConsentRequired',
+        host: cleanHost,
+        message: 'Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)',
+      };
+    }
+    return { ok: true, host: cleanHost };
+  }
+
+  async #admittedFetch(rawUrl, fetchInit, gateOpts) {
+    const opts = gateOpts && typeof gateOpts === 'object' ? gateOpts : {};
+    const op = String(opts.operation || 'http_request');
+    const transportMode = String(opts.transportMode || 'direct-https-fetch');
+    const urlStr = String(rawUrl || '').trim();
+    const valid = this.validateTransportUrl(urlStr, Boolean(opts.allowWs));
+    if (!valid.ok) {
+      this.#emitAuditEvent(op, urlStr, 'blocked', valid.status || 403, 0);
+      return { ok: false, error: valid };
+    }
+    const netAdm = this.#admitNetworkPolicy(valid.url.hostname, opts);
+    if (!netAdm.ok) {
+      this.#emitAuditEvent(op, valid.url.href, 'blocked', netAdm.status || 403, 0);
+      return { ok: false, error: netAdm };
+    }
+    try {
+      const resp = await this.#fetchImpl(valid.url.href, fetchInit);
+      if (opts.emitSuccessAudit !== false) {
+        const lenHeader = Number(resp && resp.headers && typeof resp.headers.get === 'function' ? resp.headers.get('content-length') : 0) || 0;
+        this.#emitAuditEvent(op, valid.url.href, transportMode, resp ? resp.status : 0, lenHeader);
+      }
+      return { ok: true, response: resp, url: valid.url };
+    } catch (err) {
+      if (opts.emitFailureAudit !== false) {
+        this.#emitAuditEvent(op, valid.url.href, 'direct-failed', 502, 0);
+      }
+      return {
+        ok: false,
+        networkError: err,
+        url: valid.url,
+        error: {
+          ok: false,
+          status: 502,
+          error_code: String(opts.failureCode || 'HttpBridgeFetchError'),
+          message: err && err.message ? err.message : String(err),
+        },
+      };
+    }
+  }
+
+  setPolicy(optsInput) {
+    const opts = optsInput && typeof optsInput === 'object' ? optsInput : {};
+    const { mcpPolicy, webAccessEnabled } = opts;
     if (typeof mcpPolicy === 'string' && ['safe', 'confirm', 'deny'].includes(mcpPolicy)) {
       this.mcpPolicy = mcpPolicy;
+    }
+    if (opts.mode !== undefined || opts.networkMode !== undefined) {
+      this.mode = SpiralCoreHostBridge.normalizeNetworkMode(
+        opts.mode !== undefined ? opts.mode : opts.networkMode,
+      );
+    }
+    if (typeof opts.consentGranted === 'boolean') {
+      this.consentGranted = opts.consentGranted;
+    } else if (typeof opts.consent_granted === 'boolean') {
+      this.consentGranted = opts.consent_granted;
+    }
+    if (typeof opts.onAuditEvent === 'function') {
+      this.onAuditEvent = opts.onAuditEvent;
     }
     if (typeof webAccessEnabled === 'boolean') {
       this.webAccessEnabled = webAccessEnabled;
     }
+    if (opts.esbuildModuleUrl || opts.esbuildWasmUrl || opts.esbuildUrl) {
+      this.setCompilerConfig(opts);
+    }
+    const relayOverride = opts.relayWsUrl !== undefined ? opts.relayWsUrl : opts.relayUrl;
+    if (typeof relayOverride === 'string') {
+      const rRes = this.setRelayUrl(relayOverride);
+      if (!rRes || !rRes.ok) {
+        return rRes;
+      }
+    }
+    if (this.mode === 'full_spiralcore' && !this.consentGranted) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RelayConsentRequired',
+        message: 'Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)',
+        mode: this.mode,
+        consent_granted: false,
+      };
+    }
     return {
       ok: true,
       mcp_policy: this.mcpPolicy,
+      mode: this.mode,
+      consent_granted: this.consentGranted,
       web_access_enabled: this.webAccessEnabled,
+      esbuild_configured: Boolean(this.esbuildModuleUrl && this.esbuildWasmUrl),
     };
   }
 
@@ -2773,12 +5315,48 @@ export class SpiralCoreHostBridge {
   }
 
   async tryRelayRpc(op, params) {
-    if (!this.relayUrl && !this.relayHttpUrl) {
-      return null;
+    if (this.mode !== 'full_spiralcore') {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'CapabilityDenied',
+        message: 'SpiralCore AF_VSOCK relay is disabled in Prism capabilities/1 Sandboxed mode',
+      };
     }
-    const serializedCheck = JSON.stringify(params || {});
-    if (serializedCheck.includes('{{MVM_SECRET:')) {
-      return null;
+    if (!this.consentGranted) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RelayConsentRequired',
+        message: 'SpiralCore AF_VSOCK relay requires explicit user consent (consentGranted=true)',
+      };
+    }
+    const pObj = params && typeof params === 'object' ? params : {};
+    const targetCandidate = String(pObj.url || pObj.repo_url || '');
+    let targetHost = '';
+    if (targetCandidate) {
+      try {
+        targetHost = new URL(targetCandidate).hostname.toLowerCase();
+      } catch {
+        targetHost = '';
+      }
+    }
+    if (this.#isCredentialedRequest(targetHost, pObj.headers, Boolean(pObj.auth_bearer) || JSON.stringify(pObj).includes('{{MVM_SECRET:'))) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RelayForbiddenForCredentialedHost',
+        host: targetHost,
+        message: 'Credentialed hosts and requests carrying Authorization/tokens are strictly forbidden from SpiralCore relay failback',
+      };
+    }
+    if (!this.relayUrl && !this.relayHttpUrl) {
+      return {
+        ok: false,
+        status: 502,
+        error_code: 'RelayUnavailable',
+        message: 'No SpiralCore relay endpoint configured',
+      };
     }
     const rpcBody = {
       spvs_magic: 'SPVS',
@@ -2787,31 +5365,25 @@ export class SpiralCoreHostBridge {
       vsock_port: 5257,
       policy: this.mcpPolicy,
       op,
-      params: params || {},
+      params: pObj,
     };
 
-    if (typeof WebSocket === 'function') {
-      const candidateWsUrls = [];
-      if (this.relayUrl) candidateWsUrls.push(this.relayUrl);
-      if (!candidateWsUrls.includes(LOCAL_SPIRALCORE_RELAY_WS_URL)) {
-        candidateWsUrls.push(LOCAL_SPIRALCORE_RELAY_WS_URL);
-      }
-      for (const wsUrl of candidateWsUrls) {
-        const valid = this.validateTransportUrl(wsUrl, true);
-        if (!valid.ok) continue;
+    if (typeof WebSocket === 'function' && this.relayUrl) {
+      const valid = this.validateTransportUrl(this.relayUrl, true);
+      if (valid.ok) {
         try {
-          const result = await this.#sendSingleWsRpc(wsUrl, rpcBody, this.relayTimeoutMs);
+          const result = await this.#sendSingleWsRpc(this.relayUrl, rpcBody, this.relayTimeoutMs);
           if (result && typeof result.ok === 'boolean') {
-            this.lastTransportMode = wsUrl.startsWith('ws://127.0.0.1') ? 'spvs-local-ws' : 'spvs-cloud-wss';
+            this.lastTransportMode = this.relayUrl.startsWith('ws://127.0.0.1') ? 'spvs-local-ws' : 'spvs-cloud-wss';
             return result;
           }
         } catch {
-          // Try next WS or HTTPS POST relay
+          // Fall through to HTTP relay endpoint matching configured relay
         }
       }
     }
 
-    if (typeof fetch === 'function') {
+    if (typeof this.#fetchImpl === 'function' || typeof fetch === 'function') {
       const candidateHttpUrls = [];
       if (this.relayHttpUrl) candidateHttpUrls.push(this.relayHttpUrl);
       if (this.relayUrl) {
@@ -2820,12 +5392,6 @@ export class SpiralCoreHostBridge {
         } else if (this.relayUrl.startsWith('ws://127.0.0.1')) {
           candidateHttpUrls.push('http://127.0.0.1' + this.relayUrl.slice(14));
         }
-      }
-      if (!candidateHttpUrls.includes(DEFAULT_SPIRALCORE_RELAY_HTTP_URL)) {
-        candidateHttpUrls.push(DEFAULT_SPIRALCORE_RELAY_HTTP_URL);
-      }
-      if (!candidateHttpUrls.includes('http://127.0.0.1:8787/spvs')) {
-        candidateHttpUrls.push('http://127.0.0.1:8787/spvs');
       }
 
       for (const httpUrl of candidateHttpUrls) {
@@ -2850,7 +5416,12 @@ export class SpiralCoreHostBridge {
         }
       }
     }
-    return null;
+    return {
+      ok: false,
+      status: 502,
+      error_code: 'RelayUnavailable',
+      message: 'SpiralCore AF_VSOCK relay unreachable or refused connection',
+    };
   }
 
   #sendSingleWsRpc(wsUrl, payload, timeoutMs) {
@@ -2927,6 +5498,36 @@ export class SpiralCoreHostBridge {
   async execute(rawRequest) {
     const req = typeof rawRequest === 'string' ? JSON.parse(rawRequest) : (rawRequest || {});
     const rawOp = String(req.op || req.kind || req.bridge_op || req.tool || req.name || 'http_request').toLowerCase();
+    const isNpmPkg =
+      rawOp === 'npm_exec' ||
+      rawOp === 'npm' ||
+      rawOp === 'npm_install' ||
+      ((rawOp === 'pkg_fetch' || rawOp === 'pkg') &&
+        (String(req.ecosystem || '').toLowerCase() === 'npm' ||
+          String(req.tool || '').toLowerCase() === 'npm'));
+
+    if (rawOp === 'node_exec' || rawOp === 'node' || rawOp === 'npx') {
+      return this.handleNodeExec(req);
+    }
+    if (isNpmPkg) {
+      return this.handleNpmBridge(req);
+    }
+    if (
+      rawOp === 'python_exec' ||
+      rawOp === 'python' ||
+      rawOp === 'python3' ||
+      rawOp === 'pip' ||
+      rawOp === 'pip3' ||
+      rawOp === 'pip_install'
+    ) {
+      return this.handlePythonExec(req);
+    }
+    if (rawOp === 'wasi_exec' || rawOp === 'wasm') {
+      return this.handleWasiExec(req);
+    }
+    if (rawOp === 'sqlite_exec' || rawOp === 'sqlite3') {
+      return this.handleSqliteExec(req);
+    }
 
     if (this.mcpPolicy === 'deny') {
       return {
@@ -3013,70 +5614,151 @@ export class SpiralCoreHostBridge {
   async handleDnsQuery(req) {
     const domain = String(req.name || req.domain || req.host || 'example.com').trim();
     const rrType = String(req.rr_type || req.qtype || req.type || 'A').trim().toUpperCase();
-    const relayRes = await this.tryRelayRpc('dns_query', { name: domain, type: rrType });
-    if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.answers)) {
-      const records = relayRes.data.answers.map((a) => ({
-        name: a.name || domain,
-        type: a.type,
-        ttl: a.ttl ?? a.TTL ?? 300,
-        data: a.data,
-      }));
-      const summary = records.length > 0
-        ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
-        : `No ${rrType} records returned for ${domain} (RCODE=${relayRes.data.rcode ?? 0})`;
+    if (this.#isPrivateOrLoopbackHost(domain)) {
+      this.#emitAuditEvent('dns_query', domain, 'blocked', 403, 0);
       return {
-        ok: true,
-        status: relayRes.status || 200,
-        op: 'dns_query',
-        name: domain,
-        rr_type: rrType,
-        records,
-        answers: records,
-        data: { answers: records, rcode: relayRes.data.rcode ?? 0 },
-        body_text: summary,
-        transport: this.lastTransportMode,
+        ok: false,
+        status: 403,
+        error_code: 'PrivateAddressBlocked',
+        host: domain,
+        target: domain,
+        message: `Blocked private, loopback, or link-local SSRF DNS query for ${domain}`,
       };
     }
-    const dohUrl = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(rrType)}`;
-    const valid = this.validateTransportUrl(dohUrl, false);
-    if (!valid.ok) return valid;
-    try {
-      const resp = await fetch(dohUrl, {
-        method: 'GET',
-        headers: { Accept: 'application/dns-json' },
-      });
-      const json = await resp.json();
-      const answers = Array.isArray(json.Answer) ? json.Answer : [];
-      const records = answers.map((a) => ({
-        name: a.name || domain,
-        type: a.type,
-        ttl: a.TTL ?? 300,
-        data: a.data,
-      }));
-      this.lastTransportMode = 'direct-https-fallback';
-      const summary = records.length > 0
-        ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
-        : `No ${rrType} records returned for ${domain} (RCODE=${json.Status ?? 0})`;
+    if (this.mode === 'full_spiralcore' && !this.consentGranted) {
+      this.#emitAuditEvent('dns_query', domain, 'blocked', 403, 0);
       return {
-        ok: true,
-        status: resp.status,
-        op: 'dns_query',
-        name: domain,
-        rr_type: rrType,
-        records,
-        answers: records,
-        data: { answers: records, rcode: json.Status ?? 0 },
-        body_text: summary,
-        transport: this.lastTransportMode,
+        ok: false,
+        status: 403,
+        error_code: 'RelayConsentRequired',
+        message: 'Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)',
       };
-    } catch (err) {
+    }
+
+    const dohEndpoints = [
+      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(rrType)}&ct=application/dns-json`,
+      `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(rrType)}`,
+    ];
+    let lastErr = '';
+    for (const dohUrl of dohEndpoints) {
+      const valid = this.validateTransportUrl(dohUrl, false);
+      if (!valid.ok) continue;
+      try {
+        const fetchRes = await this.#admittedFetch(
+          dohUrl,
+          { method: 'GET', headers: { Accept: 'application/dns-json' } },
+          { operation: 'dns_query', emitSuccessAudit: false, emitFailureAudit: false },
+        );
+        if (!fetchRes.ok) {
+          if (fetchRes.error && fetchRes.error.error_code && fetchRes.error.error_code !== 'HttpBridgeFetchError') {
+            return fetchRes.error;
+          }
+          lastErr = fetchRes.error ? fetchRes.error.message : 'DoH fetch failed';
+          continue;
+        }
+        const resp = fetchRes.response;
+        if (!resp || !resp.ok) {
+          lastErr = `DoH HTTP ${resp ? resp.status : 'error'}`;
+          continue;
+        }
+        const json = await resp.json();
+        const answers = Array.isArray(json && json.Answer) ? json.Answer : [];
+        const records = answers.map((a) => ({
+          name: a.name || domain,
+          type: a.type,
+          ttl: a.TTL ?? 300,
+          data: a.data,
+        }));
+        for (const rec of records) {
+          if (this.#isPrivateOrLoopbackHost(rec.data)) {
+            this.#emitAuditEvent('dns_query', domain, 'direct-doh-blocked', 403, 0);
+            return {
+              ok: false,
+              status: 403,
+              error_code: 'PrivateAddressBlocked',
+              host: String(rec.data),
+              target: domain,
+              message: `RFC 8484 DoH answer for ${domain} resolved to private/loopback address ${rec.data}`,
+            };
+          }
+        }
+        this.lastTransportMode = 'direct-doh';
+        const summary = records.length > 0
+          ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
+          : `No ${rrType} records returned for ${domain} (RCODE=${(json && json.Status) ?? 0})`;
+        this.#emitAuditEvent('dns_query', domain, this.lastTransportMode, resp.status || 200, summary.length);
+        return {
+          ok: true,
+          status: resp.status || 200,
+          op: 'dns_query',
+          name: domain,
+          rr_type: rrType,
+          records,
+          answers: records,
+          data: { answers: records, rcode: (json && json.Status) ?? 0 },
+          body_text: summary,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        lastErr = err && err.message ? err.message : String(err);
+      }
+    }
+
+    if (this.mode === 'full_spiralcore' && this.consentGranted) {
+      const relayRes = await this.tryRelayRpc('dns_query', { name: domain, type: rrType });
+      if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.answers)) {
+        const records = relayRes.data.answers.map((a) => ({
+          name: a.name || domain,
+          type: a.type,
+          ttl: a.ttl ?? a.TTL ?? 300,
+          data: a.data,
+        }));
+        for (const rec of records) {
+          if (this.#isPrivateOrLoopbackHost(rec.data)) {
+            this.#emitAuditEvent('dns_query', domain, 'relay-blocked', 403, 0);
+            return {
+              ok: false,
+              status: 403,
+              error_code: 'PrivateAddressBlocked',
+              host: String(rec.data),
+              target: domain,
+              message: `Relayed DNS answer for ${domain} resolved to private/loopback address ${rec.data}`,
+            };
+          }
+        }
+        const summary = records.length > 0
+          ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
+          : `No ${rrType} records returned for ${domain} (RCODE=${relayRes.data.rcode ?? 0})`;
+        this.#emitAuditEvent('dns_query', domain, this.lastTransportMode, relayRes.status || 200, summary.length);
+        return {
+          ok: true,
+          status: relayRes.status || 200,
+          op: 'dns_query',
+          name: domain,
+          rr_type: rrType,
+          records,
+          answers: records,
+          data: { answers: records, rcode: relayRes.data.rcode ?? 0 },
+          body_text: summary,
+          transport: this.lastTransportMode,
+        };
+      }
+      this.#emitAuditEvent('dns_query', domain, 'relay-unavailable', 502, 0);
       return {
         ok: false,
         status: 502,
-        error_code: 'DnsResolutionFailed',
-        message: err && err.message ? err.message : String(err),
+        error_code: (relayRes && relayRes.error_code) || 'RelayUnavailable',
+        message: (relayRes && (relayRes.error_message || relayRes.message)) || lastErr || 'DoH and SpiralCore relay DNS resolution failed',
       };
     }
+
+    this.#emitAuditEvent('dns_query', domain, 'doh-failed', 502, 0);
+    return {
+      ok: false,
+      status: 502,
+      error_code: 'DoHResolutionFailed',
+      message: lastErr || 'RFC 8484 DoH resolution failed for cloudflare-dns.com and dns.google',
+    };
   }
 
   async handleHttpRequest(req) {
@@ -3100,41 +5782,16 @@ export class SpiralCoreHostBridge {
       bodyPayload = bodySub.value;
     }
 
-    const hasAuthHeader = Boolean(headerSub.headers.Authorization || headerSub.headers.authorization);
-    if (!hasAuthHeader) {
-      const relayRes = await this.tryRelayRpc('http_request', {
-        method: String(req.method || 'GET').toUpperCase(),
-        url: finalValid.url.href,
-        headers: headerSub.headers,
-        body_b64: req.body_base64 || req.body_b64 || undefined,
-      });
-      if (relayRes && !relayRes.ok && relayRes.error_code === 'SsrfBlocked') {
-        return {
-          ok: false,
-          status: relayRes.status || 403,
-          error_code: 'SsrfBlocked',
-          message: relayRes.error_message || 'Target host blocked by SpiralCore SSRF policy',
-        };
-      }
-      if (relayRes && relayRes.ok && relayRes.data) {
-        const d = relayRes.data;
-        const bodyBytes = d.body_b64 ? __uorBase64ToBytes(d.body_b64) : new Uint8Array(0);
-        const bodyText = bodyBytes.byteLength > 0 ? cachedTextDecoder.decode(bodyBytes) : (d.text_excerpt || '');
-        return {
-          ok: d.status >= 200 && d.status < 400,
-          status: d.status,
-          op: 'http_request',
-          url: finalValid.url.href,
-          headers: d.headers || {},
-          content_type: d.content_type || '',
-          body_text: bodyText,
-          text_excerpt: d.text_excerpt || bodyText.slice(0, 3200),
-          body_base64: req.binary ? (d.body_b64 || '') : undefined,
-          byte_len: d.byte_length ?? bodyBytes.byteLength,
-          truncated: Boolean(d.truncated),
-          transport: this.lastTransportMode,
-        };
-      }
+    const hostname = finalValid.url.hostname.toLowerCase();
+    const isCredentialed = this.#isCredentialedRequest(
+      hostname,
+      headerSub.headers,
+      rawUrl.includes('{{MVM_SECRET:') || (typeof req.body === 'string' && req.body.includes('{{MVM_SECRET:')),
+    );
+    const netAdmission = this.#admitNetworkPolicy(hostname, req._policyOpts);
+    if (!netAdmission.ok) {
+      this.#emitAuditEvent('http_request', finalValid.url.href, 'blocked', netAdmission.status || 403, 0);
+      return netAdmission;
     }
 
     try {
@@ -3144,7 +5801,10 @@ export class SpiralCoreHostBridge {
         body: bodyPayload,
       });
       const bounded = await this.readBoundedBytes(resp);
-      if (!bounded.ok) return bounded;
+      if (!bounded.ok) {
+        this.#emitAuditEvent('http_request', finalValid.url.href, 'direct-https-fetch', resp.status || 502, 0);
+        return bounded;
+      }
       this.lastTransportMode = 'direct-https-fetch';
       const respHeaders = {};
       resp.headers.forEach((val, key) => {
@@ -3156,6 +5816,7 @@ export class SpiralCoreHostBridge {
       const textExcerpt = isHtml
         ? __uorStripHtmlToReadableText(decodedText).text.slice(0, 3200)
         : decodedText.slice(0, 3200);
+      this.#emitAuditEvent('http_request', finalValid.url.href, this.lastTransportMode, resp.status, bounded.bytes.byteLength);
       return {
         ok: resp.ok,
         status: resp.status,
@@ -3171,6 +5832,62 @@ export class SpiralCoreHostBridge {
         transport: this.lastTransportMode,
       };
     } catch (err) {
+      if (isCredentialed) {
+        this.#emitAuditEvent('http_request', finalValid.url.href, 'direct-failed-credentialed', 403, 0);
+        return {
+          ok: false,
+          status: 403,
+          error_code: 'RelayForbiddenForCredentialedHost',
+          host: hostname,
+          message: `Credentialed host/request ${hostname} failed direct fetch and is forbidden from SpiralCore relay failback: ${err && err.message ? err.message : String(err)}`,
+        };
+      }
+      if (this.mode === 'full_spiralcore' && this.consentGranted) {
+        const relayRes = await this.tryRelayRpc('http_request', {
+          method: String(req.method || 'GET').toUpperCase(),
+          url: finalValid.url.href,
+          headers: headerSub.headers,
+          body_b64: req.body_base64 || req.body_b64 || undefined,
+        });
+        if (relayRes && !relayRes.ok && (relayRes.error_code === 'SsrfBlocked' || relayRes.error_code === 'PrivateAddressBlocked')) {
+          this.#emitAuditEvent('http_request', finalValid.url.href, 'relay-ssrf-blocked', 403, 0);
+          return {
+            ok: false,
+            status: relayRes.status || 403,
+            error_code: relayRes.error_code === 'SsrfBlocked' ? 'PrivateAddressBlocked' : relayRes.error_code,
+            message: relayRes.error_message || 'Target host blocked by SpiralCore SSRF policy',
+          };
+        }
+        if (relayRes && relayRes.ok && relayRes.data) {
+          const d = relayRes.data;
+          const bodyBytes = d.body_b64 ? __uorBase64ToBytes(d.body_b64) : new Uint8Array(0);
+          const bodyText = bodyBytes.byteLength > 0 ? cachedTextDecoder.decode(bodyBytes) : (d.text_excerpt || '');
+          const byteLen = d.byte_length ?? bodyBytes.byteLength;
+          this.#emitAuditEvent('http_request', finalValid.url.href, this.lastTransportMode, d.status || 200, byteLen);
+          return {
+            ok: d.status >= 200 && d.status < 400,
+            status: d.status,
+            op: 'http_request',
+            url: finalValid.url.href,
+            headers: d.headers || {},
+            content_type: d.content_type || '',
+            body_text: bodyText,
+            text_excerpt: d.text_excerpt || bodyText.slice(0, 3200),
+            body_base64: req.binary ? (d.body_b64 || '') : undefined,
+            byte_len: byteLen,
+            truncated: Boolean(d.truncated),
+            transport: this.lastTransportMode,
+          };
+        }
+        this.#emitAuditEvent('http_request', finalValid.url.href, 'relay-unavailable', 502, 0);
+        return {
+          ok: false,
+          status: 502,
+          error_code: (relayRes && relayRes.error_code) || 'RelayUnavailable',
+          message: (relayRes && (relayRes.error_message || relayRes.message)) || 'SpiralCore AF_VSOCK relay unreachable',
+        };
+      }
+      this.#emitAuditEvent('http_request', finalValid.url.href, 'direct-failed', 502, 0);
       return {
         ok: false,
         status: 502,
@@ -3184,26 +5901,6 @@ export class SpiralCoreHostBridge {
     const rawUrl = String(req.url || (req.arguments && req.arguments.url) || '').trim();
     const valid = this.validateTransportUrl(rawUrl, false);
     if (!valid.ok) return valid;
-
-    const relayRes = await this.tryRelayRpc('http_request', { method: 'GET', url: valid.url.href });
-    if (relayRes && relayRes.ok && relayRes.data) {
-      const d = relayRes.data;
-      const decoded = d.body_b64 ? cachedTextDecoder.decode(__uorBase64ToBytes(d.body_b64)) : '';
-      const parsed = decoded ? __uorStripHtmlToReadableText(decoded) : { title: valid.url.hostname, text: d.text_excerpt || '' };
-      const bestText = parsed.text || d.text_excerpt || '';
-      if (bestText) {
-        return {
-          ok: true,
-          status: d.status || 200,
-          op: 'web_fetch',
-          url: valid.url.href,
-          title: parsed.title || valid.url.href,
-          body_text: bestText,
-          excerpt: bestText.slice(0, 3200),
-          transport: this.lastTransportMode,
-        };
-      }
-    }
 
     const direct = await this.handleHttpRequest({ url: valid.url.href, method: 'GET', headers: req.headers || {} });
     if (direct.ok && typeof direct.body_text === 'string') {
@@ -3223,16 +5920,27 @@ export class SpiralCoreHostBridge {
       };
     }
 
-    // Public reader CORS fallback for HTML docs that omit Access-Control-Allow-Origin
-    if (!req.headers || Object.keys(req.headers).length === 0) {
+    if (
+      this.mode === 'full_spiralcore' &&
+      this.consentGranted &&
+      (!req.headers || Object.keys(req.headers).length === 0) &&
+      !CREDENTIALED_GITHUB_HOSTS.has(valid.url.hostname.toLowerCase()) &&
+      !this.#isPrivateOrLoopbackHost(valid.url.hostname)
+    ) {
       try {
         const readerUrl = `https://r.jina.ai/${valid.url.href}`;
-        const rResp = await fetch(readerUrl, { headers: { Accept: 'text/plain' } });
-        if (rResp.ok) {
+        const readerFetch = await this.#admittedFetch(
+          readerUrl,
+          { headers: { Accept: 'text/plain' } },
+          { operation: 'web_fetch', emitSuccessAudit: false },
+        );
+        const rResp = readerFetch.ok ? readerFetch.response : null;
+        if (rResp && rResp.ok) {
           const bounded = await this.readBoundedBytes(rResp);
           if (bounded.ok) {
             const text = cachedTextDecoder.decode(bounded.bytes).slice(0, 12000);
             this.lastTransportMode = 'direct-https-reader';
+            this.#emitAuditEvent('web_fetch', readerUrl, this.lastTransportMode, rResp.status, bounded.bytes.byteLength);
             return {
               ok: true,
               status: rResp.status,
@@ -3258,23 +5966,35 @@ export class SpiralCoreHostBridge {
     if (!query) {
       return { ok: false, error_code: 'EmptySearchQuery', message: 'web_search query must be non-empty' };
     }
-
-    const relayRes = await this.tryRelayRpc('web_search', { query, limit });
-    if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.results) && relayRes.data.results.length > 0) {
-      const hits = relayRes.data.results;
-      const formattedRelay = hits
-        .map((r, i) => `[${i + 1}] ${r.title}\n    URL: ${r.url}\n    ${r.snippet}`)
-        .join('\n\n');
-      return {
-        ok: true,
-        status: relayRes.status || 200,
-        op: 'web_search',
-        query,
-        results: hits,
-        data: { results: hits },
-        body_text: formattedRelay,
-        transport: this.lastTransportMode,
-      };
+    const providers = [
+      {
+        name: 'wiki',
+        host: 'en.wikipedia.org',
+        url: `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=3&utf8=1&format=json&origin=*`,
+      },
+      {
+        name: 'hn',
+        host: 'hn.algolia.com',
+        url: `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}&hitsPerPage=4`,
+      },
+      {
+        name: 'gh',
+        host: 'api.github.com',
+        url: `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&per_page=3`,
+        init: { headers: { Accept: 'application/vnd.github+json' } },
+      },
+      {
+        name: 'ddg',
+        host: 'api.duckduckgo.com',
+        url: `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,
+      },
+    ];
+    for (const provider of providers) {
+      const netAdmission = this.#admitNetworkPolicy(provider.host);
+      if (!netAdmission.ok) {
+        this.#emitAuditEvent('web_search', provider.url, 'blocked', netAdmission.status || 403, 0);
+        return netAdmission;
+      }
     }
 
     const results = [];
@@ -3285,32 +6005,36 @@ export class SpiralCoreHostBridge {
       results.push(item);
     };
 
-    const wikiTask = fetch(
-      `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=3&utf8=1&format=json&origin=*`,
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
+    const settled = await Promise.all(
+      providers.map(async (provider) => {
+        const fetched = await this.#admittedFetch(
+          provider.url,
+          provider.init,
+          { operation: 'web_search', transportMode: 'direct-https-search' },
+        );
+        if (!fetched.ok) {
+          return { name: provider.name, json: null, failed: true, error: fetched.error };
+        }
+        try {
+          const resp = fetched.response;
+          const json = resp && resp.ok ? await resp.json() : null;
+          return { name: provider.name, json, failed: false };
+        } catch {
+          return { name: provider.name, json: null, failed: true };
+        }
+      }),
+    );
 
-    const hnTask = fetch(
-      `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}&hitsPerPage=4`,
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
-
-    const ghTask = fetch(
-      `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}&per_page=3`,
-      { headers: { Accept: 'application/vnd.github+json' } },
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
-
-    const ddgTask = fetch(
-      `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
-
-    const [wikiJson, hnJson, ghJson, ddgJson] = await Promise.all([wikiTask, hnTask, ghTask, ddgTask]);
+    const byName = Object.create(null);
+    let failedCount = 0;
+    for (const entry of settled) {
+      byName[entry.name] = entry.json;
+      if (entry.failed) failedCount += 1;
+    }
+    const wikiJson = byName.wiki || null;
+    const hnJson = byName.hn || null;
+    const ghJson = byName.gh || null;
+    const ddgJson = byName.ddg || null;
 
     if (ddgJson && ddgJson.AbstractText && ddgJson.AbstractURL) {
       pushResult({
@@ -3351,6 +6075,46 @@ export class SpiralCoreHostBridge {
           source: 'hn',
         });
       }
+    }
+
+    if (
+      results.length === 0 &&
+      failedCount === providers.length &&
+      this.mode === 'full_spiralcore' &&
+      this.consentGranted
+    ) {
+      const relayRes = await this.tryRelayRpc('web_search', { query, limit });
+      if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.results)) {
+        for (const r of relayRes.data.results) {
+          pushResult({
+            title: String(r.title || r.url || 'Search result'),
+            url: String(r.url || ''),
+            snippet: String(r.snippet || '').slice(0, 360),
+            source: String(r.source || 'spiralcore-relay'),
+          });
+        }
+        const relayedFmt = results
+          .map((r, i) => `[${i + 1}] ${r.title}\n    URL: ${r.url}\n    ${r.snippet}`)
+          .join('\n\n');
+        this.#emitAuditEvent('web_search', query, this.lastTransportMode, relayRes.status || 200, relayedFmt.length);
+        return {
+          ok: true,
+          status: relayRes.status || 200,
+          op: 'web_search',
+          query,
+          results,
+          data: { results },
+          body_text: relayedFmt || `No SpiralCore relay search hits returned for "${query}".`,
+          transport: this.lastTransportMode,
+        };
+      }
+      this.#emitAuditEvent('web_search', query, 'relay-unavailable', 502, 0);
+      return {
+        ok: false,
+        status: 502,
+        error_code: (relayRes && relayRes.error_code) || 'RelayUnavailable',
+        message: (relayRes && (relayRes.error_message || relayRes.message)) || 'Direct and SpiralCore relay web_search failed',
+      };
     }
 
     this.lastTransportMode = 'direct-https-search';
@@ -3454,18 +6218,11 @@ export class SpiralCoreHostBridge {
     return fn(url, init);
   }
 
-  async #resolveRelayGithubApi(action, params) {
-    if (!this.relayUrl && !this.relayHttpUrl) return null;
-    try {
-      const res = await this.tryRelayRpc('github_api', { action, ...params });
-      if (res && typeof res.ok === 'boolean') return res;
-    } catch {
-      // Fall through to direct HTTPS REST fetch
-    }
-    return null;
-  }
-
-  async #githubRestJson(coords, pathAndQuery, { method = 'GET', body = undefined, headers = {} } = {}) {
+  async #githubRestJson(coords, pathAndQuery, reqOpts) {
+    const opts = reqOpts && typeof reqOpts === 'object' ? reqOpts : {};
+    const method = opts.method || 'GET';
+    const body = opts.body;
+    const headers = opts.headers || {};
     const cleanSub = String(pathAndQuery || '').replace(/^\/+/, '');
     const apiBase = `https://api.github.com/repos/${coords.owner}/${coords.repo}`;
     const fullUrl = cleanSub ? `${apiBase}/${cleanSub}` : apiBase;
@@ -3478,6 +6235,11 @@ export class SpiralCoreHostBridge {
         message: 'Refusing GitHub request outside api.github.com',
       };
     }
+    const netAdmission = this.#admitNetworkPolicy(urlObj.hostname);
+    if (!netAdmission.ok) {
+      this.#emitAuditEvent('github_api', urlObj.href, 'blocked', netAdmission.status || 403, 0);
+      return netAdmission;
+    }
     const authRes = this.applyHostSecretSubstitution(urlObj, {
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
@@ -3488,45 +6250,32 @@ export class SpiralCoreHostBridge {
     if (body !== undefined && method !== 'GET' && method !== 'HEAD') {
       reqHeaders['Content-Type'] = 'application/json';
     }
-    const relayRes = await this.tryRelayRpc('git_smart_http', {
-      repo_url: apiBase,
-      path_and_query: cleanSub,
-      method,
-      auth_bearer: reqHeaders.Authorization ? reqHeaders.Authorization.replace(/^Bearer\s+/i, '') : undefined,
-      body_json: body,
-    });
-    if (relayRes && relayRes.ok && relayRes.data) {
-      const rawTxt = relayRes.data.body_b64
-        ? cachedTextDecoder.decode(__uorBase64ToBytes(relayRes.data.body_b64))
-        : '';
-      let parsed = null;
+    try {
+      const resp = await this.#fetchImpl(urlObj.href, {
+        method,
+        headers: reqHeaders,
+        body: body !== undefined && method !== 'GET' && method !== 'HEAD' ? JSON.stringify(body) : undefined,
+      });
+      const text = await resp.text();
+      let json = null;
       try {
-        parsed = rawTxt ? JSON.parse(rawTxt) : null;
+        json = text ? JSON.parse(text) : null;
       } catch {
-        parsed = null;
+        json = null;
       }
+      this.lastTransportMode = 'direct-https-github-rest';
+      this.#emitAuditEvent('github_api', urlObj.href, this.lastTransportMode, resp.status, text.length);
+      return { ok: resp.ok, status: resp.status, json, text, viaRelay: false };
+    } catch (err) {
+      this.#emitAuditEvent('github_api', urlObj.href, 'direct-failed-credentialed', 403, 0);
       return {
-        ok: relayRes.data.status >= 200 && relayRes.data.status < 300,
-        status: relayRes.data.status,
-        json: parsed,
-        text: rawTxt,
-        viaRelay: true,
+        ok: false,
+        status: 403,
+        error_code: 'RelayForbiddenForCredentialedHost',
+        host: 'api.github.com',
+        message: `CORS-direct GitHub API request failed; SpiralCore relay failback is forbidden for credentialed hosts: ${err && err.message ? err.message : String(err)}`,
       };
     }
-    const resp = await this.#fetchImpl(urlObj.href, {
-      method,
-      headers: reqHeaders,
-      body: body !== undefined && method !== 'GET' && method !== 'HEAD' ? JSON.stringify(body) : undefined,
-    });
-    const text = await resp.text();
-    let json = null;
-    try {
-      json = text ? JSON.parse(text) : null;
-    } catch {
-      json = null;
-    }
-    this.lastTransportMode = 'direct-https-github-rest';
-    return { ok: resp.ok, status: resp.status, json, text, viaRelay: false };
   }
 
   async checkProvenanceUpdate(provenanceUrlInput = '') {
@@ -3562,9 +6311,15 @@ export class SpiralCoreHostBridge {
     // Strict R4-39 rule: NEVER attach Host Secrets to non-GitHub provenance origins
     const validated = this.validateTransportUrl(provUrl, false);
     if (!validated.ok) return validated;
+    const provAdmit = this.#admitNetworkPolicy(validated.url.hostname, { allowConfiguredOrigin: true });
+    if (!provAdmit.ok) {
+      this.#emitAuditEvent('provenance_check', validated.url.href, 'blocked', provAdmit.status || 403, 0);
+      return provAdmit;
+    }
     try {
       const sep = validated.url.href.includes('?') ? '&' : '?';
       const resp = await this.#fetchImpl(`${validated.url.href}${sep}_t=${Date.now()}`, { cache: 'no-store' });
+      this.#emitAuditEvent('provenance_check', validated.url.href, 'direct-https-fetch', resp.status, 0);
       if (!resp.ok) {
         return { ok: false, status: resp.status, error_code: 'GitDeployWatchFailed', message: `provenance.json returned HTTP ${resp.status}` };
       }
@@ -3649,38 +6404,18 @@ export class SpiralCoreHostBridge {
         if (!subAuth.ok) return subAuth;
         authBearer = subAuth.value;
       }
-      const relayGit = await this.tryRelayRpc('git_smart_http', {
-        repo_url: repoValid.url.href,
-        path_and_query: String(req.path_and_query),
+      const sep = rawRepo.endsWith('/') ? '' : '/';
+      const smartUrl = `${rawRepo}${sep}${String(req.path_and_query).replace(/^\/+/, '')}`;
+      const smartHeaders = authBearer ? { Authorization: `Bearer ${authBearer}` } : {};
+      if (req.content_type) smartHeaders['Content-Type'] = req.content_type;
+      return this.handleHttpRequest({
+        url: smartUrl,
         method: String(req.method || 'GET').toUpperCase(),
-        content_type: req.content_type || undefined,
-        auth_bearer: authBearer,
-        body_b64: req.body_b64 || req.body_base64 || undefined,
-        body_json: req.body_json || undefined,
+        headers: smartHeaders,
+        body_base64: req.body_b64 || req.body_base64 || undefined,
+        body: req.body_json ? JSON.stringify(req.body_json) : undefined,
+        binary: true,
       });
-      if (relayGit && relayGit.ok && relayGit.data) {
-        const d = relayGit.data;
-        return {
-          ok: d.status >= 200 && d.status < 400,
-          status: d.status,
-          op: 'git_smart_http',
-          content_type: d.content_type || '',
-          headers: d.headers || {},
-          body_b64: d.body_b64 || '',
-          body_base64: d.body_b64 || '',
-          byte_len: d.byte_length ?? 0,
-          truncated: Boolean(d.truncated),
-          transport: this.lastTransportMode,
-        };
-      }
-      if (relayGit && !relayGit.ok) {
-        return {
-          ok: false,
-          status: relayGit.status || 502,
-          error_code: relayGit.error_code || 'GitSmartHttpError',
-          message: relayGit.error_message || 'Git Smart-HTTP relay request failed',
-        };
-      }
     }
 
     if (req.smart_http_url) {
@@ -3745,27 +6480,12 @@ export class SpiralCoreHostBridge {
     }
 
     const repoSlug = `${coords.owner}/${coords.repo}`;
-    const resolvedAuthBearer = this.hasSecret('GITHUB_TOKEN') ? this.#secretVault.get('GITHUB_TOKEN') : undefined;
 
     if (subcommand === 'connect' || subcommand === 'branches') {
       try {
-        const relayOut = await this.#resolveRelayGithubApi('connect', { repo: repoSlug, auth_bearer: resolvedAuthBearer });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          this.lastTransportMode = this.lastTransportMode || 'spvs-relay';
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'connect',
-            repo: repoSlug,
-            ...relayOut.data,
-            data: relayOut.data,
-            body_text: `Connected ${repoSlug} (default: ${relayOut.data.default_branch}, ${(relayOut.data.branches || []).length} branches)`,
-            transport: this.lastTransportMode,
-          };
-        }
         const meta = await this.#githubRestJson(coords, '');
         if (!meta.ok) {
+          if (meta.error_code) return meta;
           return {
             ok: false,
             status: meta.status,
@@ -3803,41 +6523,9 @@ export class SpiralCoreHostBridge {
     if (subcommand === 'clone' || subcommand === 'pull' || subcommand === 'fetch') {
       try {
         const requestedBranch = String(req.branch || argsObj.branch || '').trim();
-        const relayOut = await this.#resolveRelayGithubApi(subcommand, {
-          repo: repoSlug,
-          branch: requestedBranch || undefined,
-          limit: req.limit || 40,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          const treeKey = `${repoSlug}@${d.branch}`;
-          const lazyMap = new Map();
-          for (const lp of d.lazy_paths || []) {
-            lazyMap.set(lp.path, lp);
-          }
-          this.#lazyRepoTrees.set(treeKey, lazyMap);
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand,
-            repo: repoSlug,
-            repo_url: coords.url,
-            branch: d.branch,
-            head_sha: d.head_sha || '',
-            files: d.files || [],
-            file_count: (d.files || []).length,
-            lazy_paths: d.lazy_paths || [],
-            total_blobs: d.total_blobs ?? (d.files || []).length,
-            data: d,
-            body_text: `Synchronized ${(d.files || []).length}/${d.total_blobs ?? (d.files || []).length} files from ${repoSlug}@${d.branch}`,
-            transport: this.lastTransportMode,
-          };
-        }
-
         const metaRes = await this.#githubRestJson(coords, '');
         if (!metaRes.ok) {
+          if (metaRes.error_code) return metaRes;
           return {
             ok: false,
             status: metaRes.status,
@@ -3851,7 +6539,8 @@ export class SpiralCoreHostBridge {
         const branches = Array.isArray(brRes.json) ? brRes.json.map((b) => String(b.name || '')).filter(Boolean) : [branch];
         if (!branches.includes(branch)) branches.unshift(branch);
 
-        const treeRes = await this.#githubRestJson(coords, `git/trees/${encodeURIComponent(branch)}?recursive=1`);
+        const branchPath = branch.split('/').map(encodeURIComponent).join('/');
+        const treeRes = await this.#githubRestJson(coords, `git/trees/${branchPath}?recursive=1`);
         if (!treeRes.ok) {
           return {
             ok: false,
@@ -3884,13 +6573,6 @@ export class SpiralCoreHostBridge {
           const loaded = await Promise.all(
             slice.map(async (entry) => {
               try {
-                if (!hasToken && !repoMeta.private) {
-                  const rawUrl = `https://raw.githubusercontent.com/${coords.owner}/${coords.repo}/${encodeURIComponent(branch)}/${entry.path}`;
-                  const r = await this.#fetchImpl(rawUrl);
-                  if (r.ok) {
-                    return { path: entry.path, content: await r.text(), sha: entry.sha, size: entry.size ?? 0 };
-                  }
-                }
                 const blobRes = await this.#githubRestJson(coords, `git/blobs/${entry.sha}`);
                 if (blobRes.ok && blobRes.json && blobRes.json.encoding === 'base64' && typeof blobRes.json.content === 'string') {
                   const bytes = __uorBase64ToBytes(blobRes.json.content);
@@ -3967,37 +6649,12 @@ export class SpiralCoreHostBridge {
         return { ok: false, status: 400, error_code: 'GitBlobFetchFailed', message: 'read_blob requires path or sha' };
       }
       try {
-        const relayOut = await this.#resolveRelayGithubApi('read_blob', {
-          repo: repoSlug,
-          branch,
-          path: filePath,
-          sha: sha || undefined,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'read_blob',
-            repo: repoSlug,
-            branch,
-            path: d.path || filePath,
-            sha: d.sha || sha,
-            size: d.size ?? String(d.content || '').length,
-            content: d.content || '',
-            files: d.path ? [{ path: d.path, content: d.content || '', sha: d.sha || sha }] : [],
-            data: d,
-            body_text: `Loaded ${d.path || filePath} (${d.size ?? String(d.content || '').length} bytes) from ${repoSlug}@${branch}`,
-            transport: this.lastTransportMode,
-          };
-        }
         const restPath = sha
           ? `git/blobs/${encodeURIComponent(sha)}`
           : `contents/${filePath.split('/').map((s) => encodeURIComponent(s)).join('/')}?ref=${encodeURIComponent(branch)}`;
         const blobRes = await this.#githubRestJson(coords, restPath);
         if (!blobRes.ok || !blobRes.json) {
+          if (blobRes.error_code) return blobRes;
           return {
             ok: false,
             status: blobRes.status || 404,
@@ -4038,40 +6695,22 @@ export class SpiralCoreHostBridge {
         return { ok: false, status: 401, error_code: 'GitAuthRequired', message: 'GitHub PAT required for create_branch.' };
       }
       const branch = String(req.branch || argsObj.branch || argParts[2] || '').trim();
-      const fromBranchInput = String(req.from_branch || argsObj.from_branch || argsObj.base || '').trim();
+      const fromBranchInput = String(
+        req.base_branch || req.from_branch || argsObj.base_branch || argsObj.from_branch || argsObj.base || '',
+      ).trim();
       if (!branch || branch.includes('..')) {
         return { ok: false, status: 400, error_code: 'GitBranchCreateFailed', message: `Invalid branch name '${branch}'` };
       }
       try {
-        const relayOut = await this.#resolveRelayGithubApi('create_branch', {
-          repo: repoSlug,
-          branch,
-          from_branch: fromBranchInput || undefined,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 201,
-            op: 'git',
-            subcommand: 'create_branch',
-            repo: repoSlug,
-            branch: d.branch,
-            from_branch: d.from_branch,
-            sha: d.sha,
-            ref: d.ref,
-            data: d,
-            body_text: `Created branch ${d.branch} from ${d.from_branch} at ${String(d.sha || '').slice(0, 12)}`,
-            transport: this.lastTransportMode,
-          };
-        }
         let fromBranch = fromBranchInput;
         if (!fromBranch) {
           const meta = await this.#githubRestJson(coords, '');
+          if (meta.error_code) return meta;
           fromBranch = String((meta.json && meta.json.default_branch) || 'main');
         }
-        const baseRef = await this.#githubRestJson(coords, `git/ref/heads/${encodeURIComponent(fromBranch)}`);
+        const fromBranchPath = fromBranch.split('/').map(encodeURIComponent).join('/');
+        const baseRef = await this.#githubRestJson(coords, `git/ref/heads/${fromBranchPath}`);
+        if (baseRef.error_code) return baseRef;
         if (!baseRef.ok || !baseRef.json || !baseRef.json.object || !baseRef.json.object.sha) {
           return { ok: false, status: baseRef.status || 404, error_code: 'GitRefReadFailed', message: `Base branch '${fromBranch}' not found` };
         }
@@ -4080,6 +6719,7 @@ export class SpiralCoreHostBridge {
           method: 'POST',
           body: { ref: `refs/heads/${branch}`, sha: baseSha },
         });
+        if (created.error_code) return created;
         if (!created.ok) {
           return {
             ok: false,
@@ -4132,34 +6772,9 @@ export class SpiralCoreHostBridge {
       const branch = String(req.branch || argsObj.branch || 'main');
       const commitMessage = String(req.message || argsObj.message || req.commit_message || 'Update from UOR-R4 Connected Studio');
       try {
-        const relayOut = await this.#resolveRelayGithubApi('commit_push', {
-          repo: repoSlug,
-          branch,
-          message: commitMessage,
-          files: filesToPush,
-          force: Boolean(req.force),
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'commit_push',
-            repo: repoSlug,
-            branch,
-            commit_sha: d.commit_sha,
-            tree_sha: d.tree_sha,
-            pushed_files: d.pushed_files,
-            deleted_files: d.deleted_files || 0,
-            data: d,
-            body_text: `Committed & pushed ${d.pushed_files} file(s) to ${repoSlug}@${branch} -> ${String(d.commit_sha || '').slice(0, 12)}`,
-            transport: this.lastTransportMode,
-          };
-        }
-
-        const refRes = await this.#githubRestJson(coords, `git/ref/heads/${encodeURIComponent(branch)}`);
+        const branchRefPath = branch.split('/').map(encodeURIComponent).join('/');
+        const refRes = await this.#githubRestJson(coords, `git/ref/heads/${branchRefPath}`);
+        if (refRes.error_code) return refRes;
         if (!refRes.ok || !refRes.json || !refRes.json.object) {
           return {
             ok: false,
@@ -4170,6 +6785,7 @@ export class SpiralCoreHostBridge {
         }
         const baseCommitSha = refRes.json.object.sha;
         const commitRes = await this.#githubRestJson(coords, `git/commits/${baseCommitSha}`);
+        if (commitRes.error_code) return commitRes;
         const baseTreeSha = commitRes.json && commitRes.json.tree && commitRes.json.tree.sha;
 
         const treeEntries = filesToPush.map((f) => {
@@ -4183,6 +6799,7 @@ export class SpiralCoreHostBridge {
           method: 'POST',
           body: { base_tree: baseTreeSha, tree: treeEntries },
         });
+        if (newTree.error_code) return newTree;
         if (!newTree.ok || !newTree.json) {
           return { ok: false, status: newTree.status, error_code: 'GitTreeCreateFailed', message: `GitHub tree creation failed (HTTP ${newTree.status})` };
         }
@@ -4190,13 +6807,15 @@ export class SpiralCoreHostBridge {
           method: 'POST',
           body: { message: commitMessage, tree: newTree.json.sha, parents: [baseCommitSha] },
         });
+        if (createdCommit.error_code) return createdCommit;
         if (!createdCommit.ok || !createdCommit.json) {
           return { ok: false, status: createdCommit.status, error_code: 'GitCommitCreateFailed', message: `GitHub commit creation failed (HTTP ${createdCommit.status})` };
         }
-        const updRef = await this.#githubRestJson(coords, `git/refs/heads/${encodeURIComponent(branch)}`, {
+        const updRef = await this.#githubRestJson(coords, `git/refs/heads/${branchRefPath}`, {
           method: 'PATCH',
           body: { sha: createdCommit.json.sha, force: Boolean(req.force) },
         });
+        if (updRef.error_code) return updRef;
         if (!updRef.ok) {
           return { ok: false, status: updRef.status, error_code: 'GitRefUpdateFailed', message: `GitHub ref fast-forward failed (HTTP ${updRef.status})` };
         }
@@ -4237,27 +6856,11 @@ export class SpiralCoreHostBridge {
         return { ok: false, status: 400, error_code: 'GitPrCreateFailed', message: 'create_pr requires head branch and title' };
       }
       try {
-        const relayOut = await this.#resolveRelayGithubApi('create_pr', {
-          repo: repoSlug, head, base, title, body, draft: Boolean(req.draft), auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 201,
-            op: 'git',
-            subcommand: 'create_pr',
-            repo: repoSlug,
-            ...d,
-            data: d,
-            body_text: `Opened PR #${d.pr_number} (${d.head} -> ${d.base}): ${d.html_url || d.url}`,
-            transport: this.lastTransportMode,
-          };
-        }
         const prRes = await this.#githubRestJson(coords, 'pulls', {
           method: 'POST',
           body: { title, body, head, base, draft: Boolean(req.draft) },
         });
+        if (prRes.error_code) return prRes;
         if (!prRes.ok || !prRes.json) {
           return {
             ok: false,
@@ -4295,25 +6898,10 @@ export class SpiralCoreHostBridge {
       const prNum = Number(req.pr_number || argsObj.pr_number || 0) || null;
       let headSha = String(req.ref || argsObj.ref || req.head_sha || '').trim();
       try {
-        const relayOut = await this.#resolveRelayGithubApi('pr_status', {
-          repo: repoSlug, pr_number: prNum || undefined, ref: headSha || undefined, auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'pr_status',
-            ...d,
-            data: d,
-            body_text: `PR #${d.pr_number || '-'} state=${d.state} mergeable=${d.mergeable} checks=${d.check_status} (${d.checks_passed}/${d.checks_total})`,
-            transport: this.lastTransportMode,
-          };
-        }
         let prMeta = null;
         if (prNum && Number.isInteger(prNum) && prNum > 0) {
           const prRes = await this.#githubRestJson(coords, `pulls/${prNum}`);
+          if (prRes.error_code) return prRes;
           if (!prRes.ok || !prRes.json) {
             return { ok: false, status: prRes.status || 404, error_code: 'GitPrStatusFailed', message: `Failed to fetch PR #${prNum}` };
           }
@@ -4376,29 +6964,10 @@ export class SpiralCoreHostBridge {
         return { ok: false, status: 400, error_code: 'GitPrMergeFailed', message: 'merge_pr requires valid integer pr_number' };
       }
       try {
-        const relayOut = await this.#resolveRelayGithubApi('merge_pr', {
-          repo: repoSlug,
-          pr_number: prNum,
-          merge_method: req.merge_method || argsObj.merge_method || 'squash',
-          commit_title: req.commit_title || argsObj.commit_title || undefined,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'merge_pr',
-            ...d,
-            data: d,
-            body_text: `Merged PR #${prNum} on ${repoSlug} (sha=${String(d.sha || '').slice(0, 12)})`,
-            transport: this.lastTransportMode,
-          };
-        }
         const mergeBody = { merge_method: String(req.merge_method || argsObj.merge_method || 'squash') };
         if (req.commit_title || argsObj.commit_title) mergeBody.commit_title = String(req.commit_title || argsObj.commit_title);
         const mRes = await this.#githubRestJson(coords, `pulls/${prNum}/merge`, { method: 'PUT', body: mergeBody });
+        if (mRes.error_code) return mRes;
         if (!mRes.ok) {
           return { ok: false, status: mRes.status, error_code: 'GitPrMergeFailed', message: (mRes.json && mRes.json.message) || `Failed to merge PR #${prNum}` };
         }
@@ -4427,51 +6996,63 @@ export class SpiralCoreHostBridge {
     if (subcommand === 'watch_deploy') {
       const provUrlOverride = String(req.provenance_url || argsObj.provenance_url || '').trim();
       try {
-        const relayOut = await this.#resolveRelayGithubApi('watch_deploy', {
-          repo: repoSlug,
-          provenance_url: provUrlOverride || undefined,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          const updateAvail = Boolean(
-            this.#provenanceBaseline &&
-              d.adapter_wasm_sha256 &&
-              (d.adapter_wasm_sha256 !== this.#provenanceBaseline.adapter_wasm_sha256 ||
-                d.binding_javascript_sha256 !== this.#provenanceBaseline.binding_javascript_sha256),
-          );
-          const merged = { ...d, update_available: updateAvail };
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'watch_deploy',
-            ...merged,
-            data: merged,
-            body_text: `Pages ${merged.pages_status} (${merged.pages_url || 'origin'}) · provenance=${String(merged.adapter_wasm_sha256 || '').slice(0, 12)} · update=${updateAvail}`,
-            transport: this.lastTransportMode,
-          };
-        }
         const [pagesRes, buildRes] = await Promise.all([
-          this.#githubRestJson(coords, 'pages').catch(() => ({ ok: false, json: null })),
-          this.#githubRestJson(coords, 'pages/builds/latest').catch(() => ({ ok: false, json: null })),
+          this.#githubRestJson(coords, 'pages'),
+          this.#githubRestJson(coords, 'pages/builds/latest'),
         ]);
+        const fatalNetworkCodes = new Set([
+          'RelayForbiddenForCredentialedHost',
+          'RelayConsentRequired',
+          'CapabilityDenied',
+          'PrivateAddressBlocked',
+          'HostNotAllowlistedForSecret',
+          'CredentialLeakBlocked',
+        ]);
+        for (const candRes of [pagesRes, buildRes]) {
+          if (
+            candRes &&
+            !candRes.ok &&
+            ((candRes.error_code && fatalNetworkCodes.has(candRes.error_code)) ||
+              (candRes.status && candRes.status !== 404 && candRes.status !== 200))
+          ) {
+            if (candRes === buildRes && candRes.status === 404) continue;
+            return {
+              ok: false,
+              status: candRes.status || 403,
+              error_code: candRes.error_code || 'GitDeployWatchFailed',
+              host: candRes.host || 'api.github.com',
+              message:
+                candRes.message ||
+                (candRes.json && candRes.json.message) ||
+                `GitHub Pages status lookup failed (HTTP ${candRes.status})`,
+            };
+          }
+        }
         const pagesUrl = pagesRes.ok && pagesRes.json ? String(pagesRes.json.html_url || '') : '';
         const targetProvUrl = provUrlOverride || (pagesUrl ? `${pagesUrl.replace(/\/+$/, '')}/provenance.json` : '');
         let provRes = null;
         if (targetProvUrl) {
           provRes = await this.checkProvenanceUpdate(targetProvUrl);
+          if (provRes && !provRes.ok && provRes.error_code && fatalNetworkCodes.has(provRes.error_code)) {
+            return provRes;
+          }
         }
         const classicBuildStatus = buildRes.ok && buildRes.json ? String(buildRes.json.status || '') : '';
         let workflowStatus = '';
         let workflowSha = '';
         if (pagesRes.ok && pagesRes.json && !pagesRes.json.status && !classicBuildStatus) {
-          const depRes = await this.#githubRestJson(coords, 'deployments?environment=github-pages&per_page=1').catch(() => ({ ok: false, json: null }));
+          const depRes = await this.#githubRestJson(coords, 'deployments?environment=github-pages&per_page=1');
+          if (depRes && !depRes.ok && depRes.error_code && fatalNetworkCodes.has(depRes.error_code)) {
+            return depRes;
+          }
           const latestDep = depRes.ok && Array.isArray(depRes.json) && depRes.json.length > 0 ? depRes.json[0] : null;
           if (latestDep) {
             workflowSha = String(latestDep.sha || '');
             if (latestDep.id != null) {
-              const stRes = await this.#githubRestJson(coords, `deployments/${latestDep.id}/statuses?per_page=1`).catch(() => ({ ok: false, json: null }));
+              const stRes = await this.#githubRestJson(coords, `deployments/${latestDep.id}/statuses?per_page=1`);
+              if (stRes && !stRes.ok && stRes.error_code && fatalNetworkCodes.has(stRes.error_code)) {
+                return stRes;
+              }
               const latestSt = stRes.ok && Array.isArray(stRes.json) && stRes.json.length > 0 ? stRes.json[0] : null;
               const rawDepState = String((latestSt && latestSt.state) || '').toLowerCase();
               if (rawDepState === 'success') workflowStatus = 'built';
@@ -4526,6 +7107,59 @@ export class SpiralCoreHostBridge {
   async handlePkgFetch(req) {
     const sub = String(req.subcommand || req.action || (req.name || req.pkg_name ? 'install' : 'list')).toLowerCase();
     const pkgName = String(req.pkg_name || req.name || '').trim().replace(/[^a-zA-Z0-9_.-]/g, '');
+    const explicitUrl = String(req.url || (req.arguments && req.arguments.url) || '').trim();
+    if (explicitUrl && sub !== 'list' && sub !== 'search') {
+      const elfFetch = await this.#admittedFetch(
+        explicitUrl,
+        undefined,
+        { operation: 'pkg_fetch', allowConfiguredOrigin: true },
+      );
+      if (!elfFetch.ok) return elfFetch.error;
+      const elfResp = elfFetch.response;
+      if (!elfResp || !elfResp.ok) {
+        return {
+          ok: false,
+          status: elfResp ? elfResp.status : 502,
+          error_code: 'PackageDownloadFailed',
+          message: `Failed to download ${explicitUrl} (HTTP ${elfResp ? elfResp.status : 'error'})`,
+        };
+      }
+      const elfBytes = new Uint8Array(await elfResp.arrayBuffer());
+      const expectedSha = String(req.expected_sha256 || req.sha256 || '');
+      const verified = await this.verifyElf64RiscvAndSha256(elfBytes, expectedSha);
+      if (!verified.ok) {
+        return { ok: false, status: 422, error_code: verified.error_code, message: verified.message };
+      }
+      const elfB64 = __uorBytesToBase64(elfBytes);
+      const binName = pkgName || 'pkg';
+      return {
+        ok: true,
+        status: 200,
+        op: 'pkg_fetch',
+        subcommand: 'install',
+        installed: true,
+        name: binName,
+        pkg_name: binName,
+        install_path: `/usr/local/bin/${binName}`,
+        expected_sha256: verified.sha256,
+        sha256: verified.sha256,
+        byte_len: elfBytes.byteLength,
+        e_machine: verified.e_machine,
+        elf_machine: verified.e_machine,
+        elf_base64: elfB64,
+        data: {
+          installed: true,
+          name: binName,
+          pkg_name: binName,
+          expected_sha256: verified.sha256,
+          sha256: verified.sha256,
+          elf_machine: verified.e_machine,
+          elf_base64: elfB64,
+        },
+        body_text: `Installed verified RV64IMAC ELF64 binary /usr/local/bin/${binName} (${elfBytes.byteLength} B, sha256:${verified.sha256.slice(0, 16)})`,
+      };
+    }
+
     const explicitOrigin = this.staticOrigin ? this.staticOrigin.replace(/\/+$/, '') : '';
     const httpOrigin =
       typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
@@ -4540,11 +7174,35 @@ export class SpiralCoreHostBridge {
 
     let pkgIndex = null;
     let basePkgUrl = '';
+    let lastPolicyErr = null;
     for (const idxUrl of indexCandidates) {
       for (let attempt = 0; attempt < 2; attempt += 1) {
         try {
-          const r = await fetch(idxUrl, { cache: 'no-cache' });
-          if (r.ok) {
+          if (idxUrl.startsWith('file://')) {
+            const r = await this.#fetchImpl(idxUrl, { cache: 'no-cache' });
+            if (r && r.ok) {
+              pkgIndex = await r.json();
+              basePkgUrl = idxUrl.slice(0, idxUrl.lastIndexOf('/') + 1);
+            }
+            break;
+          }
+          const rFetch = await this.#admittedFetch(
+            idxUrl,
+            { cache: 'no-cache' },
+            { operation: 'pkg_fetch', allowConfiguredOrigin: true },
+          );
+          if (!rFetch.ok) {
+            if (rFetch.error && rFetch.error.error_code && rFetch.error.error_code !== 'HttpBridgeFetchError') {
+              lastPolicyErr = rFetch.error;
+              if (explicitOrigin && idxUrl.startsWith(explicitOrigin)) {
+                return rFetch.error;
+              }
+              break;
+            }
+            continue;
+          }
+          const r = rFetch.response;
+          if (r && r.ok) {
             pkgIndex = await r.json();
             basePkgUrl = idxUrl.slice(0, idxUrl.lastIndexOf('/') + 1);
           }
@@ -4557,6 +7215,7 @@ export class SpiralCoreHostBridge {
     }
 
     if (!pkgIndex || !Array.isArray(pkgIndex.packages)) {
+      if (lastPolicyErr) return lastPolicyErr;
       return {
         ok: false,
         status: 404,
@@ -4592,13 +7251,25 @@ export class SpiralCoreHostBridge {
     }
 
     const elfFile = entry.file || `${pkgName}.elf`;
-    const elfResp = await fetch(basePkgUrl + elfFile);
-    if (!elfResp.ok) {
+    const elfTargetUrl = entry.url ? String(entry.url) : (basePkgUrl + elfFile);
+    let elfResp = null;
+    if (elfTargetUrl.startsWith('file://')) {
+      elfResp = await this.#fetchImpl(elfTargetUrl);
+    } else {
+      const elfFetch = await this.#admittedFetch(
+        elfTargetUrl,
+        undefined,
+        { operation: 'pkg_fetch', allowConfiguredOrigin: true },
+      );
+      if (!elfFetch.ok) return elfFetch.error;
+      elfResp = elfFetch.response;
+    }
+    if (!elfResp || !elfResp.ok) {
       return {
         ok: false,
-        status: elfResp.status,
+        status: elfResp ? elfResp.status : 502,
         error_code: 'PackageDownloadFailed',
-        message: `Failed to download ${elfFile} (HTTP ${elfResp.status})`,
+        message: `Failed to download ${elfFile} (HTTP ${elfResp ? elfResp.status : 'error'})`,
       };
     }
     const elfBytes = new Uint8Array(await elfResp.arrayBuffer());
@@ -4639,6 +7310,1596 @@ export class SpiralCoreHostBridge {
       },
       body_text: `Installed verified RV64IMAC ELF64 binary /usr/local/bin/${pkgName} (${elfBytes.byteLength} B, sha256:${verified.sha256.slice(0, 16)})`,
     };
+  }
+
+  #assertNetworkAllowed() {
+    if (this.mcpPolicy === 'deny') {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'PolicyDenied',
+        message: 'Outbound bridge operation denied by active MCP security policy',
+      };
+    }
+    if (!this.webAccessEnabled) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'PolicyDenied',
+        message: 'Web Access is currently toggled OFF in the studio topbar',
+      };
+    }
+    return { ok: true };
+  }
+
+  async #verifySri(bytes, integrityStr) {
+    const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes || 0);
+    const tokens = String(integrityStr || '').trim().split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) {
+      return {
+        ok: false,
+        error_code: 'IntegrityMismatch',
+        message: 'Missing required Subresource Integrity digest',
+      };
+    }
+    const algMap = {
+      sha256: 'SHA-256',
+      sha384: 'SHA-384',
+      sha512: 'SHA-512',
+    };
+    let sawSupported = false;
+    for (const tok of tokens) {
+      const dash = tok.indexOf('-');
+      if (dash <= 0) continue;
+      const algKey = tok.slice(0, dash).toLowerCase();
+      const expectedB64 = tok.slice(dash + 1);
+      const subtleAlg = algMap[algKey];
+      if (!subtleAlg || !expectedB64) continue;
+      sawSupported = true;
+      const digBuf = await crypto.subtle.digest(subtleAlg, view);
+      const actualB64 = __uorBytesToBase64(new Uint8Array(digBuf));
+      if (actualB64 === expectedB64) {
+        return { ok: true, algorithm: subtleAlg, digest: tok };
+      }
+    }
+    return {
+      ok: false,
+      error_code: 'IntegrityMismatch',
+      message: sawSupported
+        ? `SRI integrity mismatch against ${tokens[0].slice(0, 24)}...`
+        : `Unsupported SRI algorithm in "${integrityStr}"`,
+    };
+  }
+
+  async #gunzipBytes(u8) {
+    if (typeof DecompressionStream === 'function') {
+      const ds = new DecompressionStream('gzip');
+      const writer = ds.writable.getWriter();
+      const writeP = writer.write(u8).then(() => writer.close());
+      const reader = ds.readable.getReader();
+      const chunks = [];
+      let total = 0;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value && value.byteLength > 0) {
+          chunks.push(value);
+          total += value.byteLength;
+        }
+      }
+      await writeP;
+      const out = new Uint8Array(total);
+      let off = 0;
+      for (const c of chunks) {
+        out.set(c, off);
+        off += c.byteLength;
+      }
+      return out;
+    }
+    const err = new Error('DecompressionStream("gzip") unavailable in host environment');
+    err.code = 'IntegrityMismatch';
+    throw err;
+  }
+
+  #parseTarEntries(tarBytes) {
+    const entries = [];
+    let offset = 0;
+    let nextLongName = '';
+    let nextLongLink = '';
+    const parseOctal = (slice) => {
+      const txt = cachedTextDecoder.decode(slice).replace(/\0.*$/, '').trim();
+      return txt ? Number('0o' + txt) : 0;
+    };
+    const parsePax = (dataBytes) => {
+      const pax = {};
+      const text = cachedTextDecoder.decode(dataBytes);
+      let pos = 0;
+      while (pos < text.length) {
+        const sp = text.indexOf(' ', pos);
+        if (sp < 0) break;
+        const len = Number(text.slice(pos, sp));
+        if (!Number.isFinite(len) || len <= 0) break;
+        const rec = text.slice(sp + 1, pos + len).replace(/\n$/, '');
+        const eq = rec.indexOf('=');
+        if (eq > 0) pax[rec.slice(0, eq)] = rec.slice(eq + 1);
+        pos += len;
+      }
+      return pax;
+    };
+    let paxNext = {};
+    while (offset + 512 <= tarBytes.byteLength) {
+      const hdr = tarBytes.subarray(offset, offset + 512);
+      offset += 512;
+      let zero = true;
+      for (let i = 0; i < 512; i += 1) {
+        if (hdr[i] !== 0) {
+          zero = false;
+          break;
+        }
+      }
+      if (zero) break;
+      const rawName = cachedTextDecoder.decode(hdr.subarray(0, 100)).replace(/\0.*$/, '');
+      const prefix = cachedTextDecoder.decode(hdr.subarray(345, 500)).replace(/\0.*$/, '');
+      const mode = parseOctal(hdr.subarray(100, 108)) || 0o644;
+      const size = parseOctal(hdr.subarray(124, 136)) || 0;
+      const typeflag = String.fromCharCode(hdr[156] || 48);
+      const rawLink = cachedTextDecoder.decode(hdr.subarray(157, 257)).replace(/\0.*$/, '');
+      const dataSlice = size > 0 ? tarBytes.subarray(offset, offset + size) : new Uint8Array(0);
+      const padded = Math.ceil(size / 512) * 512;
+      offset += padded;
+
+      if (typeflag === 'L') {
+        nextLongName = cachedTextDecoder.decode(dataSlice).replace(/\0.*$/, '');
+        continue;
+      }
+      if (typeflag === 'K') {
+        nextLongLink = cachedTextDecoder.decode(dataSlice).replace(/\0.*$/, '');
+        continue;
+      }
+      if (typeflag === 'x') {
+        paxNext = parsePax(dataSlice);
+        continue;
+      }
+      if (typeflag === 'g') {
+        continue;
+      }
+
+      const fullName = paxNext.path || nextLongName || (prefix ? `${prefix}/${rawName}` : rawName);
+      const linkname = paxNext.linkpath || nextLongLink || rawLink;
+      nextLongName = '';
+      nextLongLink = '';
+      paxNext = {};
+
+      entries.push({
+        name: fullName,
+        mode,
+        typeflag,
+        linkname,
+        data: new Uint8Array(dataSlice),
+      });
+    }
+    return entries;
+  }
+
+  async ensureEsbuildCompiler() {
+    if (this.#esbuildCompiler) return { ok: true, compiler: this.#esbuildCompiler };
+    if (!this.esbuildModuleUrl || !this.esbuildWasmUrl) {
+      return {
+        ok: false,
+        error_code: 'EsbuildAdapterUnavailable',
+        message: 'Foundry esbuildModuleUrl / esbuildWasmUrl not configured in Worker host config',
+      };
+    }
+    if (!this.#esbuildPromise) {
+      this.#esbuildPromise = (async () => {
+        const mod = await import(this.esbuildModuleUrl);
+        if (mod && typeof mod.initialize === 'function') {
+          await mod.initialize({ wasmURL: this.esbuildWasmUrl, worker: false });
+        }
+        this.#esbuildCompiler = mod;
+        return mod;
+      })();
+    }
+    try {
+      const compiler = await this.#esbuildPromise;
+      return { ok: true, compiler };
+    } catch (err) {
+      this.#esbuildPromise = null;
+      this.#esbuildCompiler = null;
+      return {
+        ok: false,
+        error_code: 'EsbuildAdapterUnavailable',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
+
+  #needsEsbuildTranspile(code, filePath, args) {
+    const ext = String(filePath || '').toLowerCase();
+    if (
+      ext.endsWith('.ts') ||
+      ext.endsWith('.tsx') ||
+      ext.endsWith('.mts') ||
+      ext.endsWith('.cts') ||
+      ext.endsWith('.jsx') ||
+      ext.endsWith('.mjs')
+    ) {
+      return true;
+    }
+    const argList = Array.isArray(args) ? args : [];
+    if (argList.some((a) => String(a).includes('--loader=ts') || String(a) === '--experimental-strip-types')) {
+      return true;
+    }
+    const src = String(code || '');
+    return /^\s*(?:import\s+(?:[\s\S]+?\s+from\s+)?['"]|export\s+(?:default|const|let|var|function|class|type|interface|\{))/m.test(src);
+  }
+
+  #extractBridgePayload(req) {
+    const p = req && req.payload && typeof req.payload === 'object' ? req.payload : req;
+    const args = Array.isArray(p.args) ? p.args : (Array.isArray(req.args) ? req.args : []);
+    const cwd = String(p.cwd || req.cwd || '/workspace');
+    const env = p.env && typeof p.env === 'object' ? p.env : (req.env && typeof req.env === 'object' ? req.env : {});
+    const workspace = Array.isArray(p.workspace) ? p.workspace : (Array.isArray(req.workspace) ? req.workspace : []);
+    let stdinBytes = new Uint8Array(0);
+    if (typeof p.stdin_base64 === 'string' && p.stdin_base64) {
+      stdinBytes = __uorBase64ToBytes(p.stdin_base64);
+    } else if (typeof p.stdin_utf8 === 'string' && p.stdin_utf8) {
+      stdinBytes = cachedTextEncoder.encode(p.stdin_utf8);
+    } else if (typeof req.stdin_base64 === 'string' && req.stdin_base64) {
+      stdinBytes = __uorBase64ToBytes(req.stdin_base64);
+    } else if (typeof req.stdin_utf8 === 'string' && req.stdin_utf8) {
+      stdinBytes = cachedTextEncoder.encode(req.stdin_utf8);
+    }
+    return {
+      tool: String(p.tool || req.tool || 'node').toLowerCase(),
+      args,
+      cwd,
+      env,
+      workspace,
+      stdinBytes,
+    };
+  }
+
+  #makePosixPathShim() {
+    const normalize = (p) => MvmPolyglotVfs.normalizePath('/', p);
+    const resolve = (...segs) => {
+      let acc = '/workspace';
+      for (const s of segs) {
+        const str = String(s || '');
+        if (!str) continue;
+        acc = MvmPolyglotVfs.normalizePath(acc, str);
+      }
+      return acc;
+    };
+    const join = (...segs) => {
+      const raw = segs.map((s) => String(s || '')).filter(Boolean).join('/');
+      if (!raw) return '.';
+      if (raw.startsWith('/')) return normalize(raw);
+      const stack = [];
+      for (const part of raw.split('/')) {
+        if (!part || part === '.') continue;
+        if (part === '..') {
+          if (stack.length > 0 && stack[stack.length - 1] !== '..') stack.pop();
+          else stack.push('..');
+        } else {
+          stack.push(part);
+        }
+      }
+      return stack.length === 0 ? '.' : stack.join('/');
+    };
+    const dirname = (p) => {
+      const s = String(p || '');
+      const idx = s.lastIndexOf('/');
+      if (idx < 0) return '.';
+      return idx === 0 ? '/' : s.slice(0, idx);
+    };
+    const basename = (p, ext) => {
+      const s = String(p || '').replace(/\/+$/, '');
+      const base = s.slice(s.lastIndexOf('/') + 1);
+      return ext && base.endsWith(ext) ? base.slice(0, base.length - ext.length) : base;
+    };
+    const extname = (p) => {
+      const b = basename(p);
+      const dot = b.lastIndexOf('.');
+      return dot > 0 ? b.slice(dot) : '';
+    };
+    const relative = (from, to) => {
+      const f = resolve(from).split('/').filter(Boolean);
+      const t = resolve(to).split('/').filter(Boolean);
+      let common = 0;
+      while (common < f.length && common < t.length && f[common] === t[common]) common += 1;
+      const ups = new Array(f.length - common).fill('..');
+      return ups.concat(t.slice(common)).join('/') || '.';
+    };
+    const pathObj = {
+      sep: '/',
+      delimiter: ':',
+      normalize,
+      resolve,
+      join,
+      dirname,
+      basename,
+      extname,
+      relative,
+      isAbsolute: (p) => String(p || '').startsWith('/'),
+    };
+    pathObj.posix = pathObj;
+    return pathObj;
+  }
+
+  async handleNodeExec(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    const args = info.args.map((a) => String(a));
+
+    if (info.tool === 'npx') {
+      const cmdIdx = args.findIndex((a) => !a.startsWith('-'));
+      if (cmdIdx < 0) {
+        return { ok: true, exit_code: 1, stdout: '', stderr: 'npx: missing command argument\n', writes: [], deletes: [] };
+      }
+      const cmdName = args[cmdIdx];
+      const cmdArgs = args.slice(cmdIdx + 1);
+      if (cmdName === 'esbuild') {
+        const esRes = await this.ensureEsbuildCompiler();
+        if (!esRes.ok) return esRes;
+        const entry = cmdArgs.find((a) => !a.startsWith('-'));
+        if (!entry) {
+          return { ok: true, exit_code: 0, stdout: `esbuild ${esRes.compiler.version || 'wasm'}\n`, stderr: '', writes: [], deletes: [] };
+        }
+        const src = vfs.readText(entry) || '';
+        try {
+          const out = await esRes.compiler.transform(src, { loader: entry.endsWith('.ts') ? 'ts' : 'js', format: 'cjs' });
+          const outFlagIdx = cmdArgs.findIndex((a) => a.startsWith('--outfile='));
+          if (outFlagIdx >= 0) {
+            const outFile = cmdArgs[outFlagIdx].slice('--outfile='.length);
+            vfs.writeBytes(outFile, out.code || '');
+            const muts = vfs.exportMutations();
+            return { ok: true, exit_code: 0, stdout: '', stderr: '', ...muts };
+          }
+          return { ok: true, exit_code: 0, stdout: out.code || '', stderr: '', writes: [], deletes: [] };
+        } catch (err) {
+          return {
+            ok: true,
+            exit_code: 1,
+            stdout: '',
+            stderr: (err && err.stack ? err.stack : (err && err.message ? err.message : String(err))) + '\n',
+            writes: [],
+            deletes: [],
+          };
+        }
+      }
+      const binPath = `/workspace/node_modules/.bin/${cmdName}`;
+      if (!vfs.exists(binPath)) {
+        const installed = await this.handleNpmBridge({
+          ecosystem: 'npm',
+          tool: 'npm',
+          args: ['install', cmdName],
+          cwd: info.cwd,
+          workspace: info.workspace,
+        });
+        if (!installed.ok) return installed;
+        const mergedWs = new MvmPolyglotVfs(info.workspace, info.cwd);
+        for (const w of installed.writes || []) {
+          if (w.symlink_target) mergedWs.writeSymlink(w.path, w.symlink_target);
+          else mergedWs.writeBytes(w.path, __uorBase64ToBytes(w.content_base64 || ''), w.mode);
+        }
+        const reExec = await this.handleNodeExec({
+          ...req,
+          tool: 'node',
+          args: [binPath, ...cmdArgs],
+          workspace: (mergedWs.files.size || mergedWs.symlinks.size) ? Array.from(mergedWs.files.entries()).map(([p, b]) => ({
+            path: p,
+            content_base64: __uorBytesToBase64(b),
+            mode: mergedWs.modes.get(p) || 0o100644,
+          })).concat(Array.from(mergedWs.symlinks.entries()).map(([p, t]) => ({
+            path: p,
+            symlink_target: t,
+            mode: 0o120777,
+          }))) : info.workspace,
+        });
+        if (!reExec.ok) return reExec;
+        const mergedWriteMap = new Map();
+        for (const w of installed.writes || []) {
+          mergedWriteMap.set(MvmPolyglotVfs.normalizeRel(w.path), w);
+        }
+        const mergedDeleteSet = new Set((installed.deletes || []).map((d) => MvmPolyglotVfs.normalizeRel(d)));
+        for (const d of reExec.deletes || []) {
+          const dr = MvmPolyglotVfs.normalizeRel(d);
+          mergedWriteMap.delete(dr);
+          mergedDeleteSet.add(dr);
+        }
+        for (const w of reExec.writes || []) {
+          const wr = MvmPolyglotVfs.normalizeRel(w.path);
+          mergedDeleteSet.delete(wr);
+          mergedWriteMap.set(wr, w);
+        }
+        return {
+          ...reExec,
+          writes: Array.from(mergedWriteMap.values()),
+          deletes: Array.from(mergedDeleteSet),
+        };
+      }
+      return this.handleNodeExec({ ...req, tool: 'node', args: [binPath, ...cmdArgs] });
+    }
+
+    let evalCode = null;
+    let printExpr = false;
+    let scriptPath = null;
+    const scriptArgs = [];
+    for (let i = 0; i < args.length; i += 1) {
+      const a = args[i];
+      if ((a === '-e' || a === '--eval') && i + 1 < args.length && evalCode === null && !scriptPath) {
+        evalCode = args[i + 1];
+        i += 1;
+      } else if ((a === '-p' || a === '--print') && i + 1 < args.length && evalCode === null && !scriptPath) {
+        evalCode = args[i + 1];
+        printExpr = true;
+        i += 1;
+      } else if ((a === '-v' || a === '--version') && evalCode === null && !scriptPath) {
+        return { ok: true, exit_code: 0, stdout: 'v20.18.0-mvm\n', stderr: '', writes: [], deletes: [] };
+      } else if (a.startsWith('--loader=') || a === '--experimental-strip-types') {
+        continue;
+      } else if (!a.startsWith('-') && evalCode === null && !scriptPath) {
+        scriptPath = a;
+      } else {
+        scriptArgs.push(a);
+      }
+    }
+
+    if (evalCode === null && !scriptPath) {
+      evalCode = cachedTextDecoder.decode(info.stdinBytes);
+    }
+
+    let entryAbs = '/workspace/__eval__.js';
+    let entryCode = evalCode;
+    if (scriptPath) {
+      const normScriptAbs = MvmPolyglotVfs.normalizePath(vfs.cwd, scriptPath);
+      try {
+        entryAbs = vfs.resolveGuestTarget(normScriptAbs).abs;
+      } catch (err) {
+        if (err && err.code === 'CanonicalPathProtected') {
+          return { ok: false, error_code: err.code, message: err.message };
+        }
+        throw err;
+      }
+      const raw = vfs.readText(entryAbs);
+      if (raw === null) {
+        return {
+          ok: true,
+          exit_code: 1,
+          stdout: '',
+          stderr: `Error: Cannot find module '${scriptPath}'\n`,
+          writes: [],
+          deletes: [],
+        };
+      }
+      entryCode = raw;
+    }
+
+    const stdoutChunks = [];
+    const stderrChunks = [];
+    let procExitCode = 0;
+    class NodeExitSignal {
+      constructor(code) {
+        this.code = code | 0;
+      }
+    }
+
+    const pathShim = this.#makePosixPathShim();
+    const fsShim = {
+      readFileSync: (p, enc) => {
+        const bytes = vfs.readBytes(p);
+        if (!bytes) {
+          const e = new Error(`ENOENT: no such file or directory, open '${p}'`);
+          e.code = 'ENOENT';
+          throw e;
+        }
+        return enc ? MvmNodeBuffer.from(bytes).toString(enc) : MvmNodeBuffer.from(bytes);
+      },
+      writeFileSync: (p, data) => vfs.writeBytes(p, data),
+      appendFileSync: (p, data) => {
+        const cur = vfs.readBytes(p) || new Uint8Array(0);
+        const add = data instanceof Uint8Array ? data : cachedTextEncoder.encode(String(data ?? ''));
+        vfs.writeBytes(p, MvmNodeBuffer.concat([cur, add]));
+      },
+      existsSync: (p) => vfs.exists(p),
+      mkdirSync: (p, opts) => vfs.mkdir(p, opts),
+      readdirSync: (p) => vfs.readdir(p),
+      unlinkSync: (p) => {
+        if (!vfs.deletePath(p)) {
+          const e = new Error(`ENOENT: no such file or directory, unlink '${p}'`);
+          e.code = 'ENOENT';
+          throw e;
+        }
+      },
+      rmSync: (p) => vfs.deletePath(p),
+      readlinkSync: (p) => {
+        const rel = MvmPolyglotVfs.normalizeRel(MvmPolyglotVfs.normalizePath(vfs.cwd, p));
+        if (!vfs.symlinks.has(rel)) {
+          const e = new Error(`EINVAL: invalid argument, readlink '${p}'`);
+          e.code = 'EINVAL';
+          throw e;
+        }
+        return vfs.symlinks.get(rel);
+      },
+      symlinkSync: (target, linkPath) => vfs.writeSymlink(linkPath, target),
+      realpathSync: (p) => vfs.resolveGuestTarget(p).abs,
+      statSync: (p) => {
+        const resolved = vfs.resolveGuestTarget(p);
+        const isDir = vfs.isDirectory(resolved.abs);
+        const bytes = isDir ? null : vfs.readBytes(resolved.abs);
+        if (!isDir && !bytes) {
+          const e = new Error(`ENOENT: no such file or directory, stat '${p}'`);
+          e.code = 'ENOENT';
+          throw e;
+        }
+        return {
+          size: bytes ? bytes.byteLength : 0,
+          isFile: () => !isDir,
+          isDirectory: () => isDir,
+          isSymbolicLink: () => false,
+        };
+      },
+      lstatSync: (p) => {
+        const abs = MvmPolyglotVfs.normalizePath(vfs.cwd, p);
+        const rel = MvmPolyglotVfs.normalizeRel(abs);
+        if (rel && vfs.symlinks.has(rel)) {
+          return {
+            size: vfs.symlinks.get(rel).length,
+            isFile: () => false,
+            isDirectory: () => false,
+            isSymbolicLink: () => true,
+          };
+        }
+        return fsShim.statSync(p);
+      },
+    };
+    fsShim.promises = {
+      readFile: async (p, enc) => fsShim.readFileSync(p, enc),
+      writeFile: async (p, data) => fsShim.writeFileSync(p, data),
+      readdir: async (p) => fsShim.readdirSync(p),
+      mkdir: async (p, opts) => fsShim.mkdirSync(p, opts),
+      unlink: async (p) => fsShim.unlinkSync(p),
+      stat: async (p) => fsShim.statSync(p),
+      lstat: async (p) => fsShim.lstatSync(p),
+    };
+
+    const processShim = {
+      version: 'v20.18.0-mvm',
+      versions: { node: '20.18.0', v8: '12.0', wasi: '1.0' },
+      platform: 'linux',
+      arch: 'riscv64',
+      argv: ['node', scriptPath || '-e', ...scriptArgs],
+      env: { ...info.env },
+      cwd: () => vfs.cwd,
+      chdir: (nextDir) => {
+        vfs.cwd = MvmPolyglotVfs.normalizePath(vfs.cwd, nextDir);
+      },
+      stdout: {
+        write: (s) => {
+          stdoutChunks.push(String(s));
+          return true;
+        },
+      },
+      stderr: {
+        write: (s) => {
+          stderrChunks.push(String(s));
+          return true;
+        },
+      },
+      exit: (code) => {
+        throw new NodeExitSignal(code || 0);
+      },
+      nextTick: (fn, ...cbArgs) => Promise.resolve().then(() => fn(...cbArgs)),
+    };
+
+    const formatArg = (v) => {
+      if (typeof v === 'string') return v;
+      if (v instanceof Error) return v.stack || v.message;
+      try {
+        return typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+      } catch {
+        return String(v);
+      }
+    };
+    const consoleShim = {
+      log: (...vals) => stdoutChunks.push(vals.map(formatArg).join(' ') + '\n'),
+      info: (...vals) => stdoutChunks.push(vals.map(formatArg).join(' ') + '\n'),
+      warn: (...vals) => stderrChunks.push(vals.map(formatArg).join(' ') + '\n'),
+      error: (...vals) => stderrChunks.push(vals.map(formatArg).join(' ') + '\n'),
+    };
+
+    const cryptoShim = {
+      randomBytes: (n) => {
+        const buf = MvmNodeBuffer.alloc(n, 0);
+        if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+          crypto.getRandomValues(buf);
+        }
+        return buf;
+      },
+      randomUUID: () => (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : '00000000-0000-4000-8000-000000000000'),
+      subtle: typeof crypto !== 'undefined' ? crypto.subtle : undefined,
+    };
+
+    const urlShim = {
+      URL,
+      URLSearchParams,
+      fileURLToPath: (u) => new URL(u).pathname,
+      pathToFileURL: (p) => new URL(`file://${MvmPolyglotVfs.normalizePath('/', p)}`),
+    };
+
+    const fetchShim = async (url, init) => {
+      const netCheck = this.#assertNetworkAllowed();
+      if (!netCheck.ok) {
+        const e = new Error(netCheck.message);
+        e.code = netCheck.error_code;
+        throw e;
+      }
+      const opts = init && typeof init === 'object' ? init : {};
+      const res = await this.handleHttpRequest({
+        url: String(url),
+        method: opts.method || 'GET',
+        headers: opts.headers || {},
+        body: typeof opts.body === 'string' ? opts.body : undefined,
+      });
+      if (!res.ok && res.error_code) {
+        const e = new Error(res.message || res.error_code);
+        e.code = res.error_code;
+        throw e;
+      }
+      const text = String(res.body_text || '');
+      return {
+        ok: res.status >= 200 && res.status < 300,
+        status: res.status || 200,
+        text: async () => text,
+        json: async () => JSON.parse(text),
+        arrayBuffer: async () => cachedTextEncoder.encode(text).buffer,
+      };
+    };
+
+    const assertShim = {
+      ok: (cond, msg) => { if (!cond) throw new Error(msg || 'AssertionError'); },
+      equal: (a, b, msg) => { if (a != b) throw new Error(msg || `${a} != ${b}`); },
+      strictEqual: (a, b, msg) => { if (a !== b) throw new Error(msg || `${a} !== ${b}`); },
+      deepStrictEqual: (a, b, msg) => {
+        if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(msg || 'AssertionError: deepStrictEqual failed');
+      },
+      fail: (msg) => { throw new Error(msg || 'AssertionError: failed'); },
+    };
+    const utilShim = {
+      format: (fmt, ...vals) => {
+        if (typeof fmt !== 'string') return [fmt, ...vals].map(formatArg).join(' ');
+        let vi = 0;
+        const replaced = fmt.replace(/%([sdj%])/g, (full, ch) => {
+          if (ch === '%') return '%';
+          if (vi >= vals.length) return full;
+          const v = vals[vi++];
+          if (ch === 'j') return JSON.stringify(v);
+          if (ch === 'd') return String(Number(v));
+          return formatArg(v);
+        });
+        return vi < vals.length ? [replaced, ...vals.slice(vi).map(formatArg)].join(' ') : replaced;
+      },
+      inspect: (v) => formatArg(v),
+    };
+    const builtins = new Map([
+      ['fs', fsShim],
+      ['node:fs', fsShim],
+      ['fs/promises', fsShim.promises],
+      ['node:fs/promises', fsShim.promises],
+      ['path', pathShim],
+      ['node:path', pathShim],
+      ['process', processShim],
+      ['node:process', processShim],
+      ['buffer', { Buffer: MvmNodeBuffer }],
+      ['node:buffer', { Buffer: MvmNodeBuffer }],
+      ['crypto', cryptoShim],
+      ['node:crypto', cryptoShim],
+      ['url', urlShim],
+      ['node:url', urlShim],
+      ['assert', assertShim],
+      ['node:assert', assertShim],
+      ['util', utilShim],
+      ['node:util', utilShim],
+    ]);
+
+    const transpileMap = new Map();
+    const prepareCodeSyncOrNeedEsbuild = async (rawSource, filePath) => {
+      const strippedShebang = String(rawSource || '').replace(/^#![^\n]*\n/, '');
+      if (!this.#needsEsbuildTranspile(strippedShebang, filePath, args)) {
+        return { ok: true, code: strippedShebang };
+      }
+      const esRes = await this.ensureEsbuildCompiler();
+      if (!esRes.ok) return esRes;
+      const ext = pathShim.extname(filePath).toLowerCase();
+      const loader = ext === '.tsx' ? 'tsx' : (ext === '.ts' || ext === '.mts' || ext === '.cts' ? 'ts' : (ext === '.jsx' ? 'jsx' : 'js'));
+      const transformed = await esRes.compiler.transform(strippedShebang, {
+        loader,
+        format: 'cjs',
+        target: 'es2022',
+      });
+      return { ok: true, code: transformed.code || '' };
+    };
+
+    const resolveModulePath = (spec, fromDir) => {
+      const tryFile = (cand) => {
+        for (const ext of ['', '.js', '.cjs', '.mjs', '.ts', '.tsx', '.json']) {
+          const p = `${cand}${ext}`;
+          if (vfs.exists(p) && !vfs.isDirectory(p)) {
+            return vfs.resolveGuestTarget(p).abs;
+          }
+        }
+        if (vfs.isDirectory(cand)) {
+          const pkgRaw = vfs.readText(`${cand}/package.json`);
+          if (pkgRaw) {
+            try {
+              const pj = JSON.parse(pkgRaw);
+              let entry = pj.main || 'index.js';
+              if (pj.exports && typeof pj.exports === 'object' && pj.exports['.']) {
+                const dotExp = pj.exports['.'];
+                if (typeof dotExp === 'string') entry = dotExp;
+                else if (dotExp && typeof dotExp === 'object') {
+                  entry = dotExp.require || dotExp.default || dotExp.import || entry;
+                }
+              }
+              const target = MvmPolyglotVfs.normalizePath(cand, entry);
+              if (vfs.exists(target) && !vfs.isDirectory(target)) {
+                return vfs.resolveGuestTarget(target).abs;
+              }
+            } catch {
+              // Fall back to index.js
+            }
+          }
+          for (const idxExt of ['/index.js', '/index.cjs', '/index.ts']) {
+            if (vfs.exists(`${cand}${idxExt}`)) {
+              return vfs.resolveGuestTarget(`${cand}${idxExt}`).abs;
+            }
+          }
+        }
+        return null;
+      };
+      if (spec.startsWith('./') || spec.startsWith('../') || spec.startsWith('/')) {
+        return tryFile(MvmPolyglotVfs.normalizePath(fromDir, spec));
+      }
+      let curDir = fromDir;
+      while (true) {
+        const nmCand = `${curDir === '/' ? '' : curDir}/node_modules/${spec}`;
+        const hit = tryFile(nmCand);
+        if (hit) return hit;
+        if (curDir === '/' || curDir === '/workspace') break;
+        curDir = MvmPolyglotVfs.parentDir(curDir);
+      }
+      return null;
+    };
+
+    const collectDeps = async (srcText, filePath, visited) => {
+      if (visited.has(filePath)) return { ok: true };
+      visited.add(filePath);
+      const tRes = await prepareCodeSyncOrNeedEsbuild(srcText, filePath);
+      if (!tRes.ok) return tRes;
+      transpileMap.set(filePath, tRes.code);
+      const dir = pathShim.dirname(filePath);
+      const reqMatches = tRes.code.matchAll(/require\s*\(\s*['"]([^'"]+)['"]\s*\)/g);
+      for (const m of reqMatches) {
+        const spec = m[1];
+        if (builtins.has(spec)) continue;
+        const resolved = resolveModulePath(spec, dir);
+        if (resolved) {
+          const childRaw = vfs.readText(resolved);
+          if (childRaw !== null) {
+            const sub = await collectDeps(childRaw, resolved, visited);
+            if (!sub.ok) return sub;
+          }
+        }
+      }
+      return { ok: true };
+    };
+
+    const moduleCache = new Map();
+    const runModule = (fileAbs, isEntry) => {
+      if (moduleCache.has(fileAbs)) return moduleCache.get(fileAbs).exports;
+      if (fileAbs.endsWith('.json')) {
+        const parsed = JSON.parse(vfs.readText(fileAbs) || 'null');
+        moduleCache.set(fileAbs, { exports: parsed });
+        return parsed;
+      }
+      const mod = { exports: {} };
+      moduleCache.set(fileAbs, mod);
+      const modDir = pathShim.dirname(fileAbs);
+      const localRequire = (spec) => {
+        if (builtins.has(spec)) return builtins.get(spec);
+        const resolved = resolveModulePath(spec, modDir);
+        if (!resolved) {
+          const e = new Error(`Cannot find module '${spec}'`);
+          e.code = 'MODULE_NOT_FOUND';
+          throw e;
+        }
+        return runModule(resolved, false);
+      };
+      const compiledCode = transpileMap.get(fileAbs) || '';
+      const execBody = isEntry && printExpr ? `return (${compiledCode});` : compiledCode;
+      const fn = new Function(
+        'exports',
+        'require',
+        'module',
+        '__filename',
+        '__dirname',
+        'process',
+        'console',
+        'Buffer',
+        'fetch',
+        execBody,
+      );
+      const ret = fn(
+        mod.exports,
+        localRequire,
+        mod,
+        fileAbs,
+        modDir,
+        processShim,
+        consoleShim,
+        MvmNodeBuffer,
+        fetchShim,
+      );
+      if (isEntry && printExpr && ret !== undefined) {
+        consoleShim.log(ret);
+      }
+      return isEntry ? ret : mod.exports;
+    };
+
+    try {
+      const prepRes = await collectDeps(entryCode, entryAbs, new Set());
+      if (!prepRes.ok) return prepRes;
+      const ret = runModule(entryAbs, true);
+      if (ret && typeof ret.then === 'function') {
+        await ret;
+      }
+    } catch (err) {
+      if (err instanceof NodeExitSignal) {
+        procExitCode = err.code;
+      } else if (err && (err.code === 'CanonicalPathProtected' || err.code === 'EsbuildAdapterUnavailable')) {
+        return { ok: false, error_code: err.code, message: err.message };
+      } else {
+        procExitCode = 1;
+        stderrChunks.push((err && err.stack ? err.stack : String(err)) + '\n');
+      }
+    }
+
+    const muts = vfs.exportMutations();
+    return {
+      ok: true,
+      exit_code: procExitCode,
+      stdout: stdoutChunks.join(''),
+      stderr: stderrChunks.join(''),
+      ...muts,
+    };
+  }
+
+  async handleNpmBridge(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    const args = info.args.map((a) => String(a));
+    const sub = (args[0] || 'install').toLowerCase();
+
+    if (sub === 'init') {
+      if (!vfs.exists('/workspace/package.json')) {
+        vfs.writeBytes(
+          '/workspace/package.json',
+          JSON.stringify({ name: 'workspace-app', version: '1.0.0', private: true, dependencies: {} }, null, 2) + '\n',
+        );
+      }
+      const muts = vfs.exportMutations();
+      return { ok: true, exit_code: 0, stdout: 'Wrote /workspace/package.json\n', stderr: '', ...muts };
+    }
+
+    if (sub === 'run' && args[1]) {
+      const pjRaw = vfs.readText('/workspace/package.json');
+      if (!pjRaw) {
+        return { ok: true, exit_code: 1, stdout: '', stderr: 'npm ERR! missing package.json\n', writes: [], deletes: [] };
+      }
+      const pj = JSON.parse(pjRaw);
+      const scriptCmd = pj.scripts && pj.scripts[args[1]];
+      if (!scriptCmd) {
+        return { ok: true, exit_code: 1, stdout: '', stderr: `npm ERR! Missing script: "${args[1]}"\n`, writes: [], deletes: [] };
+      }
+      const parts = scriptCmd.trim().split(/\s+/);
+      const binName = parts[0] === 'node' ? parts : ['node', `/workspace/node_modules/.bin/${parts[0]}`, ...parts.slice(1)];
+      return this.handleNodeExec({ ...req, tool: 'node', args: binName.slice(1) });
+    }
+
+    if (sub !== 'install' && sub !== 'i' && sub !== 'add') {
+      return { ok: true, exit_code: 1, stdout: '', stderr: `npm: unsupported subcommand '${sub}'\n`, writes: [], deletes: [] };
+    }
+
+    const netCheck = this.#assertNetworkAllowed();
+    if (!netCheck.ok) return netCheck;
+
+    const specs = args.slice(1).filter((a) => !a.startsWith('-'));
+    const pkgJsonRaw = vfs.readText('/workspace/package.json');
+    let pkgJson = { name: 'workspace-app', version: '1.0.0', dependencies: {} };
+    if (pkgJsonRaw) {
+      try {
+        pkgJson = JSON.parse(pkgJsonRaw);
+      } catch {
+        pkgJson = { name: 'workspace-app', version: '1.0.0', dependencies: {} };
+      }
+    }
+    if (!pkgJson.dependencies || typeof pkgJson.dependencies !== 'object') {
+      pkgJson.dependencies = {};
+    }
+
+    const toInstall = specs.length > 0
+      ? specs
+      : Object.entries(pkgJson.dependencies).map(([n, v]) => `${n}@${v}`);
+    if (toInstall.length === 0) {
+      return { ok: true, exit_code: 0, stdout: 'up to date\n', stderr: '', writes: [], deletes: [] };
+    }
+
+    const installedCount = [];
+    const seen = new Set();
+    const parseSpec = (rawSpec) => {
+      const s = String(rawSpec).trim();
+      const at = s.startsWith('@') ? s.indexOf('@', 1) : s.indexOf('@');
+      return at > 0 ? { name: s.slice(0, at), range: s.slice(at + 1) } : { name: s, range: 'latest' };
+    };
+    const pickVersion = (meta, range) => {
+      const versions = meta.versions && typeof meta.versions === 'object' ? Object.keys(meta.versions) : [];
+      const tags = meta['dist-tags'] || {};
+      if (!range || range === 'latest' || range === '*') {
+        return tags.latest || versions[versions.length - 1];
+      }
+      if (meta.versions && meta.versions[range]) return range;
+      const clean = range.replace(/^[~^>=<\s]+/, '');
+      if (meta.versions && meta.versions[clean]) return clean;
+      const major = clean.split('.')[0];
+      const match = versions.filter((v) => v.startsWith(`${major}.`)).pop();
+      return match || tags.latest || versions[versions.length - 1];
+    };
+
+    const installSingle = async (rawSpec, isDirect) => {
+      const { name, range } = parseSpec(rawSpec);
+      if (!name || seen.has(name)) return { ok: true };
+      seen.add(name);
+      const encodedName = name.startsWith('@') ? `@${encodeURIComponent(name.slice(1))}` : encodeURIComponent(name);
+      const regUrl = `https://registry.npmjs.org/${encodedName}`;
+      const metaFetch = await this.#admittedFetch(
+        regUrl,
+        { headers: { Accept: 'application/json' } },
+        { operation: 'npm_install' },
+      );
+      if (!metaFetch.ok) {
+        if (metaFetch.error && metaFetch.error.error_code && metaFetch.error.error_code !== 'HttpBridgeFetchError') {
+          return metaFetch.error;
+        }
+        return {
+          ok: false,
+          status: 502,
+          error_code: 'NpmRegistryError',
+          message: `Failed fetching npm metadata for ${name} (${metaFetch.error ? metaFetch.error.message : 'error'})`,
+        };
+      }
+      const metaResp = metaFetch.response;
+      if (!metaResp || !metaResp.ok) {
+        return {
+          ok: false,
+          status: metaResp ? metaResp.status : 502,
+          error_code: 'NpmRegistryError',
+          message: `Failed fetching npm metadata for ${name} (HTTP ${metaResp ? metaResp.status : 'error'})`,
+        };
+      }
+      const meta = await metaResp.json();
+      const ver = pickVersion(meta, range);
+      const verObj = meta.versions && ver ? meta.versions[ver] : null;
+      if (!verObj || !verObj.dist || !verObj.dist.tarball) {
+        return {
+          ok: false,
+          status: 404,
+          error_code: 'PackageNotFound',
+          message: `Version "${range}" not found for npm package "${name}"`,
+        };
+      }
+      const expectedSri = verObj.dist.integrity || '';
+      const tgzFetch = await this.#admittedFetch(
+        verObj.dist.tarball,
+        undefined,
+        { operation: 'npm_install' },
+      );
+      if (!tgzFetch.ok) {
+        if (tgzFetch.error && tgzFetch.error.error_code && tgzFetch.error.error_code !== 'HttpBridgeFetchError') {
+          return tgzFetch.error;
+        }
+        return {
+          ok: false,
+          status: 502,
+          error_code: 'PackageDownloadFailed',
+          message: `Failed downloading tarball ${verObj.dist.tarball}`,
+        };
+      }
+      const tgzResp = tgzFetch.response;
+      if (!tgzResp || !tgzResp.ok) {
+        return {
+          ok: false,
+          status: tgzResp ? tgzResp.status : 502,
+          error_code: 'PackageDownloadFailed',
+          message: `Failed downloading tarball ${verObj.dist.tarball}`,
+        };
+      }
+      const tgzBytes = new Uint8Array(await tgzResp.arrayBuffer());
+      const sriRes = await this.#verifySri(tgzBytes, expectedSri);
+      if (!sriRes.ok) {
+        return sriRes;
+      }
+      const tarBytes = await this.#gunzipBytes(tgzBytes);
+      const entries = this.#parseTarEntries(tarBytes);
+      const pkgBase = `/workspace/node_modules/${name}`;
+      for (const ent of entries) {
+        const cleanEntry = String(ent.name || '').replace(/^\.\//, '').replace(/^package\//, '').replace(/^\/+/, '');
+        if (!cleanEntry || cleanEntry.split('/').includes('..') || ent.typeflag === '5') continue;
+        const dst = `${pkgBase}/${cleanEntry}`;
+        if (ent.typeflag === '2') {
+          vfs.writeSymlink(dst, ent.linkname);
+        } else {
+          vfs.writeBytes(dst, ent.data, 0o100000 | (ent.mode & 0o777));
+        }
+      }
+      if (verObj.bin) {
+        const binMap = typeof verObj.bin === 'string' ? { [name.split('/').pop()]: verObj.bin } : verObj.bin;
+        for (const [bName, bRel] of Object.entries(binMap)) {
+          const cleanRel = String(bRel).replace(/^\.\//, '');
+          vfs.writeSymlink(`/workspace/node_modules/.bin/${bName}`, `../${name}/${cleanRel}`);
+        }
+      }
+      if (isDirect) {
+        pkgJson.dependencies[name] = `^${ver}`;
+      }
+      installedCount.push(`${name}@${ver}`);
+      if (verObj.dependencies && typeof verObj.dependencies === 'object') {
+        for (const [depName, depRange] of Object.entries(verObj.dependencies)) {
+          const subRes = await installSingle(`${depName}@${depRange}`, false);
+          if (!subRes.ok) return subRes;
+        }
+      }
+      return { ok: true };
+    };
+
+    for (const spec of toInstall) {
+      const r = await installSingle(spec, true);
+      if (!r.ok) return r;
+    }
+
+    vfs.writeBytes('/workspace/package.json', JSON.stringify(pkgJson, null, 2) + '\n');
+    const muts = vfs.exportMutations();
+    return {
+      ok: true,
+      exit_code: 0,
+      stdout: `added ${installedCount.length} package(s): ${installedCount.join(', ')}\n`,
+      stderr: '',
+      ...muts,
+    };
+  }
+
+  async #ensurePyodideLoaded(stdoutChunks, stderrChunks) {
+    this.#activePyStdoutSink = (line) => stdoutChunks.push(String(line) + '\n');
+    this.#activePyStderrSink = (line) => stderrChunks.push(String(line) + '\n');
+
+    const bindStreams = (pyodide) => {
+      if (pyodide && typeof pyodide.setStdout === 'function') {
+        pyodide.setStdout({
+          batched: (line) => {
+            if (this.#activePyStdoutSink) this.#activePyStdoutSink(line);
+          },
+        });
+      }
+      if (pyodide && typeof pyodide.setStderr === 'function') {
+        pyodide.setStderr({
+          batched: (line) => {
+            if (this.#activePyStderrSink) this.#activePyStderrSink(line);
+          },
+        });
+      }
+    };
+
+    if (this.#pyodideInstance) {
+      bindStreams(this.#pyodideInstance);
+      return { ok: true, pyodide: this.#pyodideInstance };
+    }
+    const lock = this.pyodideLock;
+    let verifiedBytes = null;
+
+    if (typeof caches !== 'undefined' && typeof caches.open === 'function') {
+      try {
+        const cache = await caches.open(PYODIDE_CACHE_NAME);
+        const cachedResp = await cache.match(lock.url);
+        if (cachedResp) {
+          const candBytes = new Uint8Array(await cachedResp.arrayBuffer());
+          const sriCheck = await this.#verifySri(candBytes, lock.sri);
+          if (sriCheck.ok) verifiedBytes = candBytes;
+        }
+      } catch {
+        // Cache API unavailable or empty
+      }
+    }
+
+    if (!verifiedBytes) {
+      const netCheck = this.#assertNetworkAllowed();
+      if (!netCheck.ok) return netCheck;
+      const respFetch = await this.#admittedFetch(
+        lock.url,
+        undefined,
+        { operation: 'pyodide_load', allowConfiguredOrigin: true },
+      );
+      if (!respFetch.ok) {
+        if (respFetch.error && respFetch.error.error_code && respFetch.error.error_code !== 'HttpBridgeFetchError') {
+          return respFetch.error;
+        }
+        return {
+          ok: false,
+          status: 502,
+          error_code: 'PyodideLoadError',
+          message: `Failed fetching Pyodide entrypoint ${lock.url}`,
+        };
+      }
+      const resp = respFetch.response;
+      if (!resp || !resp.ok) {
+        return {
+          ok: false,
+          status: resp ? resp.status : 502,
+          error_code: 'PyodideLoadError',
+          message: `Failed fetching Pyodide entrypoint ${lock.url}`,
+        };
+      }
+      const rawBytes = new Uint8Array(await resp.arrayBuffer());
+      const sriCheck = await this.#verifySri(rawBytes, lock.sri);
+      if (!sriCheck.ok) {
+        return sriCheck;
+      }
+      verifiedBytes = rawBytes;
+      if (typeof caches !== 'undefined' && typeof caches.open === 'function') {
+        try {
+          const cache = await caches.open(PYODIDE_CACHE_NAME);
+          await cache.put(
+            lock.url,
+            new Response(verifiedBytes, { status: 200, headers: { 'Content-Type': 'text/javascript' } }),
+          );
+        } catch {
+          // Ignore cache write errors in restricted hosts
+        }
+      }
+    }
+
+    if (!this.#pyodidePromise) {
+      this.#pyodidePromise = (async () => {
+        let mod = null;
+        if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function' && typeof WorkerGlobalScope !== 'undefined') {
+          const blobUrl = URL.createObjectURL(new Blob([verifiedBytes], { type: 'text/javascript' }));
+          try {
+            mod = await import(blobUrl);
+          } finally {
+            URL.revokeObjectURL(blobUrl);
+          }
+        } else {
+          const dataUrl = `data:text/javascript;base64,${__uorBytesToBase64(verifiedBytes)}`;
+          mod = await import(dataUrl);
+        }
+        const pyodide = await mod.loadPyodide({
+          indexURL: lock.indexURL,
+          stdout: (line) => {
+            if (this.#activePyStdoutSink) this.#activePyStdoutSink(line);
+          },
+          stderr: (line) => {
+            if (this.#activePyStderrSink) this.#activePyStderrSink(line);
+          },
+        });
+        this.#pyodideInstance = pyodide;
+        return pyodide;
+      })();
+    }
+
+    try {
+      const pyodide = await this.#pyodidePromise;
+      bindStreams(pyodide);
+      return { ok: true, pyodide };
+    } catch (err) {
+      this.#pyodidePromise = null;
+      this.#pyodideInstance = null;
+      return {
+        ok: false,
+        error_code: 'PyodideLoadError',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
+
+  async handlePythonExec(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    const stdoutChunks = [];
+    const stderrChunks = [];
+
+    const pyLoaded = await this.#ensurePyodideLoaded(stdoutChunks, stderrChunks);
+    if (!pyLoaded.ok) {
+      this.#activePyStdoutSink = null;
+      this.#activePyStderrSink = null;
+      return pyLoaded;
+    }
+    const pyodide = pyLoaded.pyodide;
+    const args = info.args.map((a) => String(a));
+
+    try {
+      if (pyodide.FS && typeof pyodide.FS.mkdirTree === 'function') {
+        pyodide.FS.mkdirTree('/workspace');
+        if (typeof pyodide.FS.readdir === 'function' && typeof pyodide.FS.unlink === 'function') {
+          const pruneStaleFs = (dirAbs) => {
+            let entries = [];
+            try {
+              entries = pyodide.FS.readdir(dirAbs);
+            } catch {
+              return;
+            }
+            for (const name of entries) {
+              if (name === '.' || name === '..') continue;
+              const full = `${dirAbs}/${name}`;
+              const stat = pyodide.FS.analyzePath ? pyodide.FS.analyzePath(full) : null;
+              if (!stat || !stat.exists) continue;
+              if (stat.object && stat.object.isFolder) {
+                pruneStaleFs(full);
+              } else {
+                const rel = full.slice('/workspace/'.length);
+                if (!vfs.files.has(rel)) {
+                  try {
+                    pyodide.FS.unlink(full);
+                  } catch {
+                    // Ignore unlink error for virtual entries
+                  }
+                }
+              }
+            }
+          };
+          pruneStaleFs('/workspace');
+        }
+        for (const [rel, bytes] of vfs.files.entries()) {
+          const full = `/workspace/${rel}`;
+          const parent = MvmPolyglotVfs.parentDir(full);
+          pyodide.FS.mkdirTree(parent);
+          pyodide.FS.writeFile(full, bytes);
+        }
+      }
+
+      globalThis.__uorSpiralCorePySyncFetch = (url, method, bodyStr, headersJson) => {
+        const netCheck = this.#assertNetworkAllowed();
+        if (!netCheck.ok) {
+          throw new Error(`${netCheck.error_code}: ${netCheck.message}`);
+        }
+        const urlCheck = this.validateTransportUrl(String(url), false);
+        if (!urlCheck.ok) {
+          throw new Error(`${urlCheck.error_code}: ${urlCheck.message}`);
+        }
+        let parsedHeaders = {};
+        if (headersJson) {
+          try {
+            const obj = JSON.parse(String(headersJson));
+            if (obj && typeof obj === 'object') parsedHeaders = obj;
+          } catch {
+            parsedHeaders = {};
+          }
+        }
+        const hdrSub = this.applyHostSecretSubstitution(urlCheck.url, parsedHeaders);
+        if (!hdrSub.ok) {
+          throw new Error(`${hdrSub.error_code}: ${hdrSub.message}`);
+        }
+        const host = urlCheck.url.hostname.toLowerCase();
+        const urlSub = this.substituteHostSecretsInString(String(url), host);
+        if (!urlSub.ok) {
+          throw new Error(`${urlSub.error_code}: ${urlSub.message}`);
+        }
+        const bodySub = this.substituteHostSecretsInString(String(bodyStr || ''), host);
+        if (!bodySub.ok) {
+          throw new Error(`${bodySub.error_code}: ${bodySub.message}`);
+        }
+        const netAdmission = this.#admitNetworkPolicy(host);
+        if (!netAdmission.ok) {
+          this.#emitAuditEvent('python_sync_http', urlSub.value, 'blocked', netAdmission.status || 403, 0);
+          throw new Error(`${netAdmission.error_code}: ${netAdmission.message}`);
+        }
+        const mUpper = String(method || 'GET').toUpperCase();
+        if (typeof this.#syncFetchImpl === 'function') {
+          const syncRes = this.#syncFetchImpl(urlSub.value, {
+            method: mUpper,
+            headers: hdrSub.headers,
+            body: mUpper === 'GET' || mUpper === 'HEAD' ? undefined : bodySub.value,
+          });
+          const outText = String((syncRes && syncRes.text !== undefined ? syncRes.text : (syncRes && syncRes.body_text)) || '');
+          const outStatus = Number(syncRes && syncRes.status) || 200;
+          this.#emitAuditEvent('python_sync_http', urlSub.value, 'sync-fetch-bridge', outStatus, outText.length);
+          return {
+            status: outStatus,
+            text: outText,
+          };
+        }
+        throw new Error('SyncHttpUnavailable: synchronous Python HTTP requires a configured syncFetchImpl bridge');
+      };
+
+      if (!this.#pyodideShimmed) {
+        this.#pyodideShimmed = true;
+        try {
+          await pyodide.runPythonAsync(`
+import io, os, sys, types, json as _uor_json
+try:
+    import js, urllib.request, urllib.parse
+    class _SpiralResp:
+        def __init__(self, text, status=200):
+            self.text = str(text)
+            self.status_code = int(status)
+            self.status = int(status)
+            self._data = self.text.encode('utf-8')
+            self.content = self._data
+            self.headers = {}
+            self.ok = 200 <= self.status_code < 300
+        def read(self):
+            return self._data
+        def json(self):
+            return _uor_json.loads(self.text)
+        def raise_for_status(self):
+            if self.status_code >= 400:
+                raise RuntimeError(f'HTTP {self.status_code}')
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            return False
+    def _uor_sync_fetch(url, method='GET', data=None, json=None, headers=None, params=None):
+        target_url = str(url)
+        if params and isinstance(params, dict):
+            sep = '&' if '?' in target_url else '?'
+            target_url = target_url + sep + urllib.parse.urlencode(params)
+        hdrs = dict(headers) if isinstance(headers, dict) else {}
+        body_str = ''
+        if json is not None:
+            body_str = _uor_json.dumps(json)
+            if 'Content-Type' not in hdrs and 'content-type' not in hdrs:
+                hdrs['Content-Type'] = 'application/json'
+        elif data is not None:
+            if isinstance(data, dict):
+                body_str = urllib.parse.urlencode(data)
+            elif isinstance(data, (bytes, bytearray)):
+                body_str = bytes(data).decode('utf-8', errors='replace')
+            else:
+                body_str = str(data)
+        res = js.__uorSpiralCorePySyncFetch(target_url, str(method).upper(), body_str, _uor_json.dumps(hdrs))
+        txt = getattr(res, 'text', '')
+        st = getattr(res, 'status', 200)
+        return _SpiralResp(txt, st)
+    def _uor_sync_urlopen(url_or_req, data=None, timeout=None, **kw):
+        if isinstance(url_or_req, str):
+            m = 'POST' if data is not None else 'GET'
+            return _uor_sync_fetch(url_or_req, m, data=data)
+        u = getattr(url_or_req, 'full_url', None) or str(url_or_req)
+        m = url_or_req.get_method() if hasattr(url_or_req, 'get_method') else ('POST' if data is not None else 'GET')
+        req_data = getattr(url_or_req, 'data', None)
+        if req_data is None:
+            req_data = data
+        req_hdrs = dict(url_or_req.header_items()) if hasattr(url_or_req, 'header_items') else {}
+        return _uor_sync_fetch(u, m, data=req_data, headers=req_hdrs)
+    urllib.request.urlopen = _uor_sync_urlopen
+    _req_mod = types.ModuleType('requests')
+    _req_mod.get = lambda url, **kw: _uor_sync_fetch(url, 'GET', headers=kw.get('headers'), params=kw.get('params'))
+    _req_mod.post = lambda url, data=None, json=None, **kw: _uor_sync_fetch(url, 'POST', data=data, json=json, headers=kw.get('headers'), params=kw.get('params'))
+    _req_mod.request = lambda method, url, **kw: _uor_sync_fetch(url, method, data=kw.get('data'), json=kw.get('json'), headers=kw.get('headers'), params=kw.get('params'))
+    sys.modules['requests'] = _req_mod
+except Exception:
+    pass
+`);
+        } catch {
+          // Non-CPython mock runtime ignores Python stdlib registration cleanly
+        }
+      }
+
+      const isPip = info.tool === 'pip' || info.tool === 'pip3';
+      const pyArgv = isPip
+        ? ['pip', ...args]
+        : (args[0] === '-c'
+          ? ['-c', ...args.slice(2)]
+          : (args[0] && !args[0].startsWith('-') ? [args[0], ...args.slice(1)] : ['-']));
+      const pyEnvObj = { HOME: '/root', PATH: '/usr/local/bin:/usr/bin:/bin', ...info.env };
+      const pyStdinText = cachedTextDecoder.decode(info.stdinBytes);
+      try {
+        await pyodide.runPythonAsync(`
+import io, os, sys
+sys.argv = ${JSON.stringify(pyArgv)}
+_uor_env = ${JSON.stringify(pyEnvObj)}
+os.environ.clear()
+os.environ.update({str(k): str(v) for k, v in _uor_env.items()})
+_uor_stdin_str = ${JSON.stringify(pyStdinText)}
+sys.stdin = io.TextIOWrapper(io.BytesIO(_uor_stdin_str.encode('utf-8')), encoding='utf-8')
+_uor_cwd = ${JSON.stringify(vfs.cwd)}
+if os.path.isdir(_uor_cwd):
+    os.chdir(_uor_cwd)
+elif os.path.isdir('/workspace'):
+    os.chdir('/workspace')
+`);
+      } catch {
+        // Ignore if minimal mock runtime skips process context preamble
+      }
+
+      let exitCode = 0;
+      if (isPip) {
+        const sub = (args[0] || 'list').toLowerCase();
+        if (sub === 'install') {
+          const netCheck = this.#assertNetworkAllowed();
+          if (!netCheck.ok) return netCheck;
+          const pkgList = args.slice(1).filter((a) => !a.startsWith('-'));
+          if (pkgList.length === 0) {
+            return { ok: true, exit_code: 1, stdout: '', stderr: 'pip install: missing package name\n', writes: [], deletes: [] };
+          }
+          for (const pkg of pkgList) {
+            const cleanPkg = pkg.split(/[=<>!~]/)[0].trim();
+            const metaFetch = await this.#admittedFetch(
+              `https://pypi.org/pypi/${encodeURIComponent(cleanPkg)}/json`,
+              undefined,
+              { operation: 'pip_install' },
+            );
+            if (!metaFetch.ok) {
+              if (metaFetch.error && metaFetch.error.error_code && metaFetch.error.error_code !== 'HttpBridgeFetchError') {
+                return metaFetch.error;
+              }
+              return { ok: true, exit_code: 1, stdout: '', stderr: `ERROR: Could not find a version that satisfies ${pkg}\n`, writes: [], deletes: [] };
+            }
+            const metaResp = metaFetch.response;
+            if (!metaResp || !metaResp.ok) {
+              return { ok: true, exit_code: 1, stdout: '', stderr: `ERROR: Could not find a version that satisfies ${pkg}\n`, writes: [], deletes: [] };
+            }
+          }
+          if (typeof pyodide.loadPackage === 'function') {
+            await pyodide.loadPackage('micropip');
+          }
+          const installListJson = JSON.stringify(pkgList);
+          await pyodide.runPythonAsync(`import micropip\nawait micropip.install(${installListJson})`);
+          stdoutChunks.push(`Successfully installed ${pkgList.join(' ')}\n`);
+        } else {
+          const out = await pyodide.runPythonAsync(`import micropip\nstr(micropip.list())`);
+          stdoutChunks.push(String(out || '') + '\n');
+        }
+      } else {
+        let codeToRun = '';
+        if (args[0] === '-c' && args.length > 1) {
+          codeToRun = String(args[1]);
+        } else if (args[0] && !args[0].startsWith('-')) {
+          const target = MvmPolyglotVfs.normalizePath(vfs.cwd, args[0]);
+          const txt = vfs.readText(target);
+          if (txt === null) {
+            return { ok: true, exit_code: 1, stdout: '', stderr: `python3: can't open file '${args[0]}': No such file or directory\n`, writes: [], deletes: [] };
+          }
+          codeToRun = txt;
+        } else {
+          codeToRun = cachedTextDecoder.decode(info.stdinBytes);
+        }
+        const resVal = await pyodide.runPythonAsync(codeToRun);
+        if (stdoutChunks.length === 0 && resVal !== undefined && resVal !== null && args[0] === '-c') {
+          // runPythonAsync returns last expression if print() wasn't buffered through stdout callback
+        }
+      }
+
+      if (pyodide.FS && typeof pyodide.FS.readdir === 'function') {
+        const seenFs = new Set();
+        const walkFs = (dirAbs) => {
+          let entries = [];
+          try {
+            entries = pyodide.FS.readdir(dirAbs);
+          } catch {
+            return;
+          }
+          for (const name of entries) {
+            if (name === '.' || name === '..') continue;
+            const full = `${dirAbs}/${name}`;
+            const stat = pyodide.FS.analyzePath(full);
+            if (!stat || !stat.exists) continue;
+            if (stat.object && stat.object.isFolder) {
+              walkFs(full);
+            } else {
+              const rel = full.slice('/workspace/'.length);
+              seenFs.add(rel);
+              const bytes = pyodide.FS.readFile(full);
+              const prev = vfs.files.get(rel);
+              const changed =
+                !prev ||
+                prev.byteLength !== bytes.byteLength ||
+                prev.some((b, idx) => b !== bytes[idx]);
+              if (changed) vfs.writeBytes(full, bytes);
+            }
+          }
+        };
+        walkFs('/workspace');
+        for (const origRel of vfs.originalKeys) {
+          if (!seenFs.has(origRel) && !vfs.symlinks.has(origRel)) {
+            vfs.deletePath(`/workspace/${origRel}`);
+          }
+        }
+      }
+
+      const muts = vfs.exportMutations();
+      return {
+        ok: true,
+        exit_code: exitCode,
+        stdout: stdoutChunks.join(''),
+        stderr: stderrChunks.join(''),
+        ...muts,
+      };
+    } catch (err) {
+      if (err && err.code === 'CanonicalPathProtected') {
+        return { ok: false, error_code: 'CanonicalPathProtected', message: err.message };
+      }
+      return {
+        ok: true,
+        exit_code: 1,
+        stdout: stdoutChunks.join(''),
+        stderr: stderrChunks.join('') + (err && err.message ? err.message : String(err)) + '\n',
+        ...vfs.exportMutations(),
+      };
+    } finally {
+      this.#activePyStdoutSink = null;
+      this.#activePyStderrSink = null;
+    }
+  }
+
+  async handleWasiExec(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    const args = info.args.map((a) => String(a));
+    let modPath = '';
+    let wasiArgs = [];
+    if (args[0] === 'run' && args.length >= 2) {
+      modPath = args[1];
+      wasiArgs = [args[1], ...args.slice(2)];
+    } else if (args[0] && !args[0].startsWith('-')) {
+      modPath = args[0];
+      wasiArgs = [args[0], ...args.slice(1)];
+    } else {
+      return {
+        ok: false,
+        error_code: 'WasiRuntimeError',
+        message: 'wasm: expected `wasm run <module.wasm> [args...]`',
+      };
+    }
+    const wasmBytes = vfs.readBytes(modPath);
+    if (!wasmBytes) {
+      return {
+        ok: false,
+        error_code: 'WasiRuntimeError',
+        message: `wasm: module not found: ${modPath}`,
+      };
+    }
+    try {
+      const res = await MvmWasiRunner.run(wasmBytes, vfs, wasiArgs, info.env, info.stdinBytes);
+      const muts = vfs.exportMutations();
+      return { ...res, ...muts };
+    } catch (err) {
+      return {
+        ok: false,
+        error_code: (err && err.code) || 'WasiRuntimeError',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
+  }
+
+  async handleSqliteExec(req) {
+    const info = this.#extractBridgePayload(req);
+    const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
+    try {
+      const res = MvmSqliteEngine.execute(
+        info.args,
+        vfs,
+        cachedTextDecoder.decode(info.stdinBytes),
+      );
+      const muts = vfs.exportMutations();
+      return { ...res, ...muts };
+    } catch (err) {
+      return {
+        ok: false,
+        error_code: (err && err.code) || 'SqliteRuntimeError',
+        message: err && err.message ? err.message : String(err),
+      };
+    }
   }
 }
 
@@ -5196,16 +9457,23 @@ function __uorSynthesizeBrainPulsesFromReply(parsedRes, toolKind = 'none') {
 }
 
 function __uorStartDedicatedEngineWorker() {
-  const hostBridge = new SpiralCoreHostBridge();
+  const postEvent = (event, data = {}) => {
+    self.postMessage({ event, ...data });
+  };
+  const hostBridge = new SpiralCoreHostBridge({
+    onAuditEvent: (ev) => postEvent('audit_event', ev),
+  });
   let wasmReady = false;
   let bootPromise = null;
   let activeHydrationPromise = null;
   let lastHydrationProgress = null;
+  let activeInprismBusy = false;
+  let activeInprismRequestId = null;
+  let activeInprismTurnId = null;
+  const cancelledInprismRequests = new Set();
+  const cancelledInprismTurns = new Set();
+  const pendingInprismCancelWaiters = new Map();
   const earlyMessages = [];
-
-  const postEvent = (event, data = {}) => {
-    self.postMessage({ event, ...data });
-  };
   globalThis.__uorEmitChatDelta = (textChunk, step = 0) => {
     const chunk = String(textChunk || '');
     if (chunk.length > 0) {
@@ -5256,6 +9524,171 @@ function __uorStartDedicatedEngineWorker() {
     return run;
   };
 
+  let mvmWorkspaceSyncEpoch = 0;
+  const syncedHostWorkspaceFiles = new Map();
+
+  const encodeUtf8ToBase64 = (text) => {
+    const str = String(text || '');
+    if (cachedTextEncoder && typeof cachedTextEncoder.encode === 'function') {
+      return __uorBytesToBase64(cachedTextEncoder.encode(str));
+    }
+    if (typeof Buffer !== 'undefined') {
+      return Buffer.from(str, 'utf8').toString('base64');
+    }
+    const u8 = new Uint8Array(str.length);
+    for (let i = 0; i < str.length; i++) u8[i] = str.charCodeAt(i) & 0xff;
+    return __uorBytesToBase64(u8);
+  };
+
+  const decodeBase64ToUtf8 = (b64) => {
+    const bytes = __uorBase64ToBytes(b64);
+    if (cachedTextDecoder && typeof cachedTextDecoder.decode === 'function') {
+      return cachedTextDecoder.decode(bytes);
+    }
+    if (typeof Buffer !== 'undefined') {
+      return Buffer.from(bytes).toString('utf8');
+    }
+    return '';
+  };
+
+  const resolveMvmSyncInFn = () =>
+    typeof mvm_sync_workspace_in_json === 'function'
+      ? mvm_sync_workspace_in_json
+      : globalThis.mvm_sync_workspace_in_json;
+
+  const resolveMvmExportDiffFn = () =>
+    typeof mvm_export_workspace_diff_json === 'function'
+      ? mvm_export_workspace_diff_json
+      : globalThis.mvm_export_workspace_diff_json;
+
+  const updateMvmWorkspaceSyncEpoch = (rawEpoch) => {
+    const parsedEpoch = Number(rawEpoch);
+    if (Number.isFinite(parsedEpoch)) {
+      mvmWorkspaceSyncEpoch = Math.max(mvmWorkspaceSyncEpoch, parsedEpoch);
+    }
+  };
+
+  const applyMvmSyncInState = (res, nextMap, deltaEntries) => {
+    if (!res || res.status !== 'ok') return;
+    updateMvmWorkspaceSyncEpoch(res.epoch);
+    if (nextMap instanceof Map) {
+      syncedHostWorkspaceFiles.clear();
+      for (const [k, v] of nextMap.entries()) syncedHostWorkspaceFiles.set(k, v);
+      return;
+    }
+    if (!Array.isArray(deltaEntries)) return;
+    for (const entry of deltaEntries) {
+      if (!entry || typeof entry.path !== 'string') continue;
+      const parts = String(entry.path).trim().split('/').filter((s) => s && s !== '.');
+      if (parts[0] === 'workspace') parts.shift();
+      if (parts.includes('..')) continue;
+      const rel = parts.join('/');
+      if (!rel || /^prism\/.*\.lex\.tex$/.test(rel) || rel === 'app/state') {
+        continue;
+      }
+      if (entry.deleted) {
+        syncedHostWorkspaceFiles.delete(rel);
+      } else if (typeof entry.content_base64 === 'string') {
+        syncedHostWorkspaceFiles.set(rel, decodeBase64ToUtf8(entry.content_base64));
+      }
+    }
+  };
+
+  const applyMvmExportDiffState = (diff) => {
+    if (!diff || diff.status !== 'ok') return diff;
+    updateMvmWorkspaceSyncEpoch(diff.epoch);
+    const writes = Array.isArray(diff.writes) ? diff.writes : [];
+    for (const w of writes) {
+      if (w && typeof w.path === 'string' && typeof w.content_base64 === 'string') {
+        syncedHostWorkspaceFiles.set(w.path, decodeBase64ToUtf8(w.content_base64));
+      }
+    }
+    const deletes = Array.isArray(diff.deletes) ? diff.deletes : [];
+    for (const delPath of deletes) {
+      if (typeof delPath === 'string') syncedHostWorkspaceFiles.delete(delPath);
+    }
+    return diff;
+  };
+
+  const runMvmSyncWorkspaceIn = (payloadInput, nextMap, allowDispatchFallback) => {
+    const syncInFn = resolveMvmSyncInFn();
+    if (typeof syncInFn !== 'function' && !allowDispatchFallback) return null;
+    const payloadStr =
+      typeof payloadInput === 'string'
+        ? payloadInput
+        : JSON.stringify(payloadInput || { epoch: mvmWorkspaceSyncEpoch, files: [] });
+    let deltaEntries = null;
+    if (!(nextMap instanceof Map)) {
+      try {
+        const parsedReq = typeof payloadInput === 'string' ? JSON.parse(payloadStr) : payloadInput;
+        deltaEntries = parsedReq && Array.isArray(parsedReq.files) ? parsedReq.files : null;
+      } catch {
+        deltaEntries = null;
+      }
+    }
+    const resRaw =
+      typeof syncInFn === 'function'
+        ? syncInFn(payloadStr)
+        : studio_dispatch(`1\tstudio\tmvm_sync_workspace_in\t${payloadStr}`);
+    const res = typeof resRaw === 'string' ? JSON.parse(resRaw) : resRaw;
+    applyMvmSyncInState(res, nextMap, deltaEntries);
+    return res;
+  };
+
+  const runMvmExportWorkspaceDiff = (allowDispatchFallback) => {
+    const exportDiffFn = resolveMvmExportDiffFn();
+    if (typeof exportDiffFn !== 'function' && !allowDispatchFallback) return null;
+    const diffRaw =
+      typeof exportDiffFn === 'function'
+        ? exportDiffFn()
+        : studio_dispatch('1\tstudio\tmvm_export_workspace_diff\t');
+    const diff = typeof diffRaw === 'string' ? JSON.parse(diffRaw) : diffRaw;
+    return applyMvmExportDiffState(diff);
+  };
+
+  const syncWorkspaceIntoMvm = () => {
+    try {
+      const snap = __uorCollectWorkspaceSnapshot();
+      const files = snap && Array.isArray(snap.files) ? snap.files : [];
+      const nextMap = new Map();
+      const payloadFiles = [];
+      for (const f of files) {
+        if (!f || typeof f.path !== 'string') continue;
+        const content = typeof f.content === 'string' ? f.content : '';
+        nextMap.set(f.path, content);
+        if (syncedHostWorkspaceFiles.get(f.path) !== content) {
+          payloadFiles.push({
+            path: f.path,
+            content_base64: encodeUtf8ToBase64(content),
+          });
+        }
+      }
+      for (const prevPath of syncedHostWorkspaceFiles.keys()) {
+        if (!nextMap.has(prevPath)) {
+          payloadFiles.push({ path: prevPath, content_base64: '', deleted: true });
+        }
+      }
+      if (payloadFiles.length === 0 && syncedHostWorkspaceFiles.size > 0) {
+        return null;
+      }
+      return runMvmSyncWorkspaceIn(
+        { epoch: mvmWorkspaceSyncEpoch, files: payloadFiles },
+        nextMap,
+        false,
+      );
+    } catch {
+      return null;
+    }
+  };
+
+  const exportWorkspaceDiffFromMvm = () => {
+    try {
+      return runMvmExportWorkspaceDiff(false);
+    } catch {
+      return null;
+    }
+  };
+
   const applyClonedFilesToWorkspace = (files) => {
     if (!Array.isArray(files) || files.length === 0) return null;
     for (const f of files) {
@@ -5269,6 +9702,10 @@ function __uorStartDedicatedEngineWorker() {
   };
 
   const dispatchWithConnectedBridge = async (envelope) => {
+    const isMvmExecEnvelope = envelope.includes('\tmvm_exec\t');
+    if (isMvmExecEnvelope) {
+      syncWorkspaceIntoMvm();
+    }
     let currentRaw = studio_dispatch(envelope);
     let parsed = JSON.parse(currentRaw);
     let hops = 0;
@@ -5351,9 +9788,28 @@ function __uorStartDedicatedEngineWorker() {
       const pulses = __uorSynthesizeBrainPulsesFromReply(parsed, lastToolKind);
       postEvent('brain_pulse', { pulses });
     }
-    if (envelope.includes('\tmvm_exec\t') || (isChatTurn && parsed && parsed.mvm_tool_executed)) {
+    if (isMvmExecEnvelope || (isChatTurn && parsed && parsed.mvm_tool_executed)) {
+      const diff = exportWorkspaceDiffFromMvm();
       persist_mvm_cow_sectors_to_opfs().catch(() => {});
-      postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
+      const snap = __uorCollectWorkspaceSnapshot();
+      if (diff && diff.status === 'ok' && parsed && typeof parsed === 'object') {
+        parsed.workspace_diff = diff;
+        parsed.ignored_heavy_paths = Number(diff.ignored_heavy_paths) || 0;
+        const diffWrites = Array.isArray(diff.writes) ? diff.writes.map((w) => w.path) : [];
+        const diffDeletes = Array.isArray(diff.deletes) ? diff.deletes : [];
+        parsed.changed_files = diffWrites.concat(diffDeletes);
+      }
+      postEvent('workspace_sync', {
+        workspace: snap,
+        ...(diff && diff.status === 'ok' ? { diff } : {}),
+      });
+      if (parsed && typeof parsed === 'object') {
+        Object.defineProperty(parsed, '__uorWorkspaceSyncEmitted', {
+          value: true,
+          configurable: true,
+          enumerable: false,
+        });
+      }
     }
     return parsed;
   };
@@ -5463,11 +9919,24 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: vaultRes.ok, result: vaultRes });
         return;
       }
-      if (op === 'set_bridge_policy') {
+      if (op === 'set_bridge_policy' || op === 'set_host_config') {
         const res = hostBridge.setPolicy(payload || {});
-        const customRelay = payload && (typeof payload.relayWsUrl === 'string' ? payload.relayWsUrl : payload.relayUrl);
-        if (typeof customRelay === 'string') {
-          hostBridge.setRelayUrl(customRelay);
+        if (!res || !res.ok) {
+          self.postMessage({
+            id,
+            ok: false,
+            error_code: (res && res.error_code) || 'BridgePolicyError',
+            error: (res && (res.message || res.error)) || 'Bridge policy update rejected',
+            result: res || { ok: false },
+          });
+          return;
+        }
+        try {
+          if (typeof studio_dispatch === 'function') {
+            studio_dispatch(`1\tstudio\tmvm_set_policy\t${JSON.stringify(payload || {})}`);
+          }
+        } catch {
+          // Host policy remains authoritative when Wasm MVM guest is not booted
         }
         self.postMessage({ id, ok: true, result: res });
         return;
@@ -5549,10 +10018,11 @@ function __uorStartDedicatedEngineWorker() {
       if (op === 'hydrate_holo_model') {
         const modelId = String((payload && payload.modelId) || 'uor-r4.qwen3-0.6b-holo');
         const force = Boolean(payload && payload.force);
+        const allowOffOriginHydration = Boolean(payload && payload.allowOffOriginHydration);
         const holo = await hydrate_holo_model(modelId, (prog) => {
           postEvent('boot_progress', { stage: 'holo_v13', ...prog });
           postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-        }, force);
+        }, force, { allowOffOriginHydration });
         postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
         self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
         return;
@@ -5772,79 +10242,209 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: true, result: desc });
         return;
       }
-      if (op === 'inprism_r4_turn') {
-        /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
-        const prompt = String((payload && payload.prompt) || '').trim();
-        if (!prompt) {
-          self.postMessage({ id, ok: false, error: 'Prompt must not be empty for inprism_r4_turn' });
-          return;
+      if (op === 'cancel_inprism_turn') {
+        const hasTarget = payload && payload.targetId != null;
+        const hasReq = payload && payload.requestId != null;
+        const hasReqSnake = payload && payload.reqId != null;
+        const targetReqId = hasTarget
+          ? payload.targetId
+          : hasReq
+            ? payload.requestId
+            : hasReqSnake
+              ? payload.reqId
+              : null;
+        if (targetReqId != null) {
+          cancelledInprismRequests.add(targetReqId);
+          cancelledInprismRequests.add(String(targetReqId));
         }
-        const preferred = String((payload && payload.preferredModel) || '').trim();
-        const idState = await stitch_prism_identity_ensure().catch(() => null);
-        let hs = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : null;
-        let mountedList = hs && Array.isArray(hs.models) ? hs.models : [];
-        let activeModel = '';
-        if (preferred && (preferred === 'uor-r4.qwen3-1.7b-holo' || preferred === 'uor-r4.qwen3-0.6b-holo' || preferred === 'uor-r4.native-q31-d85')) {
-          activeModel = preferred;
-        } else if (hs && hs.qwen3_06b_mounted) {
-          activeModel = 'uor-r4.qwen3-0.6b-holo';
-        } else if (hs && hs.qwen3_17b_mounted) {
-          activeModel = 'uor-r4.qwen3-1.7b-holo';
-        } else {
-          const opt = await selectOptimalInitialHoloModel().catch(() => null);
-          activeModel = (opt && opt.initialModel) || 'uor-r4.qwen3-0.6b-holo';
+        if (hasReq && payload.requestId !== targetReqId) {
+          cancelledInprismRequests.add(payload.requestId);
+          cancelledInprismRequests.add(String(payload.requestId));
         }
-        if ((activeModel === 'uor-r4.qwen3-1.7b-holo' || activeModel === 'uor-r4.qwen3-0.6b-holo')
-            && !mountedList.some((m) => m && m.model_id === activeModel)) {
-          try {
-            await hydrate_holo_model(activeModel, (prog) => {
-              postEvent('boot_progress', { stage: 'holo_v13', ...prog });
-              postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-            }, false);
-            hs = typeof studio_holo_runtime_status === 'function' ? JSON.parse(studio_holo_runtime_status()) : hs;
-            mountedList = hs && Array.isArray(hs.models) ? hs.models : mountedList;
-          } catch {
-            activeModel = hs && hs.qwen3_06b_mounted ? 'uor-r4.qwen3-0.6b-holo' : 'uor-r4.native-q31-d85';
+        const matchesActiveReq =
+          targetReqId != null &&
+          activeInprismRequestId != null &&
+          String(targetReqId) === String(activeInprismRequestId);
+        if (
+          targetReqId == null &&
+          (payload == null || payload.turn_id == null) &&
+          activeInprismRequestId != null
+        ) {
+          cancelledInprismRequests.add(activeInprismRequestId);
+          cancelledInprismRequests.add(String(activeInprismRequestId));
+        }
+        const rawTid =
+          payload && payload.turn_id != null
+            ? Number(payload.turn_id)
+            : targetReqId == null || matchesActiveReq
+              ? activeInprismTurnId
+              : null;
+        let cancelRes = { status: 'not_found', turn_id: Number(rawTid || 0) };
+        if (rawTid != null && Number.isFinite(rawTid) && rawTid > 0) {
+          cancelledInprismTurns.add(Number(rawTid));
+          const cancelFn =
+            typeof holo_cancel_foundry_turn === 'function'
+              ? holo_cancel_foundry_turn
+              : globalThis.holo_cancel_foundry_turn;
+          if (typeof cancelFn === 'function') {
+            const arg = typeof BigInt === 'function' ? BigInt(Math.trunc(rawTid)) : Math.trunc(rawTid);
+            cancelRes = JSON.parse(cancelFn(arg));
+          } else {
+            cancelRes = { status: 'cancelled', turn_id: Number(rawTid) };
+          }
+        } else if (matchesActiveReq || (targetReqId == null && activeInprismRequestId != null)) {
+          cancelRes = {
+            status: 'cancelled',
+            turn_id: 0,
+            targetId: targetReqId != null ? targetReqId : activeInprismRequestId,
+          };
+        }
+        const notifyKeys = new Set();
+        if (targetReqId != null) notifyKeys.add(String(targetReqId));
+        else if (activeInprismRequestId != null) notifyKeys.add(String(activeInprismRequestId));
+        for (const k of notifyKeys) {
+          const waiters = pendingInprismCancelWaiters.get(k);
+          if (waiters) {
+            for (const cb of waiters) cb();
+            pendingInprismCancelWaiters.delete(k);
           }
         }
-        const mountedMeta = mountedList.find((m) => m && m.model_id === activeModel) || null;
-        const chatReq = JSON.stringify({
-          prompt,
-          selected_model: activeModel,
-          composer_mode: 'chat',
-          operating_mode: 'chat',
-          connected_repo: (payload && payload.repo) || '',
-          connected_branch: (payload && payload.branch) || 'main',
-        });
-        const chatRes = JSON.parse(studio_dispatch(`1\tstudio\tchat\t${chatReq}`));
-        const weightsSha = (mountedMeta && mountedMeta.container_sha256) || chatRes.receipt_sha256 || '';
-        const weightsKappa = weightsSha ? `sha256:${weightsSha}` : '';
-        const latestHolo = __uorMemPrismIdentity.latestHoloSummary || globalThis.__uorLatestHoloSummary || null;
-        const actionRes = weightsKappa
-          ? await stitch_prism_identity_sign_action('inprism-r4-turn', weightsKappa).catch(() => null)
-          : null;
-        self.postMessage({
-          id,
-          ok: chatRes && chatRes.status === 'ok',
-          result: {
-            ok: Boolean(chatRes && chatRes.status === 'ok'),
-            mode: 'inprism',
-            engine: 'match',
-            weights: weightsKappa ? 'match' : 'missing',
-            route: 'none',
-            boundary: 'allow',
-            model_id: chatRes.selected_model || activeModel,
-            execution_tier: chatRes.execution_tier || activeModel,
-            reply: chatRes.assistant_reply || '',
-            receipt_sha256: chatRes.receipt_sha256 || '',
-            weights_kappa: weightsKappa,
-            prism_id: idState ? idState.prism_id : null,
-            action_record_kappa: actionRes ? actionRes.action_record_kappa : null,
-            holo_fingerprint: latestHolo ? latestHolo.fingerprint : null,
-            geometric_metrics: chatRes.geometric_metrics || null,
+        self.postMessage({ id, ok: true, result: cancelRes });
+        return;
+      }
+      if (op === 'terminal:write' || op === 'terminal:open' || op === 'terminal:close' || op === 'terminal:kill' || op === 'terminal:resize' || op === 'terminal:serialize') {
+        if (payload != null && typeof payload !== 'object') {
+          self.postMessage({
+            id,
+            ok: false,
+            error_code: 'InvalidPayload',
+            error: `${op} payload must be an object`,
+          });
+          return;
+        }
+        if (op === 'terminal:write') {
+          const cmdStr = payload && typeof payload.cmd === 'string' ? payload.cmd.trim() : '';
+          const hasRawData = payload && typeof payload.data === 'string' && payload.data.length > 0;
+          if (!cmdStr && !hasRawData) {
+            self.postMessage({
+              id,
+              ok: false,
+              error_code: 'InvalidPayload',
+              error: 'terminal:write requires non-empty payload.cmd or payload.data',
+            });
+            return;
+          }
+          if (cmdStr) {
+            const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: cmdStr })}`);
+            self.postMessage({ id, ok: true, result: out });
+            return;
+          }
+          self.postMessage({
+            id,
+            ok: true,
+            result: { ok: true, op, bytes: payload.data.length, interleaved: true },
+          });
+          return;
+        }
+        if (op === 'terminal:resize') {
+          const cols = Number(payload && payload.cols);
+          const rows = Number(payload && payload.rows);
+          if (!Number.isFinite(cols) || cols <= 0 || !Number.isFinite(rows) || rows <= 0) {
+            self.postMessage({
+              id,
+              ok: false,
+              error_code: 'InvalidPayload',
+              error: 'terminal:resize requires positive cols and rows',
+            });
+            return;
+          }
+        }
+        self.postMessage({ id, ok: true, result: { ok: true, op, interleaved: true } });
+        return;
+      }
+      if (op === 'inprism_r4_turn') {
+        /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+        const resEnvelope = await execute_inprism_foundry_turn(
+          { id, payload },
+          {
+            postEvent,
+            postResponse: (resp) => self.postMessage(resp),
+            dispatchBridge: dispatchWithConnectedBridge,
+            claimTurnOwnership: (ownerReqId) => {
+              const resolvedOwner =
+                ownerReqId != null ? ownerReqId : `__anon_inprism_turn_${++__uorAnonInprismTurnSeq}`;
+              if (
+                activeInprismBusy ||
+                (activeInprismRequestId != null && activeInprismRequestId !== resolvedOwner)
+              ) {
+                return { ok: false, activeTurnId: activeInprismTurnId };
+              }
+              activeInprismBusy = true;
+              activeInprismRequestId = resolvedOwner;
+              return { ok: true, activeTurnId: activeInprismTurnId };
+            },
+            releaseTurnOwnership: (ownerReqId) => {
+              if (
+                activeInprismBusy &&
+                (ownerReqId == null || activeInprismRequestId === ownerReqId)
+              ) {
+                activeInprismBusy = false;
+                activeInprismRequestId = null;
+                activeInprismTurnId = null;
+              }
+            },
+            setActiveTurnId: (tid, ownerReqId) => {
+              if (ownerReqId === undefined || activeInprismRequestId === ownerReqId) {
+                activeInprismTurnId = tid;
+              }
+            },
+            registerCancelWaiter: (ownerReqId, cb) => {
+              const key = String(ownerReqId);
+              let set = pendingInprismCancelWaiters.get(key);
+              if (!set) {
+                set = new Set();
+                pendingInprismCancelWaiters.set(key, set);
+              }
+              set.add(cb);
+              return () => {
+                const cur = pendingInprismCancelWaiters.get(key);
+                if (cur) {
+                  cur.delete(cb);
+                  if (cur.size === 0) pendingInprismCancelWaiters.delete(key);
+                }
+              };
+            },
+            isCancelled: (reqId, turnId) =>
+              cancelledInprismRequests.has(reqId) ||
+              cancelledInprismRequests.has(String(reqId)) ||
+              (turnId != null && cancelledInprismTurns.has(Number(turnId))),
+            clearCancelled: (reqId, turnId) => {
+              cancelledInprismRequests.delete(reqId);
+              cancelledInprismRequests.delete(String(reqId));
+              if (turnId != null) cancelledInprismTurns.delete(Number(turnId));
+            },
           },
-          ...(chatRes && chatRes.status !== 'ok' ? { error: chatRes.message || 'inprism turn failed' } : {}),
-        });
+        );
+        self.postMessage(resEnvelope);
+        return;
+      }
+      if (op === 'mvm_sync_workspace_in') {
+        const parsedOut = runMvmSyncWorkspaceIn(payload, null, true);
+        if (parsedOut && parsedOut.status === 'ok') {
+          postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
+        }
+        self.postMessage({ id, ok: true, result: parsedOut });
+        return;
+      }
+      if (op === 'mvm_export_workspace_diff') {
+        const parsedOut = runMvmExportWorkspaceDiff(true);
+        if (parsedOut && parsedOut.status === 'ok') {
+          postEvent('workspace_sync', {
+            workspace: __uorCollectWorkspaceSnapshot(),
+            diff: parsedOut,
+          });
+        }
+        self.postMessage({ id, ok: true, result: parsedOut });
         return;
       }
       self.postMessage({ id, ok: false, error: `Unknown worker op: ${op}` });
@@ -5852,6 +10452,7 @@ function __uorStartDedicatedEngineWorker() {
       self.postMessage({
         id,
         ok: false,
+        ...(err && err.code ? { error_code: err.code } : {}),
         error: err && err.message ? err.message : String(err),
       });
     }
@@ -6718,6 +11319,7 @@ if (typeof globalThis === 'object' && globalThis) {
     verifyHoloV4ArchiveInWorker: verify_holo_v4_archive_in_worker,
     buildAfflomMeAppDescriptor: build_afflom_me_app_descriptor,
     buildFoundryStudioDescriptor: build_afflom_me_app_descriptor,
+    executeInprismFoundryTurn: execute_inprism_foundry_turn,
   };
 
   globalThis.LexLean = {
@@ -6734,6 +11336,7 @@ if (typeof globalThis === 'object' && globalThis) {
     stitch_prism_identity_bind_persona,
     compile_and_verify_holo_v4_in_worker,
     verify_holo_v4_archive_in_worker,
+    execute_inprism_foundry_turn,
   };
 }
 

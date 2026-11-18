@@ -4,7 +4,7 @@
   "view_manifest_sha256": "6b245cf2a02b6be350dc10915ffce6ff039a896d88f62f85b62b694a50d24f0c",
   "view_model_id": "c1387d7bbf11b6973e4a905a4ecb819f61b0c0cf94e9f90647c40d65b058a9df",
   "generated_core_sha256": "7bbbb75bf2a066eb758c0cc770b0ad0a0000acbf207bd957f5bafa7a6a268168",
-  "adapter_wasm_sha256": "03caa30e093ec233e3dd2086515e4a692e7aeba9c1f3ccc9a600cb50e2801445",
-  "binding_javascript_sha256": "617994e135b0c7164293ca75629c0fd855bebd4c7fe47b811701ba3bfffdf1e7",
+  "adapter_wasm_sha256": "8025e0414d6353c1f17e72dfae7be2fa0e937c906347755d379feae22da102ca",
+  "binding_javascript_sha256": "b5d11fd1f8a36578f5870b25db2ae97691eca90d9d4c65275881c291d85bc999",
   "adapter_lock_sha256": "016e32a44c2841c12edd38a4e491740da4e97bec05a728e31a79bcbc51a9bfc8"
 }

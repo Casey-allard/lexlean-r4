@@ -1181,6 +1181,7 @@ const S0: u32 = 8;
 const A0: u32 = 10;
 const A1: u32 = 11;
 const A2: u32 = 12;
+const A3: u32 = 13;
 const A7: u32 = 17;
 
 #[derive(Clone, Copy)]
@@ -1986,6 +1987,63 @@ impl Codegen {
                 if name == "exit" && args.len() == 1 {
                     self.compile_expr(&args[0])?;
                     self.emit(enc_i(94, X0, 0, A7, 0x13));
+                    self.emit(0x0000_0073);
+                    return Ok(());
+                }
+                if name == "close" && args.len() == 1 {
+                    self.compile_expr(&args[0])?;
+                    self.emit(enc_i(57, X0, 0, A7, 0x13));
+                    self.emit(0x0000_0073);
+                    return Ok(());
+                }
+                if name == "unlink" && args.len() == 1 {
+                    self.compile_expr(&args[0])?;
+                    self.emit(enc_i(0, A0, 0, A1, 0x13));
+                    self.emit(enc_i(-100, X0, 0, A0, 0x13));
+                    self.emit(enc_i(0, X0, 0, A2, 0x13));
+                    self.emit(enc_i(35, X0, 0, A7, 0x13));
+                    self.emit(0x0000_0073);
+                    return Ok(());
+                }
+                if name == "unlinkat" && args.len() == 3 {
+                    for a in args {
+                        self.compile_expr(a)?;
+                        self.push_a0();
+                    }
+                    self.pop_to(A2);
+                    self.pop_to(A1);
+                    self.pop_to(A0);
+                    self.emit(enc_i(35, X0, 0, A7, 0x13));
+                    self.emit(0x0000_0073);
+                    return Ok(());
+                }
+                if name == "open" && args.len() == 2 {
+                    for a in args {
+                        self.compile_expr(a)?;
+                        self.push_a0();
+                    }
+                    self.pop_to(A2);
+                    self.pop_to(A1);
+                    self.emit(enc_i(-100, X0, 0, A0, 0x13));
+                    self.emit(enc_i(0o644, X0, 0, A3, 0x13));
+                    self.emit(enc_i(56, X0, 0, A7, 0x13));
+                    self.emit(0x0000_0073);
+                    return Ok(());
+                }
+                if name == "openat" && (args.len() == 3 || args.len() == 4) {
+                    for a in args {
+                        self.compile_expr(a)?;
+                        self.push_a0();
+                    }
+                    if args.len() == 4 {
+                        self.pop_to(A3);
+                    } else {
+                        self.emit(enc_i(0, X0, 0, A3, 0x13));
+                    }
+                    self.pop_to(A2);
+                    self.pop_to(A1);
+                    self.pop_to(A0);
+                    self.emit(enc_i(56, X0, 0, A7, 0x13));
                     self.emit(0x0000_0073);
                     return Ok(());
                 }

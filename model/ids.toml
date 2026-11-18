@@ -20,6 +20,30 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-59"
+level = "build"
+suite = "r4-spiralcore-observatory-holo"
+statement = "Pure LexLean models the Prism capabilities/1 network gate, CORS-direct GitHub personal token REST + Git Data APIs, unauthenticated SpiralCore AF_VSOCK failback, RFC 8484 DoH + SSRF CIDR blocking, chromeless ?surface=observatory uor-observatory/1 view, dual weight kappa pins (qwen3WeightsKappa, offlineQ31WeightsKappa), and content-addressed .holo archive emission (--emit-fingerprint-dir) (R4-59): Sandboxed mode (registry.npmjs.org, esm.sh, pypi.org, files.pythonhosted.org, cdn.jsdelivr.net, github.com, api.github.com, huggingface.co, cloudflare-dns.com, dns.google) vs Full SpiralCore Internet (consentGranted gating, direct fetch/DoH/WebTransport/WebSocket first, unauthenticated CORS TypeError failback to AF_VSOCK relayWsUrl, strict RelayForbiddenForCredentialedHost blocking relay failback for api.github.com/github.com or Authorization/GITHUB_TOKEN, PrivateAddressBlocked rejecting RFC 1918/169.254/loopback/link-local SSRF CIDRs, DoHResolutionFailed, RelayUnavailable), audit_event emission on every outbound call, opaque-origin safe ?surface=observatory ready handshake and theme/4-canvas Holo v13 + .uorc rendering without raw telemetry string literals, deterministic offlineQ31WeightsKappa sha256 digest binding, and xtask build-holo --emit-fingerprint-dir emitting <fingerprint>.holo + app.holo + site/app.json pins cleanly outside the 6-file git public/ closure. Formal controls establish no external GitHub API, DoH resolver, or SpiralCore relay uptime."
+
+[[id]]
+id = "R4-58"
+level = "build"
+suite = "r4-wasm-container-tools"
+statement = "Pure LexLean models the MVM-Wasm polyglot WebAssembly container runtime across node/npm/npx/esbuild.wasm, SRI-pinned lazy Pyodide python/pip, WASI Preview 1, and persistent sqlite3 (R4-58): typed NeedsBridge suspend frames (node_exec, pkg_fetch/npm_exec, python_exec, wasi_exec, sqlite_exec) emitted from mvm.rs with active /workspace snapshots (including binary *.db, *.wasm, and node_modules/**) and resumed via mvm_complete_bridge_json enforcing canonical protection (^prism/.*\\.lex\\.tex$, ^app/state$) and typed error codes (IntegrityMismatch, EsbuildAdapterUnavailable, WasiRuntimeError, SqliteRuntimeError); Worker host adapter (worker_host_bridge.js) executing node/npx via isolated shimmed fs/path/process/buffer/crypto/url/fetch and host-configured Foundry studio/shell/compiler/esm/browser.min.js + esbuild.wasm (refusing TS/ESM transpilation with EsbuildAdapterUnavailable when unconfigured), npm install verifying SHA-512 dist.integrity before gzip tar extraction into /workspace/node_modules/ and package.json mutation, lazy-loaded Pyodide verified strictly against locked PYODIDE_LOCK SHA-384 SRI prior to uor-pyodide-v1 Cache API storage and micropip PyPI resolution, WebAssembly wasi_snapshot_preview1 execution over /workspace file descriptors, and deterministic binary SQLite 3 database persistence into MVM /workspace/*.db OPFS COW sectors. Formal controls establish no external npm/PyPI/CDN uptime or full native Node/CPython ABI parity beyond browser Wasm/JS adapters."
+
+[[id]]
+id = "R4-57"
+level = "build"
+suite = "r4-mvm-linux-workspace"
+statement = "Pure LexLean models the MVM-Wasm Linux shell AST executor, native Rust coreutils applets, and filtered bidirectional /workspace sync (R4-57): deterministic AST shell parsing and execution across pipelines (|), command chains (&&/||/;), environment variable expansion and export ($VAR, ${VAR}, $?), redirects (>, >>, <, 2>&1), and heredocs (<<EOF, <<'EOF') backed directly by MvmCowSnapshot inodes; panic-free native Rust coreutils applets (head, tail, wc, tr, cut, sed, awk, find, cp, mv, touch, chmod, ln, printf, env, export, which, ps, uname, date, tar, gzip/gunzip, base64, diff, bc, jq, sort, uniq, grep, cat, ls) returning exit 0 on valid inputs and non-zero typed stderr on missing or corrupt inputs; mvm_sync_workspace_in_json and mvm_export_workspace_diff_json delta synchronization across StudioEngine, #[wasm_bindgen], and Worker terminal:write/mvm_exec hooks preserving heavy directories (/workspace/node_modules/**, /workspace/.venv/**, /workspace/**/__pycache__/**, /workspace/.git/objects/**) and non-UTF-8 binary blobs (*.db, *.wasm, >1 MiB) solely in MVM OPFS COW sectors (uor-mvm-cow-v1.bin) while protecting canonical rule files (^prism/.*\\.lex\\.tex$, ^app/state$) and rejecting traversal or invalid sync payloads with typed refusals. Formal controls establish no full POSIX kernel process isolation or external OS syscall parity beyond MVM-Wasm CoW inodes and RV64IMAC execution."
+
+[[id]]
+id = "R4-56"
+level = "build"
+suite = "r4-foundry-stepper"
+statement = "Pure LexLean models the non-blocking 4-token Foundry turn stepper, workspace-aware system prompt assembly, and Worker chunk/consent streaming bridge (R4-56): FoundryTurnSession on StudioEngine with default max_new_tokens = 1536 and 4-token decode slices (holo_begin_foundry_turn, holo_step_foundry_turn, holo_cancel_foundry_turn), incremental UTF-8 stream flushing, Rust-side format_foundry_system_prompt embedding BUILD_SYSTEM_PREFIX (<prism-write>, <prism-delete>, <prism-rename>, <prism-add-dependency>) and <tool_call> mvm_exec instructions (bounded to max 6 tool iterations) with </tool_call> stop-sequence emission, cooperative Worker event-loop yielding via chat_chunk telemetry events and cancel_inprism_turn interleaving, allowOffOriginHydration consent gating, and typed refusals EmptyPrompt, InvalidPayload, ModelNotMounted, RefusedRetiredScaffoldMode, BusyTurn, TurnNotFound, InvalidStepperOutcome, StepFailed, Cancelled, not_found, and ConsentRequiredForWeightDownload. Formal controls establish no external Foundry host availability, remote weight CDN uptime, or empirical benchmark fluency."
+
+[[id]]
 id = "R4-55"
 level = "build"
 suite = "r4-ontological-telos"
