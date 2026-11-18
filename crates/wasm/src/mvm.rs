@@ -1337,10 +1337,18 @@ impl MvmSandbox {
                     .read_guest_file(&guest_path)
                     .map(|cur| cur == bytes)
                     .unwrap_or(false);
-                if !unchanged && self.write_guest_file(&guest_path, &bytes).is_ok() {
+                let write_ok = if unchanged {
+                    true
+                } else if self.write_guest_file(&guest_path, &bytes).is_ok() {
                     applied_writes += 1;
-                }
-                if !is_excluded_workspace_rel_path(&rel) && !is_binary_workspace_bytes(&bytes) {
+                    true
+                } else {
+                    false
+                };
+                if write_ok
+                    && !is_excluded_workspace_rel_path(&rel)
+                    && !is_binary_workspace_bytes(&bytes)
+                {
                     self.workspace_diff_baseline
                         .insert(rel.clone(), sha256_hex_bytes(&bytes));
                     self.synced_workspace_paths.insert(rel);
@@ -10724,7 +10732,9 @@ impl MvmSandbox {
                     if !*range_active {
                         let mut dummy = false;
                         if sed_addr_matches(a, line_no, is_last, line, &mut dummy) {
-                            *range_active = true;
+                            let closes_on_start = matches!(b.as_ref(), SedAddr::Line(end_n) if line_no >= *end_n)
+                                || (matches!(b.as_ref(), SedAddr::Last) && is_last);
+                            *range_active = !closes_on_start;
                             return true;
                         }
                         false
@@ -14724,14 +14734,19 @@ fn parse_jq_filter(raw: &str) -> Result<JqFilter, String> {
         }
         return Ok(JqFilter::Object(entries));
     }
-    if let Some(inner) = s.strip_prefix("select(").and_then(|x| x.strip_suffix(')')) {
-        return Ok(JqFilter::Select(Box::new(parse_jq_filter(inner)?)));
-    }
-    if let Some(inner) = s.strip_prefix("map(").and_then(|x| x.strip_suffix(')')) {
-        return Ok(JqFilter::Map(Box::new(parse_jq_filter(inner)?)));
-    }
-    if let Some(inner) = s.strip_prefix("has(").and_then(|x| x.strip_suffix(')')) {
-        return Ok(JqFilter::Has(Box::new(parse_jq_filter(inner)?)));
+    for (prefix, wrap) in [
+        ("select(", JqFilter::Select as fn(Box<JqFilter>) -> JqFilter),
+        ("map(", JqFilter::Map as fn(Box<JqFilter>) -> JqFilter),
+        ("has(", JqFilter::Has as fn(Box<JqFilter>) -> JqFilter),
+    ] {
+        if s.starts_with(prefix)
+            && s.ends_with(')')
+            && JqScan::matching_paren_end(s, prefix.len() - 1) == Some(s.len() - 1)
+        {
+            return Ok(wrap(Box::new(parse_jq_filter(
+                &s[prefix.len()..s.len() - 1],
+            )?)));
+        }
     }
     if let Some(vname) = s.strip_prefix('$') {
         return Ok(JqFilter::Var(vname.to_string()));

@@ -301,7 +301,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "65a1beb98977a06a0a2fb058c4a5d357a9c3cd6fa500b77944e7f49695922476",
+      "kappa": "3be5484e1513b44abd33493587b047993d8782fe3de0f7fb417ab09f35030161",
       "function": "crates/wasm/js/worker_host_bridge.js::execute_inprism_foundry_turn",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -826,7 +826,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "402a16183cdb5703e2ed8472372d0cfb307d9208f7210bd2816043ea1ceebd27",
+      "kappa": "70c4a5573157458a681585c6c07bcabaea192a5ca4bfa285ea3ce33e927e91ba",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_begin_foundry_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -847,7 +847,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "5134abff3d4f76598e31180731829028a939058b81e53e8066cf32a14ab4cce0",
+      "kappa": "fffe39bcdcde734dfaa0f451485eadd48846373af124715b84483b94c92ead35",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_step_foundry_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -1020,7 +1020,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "74d21b1b1f90c813de3a27ee96d3563d4e2a9d3ca0c634566d4312e50ec6aeaa",
+      "kappa": "0643da6036fa9230458c9a611a48d7425730ef1d7b2995e088b0c17f4545f940",
       "function": "crates/wasm/src/assistant.rs::fit_foundry_prompt_tokens",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -14310,7 +14310,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a04e21c3d1062afaf22ee6363b3d9e35a6ba49bc4a8735356916047dd6a2550c",
+      "kappa": "08bbf5b89d7e907fd67342016e81f492d0a33286c4f14984358a92496a0fbf44",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_coreutil_text_lang",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -14540,7 +14540,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "c13d0fde50601568f47a31dce6e5a411937115c82cfee30ebdd279c9163c4da3",
+      "kappa": "35f9a71f75fd5a7d0fe9a663e0de50ad43e3918b4bd0241421156c669e54a619",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::mvm_sync_workspace_in_json",
       "status": "lifted",
       "definition": "R4.SecopsAudit",
@@ -14578,7 +14578,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "fbb5e2194c9f03667e5bc5dfd316cb1211549c5d65f0c0812c41e295f35495d8",
+      "kappa": "9a66ccd070382a18b1261c207f5c428813e3c7ab4da866f1d9048e8d4a70cf47",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::parse_jq_filter",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -17260,7 +17260,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2ec40d763b972ef0c722e4858509272936793d77c8d1ee482a19564a6c88212b",
+      "kappa": "b326a5d9adb907c5cf1e4027777f2cabce983783b30c8f333098dab3cee855e5",
       "function": "public/app.js::initEmbedMeBridge",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",

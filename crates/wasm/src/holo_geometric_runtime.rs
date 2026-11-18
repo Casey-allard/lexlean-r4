@@ -6312,7 +6312,7 @@ impl HfRepoHoloStreamCompiler {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
 
     #[test]
@@ -6374,7 +6374,7 @@ mod tests {
         assert!((sin_tbl[64] - 13_787).abs() <= 2);
     }
 
-    fn build_synthetic_test_model() -> HoloV13Model {
+    pub(crate) fn build_synthetic_test_model() -> HoloV13Model {
         let vocab = 256usize;
         let dm = 128usize;
         let nl = 1usize;

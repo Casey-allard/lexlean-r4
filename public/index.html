@@ -647,757 +647,6 @@
       </div>
     </section>
 
-    <!-- Full-Height Spacious Inspectors Modal (85vh, 8 Diagnostic & 3D Brain Views) -->
-    <div id="inspectors-modal" class="inspectors-modal" hidden role="dialog" aria-modal="true" aria-label="3D Holographic Brain and Engine Inspectors">
-      <div id="inspectors-modal-backdrop" class="inspectors-modal-backdrop"></div>
-      <div class="inspectors-modal-dialog">
-        <div class="inspectors-modal-header">
-          <div class="inspectors-modal-brand">
-            <strong>Engine Inspectors &amp; 3D Brain</strong>
-            <span id="inspectors-live-pulse-pill" class="panel-badge">Live Worker Stream</span>
-          </div>
-          <nav class="canvas-tabs inspectors-tabs-nav" role="tablist" aria-label="Engine Inspector Tabs">
-            <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
-              <span>3D Brain &amp; OTel</span>
-              <span class="canvas-tab-pill">WebGL2 &middot; Live</span>
-            </button>
-            <button id="canvas-tab-inspector" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-inspector" data-tab-id="inspector">
-              <span>ML Inspector</span>
-              <span class="canvas-tab-pill">256D Q12</span>
-            </button>
-            <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
-              <span>Diff Preview</span>
-            </button>
-            <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
-              <span>API &amp; 30/30</span>
-              <span class="canvas-tab-pill">30/30</span>
-            </button>
-            <button id="canvas-tab-mcp" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-mcp" data-tab-id="mcp">
-              <span>MCP Tools</span>
-              <span class="canvas-tab-pill">R4-39</span>
-            </button>
-            <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
-              <span>Self-Improvement</span>
-              <span class="canvas-tab-pill">R4-F32</span>
-            </button>
-            <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
-              <span>Consolidation</span>
-              <span class="canvas-tab-pill">Worker Q12</span>
-            </button>
-            <button id="canvas-tab-customizations" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-customizations" data-tab-id="customizations">
-              <span>Customizations</span>
-            </button>
-          </nav>
-          <button id="close-inspectors-modal-btn" type="button" class="btn-secondary btn-xs" title="Close Inspectors (Esc)" aria-label="Close Inspectors">&times; Close</button>
-        </div>
-        <div class="inspectors-modal-body">
-
-        <!-- ML Inspector Panel -->
-        <div id="canvas-panel-inspector" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-inspector" tabindex="0" hidden>
-          <div class="inspector-panel-container">
-            <div class="pane-subheader">
-              <strong>ML &amp; Geometric Coordinate Inspector</strong>
-              <span class="metric-code">256D Q12 Latent Space</span>
-            </div>
-            <div class="inspector-section">
-              <h4>256D Latent Projection Activation Sparkline</h4>
-              <div id="inspector-sparkline" class="inspector-sparkline-grid" aria-label="Latent Vector Activation Sparkline"></div>
-            </div>
-            <div class="inspector-section">
-              <h4>Clifford <span class="latex-mathcal">C</span>&#8467;(0,6) Graded Subspaces (2<sup>6</sup> = 64 Basis Elements)</h4>
-              <div id="inspector-clifford-grades" class="inspector-clifford-grid">
-                <div class="grade-cell"><span class="grade-title">Gr 0 (Scalar)</span><span class="grade-dim">1 dim</span></div>
-                <div class="grade-cell"><span class="grade-title">Gr 1 (Vector)</span><span class="grade-dim">6 dim</span></div>
-                <div class="grade-cell"><span class="grade-title">Gr 2 (Bivector)</span><span class="grade-dim">15 dim</span></div>
-                <div class="grade-cell"><span class="grade-title">Gr 3 (Trivector)</span><span class="grade-dim">20 dim</span></div>
-                <div class="grade-cell"><span class="grade-title">Gr 4 (4-Vector)</span><span class="grade-dim">15 dim</span></div>
-                <div class="grade-cell"><span class="grade-title">Gr 5 (5-Vector)</span><span class="grade-dim">6 dim</span></div>
-                <div class="grade-cell"><span class="grade-title">Gr 6 (Pseudoscalar)</span><span class="grade-dim">1 dim</span></div>
-              </div>
-            </div>
-            <div class="inspector-section">
-              <h4>Icosian Golden Quaternion Roots (<span class="latex-mathbb">&#8484;</span>[&phi;], 17 Roots)</h4>
-              <div id="inspector-icosian-roots" class="inspector-icosian-list"></div>
-            </div>
-            <div class="inspector-section">
-              <h4>E8 Lattice Root Occupancy (16 &times; 64 &times; 17 = 17,408 Basins)</h4>
-              <div id="inspector-e8-grid" class="inspector-e8-grid"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- MCP Tool Management Panel -->
-        <div id="canvas-panel-mcp" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-mcp" tabindex="0" hidden>
-          <div class="mcp-panel-container">
-            <div class="pane-subheader">
-              <strong>Model Context Protocol (MCP) Tool Registry</strong>
-              <span class="metric-code">In-Browser Sandbox</span>
-            </div>
-            <div class="field">
-              <label for="mcp-policy-select">Execution Security Policy</label>
-              <select id="mcp-policy-select" class="sidebar-select">
-                <option value="safe" selected>Safe Local Execution (Pure In-Browser)</option>
-                <option value="confirm">Ask Before Execution</option>
-                <option value="deny">Deny All Tool Calls</option>
-              </select>
-            </div>
-            <div class="inspector-section">
-              <h4>Available Pure Local Tools (6)</h4>
-              <div id="mcp-tools-list" class="mcp-tools-list">
-                <div class="mcp-tool-card">
-                  <div class="mcp-tool-header">
-                    <strong>workspace_read</strong>
-                    <span class="mcp-badge">Local Read</span>
-                  </div>
-                  <div class="mcp-tool-desc">Reads text content from the virtual in-memory workspace file system.</div>
-                  <div class="mcp-tool-actions">
-                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="workspace_read">Run / Test</button>
-                  </div>
-                </div>
-                <div class="mcp-tool-card">
-                  <div class="mcp-tool-header">
-                    <strong>workspace_write</strong>
-                    <span class="mcp-badge">Local Write</span>
-                  </div>
-                  <div class="mcp-tool-desc">Writes or updates a virtual file with cryptographic SHA-256 receipt generation.</div>
-                  <div class="mcp-tool-actions">
-                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="workspace_write">Run / Test</button>
-                  </div>
-                </div>
-                <div class="mcp-tool-card">
-                  <div class="mcp-tool-header">
-                    <strong>geometric_dijkstra_route</strong>
-                    <span class="mcp-badge">Wasm Math</span>
-                  </div>
-                  <div class="mcp-tool-desc">Computes minimum L1 distance routing across cortical cluster waypoints.</div>
-                  <div class="mcp-tool-actions">
-                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="geometric_dijkstra_route">Run / Test</button>
-                  </div>
-                </div>
-                <div class="mcp-tool-card">
-                  <div class="mcp-tool-header">
-                    <strong>clifford_bivector_wedge</strong>
-                    <span class="mcp-badge">Wasm Math</span>
-                  </div>
-                  <div class="mcp-tool-desc">Evaluates outer wedge products <strong>u</strong> &and; <strong>v</strong> over <span class="latex-mathcal">C</span>&#8467;(0,6) graded blades.</div>
-                  <div class="mcp-tool-actions">
-                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="clifford_bivector_wedge">Run / Test</button>
-                  </div>
-                </div>
-                <div class="mcp-tool-card">
-                  <div class="mcp-tool-header">
-                    <strong>subsystem_prime_gcd</strong>
-                    <span class="mcp-badge">Wasm Math</span>
-                  </div>
-                  <div class="mcp-tool-desc">Evaluates exact Euclidean GCD across 128-bit integer coordinates.</div>
-                  <div class="mcp-tool-actions">
-                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="subsystem_prime_gcd">Run / Test</button>
-                  </div>
-                </div>
-                <div class="mcp-tool-card">
-                  <div class="mcp-tool-header">
-                    <strong>coordinate_descent_sweep</strong>
-                    <span class="mcp-badge">Local Optimizer</span>
-                  </div>
-                  <div class="mcp-tool-desc">Executes discrete integer coordinate descent over `.uorlut` lookup tables.</div>
-                  <div class="mcp-tool-actions">
-                    <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="coordinate_descent_sweep">Run / Test</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="inspector-section">
-              <h4>Tool Execution Audit Log</h4>
-              <div id="mcp-audit-log" class="mcp-audit-log" role="log" aria-live="polite">
-                <div class="mcp-log-item">[Bootstrap] MCP in-browser sandbox active with pure local safety policies.</div>
-              </div>
-              <div class="mcp-audit-actions">
-                <button id="mcp-audit-export-btn" type="button" class="btn-secondary btn-sm">Export Secops Audit Journal (NDJSON)</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Customizations Panel -->
-        <div id="canvas-panel-customizations" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-customizations" tabindex="0" hidden>
-          <div class="customizations-panel-container">
-            <div class="pane-subheader">
-              <strong>Interface &amp; Engine Customizations</strong>
-              <span class="metric-code">Client Config</span>
-            </div>
-            <div class="field">
-              <label for="custom-theme-toggle">
-                <input type="checkbox" id="custom-theme-toggle">
-                <span>Enable Warm Light Theme (Default: Obsidian Dark)</span>
-              </label>
-            </div>
-            <div class="field">
-              <label for="custom-mode-select">Agentic Operating Mode</label>
-              <select id="custom-mode-select" class="sidebar-select">
-                <option value="coding" selected>Agentic Coding Harness (with diffs and virtual workspace)</option>
-                <option value="math">Mathematical Research &amp; Formal Verification</option>
-                <option value="fast">Fast Latent Inference (Low Latency)</option>
-              </select>
-            </div>
-            <div class="field">
-              <div class="field-label-row">
-                <label for="custom-retain-lambda">Memory Retain Factor (&lambda;)</label>
-                <span id="custom-retain-lambda-val" class="metric-code">0.85</span>
-              </div>
-              <input type="range" id="custom-retain-lambda" min="0" max="1" step="0.05" value="0.85">
-              <span class="field-hint">Controls decay rate of prior conversation turns in 256D latent carry-forward buffer.</span>
-            </div>
-            <div class="field">
-              <label for="custom-plurality-votes">Plurality Voting Ensemble Heads (<em>K</em>)</label>
-              <input type="number" id="custom-plurality-votes" min="1" max="16" value="8">
-              <span class="field-hint">Number of independent cyclic flock attention heads participating in consensus.</span>
-            </div>
-            <div class="field">
-              <label for="custom-density-select">UI Density</label>
-              <select id="custom-density-select" class="sidebar-select">
-                <option value="comfortable">Comfortable</option>
-                <option value="compact" selected>Compact (Claude-Code Obsidian)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <!-- Tab 2: Unified Diff & Interactive Artifact Preview Panel -->
-        <div id="canvas-panel-diff" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diff" tabindex="0" hidden>
-          <div class="patch-card">
-            <div class="reply-card-header">
-              <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
-              <div class="diff-toolbar-group" role="group" aria-label="Diff and Artifact View Mode">
-                <button id="chat-diff-view-btn" type="button" class="table-action-btn active" aria-pressed="true">Diff View</button>
-                <button id="chat-artifact-view-btn" type="button" class="table-action-btn" aria-pressed="false">Artifact Preview</button>
-                <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
-              </div>
-            </div>
-            <div id="chat-diff-file-pills" class="diff-file-pills" role="tablist" aria-label="Staged Multi-File Patches"></div>
-            <pre id="chat-diff-preview" class="code-block diff-colored-block" aria-label="Proposed Unified Diff"></pre>
-            <div id="chat-artifact-preview" class="artifact-preview-container" aria-label="Interactive Artifact Preview" hidden></div>
-          </div>
-        </div>
-
-        <!-- Tab 3: Live Verdant Synthesis 4-Facet KPIs & .uorc Watchdog Panel -->
-        <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
-          <div class="feed-header">
-            <h3>Verdant Synthesis 4-Facet KPIs &amp; <code>.uorc</code> Watchdog</h3>
-            <span id="verdant-synthesis-panel-badge" class="panel-badge">4-Facet Holon &middot; 0 Residue &middot; 0 Float Ops</span>
-          </div>
-          <div id="uorc-watchdog-banner" class="frontier-summary-banner">
-            <div class="frontier-banner-top">
-              <strong>OPFS <code>/generations/</code> <code>.uorc</code> Capsule &amp; 3-Strike Watchdog</strong>
-              <span id="uorc-worker-pool-badge" class="paper-badge">Worker Pool: Probing</span>
-            </div>
-            <p id="uorc-watchdog-status" class="frontier-banner-desc">
-              Active Head: <code>gen-0</code> &middot; Fault Strikes: <code>0/3</code> &middot; Zero-Float Serving Ratchet Armed
-            </p>
-            <div class="paper-actions">
-              <button id="uorc-admit-capsule-btn" type="button" class="paper-test-btn">Admit Verified .uorc Capsule</button>
-              <button id="uorc-rollback-btn" type="button" class="paper-test-btn">Simulate 3-Strike Watchdog Rollback</button>
-            </div>
-          </div>
-          <div id="telos-self-improve-card" class="frontier-summary-banner">
-            <div class="frontier-banner-top">
-              <strong>Verdant Ontological Telos (<code>R4-55</code> &middot; 5W+H Coordinate Descent)</strong>
-              <span id="telos-verdict-badge" class="paper-badge">TelosAdmitted &middot; k=4096 &middot; w=256</span>
-            </div>
-            <p id="telos-summary-text" class="frontier-banner-desc">
-              Continuous parametric loss minimization over Opacity, Legibility, Observer Dissonance &amp; Host Ceiling without coercion.
-            </p>
-            <div class="paper-actions">
-              <button id="telos-run-tick-btn" type="button" class="paper-test-btn">Run Verdant Telos Tick</button>
-            </div>
-          </div>
-          <div id="verdant-synthesis-kpi-grid" class="frontier-claims-grid">
-            <!-- Rendered dynamically with ModelAndTraining, ServingRuntime, UiAndPlumbing, EcosystemStandards KPIs -->
-          </div>
-          <div id="engine-frontier-ledger" class="frontier-ledger-section">
-            <!-- Rendered dynamically with codebase audit, runtime inference benchmarks & proved frontier ledger -->
-          </div>
-          <div class="feed-grid" id="literature-feed-list">
-            <!-- Rendered dynamically with compact bottleneck-filtered arXiv relevance checks -->
-          </div>
-        </div>
-
-        <!-- Tab 4: Standalone R4 API Harness & 27/27 Studio Tables Panel -->
-        <div id="canvas-panel-diagnostics" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diagnostics" tabindex="0" hidden>
-          <section class="studio-panel api-harness-box" id="api-harness-panel" aria-labelledby="heading-api-harness">
-            <div class="panel-header">
-              <h2 id="heading-api-harness">Standalone R4 API Harness (<code>/v1/messages</code> &amp; <code>/v1/chat/completions</code>)</h2>
-              <span class="panel-badge">Anthropic &amp; OpenAI Compatible Wasm Endpoints</span>
-            </div>
-            <p class="panel-description">
-              Decoupled R4 inference &amp; tool engine. Compatible with external Claude Code / OpenAI harnesses via JSON payloads with <code>tools[]</code>, <code>&lt;thinking&gt;</code> blocks, and rolling <code>256D Q12</code> state.
-            </p>
-            <div class="consolidation-controls">
-              <div class="field">
-                <label for="api-endpoint-select">Protocol Endpoint</label>
-                <select id="api-endpoint-select">
-                  <option value="messages" selected>POST /v1/messages (Anthropic Claude Cowork Format)</option>
-                  <option value="chat_completions">POST /v1/chat/completions (OpenAI Tool-Call Format)</option>
-                  <option value="traces">GET /v1/traces (OTel uor.gllm.trace/1 Ring Buffer)</option>
-                </select>
-              </div>
-              <button id="run-api-request-btn" type="button" class="btn-primary">Execute API Request in Wasm</button>
-            </div>
-            <div class="field">
-              <label for="api-request-textarea">Request JSON Body</label>
-              <textarea id="api-request-textarea" class="code-textarea" rows="5" spellcheck="false">{
-  "model": "uor-r4-glm",
-  "messages": [
-    {"role": "user", "content": "<thinking>Route query through 6-layer SpiralCore/FBS and inspect src/attention.rs</thinking>How does Direct Preference Optimization align language models without reinforcement learning?"}
-  ],
-  "tools": [
-    {"name": "workspace_patch", "description": "Synthesize unified diff against active workspace file"}
-  ]
-}</textarea>
-            </div>
-            <pre id="api-response-output" class="code-block" aria-label="Standalone API JSON Response"></pre>
-          </section>
-
-          <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
-            <div class="metric-card">
-              <span class="metric-label">Vocabulary Atoms</span>
-              <strong id="stat-vocab" class="metric-value">0</strong>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label">/7 Opening &amp; Reply Rows</span>
-              <strong id="stat-turn-rows" class="metric-value">0 / 0</strong>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label">/8 Point-Key Q12 Rows</span>
-              <strong id="stat-point-rows" class="metric-value">0</strong>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label">Occupied E8 Product Cells</span>
-              <strong id="stat-cells" class="metric-value">0 / 256</strong>
-            </div>
-            <div class="metric-card">
-              <span class="metric-label">Trained Epochs &amp; Active Gates</span>
-              <strong id="stat-train-epochs" class="metric-value">0 ep / 0 gates</strong>
-            </div>
-            <div class="metric-card metric-card-wide">
-              <span class="metric-label">State Cryptographic Receipt (SHA-256)</span>
-              <code id="stat-state-receipt" class="metric-code">initializing&hellip;</code>
-            </div>
-          </div>
-
-          <div class="diag-grid" id="chat-flock-grid">
-            <div class="diag-item">
-              <span class="diag-label">8-Head Cyclic Consensus</span>
-              <code id="chat-diag-consensus">Cl(0)</code>
-            </div>
-            <div class="diag-item">
-              <span class="diag-label">Weighted Resonance</span>
-              <code id="chat-diag-resonance">0</code>
-            </div>
-            <div class="diag-item">
-              <span class="diag-label">Icosian Z[phi] Root</span>
-              <code id="chat-diag-root">root #0</code>
-            </div>
-            <div class="diag-item">
-              <span class="diag-label">Turn Receipt (SHA-256)</span>
-              <code id="chat-diag-receipt">&mdash;</code>
-            </div>
-          </div>
-
-          <!-- Section 1: Trainer -->
-          <section class="studio-panel" aria-labelledby="heading-trainer">
-            <div class="panel-header">
-              <h2 id="heading-trainer">On-Device Coordinate-Sweep Trainer (R4.Learning.evaluateCoupledGateVector)</h2>
-              <span class="panel-badge">Zero Backprop &middot; Discrete Coordinate Sweeps</span>
-            </div>
-            <form id="studio-train-form" class="prompt-form" novalidate>
-              <div class="field">
-                <label for="train-epochs-input">Discrete Sweep Epochs (1..12)</label>
-                <input id="train-epochs-input" name="train-epochs-input" type="text" value="3" inputmode="numeric" autocomplete="off">
-              </div>
-              <button id="studio-train-btn" type="submit">Train Weights On-Device</button>
-            </form>
-            <div class="diag-grid">
-              <div class="diag-item">
-                <span class="diag-label">Corpus Transition Loss</span>
-                <code id="train-stat-loss">&mdash;</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">Coupled Gate Escapes</span>
-                <code id="train-stat-escapes">0</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">Active Non-Zero Gates</span>
-                <code id="train-stat-gates">0 / 40</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">Sequence Transitions Trained</span>
-                <code id="train-stat-transitions">0</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">Workspace Code Tokens Indexed</span>
-                <code id="train-stat-ws-tokens">0</code>
-              </div>
-              <div class="diag-item">
-                <span class="diag-label">Training Receipt</span>
-                <code id="train-stat-receipt">&mdash;</code>
-              </div>
-            </div>
-            <div class="table-wrap">
-              <table class="studio-table" id="train-history-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Ep</th>
-                    <th scope="col">Loss (Before &rarr; After)</th>
-                    <th scope="col">Improved</th>
-                    <th scope="col">Gate Escapes</th>
-                  </tr>
-                </thead>
-                <tbody id="train-history-tbody"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- Section 2: Prompt Recall & Prose Generation -->
-          <section class="studio-panel" aria-labelledby="heading-prose">
-            <div class="panel-header">
-              <h2 id="heading-prose">1. Prompt Recall &amp; Autoregressive Prose Generation (/6 + /7 + /8)</h2>
-              <span class="panel-badge">Exact /7 Opening Key + /8 Q12 L1 Plurality Fallback</span>
-            </div>
-            <form id="studio-prompt-form" class="prompt-form" novalidate>
-              <div class="field">
-                <label for="studio-prompt">Prompt or Question</label>
-                <input id="studio-prompt" name="studio-prompt" type="text" value="Can you explain how memory lookup recovers a rephrased question?" autocomplete="off" spellcheck="false">
-              </div>
-              <button id="studio-generate-btn" type="submit">Generate Prose &amp; Inspect Trajectory</button>
-            </form>
-            <div class="reply-card">
-              <output id="studio-prose-output" class="prose-output" role="status" aria-live="polite" aria-atomic="true"></output>
-            </div>
-            <div class="diag-grid">
-              <div class="diag-item"><span class="diag-label">Recall Mode</span><code id="diag-recall-mode">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Matched Anchor</span><code id="diag-matched-anchor">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Opening Token</span><code id="diag-opening-token">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">L1 Point Dist</span><code id="diag-l1-distance">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Hamming Dist</span><code id="diag-hamming-distance">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Plurality Votes</span><code id="diag-plurality-votes">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Retain Lambda</span><code id="diag-retain-lambda">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Prompt Q12</span><code id="diag-prompt-q12">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Prompt Sign</span><code id="diag-prompt-sign">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Icosian Root</span><code id="diag-icosian-root">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Packed 4-Block</span><code id="diag-packed-4block">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Sketch Gate</span><code id="diag-sketch-gate">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">PRLL Mass</span><code id="diag-prll-mass">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Inference Receipt</span><code id="diag-inference-receipt">&mdash;</code></div>
-            </div>
-          </section>
-
-          <!-- Section 3: Predictions Table -->
-          <section class="studio-panel" aria-labelledby="heading-predictions">
-            <div class="panel-header">
-              <h2 id="heading-predictions">2. Top-8 Next-Token Predictions &amp; Occupied-Cell Ranking (R4.Prediction)</h2>
-            </div>
-            <div class="table-wrap">
-              <table class="studio-table" id="predictions-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Rank</th>
-                    <th scope="col">Token ID</th>
-                    <th scope="col">Decoded Piece</th>
-                    <th scope="col">E8 Product Cell</th>
-                    <th scope="col">Cl(0,6) Action</th>
-                    <th scope="col">Ternary Node</th>
-                    <th scope="col">Q12 L1 Dist</th>
-                    <th scope="col">/6 Hamming Weight</th>
-                    <th scope="col">Rank Score</th>
-                    <th scope="col">Resolution Source</th>
-                  </tr>
-                </thead>
-                <tbody id="predictions-tbody"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- Section 4: Trajectory Table -->
-          <section class="studio-panel" aria-labelledby="heading-trajectory">
-            <div class="panel-header">
-              <h2 id="heading-trajectory">3. Token-by-Token Geometric Trajectory</h2>
-            </div>
-            <div class="table-wrap">
-              <table class="studio-table" id="trajectory-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Step</th>
-                    <th scope="col">Phase</th>
-                    <th scope="col">Token Piece</th>
-                    <th scope="col">ID</th>
-                    <th scope="col">E8 Root</th>
-                    <th scope="col">Cl(0,6) Action</th>
-                    <th scope="col">Forest Node &amp; Trit Path</th>
-                    <th scope="col">/6 Sign Code (64-bit)</th>
-                    <th scope="col">/8 Q12 Readout Vector (8D)</th>
-                  </tr>
-                </thead>
-                <tbody id="trajectory-tbody"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- Section 5: Admission & Weight Pack I/O -->
-          <section class="studio-panel" aria-labelledby="heading-admission">
-            <div class="panel-header">
-              <h2 id="heading-admission">4. Live Corpus &amp; Turn-Memory Admission + .uorlut Weight Pack I/O</h2>
-            </div>
-            <form id="studio-admit-form" class="admit-form" novalidate>
-              <div class="field">
-                <label for="admit-prompt">New Prompt / Question Anchor</label>
-                <input id="admit-prompt" name="admit-prompt" type="text" value="How does ternary routing work?" autocomplete="off" spellcheck="false">
-              </div>
-              <div class="field">
-                <label for="admit-reply">Prose Reply / Continuation to Admit</label>
-                <input id="admit-reply" name="admit-reply" type="text" value="Ternary routing descends the 40-node binder forest using balanced trits." autocomplete="off" spellcheck="false">
-              </div>
-              <div class="button-row">
-                <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
-                <button id="snapshot-download-btn" type="button" class="btn-secondary">Download .uorlut Weight Pack</button>
-                <button id="admit-reset-btn" type="button" class="btn-secondary">Reset Admitted Turns</button>
-                <button id="snapshot-export-btn" type="button" class="btn-secondary">Export Hex Snapshot</button>
-                <button id="snapshot-import-btn" type="button" class="btn-secondary">Import Hex Snapshot</button>
-              </div>
-              <input id="snapshot-hex-input" type="hidden">
-              <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
-            </form>
-            <div class="field">
-              <label for="snapshot-upload-input">Load Pre-Trained .uorlut Weight Pack</label>
-              <input id="snapshot-upload-input" name="snapshot-upload-input" type="file" multiple accept=".uorlut,.bin,.hex,*">
-            </div>
-            <div class="table-wrap">
-              <table class="studio-table" id="corpus-table">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Prompt Anchor</th>
-                    <th scope="col">Opening Token</th>
-                    <th scope="col">E8 Cell</th>
-                    <th scope="col">64-Bit Sign Code</th>
-                    <th scope="col">Prose Reply Continuation</th>
-                    <th scope="col">Inspect</th>
-                  </tr>
-                </thead>
-                <tbody id="corpus-tbody"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- Section 6: Subsystems Lab -->
-          <section class="studio-panel" aria-labelledby="heading-subsystems">
-            <div class="panel-header">
-              <h2 id="heading-subsystems">5. Pure-Integer Subsystems Lab (R4-24..R4-27)</h2>
-            </div>
-            <form id="studio-subsystems-form" class="prompt-form" novalidate>
-              <div class="field">
-                <label for="subsystems-payload">Probe Parameters</label>
-                <input id="subsystems-payload" name="subsystems-payload" type="text" value="7,6,1,10,2180" autocomplete="off" spellcheck="false">
-              </div>
-              <button id="subsystems-run-btn" type="submit">Run Subsystems Probe</button>
-            </form>
-            <div class="diag-grid">
-              <div class="diag-item"><span class="diag-label">R4-24 Icosian Root</span><code id="sub-r4-24">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">R4-25 19-Table Trunk</span><code id="sub-r4-25">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">R4-26 GCD Sieve</span><code id="sub-r4-26">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">R4-27 M6 5-Arm Place Add</span><code id="sub-r4-27">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Subsystems Receipt</span><code id="sub-receipt">&mdash;</code></div>
-            </div>
-          </section>
-
-          <!-- Section 7: PrismPM Envelope Inspector -->
-          <section class="studio-panel" aria-labelledby="heading-envelope">
-            <div class="panel-header">
-              <h2 id="heading-envelope">6. PrismPM Coordinate Envelope Inspector</h2>
-            </div>
-            <form id="application-form" novalidate>
-              <div class="field">
-                <label for="left">Left operand / Occurrence Coordinate</label>
-                <input id="left" name="left" value="10" inputmode="numeric" autocomplete="off" spellcheck="false">
-              </div>
-              <div class="field">
-                <label for="operation">Operation</label>
-                <select id="operation" name="operation">
-                  <option value="0" selected>Forward Transition</option>
-                  <option value="1">Route Descent</option>
-                  <option value="2">Flock Consensus</option>
-                  <option value="3">Verify Receipt</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="right">Right operand / Parameter</label>
-                <input id="right" name="right" value="20" inputmode="numeric" autocomplete="off" spellcheck="false">
-              </div>
-              <button id="submit" type="submit">Execute</button>
-            </form>
-            <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
-          </section>
-        </div>
-
-        <!-- Tab 5: Weight Consolidation Runner Panel -->
-        <div id="canvas-panel-consolidation" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-consolidation" tabindex="0" hidden>
-          <div class="consolidation-header">
-            <h3>Self-Organizing Weight Consolidation</h3>
-            <span class="panel-badge">Web Worker &middot; Discrete Coordinate Descent</span>
-          </div>
-          <p class="panel-description">
-            Consolidates integer LUT weights against dialogue and literature samples without floating-point backpropagation.
-          </p>
-          <div class="consolidation-controls">
-            <div class="field">
-              <label for="consolidation-epochs">Optimization Sweeps (1..12)</label>
-              <input id="consolidation-epochs" type="number" min="1" max="12" value="3">
-            </div>
-            <button id="run-consolidation-btn" type="button" class="btn-primary">Run Weight Consolidation in Web Worker</button>
-          </div>
-          <div class="progress-bar-container">
-            <progress id="consolidation-progress-bar" value="0" max="100" class="progress-bar-fill"></progress>
-          </div>
-          <div class="diag-grid">
-            <div class="diag-item"><span class="diag-label">Status</span><code id="consolidation-status-text">Ready</code></div>
-            <div class="diag-item"><span class="diag-label">Initial Loss</span><code id="consolidation-stat-init-loss">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Final Loss</span><code id="consolidation-stat-final-loss">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Reduction</span><code id="consolidation-stat-reduction">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Weight Size</span><code id="consolidation-stat-size">&mdash;</code></div>
-          </div>
-          <div class="console-box">
-            <span class="console-title">Live Worker Log Stream</span>
-            <pre id="consolidation-log-stream" class="console-log-stream" aria-label="Consolidation Worker Log"></pre>
-          </div>
-        </div>
-
-        <!-- Tab 6: OTel Trace Inspector & 3D Holographic Brain Panel (uor.gllm.trace/1) -->
-        <div id="canvas-panel-traces" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0" hidden>
-          <div class="traces-header">
-            <h3>3D Holographic Brain &amp; OTel Waterfall (<code>uor.gllm.trace/1</code>)</h3>
-            <div class="agent-mini-btn-group">
-              <button id="export-otlp-json-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Toggle Hydrated OTLP/JSON</button>
-              <span class="panel-badge">W3C Trace + u16 Hash Dedup</span>
-            </div>
-          </div>
-          <div class="traces-metrics-grid">
-            <div class="diag-item"><span class="diag-label">Root Trace ID</span><code id="trace-stat-trace-id">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Interned UOR Hashes</span><code id="trace-stat-interned-count">0</code></div>
-            <div class="diag-item"><span class="diag-label">Sub-Span Deduplication Hits</span><code id="trace-stat-dedup-hits">0</code></div>
-            <div class="diag-item"><span class="diag-label">Payload Savings</span><code id="trace-stat-savings">0%</code></div>
-          </div>
-
-          <!-- Live 4-Canvas Holo Neural & Storage Geometry Observatory (R4-51, R4-55) -->
-          <section id="holo-observatory-deck" class="holo-observatory-deck" aria-label="Holo v13 Live Neural and Storage Geometry Observatory">
-            <div class="holo-obs-toolbar">
-              <div class="holo-obs-title-group">
-                <strong class="holo-obs-title">Holo v13 Live Neural &amp; Storage Geometry Observatory</strong>
-                <span id="holo-obs-status-badge" class="neural-3d-status">Awaiting Live Token Frame</span>
-              </div>
-              <div class="holo-obs-actions">
-                <button id="holo-obs-refresh-storage-btn" type="button" class="neural-btn">Refresh Storage Map</button>
-                <button id="holo-obs-pause-toggle" type="button" class="neural-btn">Live Stream: ON</button>
-              </div>
-            </div>
-            <div class="holo-obs-stats-strip">
-              <div class="diag-item"><span class="diag-label">TTFT / Speed</span><code id="holo-obs-speed-stat">&mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Prefix KV Reused</span><code id="holo-obs-prefix-stat">0 tok</code></div>
-              <div class="diag-item"><span class="diag-label">Shortlist K / Min Hamming</span><code id="holo-obs-shortlist-stat">4096 / &mdash;</code></div>
-              <div class="diag-item"><span class="diag-label">Execution Backend</span><code id="holo-obs-backend-stat">wasm-simd128</code></div>
-            </div>
-            <div class="holo-obs-grid">
-              <div class="holo-obs-card">
-                <div class="holo-obs-card-head">
-                  <span>1. 28-Layer Residual &amp; Bit-Width Waterfall</span>
-                  <code id="holo-obs-layer-caption">Q18..NORM</code>
-                </div>
-                <canvas id="holo-layer-waterfall-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="28-Layer Residual Magnitude and Bit-Width Waterfall"></canvas>
-              </div>
-              <div class="holo-obs-card">
-                <div class="holo-obs-card-head">
-                  <span>2. 151,936-Vocab RHT-512 Hamming &amp; Logit Race</span>
-                  <code id="holo-obs-vocab-caption">Top-6 Q16 Logits</code>
-                </div>
-                <canvas id="holo-shortlist-race-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="RHT-512 Hamming Bell Curve and Top-6 Logit Race"></canvas>
-              </div>
-              <div class="holo-obs-card">
-                <div class="holo-obs-card-head">
-                  <span>3. Causal Starling-Flock Sparse Attention Matrix</span>
-                  <code id="holo-obs-flock-caption">KV Peaks + Prefix Reuse</code>
-                </div>
-                <canvas id="holo-causal-flock-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="Causal Starling-Flock Sparse Attention Matrix"></canvas>
-              </div>
-              <div class="holo-obs-card">
-                <div class="holo-obs-card-head">
-                  <span>4. Stationary OPFS + MVM CoW + 3D RHT Hypercube</span>
-                  <code id="holo-obs-storage-caption">1 MiB Pieces &middot; 4 KiB Sectors</code>
-                </div>
-                <canvas id="holo-storage-geometry-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="Stationary OPFS Layout MVM CoW Sectors and 3D RHT Vocab Clusters"></canvas>
-              </div>
-            </div>
-          </section>
-
-          <!-- 3D Holographic Neural Process Viewport -->
-          <div id="neural-3d-viewport" class="neural-3d-viewport" role="region" aria-label="3D Holographic Neural Process Viewport">
-            <div class="neural-3d-toolbar">
-              <div class="neural-3d-title-group">
-                <span class="neural-3d-title">Riemannian Manifold &middot; Least-Action Geodesics &amp; Starling Flock Attention (<em>k</em> = 7)</span>
-                <span id="neural-3d-status" class="neural-3d-status" role="status" aria-live="polite">Initializing &middot; WebGL2</span>
-              </div>
-              <div class="neural-3d-controls">
-                <button id="neural-3d-pulse-btn" type="button" class="neural-btn" title="Fire New Lagrangian Action Cascade">Fire Geodesic Cascade</button>
-                <button id="neural-3d-labels-toggle" type="button" class="neural-btn" title="Toggle 3D Mathematical &amp; Route Labels">Labels: ON</button>
-                <button id="neural-3d-reset-btn" type="button" class="neural-btn" title="Reset Camera (Center View)">Reset Camera</button>
-                <button id="neural-3d-anim-toggle" type="button" class="neural-btn" title="Toggle Auto-Orbit Animation">Pause Orbit</button>
-              </div>
-            </div>
-            <div class="neural-cognitive-stages" aria-label="Live Geometric &amp; Next-Token Prediction Stages">
-              <div class="cognitive-stage-pill active" id="neural-stage-context">
-                <span class="stage-step">1. Cl(0,6)</span>
-                <code id="neural-stage-context-val">256D Q12</code>
-              </div>
-              <div class="cognitive-stage-pill active" id="neural-stage-attention">
-                <span class="stage-step">2. Flock (k=7)</span>
-                <code id="neural-stage-attention-val">8-Head Swarm</code>
-              </div>
-              <div class="cognitive-stage-pill active" id="neural-stage-radix">
-                <span class="stage-step">3. Basins (/8)</span>
-                <code id="neural-stage-radix-val">17,408 Basins</code>
-              </div>
-              <div class="cognitive-stage-pill active" id="neural-stage-horizon">
-                <span class="stage-step">4. Geodesic</span>
-                <code id="neural-stage-horizon-val">Least-Action</code>
-              </div>
-              <div class="cognitive-stage-pill active" id="neural-stage-backprop">
-                <span class="stage-step">5. Icosian</span>
-                <code id="neural-stage-backprop-val">17 Roots</code>
-              </div>
-            </div>
-            <div class="neural-3d-canvas-wrap">
-              <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="440" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
-              <div id="neural-3d-labels" class="neural-3d-labels" aria-hidden="true"></div>
-            </div>
-            <div id="neural-ospf-ticker" class="neural-ospf-ticker" aria-label="Live Geodesic Token Route &amp; Least Action Dynamics">
-              <span class="ospf-ticker-badge">GEODESIC ACTION ROUTE</span>
-              <span id="neural-ospf-route-text" class="ospf-ticker-route">Token Ingress &rarr; Clifford Holonomy &rarr; Radix /8 Basins &rarr; Lagrangian Minimization &rarr; Memory Admission</span>
-            </div>
-            <div class="neural-3d-legend" aria-label="3D Mathematical Process Legend">
-              <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Clifford Cl(0,6) Graded Subspaces (0..6)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>Lagrangian Geodesic Path &amp; Action Wavefronts (&delta;S=0)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Starling Flock Attention Swarm (k=7 Murmuration, 8 Heads)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>Riemannian Equipotential Basin Energy Mesh (-V_basin)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>17 Icosian Golden Quaternions (Z[&phi;] in H)</span></div>
-              <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>Radix /8 PointKey Basins (17,408 Attractors)</span></div>
-            </div>
-          </div>
-
-          <pre id="trace-raw-otlp-output" class="code-block" hidden aria-label="Hydrated OTLP JSON Payload"></pre>
-          <div id="trace-waterfall-tree" class="trace-waterfall-tree">
-            <!-- Rendered dynamically from OTLP trace data -->
-          </div>
-        </div>
-        </div>
-      </div>
-    </div>
-
     <!-- GitHub Host Vault & Repository Sync Modal (R4-39) -->
     <div id="github-connect-modal" class="github-connect-modal" hidden role="dialog" aria-modal="true" aria-label="Connect GitHub Vault and Sync Repository">
       <div id="github-connect-backdrop" class="inspectors-modal-backdrop"></div>
@@ -1555,6 +804,758 @@
       <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
     </div>
   </main>
+
+  <!-- Full-Height Spacious Inspectors Modal (85vh, 8 Diagnostic & 3D Brain Views) -->
+  <div id="inspectors-modal" class="inspectors-modal" hidden role="dialog" aria-modal="true" aria-label="3D Holographic Brain and Engine Inspectors">
+    <div id="inspectors-modal-backdrop" class="inspectors-modal-backdrop"></div>
+    <div class="inspectors-modal-dialog">
+      <div class="inspectors-modal-header">
+        <div class="inspectors-modal-brand">
+          <strong>Engine Inspectors &amp; 3D Brain</strong>
+          <span id="inspectors-live-pulse-pill" class="panel-badge">Live Worker Stream</span>
+        </div>
+        <nav class="canvas-tabs inspectors-tabs-nav" role="tablist" aria-label="Engine Inspector Tabs">
+          <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
+            <span>3D Brain &amp; OTel</span>
+            <span class="canvas-tab-pill">WebGL2 &middot; Live</span>
+          </button>
+          <button id="canvas-tab-inspector" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-inspector" data-tab-id="inspector">
+            <span>ML Inspector</span>
+            <span class="canvas-tab-pill">256D Q12</span>
+          </button>
+          <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
+            <span>Diff Preview</span>
+          </button>
+          <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
+            <span>API &amp; 30/30</span>
+            <span class="canvas-tab-pill">30/30</span>
+          </button>
+          <button id="canvas-tab-mcp" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-mcp" data-tab-id="mcp">
+            <span>MCP Tools</span>
+            <span class="canvas-tab-pill">R4-39</span>
+          </button>
+          <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
+            <span>Self-Improvement</span>
+            <span class="canvas-tab-pill">R4-F32</span>
+          </button>
+          <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
+            <span>Consolidation</span>
+            <span class="canvas-tab-pill">Worker Q12</span>
+          </button>
+          <button id="canvas-tab-customizations" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-customizations" data-tab-id="customizations">
+            <span>Customizations</span>
+          </button>
+        </nav>
+        <button id="close-inspectors-modal-btn" type="button" class="btn-secondary btn-xs" title="Close Inspectors (Esc)" aria-label="Close Inspectors">&times; Close</button>
+      </div>
+      <div class="inspectors-modal-body">
+
+      <!-- ML Inspector Panel -->
+      <div id="canvas-panel-inspector" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-inspector" tabindex="0" hidden>
+        <div class="inspector-panel-container">
+          <div class="pane-subheader">
+            <strong>ML &amp; Geometric Coordinate Inspector</strong>
+            <span class="metric-code">256D Q12 Latent Space</span>
+          </div>
+          <div class="inspector-section">
+            <h4>256D Latent Projection Activation Sparkline</h4>
+            <div id="inspector-sparkline" class="inspector-sparkline-grid" aria-label="Latent Vector Activation Sparkline"></div>
+          </div>
+          <div class="inspector-section">
+            <h4>Clifford <span class="latex-mathcal">C</span>&#8467;(0,6) Graded Subspaces (2<sup>6</sup> = 64 Basis Elements)</h4>
+            <div id="inspector-clifford-grades" class="inspector-clifford-grid">
+              <div class="grade-cell"><span class="grade-title">Gr 0 (Scalar)</span><span class="grade-dim">1 dim</span></div>
+              <div class="grade-cell"><span class="grade-title">Gr 1 (Vector)</span><span class="grade-dim">6 dim</span></div>
+              <div class="grade-cell"><span class="grade-title">Gr 2 (Bivector)</span><span class="grade-dim">15 dim</span></div>
+              <div class="grade-cell"><span class="grade-title">Gr 3 (Trivector)</span><span class="grade-dim">20 dim</span></div>
+              <div class="grade-cell"><span class="grade-title">Gr 4 (4-Vector)</span><span class="grade-dim">15 dim</span></div>
+              <div class="grade-cell"><span class="grade-title">Gr 5 (5-Vector)</span><span class="grade-dim">6 dim</span></div>
+              <div class="grade-cell"><span class="grade-title">Gr 6 (Pseudoscalar)</span><span class="grade-dim">1 dim</span></div>
+            </div>
+          </div>
+          <div class="inspector-section">
+            <h4>Icosian Golden Quaternion Roots (<span class="latex-mathbb">&#8484;</span>[&phi;], 17 Roots)</h4>
+            <div id="inspector-icosian-roots" class="inspector-icosian-list"></div>
+          </div>
+          <div class="inspector-section">
+            <h4>E8 Lattice Root Occupancy (16 &times; 64 &times; 17 = 17,408 Basins)</h4>
+            <div id="inspector-e8-grid" class="inspector-e8-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MCP Tool Management Panel -->
+      <div id="canvas-panel-mcp" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-mcp" tabindex="0" hidden>
+        <div class="mcp-panel-container">
+          <div class="pane-subheader">
+            <strong>Model Context Protocol (MCP) Tool Registry</strong>
+            <span class="metric-code">In-Browser Sandbox</span>
+          </div>
+          <div class="field">
+            <label for="mcp-policy-select">Execution Security Policy</label>
+            <select id="mcp-policy-select" class="sidebar-select">
+              <option value="safe" selected>Safe Local Execution (Pure In-Browser)</option>
+              <option value="confirm">Ask Before Execution</option>
+              <option value="deny">Deny All Tool Calls</option>
+            </select>
+          </div>
+          <div class="inspector-section">
+            <h4>Available Pure Local Tools (6)</h4>
+            <div id="mcp-tools-list" class="mcp-tools-list">
+              <div class="mcp-tool-card">
+                <div class="mcp-tool-header">
+                  <strong>workspace_read</strong>
+                  <span class="mcp-badge">Local Read</span>
+                </div>
+                <div class="mcp-tool-desc">Reads text content from the virtual in-memory workspace file system.</div>
+                <div class="mcp-tool-actions">
+                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="workspace_read">Run / Test</button>
+                </div>
+              </div>
+              <div class="mcp-tool-card">
+                <div class="mcp-tool-header">
+                  <strong>workspace_write</strong>
+                  <span class="mcp-badge">Local Write</span>
+                </div>
+                <div class="mcp-tool-desc">Writes or updates a virtual file with cryptographic SHA-256 receipt generation.</div>
+                <div class="mcp-tool-actions">
+                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="workspace_write">Run / Test</button>
+                </div>
+              </div>
+              <div class="mcp-tool-card">
+                <div class="mcp-tool-header">
+                  <strong>geometric_dijkstra_route</strong>
+                  <span class="mcp-badge">Wasm Math</span>
+                </div>
+                <div class="mcp-tool-desc">Computes minimum L1 distance routing across cortical cluster waypoints.</div>
+                <div class="mcp-tool-actions">
+                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="geometric_dijkstra_route">Run / Test</button>
+                </div>
+              </div>
+              <div class="mcp-tool-card">
+                <div class="mcp-tool-header">
+                  <strong>clifford_bivector_wedge</strong>
+                  <span class="mcp-badge">Wasm Math</span>
+                </div>
+                <div class="mcp-tool-desc">Evaluates outer wedge products <strong>u</strong> &and; <strong>v</strong> over <span class="latex-mathcal">C</span>&#8467;(0,6) graded blades.</div>
+                <div class="mcp-tool-actions">
+                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="clifford_bivector_wedge">Run / Test</button>
+                </div>
+              </div>
+              <div class="mcp-tool-card">
+                <div class="mcp-tool-header">
+                  <strong>subsystem_prime_gcd</strong>
+                  <span class="mcp-badge">Wasm Math</span>
+                </div>
+                <div class="mcp-tool-desc">Evaluates exact Euclidean GCD across 128-bit integer coordinates.</div>
+                <div class="mcp-tool-actions">
+                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="subsystem_prime_gcd">Run / Test</button>
+                </div>
+              </div>
+              <div class="mcp-tool-card">
+                <div class="mcp-tool-header">
+                  <strong>coordinate_descent_sweep</strong>
+                  <span class="mcp-badge">Local Optimizer</span>
+                </div>
+                <div class="mcp-tool-desc">Executes discrete integer coordinate descent over `.uorlut` lookup tables.</div>
+                <div class="mcp-tool-actions">
+                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="coordinate_descent_sweep">Run / Test</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="inspector-section">
+            <h4>Tool Execution Audit Log</h4>
+            <div id="mcp-audit-log" class="mcp-audit-log" role="log" aria-live="polite">
+              <div class="mcp-log-item">[Bootstrap] MCP in-browser sandbox active with pure local safety policies.</div>
+            </div>
+            <div class="mcp-audit-actions">
+              <button id="mcp-audit-export-btn" type="button" class="btn-secondary btn-sm">Export Secops Audit Journal (NDJSON)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customizations Panel -->
+      <div id="canvas-panel-customizations" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-customizations" tabindex="0" hidden>
+        <div class="customizations-panel-container">
+          <div class="pane-subheader">
+            <strong>Interface &amp; Engine Customizations</strong>
+            <span class="metric-code">Client Config</span>
+          </div>
+          <div class="field">
+            <label for="custom-theme-toggle">
+              <input type="checkbox" id="custom-theme-toggle">
+              <span>Enable Warm Light Theme (Default: Obsidian Dark)</span>
+            </label>
+          </div>
+          <div class="field">
+            <label for="custom-mode-select">Agentic Operating Mode</label>
+            <select id="custom-mode-select" class="sidebar-select">
+              <option value="coding" selected>Agentic Coding Harness (with diffs and virtual workspace)</option>
+              <option value="math">Mathematical Research &amp; Formal Verification</option>
+              <option value="fast">Fast Latent Inference (Low Latency)</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label for="custom-retain-lambda">Memory Retain Factor (&lambda;)</label>
+              <span id="custom-retain-lambda-val" class="metric-code">0.85</span>
+            </div>
+            <input type="range" id="custom-retain-lambda" min="0" max="1" step="0.05" value="0.85">
+            <span class="field-hint">Controls decay rate of prior conversation turns in 256D latent carry-forward buffer.</span>
+          </div>
+          <div class="field">
+            <label for="custom-plurality-votes">Plurality Voting Ensemble Heads (<em>K</em>)</label>
+            <input type="number" id="custom-plurality-votes" min="1" max="16" value="8">
+            <span class="field-hint">Number of independent cyclic flock attention heads participating in consensus.</span>
+          </div>
+          <div class="field">
+            <label for="custom-density-select">UI Density</label>
+            <select id="custom-density-select" class="sidebar-select">
+              <option value="comfortable">Comfortable</option>
+              <option value="compact" selected>Compact (Claude-Code Obsidian)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- Tab 2: Unified Diff & Interactive Artifact Preview Panel -->
+      <div id="canvas-panel-diff" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diff" tabindex="0" hidden>
+        <div class="patch-card">
+          <div class="reply-card-header">
+            <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
+            <div class="diff-toolbar-group" role="group" aria-label="Diff and Artifact View Mode">
+              <button id="chat-diff-view-btn" type="button" class="table-action-btn active" aria-pressed="true">Diff View</button>
+              <button id="chat-artifact-view-btn" type="button" class="table-action-btn" aria-pressed="false">Artifact Preview</button>
+              <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
+            </div>
+          </div>
+          <div id="chat-diff-file-pills" class="diff-file-pills" role="tablist" aria-label="Staged Multi-File Patches"></div>
+          <pre id="chat-diff-preview" class="code-block diff-colored-block" aria-label="Proposed Unified Diff"></pre>
+          <div id="chat-artifact-preview" class="artifact-preview-container" aria-label="Interactive Artifact Preview" hidden></div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Live Verdant Synthesis 4-Facet KPIs & .uorc Watchdog Panel -->
+      <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
+        <div class="feed-header">
+          <h3>Verdant Synthesis 4-Facet KPIs &amp; <code>.uorc</code> Watchdog</h3>
+          <span id="verdant-synthesis-panel-badge" class="panel-badge">4-Facet Holon &middot; 0 Residue &middot; 0 Float Ops</span>
+        </div>
+        <div id="uorc-watchdog-banner" class="frontier-summary-banner">
+          <div class="frontier-banner-top">
+            <strong>OPFS <code>/generations/</code> <code>.uorc</code> Capsule &amp; 3-Strike Watchdog</strong>
+            <span id="uorc-worker-pool-badge" class="paper-badge">Worker Pool: Probing</span>
+          </div>
+          <p id="uorc-watchdog-status" class="frontier-banner-desc">
+            Active Head: <code>gen-0</code> &middot; Fault Strikes: <code>0/3</code> &middot; Zero-Float Serving Ratchet Armed
+          </p>
+          <div class="paper-actions">
+            <button id="uorc-admit-capsule-btn" type="button" class="paper-test-btn">Admit Verified .uorc Capsule</button>
+            <button id="uorc-rollback-btn" type="button" class="paper-test-btn">Simulate 3-Strike Watchdog Rollback</button>
+          </div>
+        </div>
+        <div id="telos-self-improve-card" class="frontier-summary-banner">
+          <div class="frontier-banner-top">
+            <strong>Verdant Ontological Telos (<code>R4-55</code> &middot; 5W+H Coordinate Descent)</strong>
+            <span id="telos-verdict-badge" class="paper-badge">TelosAdmitted &middot; k=4096 &middot; w=256</span>
+          </div>
+          <p id="telos-summary-text" class="frontier-banner-desc">
+            Continuous parametric loss minimization over Opacity, Legibility, Observer Dissonance &amp; Host Ceiling without coercion.
+          </p>
+          <div class="paper-actions">
+            <button id="telos-run-tick-btn" type="button" class="paper-test-btn">Run Verdant Telos Tick</button>
+          </div>
+        </div>
+        <div id="verdant-synthesis-kpi-grid" class="frontier-claims-grid">
+          <!-- Rendered dynamically with ModelAndTraining, ServingRuntime, UiAndPlumbing, EcosystemStandards KPIs -->
+        </div>
+        <div id="engine-frontier-ledger" class="frontier-ledger-section">
+          <!-- Rendered dynamically with codebase audit, runtime inference benchmarks & proved frontier ledger -->
+        </div>
+        <div class="feed-grid" id="literature-feed-list">
+          <!-- Rendered dynamically with compact bottleneck-filtered arXiv relevance checks -->
+        </div>
+      </div>
+
+      <!-- Tab 4: Standalone R4 API Harness & 27/27 Studio Tables Panel -->
+      <div id="canvas-panel-diagnostics" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diagnostics" tabindex="0" hidden>
+        <section class="studio-panel api-harness-box" id="api-harness-panel" aria-labelledby="heading-api-harness">
+          <div class="panel-header">
+            <h2 id="heading-api-harness">Standalone R4 API Harness (<code>/v1/messages</code> &amp; <code>/v1/chat/completions</code>)</h2>
+            <span class="panel-badge">Anthropic &amp; OpenAI Compatible Wasm Endpoints</span>
+          </div>
+          <p class="panel-description">
+            Decoupled R4 inference &amp; tool engine. Compatible with external Claude Code / OpenAI harnesses via JSON payloads with <code>tools[]</code>, <code>&lt;thinking&gt;</code> blocks, and rolling <code>256D Q12</code> state.
+          </p>
+          <div class="consolidation-controls">
+            <div class="field">
+              <label for="api-endpoint-select">Protocol Endpoint</label>
+              <select id="api-endpoint-select">
+                <option value="messages" selected>POST /v1/messages (Anthropic Claude Cowork Format)</option>
+                <option value="chat_completions">POST /v1/chat/completions (OpenAI Tool-Call Format)</option>
+                <option value="traces">GET /v1/traces (OTel uor.gllm.trace/1 Ring Buffer)</option>
+              </select>
+            </div>
+            <button id="run-api-request-btn" type="button" class="btn-primary">Execute API Request in Wasm</button>
+          </div>
+          <div class="field">
+            <label for="api-request-textarea">Request JSON Body</label>
+            <textarea id="api-request-textarea" class="code-textarea" rows="5" spellcheck="false">{
+  "model": "uor-r4-glm",
+  "messages": [
+  {"role": "user", "content": "<thinking>Route query through 6-layer SpiralCore/FBS and inspect src/attention.rs</thinking>How does Direct Preference Optimization align language models without reinforcement learning?"}
+  ],
+  "tools": [
+  {"name": "workspace_patch", "description": "Synthesize unified diff against active workspace file"}
+  ]
+}</textarea>
+          </div>
+          <pre id="api-response-output" class="code-block" aria-label="Standalone API JSON Response"></pre>
+        </section>
+
+        <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
+          <div class="metric-card">
+            <span class="metric-label">Vocabulary Atoms</span>
+            <strong id="stat-vocab" class="metric-value">0</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">/7 Opening &amp; Reply Rows</span>
+            <strong id="stat-turn-rows" class="metric-value">0 / 0</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">/8 Point-Key Q12 Rows</span>
+            <strong id="stat-point-rows" class="metric-value">0</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Occupied E8 Product Cells</span>
+            <strong id="stat-cells" class="metric-value">0 / 256</strong>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Trained Epochs &amp; Active Gates</span>
+            <strong id="stat-train-epochs" class="metric-value">0 ep / 0 gates</strong>
+          </div>
+          <div class="metric-card metric-card-wide">
+            <span class="metric-label">State Cryptographic Receipt (SHA-256)</span>
+            <code id="stat-state-receipt" class="metric-code">initializing&hellip;</code>
+          </div>
+        </div>
+
+        <div class="diag-grid" id="chat-flock-grid">
+          <div class="diag-item">
+            <span class="diag-label">8-Head Cyclic Consensus</span>
+            <code id="chat-diag-consensus">Cl(0)</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">Weighted Resonance</span>
+            <code id="chat-diag-resonance">0</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">Icosian Z[phi] Root</span>
+            <code id="chat-diag-root">root #0</code>
+          </div>
+          <div class="diag-item">
+            <span class="diag-label">Turn Receipt (SHA-256)</span>
+            <code id="chat-diag-receipt">&mdash;</code>
+          </div>
+        </div>
+
+        <!-- Section 1: Trainer -->
+        <section class="studio-panel" aria-labelledby="heading-trainer">
+          <div class="panel-header">
+            <h2 id="heading-trainer">On-Device Coordinate-Sweep Trainer (R4.Learning.evaluateCoupledGateVector)</h2>
+            <span class="panel-badge">Zero Backprop &middot; Discrete Coordinate Sweeps</span>
+          </div>
+          <form id="studio-train-form" class="prompt-form" novalidate>
+            <div class="field">
+              <label for="train-epochs-input">Discrete Sweep Epochs (1..12)</label>
+              <input id="train-epochs-input" name="train-epochs-input" type="text" value="3" inputmode="numeric" autocomplete="off">
+            </div>
+            <button id="studio-train-btn" type="submit">Train Weights On-Device</button>
+          </form>
+          <div class="diag-grid">
+            <div class="diag-item">
+              <span class="diag-label">Corpus Transition Loss</span>
+              <code id="train-stat-loss">&mdash;</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Coupled Gate Escapes</span>
+              <code id="train-stat-escapes">0</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Active Non-Zero Gates</span>
+              <code id="train-stat-gates">0 / 40</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Sequence Transitions Trained</span>
+              <code id="train-stat-transitions">0</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Workspace Code Tokens Indexed</span>
+              <code id="train-stat-ws-tokens">0</code>
+            </div>
+            <div class="diag-item">
+              <span class="diag-label">Training Receipt</span>
+              <code id="train-stat-receipt">&mdash;</code>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="studio-table" id="train-history-table">
+              <thead>
+                <tr>
+                  <th scope="col">Ep</th>
+                  <th scope="col">Loss (Before &rarr; After)</th>
+                  <th scope="col">Improved</th>
+                  <th scope="col">Gate Escapes</th>
+                </tr>
+              </thead>
+              <tbody id="train-history-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Section 2: Prompt Recall & Prose Generation -->
+        <section class="studio-panel" aria-labelledby="heading-prose">
+          <div class="panel-header">
+            <h2 id="heading-prose">1. Prompt Recall &amp; Autoregressive Prose Generation (/6 + /7 + /8)</h2>
+            <span class="panel-badge">Exact /7 Opening Key + /8 Q12 L1 Plurality Fallback</span>
+          </div>
+          <form id="studio-prompt-form" class="prompt-form" novalidate>
+            <div class="field">
+              <label for="studio-prompt">Prompt or Question</label>
+              <input id="studio-prompt" name="studio-prompt" type="text" value="Can you explain how memory lookup recovers a rephrased question?" autocomplete="off" spellcheck="false">
+            </div>
+            <button id="studio-generate-btn" type="submit">Generate Prose &amp; Inspect Trajectory</button>
+          </form>
+          <div class="reply-card">
+            <output id="studio-prose-output" class="prose-output" role="status" aria-live="polite" aria-atomic="true"></output>
+          </div>
+          <div class="diag-grid">
+            <div class="diag-item"><span class="diag-label">Recall Mode</span><code id="diag-recall-mode">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Matched Anchor</span><code id="diag-matched-anchor">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Opening Token</span><code id="diag-opening-token">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">L1 Point Dist</span><code id="diag-l1-distance">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Hamming Dist</span><code id="diag-hamming-distance">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Plurality Votes</span><code id="diag-plurality-votes">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Retain Lambda</span><code id="diag-retain-lambda">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Prompt Q12</span><code id="diag-prompt-q12">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Prompt Sign</span><code id="diag-prompt-sign">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Icosian Root</span><code id="diag-icosian-root">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Packed 4-Block</span><code id="diag-packed-4block">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Sketch Gate</span><code id="diag-sketch-gate">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">PRLL Mass</span><code id="diag-prll-mass">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Inference Receipt</span><code id="diag-inference-receipt">&mdash;</code></div>
+          </div>
+        </section>
+
+        <!-- Section 3: Predictions Table -->
+        <section class="studio-panel" aria-labelledby="heading-predictions">
+          <div class="panel-header">
+            <h2 id="heading-predictions">2. Top-8 Next-Token Predictions &amp; Occupied-Cell Ranking (R4.Prediction)</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="studio-table" id="predictions-table">
+              <thead>
+                <tr>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Token ID</th>
+                  <th scope="col">Decoded Piece</th>
+                  <th scope="col">E8 Product Cell</th>
+                  <th scope="col">Cl(0,6) Action</th>
+                  <th scope="col">Ternary Node</th>
+                  <th scope="col">Q12 L1 Dist</th>
+                  <th scope="col">/6 Hamming Weight</th>
+                  <th scope="col">Rank Score</th>
+                  <th scope="col">Resolution Source</th>
+                </tr>
+              </thead>
+              <tbody id="predictions-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Section 4: Trajectory Table -->
+        <section class="studio-panel" aria-labelledby="heading-trajectory">
+          <div class="panel-header">
+            <h2 id="heading-trajectory">3. Token-by-Token Geometric Trajectory</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="studio-table" id="trajectory-table">
+              <thead>
+                <tr>
+                  <th scope="col">Step</th>
+                  <th scope="col">Phase</th>
+                  <th scope="col">Token Piece</th>
+                  <th scope="col">ID</th>
+                  <th scope="col">E8 Root</th>
+                  <th scope="col">Cl(0,6) Action</th>
+                  <th scope="col">Forest Node &amp; Trit Path</th>
+                  <th scope="col">/6 Sign Code (64-bit)</th>
+                  <th scope="col">/8 Q12 Readout Vector (8D)</th>
+                </tr>
+              </thead>
+              <tbody id="trajectory-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Section 5: Admission & Weight Pack I/O -->
+        <section class="studio-panel" aria-labelledby="heading-admission">
+          <div class="panel-header">
+            <h2 id="heading-admission">4. Live Corpus &amp; Turn-Memory Admission + .uorlut Weight Pack I/O</h2>
+          </div>
+          <form id="studio-admit-form" class="admit-form" novalidate>
+            <div class="field">
+              <label for="admit-prompt">New Prompt / Question Anchor</label>
+              <input id="admit-prompt" name="admit-prompt" type="text" value="How does ternary routing work?" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="admit-reply">Prose Reply / Continuation to Admit</label>
+              <input id="admit-reply" name="admit-reply" type="text" value="Ternary routing descends the 40-node binder forest using balanced trits." autocomplete="off" spellcheck="false">
+            </div>
+            <div class="button-row">
+              <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
+              <button id="snapshot-download-btn" type="button" class="btn-secondary">Download .uorlut Weight Pack</button>
+              <button id="admit-reset-btn" type="button" class="btn-secondary">Reset Admitted Turns</button>
+              <button id="snapshot-export-btn" type="button" class="btn-secondary">Export Hex Snapshot</button>
+              <button id="snapshot-import-btn" type="button" class="btn-secondary">Import Hex Snapshot</button>
+            </div>
+            <input id="snapshot-hex-input" type="hidden">
+            <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
+          </form>
+          <div class="field">
+            <label for="snapshot-upload-input">Load Pre-Trained .uorlut Weight Pack</label>
+            <input id="snapshot-upload-input" name="snapshot-upload-input" type="file" multiple accept=".uorlut,.bin,.hex,*">
+          </div>
+          <div class="table-wrap">
+            <table class="studio-table" id="corpus-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Prompt Anchor</th>
+                  <th scope="col">Opening Token</th>
+                  <th scope="col">E8 Cell</th>
+                  <th scope="col">64-Bit Sign Code</th>
+                  <th scope="col">Prose Reply Continuation</th>
+                  <th scope="col">Inspect</th>
+                </tr>
+              </thead>
+              <tbody id="corpus-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Section 6: Subsystems Lab -->
+        <section class="studio-panel" aria-labelledby="heading-subsystems">
+          <div class="panel-header">
+            <h2 id="heading-subsystems">5. Pure-Integer Subsystems Lab (R4-24..R4-27)</h2>
+          </div>
+          <form id="studio-subsystems-form" class="prompt-form" novalidate>
+            <div class="field">
+              <label for="subsystems-payload">Probe Parameters</label>
+              <input id="subsystems-payload" name="subsystems-payload" type="text" value="7,6,1,10,2180" autocomplete="off" spellcheck="false">
+            </div>
+            <button id="subsystems-run-btn" type="submit">Run Subsystems Probe</button>
+          </form>
+          <div class="diag-grid">
+            <div class="diag-item"><span class="diag-label">R4-24 Icosian Root</span><code id="sub-r4-24">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">R4-25 19-Table Trunk</span><code id="sub-r4-25">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">R4-26 GCD Sieve</span><code id="sub-r4-26">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">R4-27 M6 5-Arm Place Add</span><code id="sub-r4-27">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Subsystems Receipt</span><code id="sub-receipt">&mdash;</code></div>
+          </div>
+        </section>
+
+        <!-- Section 7: PrismPM Envelope Inspector -->
+        <section class="studio-panel" aria-labelledby="heading-envelope">
+          <div class="panel-header">
+            <h2 id="heading-envelope">6. PrismPM Coordinate Envelope Inspector</h2>
+          </div>
+          <form id="application-form" novalidate>
+            <div class="field">
+              <label for="left">Left operand / Occurrence Coordinate</label>
+              <input id="left" name="left" value="10" inputmode="numeric" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="field">
+              <label for="operation">Operation</label>
+              <select id="operation" name="operation">
+                <option value="0" selected>Forward Transition</option>
+                <option value="1">Route Descent</option>
+                <option value="2">Flock Consensus</option>
+                <option value="3">Verify Receipt</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="right">Right operand / Parameter</label>
+              <input id="right" name="right" value="20" inputmode="numeric" autocomplete="off" spellcheck="false">
+            </div>
+            <button id="submit" type="submit">Execute</button>
+          </form>
+          <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
+        </section>
+      </div>
+
+      <!-- Tab 5: Weight Consolidation Runner Panel -->
+      <div id="canvas-panel-consolidation" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-consolidation" tabindex="0" hidden>
+        <div class="consolidation-header">
+          <h3>Self-Organizing Weight Consolidation</h3>
+          <span class="panel-badge">Web Worker &middot; Discrete Coordinate Descent</span>
+        </div>
+        <p class="panel-description">
+          Consolidates integer LUT weights against dialogue and literature samples without floating-point backpropagation.
+        </p>
+        <div class="consolidation-controls">
+          <div class="field">
+            <label for="consolidation-epochs">Optimization Sweeps (1..12)</label>
+            <input id="consolidation-epochs" type="number" min="1" max="12" value="3">
+          </div>
+          <button id="run-consolidation-btn" type="button" class="btn-primary">Run Weight Consolidation in Web Worker</button>
+        </div>
+        <div class="progress-bar-container">
+          <progress id="consolidation-progress-bar" value="0" max="100" class="progress-bar-fill"></progress>
+        </div>
+        <div class="diag-grid">
+          <div class="diag-item"><span class="diag-label">Status</span><code id="consolidation-status-text">Ready</code></div>
+          <div class="diag-item"><span class="diag-label">Initial Loss</span><code id="consolidation-stat-init-loss">&mdash;</code></div>
+          <div class="diag-item"><span class="diag-label">Final Loss</span><code id="consolidation-stat-final-loss">&mdash;</code></div>
+          <div class="diag-item"><span class="diag-label">Reduction</span><code id="consolidation-stat-reduction">&mdash;</code></div>
+          <div class="diag-item"><span class="diag-label">Weight Size</span><code id="consolidation-stat-size">&mdash;</code></div>
+        </div>
+        <div class="console-box">
+          <span class="console-title">Live Worker Log Stream</span>
+          <pre id="consolidation-log-stream" class="console-log-stream" aria-label="Consolidation Worker Log"></pre>
+        </div>
+      </div>
+
+      <!-- Tab 6: OTel Trace Inspector & 3D Holographic Brain Panel (uor.gllm.trace/1) -->
+      <div id="canvas-panel-traces" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0" hidden>
+        <div class="traces-header">
+          <h3>3D Holographic Brain &amp; OTel Waterfall (<code>uor.gllm.trace/1</code>)</h3>
+          <div class="agent-mini-btn-group">
+            <button id="export-otlp-json-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Toggle Hydrated OTLP/JSON</button>
+            <span class="panel-badge">W3C Trace + u16 Hash Dedup</span>
+          </div>
+        </div>
+        <div class="traces-metrics-grid">
+          <div class="diag-item"><span class="diag-label">Root Trace ID</span><code id="trace-stat-trace-id">&mdash;</code></div>
+          <div class="diag-item"><span class="diag-label">Interned UOR Hashes</span><code id="trace-stat-interned-count">0</code></div>
+          <div class="diag-item"><span class="diag-label">Sub-Span Deduplication Hits</span><code id="trace-stat-dedup-hits">0</code></div>
+          <div class="diag-item"><span class="diag-label">Payload Savings</span><code id="trace-stat-savings">0%</code></div>
+        </div>
+
+        <!-- Live 4-Canvas Holo Neural & Storage Geometry Observatory (R4-51, R4-55) -->
+        <section id="holo-observatory-deck" class="holo-observatory-deck" aria-label="Holo v13 Live Neural and Storage Geometry Observatory">
+          <div class="holo-obs-toolbar">
+            <div class="holo-obs-title-group">
+              <strong class="holo-obs-title">Holo v13 Live Neural &amp; Storage Geometry Observatory</strong>
+              <span id="holo-obs-status-badge" class="neural-3d-status">Awaiting Live Token Frame</span>
+            </div>
+            <div class="holo-obs-actions">
+              <button id="holo-obs-refresh-storage-btn" type="button" class="neural-btn">Refresh Storage Map</button>
+              <button id="holo-obs-pause-toggle" type="button" class="neural-btn">Live Stream: ON</button>
+            </div>
+          </div>
+          <div class="holo-obs-stats-strip">
+            <div class="diag-item"><span class="diag-label">TTFT / Speed</span><code id="holo-obs-speed-stat">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Prefix KV Reused</span><code id="holo-obs-prefix-stat">0 tok</code></div>
+            <div class="diag-item"><span class="diag-label">Shortlist K / Min Hamming</span><code id="holo-obs-shortlist-stat">4096 / &mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Execution Backend</span><code id="holo-obs-backend-stat">wasm-simd128</code></div>
+          </div>
+          <div class="holo-obs-grid">
+            <div class="holo-obs-card">
+              <div class="holo-obs-card-head">
+                <span>1. 28-Layer Residual &amp; Bit-Width Waterfall</span>
+                <code id="holo-obs-layer-caption">Q18..NORM</code>
+              </div>
+              <canvas id="holo-layer-waterfall-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="28-Layer Residual Magnitude and Bit-Width Waterfall"></canvas>
+            </div>
+            <div class="holo-obs-card">
+              <div class="holo-obs-card-head">
+                <span>2. 151,936-Vocab RHT-512 Hamming &amp; Logit Race</span>
+                <code id="holo-obs-vocab-caption">Top-6 Q16 Logits</code>
+              </div>
+              <canvas id="holo-shortlist-race-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="RHT-512 Hamming Bell Curve and Top-6 Logit Race"></canvas>
+            </div>
+            <div class="holo-obs-card">
+              <div class="holo-obs-card-head">
+                <span>3. Causal Starling-Flock Sparse Attention Matrix</span>
+                <code id="holo-obs-flock-caption">KV Peaks + Prefix Reuse</code>
+              </div>
+              <canvas id="holo-causal-flock-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="Causal Starling-Flock Sparse Attention Matrix"></canvas>
+            </div>
+            <div class="holo-obs-card">
+              <div class="holo-obs-card-head">
+                <span>4. Stationary OPFS + MVM CoW + 3D RHT Hypercube</span>
+                <code id="holo-obs-storage-caption">1 MiB Pieces &middot; 4 KiB Sectors</code>
+              </div>
+              <canvas id="holo-storage-geometry-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="Stationary OPFS Layout MVM CoW Sectors and 3D RHT Vocab Clusters"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3D Holographic Neural Process Viewport -->
+        <div id="neural-3d-viewport" class="neural-3d-viewport" role="region" aria-label="3D Holographic Neural Process Viewport">
+          <div class="neural-3d-toolbar">
+            <div class="neural-3d-title-group">
+              <span class="neural-3d-title">Riemannian Manifold &middot; Least-Action Geodesics &amp; Starling Flock Attention (<em>k</em> = 7)</span>
+              <span id="neural-3d-status" class="neural-3d-status" role="status" aria-live="polite">Initializing &middot; WebGL2</span>
+            </div>
+            <div class="neural-3d-controls">
+              <button id="neural-3d-pulse-btn" type="button" class="neural-btn" title="Fire New Lagrangian Action Cascade">Fire Geodesic Cascade</button>
+              <button id="neural-3d-labels-toggle" type="button" class="neural-btn" title="Toggle 3D Mathematical &amp; Route Labels">Labels: ON</button>
+              <button id="neural-3d-reset-btn" type="button" class="neural-btn" title="Reset Camera (Center View)">Reset Camera</button>
+              <button id="neural-3d-anim-toggle" type="button" class="neural-btn" title="Toggle Auto-Orbit Animation">Pause Orbit</button>
+            </div>
+          </div>
+          <div class="neural-cognitive-stages" aria-label="Live Geometric &amp; Next-Token Prediction Stages">
+            <div class="cognitive-stage-pill active" id="neural-stage-context">
+              <span class="stage-step">1. Cl(0,6)</span>
+              <code id="neural-stage-context-val">256D Q12</code>
+            </div>
+            <div class="cognitive-stage-pill active" id="neural-stage-attention">
+              <span class="stage-step">2. Flock (k=7)</span>
+              <code id="neural-stage-attention-val">8-Head Swarm</code>
+            </div>
+            <div class="cognitive-stage-pill active" id="neural-stage-radix">
+              <span class="stage-step">3. Basins (/8)</span>
+              <code id="neural-stage-radix-val">17,408 Basins</code>
+            </div>
+            <div class="cognitive-stage-pill active" id="neural-stage-horizon">
+              <span class="stage-step">4. Geodesic</span>
+              <code id="neural-stage-horizon-val">Least-Action</code>
+            </div>
+            <div class="cognitive-stage-pill active" id="neural-stage-backprop">
+              <span class="stage-step">5. Icosian</span>
+              <code id="neural-stage-backprop-val">17 Roots</code>
+            </div>
+          </div>
+          <div class="neural-3d-canvas-wrap">
+            <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="440" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
+            <div id="neural-3d-labels" class="neural-3d-labels" aria-hidden="true"></div>
+          </div>
+          <div id="neural-ospf-ticker" class="neural-ospf-ticker" aria-label="Live Geodesic Token Route &amp; Least Action Dynamics">
+            <span class="ospf-ticker-badge">GEODESIC ACTION ROUTE</span>
+            <span id="neural-ospf-route-text" class="ospf-ticker-route">Token Ingress &rarr; Clifford Holonomy &rarr; Radix /8 Basins &rarr; Lagrangian Minimization &rarr; Memory Admission</span>
+          </div>
+          <div class="neural-3d-legend" aria-label="3D Mathematical Process Legend">
+            <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Clifford Cl(0,6) Graded Subspaces (0..6)</span></div>
+            <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>Lagrangian Geodesic Path &amp; Action Wavefronts (&delta;S=0)</span></div>
+            <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Starling Flock Attention Swarm (k=7 Murmuration, 8 Heads)</span></div>
+            <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>Riemannian Equipotential Basin Energy Mesh (-V_basin)</span></div>
+            <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>17 Icosian Golden Quaternions (Z[&phi;] in H)</span></div>
+            <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>Radix /8 PointKey Basins (17,408 Attractors)</span></div>
+          </div>
+        </div>
+
+        <pre id="trace-raw-otlp-output" class="code-block" hidden aria-label="Hydrated OTLP JSON Payload"></pre>
+        <div id="trace-waterfall-tree" class="trace-waterfall-tree">
+          <!-- Rendered dynamically from OTLP trace data -->
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="app.js?v=v12r4"></script>
 </body>
 </html>

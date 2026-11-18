@@ -5992,6 +5992,8 @@ pub struct FoundryTurnSession {
     pub observatory_frames: Vec<crate::holo_geometric_runtime::HoloStepObservatoryFrame>,
     /// Last decode step index for which an observatory frame was emitted.
     pub last_emitted_decode_step: usize,
+    /// Number of `observatory_frames` already emitted in prior step slices.
+    pub emitted_observatory_frames: usize,
     /// Execution backend identifier (`"wasm-simd128"`, `"host-int"`, or `"native-q31-d85"`).
     pub active_backend: &'static str,
     /// True when stepping the offline `uor-r4.native-q31-d85` Q31 kernel.
@@ -6251,7 +6253,9 @@ fn fit_foundry_prompt_tokens(
     }
 
     // Preserve both `BUILD_SYSTEM_PREFIX` at index 0 and the user/assistant tail if total still exceeds `max_ctx`.
-    let user_reserve = cur_u_ids.len().min((max_ctx * 3 / 8).max(64));
+    let user_reserve = cur_u_ids
+        .len()
+        .min((max_ctx * 3 / 8).max(64).min(max_ctx / 2));
     let kept_u = if cur_u_ids.len() > user_reserve {
         &cur_u_ids[cur_u_ids.len() - user_reserve..]
     } else {
@@ -6365,6 +6369,7 @@ impl StudioEngine {
                 flock_total: prompt_toks,
                 observatory_frames: Vec::new(),
                 last_emitted_decode_step: usize::MAX,
+                emitted_observatory_frames: 0,
                 active_backend: "native-q31-d85",
                 native_q31_active: true,
                 native_q31_tokens: d85_tokens,
@@ -6478,6 +6483,7 @@ impl StudioEngine {
             flock_total,
             observatory_frames,
             last_emitted_decode_step: usize::MAX,
+            emitted_observatory_frames: 0,
             active_backend,
             native_q31_active: false,
             native_q31_tokens: Vec::new(),
@@ -6796,6 +6802,13 @@ impl StudioEngine {
             session.flock_total,
         );
         let tps = foundry_tok_per_sec_json(session.tokens_emitted, session.started_ms);
+        let frame_start = session
+            .emitted_observatory_frames
+            .min(session.observatory_frames.len());
+        let step_observatory_frames = session.observatory_frames[frame_start..].to_vec();
+        session.emitted_observatory_frames = session.observatory_frames.len();
+        let latest_step_frame = step_observatory_frames.last().cloned();
+        let prefix_reused_tokens = session.prefix_reused_tokens;
 
         if status == "streaming" {
             let model_id = session.model_id.clone();
@@ -6808,6 +6821,9 @@ impl StudioEngine {
                 "delta": slice_delta,
                 "tokens_emitted": tokens_emitted,
                 "tok_per_sec": tps,
+                "prefix_reused_tokens": prefix_reused_tokens,
+                "observatory_frames": step_observatory_frames,
+                "frame": latest_step_frame,
                 "geometric_metrics": gm,
             })
             .to_string();
@@ -6853,6 +6869,9 @@ impl StudioEngine {
                 "delta": slice_delta,
                 "tokens_emitted": session.tokens_emitted,
                 "tok_per_sec": tps,
+                "prefix_reused_tokens": prefix_reused_tokens,
+                "observatory_frames": step_observatory_frames,
+                "frame": latest_step_frame,
                 "tool_call": {
                     "name": "mvm_exec",
                     "cmd": cmd,
@@ -6871,6 +6890,9 @@ impl StudioEngine {
             "delta": slice_delta,
             "tokens_emitted": session.tokens_emitted,
             "tok_per_sec": tps,
+            "prefix_reused_tokens": prefix_reused_tokens,
+            "observatory_frames": step_observatory_frames,
+            "frame": latest_step_frame,
             "receipt_sha256": receipt_sha256,
             "weights_kappa": weights_kappa,
             "geometric_metrics": gm,
@@ -7133,5 +7155,38 @@ mod tests {
         assert_eq!(sym_metrics.float_ops, 0);
         assert_eq!(sym_metrics.dense_matmul_ops, 0);
         assert!(sym_frames.is_empty());
+    }
+
+    #[test]
+    fn test_fit_foundry_prompt_tokens_small_max_ctx_preserves_system_prefix() {
+        let model = crate::holo_geometric_runtime::tests::build_synthetic_test_model();
+        let long_user = format!(
+            "<|im_start|>user\n{}<|im_end|>\n<|im_start|>assistant\n",
+            "token_".repeat(40)
+        );
+        let max_ctx = 48usize;
+        let (kept_sys, combined) = fit_foundry_prompt_tokens(
+            &model,
+            BUILD_SYSTEM_PREFIX,
+            "\n<workspace>\n",
+            &["  <file path=\"src/lib.rs\">fn a(){}</file>\n".to_string()],
+            &long_user,
+            max_ctx,
+        );
+        assert!(kept_sys.starts_with(BUILD_SYSTEM_PREFIX));
+        assert!(combined.len() <= max_ctx);
+        let head_expected = model
+            .tokenizer
+            .encode(&format!("<|im_start|>system\n{BUILD_SYSTEM_PREFIX}"));
+        let check_len = head_expected.len().min(max_ctx / 2);
+        assert!(
+            check_len >= 16,
+            "expected meaningful system prefix check length, got {check_len}"
+        );
+        assert_eq!(
+            &combined[..check_len],
+            &head_expected[..check_len],
+            "small max_ctx={max_ctx} must not strip BUILD_SYSTEM_PREFIX at index 0"
+        );
     }
 }

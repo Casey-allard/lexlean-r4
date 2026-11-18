@@ -3805,6 +3805,8 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
   }
 }
 
+let __uorAnonInprismTurnSeq = 0;
+
 /**
  * Formal R4.HoloGeometricRuntime execute a non-blocking 4-token Foundry turn stepper (`R4-56`).
  * Yields via timer slices between 4-token steps so `cancel_inprism_turn`, `mvm_exec`, and
@@ -3817,6 +3819,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   msg = msg && typeof msg === 'object' ? msg : {};
   runtimeHooks = runtimeHooks && typeof runtimeHooks === 'object' ? runtimeHooks : {};
   const reqId = msg && msg.id != null ? msg.id : null;
+  const ownerKey = reqId != null ? reqId : `__anon_inprism_turn_${++__uorAnonInprismTurnSeq}`;
   const payload = msg && typeof msg.payload === 'object' && msg.payload !== null ? msg.payload : {};
   const prompt = typeof payload.prompt === 'string' ? payload.prompt.trim() : '';
 
@@ -3892,8 +3895,8 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       error: 'Foundry prompt must not be empty',
     };
   }
-  if (isCancelled(reqId, null)) {
-    clearCancelled(reqId, null);
+  if (isCancelled(ownerKey, null)) {
+    clearCancelled(ownerKey, null);
     return {
       id: reqId,
       ok: false,
@@ -3912,7 +3915,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     };
   }
 
-  const ownership = claimTurnOwnership(reqId);
+  const ownership = claimTurnOwnership(ownerKey);
   if (!ownership || !ownership.ok) {
     return {
       id: reqId,
@@ -3968,7 +3971,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     let unsubWaiter = () => {};
     try {
       const cancelPromise = new Promise((resolve) => {
-        unsubWaiter = registerCancelWaiter(reqId, () => resolve({ __cancelled: true }));
+        unsubWaiter = registerCancelWaiter(ownerKey, () => resolve({ __cancelled: true }));
       });
       const hydrateJob = Promise.resolve(
         fnHydrate(
@@ -3983,8 +3986,8 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         hydrateJob.then((val) => ({ __cancelled: false, val })),
         cancelPromise,
       ]);
-      if ((raceOut && raceOut.__cancelled) || isCancelled(reqId, null)) {
-        clearCancelled(reqId, null);
+      if ((raceOut && raceOut.__cancelled) || isCancelled(ownerKey, null)) {
+        clearCancelled(ownerKey, null);
         postEvent('chat_cancelled', { id: reqId, turn_id: null, tokens_emitted: 0 });
         return {
           id: reqId,
@@ -4041,6 +4044,9 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   let weightsKappa = null;
   let activeTurnNum = null;
   let toolIterations = toolResults.length;
+  let prefixReusedTokens = 0;
+  let latestObsFrame = null;
+  const collectedObsFrames = [];
 
   const toBigIntId = (tid) =>
     typeof BigInt === 'function' ? BigInt(Math.trunc(Number(tid))) : Math.trunc(Number(tid));
@@ -4092,7 +4098,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     };
   };
 
-  const buildObsMetrics = (stepData = {}, hopTokens = null) => {
+  const buildObsMetrics = (stepData = {}, hopTokens = null, stepFrames = null) => {
     const totalToks =
       hopTokens != null ? priorHopTokens + Number(hopTokens || 0) : tokensEmitted;
     const tps = Number(stepData.tok_per_sec ?? latestTokPerSec ?? 0);
@@ -4100,11 +4106,21 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       stepData.geometric_metrics && typeof stepData.geometric_metrics === 'object'
         ? stepData.geometric_metrics
         : latestMetrics;
+    const stepPrefix = Number.isFinite(Number(stepData.prefix_reused_tokens))
+      ? Number(stepData.prefix_reused_tokens)
+      : prefixReusedTokens;
+    const framesArr = Array.isArray(stepFrames) && stepFrames.length > 0 ? stepFrames : null;
+    const frameObj =
+      (framesArr && framesArr[framesArr.length - 1]) ||
+      (stepData.frame && typeof stepData.frame === 'object' ? stepData.frame : null);
     return {
       tokens_emitted: totalToks,
       tok_per_sec: Number.isFinite(tps) ? tps : 0,
+      prefix_reused_tokens: stepPrefix,
       geometric_metrics: gm || {},
       holo_v13: buildHoloV13Summary(stepData),
+      ...(frameObj ? { frame: frameObj } : {}),
+      ...(framesArr ? { frames: framesArr } : {}),
     };
   };
 
@@ -4115,9 +4131,9 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       } catch (_) {}
     }
     const tid = activeTurnNum;
-    setActiveTurnId(null, reqId);
-    clearCancelled(reqId, tid);
-    const obsMetrics = buildObsMetrics();
+    setActiveTurnId(null, ownerKey);
+    clearCancelled(ownerKey, tid);
+    const obsMetrics = buildObsMetrics({}, null, collectedObsFrames);
     const partial = fullReplyParts.join('');
     postEvent('chat_cancelled', {
       id: reqId,
@@ -4141,7 +4157,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   /* Formal R4.HoloGeometricRuntime */
   async function* streamFoundryHopSlices(hopTurnId) {
     while (true) {
-      if (isCancelled(reqId, hopTurnId)) {
+      if (isCancelled(ownerKey, hopTurnId)) {
         yield { status: 'cancelled', delta: '', tokens_emitted: 0, cancelled_by_host: true };
         return;
       }
@@ -4162,7 +4178,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   }
 
   for (let hop = 0; hop <= 6; hop += 1) {
-    if (isCancelled(reqId, activeTurnNum)) {
+    if (isCancelled(ownerKey, activeTurnNum)) {
       return cancelAndBuildResult();
     }
     const beginPayload = {
@@ -4182,8 +4198,8 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       const errCode = (beginRes && beginRes.error_code) || 'ModelNotMounted';
       const errTid = beginRes && beginRes.turn_id != null ? Number(beginRes.turn_id) : activeTurnNum;
       if (errCode !== 'BusyTurn') {
-        setActiveTurnId(null, reqId);
-        clearCancelled(reqId, activeTurnNum);
+        setActiveTurnId(null, ownerKey);
+        clearCancelled(ownerKey, activeTurnNum);
       }
       return {
         id: reqId,
@@ -4195,9 +4211,12 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     }
 
     activeTurnNum = Number(beginRes.turn_id);
-    setActiveTurnId(activeTurnNum, reqId);
+    setActiveTurnId(activeTurnNum, ownerKey);
     if (beginRes.model_id) {
       selectedModel = beginRes.model_id;
+    }
+    if (Number.isFinite(Number(beginRes.prefix_reused_tokens))) {
+      prefixReusedTokens = Number(beginRes.prefix_reused_tokens);
     }
 
     let hopToolCall = null;
@@ -4206,8 +4225,8 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     for await (const stepRes of streamFoundryHopSlices(activeTurnNum)) {
       if (!stepRes) {
         const tid = activeTurnNum;
-        setActiveTurnId(null, reqId);
-        clearCancelled(reqId, tid);
+        setActiveTurnId(null, ownerKey);
+        clearCancelled(ownerKey, tid);
         return {
           id: reqId,
           ok: false,
@@ -4221,8 +4240,8 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       }
       if (stepRes.status === 'error') {
         const tid = activeTurnNum;
-        setActiveTurnId(null, reqId);
-        clearCancelled(reqId, tid);
+        setActiveTurnId(null, ownerKey);
+        clearCancelled(ownerKey, tid);
         postEvent('chat_error', {
           id: reqId,
           turn_id: tid,
@@ -4247,23 +4266,59 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       if (Number.isFinite(Number(stepRes.tokens_emitted))) {
         tokensEmitted = priorHopTokens + Number(stepRes.tokens_emitted);
       }
+      if (Number.isFinite(Number(stepRes.prefix_reused_tokens))) {
+        prefixReusedTokens = Number(stepRes.prefix_reused_tokens);
+      }
       if (stepRes.receipt_sha256) receiptSha256 = stepRes.receipt_sha256;
       if (stepRes.weights_kappa) weightsKappa = stepRes.weights_kappa;
+
+      const stepFrames = [];
+      if (Array.isArray(stepRes.observatory_frames)) {
+        for (const f of stepRes.observatory_frames) {
+          if (f && typeof f === 'object') stepFrames.push(f);
+        }
+      }
+      if (stepFrames.length === 0 && stepRes.frame && typeof stepRes.frame === 'object') {
+        stepFrames.push(stepRes.frame);
+      }
+      if (stepFrames.length > 0) {
+        for (const f of stepFrames) {
+          if (collectedObsFrames.length < 64) collectedObsFrames.push(f);
+          postEvent('holo_trace_frame', {
+            id: reqId,
+            turn_id: activeTurnNum,
+            frame: f,
+            prefix_reused_tokens: prefixReusedTokens,
+          });
+        }
+        latestObsFrame = stepFrames[stepFrames.length - 1];
+        postEvent('holo_observatory_batch', {
+          id: reqId,
+          turn_id: activeTurnNum,
+          frames: stepFrames,
+          prefixReused: prefixReusedTokens,
+          prefix_reused_tokens: prefixReusedTokens,
+          selectedModel,
+        });
+      }
 
       const delta = typeof stepRes.delta === 'string' ? stepRes.delta : '';
       if (delta) {
         fullReplyParts.push(delta);
       }
-      const chunkMetrics = buildObsMetrics(stepRes, stepRes.tokens_emitted);
-      if (delta || stepRes.status === 'streaming') {
+      if (delta || stepRes.status === 'streaming' || stepFrames.length > 0) {
+        const chunkMetrics = buildObsMetrics(stepRes, stepRes.tokens_emitted, stepFrames);
         postEvent('chat_chunk', {
           id: reqId,
           turn_id: activeTurnNum,
           delta,
           tokens_emitted: chunkMetrics.tokens_emitted,
           tok_per_sec: chunkMetrics.tok_per_sec,
+          prefix_reused_tokens: prefixReusedTokens,
           geometric_metrics: chunkMetrics.geometric_metrics,
           holo_v13: chunkMetrics.holo_v13,
+          ...(chunkMetrics.frame ? { frame: chunkMetrics.frame } : {}),
+          ...(stepFrames.length > 0 ? { frames: stepFrames } : {}),
           [UOR_OBS_METRICS_KEY]: chunkMetrics,
         });
       }
@@ -4280,7 +4335,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     }
 
     if (hopToolCall && toolIterations < 6) {
-      if (isCancelled(reqId, activeTurnNum)) {
+      if (isCancelled(ownerKey, activeTurnNum)) {
         return cancelAndBuildResult();
       }
       const cmd = typeof hopToolCall.cmd === 'string' ? hopToolCall.cmd : '';
@@ -4369,8 +4424,8 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     /* Formal R4.HoloGeometricRuntime */
     stepData = stepData && typeof stepData === 'object' ? stepData : {};
     const finishedTurnId = activeTurnNum;
-    setActiveTurnId(null, reqId);
-    clearCancelled(reqId, finishedTurnId);
+    setActiveTurnId(null, ownerKey);
+    clearCancelled(ownerKey, finishedTurnId);
 
     const prismIdentity = await Promise.resolve(ensureIdentity()).catch(() => null);
     const targetKappa =
@@ -4381,7 +4436,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     const latestHolo =
       __uorMemPrismIdentity.latestHoloSummary || globalThis.__uorLatestHoloSummary || null;
 
-    const finalObsMetrics = buildObsMetrics(stepData, stepData.tokens_emitted);
+    const finalObsMetrics = buildObsMetrics(stepData, stepData.tokens_emitted, collectedObsFrames);
     const finalReply = fullReplyParts.join('');
     const finalWorkspace = collectSnapshot();
 
@@ -4409,8 +4464,13 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         holo_fingerprint: latestHolo ? latestHolo.fingerprint : null,
         tokens_emitted: finalObsMetrics.tokens_emitted,
         tok_per_sec: finalObsMetrics.tok_per_sec,
+        prefix_reused_tokens: prefixReusedTokens,
+        holo_prefix_reused_tokens: prefixReusedTokens,
         geometric_metrics: finalObsMetrics.geometric_metrics,
         holo_v13: finalObsMetrics.holo_v13,
+        ...(latestObsFrame ? { frame: latestObsFrame } : {}),
+        frames: collectedObsFrames,
+        holo_observatory_frames: collectedObsFrames,
         tool_results: toolResults,
         mvm_tool_executed: toolResults.length > 0,
         workspace: finalWorkspace,
@@ -4423,7 +4483,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
 
   return await buildFinalTurnResult({});
   } finally {
-    releaseTurnOwnership(reqId);
+    releaseTurnOwnership(ownerKey);
   }
 }
 
@@ -6520,7 +6580,10 @@ export class SpiralCoreHostBridge {
     }
     const relayOverride = opts.relayWsUrl !== undefined ? opts.relayWsUrl : opts.relayUrl;
     if (typeof relayOverride === 'string') {
-      this.setRelayUrl(relayOverride);
+      const rRes = this.setRelayUrl(relayOverride);
+      if (!rRes || !rRes.ok) {
+        return rRes;
+      }
     }
     if (this.mode === 'full_spiralcore' && !this.consentGranted) {
       return {
@@ -10809,6 +10872,7 @@ function __uorStartDedicatedEngineWorker() {
   let bootPromise = null;
   let activeHydrationPromise = null;
   let lastHydrationProgress = null;
+  let activeInprismBusy = false;
   let activeInprismRequestId = null;
   let activeInprismTurnId = null;
   const cancelledInprismRequests = new Set();
@@ -10920,8 +10984,11 @@ function __uorStartDedicatedEngineWorker() {
     if (!Array.isArray(deltaEntries)) return;
     for (const entry of deltaEntries) {
       if (!entry || typeof entry.path !== 'string') continue;
-      const rel = String(entry.path).trim().replace(/^\/+/, '').replace(/^workspace\//, '');
-      if (!rel || (rel.startsWith('prism/') && rel.endsWith('.lex.tex')) || rel === 'app/state') {
+      const parts = String(entry.path).trim().split('/').filter((s) => s && s !== '.');
+      if (parts[0] === 'workspace') parts.shift();
+      if (parts.includes('..')) continue;
+      const rel = parts.join('/');
+      if (!rel || /^prism\/.*\.lex\.tex$/.test(rel) || rel === 'app/state') {
         continue;
       }
       if (entry.deleted) {
@@ -11259,9 +11326,15 @@ function __uorStartDedicatedEngineWorker() {
       }
       if (op === 'set_bridge_policy' || op === 'set_host_config') {
         const res = hostBridge.setPolicy(payload || {});
-        const customRelay = payload && (typeof payload.relayWsUrl === 'string' ? payload.relayWsUrl : payload.relayUrl);
-        if (typeof customRelay === 'string') {
-          hostBridge.setRelayUrl(customRelay);
+        if (!res || !res.ok) {
+          self.postMessage({
+            id,
+            ok: false,
+            error_code: (res && res.error_code) || 'BridgePolicyError',
+            error: (res && (res.message || res.error)) || 'Bridge policy update rejected',
+            result: res || { ok: false },
+          });
+          return;
         }
         try {
           if (typeof studio_dispatch === 'function') {
@@ -11270,7 +11343,7 @@ function __uorStartDedicatedEngineWorker() {
         } catch {
           // Host policy remains authoritative when Wasm MVM guest is not booted
         }
-        self.postMessage({ id, ok: Boolean(res && res.ok), result: res, error: res && !res.ok ? res.message : undefined });
+        self.postMessage({ id, ok: true, result: res });
         return;
       }
       if (op === 'wasm_eval' || op === 'studio_wasm_eval') {
@@ -11703,14 +11776,24 @@ function __uorStartDedicatedEngineWorker() {
             postResponse: (resp) => self.postMessage(resp),
             dispatchBridge: dispatchWithConnectedBridge,
             claimTurnOwnership: (ownerReqId) => {
-              if (activeInprismRequestId != null && activeInprismRequestId !== ownerReqId) {
+              const resolvedOwner =
+                ownerReqId != null ? ownerReqId : `__anon_inprism_turn_${++__uorAnonInprismTurnSeq}`;
+              if (
+                activeInprismBusy ||
+                (activeInprismRequestId != null && activeInprismRequestId !== resolvedOwner)
+              ) {
                 return { ok: false, activeTurnId: activeInprismTurnId };
               }
-              activeInprismRequestId = ownerReqId;
+              activeInprismBusy = true;
+              activeInprismRequestId = resolvedOwner;
               return { ok: true, activeTurnId: activeInprismTurnId };
             },
             releaseTurnOwnership: (ownerReqId) => {
-              if (activeInprismRequestId === ownerReqId) {
+              if (
+                activeInprismBusy &&
+                (ownerReqId == null || activeInprismRequestId === ownerReqId)
+              ) {
+                activeInprismBusy = false;
                 activeInprismRequestId = null;
                 activeInprismTurnId = null;
               }

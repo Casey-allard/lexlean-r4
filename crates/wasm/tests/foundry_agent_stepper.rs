@@ -760,3 +760,71 @@ fn foundry_prompt_pinning_escaping_malformed_prior_tool_and_native_q31_r4_56() {
     assert_eq!(n2["status"], "done");
     assert_eq!(n2["tokens_emitted"], 6);
 }
+
+#[test]
+fn foundry_step_emits_incremental_observatory_frames_and_prefix_reuse_r4_56() {
+    let mut engine = StudioEngine::new_default();
+    let extra: &[(u32, &[u8])] = &[
+        (261, b"one "),
+        (262, b"two "),
+        (263, b"three "),
+        (264, b"four "),
+        (265, b"five "),
+        (266, b"six"),
+    ];
+    let bytes = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 264, 265, 266, 257], extra);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes)
+        .expect("mount 6-token scripted model");
+
+    let begin_payload = serde_json::json!({
+        "prompt": "Stream incremental observatory frames",
+        "workspace_files": [],
+        "max_new_tokens": 6
+    })
+    .to_string();
+    let b1: Value = serde_json::from_str(&engine.holo_begin_foundry_turn(&begin_payload)).unwrap();
+    assert_eq!(b1["status"], "ready");
+    let tid1 = b1["turn_id"].as_u64().unwrap();
+
+    // Slice 1 (tokens 1..=4): must include prefill + decode(step=1) frames incrementally
+    let s1: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid1)).unwrap();
+    assert_eq!(s1["status"], "streaming");
+    assert!(
+        s1["prefix_reused_tokens"].is_u64(),
+        "step JSON must include prefix_reused_tokens: {s1}"
+    );
+    let frames1 = s1["observatory_frames"]
+        .as_array()
+        .expect("streaming step must include observatory_frames array");
+    assert!(
+        frames1.len() >= 2,
+        "first slice must include prefill + decode frame, got {frames1:?}"
+    );
+    assert_eq!(frames1[0]["phase"], "prefill");
+    assert_eq!(frames1[1]["phase"], "decode");
+    assert!(
+        s1["frame"].is_object(),
+        "step JSON must include latest frame object"
+    );
+
+    // Slice 2 (tokens 5..=6 -> done): must include ONLY newly recorded decode frames (no prefill duplicate)
+    let s2: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid1)).unwrap();
+    assert_eq!(s2["status"], "done");
+    let frames2 = s2["observatory_frames"]
+        .as_array()
+        .expect("done step must include observatory_frames array");
+    assert!(
+        !frames2.is_empty(),
+        "second slice must emit new decode frames"
+    );
+    assert!(
+        frames2.iter().all(|f| f["phase"] == "decode"),
+        "second slice must not re-emit prefill frame: {frames2:?}"
+    );
+    assert_eq!(
+        frames1.len() + frames2.len(),
+        engine.last_foundry_observatory_frame_count(),
+        "incremental step frames must partition total recorded frames cleanly"
+    );
+}

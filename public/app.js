@@ -14459,6 +14459,16 @@ async function runGitHubLoopAction(subcommand, extraArgs = {}) {
 }
 
 function initEmbedMeBridge() {
+  try {
+    const surfaceParam = typeof window !== 'undefined' && window.location
+      ? String(new URLSearchParams(window.location.search || '').get('surface') || '').trim().toLowerCase()
+      : '';
+    if (surfaceParam === 'observatory' || (document && document.body && document.body.dataset && document.body.dataset.surface === 'observatory')) {
+      return;
+    }
+  } catch {
+    // Proceed on non-observatory surfaces
+  }
   let embedTarget = '';
   try {
     if (typeof window !== 'undefined' && window.location) {
@@ -15213,11 +15223,10 @@ function initPrismHoloIdentityControls() {
   renderPrismHoloIdentityUI();
 }
 
-initCursorIdeWorkbench();
-
 try {
   const isObservatorySurface = initObservatorySurface();
   if (!isObservatorySurface) {
+    initCursorIdeWorkbench();
     if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.persist === 'function') {
       navigator.storage.persist().catch(() => false);
     }

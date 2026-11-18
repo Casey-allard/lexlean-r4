@@ -7485,35 +7485,51 @@ body.surface-observatory #cowork-agent-status-bar,
 body[data-surface="observatory"] #cowork-agent-status-bar,
 body.surface-observatory > main,
 body[data-surface="observatory"] > main,
-body.surface-observatory #inspectors-modal > .inspectors-header,
-body[data-surface="observatory"] #inspectors-modal > .inspectors-header,
-body.surface-observatory #inspectors-modal > section:not(#canvas-panel-traces),
-body[data-surface="observatory"] #inspectors-modal > section:not(#canvas-panel-traces),
+body.surface-observatory #inspectors-modal-backdrop,
+body[data-surface="observatory"] #inspectors-modal-backdrop,
+body.surface-observatory .inspectors-modal-header,
+body[data-surface="observatory"] .inspectors-modal-header,
+body.surface-observatory .inspectors-modal-body > .canvas-panel:not(#canvas-panel-traces),
+body[data-surface="observatory"] .inspectors-modal-body > .canvas-panel:not(#canvas-panel-traces),
 body.surface-observatory #canvas-panel-traces > *:not(#holo-observatory-deck),
 body[data-surface="observatory"] #canvas-panel-traces > *:not(#holo-observatory-deck) {
   display: none !important;
 }
 
 body.surface-observatory #inspectors-modal,
-body[data-surface="observatory"] #inspectors-modal {
+body[data-surface="observatory"] #inspectors-modal,
+body.surface-observatory .inspectors-modal-dialog,
+body[data-surface="observatory"] .inspectors-modal-dialog,
+body.surface-observatory .inspectors-modal-body,
+body[data-surface="observatory"] .inspectors-modal-body {
   position: static !important;
   display: block !important;
   inset: auto !important;
   width: 100% !important;
   max-width: none !important;
   height: auto !important;
-  min-height: 100vh !important;
-  padding: 0.75rem !important;
+  max-height: none !important;
+  padding: 0 !important;
   margin: 0 !important;
-  border: none !important;
-  background: var(--background, #090d16) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  overflow: visible !important;
 }
 
 body.surface-observatory #canvas-panel-traces,
-body[data-surface="observatory"] #canvas-panel-traces,
+body[data-surface="observatory"] #canvas-panel-traces {
+  display: block !important;
+  width: 100% !important;
+  background: transparent !important;
+}
+
 body.surface-observatory #holo-observatory-deck,
 body[data-surface="observatory"] #holo-observatory-deck {
-  display: block !important;
+  display: flex !important;
+  flex-direction: column !important;
+  margin: 0 !important;
   background: var(--card, #111827) !important;
   border-color: var(--border, #334155) !important;
   color: var(--foreground, #f8fafc) !important;

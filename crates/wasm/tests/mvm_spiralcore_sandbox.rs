@@ -361,6 +361,9 @@ fn test_mvm_coreutils_applets_and_negative_errors_r4_57() {
         ("echo hello | tr a-z A-Z", "HELLO\n"),
         ("cut -d: -f1,3 /workspace/data.txt | head -n 1", "alpha:red\n"),
         ("echo hello world | sed 's/world/mvm/g'", "hello mvm\n"),
+        ("sed -n '1,1p' /workspace/data.txt", "alpha:10:red\n"),
+        ("sed -n '2,1p' /workspace/data.txt", "beta:20:blue\n"),
+        ("sed '1,1d' /workspace/data.txt", "beta:20:blue\ngamma:30:green\ndelta:40:yellow\n"),
         ("echo 'a b c' | awk '{print $3,$1}'", "c a\n"),
         ("find /workspace -name '*.txt' | sort", "/workspace/data.txt\n/workspace/other.txt\n"),
         ("cp /workspace/data.txt /workspace/copy.txt && cat /workspace/copy.txt | wc -l", "4\n"),
@@ -413,6 +416,26 @@ fn test_mvm_coreutils_applets_and_negative_errors_r4_57() {
     assert!(diff_changed.stdout.contains("-beta:20:blue"));
     assert!(diff_changed.stdout.contains("+beta:25:blue"));
 
+    // Exact sed single-line / reversed-bound range verification (`1,1`, `2,1`)
+    assert_eq!(
+        vm.exec_command("sed -n '1,1p' /workspace/data.txt", "/workspace")
+            .unwrap()
+            .stdout,
+        "alpha:10:red\n"
+    );
+    assert_eq!(
+        vm.exec_command("sed -n '2,1p' /workspace/data.txt", "/workspace")
+            .unwrap()
+            .stdout,
+        "beta:20:blue\n"
+    );
+    assert_eq!(
+        vm.exec_command("sed '1,1d' /workspace/data.txt", "/workspace")
+            .unwrap()
+            .stdout,
+        "beta:20:blue\ngamma:30:green\ndelta:40:yellow\n"
+    );
+
     // Negative / missing-file / corrupt-input / binary coverage (R5, zero panics)
     let negative_cases = [
         "head /workspace/nope.txt",
@@ -437,6 +460,9 @@ fn test_mvm_coreutils_applets_and_negative_errors_r4_57() {
         "diff /workspace/nope1.txt /workspace/nope2.txt",
         "echo '10 / 0' | bc",
         "echo '{bad-json' | jq .",
+        "echo '{\"a\":1}' | jq 'select(.a) extra)'",
+        "echo '[1,2]' | jq 'map(.) + map(.)'",
+        "echo '{\"a\":1}' | jq 'has(\"a\") trailing)'",
         "jq . /workspace/nope.json",
     ];
     for cmd in negative_cases {
@@ -961,6 +987,52 @@ int main(void) {
     assert_eq!(
         vm.read_guest_file("/workspace/ok.txt").as_deref(),
         Some(&b"ok\n"[..])
+    );
+
+    // 5. Symlink-rejected sync_in must not corrupt workspace_diff_baseline with phantom deletion
+    let mk_link = vm
+        .exec_command(
+            "ln -s /workspace/prism/Rule.lex.tex /workspace/canon_link",
+            "/workspace",
+        )
+        .expect("ln -s canon_link");
+    assert_eq!(mk_link.exit_code, 0);
+    let _drain_diff = vm.mvm_export_workspace_diff_json();
+    let sync_sym_rej: serde_json::Value = serde_json::from_str(
+        &vm.mvm_sync_workspace_in_json(
+            &serde_json::json!({
+                "epoch": 6,
+                "files": [
+                    { "path": "canon_link", "content_base64": test_b64_encode(b"symlink overwrite\n") }
+                ]
+            })
+            .to_string(),
+        ),
+    )
+    .expect("sync symlink reject");
+    assert_eq!(sync_sym_rej["status"], "ok");
+    assert_eq!(sync_sym_rej["applied_writes"], 0);
+    assert_eq!(
+        vm.read_guest_file("/workspace/prism/Rule.lex.tex")
+            .as_deref(),
+        Some(&canonical_rule[..])
+    );
+    let diff_after_sym: serde_json::Value =
+        serde_json::from_str(&vm.mvm_export_workspace_diff_json()).expect("diff after symlink");
+    let write_list = diff_after_sym["writes"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default();
+    let del_list = diff_after_sym["deletes"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default();
+    assert!(
+        !write_list
+            .iter()
+            .any(|w| w["path"].as_str() == Some("canon_link"))
+            && !del_list.iter().any(|d| d.as_str() == Some("canon_link")),
+        "failed symlink write must not poison workspace_diff_baseline: {diff_after_sym}"
     );
 }
 

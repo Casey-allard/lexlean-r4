@@ -1072,3 +1072,269 @@ test('Worker terminal:write and mvm_exec run bidirectional base64 /workspace syn
     globalThis.studio_import_mvm_cow_sectors = prevCowImport;
   }
 });
+
+test('execute_inprism_foundry_turn streams observatory_frames across holo_trace_frame, holo_observatory_batch, chat_chunk, and final result', async () => {
+  const events = [];
+  const prefillFrame = {
+    step_idx: 0,
+    phase: 'prefill',
+    seq_pos: 12,
+    prefix_reused_tokens: 7,
+    token_id: 10,
+    token_text: 'hi',
+    layer_residual_mag: [100],
+    layer_max_bits: [12],
+    layer_flock_spans: [4],
+    final_attn_peaks: [],
+    hamming_hist_32: new Array(32).fill(0),
+    min_hamming: 18,
+    q_manifold_xyz: [10, 20, 30],
+    backend: 'wasm-simd128',
+  };
+  const decodeFrame1 = { ...prefillFrame, step_idx: 1, phase: 'decode', seq_pos: 13, token_id: 261, token_text: 'A' };
+  const decodeFrame2 = { ...prefillFrame, step_idx: 5, phase: 'decode', seq_pos: 17, token_id: 262, token_text: 'B' };
+
+  const fake = createFakeStepperHooks({
+    scriptForHop: () => [
+      {
+        status: 'streaming',
+        delta: 'Part1 ',
+        tokens_emitted: 4,
+        tok_per_sec: 48.5,
+        prefix_reused_tokens: 7,
+        observatory_frames: [prefillFrame, decodeFrame1],
+        frame: decodeFrame1,
+      },
+      {
+        status: 'done',
+        delta: 'Part2',
+        tokens_emitted: 6,
+        tok_per_sec: 52.0,
+        prefix_reused_tokens: 7,
+        observatory_frames: [decodeFrame2],
+        frame: decodeFrame2,
+      },
+    ],
+  });
+
+  const envelope = await execute_inprism_foundry_turn(
+    {
+      id: 'req-obs-stream-1',
+      payload: { prompt: 'Stream frames', preferredModel: 'uor-r4.qwen3-0.6b-holo' },
+    },
+    {
+      ...fake.hooks,
+      holoBeginTurn: (payloadJson) => {
+        const res = JSON.parse(fake.hooks.holoBeginTurn(payloadJson));
+        res.prefix_reused_tokens = 7;
+        return JSON.stringify(res);
+      },
+      postEvent: (event, data) => events.push({ event, data }),
+    },
+  );
+
+  assert.equal(envelope.ok, true);
+  assert.equal(envelope.result.prefix_reused_tokens, 7);
+  assert.equal(envelope.result.frames?.length, 3);
+  assert.equal(envelope.result.holo_observatory_frames?.length, 3);
+  assert.deepEqual(envelope.result.frame, decodeFrame2);
+
+  const traceEvents = events.filter((e) => e.event === 'holo_trace_frame');
+  assert.equal(traceEvents.length, 3, 'every step observatory frame must emit holo_trace_frame');
+  const batchEvents = events.filter((e) => e.event === 'holo_observatory_batch');
+  assert.equal(batchEvents.length, 2, 'each step with frames must emit holo_observatory_batch');
+  assert.equal(batchEvents[0].data.prefixReused, 7);
+
+  const chunks = events.filter((e) => e.event === 'chat_chunk');
+  assert.equal(chunks.length, 2);
+  assert.equal(chunks[0].data.prefix_reused_tokens, 7);
+  assert.deepEqual(chunks[0].data.frame, decodeFrame1);
+  assert.equal(chunks[0].data.frames?.length, 2);
+  assert.deepEqual(chunks[1].data.frame, decodeFrame2);
+  assert.equal(chunks[1].data.frames?.length, 1);
+});
+
+test('Worker rejects concurrent null-ID inprism_r4_turn during async hydration with BusyTurn and normalizes ./ canonical paths', async () => {
+  const prevWgs = globalThis.WorkerGlobalScope;
+  const prevSelf = globalThis.self;
+  const prevWbg = globalThis.__wbg_init;
+  const prevPanic = globalThis.init_panic_hook;
+  const prevBoot = globalThis.studio_bootstrap;
+  const prevPack = globalThis.studio_weight_pack_status;
+  const prevBegin = globalThis.holo_begin_foundry_turn;
+  const prevStep = globalThis.holo_step_foundry_turn;
+  const prevCancel = globalThis.holo_cancel_foundry_turn;
+  const prevStatus = globalThis.studio_holo_runtime_status;
+  const prevDispatch = globalThis.studio_dispatch;
+  const prevSyncIn = globalThis.mvm_sync_workspace_in_json;
+  const prevExportDiff = globalThis.mvm_export_workspace_diff_json;
+  const prevLocation = globalThis.location;
+  const prevFetch = globalThis.fetch;
+  const prevIdb = globalThis.indexedDB;
+
+  const posted = [];
+  const rpcWaiters = new Map();
+  let readyResolve;
+  let releaseHydration;
+  const readyPromise = new Promise((r) => {
+    readyResolve = r;
+  });
+  const waitForRpc = (id) =>
+    new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error(`Timeout waiting for RPC ${id}`)), 2000);
+      rpcWaiters.set(id, (msg) => {
+        clearTimeout(t);
+        resolve(msg);
+      });
+    });
+
+  try {
+    class MockWorkerGlobalScope {
+      constructor() {
+        this.name = 'uor-r4-engine-worker';
+      }
+      postMessage(msg) {
+        posted.push(msg);
+        if (msg && msg.event === 'ready') readyResolve(msg);
+        if (msg && msg.id != null && typeof msg.ok === 'boolean' && rpcWaiters.has(msg.id)) {
+          const cb = rpcWaiters.get(msg.id);
+          rpcWaiters.delete(msg.id);
+          cb(msg);
+        }
+      }
+    }
+    const mockSelf = new MockWorkerGlobalScope();
+    globalThis.WorkerGlobalScope = MockWorkerGlobalScope;
+    globalThis.self = mockSelf;
+    globalThis.__wbg_init = async () => ({});
+    globalThis.init_panic_hook = () => {};
+    globalThis.studio_bootstrap = () => '{}';
+    globalThis.studio_weight_pack_status = () => JSON.stringify({ mounted_packs: [] });
+
+    let mounted = false;
+    let markHydrationStarted;
+    const hydrationStarted = new Promise((resolve) => {
+      markHydrationStarted = resolve;
+    });
+
+    const syncInPayloads = [];
+    let hostFiles = [{ path: 'src/App.tsx', language: 'tsx', content: 'v1' }];
+    globalThis.studio_dispatch = (env) => {
+      if (env.includes('\tworkspace_list\t')) {
+        return JSON.stringify({ files: hostFiles });
+      }
+      return JSON.stringify({ status: 'ok', exit_code: 0, mvm_stdout: 'ok' });
+    };
+    globalThis.mvm_sync_workspace_in_json = (raw) => {
+      syncInPayloads.push(JSON.parse(raw));
+      return JSON.stringify({ status: 'ok', epoch: 1, applied_writes: 1, applied_deletes: 0 });
+    };
+    globalThis.mvm_export_workspace_diff_json = () =>
+      JSON.stringify({ status: 'ok', epoch: 1, writes: [], deletes: [], ignored_heavy_paths: 0 });
+
+    globalThis.studio_holo_runtime_status = () =>
+      JSON.stringify({
+        qwen3_06b_mounted: mounted,
+        qwen3_17b_mounted: false,
+        models: mounted ? [{ model_id: 'uor-r4.qwen3-0.6b-holo' }] : [],
+      });
+    globalThis.holo_begin_foundry_turn = () =>
+      JSON.stringify({ status: 'ready', turn_id: 1, model_id: 'uor-r4.qwen3-0.6b-holo' });
+    globalThis.holo_step_foundry_turn = () =>
+      JSON.stringify({ status: 'done', turn_id: 1, delta: 'ok', tokens_emitted: 1, tok_per_sec: 10 });
+    globalThis.holo_cancel_foundry_turn = () => JSON.stringify({ status: 'cancelled', turn_id: 1 });
+
+    await import('../../crates/wasm/js/worker_host_bridge.js?worker_null_id_busy=1');
+    await readyPromise;
+
+    globalThis.location = { origin: 'http://localhost:4173', href: 'http://localhost:4173/' };
+    globalThis.indexedDB = undefined;
+    globalThis.fetch = () =>
+      new Promise((_, reject) => {
+        markHydrationStarted();
+        releaseHydration = () => reject(new Error('offline mirror'));
+      });
+
+    // 1. Two concurrent null-ID inprism_r4_turn calls during pending hydrate_holo_model
+    const startIdx = posted.length;
+    mockSelf.onmessage({
+      data: {
+        id: null,
+        op: 'inprism_r4_turn',
+        payload: {
+          prompt: 'First null-id turn',
+          preferredModel: 'uor-r4.qwen3-0.6b-holo',
+          allowOffOriginHydration: true,
+        },
+      },
+    });
+    await hydrationStarted;
+    mockSelf.onmessage({
+      data: {
+        id: null,
+        op: 'inprism_r4_turn',
+        payload: {
+          prompt: 'Concurrent null-id turn must get BusyTurn',
+          preferredModel: 'uor-r4.qwen3-0.6b-holo',
+          allowOffOriginHydration: true,
+        },
+      },
+    });
+    await new Promise((r) => setTimeout(r, 20));
+    const nullBusyMsg = posted
+      .slice(startIdx)
+      .find((m) => m && m.id === null && m.ok === false && m.error_code === 'BusyTurn');
+    assert.ok(
+      nullBusyMsg,
+      `concurrent null-ID turn during hydration must reject with BusyTurn, got: ${JSON.stringify(posted.slice(startIdx))}`,
+    );
+    if (releaseHydration) releaseHydration();
+    await new Promise((r) => setTimeout(r, 20));
+
+    // 2. ./ prefix normalization in applyMvmSyncInState for canonical prism/*.lex.tex, app/state, and ./src/App.tsx
+    const syncRpc = waitForRpc('sync-dot-slash');
+    mockSelf.onmessage({
+      data: {
+        id: 'sync-dot-slash',
+        op: 'mvm_sync_workspace_in',
+        payload: {
+          epoch: 2,
+          files: [
+            { path: './prism/Rule.lex.tex', content_base64: Buffer.from('bad').toString('base64') },
+            { path: './app/state', content_base64: Buffer.from('bad').toString('base64') },
+            { path: './src//App.tsx', content_base64: Buffer.from('v1').toString('base64') },
+          ],
+        },
+      },
+    });
+    await syncRpc;
+    const beforeTerm = syncInPayloads.length;
+    const termCheck = waitForRpc('term-after-dot-slash');
+    mockSelf.onmessage({ data: { id: 'term-after-dot-slash', op: 'terminal:write', payload: { cmd: 'pwd' } } });
+    await termCheck;
+    const pushedFiles = syncInPayloads.slice(beforeTerm).flatMap((p) => p.files || []);
+    assert.equal(
+      pushedFiles.length,
+      0,
+      `./prism/Rule.lex.tex and ./app/state must be skipped and ./src//App.tsx normalized to src/App.tsx, got: ${JSON.stringify(pushedFiles)}`,
+    );
+  } finally {
+    if (releaseHydration) releaseHydration();
+    globalThis.WorkerGlobalScope = prevWgs;
+    globalThis.self = prevSelf;
+    globalThis.__wbg_init = prevWbg;
+    globalThis.init_panic_hook = prevPanic;
+    globalThis.studio_bootstrap = prevBoot;
+    globalThis.studio_weight_pack_status = prevPack;
+    globalThis.holo_begin_foundry_turn = prevBegin;
+    globalThis.holo_step_foundry_turn = prevStep;
+    globalThis.holo_cancel_foundry_turn = prevCancel;
+    globalThis.studio_holo_runtime_status = prevStatus;
+    globalThis.studio_dispatch = prevDispatch;
+    globalThis.mvm_sync_workspace_in_json = prevSyncIn;
+    globalThis.mvm_export_workspace_diff_json = prevExportDiff;
+    globalThis.location = prevLocation;
+    globalThis.fetch = prevFetch;
+    globalThis.indexedDB = prevIdb;
+  }
+});
