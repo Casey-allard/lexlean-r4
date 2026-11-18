@@ -6321,6 +6321,66 @@ fn split_shell_segments(cmd: &str) -> Vec<String> {
     segments
 }
 
+/// Formal R4.StudioFrame check if a `sed` script token contains a `w`/`W` file-write command or flag.
+fn sed_script_has_write_cmd(arg: &str) -> bool {
+    let trimmed = arg.trim_matches(|c| c == '\'' || c == '"');
+    if trimmed.starts_with('w')
+        || trimmed.starts_with('W')
+        || trimmed.contains(";w")
+        || trimmed.contains(";W")
+    {
+        return true;
+    }
+    if let Some(after_s) = trimmed.strip_prefix('s') {
+        if let Some(delim) = after_s.chars().next() {
+            let mut parts = after_s[delim.len_utf8()..].split(delim);
+            let _pat = parts.next();
+            let _repl = parts.next();
+            if let Some(flags) = parts.next() {
+                if flags.contains('w') || flags.contains('W') {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
+/// Formal R4.StudioFrame verify a `sed` invocation has no in-place (`-i` / `-ni` / `--in-place`), script-file (`-f`), or `w`/`W` write commands.
+fn is_sed_read_only(rest: &[&str]) -> bool {
+    let mut expect_expr = false;
+    let mut saw_script = false;
+    for &arg in rest {
+        if expect_expr {
+            saw_script = true;
+            expect_expr = false;
+            if sed_script_has_write_cmd(arg) {
+                return false;
+            }
+            continue;
+        }
+        if arg == "-e" || arg == "--expression" {
+            expect_expr = true;
+            continue;
+        }
+        if arg == "-f" || arg.starts_with("-f") || arg.starts_with("--file") {
+            return false;
+        }
+        if arg.starts_with("--in-place")
+            || (arg.starts_with('-') && !arg.starts_with("--") && arg[1..].contains('i'))
+        {
+            return false;
+        }
+        if !arg.starts_with('-') && !saw_script {
+            saw_script = true;
+            if sed_script_has_write_cmd(arg) {
+                return false;
+            }
+        }
+    }
+    !expect_expr
+}
+
 /// Formal R4.StudioFrame check whether an `mvm_exec` shell command may mutate `/workspace` or guest state (fail-closed).
 pub(crate) fn is_mvm_command_mutating(cmd: &str) -> bool {
     let trimmed = cmd.trim();
@@ -6350,12 +6410,17 @@ pub(crate) fn is_mvm_command_mutating(cmd: &str) -> bool {
         let seg_read_only = match prog {
             "pwd" | "ls" | "cat" | "head" | "tail" | "wc" | "grep" | "rg" | "stat" | "file"
             | "uname" | "whoami" | "id" | "date" | "sha256sum" | "md5sum" | "diff" | "cmp"
-            | "tree" | "echo" | "printf" | "which" | "sort" | "uniq" | "cut" | "tr"
-            | "basename" | "dirname" | "realpath" | "readlink" | "env" | "printenv" | "test"
-            | "[" | "true" | "false" => true,
-            "sed" => !rest
-                .iter()
-                .any(|a| *a == "-i" || a.starts_with("-i") || a.starts_with("--in-place")),
+            | "tree" | "echo" | "printf" | "which" | "uniq" | "cut" | "tr" | "basename"
+            | "dirname" | "realpath" | "readlink" | "printenv" | "test" | "[" | "true"
+            | "false" => true,
+            "env" => rest.iter().all(|a| matches!(*a, "-0" | "--null")),
+            "sort" => !rest.iter().any(|a| {
+                *a == "--output"
+                    || a.starts_with("--output=")
+                    || a.starts_with("--compress-program")
+                    || (a.starts_with('-') && !a.starts_with("--") && a[1..].contains('o'))
+            }),
+            "sed" => is_sed_read_only(&rest),
             "find" => !rest.iter().any(|a| {
                 matches!(
                     *a,

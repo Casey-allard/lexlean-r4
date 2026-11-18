@@ -1977,4 +1977,12 @@ fn test_opfs_cow_import_preserves_user_workspace_on_reboot_r4_60() {
         !paths.contains(&"src/attention.rs"),
         "studio_import_mvm_cow_sectors must drop seeded starter toy files, got: {paths:?}"
     );
+
+    // 3. Checked-arithmetic guard against overflow count in MVM_COW1 header
+    let mut bad_cow = Vec::from(&b"MVM_COW1"[..]);
+    bad_cow.extend_from_slice(&u32::MAX.to_le_bytes());
+    bad_cow.extend_from_slice(&(65536u32).to_le_bytes());
+    let bad_import: serde_json::Value =
+        serde_json::from_str(&engine_b.import_cow_sectors(&bad_cow)).expect("error json");
+    assert_eq!(bad_import["status"], "error");
 }

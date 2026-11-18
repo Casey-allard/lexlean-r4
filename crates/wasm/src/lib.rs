@@ -1541,8 +1541,12 @@ impl StudioEngine {
                 "{{\"status\":\"error\",\"message\":\"Unexpected sector size: {sector_size}\"}}"
             );
         }
-        let stride = 8 + mvm::MVM_COW_SECTOR_BYTES;
-        if bytes.len() < 16 + count.saturating_mul(stride) {
+        let stride = 8usize + mvm::MVM_COW_SECTOR_BYTES;
+        let Some(expected_len) = count.checked_mul(stride).and_then(|n| n.checked_add(16)) else {
+            return "{\"status\":\"error\",\"message\":\"MVM_COW1 sector count overflow.\"}"
+                .to_string();
+        };
+        if bytes.len() < expected_len {
             return "{\"status\":\"error\",\"message\":\"Truncated MVM_COW1 sector stream.\"}"
                 .to_string();
         }
@@ -1606,6 +1610,113 @@ impl StudioEngine {
             "cow_state_sha256": self.mvm.cow_state_sha256(),
         })
         .to_string()
+    }
+
+    /// Formal R4.StudioFrame apply `workspace_write`, `workspace_delete`, or `workspace_rename` cleanly with `sync_workspace_into_mvm` (`R4-60`).
+    pub(crate) fn apply_workspace_mutation(
+        &mut self,
+        tool_name: &str,
+        args: &serde_json::Value,
+    ) -> Result<(String, String), String> {
+        let parse_err = |raw: &str| -> Option<String> {
+            let v: serde_json::Value = serde_json::from_str(raw).ok()?;
+            if v.get("status").and_then(|s| s.as_str()) == Some("error") {
+                Some(
+                    v.get("message")
+                        .or_else(|| v.get("reason"))
+                        .and_then(|s| s.as_str())
+                        .unwrap_or("workspace mutation failed")
+                        .to_string(),
+                )
+            } else {
+                None
+            }
+        };
+        match tool_name {
+            "workspace_write" => {
+                let path = args
+                    .get("path")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .trim();
+                let content = args
+                    .get("content")
+                    .or_else(|| args.get("code"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
+                let raw = self.workspace_write_json(&format!("{path}\n{content}"));
+                if let Some(msg) = parse_err(&raw) {
+                    return Err(msg);
+                }
+                Ok((
+                    path.to_string(),
+                    format!("Wrote {} bytes to `{path}`", content.len()),
+                ))
+            }
+            "workspace_delete" => {
+                let path = args
+                    .get("path")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .trim();
+                let raw = self.workspace_delete_json(path);
+                if let Some(msg) = parse_err(&raw) {
+                    return Err(msg);
+                }
+                Ok((path.to_string(), format!("Deleted `{path}`")))
+            }
+            "workspace_rename" => {
+                let from = args
+                    .get("from")
+                    .or_else(|| args.get("old_path"))
+                    .or_else(|| args.get("path"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .trim();
+                let to = args
+                    .get("to")
+                    .or_else(|| args.get("new_path"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .trim();
+                if from.is_empty() || to.is_empty() {
+                    return Err("workspace_rename requires non-empty `from` and `to` paths".into());
+                }
+                if from.contains("..") || to.contains("..") {
+                    return Err(
+                        "RefusedParentTraversal: R4.SecopsAudit refused `..` in workspace_rename"
+                            .into(),
+                    );
+                }
+                let Some(content) = self
+                    .workspace_files
+                    .iter()
+                    .find(|f| f.path == from)
+                    .map(|f| f.content.clone())
+                else {
+                    return Err(format!("FileNotFound: Workspace file `{from}` not found"));
+                };
+                if from == to {
+                    return Ok((
+                        format!("{from} -> {to}"),
+                        format!("Kept `{from}` unchanged"),
+                    ));
+                }
+                let write_raw = self.workspace_write_json(&format!("{to}\n{content}"));
+                if let Some(msg) = parse_err(&write_raw) {
+                    return Err(msg);
+                }
+                let del_raw = self.workspace_delete_json(from);
+                if let Some(msg) = parse_err(&del_raw) {
+                    return Err(msg);
+                }
+                Ok((
+                    format!("{from} -> {to}"),
+                    format!("Renamed `{from}` to `{to}`"),
+                ))
+            }
+            other => Err(format!("Unsupported workspace mutation `{other}`")),
+        }
     }
 
     /// Formal R4.StudioFrame execute a policy-admitted Studio tool locally (`workspace_read`, `workspace_search`, local `mvm_exec`) or yield `needs_tool` for bridge-bound calls (`R4-60`).
@@ -1682,6 +1793,11 @@ impl StudioEngine {
             "mvm_exec" => {
                 let cmd = inv.cmd.as_deref().unwrap_or("").trim();
                 self.sync_workspace_into_mvm();
+                let before_ws: std::collections::BTreeMap<String, String> = self
+                    .workspace_files
+                    .iter()
+                    .map(|f| (f.path.clone(), f.content.clone()))
+                    .collect();
                 let cwd = inv
                     .arguments
                     .get("cwd")
@@ -1689,7 +1805,28 @@ impl StudioEngine {
                     .filter(|s| !s.trim().is_empty());
                 match self.mvm.exec_interactive(cmd, cwd) {
                     Ok(mvm::MvmInteractiveOutcome::Completed(done)) => {
+                        self.pending_mvm_bridge = None;
                         self.sync_workspace_from_mvm();
+                        let mut changed_set = std::collections::BTreeSet::new();
+                        for wf in &self.workspace_files {
+                            if before_ws
+                                .get(&wf.path)
+                                .is_none_or(|prev| prev != &wf.content)
+                            {
+                                changed_set.insert(wf.path.clone());
+                            }
+                        }
+                        let after_paths: std::collections::BTreeSet<&str> = self
+                            .workspace_files
+                            .iter()
+                            .map(|f| f.path.as_str())
+                            .collect();
+                        for prev_path in before_ws.keys() {
+                            if !after_paths.contains(prev_path.as_str()) {
+                                changed_set.insert(prev_path.clone());
+                            }
+                        }
+                        let changed_files: Vec<String> = changed_set.into_iter().collect();
                         serde_json::json!({
                             "status": "ok",
                             "tool": "mvm_exec",
@@ -1697,18 +1834,21 @@ impl StudioEngine {
                             "exit_code": done.exit_code,
                             "stdout": done.stdout,
                             "stderr": done.stderr,
-                            "changed_files": [],
+                            "changed_files": changed_files,
                         })
                         .to_string()
                     }
-                    Ok(mvm::MvmInteractiveOutcome::NeedsBridge(pending)) => serde_json::json!({
-                        "status": "needs_tool",
-                        "tool": "mvm_exec",
-                        "cmd": cmd,
-                        "bridge_req": pending.bridge_req,
-                        "resume_state": pending.resume_state,
-                    })
-                    .to_string(),
+                    Ok(mvm::MvmInteractiveOutcome::NeedsBridge(pending)) => {
+                        self.pending_mvm_bridge = Some(pending.resume_state.clone());
+                        serde_json::json!({
+                            "status": "needs_tool",
+                            "tool": "mvm_exec",
+                            "cmd": cmd,
+                            "bridge_req": pending.bridge_req,
+                            "resume_state": pending.resume_state,
+                        })
+                        .to_string()
+                    }
                     Err(err) => serde_json::json!({
                         "status": "error",
                         "error_code": "MvmRuntimeError",
@@ -1717,20 +1857,26 @@ impl StudioEngine {
                     .to_string(),
                 }
             }
-            "workspace_write" => {
-                let path = inv
-                    .arguments
-                    .get("path")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("")
-                    .trim();
-                let content = inv
-                    .arguments
-                    .get("content")
-                    .or_else(|| inv.arguments.get("code"))
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("");
-                self.workspace_write_json(&format!("{path}\n{content}"))
+            "workspace_write" | "workspace_delete" | "workspace_rename" => {
+                match self.apply_workspace_mutation(&inv.name, &inv.arguments) {
+                    Ok((target, detail)) => serde_json::json!({
+                        "status": "ok",
+                        "tool": inv.name,
+                        "target": target,
+                        "exit_code": 0,
+                        "stdout": detail,
+                        "stderr": "",
+                        "changed_files": [target],
+                    })
+                    .to_string(),
+                    Err(msg) => serde_json::json!({
+                        "status": "error",
+                        "error_code": "WorkspaceMutationFailed",
+                        "tool": inv.name,
+                        "message": msg,
+                    })
+                    .to_string(),
+                }
             }
             _ => serde_json::json!({
                 "status": "needs_tool",
@@ -6829,6 +6975,7 @@ impl StudioEngine {
             Vec::new();
         let mut holo_prefix_reused_tokens = 0usize;
         let mut holo_last_tool_kind = "none".to_string();
+        let mut holo_refused_plan_error: Option<String> = None;
         let (assistant_reply, geometric_metrics, execution_tier, selected_wire_id) =
             match explicit_v13_mode {
                 Some(
@@ -6912,6 +7059,7 @@ impl StudioEngine {
                                         .refusal_code
                                         .unwrap_or("RefusedPlanModeMutation")
                                         .to_string();
+                                    holo_refused_plan_error = Some(tool_name.clone());
                                     holo_react_steps.push(format!(
                                         "{{\"step\":{},\"iteration\":{},\"tool\":\"{}\",\"status\":\"refused\",\"error_code\":\"RefusedPlanModeMutation\"}}",
                                         holo_react_steps.len() + 1,
@@ -6977,6 +7125,39 @@ impl StudioEngine {
                                             "{trimmed}\n<tool_response tool=\"workspace_search\" query=\"{q}\">\n{obs}\n</tool_response>\nRespond concisely citing matching files and lines."
                                         );
                                         continue;
+                                    }
+                                    "workspace_write" | "workspace_delete" | "workspace_rename" => {
+                                        match self.apply_workspace_mutation(&tool_name, &args) {
+                                            Ok((target, detail)) => {
+                                                holo_react_steps.push(format!(
+                                                    "{{\"step\":{},\"iteration\":{},\"tool\":\"{}\",\"target\":\"{}\",\"status\":\"ok\",\"detail\":\"{}\"}}",
+                                                    holo_react_steps.len() + 1,
+                                                    holo_react_iterations,
+                                                    escape_json(&tool_name),
+                                                    escape_json(&target),
+                                                    escape_json(&detail)
+                                                ));
+                                                holo_react_admission =
+                                                    "VerifiedLocalToolTurn".to_string();
+                                                hop_prompt = format!(
+                                                    "{trimmed}\n<tool_response tool=\"{tool_name}\" target=\"{target}\">\n{detail}\n</tool_response>\nContinue or summarize the verified workspace change."
+                                                );
+                                                continue;
+                                            }
+                                            Err(err_msg) => {
+                                                holo_react_steps.push(format!(
+                                                    "{{\"step\":{},\"iteration\":{},\"tool\":\"{}\",\"status\":\"error\",\"detail\":\"{}\"}}",
+                                                    holo_react_steps.len() + 1,
+                                                    holo_react_iterations,
+                                                    escape_json(&tool_name),
+                                                    escape_json(&err_msg)
+                                                ));
+                                                hop_prompt = format!(
+                                                    "{trimmed}\n<tool_response tool=\"{tool_name}\" error=\"true\">{err_msg}</tool_response>\nExplain the error clearly."
+                                                );
+                                                continue;
+                                            }
+                                        }
                                     }
                                     "workspace_patch" => {
                                         let p = args
@@ -7108,6 +7289,7 @@ impl StudioEngine {
                                             _ => args
                                                 .get("subcommand")
                                                 .or_else(|| args.get("action"))
+                                                .or_else(|| args.get("op"))
                                                 .and_then(|v| v.as_str())
                                                 .unwrap_or("status"),
                                         };
@@ -7392,8 +7574,10 @@ impl StudioEngine {
             otel_savings_pct
         );
 
-        self.chat_history
-            .push((trimmed.to_string(), clean_reply.clone()));
+        if holo_refused_plan_error.is_none() {
+            self.chat_history
+                .push((trimmed.to_string(), clean_reply.clone()));
+        }
 
         let base_gen_raw =
             self.build_live_token_generation_json(trimmed, &clean_reply, lut_mode_label.as_deref());
@@ -7753,9 +7937,19 @@ impl StudioEngine {
             serde_json::to_string(&self.last_brain_pulses).unwrap_or_else(|_| "[]".to_string());
         let holo_frames_json =
             serde_json::to_string(&holo_observatory_frames).unwrap_or_else(|_| "[]".to_string());
-        let (chat_status, bridge_extra_json) = if let Some(pending) =
-            self.pending_chat_bridge.clone()
+        let (chat_status, bridge_extra_json) = if let Some(ref refused_tool) =
+            holo_refused_plan_error
         {
+            let msg = format!("Composer `plan` mode forbids mutating `{refused_tool}`.");
+            (
+                "error",
+                format!(
+                    ",\"error_code\":\"RefusedPlanModeMutation\",\"tool\":\"{}\",\"message\":\"{}\"",
+                    escape_json(refused_tool),
+                    escape_json(&msg)
+                ),
+            )
+        } else if let Some(pending) = self.pending_chat_bridge.clone() {
             let breq = pending
                 .get("bridge_req")
                 .cloned()

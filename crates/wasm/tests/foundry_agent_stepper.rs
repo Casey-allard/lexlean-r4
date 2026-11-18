@@ -1507,3 +1507,167 @@ fn test_studio_prewarm_prefix_and_plan_tool_policy_r4_60() {
         "7th hop (iterations_used=6) must be bounded"
     );
 }
+
+#[test]
+fn test_plan_shell_hardening_workspace_mutations_and_chat_refusal_r4_60() {
+    let mut engine = StudioEngine::new_default();
+
+    // 1. Tightened PlanReadOnly shell allowlist: refuse `env rm -rf ...`, `touch foo`, `sort -o`, `sed -ni` / write commands
+    for mut_cmd in [
+        "env rm -rf /workspace/src/main.rs",
+        "touch foo",
+        "sort -o out.txt src/engine.rs",
+        "sort --output=out.txt src/engine.rs",
+        "sed -ni 's/a/b/' src/engine.rs",
+        "sed -Ei 's/a/b/' src/engine.rs",
+        "sed 's/a/b/w out.txt' src/engine.rs",
+    ] {
+        let raw = format!(
+            "<tool_call>{{\"name\":\"mvm_exec\",\"arguments\":{{\"cmd\":\"{}\"}}}}</tool_call>",
+            mut_cmd.replace('\"', "\\\"")
+        );
+        let det = detect_studio_tool_call(raw.as_bytes(), "studio", "plan", 0)
+            .unwrap_or_else(|| panic!("expected detection for `{mut_cmd}`"));
+        assert!(!det.admitted, "`{mut_cmd}` must be refused in plan mode");
+        assert_eq!(det.refusal_code, Some("RefusedPlanModeMutation"));
+
+        let exec_res: Value = serde_json::from_str(&engine.execute_studio_tool_json(&raw, "plan"))
+            .expect("valid tool json");
+        assert_eq!(exec_res["status"], "error");
+        assert_eq!(exec_res["error_code"], "RefusedPlanModeMutation");
+    }
+
+    // Read-only `ls`, `pwd`, `env`, `sort -rn`, and `sed -n '1,2p'` are admitted & executable in plan mode
+    for ro_cmd in [
+        "ls",
+        "pwd",
+        "env",
+        "sort -rn src/engine.rs",
+        "sed -n '1,2p' src/engine.rs",
+    ] {
+        let raw = serde_json::json!({
+            "name": "mvm_exec",
+            "arguments": { "cmd": ro_cmd }
+        })
+        .to_string();
+        let res: Value = serde_json::from_str(&engine.execute_studio_tool_json(&raw, "plan"))
+            .expect("valid read-only mvm_exec json");
+        assert_eq!(
+            res["status"], "ok",
+            "`{ro_cmd}` must execute in plan mode: {res}"
+        );
+        assert_eq!(res["exit_code"], 0, "`{ro_cmd}` failed: {res}");
+    }
+
+    // 2. Local mvm_exec changed_files reporting + workspace_write / workspace_rename / workspace_delete parity
+    let mvm_write_res: Value = serde_json::from_str(&engine.execute_studio_tool_json(
+        r#"{"name":"mvm_exec","arguments":{"cmd":"printf 'pub fn mvm_ok() -> i32 { 1 }\n' > /workspace/src/created_by_mvm.rs"}}"#,
+        "agent",
+    ))
+    .unwrap();
+    assert_eq!(mvm_write_res["status"], "ok");
+    let changed = mvm_write_res["changed_files"].as_array().unwrap();
+    assert!(
+        changed.iter().any(|p| p == "src/created_by_mvm.rs"),
+        "execute_studio_tool_json must report real changed_files, got: {changed:?}"
+    );
+
+    // 3. chat_assistant_json refuses mutating tool in `plan` mode with status="error" & RefusedPlanModeMutation
+    let mut_plan_pieces: &[(u32, &[u8])] = &[
+        (261, b"<tool_call>"),
+        (
+            262,
+            b"{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"env rm -rf /workspace/src/engine.rs\"}}",
+        ),
+        (263, b"</tool_call>"),
+    ];
+    let bytes_plan_mut = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 257], mut_plan_pieces);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_plan_mut)
+        .expect("mount plan refusal model");
+    let ws_before = engine.list_workspace();
+    let plan_chat_res: Value = serde_json::from_str(
+        &engine.chat_assistant_json(
+            &serde_json::json!({
+                "prompt": "Delete src/engine.rs",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "composer_mode": "plan"
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    assert_eq!(plan_chat_res["status"], "error");
+    assert_eq!(plan_chat_res["error_code"], "RefusedPlanModeMutation");
+    assert_eq!(
+        engine.list_workspace(),
+        ws_before,
+        "RefusedPlanModeMutation in chat_assistant_json must not mutate workspace"
+    );
+
+    // 4. chat_assistant_json handles workspace_write -> workspace_rename -> workspace_delete in agent mode
+    let write_pieces: &[(u32, &[u8])] = &[
+        (261, b"<tool_call>"),
+        (
+            262,
+            b"{\"name\":\"workspace_write\",\"arguments\":{\"path\":\"src/draft.rs\",\"content\":\"pub fn v() -> i32 { 7 }\\n\"}}",
+        ),
+        (263, b"</tool_call>"),
+    ];
+    let bytes_write = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 257], write_pieces);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_write)
+        .expect("mount workspace_write model");
+    let chat_write: Value = serde_json::from_str(
+        &engine.chat_assistant_json(
+            &serde_json::json!({
+                "prompt": "Create src/draft.rs",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "composer_mode": "agent"
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    assert_eq!(chat_write["status"], "ok");
+    assert!(
+        engine
+            .list_workspace()
+            .contains(&"src/draft.rs".to_string()),
+        "chat_assistant_json must apply workspace_write"
+    );
+
+    let rename_res: Value = serde_json::from_str(&engine.execute_studio_tool_json(
+        r#"{"name":"workspace_rename","arguments":{"from":"src/draft.rs","to":"src/renamed.rs"}}"#,
+        "agent",
+    ))
+    .unwrap();
+    assert_eq!(rename_res["status"], "ok");
+    assert!(!engine
+        .list_workspace()
+        .contains(&"src/draft.rs".to_string()));
+    assert!(engine
+        .list_workspace()
+        .contains(&"src/renamed.rs".to_string()));
+
+    let del_res: Value = serde_json::from_str(&engine.execute_studio_tool_json(
+        r#"{"name":"workspace_delete","arguments":{"path":"src/renamed.rs"}}"#,
+        "agent",
+    ))
+    .unwrap();
+    assert_eq!(del_res["status"], "ok");
+    assert!(!engine
+        .list_workspace()
+        .contains(&"src/renamed.rs".to_string()));
+
+    // workspace_rename and workspace_delete in plan mode must refuse cleanly
+    for op in [
+        r#"{"name":"workspace_rename","arguments":{"from":"src/engine.rs","to":"src/x.rs"}}"#,
+        r#"{"name":"workspace_delete","arguments":{"path":"src/engine.rs"}}"#,
+    ] {
+        let rej: Value =
+            serde_json::from_str(&engine.execute_studio_tool_json(op, "plan")).unwrap();
+        assert_eq!(rej["status"], "error");
+        assert_eq!(rej["error_code"], "RefusedPlanModeMutation");
+    }
+}
