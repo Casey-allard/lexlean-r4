@@ -6567,7 +6567,7 @@ fn is_sed_read_only(rest: &[&str]) -> bool {
                         }
                         break;
                     }
-                    'n' | 'E' | 'r' | 's' | 'u' | 'z' | 'l' => {}
+                    'n' | 'E' | 'r' | 's' | 'u' | 'z' => {}
                     _ => return false,
                 }
             }

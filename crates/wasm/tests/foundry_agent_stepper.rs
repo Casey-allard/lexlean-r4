@@ -1531,6 +1531,8 @@ fn test_plan_shell_hardening_workspace_mutations_and_chat_refusal_r4_60() {
         "sed -nf write.sed src/engine.rs",
         "sed -ne 'w out.txt' src/engine.rs",
         "sed --expression='w out.txt' src/engine.rs",
+        "sed -l 80 'w out.txt' src/engine.rs",
+        "sed -l 80 '1e rm -rf /workspace' src/engine.rs",
     ] {
         let raw = format!(
             "<tool_call>{}</tool_call>",
