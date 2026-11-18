@@ -2,10 +2,10 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2691,
+    "total_functions": 2692,
     "lifted": 1934,
     "effect": 250,
-    "foreign": 163,
+    "foreign": 164,
     "residue": 344
   },
   "rows": [
@@ -14164,7 +14164,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "e699e8fea654d2a74f2e6fa19b1daab73a24bc357a7def8d6bbfde571c3e437e",
+      "kappa": "e686e4800ee7383d29f9e5c3540098e2f886a38aa65673007ef3034f18056dc9",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::boot_with_cid",
       "status": "foreign",
       "foreign_crate": "sha2",
@@ -14317,7 +14317,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "219e09699484f403bd80cce60d7c120bfbb4c7769c990b8df462f3bd6798c94a",
+      "kappa": "340cfd2c04b638cc2280f399e92f604e8d5b613412cc8024ee2220b0d4f7adac",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_git_command",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -15019,7 +15019,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "08262bface332fcf1315c72d98cdce5a4e9e4cec38e0c017c848855eff4d6337",
+      "kappa": "059b68f97df368bed39bfb2ae0c719eb4bca9bb1a1109f3e0fd486c1f2e8733f",
       "function": "crates/wasm/src/mvm.rs::is_sandboxed_capability_host",
       "status": "lifted",
       "definition": "UORust.PureTotalExpr",
@@ -17097,7 +17097,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "540c72e4cac2429f71c7ad0ddef4465712d3de1d405b5d92191e68e864fca92c",
+      "kappa": "f2893d59e0517ae5ded5bf1859c1cc48044a0d0f02131f625c3d8375df3bbffe",
       "function": "public/app.js::drawHoloCanvasHeader",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -17274,7 +17274,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "f3b32527272106b76776be1f2df23fa98bae34aa1b5b4e3d4e84ff5b34857328",
+      "kappa": "c73f59e81925338cd20952bed2a99a14bbfedc08275e7306a64e7da79a2cd9bb",
       "function": "public/app.js::initObservatorySurface",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -17579,7 +17579,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "eccbdacfe4bb766b7552dc12df5baa281326003331d53f2deb5727beacc2fffb",
+      "kappa": "bb8ecb2f4533f5cd086540eb0c8300f48b0681fd45c16a7d2287bb70bae263dc",
       "function": "public/app.js::renderHoloObservatoryDeck",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18699,7 +18699,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "70ff0bb1b1c3c3b2732fcb09ba4d46def0eddacc43ffd95e24614ddba74304b6",
+      "kappa": "2ad36680cf6ba8a8c4420fbbe9adaa235678a64689b5f912e563ac0c49b660f3",
       "function": "xtask/src/main.rs::run_build_holo_cmd",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -18710,6 +18710,13 @@
       "function": "xtask/src/main.rs::validate",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "21a7fcb5c6658710adfcecd3c0dbb847a9dc0839aae69f761f915f7eefb1c062",
+      "function": "xtask/src/main.rs::verify_site_manifest_pins",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {

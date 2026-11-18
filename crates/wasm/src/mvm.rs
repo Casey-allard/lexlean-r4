@@ -220,19 +220,7 @@ pub const SANDBOXED_CAPABILITY_HOSTS: &[&str] = &[
 /// Return `true` when `host` matches the Prism `capabilities/1` `Sandboxed` allowlist (`R4-59`).
 pub fn is_sandboxed_capability_host(host: &str) -> bool {
     let lower = host.trim().trim_end_matches('.').to_ascii_lowercase();
-    matches!(
-        lower.as_str(),
-        "registry.npmjs.org"
-            | "esm.sh"
-            | "pypi.org"
-            | "files.pythonhosted.org"
-            | "cdn.jsdelivr.net"
-            | "github.com"
-            | "api.github.com"
-            | "huggingface.co"
-            | "cloudflare-dns.com"
-            | "dns.google"
-    )
+    SANDBOXED_CAPABILITY_HOSTS.iter().any(|&h| h == lower)
 }
 
 /// Return `true` when `host` is a loopback, RFC 1918, CGNAT, link-local, or internal SSRF target (`R4-59`).
@@ -790,7 +778,7 @@ impl MvmSandbox {
             last_exit_code: 0,
             workspace_sync_epoch: 0,
             workspace_diff_baseline: BTreeMap::new(),
-            network_gate_enforced: false,
+            network_gate_enforced: true,
             network_mode: NetworkGateMode::Sandboxed,
             relay_consent_granted: false,
             relay_ws_url: String::new(),
@@ -6074,8 +6062,45 @@ impl MvmSandbox {
                     }));
                 };
                 let mut state = self.load_git_state(&repo_root).unwrap();
-                let new_branch = words.iter().skip(2).find(|a| !a.starts_with('-')).cloned();
-                let Some(branch_name) = new_branch else {
+                let mut wants_list = false;
+                let mut positional = Vec::new();
+                for arg in words.iter().skip(2) {
+                    if arg.starts_with('-') {
+                        if matches!(
+                            arg.as_str(),
+                            "-a" | "--all" | "-l" | "--list" | "-v" | "-vv" | "-r" | "--remotes"
+                        ) {
+                            wants_list = true;
+                        } else {
+                            return Ok(MvmInteractiveOutcome::Completed(MvmExecOutcome {
+                                exit_code: 1,
+                                stdout: String::new(),
+                                stderr: format!(
+                                    "git branch: unsupported flag '{arg}'; use `git branch` to list or `git branch <new> [base]` to create\n"
+                                ),
+                                instructions_retired: 0,
+                                vsock_frames: Vec::new(),
+                                compiled_elf_machine: None,
+                                cow_state_sha256: self.cow_state_sha256(),
+                            }));
+                        }
+                    } else {
+                        positional.push(arg.clone());
+                    }
+                }
+                if wants_list && !positional.is_empty() {
+                    return Ok(MvmInteractiveOutcome::Completed(MvmExecOutcome {
+                        exit_code: 1,
+                        stdout: String::new(),
+                        stderr: "git branch: list flags cannot be combined with branch name\n"
+                            .to_string(),
+                        instructions_retired: 0,
+                        vsock_frames: Vec::new(),
+                        compiled_elf_machine: None,
+                        cow_state_sha256: self.cow_state_sha256(),
+                    }));
+                }
+                if wants_list || positional.is_empty() {
                     let mut out = format!("* {}\n", state.branch);
                     if let Some((redir, append)) = redirect {
                         self.write_redirected_bytes(
@@ -6097,11 +6122,13 @@ impl MvmSandbox {
                         compiled_elf_machine: None,
                         cow_state_sha256: self.cow_state_sha256(),
                     }));
-                };
+                }
+                let branch_name = positional[0].clone();
+                let requested_base = positional.get(1).cloned();
                 if let Some(ref repo_url) = state.remote_url {
                     let (auth_placeholder, secret_verified) =
                         self.admit_git_remote_request(repo_url)?;
-                    let base_branch = state.branch.clone();
+                    let base_branch = requested_base.unwrap_or_else(|| state.branch.clone());
                     let req_id = self.next_bridge_req_id("mvm-git-branch");
                     let bridge_req = serde_json::json!({
                         "req_id": req_id,

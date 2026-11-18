@@ -277,6 +277,245 @@ async function testCorsDirectGithubGitDataAndDohSsrf() {
   assert.equal(rebindBlocked.ok, false);
   assert.equal(rebindBlocked.error_code, 'PrivateAddressBlocked');
 
+  // 2c. Full Round 1 negative/edge transport coverage:
+  //     DoHResolutionFailed, RelayUnavailable, web_search gating+relay failback,
+  //     npm tarball SSRF blocking, pip consent gating, handlePkgFetch SSRF blocking,
+  //     #githubRestJson consent, create_branch base_branch honor, and watch_deploy error propagation
+  const mockFetchNoDoh = async () => {
+    throw new TypeError('Failed to fetch (DoH unreachable)');
+  };
+  const dohFailBridge = new SpiralCoreHostBridge({
+    fetchImpl: mockFetchNoDoh,
+    mode: 'sandboxed',
+    relayWsUrl: '',
+  });
+  const dohFail = await dohFailBridge.execute({ op: 'dns_query', name: 'example.org', rr_type: 'A' });
+  assert.equal(dohFail.ok, false);
+  assert.equal(dohFail.error_code, 'DoHResolutionFailed');
+
+  const unreachRelayHttpBridge = new SpiralCoreHostBridge({
+    fetchImpl: mockFetchNoDoh,
+    mode: 'full_spiralcore',
+    consentGranted: true,
+    relayWsUrl: '',
+    relayHttpUrl: '',
+  });
+  const unavailHttp = await unreachRelayHttpBridge.execute({ op: 'http_request', url: 'https://example.com/down' });
+  assert.equal(unavailHttp.ok, false);
+  assert.equal(unavailHttp.error_code, 'RelayUnavailable');
+
+  let dnsRelayServerHits = 0;
+  const dnsRelayHandle = await startLocalRelay({
+    port: 0,
+    host: '127.0.0.1',
+    fetchImpl: async (url) => {
+      dnsRelayServerHits += 1;
+      const u = new URL(String(url));
+      if (u.hostname === 'cloudflare-dns.com') {
+        return new Response(JSON.stringify({ Status: 0, Answer: [{ name: 'relay-only.org', type: 1, TTL: 60, data: '93.184.216.34' }] }), {
+          status: 200,
+          headers: { 'content-type': 'application/dns-json' },
+        });
+      }
+      if (u.hostname === 'api.duckduckgo.com') {
+        return new Response(JSON.stringify({ Heading: 'SpiralSearch', AbstractText: 'SpiralCore relay search hit', AbstractURL: 'https://example.org/search' }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      throw new Error(`Unexpected relay fetch: ${url}`);
+    },
+  });
+  try {
+    const dnsRelayUrl = `ws://127.0.0.1:${dnsRelayHandle.port}/spvs`;
+    const dnsRelayBridge = new SpiralCoreHostBridge({
+      fetchImpl: mockFetchNoDoh,
+      mode: 'full_spiralcore',
+      consentGranted: true,
+      relayWsUrl: dnsRelayUrl,
+    });
+    const dnsRelayed = await dnsRelayBridge.execute({ op: 'dns_query', name: 'relay-only.org', rr_type: 'A' });
+    assert.equal(dnsRelayed.ok, true, `expected dns_query relay failback: ${JSON.stringify(dnsRelayed)}`);
+    assert.equal(dnsRelayed.answers[0].data, '93.184.216.34');
+    assert.ok(dnsRelayServerHits >= 1);
+
+    const searchAudit = [];
+    const sandboxedSearchBridge = new SpiralCoreHostBridge({
+      fetchImpl: async () => new Response('{}', { status: 200 }),
+      mode: 'sandboxed',
+      onAuditEvent: (ev) => searchAudit.push(ev),
+    });
+    const sandboxSearchDenied = await sandboxedSearchBridge.execute({ op: 'web_search', query: 'prism uor' });
+    assert.equal(sandboxSearchDenied.ok, false);
+    assert.equal(sandboxSearchDenied.error_code, 'CapabilityDenied');
+
+    const unconsentedSearchBridge = new SpiralCoreHostBridge({
+      fetchImpl: async () => new Response('{}', { status: 200 }),
+      mode: 'full_spiralcore',
+      consentGranted: false,
+    });
+    const unconsentedSearch = await unconsentedSearchBridge.execute({ op: 'web_search', query: 'prism uor' });
+    assert.equal(unconsentedSearch.ok, false);
+    assert.equal(unconsentedSearch.error_code, 'RelayConsentRequired');
+
+    const fullSearchBridge = new SpiralCoreHostBridge({
+      fetchImpl: async (url) => {
+        const u = new URL(String(url));
+        if (u.hostname === 'api.duckduckgo.com') {
+          return new Response(JSON.stringify({ Heading: 'UOR', AbstractText: 'Pure integer web search', AbstractURL: 'https://uor.foundation/docs' }), { status: 200 });
+        }
+        return new Response('{}', { status: 404 });
+      },
+      mode: 'full_spiralcore',
+      consentGranted: true,
+      onAuditEvent: (ev) => searchAudit.push(ev),
+    });
+    const searchOk = await fullSearchBridge.execute({ op: 'web_search', query: 'prism uor' });
+    assert.equal(searchOk.ok, true);
+    assert.ok(searchOk.results.some((r) => r.url === 'https://uor.foundation/docs'));
+    assert.ok(searchAudit.some((e) => e.operation === 'web_search'));
+
+    const searchRelayBridge = new SpiralCoreHostBridge({
+      fetchImpl: mockFetchNoDoh,
+      mode: 'full_spiralcore',
+      consentGranted: true,
+      relayWsUrl: dnsRelayUrl,
+    });
+    const relayedSearch = await searchRelayBridge.execute({ op: 'web_search', query: 'prism uor' });
+    assert.equal(relayedSearch.ok, true, `expected web_search relay failback: ${JSON.stringify(relayedSearch)}`);
+    assert.ok(relayedSearch.results.length >= 1);
+    dnsRelayBridge.close();
+    searchRelayBridge.close();
+  } finally {
+    await dnsRelayHandle.close();
+  }
+
+  const npmAudit = [];
+  const ssrfTarballBridge = new SpiralCoreHostBridge({
+    mode: 'sandboxed',
+    onAuditEvent: (ev) => npmAudit.push(ev),
+    fetchImpl: async (url) => {
+      const u = new URL(String(url));
+      if (u.hostname === 'registry.npmjs.org') {
+        return new Response(JSON.stringify({
+          name: 'evil-pkg',
+          'dist-tags': { latest: '1.0.0' },
+          versions: {
+            '1.0.0': {
+              dist: { tarball: 'https://169.254.169.254/evil.tgz', integrity: 'sha512-abc' },
+            },
+          },
+        }), { status: 200 });
+      }
+      throw new Error(`Unexpected fetch ${url}`);
+    },
+  });
+  const npmSsrf = await ssrfTarballBridge.execute({
+    op: 'npm_install',
+    kind: 'npm_install',
+    tool: 'npm',
+    args: ['install', 'evil-pkg'],
+    cwd: '/workspace',
+    workspace: [],
+  });
+  assert.equal(npmSsrf.ok, false);
+  assert.equal(npmSsrf.error_code, 'PrivateAddressBlocked');
+  assert.ok(npmAudit.some((e) => e.target.includes('registry.npmjs.org')));
+
+  const pyFakeMod = Buffer.from('export async function loadPyodide(){return{FS:{mkdirTree(){},readdir(){return[]},unlink(){},writeFile(){}},runPythonAsync:async()=>"",loadPackage:async()=>{}};}', 'utf8');
+  const pipSri = 'sha384-' + crypto.createHash('sha384').update(pyFakeMod).digest('base64');
+  const pipConsentBridge = new SpiralCoreHostBridge({
+    mode: 'full_spiralcore',
+    consentGranted: false,
+    fetchImpl: async () => { throw new Error('must not fetch before consent check'); },
+    pyodideLock: { version: '0.27.2', url: 'https://cdn.jsdelivr.net/pyodide/test/py.mjs', sri: pipSri },
+  });
+  const pipNoConsentDenied = await pipConsentBridge.execute({ op: 'pip_install', kind: 'pip_install', tool: 'pip', args: ['install', 'rich'], cwd: '/workspace', workspace: [] });
+  assert.equal(pipNoConsentDenied.ok, false);
+  assert.equal(pipNoConsentDenied.error_code, 'RelayConsentRequired');
+
+  const pipAudit = [];
+  const pipFetchBridge = new SpiralCoreHostBridge({
+    mode: 'full_spiralcore',
+    consentGranted: true,
+    onAuditEvent: (ev) => pipAudit.push(ev),
+    pyodideLock: { version: '0.27.2', url: 'https://cdn.jsdelivr.net/pyodide/test/py.mjs', sri: pipSri },
+    fetchImpl: async (url) => {
+      if (String(url).includes('cdn.jsdelivr.net')) return new Response(pyFakeMod, { status: 200 });
+      if (String(url).includes('pypi.org/pypi/rich/json')) return new Response(JSON.stringify({ info: { name: 'rich' } }), { status: 200 });
+      throw new Error(`Unexpected fetch ${url}`);
+    },
+  });
+  const pipOk = await pipFetchBridge.execute({ op: 'pip_install', kind: 'pip_install', tool: 'pip', args: ['install', 'rich'], cwd: '/workspace', workspace: [] });
+  assert.equal(pipOk.ok, true);
+  assert.ok(pipAudit.some((e) => e.target.includes('pypi.org/pypi/rich/json')));
+
+  const pkgAudit = [];
+  const pkgSsrfBridge = new SpiralCoreHostBridge({
+    mode: 'sandboxed',
+    staticOrigin: 'https://169.254.169.254',
+    onAuditEvent: (ev) => pkgAudit.push(ev),
+    fetchImpl: async (url) => {
+      const u = new URL(String(url));
+      if (u.hostname === '169.254.169.254') {
+        throw new Error('SSRF target 169.254.169.254 must never be fetched without allowConfiguredOrigin or in http_request; testing custom pkg URL');
+      }
+      return new Response(JSON.stringify({ packages: [{ name: 'jq', url: 'https://169.254.169.254/jq.elf' }] }), { status: 200 });
+    },
+  });
+  const pkgDenied = await pkgSsrfBridge.execute({
+    op: 'pkg_fetch',
+    subcommand: 'install',
+    pkg_name: 'jq',
+    url: 'https://evil.example.com/jq.elf',
+  });
+  assert.equal(pkgDenied.ok, false);
+  assert.equal(pkgDenied.error_code, 'CapabilityDenied');
+
+  const unconsentedGhBridge = new SpiralCoreHostBridge({
+    mode: 'full_spiralcore',
+    consentGranted: false,
+    fetchImpl: mockFetch,
+  });
+  const ghNoConsent = await unconsentedGhBridge.execute({ op: 'git', subcommand: 'connect', repo: 'uor-test/demo' });
+  assert.equal(ghNoConsent.ok, false);
+  assert.equal(ghNoConsent.error_code, 'RelayConsentRequired');
+
+  let fetchedBaseRefPath = '';
+  const baseBranchBridge = new SpiralCoreHostBridge({
+    mode: 'sandboxed',
+    fetchImpl: async (url, init = {}) => {
+      const u = new URL(String(url));
+      if (u.pathname.includes('/git/ref/heads/')) fetchedBaseRefPath = u.pathname;
+      if (u.pathname === '/repos/uor-test/demo/git/ref/heads/release/v1') {
+        return new Response(JSON.stringify({ ref: 'refs/heads/release/v1', object: { sha: 'rel_v1_sha' } }), { status: 200 });
+      }
+      if (u.pathname === '/repos/uor-test/demo/git/refs' && init.method === 'POST') {
+        return new Response(JSON.stringify({ ref: 'refs/heads/feat/from-rel', object: { sha: 'rel_v1_sha' } }), { status: 201 });
+      }
+      throw new Error(`Unexpected branch fetch ${u.pathname}`);
+    },
+  });
+  baseBranchBridge.setSecret('GITHUB_TOKEN', 'ghp_base_branch_pat');
+  const brBase = await baseBranchBridge.execute({
+    op: 'git_smart_http',
+    subcommand: 'create_branch',
+    repo_url: 'https://github.com/uor-test/demo.git',
+    branch: 'feat/from-rel',
+    base_branch: 'release/v1',
+  });
+  assert.equal(brBase.ok, true, `create_branch base_branch failed: ${JSON.stringify(brBase)}`);
+  assert.equal(fetchedBaseRefPath, '/repos/uor-test/demo/git/ref/heads/release/v1');
+  assert.equal(brBase.from_branch, 'release/v1');
+
+  const watchCorsErrBridge = new SpiralCoreHostBridge({
+    mode: 'sandboxed',
+    fetchImpl: async () => { throw new TypeError('Failed to fetch (simulated api.github.com CORS error)'); },
+  });
+  const watchErr = await watchCorsErrBridge.execute({ op: 'git', subcommand: 'watch_deploy', repo: 'uor-test/demo' });
+  assert.equal(watchErr.ok, false, 'watch_deploy must propagate RelayForbiddenForCredentialedHost rather than swallowing as unconfigured');
+  assert.equal(watchErr.error_code, 'RelayForbiddenForCredentialedHost');
+
   console.log('  ✓ CORS-direct GitHub REST + Git Data APIs and RFC 8484 DoH + SSRF CIDR blocking verified.');
 }
 
@@ -387,6 +626,9 @@ async function testObservatoryChromelessHandshakeAndRender() {
     origin: 'null',
     parent: parentWin,
     location: { search: '?surface=observatory', hash: '', href: 'holo://lexlean-r4/?surface=observatory' },
+    getComputedStyle: () => ({
+      getPropertyValue: (name) => docEl.style.props[name] || '',
+    }),
     addEventListener: (t, fn) => { (winListeners[t] ||= []).push(fn); },
   };
   const mockDocument = {
@@ -424,10 +666,26 @@ async function testObservatoryChromelessHandshakeAndRender() {
   const readyMsg = postedToParent.find((x) => x.msg?.protocol === 'uor-observatory/1' && x.msg?.op === 'ready');
   assert.ok(readyMsg, 'Must post { protocol: "uor-observatory/1", op: "ready" } to window.parent');
 
+  // Foreign non-parent postMessage MUST be ignored (source verification)
+  const foreignWin = { postMessage() {} };
+  for (const fn of winListeners.message || []) {
+    await fn({
+      origin: 'null',
+      source: foreignWin,
+      data: {
+        protocol: 'uor-observatory/1',
+        op: 'theme',
+        vars: { '--background': '#ff0000' },
+      },
+    });
+  }
+  assert.equal(docEl.style.props['--background'], undefined, 'Foreign postMessage source must be ignored');
+
   // Send theme + observatory frame messages from parent into opaque sandbox
   for (const fn of winListeners.message || []) {
     await fn({
       origin: 'null',
+      source: parentWin,
       data: {
         protocol: 'uor-observatory/1',
         op: 'theme',
@@ -443,6 +701,7 @@ async function testObservatoryChromelessHandshakeAndRender() {
     });
     await fn({
       origin: 'null',
+      source: parentWin,
       data: {
         protocol: 'uor-observatory/1',
         op: obsKey,

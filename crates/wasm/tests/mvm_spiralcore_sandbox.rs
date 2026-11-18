@@ -1542,11 +1542,8 @@ fn test_prism_capabilities_network_gate_and_spiralcore_failback_r4_59() {
 
     let mut vm = MvmSandbox::boot_default().expect("boot MVM");
 
-    // 2. Sandboxed mode (capabilities/1): allowlisted host succeeds -> NeedsBridge, non-allowlisted -> CapabilityDenied
-    vm.network_gate_enforced = true;
-    vm.network_mode = NetworkGateMode::Sandboxed;
-    vm.relay_consent_granted = false;
-    vm.relay_ws_url.clear();
+    // 2. Sandboxed mode (capabilities/1) MUST be armed by default from boot:
+    //    allowlisted host succeeds -> NeedsBridge, non-allowlisted -> CapabilityDenied
     let allowed_curl = vm
         .exec_interactive("curl https://registry.npmjs.org/zod", Some("/workspace"))
         .expect("allowlisted curl must emit NeedsBridge");
@@ -1621,6 +1618,154 @@ fn test_prism_capabilities_network_gate_and_spiralcore_failback_r4_59() {
         relay_blocked,
         MvmError::BridgeRejected(BridgeError::RelayForbiddenForCredentialedHost)
     );
+
+    // Verify all 6 R4-59 complete_bridge error codes map accurately
+    for (err_code, err_msg, expected_err) in [
+        (
+            "CapabilityDenied",
+            "blocked by capabilities/1",
+            BridgeError::CapabilityDenied("example.org".to_string()),
+        ),
+        (
+            "RelayConsentRequired",
+            "consent needed",
+            BridgeError::RelayConsentRequired,
+        ),
+        (
+            "RelayForbiddenForCredentialedHost",
+            "credentialed",
+            BridgeError::RelayForbiddenForCredentialedHost,
+        ),
+        (
+            "PrivateAddressBlocked",
+            "169.254.169.254",
+            BridgeError::PrivateAddressBlocked("169.254.169.254".to_string()),
+        ),
+        (
+            "DoHResolutionFailed",
+            "doh timeout",
+            BridgeError::DoHResolutionFailed("doh timeout".to_string()),
+        ),
+        (
+            "RelayUnavailable",
+            "ws refused",
+            BridgeError::RelayUnavailable("ws refused".to_string()),
+        ),
+    ] {
+        let mut resp = serde_json::json!({
+            "ok": false,
+            "error_code": err_code,
+            "message": err_msg,
+        });
+        if err_code == "CapabilityDenied" {
+            resp["host"] = serde_json::json!("example.org");
+        } else if err_code == "PrivateAddressBlocked" {
+            resp["host"] = serde_json::json!("169.254.169.254");
+        }
+        let mapped = vm
+            .complete_bridge(&full_curl.resume_state, &resp)
+            .expect_err("complete_bridge must reject typed error_code");
+        assert_eq!(mapped, MvmError::BridgeRejected(expected_err));
+    }
+
+    // 4b. MVM `git branch` flags vs `<new> <base>` and `git pr` end-to-end
+    let clone_pend = match vm
+        .exec_interactive(
+            "git clone https://github.com/uor-test/demo.git",
+            Some("/workspace"),
+        )
+        .expect("git clone github.com")
+    {
+        MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge, got {other:?}"),
+    };
+    let _ = vm
+        .complete_bridge(
+            &clone_pend.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "data": { "branch": "main", "files": [{ "path": "README.md", "content": "# Demo\n" }] }
+            }),
+        )
+        .expect("complete demo clone");
+
+    let list_flag = match vm
+        .exec_interactive("git branch -a", Some("/workspace/demo"))
+        .expect("git branch -a must complete locally")
+    {
+        MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected local Completed for git branch -a, got {other:?}"),
+    };
+    assert!(list_flag.stdout.contains("* main"));
+
+    let del_flag = match vm
+        .exec_interactive("git branch -D stale", Some("/workspace/demo"))
+        .expect("git branch -D must refuse unsupported deletion rather than creating a branch")
+    {
+        MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed refusal for git branch -D, got {other:?}"),
+    };
+    assert_ne!(del_flag.exit_code, 0);
+
+    let br_pend = match vm
+        .exec_interactive(
+            "git branch feat/from-base release/v1",
+            Some("/workspace/demo"),
+        )
+        .expect("git branch with base emits NeedsBridge")
+    {
+        MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for git branch <new> <base>, got {other:?}"),
+    };
+    assert_eq!(br_pend.bridge_req["subcommand"], "create_branch");
+    assert_eq!(br_pend.bridge_req["branch"], "feat/from-base");
+    assert_eq!(br_pend.bridge_req["base_branch"], "release/v1");
+    let br_done = match vm
+        .complete_bridge(
+            &br_pend.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "data": { "branch": "feat/from-base", "sha": "abc1234567890" }
+            }),
+        )
+        .expect("complete create_branch")
+    {
+        MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed for create_branch, got {other:?}"),
+    };
+    assert!(br_done.stdout.contains("feat/from-base"));
+
+    let pr_pend = match vm
+        .exec_interactive(
+            "git pr create --title \"Fix R4-59\" --head feat/from-base --base release/v1 --body \"Details\"",
+            Some("/workspace/demo"),
+        )
+        .expect("git pr emits NeedsBridge")
+    {
+        MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for git pr, got {other:?}"),
+    };
+    assert_eq!(pr_pend.bridge_req["subcommand"], "create_pr");
+    assert_eq!(pr_pend.bridge_req["head"], "feat/from-base");
+    assert_eq!(pr_pend.bridge_req["base"], "release/v1");
+    assert_eq!(pr_pend.bridge_req["title"], "Fix R4-59");
+    let pr_done = match vm
+        .complete_bridge(
+            &pr_pend.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "data": { "pr_number": 42, "html_url": "https://github.com/uor-test/demo/pull/42" }
+            }),
+        )
+        .expect("complete create_pr")
+    {
+        MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed for create_pr, got {other:?}"),
+    };
+    assert!(pr_done.stdout.contains("#42"));
+    assert!(pr_done
+        .stdout
+        .contains("https://github.com/uor-test/demo/pull/42"));
 
     // 5. `host` command emits dns_query NeedsBridge and resumes cleanly
     let host_pending = match vm

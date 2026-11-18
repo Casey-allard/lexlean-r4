@@ -370,22 +370,15 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
     } else if verify_site {
         let raw = std::fs::read_to_string(&site_manifest_path)?;
         let doc: serde_json::Value = serde_json::from_str(&raw)?;
-        let expected_fp = doc["fingerprint"].as_str().unwrap_or("");
-        if expected_fp != summary.fingerprint {
-            return Err(format!(
-                "site/app.json fingerprint mismatch: site/app.json={} compiled={}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`",
-                expected_fp, summary.fingerprint
-            )
-            .into());
-        }
-        if let Some(expected_wasm) = doc.get("wasmSha256").and_then(|v| v.as_str()) {
-            if expected_wasm != wasm_sha256 {
-                return Err(format!(
-                    "site/app.json wasmSha256 mismatch: site/app.json={expected_wasm} live={wasm_sha256}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`"
-                )
-                .into());
-            }
-        }
+        verify_site_manifest_pins(
+            &doc,
+            &summary.fingerprint,
+            &wasm_sha256,
+            &summary.archive_kappa,
+            summary.byte_length,
+            &qwen3_weights_kappa,
+            &offline_q31_kappa,
+        )?;
     }
 
     println!(
@@ -398,4 +391,102 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
         summary.view_file_count,
     );
     Ok(())
+}
+
+fn verify_site_manifest_pins(
+    doc: &serde_json::Value,
+    expected_fp: &str,
+    expected_wasm_sha: &str,
+    expected_archive_kappa: &str,
+    expected_byte_len: usize,
+    expected_qwen3_kappa: &str,
+    expected_q31_kappa: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let expected_fp_url =
+        format!("https://casey-allard.github.io/lexlean-r4/holo/{expected_fp}.holo");
+    let string_pins = [
+        ("fingerprint", expected_fp),
+        ("wasmSha256", expected_wasm_sha),
+        ("archiveKappa", expected_archive_kappa),
+        ("holoFingerprintUrl", expected_fp_url.as_str()),
+        ("qwen3WeightsKappa", expected_qwen3_kappa),
+        ("offlineQ31WeightsKappa", expected_q31_kappa),
+    ];
+    for (field, expected) in string_pins {
+        let actual = doc.get(field).and_then(|v| v.as_str()).unwrap_or("");
+        if actual != expected {
+            return Err(format!(
+                "site/app.json {field} mismatch: site/app.json={actual} compiled={expected}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`"
+            )
+            .into());
+        }
+    }
+    let actual_bytes = doc
+        .get("holoByteLength")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(0);
+    if actual_bytes != expected_byte_len as u64 {
+        return Err(format!(
+            "site/app.json holoByteLength mismatch: site/app.json={actual_bytes} compiled={expected_byte_len}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`"
+        )
+        .into());
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::verify_site_manifest_pins;
+
+    #[test]
+    fn verify_site_manifest_rejects_mismatched_pins() {
+        let fp = "a".repeat(64);
+        let fp_url = format!("https://casey-allard.github.io/lexlean-r4/holo/{fp}.holo");
+        let base = serde_json::json!({
+            "fingerprint": fp,
+            "wasmSha256": "b".repeat(64),
+            "archiveKappa": "sha256:archive",
+            "holoByteLength": 12345_u64,
+            "holoFingerprintUrl": fp_url,
+            "qwen3WeightsKappa": "sha256:qwen3",
+            "offlineQ31WeightsKappa": "sha256:q31",
+        });
+        verify_site_manifest_pins(
+            &base,
+            &fp,
+            &"b".repeat(64),
+            "sha256:archive",
+            12345,
+            "sha256:qwen3",
+            "sha256:q31",
+        )
+        .expect("matching pins verify cleanly");
+
+        for (field, bad_val) in [
+            ("fingerprint", serde_json::json!("bad")),
+            ("wasmSha256", serde_json::json!("bad")),
+            ("archiveKappa", serde_json::json!("sha256:bad")),
+            ("holoByteLength", serde_json::json!(999_u64)),
+            ("holoFingerprintUrl", serde_json::json!("https://wrong")),
+            ("qwen3WeightsKappa", serde_json::json!("sha256:bad")),
+            ("offlineQ31WeightsKappa", serde_json::json!("sha256:bad")),
+        ] {
+            let mut mutated = base.clone();
+            mutated[field] = bad_val;
+            let err = verify_site_manifest_pins(
+                &mutated,
+                &fp,
+                &"b".repeat(64),
+                "sha256:archive",
+                12345,
+                "sha256:qwen3",
+                "sha256:q31",
+            )
+            .expect_err("mismatched pin must be rejected");
+            assert!(
+                err.to_string().contains(field),
+                "expected field {field} in diagnostic: {err}"
+            );
+        }
+    }
 }

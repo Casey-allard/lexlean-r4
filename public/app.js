@@ -4956,6 +4956,7 @@ const holoObservatoryState = {
   directTokPerSec: null,
   directTokensEmitted: 0,
   lastSnapshot: null,
+  theme: null,
 };
 
 function renderTelosSelfImproveStatus(res) {
@@ -5032,21 +5033,42 @@ function ingestHoloObservatoryFrame(frame, batchMeta = null) {
 
 function drawHoloCanvasHeader(ctx, w, h, subtitle) {
   /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  const t = holoObservatoryState.theme;
+  const bg = (t && t.bg) || '#05070c';
+  const border = (t && t.border) || 'rgba(56, 189, 248, 0.14)';
+  const fg = (t && t.fg) || '#94a3b8';
+  const mono = (t && t.mono) || 'ui-monospace, Menlo, monospace';
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#05070c';
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, w, h);
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
+  ctx.strokeStyle = border;
   ctx.lineWidth = 1;
   ctx.strokeRect(0.5, 0.5, w - 1, h - 1);
   if (subtitle) {
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '10px ui-monospace, Menlo, monospace';
+    ctx.fillStyle = fg;
+    ctx.font = `10px ${mono}`;
     ctx.fillText(subtitle, 10, 15);
   }
 }
 
 function renderHoloObservatoryDeck() {
   /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  if (
+    typeof window !== 'undefined' &&
+    typeof window.getComputedStyle === 'function' &&
+    typeof document !== 'undefined' &&
+    document.documentElement
+  ) {
+    const cs = window.getComputedStyle(document.documentElement);
+    if (cs && typeof cs.getPropertyValue === 'function') {
+      holoObservatoryState.theme = {
+        bg: cs.getPropertyValue('--card').trim(),
+        border: cs.getPropertyValue('--border').trim(),
+        fg: cs.getPropertyValue('--foreground').trim(),
+        mono: cs.getPropertyValue('--font-mono').trim(),
+      };
+    }
+  }
   const latest = holoObservatoryState.frames[holoObservatoryState.frames.length - 1] || null;
   const geom = holoObservatoryState.storageGeom;
   const snap = holoObservatoryState.lastSnapshot || null;
@@ -13966,6 +13988,7 @@ function initObservatorySurface() {
         style.setProperty(k, v);
       }
     }
+    renderHoloObservatoryDeck();
   };
 
   const applySnapshotPayload = (snap) => {
@@ -13994,6 +14017,9 @@ function initObservatorySurface() {
 
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
     window.addEventListener('message', (ev) => {
+      if (typeof window !== 'undefined' && window.parent && ev && ev.source && ev.source !== window.parent) {
+        return;
+      }
       const msg = ev && ev.data ? ev.data : {};
       if (!msg || typeof msg !== 'object' || msg.protocol !== 'uor-observatory/1') return;
       if (msg.op === 'theme') {

@@ -12146,7 +12146,15 @@ mod tests {
         assert_eq!(clear_res["status"], "ok");
         assert_eq!(clear_res["configured"], false);
 
+        let gitlab_denied_raw = engine.mvm_exec_json("git clone https://gitlab.com/org/public.git");
+        let gitlab_denied: serde_json::Value =
+            serde_json::from_str(&gitlab_denied_raw).expect("gitlab sandboxed json");
+        assert_eq!(gitlab_denied["status"], "error");
+        assert_eq!(gitlab_denied["error_code"], "CapabilityDenied");
+
+        let _ = engine.mvm_set_policy_json(r#"{"mode":"full_spiralcore","consentGranted":true}"#);
         let gitlab_clone_raw = engine.mvm_exec_json("git clone https://gitlab.com/org/public.git");
+        let _ = engine.mvm_set_policy_json(r#"{"mode":"sandboxed","consentGranted":false}"#);
         let gitlab_clone: serde_json::Value =
             serde_json::from_str(&gitlab_clone_raw).expect("gitlab clone json");
         assert_eq!(gitlab_clone["status"], "needs_bridge");
@@ -12538,7 +12546,9 @@ mod tests {
         // 2. Policy `confirm` admits `https://` `web_search` with `"policy": "confirm"`,
         //    rejects cleartext `http://` `web_fetch` with `[InsecureTransportRejected]`,
         //    and `chat_complete_bridge_json` propagates `ok: false` as `"status": "error"`.
-        let _ = engine.mvm_set_policy_json("confirm");
+        let _ = engine.mvm_set_policy_json(
+            r#"{"policy":"confirm","mode":"full_spiralcore","consentGranted":true}"#,
+        );
         let cleartext_fetch = engine
             .try_execute_v10_tool_call(
                 "fetch http://example.com",
@@ -12725,6 +12735,9 @@ mod tests {
 
             // 6. `Search the web for WebAssembly Relaxed SIMD browser support.`
             //    (`web_search` `<tool_call>` + Step-2 `<tool_response>` summary containing `"Chrome 114+"`)
+            // Explicitly opt into Mode B (full_spiralcore + consent) for non-allowlisted web_fetch (`example.com`).
+            let _ =
+                engine.mvm_set_policy_json(r#"{"mode":"full_spiralcore","consentGranted":true}"#);
             engine.chat_history.clear();
             engine.pending_chat_bridge = None;
             let ws_raw = engine.chat_assistant_json(
@@ -12829,6 +12842,7 @@ mod tests {
             }
 
             // 9. Security (`R5`): `policy = deny` blocks `web_search` with `PolicyDenied`
+            let _ = engine.mvm_set_policy_json(r#"{"mode":"sandboxed","consentGranted":false}"#);
             engine.chat_history.clear();
             engine.pending_chat_bridge = None;
             let _ = engine.mvm_set_policy_json("deny");
