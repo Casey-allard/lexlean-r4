@@ -4352,3 +4352,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f276_pointkey_resonance"
 statement = "Verify compact PointKey paraphrase routing for conversational stems ination and host at manifold row 7925."
 prompt = "How does PointKey routing resolve conversational prompts about ination and host?"
 target_reply = "PointKey routing matches conversational stems ination and host directly to their canonical reply anchor without token loops."
+
+[[claim]]
+id = "R4-F277"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.23229:H-LIT-2611.23229-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f277_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.23229 (Ambient LLMs: Data-Efficient Supervised Fine-tuning via Temperature Matching)."
+prompt = "How does this literature catalog entry relate to language model alignment?"
+target_reply = "The cited research demonstrates that direct preference optimization aligns language models directly without a separate reward model."
