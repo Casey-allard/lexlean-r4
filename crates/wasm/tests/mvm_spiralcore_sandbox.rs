@@ -1898,3 +1898,83 @@ fn test_prism_capabilities_network_gate_and_spiralcore_failback_r4_59() {
         "offlineQ31WeightsKappa must be populated deterministically on native-q31-d85 step"
     );
 }
+
+#[test]
+fn test_opfs_cow_import_preserves_user_workspace_on_reboot_r4_60() {
+    let custom_clock = "pub fn user_clock_tick(n: u64) -> u64 { n.wrapping_add(1) }\n";
+
+    // 1. Instance-level reboot: write custom /workspace/src/user_clock.rs into MVM, export MVM_COW1,
+    //    boot a fresh StudioEngine::new_default() (which seeds default starter files), import_cow_sectors,
+    //    and verify sync_workspace_from_mvm surfaces src/user_clock.rs and removes seeded starter toy files.
+    let mut engine_a = StudioEngine::new_default();
+    let write_res: serde_json::Value = serde_json::from_str(&engine_a.mvm_exec_json(
+        "printf 'pub fn user_clock_tick(n: u64) -> u64 { n.wrapping_add(1) }\\n' > /workspace/src/user_clock.rs",
+    ))
+    .expect("mvm write user_clock.rs");
+    assert_eq!(write_res["status"], "ok");
+    assert_eq!(write_res["exit_code"], 0);
+
+    let cow_bytes = engine_a.export_cow_sectors();
+    assert!(cow_bytes.starts_with(b"MVM_COW1"));
+
+    let mut engine_b = StudioEngine::new_default();
+    assert!(
+        engine_b
+            .list_workspace()
+            .contains(&"src/attention.rs".to_string()),
+        "fresh StudioEngine::new_default must start with seeded starter files"
+    );
+
+    let import_ack: serde_json::Value =
+        serde_json::from_str(&engine_b.import_cow_sectors(&cow_bytes)).expect("import_cow_sectors");
+    assert_eq!(import_ack["status"], "ok");
+
+    engine_b.sync_workspace_from_mvm();
+    let files_after = engine_b.list_workspace();
+    assert!(
+        files_after.contains(&"src/user_clock.rs".to_string()),
+        "restored workspace must surface persisted src/user_clock.rs, got: {files_after:?}"
+    );
+    assert!(
+        !files_after.contains(&"src/attention.rs".to_string()),
+        "seeded starter toy files must be removed when OPFS MVM_COW1 already holds user files, got: {files_after:?}"
+    );
+    let read_clock: serde_json::Value =
+        serde_json::from_str(&engine_b.workspace_read_json("src/user_clock.rs")).expect("read");
+    assert_eq!(read_clock["status"], "ok");
+    assert_eq!(read_clock["content"], custom_clock);
+
+    // 2. #[wasm_bindgen] OPFS boot path: export -> studio reset -> studio_import_mvm_cow_sectors -> workspace_list
+    let _guard = STUDIO_GLOBAL_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let _ = studio_dispatch("1\tstudio\treset\t");
+    let global_write: serde_json::Value = serde_json::from_str(&studio_dispatch(
+        r#"1	studio	mvm_exec	{"cmd":"printf 'pub fn user_clock_tick(n: u64) -> u64 { n.wrapping_add(1) }\\n' > /workspace/src/user_clock.rs"}"#,
+    ))
+    .expect("global mvm write");
+    assert_eq!(global_write["status"], "ok");
+    let global_cow = studio_export_mvm_cow_sectors();
+
+    let _ = studio_dispatch("1\tstudio\treset\t");
+    let global_import: serde_json::Value =
+        serde_json::from_str(&studio_import_mvm_cow_sectors(&global_cow))
+            .expect("studio_import_mvm_cow_sectors");
+    assert_eq!(global_import["status"], "ok");
+
+    let ws_list: serde_json::Value =
+        serde_json::from_str(&studio_dispatch("1\tstudio\tworkspace_list\t"))
+            .expect("workspace_list after OPFS import");
+    let paths: Vec<&str> = ws_list["files"]
+        .as_array()
+        .expect("files array")
+        .iter()
+        .filter_map(|f| f["path"].as_str())
+        .collect();
+    assert!(
+        paths.contains(&"src/user_clock.rs"),
+        "studio_import_mvm_cow_sectors must surface src/user_clock.rs, got: {paths:?}"
+    );
+    assert!(
+        !paths.contains(&"src/attention.rs"),
+        "studio_import_mvm_cow_sectors must drop seeded starter toy files, got: {paths:?}"
+    );
+}

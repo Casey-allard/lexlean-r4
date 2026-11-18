@@ -21,9 +21,17 @@ use wasm_bindgen::prelude::*;
 pub mod api;
 mod assistant;
 pub use assistant::{
-    format_foundry_system_prompt, FoundryToolResult, FoundryTurnSession, FoundryWorkspaceFile,
+    detect_studio_tool_call, format_foundry_system_prompt, format_studio_system_parts,
+    FoundryToolResult, FoundryTurnSession, FoundryWorkspaceFile, StudioToolInvocation,
     BUILD_SYSTEM_PREFIX,
 };
+
+/// Shared ~220-token KV-prewarmed self-knowledge system prefix for standalone LexLean-R4 Studio (`R4-60`).
+pub const STUDIO_SELF_KNOWLEDGE_PREFIX: &str = "\
+LexLean-R4 Prism Studio (UOR-R4 HoloV13 pure-integer engine: Block-32 RHT, 512-bit Hamming shortlist, Starling Flock KV, zero float) in a .holo package.\n\
+Tools (<=6 hops, <tool_call>{\"name\":\"...\",\"arguments\":{...}}</tool_call>): MVM /workspace (`lexlean-sh`) via `workspace_read`, `workspace_search`, `mvm_exec`; bridges `preview_inspect`, `github_git`, `spiralcore_fetch` (read-only in plan mode).\n\
+Agent edits: <prism-write path=\"...\">...</prism-write>, <prism-delete path=\"...\"></prism-delete>.\n\
+Optimal Prism/UOR operands: `i32`/`i64` Q15/Q16 fixed-point, checked/wrapping (`wrapping_add`, `saturating_*`), shift-LUTs, bitwise Hamming/popcount, closed `match` state machines.";
 
 /// Alias matching Foundry host specification naming (`StudioEngine` / `UorWasmStudio`).
 pub type UorWasmStudio = StudioEngine;
@@ -576,6 +584,7 @@ pub(crate) fn extract_closed_holo_tool_calls(reply: &str) -> Vec<(String, serde_
 }
 
 /// Formal R4.HoloGeometricRuntime extract a bounded `<tool_call>{...}</tool_call>` JSON directive from assistant text.
+#[allow(dead_code)]
 pub(crate) fn extract_holo_tool_call(reply: &str) -> Option<(String, serde_json::Value)> {
     if let Some(first_closed) = extract_closed_holo_tool_calls(reply).into_iter().next() {
         return Some(first_closed);
@@ -1497,6 +1506,241 @@ impl StudioEngine {
         }
     }
 
+    /// Formal R4.StudioFrame list workspace relative file paths currently tracked by `StudioEngine` (`R4-60`).
+    pub fn list_workspace(&self) -> Vec<String> {
+        self.workspace_files
+            .iter()
+            .map(|f| f.path.clone())
+            .collect()
+    }
+
+    /// Formal R4.StudioFrame serialize dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors into `MVM_COW1` stream (`R4-37`, `R4-60`).
+    pub fn export_cow_sectors(&self) -> Vec<u8> {
+        let dirty = self.mvm.export_dirty_cow_sectors();
+        let mut buf = Vec::with_capacity(16 + dirty.len() * (8 + mvm::MVM_COW_SECTOR_BYTES));
+        buf.extend_from_slice(b"MVM_COW1");
+        buf.extend_from_slice(&(dirty.len() as u32).to_le_bytes());
+        buf.extend_from_slice(&(mvm::MVM_COW_SECTOR_BYTES as u32).to_le_bytes());
+        for (id, sector) in dirty {
+            buf.extend_from_slice(&id.to_le_bytes());
+            buf.extend_from_slice(&(sector.len() as u32).to_le_bytes());
+            buf.extend_from_slice(&sector);
+        }
+        buf
+    }
+
+    /// Formal R4.StudioFrame hydrate 64 KB `MVM-Wasm` CoW sectors from `MVM_COW1`, prune seeded starter toy files when persisted user/repo files exist, and sync `/workspace` (`R4-60`).
+    pub fn import_cow_sectors(&mut self, bytes: &[u8]) -> String {
+        if bytes.len() < 16 || &bytes[0..8] != b"MVM_COW1" {
+            return "{\"status\":\"error\",\"message\":\"Invalid MVM_COW1 magic.\"}".to_string();
+        }
+        let count = u32::from_le_bytes([bytes[8], bytes[9], bytes[10], bytes[11]]) as usize;
+        let sector_size = u32::from_le_bytes([bytes[12], bytes[13], bytes[14], bytes[15]]) as usize;
+        if sector_size != mvm::MVM_COW_SECTOR_BYTES {
+            return format!(
+                "{{\"status\":\"error\",\"message\":\"Unexpected sector size: {sector_size}\"}}"
+            );
+        }
+        let stride = 8 + mvm::MVM_COW_SECTOR_BYTES;
+        if bytes.len() < 16 + count.saturating_mul(stride) {
+            return "{\"status\":\"error\",\"message\":\"Truncated MVM_COW1 sector stream.\"}"
+                .to_string();
+        }
+        let mut sectors = Vec::with_capacity(count);
+        let mut cur = 16usize;
+        for _ in 0..count {
+            let id =
+                u32::from_le_bytes([bytes[cur], bytes[cur + 1], bytes[cur + 2], bytes[cur + 3]]);
+            let data_len = u32::from_le_bytes([
+                bytes[cur + 4],
+                bytes[cur + 5],
+                bytes[cur + 6],
+                bytes[cur + 7],
+            ]) as usize;
+            if data_len != mvm::MVM_COW_SECTOR_BYTES {
+                return format!(
+                    "{{\"status\":\"error\",\"message\":\"Unexpected sector data_len: {data_len}\"}}"
+                );
+            }
+            let data = bytes[cur + 8..cur + 8 + mvm::MVM_COW_SECTOR_BYTES].to_vec();
+            sectors.push((id, data));
+            cur += stride;
+        }
+        let imported_count = self.mvm.import_cow_sectors(&sectors);
+
+        let starters = Self::default_starter_workspace_entries();
+        let starter_map: std::collections::BTreeMap<&str, &str> =
+            starters.iter().map(|(p, _, _, c)| (*p, *c)).collect();
+        let mut imported_user_paths: Vec<String> = Vec::new();
+        for rel in self.mvm.workspace_rel_paths() {
+            let guest_path = format!("/workspace/{rel}");
+            let is_untouched_starter = starter_map.get(rel.as_str()).is_some_and(|starter_body| {
+                self.mvm.read_guest_file(&guest_path).as_deref() == Some(starter_body.as_bytes())
+            });
+            if !is_untouched_starter {
+                imported_user_paths.push(rel);
+            }
+        }
+        if !imported_user_paths.is_empty() {
+            for (starter_rel, _, _, starter_body) in &starters {
+                let guest_path = format!("/workspace/{starter_rel}");
+                if self.mvm.read_guest_file(&guest_path).as_deref() == Some(starter_body.as_bytes())
+                {
+                    self.mvm.remove_workspace_file_inode(starter_rel);
+                }
+            }
+        }
+
+        self.sync_workspace_from_mvm();
+        let baseline_map: std::collections::BTreeMap<String, String> = self
+            .workspace_files
+            .iter()
+            .map(|wf| (wf.path.clone(), wf.content.clone()))
+            .collect();
+        self.mvm.record_workspace_baseline_from_map(&baseline_map);
+
+        serde_json::json!({
+            "status": "ok",
+            "imported_sectors": imported_count,
+            "imported_user_paths": imported_user_paths,
+            "cow_state_sha256": self.mvm.cow_state_sha256(),
+        })
+        .to_string()
+    }
+
+    /// Formal R4.StudioFrame execute a policy-admitted Studio tool locally (`workspace_read`, `workspace_search`, local `mvm_exec`) or yield `needs_tool` for bridge-bound calls (`R4-60`).
+    pub fn execute_studio_tool_json(
+        &mut self,
+        tool_call_json: &str,
+        composer_mode: &str,
+    ) -> String {
+        let trimmed = tool_call_json.trim();
+        let wrapped = if trimmed.contains("<tool_call>") {
+            trimmed.to_string()
+        } else {
+            format!("<tool_call>{trimmed}</tool_call>")
+        };
+        let Some(inv) =
+            assistant::detect_studio_tool_call(wrapped.as_bytes(), "studio", composer_mode, 0)
+        else {
+            return serde_json::json!({
+                "status": "error",
+                "error_code": "InvalidPayload",
+                "message": "Unrecognized or malformed Studio tool invocation",
+            })
+            .to_string();
+        };
+        if !inv.admitted {
+            return serde_json::json!({
+                "status": "error",
+                "error_code": inv.refusal_code.unwrap_or("RefusedPlanModeMutation"),
+                "tool": inv.name,
+                "message": format!("Composer `{composer_mode}` mode refuses mutating tool `{}`", inv.name),
+            })
+            .to_string();
+        }
+        match inv.name.as_str() {
+            "workspace_read" => {
+                let path = inv
+                    .arguments
+                    .get("path")
+                    .or_else(|| inv.arguments.get("file"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or(&self.active_workspace_path);
+                let obs = self.workspace_read_excerpt(path, 2400);
+                serde_json::json!({
+                    "status": "ok",
+                    "tool": "workspace_read",
+                    "target": path,
+                    "exit_code": 0,
+                    "stdout": obs,
+                    "stderr": "",
+                    "changed_files": [],
+                })
+                .to_string()
+            }
+            "workspace_search" => {
+                let query = inv
+                    .arguments
+                    .get("query")
+                    .or_else(|| inv.arguments.get("pattern"))
+                    .or_else(|| inv.arguments.get("q"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
+                let obs = self.workspace_search_excerpt(query, 12);
+                serde_json::json!({
+                    "status": "ok",
+                    "tool": "workspace_search",
+                    "target": query,
+                    "exit_code": 0,
+                    "stdout": obs,
+                    "stderr": "",
+                    "changed_files": [],
+                })
+                .to_string()
+            }
+            "mvm_exec" => {
+                let cmd = inv.cmd.as_deref().unwrap_or("").trim();
+                self.sync_workspace_into_mvm();
+                let cwd = inv
+                    .arguments
+                    .get("cwd")
+                    .and_then(|v| v.as_str())
+                    .filter(|s| !s.trim().is_empty());
+                match self.mvm.exec_interactive(cmd, cwd) {
+                    Ok(mvm::MvmInteractiveOutcome::Completed(done)) => {
+                        self.sync_workspace_from_mvm();
+                        serde_json::json!({
+                            "status": "ok",
+                            "tool": "mvm_exec",
+                            "cmd": cmd,
+                            "exit_code": done.exit_code,
+                            "stdout": done.stdout,
+                            "stderr": done.stderr,
+                            "changed_files": [],
+                        })
+                        .to_string()
+                    }
+                    Ok(mvm::MvmInteractiveOutcome::NeedsBridge(pending)) => serde_json::json!({
+                        "status": "needs_tool",
+                        "tool": "mvm_exec",
+                        "cmd": cmd,
+                        "bridge_req": pending.bridge_req,
+                        "resume_state": pending.resume_state,
+                    })
+                    .to_string(),
+                    Err(err) => serde_json::json!({
+                        "status": "error",
+                        "error_code": "MvmRuntimeError",
+                        "message": err.to_string(),
+                    })
+                    .to_string(),
+                }
+            }
+            "workspace_write" => {
+                let path = inv
+                    .arguments
+                    .get("path")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .trim();
+                let content = inv
+                    .arguments
+                    .get("content")
+                    .or_else(|| inv.arguments.get("code"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("");
+                self.workspace_write_json(&format!("{path}\n{content}"))
+            }
+            _ => serde_json::json!({
+                "status": "needs_tool",
+                "tool": inv.name,
+                "arguments": inv.arguments,
+            })
+            .to_string(),
+        }
+    }
+
     fn format_vsock_frames_json(frames: &[mvm::VsockPacket]) -> Vec<serde_json::Value> {
         frames
             .iter()
@@ -2260,32 +2504,22 @@ impl StudioEngine {
     }
 
     /// Formal R4.HoloGeometricRuntime static compact system prompt matched by mount-time KV prefix pre-warming.
-    pub fn default_holo_chat_system_prompt(wire_id: &str) -> String {
-        format!(
-            "You are LexLean-R4 Studio v0.14.0 (`{wire_id}`, UORR4V13 pure-integer Wasm + MVM, zero float). Answer concisely, or emit `<tool_call>{{\"tool\":\"workspace_read|workspace_search|workspace_patch|mvm_exec|github_status\",\"args\":{{...}}}}</tool_call>` when needed."
-        )
+    pub fn default_holo_chat_system_prompt(_wire_id: &str) -> String {
+        STUDIO_SELF_KNOWLEDGE_PREFIX.to_string()
     }
 
     /// Formal R4.HoloGeometricRuntime assemble deterministic prefix-KV-cache-friendly self-aware Studio prompt.
     fn build_holo_studio_system_prompt(
         &self,
-        wire_id: &str,
-        _composer_mode: &str,
+        _wire_id: &str,
+        composer_mode: &str,
         repo: &str,
         branch: &str,
     ) -> String {
-        if repo.trim().is_empty() {
-            return Self::default_holo_chat_system_prompt(wire_id);
-        }
-        let br = if branch.trim().is_empty() {
-            "main"
-        } else {
-            branch.trim()
-        };
-        format!(
-            "You are LexLean-R4 Studio v0.14.0 (`{wire_id}`, UORR4V13 pure-integer Wasm + MVM, repo={}@{br}, zero float). Answer concisely, or emit `<tool_call>{{\"tool\":\"workspace_read|workspace_search|workspace_patch|mvm_exec|github_status\",\"args\":{{...}}}}</tool_call>` when needed.",
-            repo.trim()
-        )
+        let (mut out, ws_header, _) =
+            assistant::format_studio_system_parts("studio", composer_mode, repo, branch, &[], None);
+        out.push_str(&ws_header);
+        out
     }
 
     /// Formal R4.HoloGeometricRuntime read a workspace file excerpt with line numbers for local ReAct observations.
@@ -3562,8 +3796,10 @@ impl StudioEngine {
         )
     }
 
-    fn init_default_workspace(&mut self) {
-        let defaults = [
+    /// Formal R4.StudioFrame return the canonical seeded starter workspace entries (`R4-60`).
+    fn default_starter_workspace_entries() -> [(&'static str, &'static str, bool, &'static str); 4]
+    {
+        [
             (
                 "src/engine.rs",
                 "rust",
@@ -3666,7 +3902,12 @@ impl StudioEngine {
                     "verified by 32 zero-axiom Lean 4.32.1 conformance suites.\n"
                 ),
             ),
-        ];
+        ]
+    }
+
+    /// Formal R4.StudioFrame initialize the canonical seeded starter workspace entries (`R4-60`).
+    fn init_default_workspace(&mut self) {
+        let defaults = Self::default_starter_workspace_entries();
         self.workspace_files.clear();
         for (path, lang, pinned, content) in defaults {
             let receipt = sha256_hex(format!("file|{path}|{content}").as_bytes());
@@ -6619,7 +6860,7 @@ impl StudioEngine {
                     let mut model_d_model = 1024u32;
                     let mut model_vocab = 151_936u32;
 
-                    for _hop in 0..3usize {
+                    for hop in 0..assistant::FOUNDRY_MAX_TOOL_ITERATIONS {
                         let (reply, hm, nl, dm, vs) = {
                             let model = self
                                 .holo_models
@@ -6656,16 +6897,39 @@ impl StudioEngine {
                                 .extend(hm.observatory_frames.into_iter().take(remain));
                         }
 
-                        if composer_mode_str == "agentic" {
-                            if let Some((tool_name, args)) = extract_holo_tool_call(&reply) {
+                        if matches!(composer_mode_str.as_str(), "agentic" | "agent" | "plan") {
+                            if let Some(inv) = assistant::detect_studio_tool_call(
+                                reply.as_bytes(),
+                                "studio",
+                                &composer_mode_str,
+                                hop,
+                            ) {
+                                let tool_name = inv.name.clone();
+                                let args = inv.arguments.clone();
                                 holo_last_tool_kind = tool_name.clone();
+                                if !inv.admitted {
+                                    holo_react_admission = inv
+                                        .refusal_code
+                                        .unwrap_or("RefusedPlanModeMutation")
+                                        .to_string();
+                                    holo_react_steps.push(format!(
+                                        "{{\"step\":{},\"iteration\":{},\"tool\":\"{}\",\"status\":\"refused\",\"error_code\":\"RefusedPlanModeMutation\"}}",
+                                        holo_react_steps.len() + 1,
+                                        hop + 1,
+                                        escape_json(&tool_name)
+                                    ));
+                                    final_reply = format!(
+                                        "RefusedPlanModeMutation: composer `plan` mode forbids mutating `{tool_name}`."
+                                    );
+                                    break;
+                                }
                                 if let lexlean_generated::r4_react_agent::ReactStepOutcome::DispatchedPhaseStep(
                                     next_iter,
                                     _,
                                     next_fuel,
                                 ) = lexlean_generated::r4_react_agent::step_react_controller(
                                     holo_react_iterations,
-                                    4,
+                                    assistant::FOUNDRY_MAX_TOOL_ITERATIONS as u64,
                                     0,
                                     1,
                                     react_fuel,
@@ -6677,6 +6941,7 @@ impl StudioEngine {
                                     "workspace_read" => {
                                         let p = args
                                             .get("path")
+                                            .or_else(|| args.get("file"))
                                             .and_then(|v| v.as_str())
                                             .unwrap_or(&active_ws_path);
                                         let obs = self.workspace_read_excerpt(p, 2400);
@@ -6696,6 +6961,8 @@ impl StudioEngine {
                                     "workspace_search" => {
                                         let q = args
                                             .get("query")
+                                            .or_else(|| args.get("pattern"))
+                                            .or_else(|| args.get("q"))
                                             .and_then(|v| v.as_str())
                                             .unwrap_or("");
                                         let obs = self.workspace_search_excerpt(q, 12);
@@ -6747,12 +7014,7 @@ impl StudioEngine {
                                         }
                                     }
                                     "mvm_exec" => {
-                                        let cmd = args
-                                            .get("cmd")
-                                            .or_else(|| args.get("command"))
-                                            .and_then(|v| v.as_str())
-                                            .unwrap_or("")
-                                            .trim();
+                                        let cmd = inv.cmd.as_deref().unwrap_or("").trim();
                                         if !cmd.is_empty() {
                                             self.sync_workspace_into_mvm();
                                             let cwd = args
@@ -6820,8 +7082,24 @@ impl StudioEngine {
                                             }
                                         }
                                     }
-                                    "github_status" | "github_clone" | "github_push"
-                                    | "github_pr" | "git" => {
+                                    "preview_inspect" | "spiralcore_fetch" => {
+                                        let bridge_req = serde_json::json!({
+                                            "req_id": format!("holo-{}-{}", tool_name, holo_react_iterations),
+                                            "op": tool_name,
+                                            "arguments": args,
+                                        });
+                                        self.pending_chat_bridge = Some(serde_json::json!({
+                                            "prompt": trimmed,
+                                            "tool": tool_name,
+                                            "holo_model_id": route_mode.wire_id(),
+                                            "holo_sys_prompt": sys_prompt,
+                                            "bridge_req": bridge_req,
+                                        }));
+                                        final_reply = reply;
+                                        break;
+                                    }
+                                    "github_git" | "github_status" | "github_clone"
+                                    | "github_push" | "github_pr" | "git" => {
                                         let sub = match tool_name.as_str() {
                                             "github_status" => "status",
                                             "github_clone" => "clone",
@@ -6829,6 +7107,7 @@ impl StudioEngine {
                                             "github_pr" => "create_pr",
                                             _ => args
                                                 .get("subcommand")
+                                                .or_else(|| args.get("action"))
                                                 .and_then(|v| v.as_str())
                                                 .unwrap_or("status"),
                                         };
@@ -9442,68 +9721,18 @@ pub fn studio_export_mvm_cow_sectors() -> Vec<u8> {
         Err(poisoned) => poisoned.into_inner(),
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
-    let dirty = engine.mvm.export_dirty_cow_sectors();
-    let mut buf = Vec::with_capacity(16 + dirty.len() * (8 + mvm::MVM_COW_SECTOR_BYTES));
-    buf.extend_from_slice(b"MVM_COW1");
-    buf.extend_from_slice(&(dirty.len() as u32).to_le_bytes());
-    buf.extend_from_slice(&(mvm::MVM_COW_SECTOR_BYTES as u32).to_le_bytes());
-    for (id, sector) in dirty {
-        buf.extend_from_slice(&id.to_le_bytes());
-        buf.extend_from_slice(&(sector.len() as u32).to_le_bytes());
-        buf.extend_from_slice(&sector);
-    }
-    buf
+    engine.export_cow_sectors()
 }
 
-/// Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`).
+/// Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`, `R4-60`).
 #[wasm_bindgen]
 pub fn studio_import_mvm_cow_sectors(bytes: &[u8]) -> String {
-    if bytes.len() < 16 || &bytes[0..8] != b"MVM_COW1" {
-        return "{\"status\":\"error\",\"message\":\"Invalid MVM_COW1 magic.\"}".to_string();
-    }
-    let count = u32::from_le_bytes([bytes[8], bytes[9], bytes[10], bytes[11]]) as usize;
-    let sector_size = u32::from_le_bytes([bytes[12], bytes[13], bytes[14], bytes[15]]) as usize;
-    if sector_size != mvm::MVM_COW_SECTOR_BYTES {
-        return format!(
-            "{{\"status\":\"error\",\"message\":\"Unexpected sector size: {sector_size}\"}}"
-        );
-    }
-    let stride = 8 + mvm::MVM_COW_SECTOR_BYTES;
-    if bytes.len() < 16 + count.saturating_mul(stride) {
-        return "{\"status\":\"error\",\"message\":\"Truncated MVM_COW1 sector stream.\"}"
-            .to_string();
-    }
-    let mut sectors = Vec::with_capacity(count);
-    let mut cur = 16usize;
-    for _ in 0..count {
-        let id = u32::from_le_bytes([bytes[cur], bytes[cur + 1], bytes[cur + 2], bytes[cur + 3]]);
-        let data_len = u32::from_le_bytes([
-            bytes[cur + 4],
-            bytes[cur + 5],
-            bytes[cur + 6],
-            bytes[cur + 7],
-        ]) as usize;
-        if data_len != mvm::MVM_COW_SECTOR_BYTES {
-            return format!(
-                "{{\"status\":\"error\",\"message\":\"Unexpected sector data_len: {data_len}\"}}"
-            );
-        }
-        let data = bytes[cur + 8..cur + 8 + mvm::MVM_COW_SECTOR_BYTES].to_vec();
-        sectors.push((id, data));
-        cur += stride;
-    }
     let mut guard = match studio_engine_cell().lock() {
         Ok(g) => g,
         Err(poisoned) => poisoned.into_inner(),
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
-    let imported_count = engine.mvm.import_cow_sectors(&sectors);
-    serde_json::json!({
-        "status": "ok",
-        "imported_sectors": imported_count,
-        "cow_state_sha256": engine.mvm.cow_state_sha256(),
-    })
-    .to_string()
+    engine.import_cow_sectors(bytes)
 }
 
 /// Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.

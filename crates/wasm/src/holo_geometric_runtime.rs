@@ -4620,16 +4620,18 @@ impl HoloV13Model {
             system_prompt.trim()
         };
         let sys_chunk = format!("<|im_start|>system\n{sys}<|im_end|>\n");
-        let mut prompt_ids_all = self.tokenizer.encode(&sys_chunk);
+        let sys_ids = self.tokenizer.encode(&sys_chunk);
+        let system_prefix_len = sys_ids.len();
         let recent_hist = &history[history.len().saturating_sub(6)..];
         let eot_nl_ids = self.tokenizer.encode("<|im_end|>\n");
+        let mut hist_turns: Vec<Vec<u32>> = Vec::with_capacity(recent_hist.len());
         for (u, a) in recent_hist {
             let u_trim = u.trim();
             let a_trim = a.trim();
             let u_chunk = format!(
                 "<|im_start|>user\n{u_trim}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
             );
-            prompt_ids_all.extend_from_slice(&self.tokenizer.encode(&u_chunk));
+            let mut turn_ids = self.tokenizer.encode(&u_chunk);
             if let Some((_, _, exact_ids)) = self
                 .kv_cache
                 .turn_token_spans
@@ -4637,23 +4639,51 @@ impl HoloV13Model {
                 .rev()
                 .find(|(cu, ca, _)| cu == u_trim && ca == a_trim)
             {
-                prompt_ids_all.extend_from_slice(exact_ids);
+                turn_ids.extend_from_slice(exact_ids);
             } else {
-                prompt_ids_all.extend_from_slice(&self.tokenizer.encode(a_trim));
+                turn_ids.extend_from_slice(&self.tokenizer.encode(a_trim));
             }
-            prompt_ids_all.extend_from_slice(&eot_nl_ids);
+            turn_ids.extend_from_slice(&eot_nl_ids);
+            hist_turns.push(turn_ids);
         }
         let cur_u_trim = user_prompt.trim();
         let cur_u_chunk = format!(
             "<|im_start|>user\n{cur_u_trim}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
         );
-        prompt_ids_all.extend_from_slice(&self.tokenizer.encode(&cur_u_chunk));
+        let cur_u_ids = self.tokenizer.encode(&cur_u_chunk);
         let max_ctx = self.max_seq.saturating_sub(max_new_tokens.max(16)).max(32);
-        let prompt_ids: &[u32] = if prompt_ids_all.len() > max_ctx {
-            &prompt_ids_all[prompt_ids_all.len() - max_ctx..]
+
+        // Prefix-pinned truncation: keep `system_prefix_len` tokens pinned at index 0 before trimming oldest turns.
+        let mut hist_len: usize = hist_turns.iter().map(Vec::len).sum();
+        let mut hist_start = 0usize;
+        while hist_start < hist_turns.len()
+            && system_prefix_len + hist_len + cur_u_ids.len() > max_ctx
+        {
+            hist_len = hist_len.saturating_sub(hist_turns[hist_start].len());
+            hist_start += 1;
+        }
+
+        let mut prompt_ids_all = Vec::with_capacity(max_ctx);
+        if system_prefix_len + hist_len + cur_u_ids.len() <= max_ctx {
+            prompt_ids_all.extend_from_slice(&sys_ids);
+            for turn in &hist_turns[hist_start..] {
+                prompt_ids_all.extend_from_slice(turn);
+            }
+            prompt_ids_all.extend_from_slice(&cur_u_ids);
         } else {
-            &prompt_ids_all
-        };
+            let user_reserve = cur_u_ids
+                .len()
+                .min((max_ctx * 3 / 8).max(64).min(max_ctx / 2));
+            let kept_u = if cur_u_ids.len() > user_reserve {
+                &cur_u_ids[cur_u_ids.len() - user_reserve..]
+            } else {
+                &cur_u_ids[..]
+            };
+            let sys_cap = max_ctx.saturating_sub(kept_u.len());
+            prompt_ids_all.extend_from_slice(&sys_ids[..system_prefix_len.min(sys_cap)]);
+            prompt_ids_all.extend_from_slice(kept_u);
+        }
+        let prompt_ids: &[u32] = &prompt_ids_all;
 
         let mut prefix_match = 0usize;
         for (&cached_tok, &prompt_tok) in self.kv_cache.tokens.iter().zip(prompt_ids.iter()) {

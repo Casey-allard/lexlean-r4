@@ -862,14 +862,25 @@ impl MvmSandbox {
                     if let Ok(meta) = serde_json::from_slice::<MvmSuperblockMeta>(&data[..zero_idx])
                     {
                         if meta.magic == "MVMSUPER" {
+                            let has_workspace_snapshot =
+                                meta.inodes.keys().any(|k| k.starts_with("/workspace/"));
+                            if has_workspace_snapshot {
+                                self.inodes.retain(|k, _| {
+                                    !k.starts_with("/workspace/")
+                                        || meta.inodes.contains_key(k)
+                                        || Self::is_protected_canonical_guest_path(k)
+                                });
+                                self.synced_workspace_paths = meta.synced_workspace_paths;
+                            } else {
+                                self.synced_workspace_paths
+                                    .extend(meta.synced_workspace_paths);
+                            }
                             self.dirs.extend(meta.dirs);
                             self.inodes.extend(meta.inodes);
                             self.installed_packages.extend(meta.installed_packages);
                             if !meta.current_cwd.is_empty() {
                                 self.current_cwd = meta.current_cwd;
                             }
-                            self.synced_workspace_paths
-                                .extend(meta.synced_workspace_paths);
                         }
                     }
                 } else {
@@ -883,6 +894,34 @@ impl MvmSandbox {
             }
         }
         count
+    }
+
+    /// Formal R4.StudioFrame remove a non-canonical workspace file inode during OPFS boot sync.
+    pub(crate) fn remove_workspace_file_inode(&mut self, rel_path: &str) -> bool {
+        let clean = rel_path.trim().trim_start_matches('/');
+        if clean.is_empty() {
+            return false;
+        }
+        let guest = format!("/workspace/{clean}");
+        if Self::is_protected_canonical_guest_path(&guest) {
+            return false;
+        }
+        self.synced_workspace_paths.remove(clean);
+        self.inodes.remove(&guest).is_some()
+    }
+
+    /// Formal R4.StudioFrame list persisted `/workspace/` relative paths currently present in guest inodes.
+    pub(crate) fn workspace_rel_paths(&self) -> Vec<String> {
+        self.inodes
+            .keys()
+            .filter_map(|p| p.strip_prefix("/workspace/"))
+            .filter(|rel| {
+                !rel.is_empty()
+                    && !is_git_internal_rel_path(rel)
+                    && !is_canonical_protected_rel(rel)
+            })
+            .map(str::to_string)
+            .collect()
     }
 
     /// Compute the FIPS 180-4 SHA-256 hex digest of the logical filesystem and CoW state.

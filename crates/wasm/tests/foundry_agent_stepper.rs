@@ -6,12 +6,13 @@ use lexlean_r4_wasm::holo_geometric_runtime::{
     HOLO_TOK13_MAGIC, HOLO_V13_MAGIC, HOLO_V13_VERSION,
 };
 use lexlean_r4_wasm::lexlean_generated::r4_studio_frame::{
-    admit_live_token_frame, LiveFrameVerdict,
+    admit_live_token_frame, admit_studio_tool, ComposerToolPolicy, LiveFrameVerdict,
 };
 use lexlean_r4_wasm::native_q31_lane::NativeQ31Model;
 use lexlean_r4_wasm::{
-    format_foundry_system_prompt, FoundryToolResult, FoundryWorkspaceFile, StudioEngine,
-    UorWasmStudio, BUILD_SYSTEM_PREFIX,
+    detect_studio_tool_call, format_foundry_system_prompt, format_studio_system_parts,
+    FoundryToolResult, FoundryWorkspaceFile, StudioEngine, UorWasmStudio, BUILD_SYSTEM_PREFIX,
+    STUDIO_SELF_KNOWLEDGE_PREFIX,
 };
 use serde_json::Value;
 
@@ -1189,4 +1190,320 @@ fn test_studio_live_hud_per_token_emission_and_slice_clamp_r4_60() {
     let m1: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_min)).unwrap();
     assert_eq!(m1["tokens_emitted"], 1);
     assert_eq!(m1["status"], "streaming");
+}
+
+#[test]
+fn test_studio_prewarm_prefix_and_plan_tool_policy_r4_60() {
+    // 1. STUDIO_SELF_KNOWLEDGE_PREFIX matches default_holo_chat_system_prompt byte-for-byte
+    let default_sys = StudioEngine::default_holo_chat_system_prompt("uor-r4.qwen3-0.6b-holo");
+    assert_eq!(default_sys, STUDIO_SELF_KNOWLEDGE_PREFIX);
+    assert!(STUDIO_SELF_KNOWLEDGE_PREFIX.contains("MVM"));
+    assert!(STUDIO_SELF_KNOWLEDGE_PREFIX.contains("<prism-write"));
+    assert!(STUDIO_SELF_KNOWLEDGE_PREFIX.contains("Block-32 RHT"));
+    assert!(STUDIO_SELF_KNOWLEDGE_PREFIX.contains("preview_inspect"));
+    assert!(STUDIO_SELF_KNOWLEDGE_PREFIX.contains("github_git"));
+    assert!(
+        STUDIO_SELF_KNOWLEDGE_PREFIX.contains("wrapping")
+            && STUDIO_SELF_KNOWLEDGE_PREFIX.contains("Q15")
+            && STUDIO_SELF_KNOWLEDGE_PREFIX.contains("Q16"),
+        "STUDIO_SELF_KNOWLEDGE_PREFIX must teach wrapping/Q15/Q16 optimal operands"
+    );
+
+    // 2. format_studio_system_parts puts repo@branch + tree after STUDIO_SELF_KNOWLEDGE_PREFIX,
+    //    while surface_mode == "foundry" preserves BUILD_SYSTEM_PREFIX verbatim.
+    let ws_files = vec![FoundryWorkspaceFile {
+        path: "src/lib.rs".to_string(),
+        content: "pub fn add(a: i32, b: i32) -> i32 { a.wrapping_add(b) }".to_string(),
+        sha256: "deadbeef".to_string(),
+    }];
+    let (studio_core, studio_ws_hdr, studio_excerpts) = format_studio_system_parts(
+        "studio",
+        "plan",
+        "afflom/demo",
+        "feat/test",
+        &ws_files,
+        Some("src/lib.rs"),
+    );
+    assert_eq!(studio_core, STUDIO_SELF_KNOWLEDGE_PREFIX);
+    assert!(studio_ws_hdr.contains("afflom/demo@feat/test"));
+    assert!(studio_ws_hdr.contains("src/lib.rs"));
+    assert!(!studio_excerpts.is_empty());
+
+    let (foundry_core, _, _) = format_studio_system_parts(
+        "foundry",
+        "agent",
+        "afflom/demo",
+        "main",
+        &ws_files,
+        Some("src/lib.rs"),
+    );
+    assert!(foundry_core.starts_with(BUILD_SYSTEM_PREFIX));
+
+    // 3. Turn-1 prewarm reuse in studio + plan mode, permitting workspace_read and rejecting mutating mvm_exec
+    let mut engine = StudioEngine::new_default();
+    let ws_read_pieces: &[(u32, &[u8])] = &[
+        (261, b"<tool_call>"),
+        (
+            262,
+            b"{\"name\":\"workspace_read\",\"arguments\":{\"path\":\"src/engine.rs\"}}",
+        ),
+        (263, b"</tool_call>"),
+    ];
+    let bytes_read = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 257], ws_read_pieces);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_read)
+        .expect("mount workspace_read scripted model");
+
+    let begin_plan_read: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "Inspect src/engine.rs",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "surface_mode": "studio",
+                "composer_mode": "plan",
+                "repo": "afflom/lexlean-r4",
+                "branch": "main",
+                "workspace_files": ws_files,
+                "active_file": "src/lib.rs"
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    assert_eq!(begin_plan_read["status"], "ready");
+    let reused = begin_plan_read["prefix_reused_tokens"]
+        .as_u64()
+        .unwrap_or(0);
+    assert!(
+        reused > 0,
+        "Turn 1 in studio mode after prewarm must hit prewarmed KV cache (prefix_reused_tokens={reused})"
+    );
+    let tid_read = begin_plan_read["turn_id"].as_u64().unwrap();
+    let active_sys = engine
+        .active_foundry_turn_system_prompt(tid_read)
+        .expect("active system prompt");
+    assert!(
+        active_sys.starts_with(STUDIO_SELF_KNOWLEDGE_PREFIX),
+        "studio active system prompt must preserve STUDIO_SELF_KNOWLEDGE_PREFIX verbatim at start"
+    );
+    assert!(active_sys.contains("afflom/lexlean-r4@main"));
+
+    let step_read: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_read)).unwrap();
+    assert_eq!(step_read["status"], "needs_tool");
+    assert_eq!(step_read["tool_call"]["name"], "workspace_read");
+    assert_eq!(step_read["tool_call"]["arguments"]["path"], "src/engine.rs");
+
+    // Local StudioEngine tool execution for workspace_read, workspace_search, and read-only mvm_exec
+    assert!(admit_studio_tool(ComposerToolPolicy::PlanReadOnly, false));
+    assert!(!admit_studio_tool(ComposerToolPolicy::PlanReadOnly, true));
+    let local_read: Value = serde_json::from_str(
+        &engine.execute_studio_tool_json(&step_read["tool_call"].to_string(), "plan"),
+    )
+    .unwrap();
+    assert_eq!(local_read["status"], "ok");
+    assert!(local_read["stdout"]
+        .as_str()
+        .unwrap_or("")
+        .contains("GeometricRouter"));
+
+    let local_search: Value = serde_json::from_str(&engine.execute_studio_tool_json(
+        r#"{"name":"workspace_search","arguments":{"query":"GeometricRouter"}}"#,
+        "plan",
+    ))
+    .unwrap();
+    assert_eq!(local_search["status"], "ok");
+    assert!(local_search["stdout"]
+        .as_str()
+        .unwrap_or("")
+        .contains("src/engine.rs"));
+
+    // Bridge-bound tools yield needs_tool cleanly
+    for bridge_tool in ["preview_inspect", "github_git", "spiralcore_fetch"] {
+        let raw = format!(
+            "<tool_call>{{\"name\":\"{bridge_tool}\",\"arguments\":{{\"subcommand\":\"status\",\"url\":\"https://example.org\"}}}}</tool_call>"
+        );
+        let det = detect_studio_tool_call(raw.as_bytes(), "studio", "plan", 0)
+            .expect("bridge tool detected");
+        assert!(
+            det.admitted,
+            "{bridge_tool} read-only must be admitted in plan mode"
+        );
+        assert_eq!(det.name, bridge_tool);
+    }
+
+    // Mutating mvm_exec in plan mode must be rejected via admit_studio_tool without modifying /workspace
+    let mut_mvm_pieces: &[(u32, &[u8])] = &[
+        (261, b"<tool_call>"),
+        (
+            262,
+            b"{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"echo tamper > /workspace/src/engine.rs\"}}",
+        ),
+        (263, b"</tool_call>"),
+    ];
+    let bytes_mut_mvm = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 257], mut_mvm_pieces);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_mut_mvm)
+        .expect("mount mutating mvm_exec scripted model");
+
+    let ws_before = engine.workspace_list_json();
+    let begin_mut: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "Try mutating workspace in plan mode",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "surface_mode": "studio",
+                "composer_mode": "plan"
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    let tid_mut = begin_mut["turn_id"].as_u64().unwrap();
+    let step_mut: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_mut)).unwrap();
+    assert_eq!(step_mut["status"], "error");
+    assert_eq!(step_mut["error_code"], "RefusedPlanModeMutation");
+    assert_eq!(
+        engine.workspace_list_json(),
+        ws_before,
+        "RefusedPlanModeMutation must leave /workspace untouched"
+    );
+
+    // Mutating <prism-write>, workspace_write, and mutating github_git also refuse in plan mode
+    let prism_write_det = detect_studio_tool_call(
+        b"<prism-write path=\"src/lib.rs\">pub fn x() {}</prism-write>",
+        "studio",
+        "plan",
+        0,
+    )
+    .expect("prism-write caught in plan mode");
+    assert!(!prism_write_det.admitted);
+    assert_eq!(
+        prism_write_det.refusal_code,
+        Some("RefusedPlanModeMutation")
+    );
+
+    let ws_write_det = detect_studio_tool_call(
+        br#"<tool_call>{"name":"workspace_write","arguments":{"path":"src/lib.rs","content":"x"}}</tool_call>"#,
+        "studio",
+        "plan",
+        0,
+    )
+    .expect("workspace_write caught in plan mode");
+    assert!(!ws_write_det.admitted);
+    assert_eq!(ws_write_det.refusal_code, Some("RefusedPlanModeMutation"));
+
+    let git_push_det = detect_studio_tool_call(
+        br#"<tool_call>{"name":"github_git","arguments":{"subcommand":"commit_push"}}</tool_call>"#,
+        "studio",
+        "plan",
+        0,
+    )
+    .expect("mutating github_git caught in plan mode");
+    assert!(!git_push_det.admitted);
+    assert_eq!(git_push_det.refusal_code, Some("RefusedPlanModeMutation"));
+
+    // 4. Beginning a turn with surface_mode == "foundry" still emits BUILD_SYSTEM_PREFIX
+    let begin_foundry: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "Build web app",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "surface_mode": "foundry",
+                "composer_mode": "agent"
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    let tid_foundry = begin_foundry["turn_id"].as_u64().unwrap();
+    let foundry_sys = engine
+        .active_foundry_turn_system_prompt(tid_foundry)
+        .expect("foundry active system prompt");
+    assert!(foundry_sys.starts_with(BUILD_SYSTEM_PREFIX));
+    let _ = engine.holo_cancel_foundry_turn(tid_foundry);
+
+    // 5. Prefix-pinned truncation preserves STUDIO_SELF_KNOWLEDGE_PREFIX in multi-turn chat history
+    let mut model = lexlean_r4_wasm::holo_geometric_runtime::HoloV13Model::from_bytes(
+        "uor-r4.qwen3-0.6b-holo".to_string(),
+        &bytes_read,
+    )
+    .expect("construct model");
+    model.prewarm_system_prefix(STUDIO_SELF_KNOWLEDGE_PREFIX);
+    let long_hist: Vec<(String, String)> = (0..6)
+        .map(|i| {
+            (
+                format!("turn_{i} {}", "q".repeat(180)),
+                format!("ans_{i} {}", "a".repeat(180)),
+            )
+        })
+        .collect();
+    let (_r_trunc, m_trunc) = model.generate_chat_turn_with_history(
+        "latest question",
+        &long_hist,
+        STUDIO_SELF_KNOWLEDGE_PREFIX,
+        4,
+    );
+    assert!(
+        m_trunc.prefix_reused_tokens > 0,
+        "prefix-pinned truncation must keep STUDIO_SELF_KNOWLEDGE_PREFIX pinned across long history: {m_trunc:?}"
+    );
+
+    // 6. Multi-hop continuation across 6 hops + bridge-bound preview_inspect via stepper
+    let preview_pieces: &[(u32, &[u8])] = &[
+        (261, b"<tool_call>"),
+        (
+            262,
+            b"{\"name\":\"preview_inspect\",\"arguments\":{\"selector\":\"#app\"}}",
+        ),
+        (263, b"</tool_call>"),
+    ];
+    let bytes_preview = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 257], preview_pieces);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_preview)
+        .expect("mount preview_inspect scripted model");
+    let five_prior: Vec<Value> = (0..5)
+        .map(|i| {
+            serde_json::json!({
+                "tool": if i == 0 { "workspace_read" } else { "workspace_search" },
+                "cmd": format!("hop_{i}"),
+                "exit_code": 0,
+                "stdout": "ok",
+                "stderr": "",
+                "changed_files": []
+            })
+        })
+        .collect();
+    let b_hop6: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "Inspect preview on hop 6",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "surface_mode": "studio",
+                "composer_mode": "plan",
+                "tool_results": five_prior
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    let tid_hop6 = b_hop6["turn_id"].as_u64().unwrap();
+    let s_hop6: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_hop6)).unwrap();
+    assert_eq!(s_hop6["status"], "needs_tool");
+    assert_eq!(s_hop6["tool_call"]["name"], "preview_inspect");
+    let bridge_ack: Value = serde_json::from_str(
+        &engine.execute_studio_tool_json(&s_hop6["tool_call"].to_string(), "plan"),
+    )
+    .unwrap();
+    assert_eq!(bridge_ack["status"], "needs_tool");
+    assert_eq!(bridge_ack["tool"], "preview_inspect");
+    assert!(
+        detect_studio_tool_call(
+            br#"<tool_call>{"name":"preview_inspect","arguments":{}}</tool_call>"#,
+            "studio",
+            "plan",
+            6
+        )
+        .is_none(),
+        "7th hop (iterations_used=6) must be bounded"
+    );
 }

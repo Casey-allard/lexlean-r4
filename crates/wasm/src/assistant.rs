@@ -5926,6 +5926,24 @@ pub struct FoundryToolResult {
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
+struct FoundryToolResultInput {
+    #[serde(default)]
+    tool: String,
+    #[serde(default)]
+    cmd: String,
+    #[serde(default)]
+    target: String,
+    #[serde(default)]
+    exit_code: i32,
+    #[serde(default)]
+    stdout: String,
+    #[serde(default)]
+    stderr: String,
+    #[serde(default)]
+    changed_files: Vec<String>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
 struct FoundryTurnRequest {
     #[serde(default)]
     prompt: String,
@@ -5936,13 +5954,17 @@ struct FoundryTurnRequest {
     #[serde(default, alias = "preferredModel", alias = "model")]
     selected_model: Option<String>,
     #[serde(default)]
-    tool_results: Vec<FoundryToolResult>,
+    tool_results: Vec<FoundryToolResultInput>,
     #[serde(default)]
     max_new_tokens: Option<usize>,
     #[serde(default, alias = "surfaceMode")]
     surface_mode: String,
     #[serde(default, alias = "composerMode")]
     composer_mode: String,
+    #[serde(default)]
+    repo: String,
+    #[serde(default)]
+    branch: String,
     #[serde(default, alias = "sliceTokens")]
     slice_tokens: Option<usize>,
     #[serde(default, alias = "liveHud")]
@@ -6044,6 +6066,54 @@ fn xml_escape_attr(raw: &str) -> String {
     out
 }
 
+/// Formal R4.StudioFrame append bounded workspace tree and file excerpts after system prefix (`R4-56`, `R4-60`).
+fn append_workspace_tree_and_excerpts(
+    workspace_files: &[FoundryWorkspaceFile],
+    active_file: Option<&str>,
+    ws_header: &mut String,
+    ws_excerpts: &mut Vec<String>,
+) {
+    if workspace_files.is_empty() && !active_file.is_some_and(|s| !s.trim().is_empty()) {
+        return;
+    }
+    ws_header.push_str("\n# Workspace Files\n");
+    if let Some(af) = active_file.map(str::trim).filter(|s| !s.is_empty()) {
+        ws_header.push_str(&format!("Active file: `{af}`\n"));
+    }
+    ws_header.push_str("File tree:\n");
+    for f in workspace_files.iter().take(64) {
+        let marker = if active_file.is_some_and(|af| af.trim() == f.path.trim()) {
+            " (active)"
+        } else {
+            ""
+        };
+        ws_header.push_str(&format!("- `{}`{}\n", f.path, marker));
+    }
+    let mut ordered: Vec<&FoundryWorkspaceFile> = workspace_files.iter().collect();
+    if let Some(af) = active_file.map(str::trim).filter(|s| !s.is_empty()) {
+        ordered.sort_by_key(|f| usize::from(f.path.trim() != af));
+    }
+    let mut excerpt_char_budget = 4096usize;
+    for f in ordered.into_iter().take(12) {
+        if excerpt_char_budget == 0 {
+            break;
+        }
+        let snippet: String = f
+            .content
+            .chars()
+            .take(excerpt_char_budget.min(1024))
+            .collect();
+        let used_chars = snippet.chars().count();
+        excerpt_char_budget = excerpt_char_budget.saturating_sub(used_chars);
+        ws_excerpts.push(format!(
+            "\n<workspace_file path=\"{}\" sha256=\"{}\">\n{}\n</workspace_file>\n",
+            xml_escape_attr(&f.path),
+            xml_escape_attr(&f.sha256),
+            snippet
+        ));
+    }
+}
+
 /// Formal R4.HoloGeometricRuntime build ordered Foundry system prompt segments (`core_sys`, `ws_header`, `ws_excerpts`).
 fn format_foundry_system_parts(
     workspace_files: &[FoundryWorkspaceFile],
@@ -6061,44 +6131,62 @@ fn format_foundry_system_parts(
 
     let mut ws_header = String::new();
     let mut ws_excerpts = Vec::new();
-    if !workspace_files.is_empty() || active_file.is_some_and(|s| !s.trim().is_empty()) {
-        ws_header.push_str("\n# Workspace Files\n");
-        if let Some(af) = active_file.map(str::trim).filter(|s| !s.is_empty()) {
-            ws_header.push_str(&format!("Active file: `{af}`\n"));
-        }
-        ws_header.push_str("File tree:\n");
-        for f in workspace_files.iter().take(64) {
-            let marker = if active_file.is_some_and(|af| af.trim() == f.path.trim()) {
-                " (active)"
-            } else {
-                ""
-            };
-            ws_header.push_str(&format!("- `{}`{}\n", f.path, marker));
-        }
-        let mut ordered: Vec<&FoundryWorkspaceFile> = workspace_files.iter().collect();
-        if let Some(af) = active_file.map(str::trim).filter(|s| !s.is_empty()) {
-            ordered.sort_by_key(|f| usize::from(f.path.trim() != af));
-        }
-        let mut excerpt_char_budget = 4096usize;
-        for f in ordered.into_iter().take(12) {
-            if excerpt_char_budget == 0 {
-                break;
-            }
-            let snippet: String = f
-                .content
-                .chars()
-                .take(excerpt_char_budget.min(1024))
-                .collect();
-            let used_chars = snippet.chars().count();
-            excerpt_char_budget = excerpt_char_budget.saturating_sub(used_chars);
-            ws_excerpts.push(format!(
-                "\n<workspace_file path=\"{}\" sha256=\"{}\">\n{}\n</workspace_file>\n",
-                xml_escape_attr(&f.path),
-                xml_escape_attr(&f.sha256),
-                snippet
-            ));
-        }
+    append_workspace_tree_and_excerpts(
+        workspace_files,
+        active_file,
+        &mut ws_header,
+        &mut ws_excerpts,
+    );
+    (core_sys, ws_header, ws_excerpts)
+}
+
+/// Formal R4.StudioFrame build ordered Studio/Foundry/Chat system prompt segments preserving prewarmed prefix alignment (`R4-60`).
+pub fn format_studio_system_parts(
+    surface_mode: &str,
+    composer_mode: &str,
+    repo: &str,
+    branch: &str,
+    workspace_files: &[FoundryWorkspaceFile],
+    active_file: Option<&str>,
+) -> (String, String, Vec<String>) {
+    let surface = surface_mode.trim().to_ascii_lowercase();
+    if surface == "foundry" || surface == "build" || surface.is_empty() {
+        return format_foundry_system_parts(workspace_files, active_file);
     }
+    if surface == "chat" {
+        return (
+            "You are LexLean-R4 Chat (UORR4V13 pure-integer Wasm, zero float). Answer concisely."
+                .to_string(),
+            String::new(),
+            Vec::new(),
+        );
+    }
+
+    // Studio standalone mode: share STUDIO_SELF_KNOWLEDGE_PREFIX byte-for-byte with prewarm_system_prefix,
+    // placing repo@branch, plan policy note, and workspace tree/excerpts AFTER the prewarmed prefix.
+    let core_sys = crate::STUDIO_SELF_KNOWLEDGE_PREFIX.to_string();
+    let mut ws_header = String::new();
+    let mut ws_excerpts = Vec::new();
+    let repo_trim = repo.trim();
+    if !repo_trim.is_empty() {
+        let br = if branch.trim().is_empty() {
+            "main"
+        } else {
+            branch.trim()
+        };
+        ws_header.push_str(&format!("\n# Repository\nRepo: {repo_trim}@{br}\n"));
+    }
+    if composer_mode.trim().eq_ignore_ascii_case("plan") {
+        ws_header.push_str(
+            "\n# Policy\nComposer mode: plan (read-only tools only; workspace/MVM/GitHub mutations refused).\n",
+        );
+    }
+    append_workspace_tree_and_excerpts(
+        workspace_files,
+        active_file,
+        &mut ws_header,
+        &mut ws_excerpts,
+    );
     (core_sys, ws_header, ws_excerpts)
 }
 
@@ -6116,33 +6204,411 @@ pub fn format_foundry_system_prompt(
     out
 }
 
-/// Formal R4.HoloGeometricRuntime detect a completed `</tool_call>` `mvm_exec` invocation across closed tool spans.
-fn detect_mvm_exec_tool_call(raw_stream: &[u8], tool_iterations_used: usize) -> Option<String> {
-    if tool_iterations_used >= FOUNDRY_MAX_TOOL_ITERATIONS {
-        return None;
+/// Formal R4.StudioFrame parsed and policy-checked tool invocation extracted from a Studio/Foundry stream (`R4-60`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StudioToolInvocation {
+    /// Canonical tool identifier (`mvm_exec`, `workspace_read`, `workspace_search`, `preview_inspect`, `github_git`, `spiralcore_fetch`, or refused mutation).
+    pub name: String,
+    /// Structured JSON tool arguments.
+    pub arguments: serde_json::Value,
+    /// Extracted command string when `name == "mvm_exec"`.
+    pub cmd: Option<String>,
+    /// True if the tool invocation mutates `/workspace`, MVM, or remote git state.
+    pub is_mutating: bool,
+    /// Result of `R4.StudioFrame.admitStudioTool(policy, is_mutating)`.
+    pub admitted: bool,
+    /// Refusal diagnostic code (`Some("RefusedPlanModeMutation")`) when `admitted == false`.
+    pub refusal_code: Option<&'static str>,
+}
+
+/// Formal R4.StudioFrame scan for unquoted shell redirection (`>`, `>>`) or subshell substitution (`$(`, backticks).
+fn has_unquoted_shell_mutation_op(cmd: &str) -> bool {
+    let mut in_single = false;
+    let mut in_double = false;
+    let mut prev_dollar = false;
+    let mut escaped = false;
+    for ch in cmd.chars() {
+        if escaped {
+            escaped = false;
+            prev_dollar = false;
+            continue;
+        }
+        if ch == '\\' && !in_single {
+            escaped = true;
+            prev_dollar = false;
+            continue;
+        }
+        if ch == '\'' && !in_double {
+            in_single = !in_single;
+            prev_dollar = false;
+            continue;
+        }
+        if ch == '"' && !in_single {
+            in_double = !in_double;
+            prev_dollar = false;
+            continue;
+        }
+        if !in_single {
+            if ch == '`' || (prev_dollar && ch == '(') {
+                return true;
+            }
+            if !in_double && ch == '>' {
+                return true;
+            }
+        }
+        prev_dollar = ch == '$';
     }
-    let accum = String::from_utf8_lossy(raw_stream);
-    if !accum.contains("</tool_call>") {
-        return None;
+    false
+}
+
+/// Formal R4.StudioFrame split shell string into segments across unquoted `;`, `&&`, `||`, `|`, and newlines.
+fn split_shell_segments(cmd: &str) -> Vec<String> {
+    let mut segments = Vec::new();
+    let mut cur = String::new();
+    let mut in_single = false;
+    let mut in_double = false;
+    let mut escaped = false;
+    let chars: Vec<char> = cmd.chars().collect();
+    let mut idx = 0usize;
+    while idx < chars.len() {
+        let ch = chars[idx];
+        if escaped {
+            cur.push(ch);
+            escaped = false;
+            idx += 1;
+            continue;
+        }
+        if ch == '\\' && !in_single {
+            cur.push(ch);
+            escaped = true;
+            idx += 1;
+            continue;
+        }
+        if ch == '\'' && !in_double {
+            in_single = !in_single;
+            cur.push(ch);
+            idx += 1;
+            continue;
+        }
+        if ch == '"' && !in_single {
+            in_double = !in_double;
+            cur.push(ch);
+            idx += 1;
+            continue;
+        }
+        if !in_single && !in_double && (ch == ';' || ch == '\n' || ch == '|') {
+            segments.push(cur);
+            cur = String::new();
+            if ch == '|' && idx + 1 < chars.len() && chars[idx + 1] == '|' {
+                idx += 2;
+            } else {
+                idx += 1;
+            }
+            continue;
+        }
+        if !in_single && !in_double && ch == '&' && idx + 1 < chars.len() && chars[idx + 1] == '&' {
+            segments.push(cur);
+            cur = String::new();
+            idx += 2;
+            continue;
+        }
+        cur.push(ch);
+        idx += 1;
     }
-    for (tool_name, args) in crate::extract_closed_holo_tool_calls(&accum)
-        .into_iter()
-        .rev()
-    {
-        if tool_name == "mvm_exec" {
-            let cmd = args
-                .get("cmd")
-                .or_else(|| args.get("command"))
+    if !cur.trim().is_empty() {
+        segments.push(cur);
+    }
+    segments
+}
+
+/// Formal R4.StudioFrame check whether an `mvm_exec` shell command may mutate `/workspace` or guest state (fail-closed).
+pub(crate) fn is_mvm_command_mutating(cmd: &str) -> bool {
+    let trimmed = cmd.trim();
+    if trimmed.is_empty() || has_unquoted_shell_mutation_op(trimmed) {
+        return true;
+    }
+    for seg in split_shell_segments(trimmed) {
+        let mut tokens = seg.split_whitespace();
+        let mut head = None;
+        for tok in tokens.by_ref() {
+            let is_env = tok.contains('=')
+                && !tok.starts_with('-')
+                && !tok.starts_with('/')
+                && tok.split('=').next().is_some_and(|k| {
+                    !k.is_empty() && k.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
+                });
+            if !is_env {
+                head = Some(tok);
+                break;
+            }
+        }
+        let Some(prog_raw) = head else {
+            continue;
+        };
+        let prog = prog_raw.rsplit('/').next().unwrap_or(prog_raw);
+        let rest: Vec<&str> = tokens.collect();
+        let seg_read_only = match prog {
+            "pwd" | "ls" | "cat" | "head" | "tail" | "wc" | "grep" | "rg" | "stat" | "file"
+            | "uname" | "whoami" | "id" | "date" | "sha256sum" | "md5sum" | "diff" | "cmp"
+            | "tree" | "echo" | "printf" | "which" | "sort" | "uniq" | "cut" | "tr"
+            | "basename" | "dirname" | "realpath" | "readlink" | "env" | "printenv" | "test"
+            | "[" | "true" | "false" => true,
+            "sed" => !rest
+                .iter()
+                .any(|a| *a == "-i" || a.starts_with("-i") || a.starts_with("--in-place")),
+            "find" => !rest.iter().any(|a| {
+                matches!(
+                    *a,
+                    "-delete"
+                        | "-exec"
+                        | "-execdir"
+                        | "-ok"
+                        | "-okdir"
+                        | "-fprint"
+                        | "-fprintf"
+                        | "-fls"
+                )
+            }),
+            "git" => {
+                let sub = rest
+                    .iter()
+                    .copied()
+                    .find(|a| !a.starts_with('-'))
+                    .unwrap_or("");
+                match sub {
+                    "status" | "log" | "diff" | "show" | "rev-parse" | "ls-files" | "describe" => {
+                        true
+                    }
+                    "branch" | "tag" => {
+                        let has_mut_flag = rest.iter().any(|a| {
+                            matches!(
+                                *a,
+                                "-d" | "-D"
+                                    | "-m"
+                                    | "-M"
+                                    | "-f"
+                                    | "-c"
+                                    | "-C"
+                                    | "--delete"
+                                    | "--move"
+                                    | "--copy"
+                                    | "-a"
+                                    | "-s"
+                            )
+                        });
+                        let positional_after_sub = rest
+                            .iter()
+                            .copied()
+                            .skip_while(|a| *a != sub)
+                            .skip(1)
+                            .filter(|a| !a.starts_with('-'))
+                            .count();
+                        !has_mut_flag && positional_after_sub == 0
+                    }
+                    _ => false,
+                }
+            }
+            _ => false,
+        };
+        if !seg_read_only {
+            return true;
+        }
+    }
+    false
+}
+
+/// Formal R4.StudioFrame classify whether a `github_git` / git-bridge invocation mutates repository state.
+fn is_github_git_mutating(tool_name: &str, args: &serde_json::Value) -> bool {
+    match tool_name {
+        "github_status" => false,
+        "github_clone" | "github_push" | "github_pr" => true,
+        _ => {
+            let sub = args
+                .get("subcommand")
+                .or_else(|| args.get("action"))
+                .or_else(|| args.get("op"))
                 .and_then(|v| v.as_str())
-                .unwrap_or("")
+                .unwrap_or("status")
                 .trim()
-                .to_string();
-            if !cmd.is_empty() {
-                return Some(cmd);
+                .to_ascii_lowercase();
+            !matches!(
+                sub.as_str(),
+                "status"
+                    | "log"
+                    | "diff"
+                    | "branches"
+                    | "branch_list"
+                    | "list_prs"
+                    | "get_pr"
+                    | "repo_info"
+                    | "inspect"
+                    | "check"
+            )
+        }
+    }
+}
+
+/// Formal R4.StudioFrame classify whether a `spiralcore_fetch` invocation uses a mutating HTTP method.
+fn is_spiralcore_fetch_mutating(args: &serde_json::Value) -> bool {
+    let method = args
+        .get("method")
+        .and_then(|v| v.as_str())
+        .unwrap_or("GET")
+        .trim()
+        .to_ascii_uppercase();
+    !matches!(method.as_str(), "GET" | "HEAD" | "OPTIONS")
+}
+
+/// Formal R4.StudioFrame detect an opening or closed mutating `<prism-*>` IDE edit tag in `plan` mode.
+fn find_mutating_prism_tag(accum: &str) -> Option<(usize, &'static str)> {
+    const TAGS: [(&str, &str); 4] = [
+        ("<prism-write", "prism_write"),
+        ("<prism-delete", "prism_delete"),
+        ("<prism-rename", "prism_rename"),
+        ("<prism-add-dependency", "prism_add_dependency"),
+    ];
+    let mut best: Option<(usize, &'static str)> = None;
+    for (pat, label) in TAGS {
+        if let Some(pos) = accum.find(pat) {
+            if accum[pos..].contains('>') && best.is_none_or(|(best_pos, _)| pos < best_pos) {
+                best = Some((pos, label));
             }
         }
     }
-    None
+    best
+}
+
+/// Formal R4.StudioFrame construct a policy-checked `StudioToolInvocation` via `R4.StudioFrame.admitStudioTool`.
+fn build_tool_invocation(
+    name: String,
+    arguments: serde_json::Value,
+    cmd: Option<String>,
+    policy: crate::lexlean_generated::r4_studio_frame::ComposerToolPolicy,
+    is_mutating: bool,
+) -> StudioToolInvocation {
+    let admitted =
+        crate::lexlean_generated::r4_studio_frame::admit_studio_tool(policy, is_mutating);
+    StudioToolInvocation {
+        name,
+        arguments,
+        cmd,
+        is_mutating,
+        admitted,
+        refusal_code: if admitted {
+            None
+        } else {
+            Some("RefusedPlanModeMutation")
+        },
+    }
+}
+
+/// Formal R4.StudioFrame detect a completed multi-tool `<tool_call>` invocation and enforce `R4.StudioFrame.admitStudioTool` (`R4-60`).
+pub fn detect_studio_tool_call(
+    raw_stream: &[u8],
+    _surface_mode: &str,
+    composer_mode: &str,
+    iterations_used: usize,
+) -> Option<StudioToolInvocation> {
+    if iterations_used >= FOUNDRY_MAX_TOOL_ITERATIONS {
+        return None;
+    }
+    let accum = String::from_utf8_lossy(raw_stream);
+    let is_plan_mode = composer_mode.trim().eq_ignore_ascii_case("plan");
+    let policy = if is_plan_mode {
+        crate::lexlean_generated::r4_studio_frame::ComposerToolPolicy::PlanReadOnly
+    } else {
+        crate::lexlean_generated::r4_studio_frame::ComposerToolPolicy::AgentFull
+    };
+
+    let prism_tag_match = if is_plan_mode {
+        find_mutating_prism_tag(&accum)
+    } else {
+        None
+    };
+
+    let mut matched_tool: Option<StudioToolInvocation> = None;
+    if accum.contains("</tool_call>") {
+        for (tool_name, args) in crate::extract_closed_holo_tool_calls(&accum)
+            .into_iter()
+            .rev()
+        {
+            let (is_mutating, cmd_opt) = match tool_name.as_str() {
+                "mvm_exec" => {
+                    let cmd = args
+                        .get("cmd")
+                        .or_else(|| args.get("command"))
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("")
+                        .trim()
+                        .to_string();
+                    if cmd.is_empty() {
+                        continue;
+                    }
+                    (is_mvm_command_mutating(&cmd), Some(cmd))
+                }
+                "workspace_read" | "workspace_search" | "preview_inspect" => (false, None),
+                "github_git" | "github_status" | "github_clone" | "github_push" | "github_pr"
+                | "git" => (is_github_git_mutating(&tool_name, &args), None),
+                "spiralcore_fetch" => (is_spiralcore_fetch_mutating(&args), None),
+                "workspace_write" | "workspace_patch" | "workspace_delete" | "workspace_rename" => {
+                    (true, None)
+                }
+                _ => continue,
+            };
+            matched_tool = Some(build_tool_invocation(
+                tool_name,
+                args,
+                cmd_opt,
+                policy,
+                is_mutating,
+            ));
+            break;
+        }
+    }
+
+    if let Some((tag_pos, tag_label)) = prism_tag_match {
+        let tool_pos = accum.find("<tool_call>");
+        let tag_comes_first = matched_tool.is_none() || tool_pos.is_none_or(|tp| tag_pos < tp);
+        if tag_comes_first {
+            return Some(build_tool_invocation(
+                tag_label.to_string(),
+                serde_json::json!({ "tag": tag_label }),
+                None,
+                policy,
+                true,
+            ));
+        }
+    }
+
+    matched_tool
+}
+
+/// Formal R4.StudioFrame serialize a detected tool invocation for `holo_step_foundry_turn` (`R4-56`, `R4-60`).
+fn serialize_tool_call_json(inv: &StudioToolInvocation) -> serde_json::Value {
+    let mut map = serde_json::Map::new();
+    map.insert("name".to_string(), serde_json::json!(inv.name));
+    map.insert("arguments".to_string(), inv.arguments.clone());
+    if inv.name == "mvm_exec" {
+        if let Some(cmd) = &inv.cmd {
+            map.insert("cmd".to_string(), serde_json::json!(cmd));
+        }
+    }
+    map.insert(
+        "is_mutating".to_string(),
+        serde_json::json!(inv.is_mutating),
+    );
+    serde_json::Value::Object(map)
+}
+
+/// Formal R4.HoloGeometricRuntime detect a completed `</tool_call>` `mvm_exec` invocation across closed tool spans.
+#[allow(dead_code)]
+fn detect_mvm_exec_tool_call(raw_stream: &[u8], tool_iterations_used: usize) -> Option<String> {
+    let inv = detect_studio_tool_call(raw_stream, "foundry", "agent", tool_iterations_used)?;
+    if inv.name == "mvm_exec" && inv.admitted {
+        inv.cmd
+    } else {
+        None
+    }
 }
 
 /// Formal R4.HoloGeometricRuntime derive JSON floating-point `tok_per_sec` from integer milli-units.
@@ -6224,8 +6690,8 @@ fn build_foundry_geometric_metrics_json(
     })
 }
 
-/// Formal R4.HoloGeometricRuntime format prompt + completed `mvm_exec` tool results for ChatML prefill.
-fn format_foundry_user_turn(prompt: &str, tool_results: &[FoundryToolResult]) -> String {
+/// Formal R4.HoloGeometricRuntime format prompt + completed tool results for ChatML prefill.
+fn format_foundry_user_turn(prompt: &str, tool_results: &[FoundryToolResultInput]) -> String {
     let trimmed = prompt.trim();
     if tool_results.is_empty() {
         return trimmed.to_string();
@@ -6235,12 +6701,32 @@ fn format_foundry_user_turn(prompt: &str, tool_results: &[FoundryToolResult]) ->
         let stdout_clip: String = res.stdout.trim().chars().take(1500).collect();
         let stderr_clip: String = res.stderr.trim().chars().take(500).collect();
         let changed = res.changed_files.join(", ");
-        out.push_str(&format!(
-            "\n<tool_response tool=\"mvm_exec\" cmd=\"{}\" exit_code=\"{}\" changed_files=\"{}\">\n",
-            xml_escape_attr(res.cmd.trim()),
-            res.exit_code,
-            xml_escape_attr(&changed)
-        ));
+        let tool_name = if res.tool.trim().is_empty() {
+            "mvm_exec"
+        } else {
+            res.tool.trim()
+        };
+        let target_attr = if !res.cmd.trim().is_empty() {
+            res.cmd.trim()
+        } else {
+            res.target.trim()
+        };
+        if tool_name == "mvm_exec" {
+            out.push_str(&format!(
+                "\n<tool_response tool=\"mvm_exec\" cmd=\"{}\" exit_code=\"{}\" changed_files=\"{}\">\n",
+                xml_escape_attr(target_attr),
+                res.exit_code,
+                xml_escape_attr(&changed)
+            ));
+        } else {
+            out.push_str(&format!(
+                "\n<tool_response tool=\"{}\" target=\"{}\" exit_code=\"{}\" changed_files=\"{}\">\n",
+                xml_escape_attr(tool_name),
+                xml_escape_attr(target_attr),
+                res.exit_code,
+                xml_escape_attr(&changed)
+            ));
+        }
         if !stdout_clip.is_empty() {
             out.push_str(&stdout_clip);
             out.push('\n');
@@ -6322,6 +6808,91 @@ fn fit_foundry_prompt_tokens(
     (core_sys.to_string(), combined)
 }
 
+/// Formal R4.StudioFrame serialize terminal `done`, `needs_tool`, or `RefusedPlanModeMutation` outcome for `holo_step_foundry_turn` (`R4-56`, `R4-60`).
+#[allow(clippy::too_many_arguments)]
+fn format_foundry_step_terminal_json(
+    status: &str,
+    turn_id: u64,
+    model_id: &str,
+    slice_delta: &str,
+    tokens_emitted: usize,
+    tps: serde_json::Value,
+    ttft_ms: u32,
+    tps_x10: u16,
+    prefix_reused_tokens: usize,
+    slice_frames: &[crate::holo_geometric_runtime::HoloStepObservatoryFrame],
+    latest_step_frame: &Option<crate::holo_geometric_runtime::HoloStepObservatoryFrame>,
+    detected_tool: Option<&StudioToolInvocation>,
+    receipt_sha256: &str,
+    weights_kappa: &str,
+    gm: &serde_json::Value,
+) -> String {
+    if status == "refused_plan" {
+        let tool_val = detected_tool.map(serialize_tool_call_json);
+        let tool_name = detected_tool.map(|t| t.name.as_str()).unwrap_or("mutation");
+        return serde_json::json!({
+            "status": "error",
+            "turn_id": turn_id,
+            "model_id": model_id,
+            "error_code": "RefusedPlanModeMutation",
+            "message": format!("Composer plan mode (PlanReadOnly) refuses mutating tool `{tool_name}`"),
+            "tool_call": tool_val,
+            "delta": slice_delta,
+            "tokens_emitted": tokens_emitted,
+            "tok_per_sec": tps,
+            "ttft_ms": ttft_ms,
+            "tps_x10": tps_x10,
+            "prefix_reused_tokens": prefix_reused_tokens,
+            "observatory_frames": slice_frames,
+            "frame": latest_step_frame,
+            "receipt_sha256": receipt_sha256,
+            "weights_kappa": weights_kappa,
+            "geometric_metrics": gm,
+        })
+        .to_string();
+    }
+    if status == "needs_tool" {
+        let tool_val = detected_tool.map(serialize_tool_call_json).unwrap_or_else(
+            || serde_json::json!({ "name": "mvm_exec", "cmd": "", "arguments": {} }),
+        );
+        return serde_json::json!({
+            "status": "needs_tool",
+            "turn_id": turn_id,
+            "model_id": model_id,
+            "delta": slice_delta,
+            "tokens_emitted": tokens_emitted,
+            "tok_per_sec": tps,
+            "ttft_ms": ttft_ms,
+            "tps_x10": tps_x10,
+            "prefix_reused_tokens": prefix_reused_tokens,
+            "observatory_frames": slice_frames,
+            "frame": latest_step_frame,
+            "tool_call": tool_val,
+            "receipt_sha256": receipt_sha256,
+            "weights_kappa": weights_kappa,
+            "geometric_metrics": gm,
+        })
+        .to_string();
+    }
+    serde_json::json!({
+        "status": "done",
+        "turn_id": turn_id,
+        "model_id": model_id,
+        "delta": slice_delta,
+        "tokens_emitted": tokens_emitted,
+        "tok_per_sec": tps,
+        "ttft_ms": ttft_ms,
+        "tps_x10": tps_x10,
+        "prefix_reused_tokens": prefix_reused_tokens,
+        "observatory_frames": slice_frames,
+        "frame": latest_step_frame,
+        "receipt_sha256": receipt_sha256,
+        "weights_kappa": weights_kappa,
+        "geometric_metrics": gm,
+    })
+    .to_string()
+}
+
 impl StudioEngine {
     /// Formal R4.HoloGeometricRuntime begin an async 4-token chunked Foundry turn (`R4-56`).
     pub fn holo_begin_foundry_turn(&mut self, payload_json: &str) -> String {
@@ -6384,7 +6955,7 @@ impl StudioEngine {
         let surface_mode = {
             let s = req.surface_mode.trim().to_ascii_lowercase();
             if s.is_empty() {
-                "studio".to_string()
+                "foundry".to_string()
             } else {
                 s
             }
@@ -6408,25 +6979,29 @@ impl StudioEngine {
                 }
             }
         };
-        let (core_sys, ws_header, ws_excerpts) = if surface_mode == "chat" {
-            (
-                Self::default_holo_chat_system_prompt(&target_model),
-                String::new(),
-                Vec::new(),
-            )
-        } else {
-            format_foundry_system_parts(&req.workspace_files, req.active_file.as_deref())
-        };
+        let (core_sys, ws_header, ws_excerpts) = format_studio_system_parts(
+            &surface_mode,
+            &composer_mode,
+            &req.repo,
+            &req.branch,
+            &req.workspace_files,
+            req.active_file.as_deref(),
+        );
         let user_turn = format_foundry_user_turn(&req.prompt, &req.tool_results);
         let tool_iterations_used = req.tool_results.len();
         let started_ms = crate::api::host_monotonic_ms();
 
         if target_model == "uor-r4.native-q31-d85" {
-            let sys_prompt = if surface_mode == "chat" {
-                Self::default_holo_chat_system_prompt("uor-r4.native-q31-d85")
-            } else {
-                format_foundry_system_prompt(&req.workspace_files, req.active_file.as_deref())
-            };
+            let mut sys_prompt = String::with_capacity(
+                core_sys.len()
+                    + ws_header.len()
+                    + ws_excerpts.iter().map(String::len).sum::<usize>(),
+            );
+            sys_prompt.push_str(&core_sys);
+            sys_prompt.push_str(&ws_header);
+            for ex in &ws_excerpts {
+                sys_prompt.push_str(ex);
+            }
             let effective_max_new = requested_max_new.min(crate::native_q31_lane::D85_MAX_CTX);
             let mut d85_tokens = self.native_q31.encode_bytes(user_turn.as_bytes());
             if d85_tokens.is_empty() {
@@ -6669,7 +7244,7 @@ impl StudioEngine {
         if session.native_q31_active {
             let mut slice_delta = String::new();
             let mut status: &'static str = "streaming";
-            let mut detected_tool_cmd: Option<String> = None;
+            let mut detected_tool: Option<StudioToolInvocation> = None;
             let mut slice_frames = Vec::new();
 
             for _ in 0..session.slice_tokens {
@@ -6721,11 +7296,18 @@ impl StudioEngine {
                     );
                     session.last_emitted_decode_step = cur_step;
                 }
-                if let Some(cmd) =
-                    detect_mvm_exec_tool_call(&session.raw_stream, session.tool_iterations_used)
-                {
-                    detected_tool_cmd = Some(cmd);
-                    status = "needs_tool";
+                if let Some(inv) = detect_studio_tool_call(
+                    &session.raw_stream,
+                    &session.surface_mode,
+                    &session.composer_mode,
+                    session.tool_iterations_used,
+                ) {
+                    status = if inv.admitted {
+                        "needs_tool"
+                    } else {
+                        "refused_plan"
+                    };
+                    detected_tool = Some(inv);
                     break;
                 }
                 if session.tokens_emitted >= session.max_new_tokens {
@@ -6789,44 +7371,23 @@ impl StudioEngine {
                 .as_bytes(),
             );
             let weights_kappa = format!("sha256:{}", session.container_sha256);
-            if status == "needs_tool" {
-                return serde_json::json!({
-                    "status": "needs_tool",
-                    "turn_id": turn_id,
-                    "model_id": session.model_id,
-                    "delta": slice_delta,
-                    "tokens_emitted": session.tokens_emitted,
-                    "tok_per_sec": tps,
-                    "ttft_ms": ttft_ms,
-                    "tps_x10": tps_x10,
-                    "observatory_frames": slice_frames,
-                    "frame": latest_step_frame,
-                    "tool_call": {
-                        "name": "mvm_exec",
-                        "cmd": detected_tool_cmd.unwrap_or_default(),
-                    },
-                    "receipt_sha256": receipt_sha256,
-                    "weights_kappa": weights_kappa,
-                    "geometric_metrics": gm,
-                })
-                .to_string();
-            }
-            return serde_json::json!({
-                "status": "done",
-                "turn_id": turn_id,
-                "model_id": session.model_id,
-                "delta": slice_delta,
-                "tokens_emitted": session.tokens_emitted,
-                "tok_per_sec": tps,
-                "ttft_ms": ttft_ms,
-                "tps_x10": tps_x10,
-                "observatory_frames": slice_frames,
-                "frame": latest_step_frame,
-                "receipt_sha256": receipt_sha256,
-                "weights_kappa": weights_kappa,
-                "geometric_metrics": gm,
-            })
-            .to_string();
+            return format_foundry_step_terminal_json(
+                status,
+                turn_id,
+                &session.model_id,
+                &slice_delta,
+                session.tokens_emitted,
+                tps,
+                ttft_ms,
+                tps_x10,
+                session.prefix_reused_tokens,
+                &slice_frames,
+                &latest_step_frame,
+                detected_tool.as_ref(),
+                &receipt_sha256,
+                &weights_kappa,
+                &gm,
+            );
         }
 
         let Some(model) = self.holo_models.get_mut(&session.model_id) else {
@@ -6839,7 +7400,7 @@ impl StudioEngine {
 
         let mut slice_delta = String::new();
         let mut status: &'static str = "streaming";
-        let mut detected_tool_cmd: Option<String> = None;
+        let mut detected_tool: Option<StudioToolInvocation> = None;
         let frame_start = session
             .emitted_observatory_frames
             .min(session.observatory_frames.len());
@@ -6942,14 +7503,27 @@ impl StudioEngine {
                 session.last_emitted_decode_step = cur_step;
             }
 
-            if let Some(cmd) =
-                detect_mvm_exec_tool_call(&session.raw_stream, session.tool_iterations_used)
-            {
-                let (_, fa, ft) = model.step_token(chosen_id, &session.recent_tokens, false, true);
-                session.flock_attended += fa;
-                session.flock_total += ft;
-                detected_tool_cmd = Some(cmd);
-                status = "needs_tool";
+            if let Some(inv) = detect_studio_tool_call(
+                &session.raw_stream,
+                &session.surface_mode,
+                &session.composer_mode,
+                session.tool_iterations_used,
+            ) {
+                if inv.admitted {
+                    let (_, fa, ft) =
+                        model.step_token(chosen_id, &session.recent_tokens, false, true);
+                    session.flock_attended += fa;
+                    session.flock_total += ft;
+                    status = "needs_tool";
+                } else {
+                    model.kv_cache.truncate_to(
+                        session.kv_checkpoint_len,
+                        model.n_kv_heads,
+                        model.head_dim,
+                    );
+                    status = "refused_plan";
+                }
+                detected_tool = Some(inv);
                 break;
             }
 
@@ -7023,14 +7597,16 @@ impl StudioEngine {
         let reply_full = String::from_utf8_lossy(&session.raw_stream)
             .trim()
             .to_string();
-        if model.kv_cache.turn_token_spans.len() >= 12 {
-            model.kv_cache.turn_token_spans.remove(0);
+        if status != "refused_plan" {
+            if model.kv_cache.turn_token_spans.len() >= 12 {
+                model.kv_cache.turn_token_spans.remove(0);
+            }
+            model.kv_cache.turn_token_spans.push((
+                session.user_prompt_trimmed.clone(),
+                reply_full.clone(),
+                session.generated_ids.clone(),
+            ));
         }
-        model.kv_cache.turn_token_spans.push((
-            session.user_prompt_trimmed.clone(),
-            reply_full.clone(),
-            session.generated_ids.clone(),
-        ));
         self.last_holo_observatory_frames = session.observatory_frames.clone();
         let receipt_sha256 = crate::sha256_hex(
             format!(
@@ -7045,48 +7621,23 @@ impl StudioEngine {
         );
         let weights_kappa = format!("sha256:{}", session.container_sha256);
 
-        if status == "needs_tool" {
-            let cmd = detected_tool_cmd.unwrap_or_default();
-            return serde_json::json!({
-                "status": "needs_tool",
-                "turn_id": turn_id,
-                "model_id": session.model_id,
-                "delta": slice_delta,
-                "tokens_emitted": session.tokens_emitted,
-                "tok_per_sec": tps,
-                "ttft_ms": ttft_ms,
-                "tps_x10": tps_x10,
-                "prefix_reused_tokens": prefix_reused_tokens,
-                "observatory_frames": slice_frames,
-                "frame": latest_step_frame,
-                "tool_call": {
-                    "name": "mvm_exec",
-                    "cmd": cmd,
-                },
-                "receipt_sha256": receipt_sha256,
-                "weights_kappa": weights_kappa,
-                "geometric_metrics": gm,
-            })
-            .to_string();
-        }
-
-        serde_json::json!({
-            "status": "done",
-            "turn_id": turn_id,
-            "model_id": session.model_id,
-            "delta": slice_delta,
-            "tokens_emitted": session.tokens_emitted,
-            "tok_per_sec": tps,
-            "ttft_ms": ttft_ms,
-            "tps_x10": tps_x10,
-            "prefix_reused_tokens": prefix_reused_tokens,
-            "observatory_frames": slice_frames,
-            "frame": latest_step_frame,
-            "receipt_sha256": receipt_sha256,
-            "weights_kappa": weights_kappa,
-            "geometric_metrics": gm,
-        })
-        .to_string()
+        format_foundry_step_terminal_json(
+            status,
+            turn_id,
+            &session.model_id,
+            &slice_delta,
+            session.tokens_emitted,
+            tps,
+            ttft_ms,
+            tps_x10,
+            prefix_reused_tokens,
+            &slice_frames,
+            &latest_step_frame,
+            detected_tool.as_ref(),
+            &receipt_sha256,
+            &weights_kappa,
+            &gm,
+        )
     }
 
     /// Formal R4.HoloGeometricRuntime atomically cancel an active Foundry turn and reset rolling state (`R4-56`).
