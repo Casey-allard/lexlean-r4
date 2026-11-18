@@ -137,7 +137,7 @@ fn test_interaction_engine_synthesis_and_prism_alignment() {
     assert_eq!(report["total_defects"], 0);
 
     let check_out = XtaskEngineInvoker::check_model().expect("xtask check-model");
-    assert!(check_out.contains("CONFORMANCE.md equals the model, 58 ids"));
+    assert!(check_out.contains("CONFORMANCE.md equals the model, 59 ids"));
 }
 
 #[test]
@@ -203,7 +203,7 @@ fn test_interaction_stitch_parity_and_vsock_relay() {
 #[test]
 fn test_interaction_bdd_capabilities_and_conformance_generation() {
     let rows = load_all_capability_rows().expect("load model/ids.toml");
-    assert_eq!(rows.len(), 58, "Must contain 58 registered IDs");
+    assert_eq!(rows.len(), 59, "Must contain 59 registered IDs");
     let c48 = rows
         .iter()
         .find(|r| r.id == "R4-48")

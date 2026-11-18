@@ -217,6 +217,7 @@ fn validate(root: &Path) -> Result<(), Fail> {
 /// verifying its `core-wasm@1` acceptance vectors and BLAKE3 footer against `site/app.json`.
 pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
     let mut out_path: Option<PathBuf> = None;
+    let mut emit_fp_dir: Option<PathBuf> = None;
     let mut sync_site = false;
     let mut verify_site = false;
     let mut i = 0usize;
@@ -228,6 +229,14 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
                     .ok_or("--out requires a destination .holo path")?;
                 let p = PathBuf::from(raw);
                 out_path = Some(if p.is_absolute() { p } else { root.join(p) });
+                i += 2;
+            }
+            "--emit-fingerprint-dir" => {
+                let raw = args
+                    .get(i + 1)
+                    .ok_or("--emit-fingerprint-dir requires a destination directory")?;
+                let p = PathBuf::from(raw);
+                emit_fp_dir = Some(if p.is_absolute() { p } else { root.join(p) });
                 i += 2;
             }
             "--sync-site-manifest" => {
@@ -265,11 +274,74 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
     let summary = prism_holo_compiler::verify_holo_v4_archive(&archive)
         .map_err(|v| format!("build-holo verify refused: {v:?}"))?;
 
+    const MAX_HOLO_ARCHIVE_BYTES: usize = 32 * 1024 * 1024;
+    if archive.len() > MAX_HOLO_ARCHIVE_BYTES {
+        return Err(format!(
+            "build-holo: compiled .holo archive ({} bytes) exceeds 32 MiB cap ({MAX_HOLO_ARCHIVE_BYTES} bytes)",
+            archive.len()
+        )
+        .into());
+    }
+
+    let forbidden_lower_a = concat!("humu", "humu33");
+    let forbidden_lower_b = concat!("/hologram", "-forge/");
+    let contains_ci = |haystack: &[u8], needle: &[u8]| -> bool {
+        haystack
+            .windows(needle.len())
+            .any(|w| w.eq_ignore_ascii_case(needle))
+    };
+    if contains_ci(&archive, forbidden_lower_a.as_bytes())
+        || contains_ci(&archive, forbidden_lower_b.as_bytes())
+    {
+        return Err(
+            "build-holo: compiled .holo archive contains forbidden brand/path residue".into(),
+        );
+    }
+
+    let wasm_sha256: String = {
+        use sha2::{Digest, Sha256};
+        let wasm_bytes = files
+            .get("lexlean_r4_bg.wasm")
+            .ok_or("missing lexlean_r4_bg.wasm in public/")?;
+        Sha256::digest(wasm_bytes)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect()
+    };
+    let offline_q31_kappa: String = {
+        use sha2::{Digest, Sha256};
+        let q31_bytes = std::fs::read(root.join("crates/wasm/src/native_q31_d85.uorq31"))
+            .map_err(|e| format!("reading native_q31_d85.uorq31: {e}"))?;
+        let hex: String = Sha256::digest(&q31_bytes)
+            .iter()
+            .map(|b| format!("{b:02x}"))
+            .collect();
+        format!("sha256:{hex}")
+    };
+    let qwen3_weights_kappa: String = {
+        let mpath = root.join("gpu/weights/v13_qwen3_0_6b/manifest.json");
+        if mpath.is_file() {
+            let mraw = std::fs::read_to_string(&mpath)?;
+            let mdoc: serde_json::Value = serde_json::from_str(&mraw)?;
+            let csha = mdoc["container_sha256"]
+                .as_str()
+                .unwrap_or("1d0255929995725be144cb1787416880ffb073e0d153adf1a663abb636a0550a");
+            format!("sha256:{csha}")
+        } else {
+            "sha256:1d0255929995725be144cb1787416880ffb073e0d153adf1a663abb636a0550a".to_string()
+        }
+    };
+
     if let Some(dest) = &out_path {
         if let Some(parent) = dest.parent() {
             std::fs::create_dir_all(parent)?;
         }
         std::fs::write(dest, &archive)?;
+    }
+    if let Some(fp_dir) = &emit_fp_dir {
+        std::fs::create_dir_all(fp_dir)?;
+        let fp_file = fp_dir.join(format!("{}.holo", summary.fingerprint));
+        std::fs::write(&fp_file, &archive)?;
     }
 
     let site_manifest_path = root.join("site/app.json");
@@ -283,6 +355,14 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
         doc["viewContentKappa"] = serde_json::json!(summary.view_content_kappa);
         doc["modelContentKappa"] = serde_json::json!(summary.model_content_kappa);
         doc["holoByteLength"] = serde_json::json!(summary.byte_length);
+        doc["wasmSha256"] = serde_json::json!(wasm_sha256);
+        doc["holoUrl"] = serde_json::json!("https://casey-allard.github.io/lexlean-r4/app.holo");
+        doc["holoFingerprintUrl"] = serde_json::json!(format!(
+            "https://casey-allard.github.io/lexlean-r4/holo/{}.holo",
+            summary.fingerprint
+        ));
+        doc["qwen3WeightsKappa"] = serde_json::json!(qwen3_weights_kappa);
+        doc["offlineQ31WeightsKappa"] = serde_json::json!(offline_q31_kappa);
         std::fs::write(
             &site_manifest_path,
             format!("{}\n", serde_json::to_string_pretty(&doc)?),
@@ -298,12 +378,21 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
             )
             .into());
         }
+        if let Some(expected_wasm) = doc.get("wasmSha256").and_then(|v| v.as_str()) {
+            if expected_wasm != wasm_sha256 {
+                return Err(format!(
+                    "site/app.json wasmSha256 mismatch: site/app.json={expected_wasm} live={wasm_sha256}; run `cargo run -q -p xtask -- build-holo --sync-site-manifest`"
+                )
+                .into());
+            }
+        }
     }
 
     println!(
-        "build-holo: verified v4 archive ({} bytes, blake3={}, vectors={}/{}, view_files={})",
+        "build-holo: verified v4 archive ({} bytes, blake3={}, wasmSha256={}, vectors={}/{}, view_files={})",
         summary.byte_length,
         &summary.fingerprint[..16],
+        &wasm_sha256[..16],
         summary.vectors_passed,
         summary.vectors_total,
         summary.view_file_count,

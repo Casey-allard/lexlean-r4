@@ -3178,6 +3178,20 @@ const SECRET_HOST_ALLOWLIST = Object.freeze({
   GITHUB_TOKEN: new Set(['github.com', 'api.github.com']),
 });
 
+const PRISM_SANDBOXED_ALLOWLIST = new Set([
+  'registry.npmjs.org',
+  'esm.sh',
+  'pypi.org',
+  'files.pythonhosted.org',
+  'cdn.jsdelivr.net',
+  'github.com',
+  'api.github.com',
+  'huggingface.co',
+  'cloudflare-dns.com',
+  'dns.google',
+]);
+const CREDENTIALED_GITHUB_HOSTS = new Set(['github.com', 'api.github.com']);
+
 export const PYODIDE_LOCK = Object.freeze({
   version: '0.27.2',
   url: 'https://cdn.jsdelivr.net/pyodide/v0.27.2/full/pyodide.mjs',
@@ -4747,6 +4761,12 @@ export class SpiralCoreHostBridge {
     this.staticOrigin = opts.staticOrigin || '';
     this.locationOrigin = opts.locationOrigin || '';
     this.mcpPolicy = opts.mcpPolicy || 'safe';
+    this.mode = SpiralCoreHostBridge.normalizeNetworkMode(
+      opts.mode !== undefined ? opts.mode : opts.networkMode,
+    );
+    this.consentGranted = Boolean(opts.consentGranted);
+    this.onAuditEvent = typeof opts.onAuditEvent === 'function' ? opts.onAuditEvent : null;
+    this.auditLog = [];
     this.webAccessEnabled = opts.webAccessEnabled !== false;
     this.relayTimeoutMs = opts.relayTimeoutMs || SPVS_RELAY_TIMEOUT_MS;
     this.lastTransportMode = 'standby';
@@ -4856,11 +4876,194 @@ export class SpiralCoreHostBridge {
     return { ok: true, sha256: actualSha, e_machine: elfCheck.e_machine };
   }
 
+  static normalizeNetworkMode(raw) {
+    const lower = String(raw || 'sandboxed').trim().toLowerCase();
+    if (lower === 'full_spiralcore' || lower === 'full' || lower === 'mode_b' || lower === 'spiralcore') {
+      return 'full_spiralcore';
+    }
+    return 'sandboxed';
+  }
+
+  #isPrivateIpv4(host) {
+    const parts = String(host || '').split('.');
+    if (parts.length !== 4) return false;
+    const nums = [];
+    for (const part of parts) {
+      if (!/^\d{1,3}$/.test(part)) return false;
+      const n = Number(part);
+      if (n < 0 || n > 255) return false;
+      nums.push(n);
+    }
+    const [a, b] = nums;
+    return (
+      a === 0 ||
+      a === 10 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      a === 127 ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      a >= 224
+    );
+  }
+
+  #isPrivateOrLoopbackHost(rawHost) {
+    const clean = String(rawHost || '')
+      .trim()
+      .replace(/^\[/, '')
+      .replace(/\]$/, '')
+      .split('%')[0]
+      .replace(/\.+$/, '')
+      .toLowerCase();
+    if (!clean) return false;
+    if (
+      clean === 'localhost' ||
+      clean === 'ip6-localhost' ||
+      clean === 'ip6-loopback' ||
+      clean.endsWith('.localhost') ||
+      clean.endsWith('.local') ||
+      clean.endsWith('.internal')
+    ) {
+      return true;
+    }
+    if (this.#isPrivateIpv4(clean)) return true;
+    if (clean.includes(':')) {
+      if (clean === '::' || clean === '::1' || /^0+:0+:0+:0+:0+:0+:0+:[01]$/.test(clean)) {
+        return true;
+      }
+      const v4Mapped = clean.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+      if (v4Mapped && this.#isPrivateIpv4(v4Mapped[1])) {
+        return true;
+      }
+      const hexMapped = clean.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+      if (hexMapped) {
+        const hi = parseInt(hexMapped[1], 16);
+        const lo = parseInt(hexMapped[2], 16);
+        const a = (hi >> 8) & 0xff;
+        const b = hi & 0xff;
+        if (this.#isPrivateIpv4(`${a}.${b}.${(lo >> 8) & 0xff}.${lo & 0xff}`)) {
+          return true;
+        }
+      }
+      const firstHex = clean.split(':')[0] || '';
+      if (/^[0-9a-f]{1,4}$/.test(firstHex)) {
+        const seg0 = parseInt(firstHex, 16);
+        if ((seg0 & 0xfe00) === 0xfc00 || (seg0 & 0xffc0) === 0xfe80 || (seg0 >> 8) === 0xff) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  #isCredentialedRequest(hostname, headers, urlHasSecret) {
+    const h = String(hostname || '').toLowerCase();
+    if (CREDENTIALED_GITHUB_HOSTS.has(h)) return true;
+    if (urlHasSecret) return true;
+    const hdrObj = headers && typeof headers === 'object' ? headers : {};
+    for (const [k, v] of Object.entries(hdrObj)) {
+      const kl = String(k || '').toLowerCase();
+      const vs = String(v || '');
+      if (kl === 'authorization' || kl === 'x-github-token' || vs.includes('{{MVM_SECRET:')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  #emitAuditEvent(operation, target, transport, status, bytes) {
+    const ev = {
+      event: 'audit_event',
+      op: 'audit_event',
+      operation: String(operation || 'network'),
+      target: String(target || ''),
+      mode: this.mode,
+      transport: String(transport || 'none'),
+      status: status !== undefined ? status : 0,
+      bytes: Number(bytes) || 0,
+      timestamp_ms: Date.now(),
+    };
+    if (this.auditLog.length >= 500) {
+      this.auditLog.shift();
+    }
+    this.auditLog.push(ev);
+    if (typeof this.onAuditEvent === 'function') {
+      try {
+        this.onAuditEvent(ev);
+      } catch {
+        // Ignore audit listener error cleanly
+      }
+    }
+  }
+
+  #admitNetworkPolicy(hostname, policyOpts) {
+    const cleanHost = String(hostname || '').trim().replace(/^\[/, '').replace(/\]$/, '').replace(/\.+$/, '').toLowerCase();
+    const opts = policyOpts && typeof policyOpts === 'object' ? policyOpts : {};
+    if (opts.allowConfiguredOrigin && cleanHost) {
+      for (const candidateOrigin of [this.staticOrigin, this.locationOrigin]) {
+        if (!candidateOrigin) continue;
+        try {
+          if (new URL(candidateOrigin).hostname.toLowerCase() === cleanHost) {
+            return { ok: true, host: cleanHost };
+          }
+        } catch {
+          // Ignore malformed configured origin
+        }
+      }
+      if (cleanHost.endsWith('.github.io')) {
+        return { ok: true, host: cleanHost };
+      }
+    }
+    if (!cleanHost || this.#isPrivateOrLoopbackHost(cleanHost)) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'PrivateAddressBlocked',
+        host: cleanHost,
+        target: cleanHost,
+        message: `Blocked private, loopback, or link-local SSRF target: ${cleanHost || hostname}`,
+      };
+    }
+    if (this.mode === 'sandboxed') {
+      if (!PRISM_SANDBOXED_ALLOWLIST.has(cleanHost)) {
+        return {
+          ok: false,
+          status: 403,
+          error_code: 'CapabilityDenied',
+          host: cleanHost,
+          message: `Prism capabilities/1 Sandboxed mode denied outbound host ${cleanHost}`,
+        };
+      }
+    } else if (this.mode === 'full_spiralcore' && !this.consentGranted) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RelayConsentRequired',
+        host: cleanHost,
+        message: 'Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)',
+      };
+    }
+    return { ok: true, host: cleanHost };
+  }
+
   setPolicy(optsInput) {
     const opts = optsInput && typeof optsInput === 'object' ? optsInput : {};
     const { mcpPolicy, webAccessEnabled } = opts;
     if (typeof mcpPolicy === 'string' && ['safe', 'confirm', 'deny'].includes(mcpPolicy)) {
       this.mcpPolicy = mcpPolicy;
+    }
+    if (opts.mode !== undefined || opts.networkMode !== undefined) {
+      this.mode = SpiralCoreHostBridge.normalizeNetworkMode(
+        opts.mode !== undefined ? opts.mode : opts.networkMode,
+      );
+    }
+    if (typeof opts.consentGranted === 'boolean') {
+      this.consentGranted = opts.consentGranted;
+    } else if (typeof opts.consent_granted === 'boolean') {
+      this.consentGranted = opts.consent_granted;
+    }
+    if (typeof opts.onAuditEvent === 'function') {
+      this.onAuditEvent = opts.onAuditEvent;
     }
     if (typeof webAccessEnabled === 'boolean') {
       this.webAccessEnabled = webAccessEnabled;
@@ -4868,9 +5071,25 @@ export class SpiralCoreHostBridge {
     if (opts.esbuildModuleUrl || opts.esbuildWasmUrl || opts.esbuildUrl) {
       this.setCompilerConfig(opts);
     }
+    const relayOverride = opts.relayWsUrl !== undefined ? opts.relayWsUrl : opts.relayUrl;
+    if (typeof relayOverride === 'string') {
+      this.setRelayUrl(relayOverride);
+    }
+    if (this.mode === 'full_spiralcore' && !this.consentGranted) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RelayConsentRequired',
+        message: 'Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)',
+        mode: this.mode,
+        consent_granted: false,
+      };
+    }
     return {
       ok: true,
       mcp_policy: this.mcpPolicy,
+      mode: this.mode,
+      consent_granted: this.consentGranted,
       web_access_enabled: this.webAccessEnabled,
       esbuild_configured: Boolean(this.esbuildModuleUrl && this.esbuildWasmUrl),
     };
@@ -4991,12 +5210,48 @@ export class SpiralCoreHostBridge {
   }
 
   async tryRelayRpc(op, params) {
-    if (!this.relayUrl && !this.relayHttpUrl) {
-      return null;
+    if (this.mode !== 'full_spiralcore') {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'CapabilityDenied',
+        message: 'SpiralCore AF_VSOCK relay is disabled in Prism capabilities/1 Sandboxed mode',
+      };
     }
-    const serializedCheck = JSON.stringify(params || {});
-    if (serializedCheck.includes('{{MVM_SECRET:')) {
-      return null;
+    if (!this.consentGranted) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RelayConsentRequired',
+        message: 'SpiralCore AF_VSOCK relay requires explicit user consent (consentGranted=true)',
+      };
+    }
+    const pObj = params && typeof params === 'object' ? params : {};
+    const targetCandidate = String(pObj.url || pObj.repo_url || '');
+    let targetHost = '';
+    if (targetCandidate) {
+      try {
+        targetHost = new URL(targetCandidate).hostname.toLowerCase();
+      } catch {
+        targetHost = '';
+      }
+    }
+    if (this.#isCredentialedRequest(targetHost, pObj.headers, Boolean(pObj.auth_bearer) || JSON.stringify(pObj).includes('{{MVM_SECRET:'))) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RelayForbiddenForCredentialedHost',
+        host: targetHost,
+        message: 'Credentialed hosts and requests carrying Authorization/tokens are strictly forbidden from SpiralCore relay failback',
+      };
+    }
+    if (!this.relayUrl && !this.relayHttpUrl) {
+      return {
+        ok: false,
+        status: 502,
+        error_code: 'RelayUnavailable',
+        message: 'No SpiralCore relay endpoint configured',
+      };
     }
     const rpcBody = {
       spvs_magic: 'SPVS',
@@ -5005,31 +5260,25 @@ export class SpiralCoreHostBridge {
       vsock_port: 5257,
       policy: this.mcpPolicy,
       op,
-      params: params || {},
+      params: pObj,
     };
 
-    if (typeof WebSocket === 'function') {
-      const candidateWsUrls = [];
-      if (this.relayUrl) candidateWsUrls.push(this.relayUrl);
-      if (!candidateWsUrls.includes(LOCAL_SPIRALCORE_RELAY_WS_URL)) {
-        candidateWsUrls.push(LOCAL_SPIRALCORE_RELAY_WS_URL);
-      }
-      for (const wsUrl of candidateWsUrls) {
-        const valid = this.validateTransportUrl(wsUrl, true);
-        if (!valid.ok) continue;
+    if (typeof WebSocket === 'function' && this.relayUrl) {
+      const valid = this.validateTransportUrl(this.relayUrl, true);
+      if (valid.ok) {
         try {
-          const result = await this.#sendSingleWsRpc(wsUrl, rpcBody, this.relayTimeoutMs);
+          const result = await this.#sendSingleWsRpc(this.relayUrl, rpcBody, this.relayTimeoutMs);
           if (result && typeof result.ok === 'boolean') {
-            this.lastTransportMode = wsUrl.startsWith('ws://127.0.0.1') ? 'spvs-local-ws' : 'spvs-cloud-wss';
+            this.lastTransportMode = this.relayUrl.startsWith('ws://127.0.0.1') ? 'spvs-local-ws' : 'spvs-cloud-wss';
             return result;
           }
         } catch {
-          // Try next WS or HTTPS POST relay
+          // Fall through to HTTP relay endpoint matching configured relay
         }
       }
     }
 
-    if (typeof fetch === 'function') {
+    if (typeof this.#fetchImpl === 'function' || typeof fetch === 'function') {
       const candidateHttpUrls = [];
       if (this.relayHttpUrl) candidateHttpUrls.push(this.relayHttpUrl);
       if (this.relayUrl) {
@@ -5038,12 +5287,6 @@ export class SpiralCoreHostBridge {
         } else if (this.relayUrl.startsWith('ws://127.0.0.1')) {
           candidateHttpUrls.push('http://127.0.0.1' + this.relayUrl.slice(14));
         }
-      }
-      if (!candidateHttpUrls.includes(DEFAULT_SPIRALCORE_RELAY_HTTP_URL)) {
-        candidateHttpUrls.push(DEFAULT_SPIRALCORE_RELAY_HTTP_URL);
-      }
-      if (!candidateHttpUrls.includes('http://127.0.0.1:8787/spvs')) {
-        candidateHttpUrls.push('http://127.0.0.1:8787/spvs');
       }
 
       for (const httpUrl of candidateHttpUrls) {
@@ -5068,7 +5311,12 @@ export class SpiralCoreHostBridge {
         }
       }
     }
-    return null;
+    return {
+      ok: false,
+      status: 502,
+      error_code: 'RelayUnavailable',
+      message: 'SpiralCore AF_VSOCK relay unreachable or refused connection',
+    };
   }
 
   #sendSingleWsRpc(wsUrl, payload, timeoutMs) {
@@ -5253,70 +5501,142 @@ export class SpiralCoreHostBridge {
   async handleDnsQuery(req) {
     const domain = String(req.name || req.domain || req.host || 'example.com').trim();
     const rrType = String(req.rr_type || req.qtype || req.type || 'A').trim().toUpperCase();
-    const relayRes = await this.tryRelayRpc('dns_query', { name: domain, type: rrType });
-    if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.answers)) {
-      const records = relayRes.data.answers.map((a) => ({
-        name: a.name || domain,
-        type: a.type,
-        ttl: a.ttl ?? a.TTL ?? 300,
-        data: a.data,
-      }));
-      const summary = records.length > 0
-        ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
-        : `No ${rrType} records returned for ${domain} (RCODE=${relayRes.data.rcode ?? 0})`;
+    if (this.#isPrivateOrLoopbackHost(domain)) {
+      this.#emitAuditEvent('dns_query', domain, 'blocked', 403, 0);
       return {
-        ok: true,
-        status: relayRes.status || 200,
-        op: 'dns_query',
-        name: domain,
-        rr_type: rrType,
-        records,
-        answers: records,
-        data: { answers: records, rcode: relayRes.data.rcode ?? 0 },
-        body_text: summary,
-        transport: this.lastTransportMode,
+        ok: false,
+        status: 403,
+        error_code: 'PrivateAddressBlocked',
+        host: domain,
+        target: domain,
+        message: `Blocked private, loopback, or link-local SSRF DNS query for ${domain}`,
       };
     }
-    const dohUrl = `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(rrType)}`;
-    const valid = this.validateTransportUrl(dohUrl, false);
-    if (!valid.ok) return valid;
-    try {
-      const resp = await fetch(dohUrl, {
-        method: 'GET',
-        headers: { Accept: 'application/dns-json' },
-      });
-      const json = await resp.json();
-      const answers = Array.isArray(json.Answer) ? json.Answer : [];
-      const records = answers.map((a) => ({
-        name: a.name || domain,
-        type: a.type,
-        ttl: a.TTL ?? 300,
-        data: a.data,
-      }));
-      this.lastTransportMode = 'direct-https-fallback';
-      const summary = records.length > 0
-        ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
-        : `No ${rrType} records returned for ${domain} (RCODE=${json.Status ?? 0})`;
+    if (this.mode === 'full_spiralcore' && !this.consentGranted) {
+      this.#emitAuditEvent('dns_query', domain, 'blocked', 403, 0);
       return {
-        ok: true,
-        status: resp.status,
-        op: 'dns_query',
-        name: domain,
-        rr_type: rrType,
-        records,
-        answers: records,
-        data: { answers: records, rcode: json.Status ?? 0 },
-        body_text: summary,
-        transport: this.lastTransportMode,
+        ok: false,
+        status: 403,
+        error_code: 'RelayConsentRequired',
+        message: 'Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)',
       };
-    } catch (err) {
+    }
+
+    const dohEndpoints = [
+      `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(rrType)}&ct=application/dns-json`,
+      `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=${encodeURIComponent(rrType)}`,
+    ];
+    let lastErr = '';
+    for (const dohUrl of dohEndpoints) {
+      const valid = this.validateTransportUrl(dohUrl, false);
+      if (!valid.ok) continue;
+      try {
+        const resp = await this.#fetchImpl(dohUrl, {
+          method: 'GET',
+          headers: { Accept: 'application/dns-json' },
+        });
+        if (!resp || !resp.ok) {
+          lastErr = `DoH HTTP ${resp ? resp.status : 'error'}`;
+          continue;
+        }
+        const json = await resp.json();
+        const answers = Array.isArray(json && json.Answer) ? json.Answer : [];
+        const records = answers.map((a) => ({
+          name: a.name || domain,
+          type: a.type,
+          ttl: a.TTL ?? 300,
+          data: a.data,
+        }));
+        for (const rec of records) {
+          if (this.#isPrivateOrLoopbackHost(rec.data)) {
+            this.#emitAuditEvent('dns_query', domain, 'direct-doh-blocked', 403, 0);
+            return {
+              ok: false,
+              status: 403,
+              error_code: 'PrivateAddressBlocked',
+              host: String(rec.data),
+              target: domain,
+              message: `RFC 8484 DoH answer for ${domain} resolved to private/loopback address ${rec.data}`,
+            };
+          }
+        }
+        this.lastTransportMode = 'direct-doh';
+        const summary = records.length > 0
+          ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
+          : `No ${rrType} records returned for ${domain} (RCODE=${(json && json.Status) ?? 0})`;
+        this.#emitAuditEvent('dns_query', domain, this.lastTransportMode, resp.status || 200, summary.length);
+        return {
+          ok: true,
+          status: resp.status || 200,
+          op: 'dns_query',
+          name: domain,
+          rr_type: rrType,
+          records,
+          answers: records,
+          data: { answers: records, rcode: (json && json.Status) ?? 0 },
+          body_text: summary,
+          transport: this.lastTransportMode,
+        };
+      } catch (err) {
+        lastErr = err && err.message ? err.message : String(err);
+      }
+    }
+
+    if (this.mode === 'full_spiralcore' && this.consentGranted && (this.relayUrl || this.relayHttpUrl)) {
+      const relayRes = await this.tryRelayRpc('dns_query', { name: domain, type: rrType });
+      if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.answers)) {
+        const records = relayRes.data.answers.map((a) => ({
+          name: a.name || domain,
+          type: a.type,
+          ttl: a.ttl ?? a.TTL ?? 300,
+          data: a.data,
+        }));
+        for (const rec of records) {
+          if (this.#isPrivateOrLoopbackHost(rec.data)) {
+            this.#emitAuditEvent('dns_query', domain, 'relay-blocked', 403, 0);
+            return {
+              ok: false,
+              status: 403,
+              error_code: 'PrivateAddressBlocked',
+              host: String(rec.data),
+              target: domain,
+              message: `Relayed DNS answer for ${domain} resolved to private/loopback address ${rec.data}`,
+            };
+          }
+        }
+        const summary = records.length > 0
+          ? records.map((r) => `${r.name}\tIN\t${rrType}\t${r.data} (ttl=${r.ttl}s)`).join('\n')
+          : `No ${rrType} records returned for ${domain} (RCODE=${relayRes.data.rcode ?? 0})`;
+        this.#emitAuditEvent('dns_query', domain, this.lastTransportMode, relayRes.status || 200, summary.length);
+        return {
+          ok: true,
+          status: relayRes.status || 200,
+          op: 'dns_query',
+          name: domain,
+          rr_type: rrType,
+          records,
+          answers: records,
+          data: { answers: records, rcode: relayRes.data.rcode ?? 0 },
+          body_text: summary,
+          transport: this.lastTransportMode,
+        };
+      }
+      this.#emitAuditEvent('dns_query', domain, 'relay-unavailable', 502, 0);
       return {
         ok: false,
         status: 502,
-        error_code: 'DnsResolutionFailed',
-        message: err && err.message ? err.message : String(err),
+        error_code: (relayRes && relayRes.error_code) || 'RelayUnavailable',
+        message: (relayRes && (relayRes.error_message || relayRes.message)) || lastErr || 'DoH and SpiralCore relay DNS resolution failed',
       };
     }
+
+    this.#emitAuditEvent('dns_query', domain, 'doh-failed', 502, 0);
+    return {
+      ok: false,
+      status: 502,
+      error_code: 'DoHResolutionFailed',
+      message: lastErr || 'RFC 8484 DoH resolution failed for cloudflare-dns.com and dns.google',
+    };
   }
 
   async handleHttpRequest(req) {
@@ -5340,41 +5660,16 @@ export class SpiralCoreHostBridge {
       bodyPayload = bodySub.value;
     }
 
-    const hasAuthHeader = Boolean(headerSub.headers.Authorization || headerSub.headers.authorization);
-    if (!hasAuthHeader) {
-      const relayRes = await this.tryRelayRpc('http_request', {
-        method: String(req.method || 'GET').toUpperCase(),
-        url: finalValid.url.href,
-        headers: headerSub.headers,
-        body_b64: req.body_base64 || req.body_b64 || undefined,
-      });
-      if (relayRes && !relayRes.ok && relayRes.error_code === 'SsrfBlocked') {
-        return {
-          ok: false,
-          status: relayRes.status || 403,
-          error_code: 'SsrfBlocked',
-          message: relayRes.error_message || 'Target host blocked by SpiralCore SSRF policy',
-        };
-      }
-      if (relayRes && relayRes.ok && relayRes.data) {
-        const d = relayRes.data;
-        const bodyBytes = d.body_b64 ? __uorBase64ToBytes(d.body_b64) : new Uint8Array(0);
-        const bodyText = bodyBytes.byteLength > 0 ? cachedTextDecoder.decode(bodyBytes) : (d.text_excerpt || '');
-        return {
-          ok: d.status >= 200 && d.status < 400,
-          status: d.status,
-          op: 'http_request',
-          url: finalValid.url.href,
-          headers: d.headers || {},
-          content_type: d.content_type || '',
-          body_text: bodyText,
-          text_excerpt: d.text_excerpt || bodyText.slice(0, 3200),
-          body_base64: req.binary ? (d.body_b64 || '') : undefined,
-          byte_len: d.byte_length ?? bodyBytes.byteLength,
-          truncated: Boolean(d.truncated),
-          transport: this.lastTransportMode,
-        };
-      }
+    const hostname = finalValid.url.hostname.toLowerCase();
+    const isCredentialed = this.#isCredentialedRequest(
+      hostname,
+      headerSub.headers,
+      rawUrl.includes('{{MVM_SECRET:') || (typeof req.body === 'string' && req.body.includes('{{MVM_SECRET:')),
+    );
+    const netAdmission = this.#admitNetworkPolicy(hostname, req._policyOpts);
+    if (!netAdmission.ok) {
+      this.#emitAuditEvent('http_request', finalValid.url.href, 'blocked', netAdmission.status || 403, 0);
+      return netAdmission;
     }
 
     try {
@@ -5384,7 +5679,10 @@ export class SpiralCoreHostBridge {
         body: bodyPayload,
       });
       const bounded = await this.readBoundedBytes(resp);
-      if (!bounded.ok) return bounded;
+      if (!bounded.ok) {
+        this.#emitAuditEvent('http_request', finalValid.url.href, 'direct-https-fetch', resp.status || 502, 0);
+        return bounded;
+      }
       this.lastTransportMode = 'direct-https-fetch';
       const respHeaders = {};
       resp.headers.forEach((val, key) => {
@@ -5396,6 +5694,7 @@ export class SpiralCoreHostBridge {
       const textExcerpt = isHtml
         ? __uorStripHtmlToReadableText(decodedText).text.slice(0, 3200)
         : decodedText.slice(0, 3200);
+      this.#emitAuditEvent('http_request', finalValid.url.href, this.lastTransportMode, resp.status, bounded.bytes.byteLength);
       return {
         ok: resp.ok,
         status: resp.status,
@@ -5411,6 +5710,62 @@ export class SpiralCoreHostBridge {
         transport: this.lastTransportMode,
       };
     } catch (err) {
+      if (isCredentialed) {
+        this.#emitAuditEvent('http_request', finalValid.url.href, 'direct-failed-credentialed', 403, 0);
+        return {
+          ok: false,
+          status: 403,
+          error_code: 'RelayForbiddenForCredentialedHost',
+          host: hostname,
+          message: `Credentialed host/request ${hostname} failed direct fetch and is forbidden from SpiralCore relay failback: ${err && err.message ? err.message : String(err)}`,
+        };
+      }
+      if (this.mode === 'full_spiralcore' && this.consentGranted && (this.relayUrl || this.relayHttpUrl)) {
+        const relayRes = await this.tryRelayRpc('http_request', {
+          method: String(req.method || 'GET').toUpperCase(),
+          url: finalValid.url.href,
+          headers: headerSub.headers,
+          body_b64: req.body_base64 || req.body_b64 || undefined,
+        });
+        if (relayRes && !relayRes.ok && (relayRes.error_code === 'SsrfBlocked' || relayRes.error_code === 'PrivateAddressBlocked')) {
+          this.#emitAuditEvent('http_request', finalValid.url.href, 'relay-ssrf-blocked', 403, 0);
+          return {
+            ok: false,
+            status: relayRes.status || 403,
+            error_code: relayRes.error_code === 'SsrfBlocked' ? 'PrivateAddressBlocked' : relayRes.error_code,
+            message: relayRes.error_message || 'Target host blocked by SpiralCore SSRF policy',
+          };
+        }
+        if (relayRes && relayRes.ok && relayRes.data) {
+          const d = relayRes.data;
+          const bodyBytes = d.body_b64 ? __uorBase64ToBytes(d.body_b64) : new Uint8Array(0);
+          const bodyText = bodyBytes.byteLength > 0 ? cachedTextDecoder.decode(bodyBytes) : (d.text_excerpt || '');
+          const byteLen = d.byte_length ?? bodyBytes.byteLength;
+          this.#emitAuditEvent('http_request', finalValid.url.href, this.lastTransportMode, d.status || 200, byteLen);
+          return {
+            ok: d.status >= 200 && d.status < 400,
+            status: d.status,
+            op: 'http_request',
+            url: finalValid.url.href,
+            headers: d.headers || {},
+            content_type: d.content_type || '',
+            body_text: bodyText,
+            text_excerpt: d.text_excerpt || bodyText.slice(0, 3200),
+            body_base64: req.binary ? (d.body_b64 || '') : undefined,
+            byte_len: byteLen,
+            truncated: Boolean(d.truncated),
+            transport: this.lastTransportMode,
+          };
+        }
+        this.#emitAuditEvent('http_request', finalValid.url.href, 'relay-unavailable', 502, 0);
+        return {
+          ok: false,
+          status: 502,
+          error_code: (relayRes && relayRes.error_code) || 'RelayUnavailable',
+          message: (relayRes && (relayRes.error_message || relayRes.message)) || 'SpiralCore AF_VSOCK relay unreachable',
+        };
+      }
+      this.#emitAuditEvent('http_request', finalValid.url.href, 'direct-failed', 502, 0);
       return {
         ok: false,
         status: 502,
@@ -5424,26 +5779,6 @@ export class SpiralCoreHostBridge {
     const rawUrl = String(req.url || (req.arguments && req.arguments.url) || '').trim();
     const valid = this.validateTransportUrl(rawUrl, false);
     if (!valid.ok) return valid;
-
-    const relayRes = await this.tryRelayRpc('http_request', { method: 'GET', url: valid.url.href });
-    if (relayRes && relayRes.ok && relayRes.data) {
-      const d = relayRes.data;
-      const decoded = d.body_b64 ? cachedTextDecoder.decode(__uorBase64ToBytes(d.body_b64)) : '';
-      const parsed = decoded ? __uorStripHtmlToReadableText(decoded) : { title: valid.url.hostname, text: d.text_excerpt || '' };
-      const bestText = parsed.text || d.text_excerpt || '';
-      if (bestText) {
-        return {
-          ok: true,
-          status: d.status || 200,
-          op: 'web_fetch',
-          url: valid.url.href,
-          title: parsed.title || valid.url.href,
-          body_text: bestText,
-          excerpt: bestText.slice(0, 3200),
-          transport: this.lastTransportMode,
-        };
-      }
-    }
 
     const direct = await this.handleHttpRequest({ url: valid.url.href, method: 'GET', headers: req.headers || {} });
     if (direct.ok && typeof direct.body_text === 'string') {
@@ -5463,16 +5798,22 @@ export class SpiralCoreHostBridge {
       };
     }
 
-    // Public reader CORS fallback for HTML docs that omit Access-Control-Allow-Origin
-    if (!req.headers || Object.keys(req.headers).length === 0) {
+    if (
+      this.mode === 'full_spiralcore' &&
+      this.consentGranted &&
+      (!req.headers || Object.keys(req.headers).length === 0) &&
+      !CREDENTIALED_GITHUB_HOSTS.has(valid.url.hostname.toLowerCase()) &&
+      !this.#isPrivateOrLoopbackHost(valid.url.hostname)
+    ) {
       try {
         const readerUrl = `https://r.jina.ai/${valid.url.href}`;
-        const rResp = await fetch(readerUrl, { headers: { Accept: 'text/plain' } });
+        const rResp = await this.#fetchImpl(readerUrl, { headers: { Accept: 'text/plain' } });
         if (rResp.ok) {
           const bounded = await this.readBoundedBytes(rResp);
           if (bounded.ok) {
             const text = cachedTextDecoder.decode(bounded.bytes).slice(0, 12000);
             this.lastTransportMode = 'direct-https-reader';
+            this.#emitAuditEvent('web_fetch', readerUrl, this.lastTransportMode, rResp.status, bounded.bytes.byteLength);
             return {
               ok: true,
               status: rResp.status,
@@ -5498,23 +5839,10 @@ export class SpiralCoreHostBridge {
     if (!query) {
       return { ok: false, error_code: 'EmptySearchQuery', message: 'web_search query must be non-empty' };
     }
-
-    const relayRes = await this.tryRelayRpc('web_search', { query, limit });
-    if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.results) && relayRes.data.results.length > 0) {
-      const hits = relayRes.data.results;
-      const formattedRelay = hits
-        .map((r, i) => `[${i + 1}] ${r.title}\n    URL: ${r.url}\n    ${r.snippet}`)
-        .join('\n\n');
-      return {
-        ok: true,
-        status: relayRes.status || 200,
-        op: 'web_search',
-        query,
-        results: hits,
-        data: { results: hits },
-        body_text: formattedRelay,
-        transport: this.lastTransportMode,
-      };
+    const netAdmission = this.#admitNetworkPolicy('api.duckduckgo.com');
+    if (!netAdmission.ok) {
+      this.#emitAuditEvent('web_search', 'https://api.duckduckgo.com/', 'blocked', netAdmission.status || 403, 0);
+      return netAdmission;
     }
 
     const results = [];
@@ -5694,18 +6022,11 @@ export class SpiralCoreHostBridge {
     return fn(url, init);
   }
 
-  async #resolveRelayGithubApi(action, params) {
-    if (!this.relayUrl && !this.relayHttpUrl) return null;
-    try {
-      const res = await this.tryRelayRpc('github_api', { action, ...params });
-      if (res && typeof res.ok === 'boolean') return res;
-    } catch {
-      // Fall through to direct HTTPS REST fetch
-    }
-    return null;
-  }
-
-  async #githubRestJson(coords, pathAndQuery, { method = 'GET', body = undefined, headers = {} } = {}) {
+  async #githubRestJson(coords, pathAndQuery, reqOpts) {
+    const opts = reqOpts && typeof reqOpts === 'object' ? reqOpts : {};
+    const method = opts.method || 'GET';
+    const body = opts.body;
+    const headers = opts.headers || {};
     const cleanSub = String(pathAndQuery || '').replace(/^\/+/, '');
     const apiBase = `https://api.github.com/repos/${coords.owner}/${coords.repo}`;
     const fullUrl = cleanSub ? `${apiBase}/${cleanSub}` : apiBase;
@@ -5728,45 +6049,32 @@ export class SpiralCoreHostBridge {
     if (body !== undefined && method !== 'GET' && method !== 'HEAD') {
       reqHeaders['Content-Type'] = 'application/json';
     }
-    const relayRes = await this.tryRelayRpc('git_smart_http', {
-      repo_url: apiBase,
-      path_and_query: cleanSub,
-      method,
-      auth_bearer: reqHeaders.Authorization ? reqHeaders.Authorization.replace(/^Bearer\s+/i, '') : undefined,
-      body_json: body,
-    });
-    if (relayRes && relayRes.ok && relayRes.data) {
-      const rawTxt = relayRes.data.body_b64
-        ? cachedTextDecoder.decode(__uorBase64ToBytes(relayRes.data.body_b64))
-        : '';
-      let parsed = null;
+    try {
+      const resp = await this.#fetchImpl(urlObj.href, {
+        method,
+        headers: reqHeaders,
+        body: body !== undefined && method !== 'GET' && method !== 'HEAD' ? JSON.stringify(body) : undefined,
+      });
+      const text = await resp.text();
+      let json = null;
       try {
-        parsed = rawTxt ? JSON.parse(rawTxt) : null;
+        json = text ? JSON.parse(text) : null;
       } catch {
-        parsed = null;
+        json = null;
       }
+      this.lastTransportMode = 'direct-https-github-rest';
+      this.#emitAuditEvent('github_api', urlObj.href, this.lastTransportMode, resp.status, text.length);
+      return { ok: resp.ok, status: resp.status, json, text, viaRelay: false };
+    } catch (err) {
+      this.#emitAuditEvent('github_api', urlObj.href, 'direct-failed-credentialed', 403, 0);
       return {
-        ok: relayRes.data.status >= 200 && relayRes.data.status < 300,
-        status: relayRes.data.status,
-        json: parsed,
-        text: rawTxt,
-        viaRelay: true,
+        ok: false,
+        status: 403,
+        error_code: 'RelayForbiddenForCredentialedHost',
+        host: 'api.github.com',
+        message: `CORS-direct GitHub API request failed; SpiralCore relay failback is forbidden for credentialed hosts: ${err && err.message ? err.message : String(err)}`,
       };
     }
-    const resp = await this.#fetchImpl(urlObj.href, {
-      method,
-      headers: reqHeaders,
-      body: body !== undefined && method !== 'GET' && method !== 'HEAD' ? JSON.stringify(body) : undefined,
-    });
-    const text = await resp.text();
-    let json = null;
-    try {
-      json = text ? JSON.parse(text) : null;
-    } catch {
-      json = null;
-    }
-    this.lastTransportMode = 'direct-https-github-rest';
-    return { ok: resp.ok, status: resp.status, json, text, viaRelay: false };
   }
 
   async checkProvenanceUpdate(provenanceUrlInput = '') {
@@ -5802,9 +6110,15 @@ export class SpiralCoreHostBridge {
     // Strict R4-39 rule: NEVER attach Host Secrets to non-GitHub provenance origins
     const validated = this.validateTransportUrl(provUrl, false);
     if (!validated.ok) return validated;
+    const provAdmit = this.#admitNetworkPolicy(validated.url.hostname, { allowConfiguredOrigin: true });
+    if (!provAdmit.ok) {
+      this.#emitAuditEvent('provenance_check', validated.url.href, 'blocked', provAdmit.status || 403, 0);
+      return provAdmit;
+    }
     try {
       const sep = validated.url.href.includes('?') ? '&' : '?';
       const resp = await this.#fetchImpl(`${validated.url.href}${sep}_t=${Date.now()}`, { cache: 'no-store' });
+      this.#emitAuditEvent('provenance_check', validated.url.href, 'direct-https-fetch', resp.status, 0);
       if (!resp.ok) {
         return { ok: false, status: resp.status, error_code: 'GitDeployWatchFailed', message: `provenance.json returned HTTP ${resp.status}` };
       }
@@ -5889,38 +6203,18 @@ export class SpiralCoreHostBridge {
         if (!subAuth.ok) return subAuth;
         authBearer = subAuth.value;
       }
-      const relayGit = await this.tryRelayRpc('git_smart_http', {
-        repo_url: repoValid.url.href,
-        path_and_query: String(req.path_and_query),
+      const sep = rawRepo.endsWith('/') ? '' : '/';
+      const smartUrl = `${rawRepo}${sep}${String(req.path_and_query).replace(/^\/+/, '')}`;
+      const smartHeaders = authBearer ? { Authorization: `Bearer ${authBearer}` } : {};
+      if (req.content_type) smartHeaders['Content-Type'] = req.content_type;
+      return this.handleHttpRequest({
+        url: smartUrl,
         method: String(req.method || 'GET').toUpperCase(),
-        content_type: req.content_type || undefined,
-        auth_bearer: authBearer,
-        body_b64: req.body_b64 || req.body_base64 || undefined,
-        body_json: req.body_json || undefined,
+        headers: smartHeaders,
+        body_base64: req.body_b64 || req.body_base64 || undefined,
+        body: req.body_json ? JSON.stringify(req.body_json) : undefined,
+        binary: true,
       });
-      if (relayGit && relayGit.ok && relayGit.data) {
-        const d = relayGit.data;
-        return {
-          ok: d.status >= 200 && d.status < 400,
-          status: d.status,
-          op: 'git_smart_http',
-          content_type: d.content_type || '',
-          headers: d.headers || {},
-          body_b64: d.body_b64 || '',
-          body_base64: d.body_b64 || '',
-          byte_len: d.byte_length ?? 0,
-          truncated: Boolean(d.truncated),
-          transport: this.lastTransportMode,
-        };
-      }
-      if (relayGit && !relayGit.ok) {
-        return {
-          ok: false,
-          status: relayGit.status || 502,
-          error_code: relayGit.error_code || 'GitSmartHttpError',
-          message: relayGit.error_message || 'Git Smart-HTTP relay request failed',
-        };
-      }
     }
 
     if (req.smart_http_url) {
@@ -5985,27 +6279,12 @@ export class SpiralCoreHostBridge {
     }
 
     const repoSlug = `${coords.owner}/${coords.repo}`;
-    const resolvedAuthBearer = this.hasSecret('GITHUB_TOKEN') ? this.#secretVault.get('GITHUB_TOKEN') : undefined;
 
     if (subcommand === 'connect' || subcommand === 'branches') {
       try {
-        const relayOut = await this.#resolveRelayGithubApi('connect', { repo: repoSlug, auth_bearer: resolvedAuthBearer });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          this.lastTransportMode = this.lastTransportMode || 'spvs-relay';
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'connect',
-            repo: repoSlug,
-            ...relayOut.data,
-            data: relayOut.data,
-            body_text: `Connected ${repoSlug} (default: ${relayOut.data.default_branch}, ${(relayOut.data.branches || []).length} branches)`,
-            transport: this.lastTransportMode,
-          };
-        }
         const meta = await this.#githubRestJson(coords, '');
         if (!meta.ok) {
+          if (meta.error_code === 'RelayForbiddenForCredentialedHost') return meta;
           return {
             ok: false,
             status: meta.status,
@@ -6043,41 +6322,9 @@ export class SpiralCoreHostBridge {
     if (subcommand === 'clone' || subcommand === 'pull' || subcommand === 'fetch') {
       try {
         const requestedBranch = String(req.branch || argsObj.branch || '').trim();
-        const relayOut = await this.#resolveRelayGithubApi(subcommand, {
-          repo: repoSlug,
-          branch: requestedBranch || undefined,
-          limit: req.limit || 40,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          const treeKey = `${repoSlug}@${d.branch}`;
-          const lazyMap = new Map();
-          for (const lp of d.lazy_paths || []) {
-            lazyMap.set(lp.path, lp);
-          }
-          this.#lazyRepoTrees.set(treeKey, lazyMap);
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand,
-            repo: repoSlug,
-            repo_url: coords.url,
-            branch: d.branch,
-            head_sha: d.head_sha || '',
-            files: d.files || [],
-            file_count: (d.files || []).length,
-            lazy_paths: d.lazy_paths || [],
-            total_blobs: d.total_blobs ?? (d.files || []).length,
-            data: d,
-            body_text: `Synchronized ${(d.files || []).length}/${d.total_blobs ?? (d.files || []).length} files from ${repoSlug}@${d.branch}`,
-            transport: this.lastTransportMode,
-          };
-        }
-
         const metaRes = await this.#githubRestJson(coords, '');
         if (!metaRes.ok) {
+          if (metaRes.error_code === 'RelayForbiddenForCredentialedHost') return metaRes;
           return {
             ok: false,
             status: metaRes.status,
@@ -6091,7 +6338,8 @@ export class SpiralCoreHostBridge {
         const branches = Array.isArray(brRes.json) ? brRes.json.map((b) => String(b.name || '')).filter(Boolean) : [branch];
         if (!branches.includes(branch)) branches.unshift(branch);
 
-        const treeRes = await this.#githubRestJson(coords, `git/trees/${encodeURIComponent(branch)}?recursive=1`);
+        const branchPath = branch.split('/').map(encodeURIComponent).join('/');
+        const treeRes = await this.#githubRestJson(coords, `git/trees/${branchPath}?recursive=1`);
         if (!treeRes.ok) {
           return {
             ok: false,
@@ -6124,13 +6372,6 @@ export class SpiralCoreHostBridge {
           const loaded = await Promise.all(
             slice.map(async (entry) => {
               try {
-                if (!hasToken && !repoMeta.private) {
-                  const rawUrl = `https://raw.githubusercontent.com/${coords.owner}/${coords.repo}/${encodeURIComponent(branch)}/${entry.path}`;
-                  const r = await this.#fetchImpl(rawUrl);
-                  if (r.ok) {
-                    return { path: entry.path, content: await r.text(), sha: entry.sha, size: entry.size ?? 0 };
-                  }
-                }
                 const blobRes = await this.#githubRestJson(coords, `git/blobs/${entry.sha}`);
                 if (blobRes.ok && blobRes.json && blobRes.json.encoding === 'base64' && typeof blobRes.json.content === 'string') {
                   const bytes = __uorBase64ToBytes(blobRes.json.content);
@@ -6207,37 +6448,12 @@ export class SpiralCoreHostBridge {
         return { ok: false, status: 400, error_code: 'GitBlobFetchFailed', message: 'read_blob requires path or sha' };
       }
       try {
-        const relayOut = await this.#resolveRelayGithubApi('read_blob', {
-          repo: repoSlug,
-          branch,
-          path: filePath,
-          sha: sha || undefined,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'read_blob',
-            repo: repoSlug,
-            branch,
-            path: d.path || filePath,
-            sha: d.sha || sha,
-            size: d.size ?? String(d.content || '').length,
-            content: d.content || '',
-            files: d.path ? [{ path: d.path, content: d.content || '', sha: d.sha || sha }] : [],
-            data: d,
-            body_text: `Loaded ${d.path || filePath} (${d.size ?? String(d.content || '').length} bytes) from ${repoSlug}@${branch}`,
-            transport: this.lastTransportMode,
-          };
-        }
         const restPath = sha
           ? `git/blobs/${encodeURIComponent(sha)}`
           : `contents/${filePath.split('/').map((s) => encodeURIComponent(s)).join('/')}?ref=${encodeURIComponent(branch)}`;
         const blobRes = await this.#githubRestJson(coords, restPath);
         if (!blobRes.ok || !blobRes.json) {
+          if (blobRes.error_code === 'RelayForbiddenForCredentialedHost') return blobRes;
           return {
             ok: false,
             status: blobRes.status || 404,
@@ -6283,35 +6499,15 @@ export class SpiralCoreHostBridge {
         return { ok: false, status: 400, error_code: 'GitBranchCreateFailed', message: `Invalid branch name '${branch}'` };
       }
       try {
-        const relayOut = await this.#resolveRelayGithubApi('create_branch', {
-          repo: repoSlug,
-          branch,
-          from_branch: fromBranchInput || undefined,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 201,
-            op: 'git',
-            subcommand: 'create_branch',
-            repo: repoSlug,
-            branch: d.branch,
-            from_branch: d.from_branch,
-            sha: d.sha,
-            ref: d.ref,
-            data: d,
-            body_text: `Created branch ${d.branch} from ${d.from_branch} at ${String(d.sha || '').slice(0, 12)}`,
-            transport: this.lastTransportMode,
-          };
-        }
         let fromBranch = fromBranchInput;
         if (!fromBranch) {
           const meta = await this.#githubRestJson(coords, '');
+          if (meta.error_code === 'RelayForbiddenForCredentialedHost') return meta;
           fromBranch = String((meta.json && meta.json.default_branch) || 'main');
         }
-        const baseRef = await this.#githubRestJson(coords, `git/ref/heads/${encodeURIComponent(fromBranch)}`);
+        const fromBranchPath = fromBranch.split('/').map(encodeURIComponent).join('/');
+        const baseRef = await this.#githubRestJson(coords, `git/ref/heads/${fromBranchPath}`);
+        if (baseRef.error_code === 'RelayForbiddenForCredentialedHost') return baseRef;
         if (!baseRef.ok || !baseRef.json || !baseRef.json.object || !baseRef.json.object.sha) {
           return { ok: false, status: baseRef.status || 404, error_code: 'GitRefReadFailed', message: `Base branch '${fromBranch}' not found` };
         }
@@ -6320,6 +6516,7 @@ export class SpiralCoreHostBridge {
           method: 'POST',
           body: { ref: `refs/heads/${branch}`, sha: baseSha },
         });
+        if (created.error_code === 'RelayForbiddenForCredentialedHost') return created;
         if (!created.ok) {
           return {
             ok: false,
@@ -6372,34 +6569,9 @@ export class SpiralCoreHostBridge {
       const branch = String(req.branch || argsObj.branch || 'main');
       const commitMessage = String(req.message || argsObj.message || req.commit_message || 'Update from UOR-R4 Connected Studio');
       try {
-        const relayOut = await this.#resolveRelayGithubApi('commit_push', {
-          repo: repoSlug,
-          branch,
-          message: commitMessage,
-          files: filesToPush,
-          force: Boolean(req.force),
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'commit_push',
-            repo: repoSlug,
-            branch,
-            commit_sha: d.commit_sha,
-            tree_sha: d.tree_sha,
-            pushed_files: d.pushed_files,
-            deleted_files: d.deleted_files || 0,
-            data: d,
-            body_text: `Committed & pushed ${d.pushed_files} file(s) to ${repoSlug}@${branch} -> ${String(d.commit_sha || '').slice(0, 12)}`,
-            transport: this.lastTransportMode,
-          };
-        }
-
-        const refRes = await this.#githubRestJson(coords, `git/ref/heads/${encodeURIComponent(branch)}`);
+        const branchRefPath = branch.split('/').map(encodeURIComponent).join('/');
+        const refRes = await this.#githubRestJson(coords, `git/ref/heads/${branchRefPath}`);
+        if (refRes.error_code === 'RelayForbiddenForCredentialedHost') return refRes;
         if (!refRes.ok || !refRes.json || !refRes.json.object) {
           return {
             ok: false,
@@ -6410,6 +6582,7 @@ export class SpiralCoreHostBridge {
         }
         const baseCommitSha = refRes.json.object.sha;
         const commitRes = await this.#githubRestJson(coords, `git/commits/${baseCommitSha}`);
+        if (commitRes.error_code === 'RelayForbiddenForCredentialedHost') return commitRes;
         const baseTreeSha = commitRes.json && commitRes.json.tree && commitRes.json.tree.sha;
 
         const treeEntries = filesToPush.map((f) => {
@@ -6423,6 +6596,7 @@ export class SpiralCoreHostBridge {
           method: 'POST',
           body: { base_tree: baseTreeSha, tree: treeEntries },
         });
+        if (newTree.error_code === 'RelayForbiddenForCredentialedHost') return newTree;
         if (!newTree.ok || !newTree.json) {
           return { ok: false, status: newTree.status, error_code: 'GitTreeCreateFailed', message: `GitHub tree creation failed (HTTP ${newTree.status})` };
         }
@@ -6430,13 +6604,15 @@ export class SpiralCoreHostBridge {
           method: 'POST',
           body: { message: commitMessage, tree: newTree.json.sha, parents: [baseCommitSha] },
         });
+        if (createdCommit.error_code === 'RelayForbiddenForCredentialedHost') return createdCommit;
         if (!createdCommit.ok || !createdCommit.json) {
           return { ok: false, status: createdCommit.status, error_code: 'GitCommitCreateFailed', message: `GitHub commit creation failed (HTTP ${createdCommit.status})` };
         }
-        const updRef = await this.#githubRestJson(coords, `git/refs/heads/${encodeURIComponent(branch)}`, {
+        const updRef = await this.#githubRestJson(coords, `git/refs/heads/${branchRefPath}`, {
           method: 'PATCH',
           body: { sha: createdCommit.json.sha, force: Boolean(req.force) },
         });
+        if (updRef.error_code === 'RelayForbiddenForCredentialedHost') return updRef;
         if (!updRef.ok) {
           return { ok: false, status: updRef.status, error_code: 'GitRefUpdateFailed', message: `GitHub ref fast-forward failed (HTTP ${updRef.status})` };
         }
@@ -6477,27 +6653,11 @@ export class SpiralCoreHostBridge {
         return { ok: false, status: 400, error_code: 'GitPrCreateFailed', message: 'create_pr requires head branch and title' };
       }
       try {
-        const relayOut = await this.#resolveRelayGithubApi('create_pr', {
-          repo: repoSlug, head, base, title, body, draft: Boolean(req.draft), auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 201,
-            op: 'git',
-            subcommand: 'create_pr',
-            repo: repoSlug,
-            ...d,
-            data: d,
-            body_text: `Opened PR #${d.pr_number} (${d.head} -> ${d.base}): ${d.html_url || d.url}`,
-            transport: this.lastTransportMode,
-          };
-        }
         const prRes = await this.#githubRestJson(coords, 'pulls', {
           method: 'POST',
           body: { title, body, head, base, draft: Boolean(req.draft) },
         });
+        if (prRes.error_code === 'RelayForbiddenForCredentialedHost') return prRes;
         if (!prRes.ok || !prRes.json) {
           return {
             ok: false,
@@ -6535,25 +6695,10 @@ export class SpiralCoreHostBridge {
       const prNum = Number(req.pr_number || argsObj.pr_number || 0) || null;
       let headSha = String(req.ref || argsObj.ref || req.head_sha || '').trim();
       try {
-        const relayOut = await this.#resolveRelayGithubApi('pr_status', {
-          repo: repoSlug, pr_number: prNum || undefined, ref: headSha || undefined, auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'pr_status',
-            ...d,
-            data: d,
-            body_text: `PR #${d.pr_number || '-'} state=${d.state} mergeable=${d.mergeable} checks=${d.check_status} (${d.checks_passed}/${d.checks_total})`,
-            transport: this.lastTransportMode,
-          };
-        }
         let prMeta = null;
         if (prNum && Number.isInteger(prNum) && prNum > 0) {
           const prRes = await this.#githubRestJson(coords, `pulls/${prNum}`);
+          if (prRes.error_code === 'RelayForbiddenForCredentialedHost') return prRes;
           if (!prRes.ok || !prRes.json) {
             return { ok: false, status: prRes.status || 404, error_code: 'GitPrStatusFailed', message: `Failed to fetch PR #${prNum}` };
           }
@@ -6616,29 +6761,10 @@ export class SpiralCoreHostBridge {
         return { ok: false, status: 400, error_code: 'GitPrMergeFailed', message: 'merge_pr requires valid integer pr_number' };
       }
       try {
-        const relayOut = await this.#resolveRelayGithubApi('merge_pr', {
-          repo: repoSlug,
-          pr_number: prNum,
-          merge_method: req.merge_method || argsObj.merge_method || 'squash',
-          commit_title: req.commit_title || argsObj.commit_title || undefined,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'merge_pr',
-            ...d,
-            data: d,
-            body_text: `Merged PR #${prNum} on ${repoSlug} (sha=${String(d.sha || '').slice(0, 12)})`,
-            transport: this.lastTransportMode,
-          };
-        }
         const mergeBody = { merge_method: String(req.merge_method || argsObj.merge_method || 'squash') };
         if (req.commit_title || argsObj.commit_title) mergeBody.commit_title = String(req.commit_title || argsObj.commit_title);
         const mRes = await this.#githubRestJson(coords, `pulls/${prNum}/merge`, { method: 'PUT', body: mergeBody });
+        if (mRes.error_code === 'RelayForbiddenForCredentialedHost') return mRes;
         if (!mRes.ok) {
           return { ok: false, status: mRes.status, error_code: 'GitPrMergeFailed', message: (mRes.json && mRes.json.message) || `Failed to merge PR #${prNum}` };
         }
@@ -6667,31 +6793,6 @@ export class SpiralCoreHostBridge {
     if (subcommand === 'watch_deploy') {
       const provUrlOverride = String(req.provenance_url || argsObj.provenance_url || '').trim();
       try {
-        const relayOut = await this.#resolveRelayGithubApi('watch_deploy', {
-          repo: repoSlug,
-          provenance_url: provUrlOverride || undefined,
-          auth_bearer: resolvedAuthBearer,
-        });
-        if (relayOut && relayOut.ok && relayOut.data) {
-          const d = relayOut.data;
-          const updateAvail = Boolean(
-            this.#provenanceBaseline &&
-              d.adapter_wasm_sha256 &&
-              (d.adapter_wasm_sha256 !== this.#provenanceBaseline.adapter_wasm_sha256 ||
-                d.binding_javascript_sha256 !== this.#provenanceBaseline.binding_javascript_sha256),
-          );
-          const merged = { ...d, update_available: updateAvail };
-          return {
-            ok: true,
-            status: 200,
-            op: 'git',
-            subcommand: 'watch_deploy',
-            ...merged,
-            data: merged,
-            body_text: `Pages ${merged.pages_status} (${merged.pages_url || 'origin'}) · provenance=${String(merged.adapter_wasm_sha256 || '').slice(0, 12)} · update=${updateAvail}`,
-            transport: this.lastTransportMode,
-          };
-        }
         const [pagesRes, buildRes] = await Promise.all([
           this.#githubRestJson(coords, 'pages').catch(() => ({ ok: false, json: null })),
           this.#githubRestJson(coords, 'pages/builds/latest').catch(() => ({ ok: false, json: null })),
@@ -8119,6 +8220,11 @@ export class SpiralCoreHostBridge {
         if (!bodySub.ok) {
           throw new Error(`${bodySub.error_code}: ${bodySub.message}`);
         }
+        const netAdmission = this.#admitNetworkPolicy(host);
+        if (!netAdmission.ok) {
+          this.#emitAuditEvent('python_sync_http', urlSub.value, 'blocked', netAdmission.status || 403, 0);
+          throw new Error(`${netAdmission.error_code}: ${netAdmission.message}`);
+        }
         const mUpper = String(method || 'GET').toUpperCase();
         if (typeof this.#syncFetchImpl === 'function') {
           const syncRes = this.#syncFetchImpl(urlSub.value, {
@@ -8126,24 +8232,15 @@ export class SpiralCoreHostBridge {
             headers: hdrSub.headers,
             body: mUpper === 'GET' || mUpper === 'HEAD' ? undefined : bodySub.value,
           });
+          const outText = String((syncRes && syncRes.text !== undefined ? syncRes.text : (syncRes && syncRes.body_text)) || '');
+          const outStatus = Number(syncRes && syncRes.status) || 200;
+          this.#emitAuditEvent('python_sync_http', urlSub.value, 'sync-fetch-bridge', outStatus, outText.length);
           return {
-            status: Number(syncRes && syncRes.status) || 200,
-            text: String((syncRes && syncRes.text !== undefined ? syncRes.text : (syncRes && syncRes.body_text)) || ''),
+            status: outStatus,
+            text: outText,
           };
         }
-        if (typeof XMLHttpRequest !== 'undefined') {
-          const xhr = new XMLHttpRequest();
-          xhr.open(mUpper, urlSub.value, false);
-          for (const [hk, hv] of Object.entries(hdrSub.headers)) {
-            xhr.setRequestHeader(hk, hv);
-          }
-          xhr.send(mUpper === 'GET' || mUpper === 'HEAD' ? null : bodySub.value);
-          return {
-            status: xhr.status || 200,
-            text: String(xhr.responseText || ''),
-          };
-        }
-        throw new Error('SyncHttpUnavailable: synchronous Python HTTP requires XMLHttpRequest or syncFetchImpl');
+        throw new Error('SyncHttpUnavailable: synchronous Python HTTP requires a configured syncFetchImpl bridge');
       };
 
       if (!this.#pyodideShimmed) {
@@ -8971,7 +9068,12 @@ function __uorSynthesizeBrainPulsesFromReply(parsedRes, toolKind = 'none') {
 }
 
 function __uorStartDedicatedEngineWorker() {
-  const hostBridge = new SpiralCoreHostBridge();
+  const postEvent = (event, data = {}) => {
+    self.postMessage({ event, ...data });
+  };
+  const hostBridge = new SpiralCoreHostBridge({
+    onAuditEvent: (ev) => postEvent('audit_event', ev),
+  });
   let wasmReady = false;
   let bootPromise = null;
   let activeHydrationPromise = null;
@@ -8982,10 +9084,6 @@ function __uorStartDedicatedEngineWorker() {
   const cancelledInprismTurns = new Set();
   const pendingInprismCancelWaiters = new Map();
   const earlyMessages = [];
-
-  const postEvent = (event, data = {}) => {
-    self.postMessage({ event, ...data });
-  };
   globalThis.__uorEmitChatDelta = (textChunk, step = 0) => {
     const chunk = String(textChunk || '');
     if (chunk.length > 0) {
@@ -9434,7 +9532,14 @@ function __uorStartDedicatedEngineWorker() {
         if (typeof customRelay === 'string') {
           hostBridge.setRelayUrl(customRelay);
         }
-        self.postMessage({ id, ok: true, result: res });
+        try {
+          if (typeof studio_dispatch === 'function') {
+            studio_dispatch(`1\tstudio\tmvm_set_policy\t${JSON.stringify(payload || {})}`);
+          }
+        } catch {
+          // Host policy remains authoritative when Wasm MVM guest is not booted
+        }
+        self.postMessage({ id, ok: Boolean(res && res.ok), result: res, error: res && !res.ok ? res.message : undefined });
         return;
       }
       if (op === 'wasm_eval' || op === 'studio_wasm_eval') {

@@ -94,10 +94,22 @@ pub enum BridgeError {
     WasiRuntimeError(String),
     /// In-Worker SQLite execution or binary DB validation failed (`R4-58`).
     SqliteRuntimeError(String),
+    /// Host is outside the Prism `capabilities/1` `Sandboxed` allowlist (`R4-59`).
+    CapabilityDenied(String),
+    /// Escalation to `Full SpiralCore Internet` requires explicit user consent (`R4-59`).
+    RelayConsentRequired,
+    /// `AF_VSOCK` relay failback is strictly forbidden for credentialed hosts/requests (`R4-59`).
+    RelayForbiddenForCredentialedHost,
+    /// Private, loopback, or link-local SSRF address was blocked (`R4-59`).
+    PrivateAddressBlocked(String),
+    /// RFC 8484 DNS-over-HTTPS resolution failed (`R4-59`).
+    DoHResolutionFailed(String),
+    /// SpiralCore `AF_VSOCK` relay endpoint is unreachable or timed out (`R4-59`).
+    RelayUnavailable(String),
 }
 
 impl BridgeError {
-    /// Canonical machine-readable error code matching `R4-39` and `R4-58` failure variants.
+    /// Canonical machine-readable error code matching `R4-39`, `R4-58`, and `R4-59` failure variants.
     pub fn error_code(&self) -> &'static str {
         match self {
             Self::PolicyDenied => "PolicyDenied",
@@ -114,6 +126,12 @@ impl BridgeError {
             Self::EsbuildAdapterUnavailable(_) => "EsbuildAdapterUnavailable",
             Self::WasiRuntimeError(_) => "WasiRuntimeError",
             Self::SqliteRuntimeError(_) => "SqliteRuntimeError",
+            Self::CapabilityDenied(_) => "CapabilityDenied",
+            Self::RelayConsentRequired => "RelayConsentRequired",
+            Self::RelayForbiddenForCredentialedHost => "RelayForbiddenForCredentialedHost",
+            Self::PrivateAddressBlocked(_) => "PrivateAddressBlocked",
+            Self::DoHResolutionFailed(_) => "DoHResolutionFailed",
+            Self::RelayUnavailable(_) => "RelayUnavailable",
         }
     }
 }
@@ -147,8 +165,124 @@ impl std::fmt::Display for BridgeError {
             }
             Self::WasiRuntimeError(msg) => write!(f, "WASI runtime error: {msg}"),
             Self::SqliteRuntimeError(msg) => write!(f, "SQLite runtime error: {msg}"),
+            Self::CapabilityDenied(host) => {
+                write!(
+                    f,
+                    "capability denied for host '{host}' under Prism capabilities/1 Sandboxed mode"
+                )
+            }
+            Self::RelayConsentRequired => {
+                write!(
+                    f,
+                    "Full SpiralCore Internet mode requires explicit user consent (consentGranted: true)"
+                )
+            }
+            Self::RelayForbiddenForCredentialedHost => {
+                write!(
+                    f,
+                    "SpiralCore AF_VSOCK relay failback is forbidden for credentialed host or Authorization header"
+                )
+            }
+            Self::PrivateAddressBlocked(target) => {
+                write!(f, "private or link-local SSRF target blocked: {target}")
+            }
+            Self::DoHResolutionFailed(msg) => write!(f, "RFC 8484 DoH resolution failed: {msg}"),
+            Self::RelayUnavailable(msg) => {
+                write!(f, "SpiralCore AF_VSOCK relay unavailable: {msg}")
+            }
         }
     }
+}
+
+/// Prism `capabilities/1` outbound network mode (`R4-59`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NetworkGateMode {
+    /// Mode A (`Sandboxed`): restricted to the pinned package registry, GitHub, HuggingFace, and DoH hosts.
+    Sandboxed,
+    /// Mode B (`Full SpiralCore Internet`): permits general internet via direct fetch/DoH first with unauthenticated relay failback.
+    FullSpiralcore,
+}
+
+/// Exact Prism `capabilities/1` `Sandboxed` host allowlist (`R4-59`).
+pub const SANDBOXED_CAPABILITY_HOSTS: &[&str] = &[
+    "registry.npmjs.org",
+    "esm.sh",
+    "pypi.org",
+    "files.pythonhosted.org",
+    "cdn.jsdelivr.net",
+    "github.com",
+    "api.github.com",
+    "huggingface.co",
+    "cloudflare-dns.com",
+    "dns.google",
+];
+
+/// Return `true` when `host` matches the Prism `capabilities/1` `Sandboxed` allowlist (`R4-59`).
+pub fn is_sandboxed_capability_host(host: &str) -> bool {
+    let lower = host.trim().trim_end_matches('.').to_ascii_lowercase();
+    matches!(
+        lower.as_str(),
+        "registry.npmjs.org"
+            | "esm.sh"
+            | "pypi.org"
+            | "files.pythonhosted.org"
+            | "cdn.jsdelivr.net"
+            | "github.com"
+            | "api.github.com"
+            | "huggingface.co"
+            | "cloudflare-dns.com"
+            | "dns.google"
+    )
+}
+
+/// Return `true` when `host` is a loopback, RFC 1918, CGNAT, link-local, or internal SSRF target (`R4-59`).
+pub fn is_private_or_loopback_host(host: &str) -> bool {
+    let clean = host
+        .trim()
+        .trim_start_matches('[')
+        .trim_end_matches(']')
+        .trim_end_matches('.')
+        .to_ascii_lowercase();
+    if clean.is_empty() {
+        return false;
+    }
+    if clean == "localhost"
+        || clean == "ip6-localhost"
+        || clean == "ip6-loopback"
+        || clean.ends_with(".localhost")
+        || clean.ends_with(".local")
+        || clean.ends_with(".internal")
+    {
+        return true;
+    }
+    if let Ok(ip) = clean.parse::<std::net::IpAddr>() {
+        return match ip {
+            std::net::IpAddr::V4(v4) => is_private_ipv4_octets(v4.octets()),
+            std::net::IpAddr::V6(v6) => {
+                if v6.is_loopback() || v6.is_unspecified() {
+                    return true;
+                }
+                if let Some(mapped) = v6.to_ipv4_mapped() {
+                    return is_private_ipv4_octets(mapped.octets());
+                }
+                let seg0 = v6.segments()[0];
+                (seg0 & 0xfe00) == 0xfc00 || (seg0 & 0xffc0) == 0xfe80 || (seg0 >> 8) == 0xff
+            }
+        };
+    }
+    false
+}
+
+fn is_private_ipv4_octets(octets: [u8; 4]) -> bool {
+    let [a, b, _, _] = octets;
+    a == 0
+        || a == 10
+        || (a == 100 && (64..=127).contains(&b))
+        || a == 127
+        || (a == 169 && b == 254)
+        || (a == 172 && (16..=31).contains(&b))
+        || (a == 192 && b == 168)
+        || a >= 224
 }
 
 impl std::error::Error for BridgeError {}
@@ -590,6 +724,14 @@ pub struct MvmSandbox {
     last_exit_code: i32,
     workspace_sync_epoch: u64,
     workspace_diff_baseline: BTreeMap<String, String>,
+    /// Whether Prism `capabilities/1` outbound host gating is active (`R4-59`).
+    pub network_gate_enforced: bool,
+    /// Active Prism `capabilities/1` network mode (`Sandboxed` vs `FullSpiralcore`, `R4-59`).
+    pub network_mode: NetworkGateMode,
+    /// Whether explicit `Full SpiralCore Internet` consent was granted (`R4-59`).
+    pub relay_consent_granted: bool,
+    /// Configured SpiralCore `AF_VSOCK` WebSocket relay URL (`R4-59`).
+    pub relay_ws_url: String,
 }
 
 impl MvmSandbox {
@@ -648,6 +790,10 @@ impl MvmSandbox {
             last_exit_code: 0,
             workspace_sync_epoch: 0,
             workspace_diff_baseline: BTreeMap::new(),
+            network_gate_enforced: false,
+            network_mode: NetworkGateMode::Sandboxed,
+            relay_consent_granted: false,
+            relay_ws_url: String::new(),
         };
         vm.mount_initramfs(INITRAMFS_IMAGE)?;
         vm.dirty_sectors.clear();
@@ -1747,6 +1893,45 @@ impl MvmSandbox {
                         err_detail,
                     )))
                 }
+                "CapabilityDenied" => {
+                    return Err(MvmError::BridgeRejected(BridgeError::CapabilityDenied(
+                        bridge_resp
+                            .get("host")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or(&err_detail)
+                            .to_string(),
+                    )))
+                }
+                "RelayConsentRequired" => {
+                    return Err(MvmError::BridgeRejected(BridgeError::RelayConsentRequired))
+                }
+                "RelayForbiddenForCredentialedHost" => {
+                    return Err(MvmError::BridgeRejected(
+                        BridgeError::RelayForbiddenForCredentialedHost,
+                    ))
+                }
+                "PrivateAddressBlocked" => {
+                    return Err(MvmError::BridgeRejected(
+                        BridgeError::PrivateAddressBlocked(
+                            bridge_resp
+                                .get("host")
+                                .or_else(|| bridge_resp.get("target"))
+                                .and_then(|v| v.as_str())
+                                .unwrap_or(&err_detail)
+                                .to_string(),
+                        ),
+                    ))
+                }
+                "DoHResolutionFailed" => {
+                    return Err(MvmError::BridgeRejected(BridgeError::DoHResolutionFailed(
+                        err_detail,
+                    )))
+                }
+                "RelayUnavailable" => {
+                    return Err(MvmError::BridgeRejected(BridgeError::RelayUnavailable(
+                        err_detail,
+                    )))
+                }
                 "CanonicalPathProtected" => {
                     return Err(MvmError::CanonicalPathProtected(err_detail))
                 }
@@ -2781,7 +2966,7 @@ impl MvmSandbox {
                 let redirect = parsed.redirects.stdout_file.clone();
 
                 let maybe_bridge: Option<MvmInteractiveOutcome> = match head {
-                    "nslookup" | "dig" => Some(MvmInteractiveOutcome::NeedsBridge(
+                    "nslookup" | "dig" | "host" => Some(MvmInteractiveOutcome::NeedsBridge(
                         self.prepare_dns_bridge(&eff_words, working_cwd, redirect)?,
                     )),
                     "curl" | "wget" => Some(MvmInteractiveOutcome::NeedsBridge(
@@ -4675,6 +4860,38 @@ impl MvmSandbox {
         }
     }
 
+    fn admit_network_target(&self, host: &str) -> Result<(), MvmError> {
+        let clean_host = host
+            .trim()
+            .trim_start_matches('[')
+            .trim_end_matches(']')
+            .trim_end_matches('.')
+            .to_ascii_lowercase();
+        if clean_host.is_empty() || is_private_or_loopback_host(&clean_host) {
+            return Err(MvmError::BridgeRejected(
+                BridgeError::PrivateAddressBlocked(host.to_string()),
+            ));
+        }
+        if !self.network_gate_enforced {
+            return Ok(());
+        }
+        match self.network_mode {
+            NetworkGateMode::Sandboxed => {
+                if !is_sandboxed_capability_host(&clean_host) {
+                    return Err(MvmError::BridgeRejected(BridgeError::CapabilityDenied(
+                        host.to_string(),
+                    )));
+                }
+            }
+            NetworkGateMode::FullSpiralcore => {
+                if !self.relay_consent_granted {
+                    return Err(MvmError::BridgeRejected(BridgeError::RelayConsentRequired));
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn verify_secret_placeholders_for_host(
         &self,
         target_host: &str,
@@ -4809,6 +5026,12 @@ impl MvmSandbox {
         if domain.is_empty() {
             domain = "github.com".to_string();
         }
+        if is_private_or_loopback_host(&domain) {
+            return Err(MvmError::BridgeRejected(
+                BridgeError::PrivateAddressBlocked(domain),
+            ));
+        }
+        self.admit_network_target("cloudflare-dns.com")?;
 
         let req_id = self.next_bridge_req_id("mvm-dns");
         let bridge_req = serde_json::json!({
@@ -4911,6 +5134,7 @@ impl MvmSandbox {
             body.as_deref().unwrap_or("")
         );
         let secret_verified = self.verify_secret_placeholders_for_host(&host, &combined_scan)?;
+        self.admit_network_target(&host)?;
 
         let req_id = self.next_bridge_req_id("mvm-http");
         let body_b64 = body.as_ref().map(|b| encode_base64_bytes(b.as_bytes()));
@@ -4957,6 +5181,7 @@ impl MvmSandbox {
         self.admit_outbound_transport(TransportKind::HttpsDirect)?;
         let secret_verified =
             self.verify_secret_placeholders_for_host("search.uor.foundation", query)?;
+        self.admit_network_target("search.uor.foundation")?;
         let req_id = self.next_bridge_req_id("chat-web-search");
         let bridge_req = serde_json::json!({
             "req_id": req_id,
@@ -4988,6 +5213,7 @@ impl MvmSandbox {
         };
         self.admit_outbound_transport(transport)?;
         let secret_verified = self.verify_secret_placeholders_for_host(&host, url)?;
+        self.admit_network_target(&host)?;
         let req_id = self.next_bridge_req_id("chat-web-fetch");
         let bridge_req = serde_json::json!({
             "req_id": req_id,
@@ -5166,6 +5392,10 @@ impl MvmSandbox {
                 };
 
                 self.admit_outbound_transport(transport)?;
+                if target.contains("://") {
+                    let (_, pkg_host) = parse_url_scheme_and_host(target);
+                    self.admit_network_target(&pkg_host)?;
+                }
                 self.ensure_guest_ram_uncontaminated()?;
 
                 let req_id = self.next_bridge_req_id("mvm-pkg");
@@ -5281,6 +5511,32 @@ impl MvmSandbox {
             }
         }
         tree
+    }
+
+    fn admit_git_remote_request(&self, repo_url: &str) -> Result<(Option<String>, bool), MvmError> {
+        let (scheme, host) = parse_url_scheme_and_host(repo_url);
+        let transport = if scheme == "https" {
+            TransportKind::HttpsDirect
+        } else {
+            TransportKind::PlainHttp
+        };
+        self.admit_outbound_transport(transport)?;
+        let has_github_secret = self.host_secrets.contains_key("GITHUB_TOKEN");
+        let auth_placeholder = if has_github_secret {
+            Some("{{MVM_SECRET:GITHUB_TOKEN}}".to_string())
+        } else if repo_url.contains("{{MVM_SECRET:") {
+            Some(repo_url.to_string())
+        } else {
+            None
+        };
+        let secret_verified = if let Some(ref ph) = auth_placeholder {
+            self.verify_secret_placeholders_for_host(&host, ph)?
+        } else {
+            self.ensure_guest_ram_uncontaminated()?;
+            false
+        };
+        self.admit_network_target(&host)?;
+        Ok((auth_placeholder, secret_verified))
     }
 
     fn exec_git_command(
@@ -5735,28 +5991,8 @@ impl MvmSandbox {
                     (url, repo_root)
                 };
 
-                let (scheme, host) = parse_url_scheme_and_host(&repo_url);
-                let transport = if scheme == "https" {
-                    TransportKind::HttpsDirect
-                } else {
-                    TransportKind::PlainHttp
-                };
-                self.admit_outbound_transport(transport)?;
-
-                let has_github_secret = self.host_secrets.contains_key("GITHUB_TOKEN");
-                let auth_placeholder = if has_github_secret {
-                    Some("{{MVM_SECRET:GITHUB_TOKEN}}".to_string())
-                } else if repo_url.contains("{{MVM_SECRET:") {
-                    Some(repo_url.clone())
-                } else {
-                    None
-                };
-                let secret_verified = if let Some(ref ph) = auth_placeholder {
-                    self.verify_secret_placeholders_for_host(&host, ph)?
-                } else {
-                    self.ensure_guest_ram_uncontaminated()?;
-                    false
-                };
+                let (auth_placeholder, secret_verified) =
+                    self.admit_git_remote_request(&repo_url)?;
 
                 let (git_branch, push_files, push_msg) = if sub == "push" {
                     if let Some(st) = self.load_git_state(&target_dir) {
@@ -5815,6 +6051,202 @@ impl MvmSandbox {
                     "git_action": sub,
                     "repo_url": repo_url,
                     "target_dir": target_dir,
+                    "working_cwd": working_cwd,
+                    "redirect_path": redirect.as_ref().map(|(p, _)| p.clone()),
+                    "redirect_append": redirect.as_ref().map(|(_, a)| *a).unwrap_or(false),
+                });
+                Ok(MvmInteractiveOutcome::NeedsBridge(MvmBridgePending {
+                    bridge_req,
+                    resume_state,
+                    vsock_frames: vec![frame],
+                }))
+            }
+            "branch" => {
+                let Some(repo_root) = self.find_git_root(working_cwd) else {
+                    return Ok(MvmInteractiveOutcome::Completed(MvmExecOutcome {
+                        exit_code: 128,
+                        stdout: String::new(),
+                        stderr: "fatal: not a git repository\n".to_string(),
+                        instructions_retired: 0,
+                        vsock_frames: Vec::new(),
+                        compiled_elf_machine: None,
+                        cow_state_sha256: self.cow_state_sha256(),
+                    }));
+                };
+                let mut state = self.load_git_state(&repo_root).unwrap();
+                let new_branch = words.iter().skip(2).find(|a| !a.starts_with('-')).cloned();
+                let Some(branch_name) = new_branch else {
+                    let mut out = format!("* {}\n", state.branch);
+                    if let Some((redir, append)) = redirect {
+                        self.write_redirected_bytes(
+                            working_cwd,
+                            &redir,
+                            out.as_bytes(),
+                            append,
+                            None,
+                        )
+                        .map_err(MvmError::CpuTrap)?;
+                        out.clear();
+                    }
+                    return Ok(MvmInteractiveOutcome::Completed(MvmExecOutcome {
+                        exit_code: 0,
+                        stdout: out,
+                        stderr: String::new(),
+                        instructions_retired: 0,
+                        vsock_frames: Vec::new(),
+                        compiled_elf_machine: None,
+                        cow_state_sha256: self.cow_state_sha256(),
+                    }));
+                };
+                if let Some(ref repo_url) = state.remote_url {
+                    let (auth_placeholder, secret_verified) =
+                        self.admit_git_remote_request(repo_url)?;
+                    let base_branch = state.branch.clone();
+                    let req_id = self.next_bridge_req_id("mvm-git-branch");
+                    let bridge_req = serde_json::json!({
+                        "req_id": req_id,
+                        "spvs_magic": "SPVS",
+                        "src_cid": self.guest_cid,
+                        "dst_cid": 2,
+                        "policy": self.policy_str(),
+                        "op": "git_smart_http",
+                        "subcommand": "create_branch",
+                        "git_action": "create_branch",
+                        "repo_url": repo_url,
+                        "branch": branch_name,
+                        "base_branch": base_branch,
+                        "target_dir": repo_root,
+                        "secret_placeholder_verified": secret_verified,
+                        "params": {
+                            "repo_url": repo_url,
+                            "branch": branch_name,
+                            "base_branch": base_branch,
+                            "auth_bearer": auth_placeholder,
+                        }
+                    });
+                    let frame = self.emit_bridge_vsock_frame(bridge_req.to_string().as_bytes())?;
+                    let resume_state = serde_json::json!({
+                        "bridge_kind": "git_smart_http",
+                        "git_action": "create_branch",
+                        "repo_url": repo_url,
+                        "target_dir": repo_root,
+                        "working_cwd": working_cwd,
+                        "redirect_path": redirect.as_ref().map(|(p, _)| p.clone()),
+                        "redirect_append": redirect.as_ref().map(|(_, a)| *a).unwrap_or(false),
+                    });
+                    return Ok(MvmInteractiveOutcome::NeedsBridge(MvmBridgePending {
+                        bridge_req,
+                        resume_state,
+                        vsock_frames: vec![frame],
+                    }));
+                }
+                state.branch = branch_name.clone();
+                self.save_git_state(&repo_root, &state)?;
+                let out = format!("Switched to branch '{branch_name}'\n");
+                Ok(MvmInteractiveOutcome::Completed(MvmExecOutcome {
+                    exit_code: 0,
+                    stdout: out,
+                    stderr: String::new(),
+                    instructions_retired: 0,
+                    vsock_frames: Vec::new(),
+                    compiled_elf_machine: None,
+                    cow_state_sha256: self.cow_state_sha256(),
+                }))
+            }
+            "pr" => {
+                let Some(repo_root) = self.find_git_root(working_cwd) else {
+                    return Ok(MvmInteractiveOutcome::Completed(MvmExecOutcome {
+                        exit_code: 128,
+                        stdout: String::new(),
+                        stderr: "fatal: not a git repository\n".to_string(),
+                        instructions_retired: 0,
+                        vsock_frames: Vec::new(),
+                        compiled_elf_machine: None,
+                        cow_state_sha256: self.cow_state_sha256(),
+                    }));
+                };
+                let state = self.load_git_state(&repo_root).unwrap();
+                let mut title = String::new();
+                let mut head_branch = state.branch.clone();
+                let mut base_branch = "main".to_string();
+                let mut pr_body = String::new();
+                let mut explicit_repo = None::<String>;
+                let mut idx = 2usize;
+                while idx < words.len() {
+                    match words[idx].as_str() {
+                        "-t" | "--title" if idx + 1 < words.len() => {
+                            title = words[idx + 1].clone();
+                            idx += 2;
+                        }
+                        "-H" | "--head" if idx + 1 < words.len() => {
+                            head_branch = words[idx + 1].clone();
+                            idx += 2;
+                        }
+                        "-b" | "--base" if idx + 1 < words.len() => {
+                            base_branch = words[idx + 1].clone();
+                            idx += 2;
+                        }
+                        "-m" | "--body" if idx + 1 < words.len() => {
+                            pr_body = words[idx + 1].clone();
+                            idx += 2;
+                        }
+                        "-R" | "--repo" if idx + 1 < words.len() => {
+                            explicit_repo = Some(words[idx + 1].clone());
+                            idx += 2;
+                        }
+                        "create" => {
+                            idx += 1;
+                        }
+                        arg if !arg.starts_with('-') && title.is_empty() => {
+                            title = arg.to_string();
+                            idx += 1;
+                        }
+                        _ => {
+                            idx += 1;
+                        }
+                    }
+                }
+                if title.is_empty() {
+                    title = format!("Update {head_branch}");
+                }
+                let repo_url = explicit_repo
+                    .or(state.remote_url)
+                    .unwrap_or_else(|| "https://github.com/uor-foundation/repo.git".to_string());
+                let (auth_placeholder, secret_verified) =
+                    self.admit_git_remote_request(&repo_url)?;
+                let req_id = self.next_bridge_req_id("mvm-git-pr");
+                let bridge_req = serde_json::json!({
+                    "req_id": req_id,
+                    "spvs_magic": "SPVS",
+                    "src_cid": self.guest_cid,
+                    "dst_cid": 2,
+                    "policy": self.policy_str(),
+                    "op": "git_smart_http",
+                    "subcommand": "create_pr",
+                    "git_action": "create_pr",
+                    "repo_url": repo_url,
+                    "branch": head_branch,
+                    "head": head_branch,
+                    "base": base_branch,
+                    "title": title,
+                    "body": pr_body,
+                    "target_dir": repo_root,
+                    "secret_placeholder_verified": secret_verified,
+                    "params": {
+                        "repo_url": repo_url,
+                        "head": head_branch,
+                        "base": base_branch,
+                        "title": title,
+                        "body": pr_body,
+                        "auth_bearer": auth_placeholder,
+                    }
+                });
+                let frame = self.emit_bridge_vsock_frame(bridge_req.to_string().as_bytes())?;
+                let resume_state = serde_json::json!({
+                    "bridge_kind": "git_smart_http",
+                    "git_action": "create_pr",
+                    "repo_url": repo_url,
+                    "target_dir": repo_root,
                     "working_cwd": working_cwd,
                     "redirect_path": redirect.as_ref().map(|(p, _)| p.clone()),
                     "redirect_append": redirect.as_ref().map(|(_, a)| *a).unwrap_or(false),
@@ -5971,6 +6403,22 @@ impl MvmSandbox {
         let msg = match git_action {
             "push" => format!("To {repo_url}\n   {short_oid}..{short_oid}  {branch} -> {branch}\n"),
             "pull" => format!("From {repo_url}\n * branch {branch} -> FETCH_HEAD ({short_oid}, {written_files} file(s) updated)\n"),
+            "create_branch" => format!("Switched to branch '{branch}' (upstream {repo_url} at {short_oid})\n"),
+            "create_pr" => {
+                let pr_num = data
+                    .get("pr_number")
+                    .or_else(|| bridge_resp.get("pr_number"))
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or(1);
+                let pr_url = data
+                    .get("html_url")
+                    .or_else(|| data.get("url"))
+                    .or_else(|| bridge_resp.get("html_url"))
+                    .or_else(|| bridge_resp.get("url"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or(repo_url);
+                format!("Created pull request #{pr_num}: {pr_url}\n")
+            }
             _ => format!("Cloning into '{target_dir}'...\nChecked out '{branch}' at {short_oid} ({written_files} file(s) materialized).\n"),
         };
         Ok((0, msg, String::new()))
@@ -6019,7 +6467,11 @@ fn parse_url_scheme_and_host(url: &str) -> (String, String) {
     };
     let authority = after_scheme.split(['/', '?', '#']).next().unwrap_or("");
     let host_port = authority.rsplit('@').next().unwrap_or(authority);
-    let host = host_port.split(':').next().unwrap_or(host_port);
+    let host = if let Some(rest) = host_port.strip_prefix('[') {
+        rest.split(']').next().unwrap_or(rest)
+    } else {
+        host_port.split(':').next().unwrap_or(host_port)
+    };
     (scheme_raw.to_ascii_lowercase(), host.to_ascii_lowercase())
 }
 

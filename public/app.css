@@ -7466,6 +7466,60 @@ body[data-embed="me"] .gpt-topbar {
   padding: 0 0.5rem !important;
 }
 
+/* Chromeless Observatory embedding mode (?surface=observatory, R4-59) */
+body.surface-observatory,
+body[data-surface="observatory"] {
+  background: var(--background, #090d16) !important;
+  color: var(--foreground, #f8fafc) !important;
+  font-family: var(--font-sans, system-ui, sans-serif) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: auto !important;
+}
+
+body.surface-observatory .gpt-topbar,
+body[data-surface="observatory"] .gpt-topbar,
+body.surface-observatory #threads-sidebar,
+body[data-surface="observatory"] #threads-sidebar,
+body.surface-observatory #cowork-agent-status-bar,
+body[data-surface="observatory"] #cowork-agent-status-bar,
+body.surface-observatory > main,
+body[data-surface="observatory"] > main,
+body.surface-observatory #inspectors-modal > .inspectors-header,
+body[data-surface="observatory"] #inspectors-modal > .inspectors-header,
+body.surface-observatory #inspectors-modal > section:not(#canvas-panel-traces),
+body[data-surface="observatory"] #inspectors-modal > section:not(#canvas-panel-traces),
+body.surface-observatory #canvas-panel-traces > *:not(#holo-observatory-deck),
+body[data-surface="observatory"] #canvas-panel-traces > *:not(#holo-observatory-deck) {
+  display: none !important;
+}
+
+body.surface-observatory #inspectors-modal,
+body[data-surface="observatory"] #inspectors-modal {
+  position: static !important;
+  display: block !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  padding: 0.75rem !important;
+  margin: 0 !important;
+  border: none !important;
+  background: var(--background, #090d16) !important;
+}
+
+body.surface-observatory #canvas-panel-traces,
+body[data-surface="observatory"] #canvas-panel-traces,
+body.surface-observatory #holo-observatory-deck,
+body[data-surface="observatory"] #holo-observatory-deck {
+  display: block !important;
+  background: var(--card, #111827) !important;
+  border-color: var(--border, #334155) !important;
+  color: var(--foreground, #f8fafc) !important;
+  font-family: var(--font-mono, ui-monospace, Menlo, monospace) !important;
+}
+
 
 
 

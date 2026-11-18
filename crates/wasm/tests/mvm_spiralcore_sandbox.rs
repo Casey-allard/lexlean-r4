@@ -1506,3 +1506,178 @@ fn test_mvm_two_stage_pipeline_and_atomic_mutations_r4_58() {
         pipe_done.instructions_retired
     );
 }
+
+#[test]
+fn test_prism_capabilities_network_gate_and_spiralcore_failback_r4_59() {
+    use lexlean_r4_wasm::mvm::{BridgeError, MvmError, MvmInteractiveOutcome, NetworkGateMode};
+    use sha2::{Digest, Sha256};
+
+    // 1. Verify all 6 typed R4-59 BridgeError variants (R5) and complete_bridge mapping
+    let err_cases = [
+        (
+            BridgeError::CapabilityDenied("example.com".to_string()),
+            "CapabilityDenied",
+        ),
+        (BridgeError::RelayConsentRequired, "RelayConsentRequired"),
+        (
+            BridgeError::RelayForbiddenForCredentialedHost,
+            "RelayForbiddenForCredentialedHost",
+        ),
+        (
+            BridgeError::PrivateAddressBlocked("169.254.169.254".to_string()),
+            "PrivateAddressBlocked",
+        ),
+        (
+            BridgeError::DoHResolutionFailed("upstream timeout".to_string()),
+            "DoHResolutionFailed",
+        ),
+        (
+            BridgeError::RelayUnavailable("relay unreachable".to_string()),
+            "RelayUnavailable",
+        ),
+    ];
+    for (err, expected_code) in err_cases {
+        assert_eq!(err.error_code(), expected_code);
+    }
+
+    let mut vm = MvmSandbox::boot_default().expect("boot MVM");
+
+    // 2. Sandboxed mode (capabilities/1): allowlisted host succeeds -> NeedsBridge, non-allowlisted -> CapabilityDenied
+    vm.network_gate_enforced = true;
+    vm.network_mode = NetworkGateMode::Sandboxed;
+    vm.relay_consent_granted = false;
+    vm.relay_ws_url.clear();
+    let allowed_curl = vm
+        .exec_interactive("curl https://registry.npmjs.org/zod", Some("/workspace"))
+        .expect("allowlisted curl must emit NeedsBridge");
+    assert!(
+        matches!(allowed_curl, MvmInteractiveOutcome::NeedsBridge(_)),
+        "expected NeedsBridge for registry.npmjs.org, got {allowed_curl:?}"
+    );
+
+    let denied_curl = vm
+        .exec_interactive("curl https://example.com/data", Some("/workspace"))
+        .expect_err("non-allowlisted curl in Sandboxed mode must fail with CapabilityDenied");
+    assert_eq!(
+        denied_curl,
+        MvmError::BridgeRejected(BridgeError::CapabilityDenied("example.com".to_string()))
+    );
+
+    // 3. Private / link-local RFC 1918 / 169.254 SSRF targets rejected with PrivateAddressBlocked
+    for ssrf_cmd in [
+        "curl https://169.254.169.254/latest/meta-data",
+        "curl https://10.0.0.1/admin",
+        "host 192.168.1.1",
+        "nslookup 127.0.0.1",
+    ] {
+        let ssrf_err = vm
+            .exec_interactive(ssrf_cmd, Some("/workspace"))
+            .expect_err("SSRF target must be rejected");
+        assert!(
+            matches!(
+                ssrf_err,
+                MvmError::BridgeRejected(BridgeError::PrivateAddressBlocked(_))
+            ),
+            "expected PrivateAddressBlocked for `{ssrf_cmd}`, got {ssrf_err:?}"
+        );
+    }
+
+    // 4. Switching to Full SpiralCore without consentGranted=true refuses with RelayConsentRequired
+    vm.network_gate_enforced = true;
+    vm.network_mode = NetworkGateMode::FullSpiralcore;
+    vm.relay_consent_granted = false;
+    vm.relay_ws_url = "wss://relay.example.invalid/spvs".to_string();
+    let consent_err = vm
+        .exec_interactive("curl https://example.com/data", Some("/workspace"))
+        .expect_err("Full SpiralCore without consentGranted must return RelayConsentRequired");
+    assert_eq!(
+        consent_err,
+        MvmError::BridgeRejected(BridgeError::RelayConsentRequired)
+    );
+
+    // With consentGranted=true, unallowlisted external host emits NeedsBridge (while SSRF remains blocked)
+    vm.network_gate_enforced = true;
+    vm.network_mode = NetworkGateMode::FullSpiralcore;
+    vm.relay_consent_granted = true;
+    vm.relay_ws_url = "ws://127.0.0.1:8787/spvs".to_string();
+    let full_curl = match vm
+        .exec_interactive("curl https://example.com/data", Some("/workspace"))
+        .expect("Full SpiralCore with consent emits NeedsBridge")
+    {
+        MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge, got {other:?}"),
+    };
+    let relay_blocked = vm
+        .complete_bridge(
+            &full_curl.resume_state,
+            &serde_json::json!({
+                "ok": false,
+                "error_code": "RelayForbiddenForCredentialedHost",
+                "message": "credentialed host refused relay failback"
+            }),
+        )
+        .expect_err("complete_bridge must map RelayForbiddenForCredentialedHost");
+    assert_eq!(
+        relay_blocked,
+        MvmError::BridgeRejected(BridgeError::RelayForbiddenForCredentialedHost)
+    );
+
+    // 5. `host` command emits dns_query NeedsBridge and resumes cleanly
+    let host_pending = match vm
+        .exec_interactive("host github.com", Some("/workspace"))
+        .expect("host command emits NeedsBridge")
+    {
+        MvmInteractiveOutcome::NeedsBridge(p) => p,
+        other => panic!("expected NeedsBridge for `host`, got {other:?}"),
+    };
+    assert_eq!(host_pending.bridge_req["op"], "dns_query");
+    let host_done = match vm
+        .complete_bridge(
+            &host_pending.resume_state,
+            &serde_json::json!({
+                "ok": true,
+                "data": { "answers": [{ "data": "140.82.114.4", "type_name": "A" }] }
+            }),
+        )
+        .expect("complete host dns")
+    {
+        MvmInteractiveOutcome::Completed(c) => c,
+        other => panic!("expected Completed, got {other:?}"),
+    };
+    assert!(host_done.stdout.contains("140.82.114.4"));
+
+    // 6. StudioEngine mvm_set_policy_json + offlineQ31WeightsKappa pin verification
+    let _guard = STUDIO_GLOBAL_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+    let mut engine = StudioEngine::new_default();
+    let policy_rej: serde_json::Value = serde_json::from_str(
+        &engine.mvm_set_policy_json(r#"{"mode":"full_spiralcore","consentGranted":false}"#),
+    )
+    .expect("policy json");
+    assert_eq!(policy_rej["status"], "error");
+    assert_eq!(policy_rej["error_code"], "RelayConsentRequired");
+
+    let expected_q31_sha: String = Sha256::digest(include_bytes!("../src/native_q31_d85.uorq31"))
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    let begin_q31: serde_json::Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "hello offline q31",
+                "selected_model": "uor-r4.native-q31-d85",
+                "max_new_tokens": 2
+            })
+            .to_string(),
+        ),
+    )
+    .expect("begin q31 json");
+    assert_eq!(begin_q31["status"], "ready", "begin_q31: {begin_q31}");
+    let tid = begin_q31["turn_id"].as_u64().expect("turn_id");
+    let step_q31: serde_json::Value =
+        serde_json::from_str(&engine.holo_step_foundry_turn(tid)).expect("step q31 json");
+    assert_eq!(
+        step_q31["weights_kappa"].as_str(),
+        Some(format!("sha256:{expected_q31_sha}").as_str()),
+        "offlineQ31WeightsKappa must be populated deterministically on native-q31-d85 step"
+    );
+}

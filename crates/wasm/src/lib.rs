@@ -1330,6 +1330,20 @@ pub fn prll_masses_from_scores(scores: [u32; 4]) -> [u32; 4] {
     [m0, m1, m2, m3]
 }
 
+static EMBEDDED_NATIVE_Q31_D85_BYTES: &[u8] = include_bytes!("native_q31_d85.uorq31");
+static EMBEDDED_NATIVE_Q31_SHA256_CELL: OnceLock<String> = OnceLock::new();
+
+/// Deterministic SHA-256 hex digest of the embedded `native_q31_d85.uorq31` container (`R4-59`).
+pub fn embedded_native_q31_sha256() -> String {
+    EMBEDDED_NATIVE_Q31_SHA256_CELL
+        .get_or_init(|| {
+            use sha2::{Digest, Sha256};
+            let dig = Sha256::digest(EMBEDDED_NATIVE_Q31_D85_BYTES);
+            dig.iter().map(|b| format!("{b:02x}")).collect()
+        })
+        .clone()
+}
+
 impl StudioEngine {
     /// Construct a fresh `StudioEngine` pre-populated with the 20 UOR-R4 domain knowledge turns
     /// and the default Claude-Code-Desktop virtual workspace.
@@ -1363,11 +1377,10 @@ impl StudioEngine {
             holo_stream_builder: None,
             hf_repo_compiler: None,
             native_q31: {
-                static EMBEDDED_NATIVE_Q31_D85: &[u8] = include_bytes!("native_q31_d85.uorq31");
                 static NATIVE_Q31_CELL: OnceLock<native_q31_lane::NativeQ31Model> = OnceLock::new();
                 NATIVE_Q31_CELL
                     .get_or_init(|| {
-                        native_q31_lane::NativeQ31Model::from_bytes(EMBEDDED_NATIVE_Q31_D85)
+                        native_q31_lane::NativeQ31Model::from_bytes(EMBEDDED_NATIVE_Q31_D85_BYTES)
                             .expect("embedded native_q31_d85.uorq31 is valid UORQ31V1")
                     })
                     .clone()
@@ -1716,44 +1729,141 @@ impl StudioEngine {
         .to_string()
     }
 
-    /// Update the active `R4-39` MCP bridge policy mode (`safe`, `confirm`, or `deny`).
+    /// Update the active `R4-39` MCP bridge policy mode (`safe`, `confirm`, or `deny`)
+    /// and/or Prism `capabilities/1` outbound network gate (`sandboxed` or `full_spiralcore`).
     pub fn mvm_set_policy_json(&mut self, payload: &str) -> String {
         use crate::lexlean_generated::r4_connected_studio::McpPolicyMode;
-        let raw_mode = if payload.trim().starts_with('{') {
-            serde_json::from_str::<serde_json::Value>(payload.trim())
-                .ok()
-                .and_then(|v| {
-                    v.get("policy")
-                        .or_else(|| v.get("mode"))
-                        .and_then(|x| x.as_str())
-                        .map(str::to_string)
-                })
-                .unwrap_or_default()
-        } else {
-            payload.trim().to_string()
-        };
-        let mode = match raw_mode.to_ascii_lowercase().as_str() {
-            "safe" | "allow" => McpPolicyMode::Safe,
-            "confirm" | "ask" => McpPolicyMode::Confirm,
-            "deny" | "off" | "block" => McpPolicyMode::Deny,
-            _ => {
-                return serde_json::json!({
-                    "status": "error",
-                    "error_code": "InvalidPolicyMode",
-                    "message": format!("unsupported policy mode `{raw_mode}`; expected safe, confirm, or deny"),
-                })
-                .to_string();
+        use crate::mvm::NetworkGateMode;
+        let trimmed = payload.trim();
+        let parsed_obj = if trimmed.starts_with('{') {
+            match serde_json::from_str::<serde_json::Value>(trimmed) {
+                Ok(v) => Some(v),
+                Err(e) => {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "InvalidPolicyMode",
+                        "message": format!("invalid policy JSON: {e}"),
+                    })
+                    .to_string();
+                }
             }
+        } else {
+            None
         };
-        self.mvm.set_policy_mode(mode);
-        let label = match mode {
+
+        let raw_mcp_policy = if let Some(ref v) = parsed_obj {
+            if let Some(p) = v
+                .get("policy")
+                .or_else(|| v.get("mcpPolicy"))
+                .and_then(|x| x.as_str())
+            {
+                Some(p.to_string())
+            } else if let Some(m) = v.get("mode").and_then(|x| x.as_str()) {
+                let lower = m.to_ascii_lowercase();
+                if matches!(
+                    lower.as_str(),
+                    "safe" | "allow" | "confirm" | "ask" | "deny" | "off" | "block"
+                ) {
+                    Some(m.to_string())
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        } else {
+            Some(trimmed.to_string())
+        };
+
+        if let Some(raw_mode) = raw_mcp_policy {
+            let mode = match raw_mode.to_ascii_lowercase().as_str() {
+                "safe" | "allow" => McpPolicyMode::Safe,
+                "confirm" | "ask" => McpPolicyMode::Confirm,
+                "deny" | "off" | "block" => McpPolicyMode::Deny,
+                _ => {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "InvalidPolicyMode",
+                        "message": format!("unsupported policy mode `{raw_mode}`; expected safe, confirm, or deny"),
+                    })
+                    .to_string();
+                }
+            };
+            self.mvm.set_policy_mode(mode);
+        }
+
+        if let Some(ref v) = parsed_obj {
+            let mode_str = v
+                .get("network_mode")
+                .or_else(|| v.get("networkMode"))
+                .or_else(|| v.get("mode"))
+                .and_then(|x| x.as_str())
+                .map(|s| s.to_ascii_lowercase());
+            let has_gate_fields = v.get("consentGranted").is_some()
+                || v.get("consent_granted").is_some()
+                || v.get("relayWsUrl").is_some()
+                || v.get("relay_ws_url").is_some()
+                || matches!(
+                    mode_str.as_deref(),
+                    Some(
+                        "sandboxed"
+                            | "mode_a"
+                            | "full_spiralcore"
+                            | "full"
+                            | "mode_b"
+                            | "spiralcore"
+                    )
+                );
+            if has_gate_fields {
+                let net_mode = match mode_str.as_deref() {
+                    Some("full_spiralcore" | "full" | "mode_b" | "spiralcore") => {
+                        NetworkGateMode::FullSpiralcore
+                    }
+                    Some("sandboxed" | "mode_a") => NetworkGateMode::Sandboxed,
+                    _ => self.mvm.network_mode,
+                };
+                let consent = v
+                    .get("consentGranted")
+                    .or_else(|| v.get("consent_granted"))
+                    .and_then(|x| x.as_bool())
+                    .unwrap_or(self.mvm.relay_consent_granted);
+                let relay_ws = v
+                    .get("relayWsUrl")
+                    .or_else(|| v.get("relay_ws_url"))
+                    .and_then(|x| x.as_str())
+                    .map(str::to_string)
+                    .unwrap_or_else(|| self.mvm.relay_ws_url.clone());
+                self.mvm.network_gate_enforced = true;
+                self.mvm.network_mode = net_mode;
+                self.mvm.relay_consent_granted = consent;
+                self.mvm.relay_ws_url = relay_ws.trim().to_string();
+                if net_mode == NetworkGateMode::FullSpiralcore && !consent {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "RelayConsentRequired",
+                        "message": "Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)",
+                        "network_mode": "full_spiralcore",
+                        "consent_granted": false,
+                    })
+                    .to_string();
+                }
+            }
+        }
+
+        let label = match self.mvm.policy_mode() {
             McpPolicyMode::Safe => "safe",
             McpPolicyMode::Confirm => "confirm",
             McpPolicyMode::Deny => "deny",
         };
+        let net_label = match self.mvm.network_mode {
+            NetworkGateMode::Sandboxed => "sandboxed",
+            NetworkGateMode::FullSpiralcore => "full_spiralcore",
+        };
         serde_json::json!({
             "status": "ok",
             "policy": label,
+            "network_mode": net_label,
+            "consent_granted": self.mvm.relay_consent_granted,
         })
         .to_string()
     }
@@ -1761,10 +1871,15 @@ impl StudioEngine {
     /// Return `MVM-Wasm` guest status, zero-NIC policy state, interactive `cwd`, and CoW block digest as JSON (`R4-37` + `R4-39`).
     pub fn mvm_status_json(&self) -> String {
         use crate::lexlean_generated::r4_connected_studio::McpPolicyMode;
+        use crate::mvm::NetworkGateMode;
         let policy_label = match self.mvm.policy_mode() {
             McpPolicyMode::Safe => "safe",
             McpPolicyMode::Confirm => "confirm",
             McpPolicyMode::Deny => "deny",
+        };
+        let net_label = match self.mvm.network_mode {
+            NetworkGateMode::Sandboxed => "sandboxed",
+            NetworkGateMode::FullSpiralcore => "full_spiralcore",
         };
         serde_json::json!({
             "status": "ok",
@@ -1772,6 +1887,8 @@ impl StudioEngine {
             "guest_cid": self.mvm.guest_cid(),
             "cwd": self.mvm.current_cwd(),
             "policy": policy_label,
+            "network_mode": net_label,
+            "consent_granted": self.mvm.relay_consent_granted,
             "nic_enabled": false,
             "transport": "SpiralCore virtio-vsock (AF_VSOCK=40)",
             "installed_packages": self.mvm.installed_packages().keys().collect::<Vec<_>>(),

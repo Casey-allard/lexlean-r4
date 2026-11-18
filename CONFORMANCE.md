@@ -288,6 +288,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-24` | `build` | Pure LexLean models the 17-root Icosian Z[phi] integer snap kernels (exact 5*a^2 < d with negative-a handling, 17-root GoldenQ12 table, snap compatibility scoring, deterministic tie-breaking, and quaternion Hamilton products), UORLUT01 /1../8 binary container header validation, and model-source family/scale admission. Formal controls establish no floating-point checkpoint equivalence or hardware SIMD execution. |
 
+## r4-spiralcore-observatory-holo
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-59` | `build` | Pure LexLean models the Prism capabilities/1 network gate, CORS-direct GitHub personal token REST + Git Data APIs, unauthenticated SpiralCore AF_VSOCK failback, RFC 8484 DoH + SSRF CIDR blocking, chromeless ?surface=observatory uor-observatory/1 view, dual weight kappa pins (qwen3WeightsKappa, offlineQ31WeightsKappa), and content-addressed .holo archive emission (--emit-fingerprint-dir) (R4-59): Sandboxed mode (registry.npmjs.org, esm.sh, pypi.org, files.pythonhosted.org, cdn.jsdelivr.net, github.com, api.github.com, huggingface.co, cloudflare-dns.com, dns.google) vs Full SpiralCore Internet (consentGranted gating, direct fetch/DoH/WebTransport/WebSocket first, unauthenticated CORS TypeError failback to AF_VSOCK relayWsUrl, strict RelayForbiddenForCredentialedHost blocking relay failback for api.github.com/github.com or Authorization/GITHUB_TOKEN, PrivateAddressBlocked rejecting RFC 1918/169.254/loopback/link-local SSRF CIDRs, DoHResolutionFailed, RelayUnavailable), audit_event emission on every outbound call, opaque-origin safe ?surface=observatory ready handshake and theme/4-canvas Holo v13 + .uorc rendering without raw telemetry string literals, deterministic offlineQ31WeightsKappa sha256 digest binding, and xtask build-holo --emit-fingerprint-dir emitting <fingerprint>.holo + app.holo + site/app.json pins cleanly outside the 6-file git public/ closure. Formal controls establish no external GitHub API, DoH resolver, or SpiralCore relay uptime. |
+
 ## r4-spiralcore-vsock
 
 | ID | Level | Statement |

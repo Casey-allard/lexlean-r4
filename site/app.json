@@ -1,7 +1,7 @@
 {
   "address": "lexlean-r4",
-  "applicationKappa": "blake3:dcffec411d27705da2b40e50ff4f437b7e4f7f92156d143d7cec8af33336fd89",
-  "archiveKappa": "blake3:4d2629abf643fb9fe9f9a5269b5b784a2320dae36afb38f01a040d90d8b4f7e5",
+  "applicationKappa": "blake3:3657b091a378d084099a0a49b77ae45619440729b2e74f14b91c6813cc7569d3",
+  "archiveKappa": "blake3:6e72bfb7917bbdf6f677f9bf4aaf0ed1dd291d6907d58adcd9fa5478c614f4c6",
   "capabilities": [
     "holo_v13_pure_integer",
     "opfs_kappastore_sync_access",
@@ -21,7 +21,10 @@
     "pr_status",
     "merge_pr",
     "watch_deploy",
-    "stitch_2_of_3_recovery"
+    "stitch_2_of_3_recovery",
+    "prism_capabilities_network_gate",
+    "spiralcore_af_vsock_failback",
+    "observatory_surface"
   ],
   "claim": "R4-54: Stitch.PrismId canonical kappa identity chains and Hologram v4 .holo archives compile deterministically and verify against BLAKE3 footers and Core-Wasm acceptance vectors for UOR-Foundation/foundry selection.",
   "custody": {
@@ -37,6 +40,8 @@
     "compactMode": true,
     "foundryQueryParam": "embed=foundry",
     "metaTag": "prism/r4-workspace/1",
+    "observatoryProtocol": "uor-observatory/1",
+    "observatoryQueryParam": "surface=observatory",
     "postMessage": {
       "bridgeActions": [
         "ping",
@@ -70,7 +75,7 @@
     "queryParam": "embed=me",
     "supported": true
   },
-  "fingerprint": "8f09c604d912de815b92297d269b47f577420369e4354bb8e040427fac76d677",
+  "fingerprint": "34ea88b9b3ccc2a4c7e27998cb9c8a21b62fcb7a6c14963c7e6f5913198a8ba9",
   "foundry": {
     "embedQueryParam": "embed=foundry",
     "fork": "https://github.com/Casey-allard/foundry",
@@ -88,7 +93,8 @@
   },
   "guestContentKappa": "blake3:432ef4380308a8212164bf5ec406050034fca4ca62675e073a750df6461a1ce3",
   "holoAddress": "holo://lexlean-r4",
-  "holoByteLength": 11937520,
+  "holoByteLength": 12747876,
+  "holoFingerprintUrl": "https://casey-allard.github.io/lexlean-r4/holo/34ea88b9b3ccc2a4c7e27998cb9c8a21b62fcb7a6c14963c7e6f5913198a8ba9.holo",
   "holoUrl": "https://casey-allard.github.io/lexlean-r4/app.holo",
   "icons": [
     {
@@ -99,7 +105,7 @@
   ],
   "inputLabel": "Prompt or Workspace Command",
   "live": "https://casey-allard.github.io/lexlean-r4/",
-  "modelContentKappa": "blake3:7534ffe117f0c7f7fec566c7545babde4d342ff4356ac26c3214a816705c72b2",
+  "modelContentKappa": "blake3:20d8b9dcb6ed974a7bbcb91e63dd9650ce3649893ff6b87c29020bbaf833a154",
   "models": [
     "uor-r4.qwen3-0.6b-holo",
     "uor-r4.qwen3-1.7b-holo",
@@ -107,6 +113,7 @@
     "uor-r4.hf-repo-holo"
   ],
   "name": "LexLean-R4 Universal Workspace",
+  "offlineQ31WeightsKappa": "sha256:2d13022e5a2aec26f7e023bf7524277eb7f2bfa9b3eaad37fc35655cb1790176",
   "outputLabel": "Workspace Output",
   "placeholder": "Ask Holo v13, /q31-train, /hf Qwen/Qwen3-0.6B, /holo, or /prism-id...",
   "prismIdentity": {
@@ -128,6 +135,7 @@
     "headline": "Zero-float integer inference, Stitch PrismId non-extractable keys, and GitHub bearer credentials remain isolated in the Dedicated Worker."
   },
   "purpose": "Execute quantized Qwen3 Holo v13 and native Q31 SpiralCore/FBS models purely in WebAssembly with OPFS SyncAccessHandle persistence, Stitch Prism Identity (sha256 uor-addr), Hologram v4 .holo archival compilation, and sandboxed GitHub workflows integrated directly into UOR-Foundation/foundry (FA-87 inprism).",
+  "qwen3WeightsKappa": "sha256:1d0255929995725be144cb1787416880ffb073e0d153adf1a663abb636a0550a",
   "registry": "registry.uor.foundation",
   "repository": "https://github.com/Casey-allard/lexlean-r4",
   "schema": "prism/r4-workspace/1",
@@ -153,5 +161,6 @@
     }
   ],
   "version": "0.14.0",
-  "viewContentKappa": "blake3:632d5003f45f0669a95e4880b01a6498d9a6bc585f5ede2174a09396950516d1"
+  "viewContentKappa": "blake3:6868c9f1ab86ba4c878653bc418d622bfdfb58fdb8a36d4993b9b3d1d7b5b3f3",
+  "wasmSha256": "f1a800c7f66e7a2cbf2111fde430c8c7ad65d054cf3f738c73aef3b67819a2b6"
 }

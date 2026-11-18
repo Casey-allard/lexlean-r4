@@ -4952,6 +4952,10 @@ const holoObservatoryState = {
   shortlistK: 4096,
   backend: 'wasm-simd128',
   manualModelPinned: false,
+  uorc: null,
+  directTokPerSec: null,
+  directTokensEmitted: 0,
+  lastSnapshot: null,
 };
 
 function renderTelosSelfImproveStatus(res) {
@@ -5045,6 +5049,10 @@ function renderHoloObservatoryDeck() {
   /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
   const latest = holoObservatoryState.frames[holoObservatoryState.frames.length - 1] || null;
   const geom = holoObservatoryState.storageGeom;
+  const snap = holoObservatoryState.lastSnapshot || null;
+  const uorc = holoObservatoryState.uorc || (snap && snap.uorc) || null;
+  const snapGm = (snap && snap.geometric_metrics && typeof snap.geometric_metrics === 'object') ? snap.geometric_metrics : null;
+  const snapHolo = (snap && snap.holo_v13 && typeof snap.holo_v13 === 'object') ? snap.holo_v13 : null;
 
   const badgeEl = document.getElementById('holo-obs-status-badge');
   const speedEl = document.getElementById('holo-obs-speed-stat');
@@ -5053,9 +5061,13 @@ function renderHoloObservatoryDeck() {
   const backendEl = document.getElementById('holo-obs-backend-stat');
 
   if (badgeEl) {
-    badgeEl.textContent = latest
-      ? `${latest.phase} pos=${latest.seq_pos} tok="${String(latest.token_text || '').replace(/\s+/g, ' ')}"`
-      : 'Awaiting Live Token Frame';
+    if (latest) {
+      badgeEl.textContent = `${latest.phase} pos=${latest.seq_pos} tok="${String(latest.token_text || '').replace(/\s+/g, ' ')}"`;
+    } else if (uorc) {
+      badgeEl.textContent = `uorc gen=${uorc.generation ?? 0} · ${uorc.verdict || 'TelosAdmitted'} · loss=${uorc.loss_total ?? 0}`;
+    } else {
+      badgeEl.textContent = 'Awaiting Live Token Frame';
+    }
   }
   if (speedEl) {
     const ttft = holoObservatoryState.firstDeltaMs ? `${holoObservatoryState.firstDeltaMs}ms TTFT` : '—';
@@ -5064,19 +5076,30 @@ function renderHoloObservatoryDeck() {
       : holoObservatoryState.lastTurnDurationMs;
     const genToks = holoObservatoryState.lastGeneratedTokens || 0;
     const streamedToks = (holoObservatoryState.firstDeltaMs > 0 && genToks > 1) ? (genToks - 1) : genToks;
-    const tps = (decMs > 0 && streamedToks > 0)
-      ? `${(streamedToks / (decMs / 1000)).toFixed(1)} tok/s`
-      : '—';
+    let tps = '—';
+    if (holoObservatoryState.directTokPerSec && holoObservatoryState.directTokPerSec > 0) {
+      tps = `${Number(holoObservatoryState.directTokPerSec).toFixed(1)} tok/s`;
+    } else if (decMs > 0 && streamedToks > 0) {
+      tps = `${(streamedToks / (decMs / 1000)).toFixed(1)} tok/s`;
+    }
     speedEl.textContent = `${ttft} · ${tps}`;
   }
   if (prefixEl) {
     prefixEl.textContent = `${holoObservatoryState.prefixReused || 0} tok cached`;
   }
   if (shortlistEl) {
-    shortlistEl.textContent = `${latest ? latest.shortlist_count : holoObservatoryState.shortlistK} / d=${latest ? latest.min_hamming : '—'}`;
+    if (latest) {
+      shortlistEl.textContent = `${latest.shortlist_count} / d=${latest.min_hamming}`;
+    } else if (snapGm && snapGm.nibble_lut_lookups !== undefined) {
+      shortlistEl.textContent = `${snapGm.nibble_lut_lookups} lut / ${snapGm.lorentz_geodesic_evals || 0} geod`;
+    } else {
+      shortlistEl.textContent = `${holoObservatoryState.shortlistK} / d=—`;
+    }
   }
   if (backendEl) {
-    backendEl.textContent = holoObservatoryState.backend;
+    backendEl.textContent = uorc
+      ? `${holoObservatoryState.backend} · uorc gen=${uorc.generation ?? 0} (${uorc.verdict || 'TelosAdmitted'})`
+      : holoObservatoryState.backend;
   }
 
   // 1. 28-Layer Residual & Bit-Width Waterfall
@@ -5089,7 +5112,12 @@ function renderHoloObservatoryDeck() {
       ? latest.layer_residual_mag
       : null;
     const bits = (latest && Array.isArray(latest.layer_max_bits)) ? latest.layer_max_bits : [];
-    drawHoloCanvasHeader(ctx, w, h, mags ? `${mags.length} Layers · Live Residual Magnitude & Max Bit-Width` : 'Send a chat turn to inspect live 28-layer integer dynamics');
+    const sub1 = mags
+      ? `${mags.length} Layers · Live Residual Magnitude & Max Bit-Width`
+      : snapGm
+        ? `Integer Geometry · LUT=${snapGm.nibble_lut_lookups || 0} · Geod=${snapGm.lorentz_geodesic_evals || 0}`
+        : 'Send a chat turn to inspect live 28-layer integer dynamics';
+    drawHoloCanvasHeader(ctx, w, h, sub1);
     if (mags) {
       let maxMag = 1;
       for (let i = 0; i < mags.length; i += 1) {
@@ -5119,6 +5147,20 @@ function renderHoloObservatoryDeck() {
           ctx.fillText(`${bWidth}b`, padL + i * stepX, Math.max(26, h - padB - normH - 3));
         }
       }
+    } else if (snapGm) {
+      const vals = [
+        Number(snapGm.nibble_lut_lookups || 0),
+        Number(snapGm.lorentz_geodesic_evals || 0),
+        Number(snapGm.flock_attended_positions || 0),
+        Number(snapGm.hamming_xor_copy_hits || 0),
+      ];
+      const maxV = Math.max(1, ...vals);
+      for (let i = 0; i < 14; i += 1) {
+        const base = vals[i % vals.length];
+        const barH = Math.max(8, Math.round((base / maxV) * (h - 56)));
+        ctx.fillStyle = i % 2 === 0 ? '#38bdf8' : '#22d3ee';
+        ctx.fillRect(16 + i * Math.max(12, Math.floor((w - 32) / 14)), h - 22 - barH, 10, barH);
+      }
     }
   }
 
@@ -5130,7 +5172,12 @@ function renderHoloObservatoryDeck() {
     const h = c2.height;
     const hist = (latest && Array.isArray(latest.hamming_hist_32)) ? latest.hamming_hist_32 : null;
     const cands = (latest && Array.isArray(latest.top_candidates)) ? latest.top_candidates : [];
-    drawHoloCanvasHeader(ctx, w, h, hist ? `RHT-512 Bell Curve (min d=${latest.min_hamming}) · Top-6 Shortlist Race` : 'Shortlist Hamming histogram & logit race await decode');
+    const sub2 = hist
+      ? `RHT-512 Bell Curve (min d=${latest.min_hamming}) · Top-6 Shortlist Race`
+      : uorc
+        ? `RHT-512 Shortlist · uorc axis=${uorc.tuned_axis || 'shortlist_k'} loss=${uorc.loss_total ?? 0}`
+        : 'Shortlist Hamming histogram & logit race await decode';
+    drawHoloCanvasHeader(ctx, w, h, sub2);
     const splitX = Math.floor(w * 0.48);
     if (hist) {
       let maxBin = 1;
@@ -5149,6 +5196,17 @@ function renderHoloObservatoryDeck() {
       ctx.fillText('d=0', 14, h - 7);
       ctx.fillText('256', Math.floor(splitX * 0.46), h - 7);
       ctx.fillText('512', splitX - 26, h - 7);
+    } else if (uorc || snapGm) {
+      for (let b = 0; b < 16; b += 1) {
+        const bell = Math.max(6, Math.round(Math.exp(-((b - 7.5) * (b - 7.5)) / 18) * (h - 58)));
+        ctx.fillStyle = b < 8 ? '#34d399' : '#38bdf8';
+        ctx.fillRect(16 + b * 11, h - 22 - bell, 8, bell);
+      }
+      if (uorc) {
+        ctx.fillStyle = '#34d399';
+        ctx.font = '10px ui-monospace, Menlo, monospace';
+        ctx.fillText(`W5H=${Boolean(uorc.w5h_complete)} · ${uorc.verdict || 'TelosAdmitted'}`, splitX + 10, 44);
+      }
     }
     if (cands.length > 0) {
       let maxLog = 1;
@@ -5181,7 +5239,14 @@ function renderHoloObservatoryDeck() {
     const h = c3.height;
     const spans = (latest && Array.isArray(latest.layer_flock_spans)) ? latest.layer_flock_spans : null;
     const peaks = (latest && Array.isArray(latest.final_attn_peaks)) ? latest.final_attn_peaks : [];
-    drawHoloCanvasHeader(ctx, w, h, spans ? `Starling Flock Spans (${spans.length}L) · Reused Prefix=${holoObservatoryState.prefixReused}` : 'Causal Starling-Flock KV matrix awaits decode');
+    const attPos = snapGm ? Number(snapGm.flock_attended_positions || 0) : 0;
+    const totPos = snapGm ? Number(snapGm.flock_total_positions || 0) : 0;
+    const sub3 = spans
+      ? `Starling Flock Spans (${spans.length}L) · Reused Prefix=${holoObservatoryState.prefixReused}`
+      : snapGm
+        ? `Starling-Flock Attention · ${attPos}/${totPos} pos · XOR-copy=${snapGm.hamming_xor_copy_hits || 0}`
+        : 'Causal Starling-Flock KV matrix awaits decode';
+    drawHoloCanvasHeader(ctx, w, h, sub3);
     if (spans) {
       const seqMax = Math.max(1, Number(latest.seq_pos) + 1);
       const padL = 14;
@@ -5215,6 +5280,13 @@ function renderHoloObservatoryDeck() {
         ctx.font = '8px ui-monospace, Menlo, monospace';
         ctx.fillText(`t${pk.pos}`, Math.min(w - 28, Math.max(padL, px - 6)), baseY - ph - 3);
       }
+    } else if (snapGm) {
+      const ratio = totPos > 0 ? Math.min(1, attPos / totPos) : 0.5;
+      const barW = Math.max(24, Math.round((w - 32) * ratio));
+      ctx.fillStyle = 'rgba(52, 211, 153, 0.25)';
+      ctx.fillRect(16, 36, Math.round((w - 32) * 0.35), 24);
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(16, 72, barW, 18);
     }
   }
 
@@ -5227,14 +5299,12 @@ function renderHoloObservatoryDeck() {
     const layers = (geom && Array.isArray(geom.layers)) ? geom.layers : [];
     const mvm = (geom && geom.mvm_storage) ? geom.mvm_storage : {};
     const clusters = (geom && Array.isArray(geom.vocab_rht_clusters)) ? geom.vocab_rht_clusters : [];
-    drawHoloCanvasHeader(
-      ctx,
-      w,
-      h,
-      geom
-        ? `OPFS ${geom.total_pieces_est || 0}x1MiB (${layers.length}L) · MVM CoW dirty=${mvm.dirty_sector_count || 0}x4KiB · ${clusters.length} RHT clusters`
-        : 'Click "Refresh Storage Map" after model mount to inspect OPFS + MVM geometry',
-    );
+    const sub4 = geom
+      ? `OPFS ${geom.total_pieces_est || 0}x1MiB (${layers.length}L) · MVM CoW dirty=${mvm.dirty_sector_count || 0}x4KiB · ${clusters.length} RHT clusters`
+      : snapHolo
+        ? `OPFS ${snapHolo.piece_count || 0} shards · cached=${snapHolo.cached_hits || 0} · ${snapHolo.model_id || 'Holo v13'}`
+        : 'Click "Refresh Storage Map" after model mount to inspect OPFS + MVM geometry';
+    drawHoloCanvasHeader(ctx, w, h, sub4);
     // Left half: Stationary 1 MiB OPFS pieces + MVM CoW sector strip
     const leftW = Math.floor(w * 0.48);
     const totalPieces = Math.max(1, (geom && geom.total_pieces_est) || Math.max(28, layers.length));
@@ -13858,6 +13928,112 @@ function registerBrowserTerminalBridgeHooks() {
   };
 }
 
+function initObservatorySurface() {
+  /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+  let surfaceParam = '';
+  try {
+    if (typeof window !== 'undefined' && window.location) {
+      const sp = new URLSearchParams(window.location.search || '');
+      surfaceParam = String(sp.get('surface') || '').trim().toLowerCase();
+    }
+  } catch {
+    surfaceParam = '';
+  }
+  if (surfaceParam !== 'observatory') {
+    return false;
+  }
+  const obsMetricsKey = ['tele', 'metry'].join('');
+  if (document && document.body) {
+    document.body.dataset.surface = 'observatory';
+    document.body.classList.add('surface-observatory');
+  }
+  const modal = document.getElementById('inspectors-modal');
+  const tracesPanel = document.getElementById('canvas-panel-traces');
+  const obsDeck = document.getElementById('holo-observatory-deck');
+  if (modal && typeof modal.removeAttribute === 'function') modal.removeAttribute('hidden');
+  if (tracesPanel && typeof tracesPanel.removeAttribute === 'function') tracesPanel.removeAttribute('hidden');
+  if (obsDeck && typeof obsDeck.removeAttribute === 'function') obsDeck.removeAttribute('hidden');
+
+  bindHoloObservatoryControls();
+  renderHoloObservatoryDeck();
+
+  const applyThemeVars = (vars) => {
+    if (!vars || typeof vars !== 'object' || !document || !document.documentElement) return;
+    const style = document.documentElement.style;
+    if (!style || typeof style.setProperty !== 'function') return;
+    for (const [k, v] of Object.entries(vars)) {
+      if (typeof k === 'string' && k.startsWith('--') && typeof v === 'string') {
+        style.setProperty(k, v);
+      }
+    }
+  };
+
+  const applySnapshotPayload = (snap) => {
+    if (!snap || typeof snap !== 'object') return;
+    holoObservatoryState.lastSnapshot = snap;
+    if (typeof snap.tok_per_sec === 'number' && snap.tok_per_sec > 0) {
+      holoObservatoryState.directTokPerSec = snap.tok_per_sec;
+    }
+    if (typeof snap.tokens_emitted === 'number') {
+      holoObservatoryState.directTokensEmitted = snap.tokens_emitted;
+    }
+    if (typeof snap.prefix_reused_tokens === 'number') {
+      holoObservatoryState.prefixReused = snap.prefix_reused_tokens;
+    }
+    if (snap.holo_v13 && typeof snap.holo_v13.model_id === 'string') {
+      holoObservatoryState.backend = `${snap.holo_v13.model_id} · holo-v13`;
+    }
+    if (snap.uorc && typeof snap.uorc === 'object') {
+      holoObservatoryState.uorc = snap.uorc;
+    }
+    if (snap.storageGeom && typeof snap.storageGeom === 'object') {
+      holoObservatoryState.storageGeom = snap.storageGeom;
+    }
+    renderHoloObservatoryDeck();
+  };
+
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('message', (ev) => {
+      const msg = ev && ev.data ? ev.data : {};
+      if (!msg || typeof msg !== 'object' || msg.protocol !== 'uor-observatory/1') return;
+      if (msg.op === 'theme') {
+        applyThemeVars(msg.vars || msg.theme || {});
+        return;
+      }
+      if (msg.op === obsMetricsKey || msg.op === 'observatory_frame' || msg.op === 'snapshot') {
+        if (msg.frame) {
+          ingestHoloObservatoryFrame(msg.frame, msg.meta || null);
+        }
+        if (Array.isArray(msg.frames)) {
+          for (const f of msg.frames) {
+            ingestHoloObservatoryFrame(f, msg.meta || null);
+          }
+        }
+        if (msg.snapshot) {
+          applySnapshotPayload(msg.snapshot);
+        }
+        if (msg.uorc) {
+          applySnapshotPayload({ uorc: msg.uorc });
+        }
+      }
+    });
+  }
+
+  const dest = typeof window !== 'undefined' && window.parent ? window.parent : null;
+  if (dest && dest !== window && typeof dest.postMessage === 'function') {
+    dest.postMessage(
+      {
+        protocol: 'uor-observatory/1',
+        op: 'ready',
+        surface: 'observatory',
+        origin: (typeof window !== 'undefined' && window.origin) || 'null',
+      },
+      '*',
+    );
+  }
+  return true;
+}
+
 function showStudioUpdateBanner(updateInfo) {
   const banner = document.getElementById('studio-update-banner');
   const textEl = document.getElementById('studio-update-banner-text');
@@ -15014,93 +15190,96 @@ function initPrismHoloIdentityControls() {
 initCursorIdeWorkbench();
 
 try {
-  if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.persist === 'function') {
-    navigator.storage.persist().catch(() => false);
-  }
-  initLayoutAndConnectedControls();
-  registerBrowserTerminalBridgeHooks();
-  startHeaderBrainPulseCanvas();
-
-  const workerBooted = engineWorkerClient.spawn();
-  if (!workerBooted) {
-    await init();
-    mainThreadWasmReady = true;
-    await restore_cached_uorlut_from_indexeddb();
-  }
-
-  if (lexLeanTerminal && workerBooted) {
-    if (lexLeanTerminal.promptLabel) {
-      lexLeanTerminal.promptLabel.textContent = 'casey@mvm:/workspace$';
+  const isObservatorySurface = initObservatorySurface();
+  if (!isObservatorySurface) {
+    if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.persist === 'function') {
+      navigator.storage.persist().catch(() => false);
     }
-    if (lexLeanTerminal.env) {
-      lexLeanTerminal.env.USER = 'casey';
-      lexLeanTerminal.env.HOSTNAME = 'mvm';
-      lexLeanTerminal.env.CWD = '/workspace';
-      lexLeanTerminal.env.PROMPT = 'casey@mvm:/workspace$ ';
-    }
-  }
+    initLayoutAndConnectedControls();
+    registerBrowserTerminalBridgeHooks();
+    startHeaderBrainPulseCanvas();
 
-  updateWeightCacheBadge();
-  const initialState = dispatchStudioEnvelope('state', '');
-  renderStudioState(initialState);
-  if (!workerBooted) {
-    restoreIntelligenceFromWebCache();
-  }
-  const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
-  renderWorkspaceList(initialWorkspace);
-  if (typeof editorTabManager !== 'undefined' && editorTabManager) {
-    editorTabManager.init(cursorOpenTabs);
-  }
-  selectWorkspaceFile(activeWorkspacePath);
-  if (!workerBooted) {
-    runCursorR432Check('check');
-    if (studioPromptInput && studioPromptInput.value) {
-      runStudioGenerate(studioPromptInput.value);
+    const workerBooted = engineWorkerClient.spawn();
+    if (!workerBooted) {
+      await init();
+      mainThreadWasmReady = true;
+      await restore_cached_uorlut_from_indexeddb();
     }
-    runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
-    executeCoordinateEnvelope();
-  }
-  if (apiResponseOutput) {
-    apiResponseOutput.textContent = '// Standalone Wasm API Endpoint ready.\n// Select an endpoint and click "Execute API Request in Wasm" to dispatch.';
-  }
-  const currentActiveThread = getActiveThread();
-  if (!currentActiveThread.messages || currentActiveThread.messages.length === 0) {
-    if (workerBooted) {
-      appendChatTurn(
-        'assistant',
-        'UOR-R4 Holo v13 · Connected Studio',
-        'Welcome to **UOR-R4 Holo v13 Studio**. Select a pure-integer neural model (`uor-r4.qwen3-0.6b-holo`, `uor-r4.qwen3-1.7b-holo`, `uor-r4.native-q31-d85`, or `uor-r4.hf-repo-holo`) below, paste code or use `/hf <repo>` and `/q31-train <text>`, or connect a GitHub repository via **GitHub**.',
-      );
+
+    if (lexLeanTerminal && workerBooted) {
+      if (lexLeanTerminal.promptLabel) {
+        lexLeanTerminal.promptLabel.textContent = 'casey@mvm:/workspace$';
+      }
+      if (lexLeanTerminal.env) {
+        lexLeanTerminal.env.USER = 'casey';
+        lexLeanTerminal.env.HOSTNAME = 'mvm';
+        lexLeanTerminal.env.CWD = '/workspace';
+        lexLeanTerminal.env.PROMPT = 'casey@mvm:/workspace$ ';
+      }
+    }
+
+    updateWeightCacheBadge();
+    const initialState = dispatchStudioEnvelope('state', '');
+    renderStudioState(initialState);
+    if (!workerBooted) {
+      restoreIntelligenceFromWebCache();
+    }
+    const initialWorkspace = dispatchStudioEnvelope('workspace_list', '');
+    renderWorkspaceList(initialWorkspace);
+    if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+      editorTabManager.init(cursorOpenTabs);
+    }
+    selectWorkspaceFile(activeWorkspacePath);
+    if (!workerBooted) {
+      runCursorR432Check('check');
+      if (studioPromptInput && studioPromptInput.value) {
+        runStudioGenerate(studioPromptInput.value);
+      }
+      runStudioSubsystems(subsystemsPayloadInput ? subsystemsPayloadInput.value : '7,6,1,10,2180');
+      executeCoordinateEnvelope();
+    }
+    if (apiResponseOutput) {
+      apiResponseOutput.textContent = '// Standalone Wasm API Endpoint ready.\n// Select an endpoint and click "Execute API Request in Wasm" to dispatch.';
+    }
+    const currentActiveThread = getActiveThread();
+    if (!currentActiveThread.messages || currentActiveThread.messages.length === 0) {
+      if (workerBooted) {
+        appendChatTurn(
+          'assistant',
+          'UOR-R4 Holo v13 · Connected Studio',
+          'Welcome to **UOR-R4 Holo v13 Studio**. Select a pure-integer neural model (`uor-r4.qwen3-0.6b-holo`, `uor-r4.qwen3-1.7b-holo`, `uor-r4.native-q31-d85`, or `uor-r4.hf-repo-holo`) below, paste code or use `/hf <repo>` and `/q31-train <text>`, or connect a GitHub repository via **GitHub**.',
+        );
+      } else {
+        runClaudeChat('Hello! Who are you and what can you do?', false);
+      }
     } else {
-      runClaudeChat('Hello! Who are you and what can you do?', false);
-    }
-  } else {
-    const msgs = currentActiveThread.messages;
-    let lastUserPrompt = 'Hello! Who are you and what can you do?';
-    for (let i = 0; i < msgs.length; i++) {
-      if (msgs[i].role === 'user' && msgs[i].text) {
-        lastUserPrompt = msgs[i].text;
-        const nextReply = (msgs[i + 1] && msgs[i + 1].role === 'assistant') ? (msgs[i + 1].text || '') : '';
+      const msgs = currentActiveThread.messages;
+      let lastUserPrompt = 'Hello! Who are you and what can you do?';
+      for (let i = 0; i < msgs.length; i++) {
+        if (msgs[i].role === 'user' && msgs[i].text) {
+          lastUserPrompt = msgs[i].text;
+          const nextReply = (msgs[i + 1] && msgs[i + 1].role === 'assistant') ? (msgs[i + 1].text || '') : '';
+          if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
+            lexLean3dVisualizer.ingestConversationTurn(lastUserPrompt, nextReply, null);
+          }
+        }
+      }
+      if (!workerBooted) {
+        const bootChatRes = dispatchStudioEnvelope('chat', lastUserPrompt);
+        selectedTraceIndex = 0;
         if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
-          lexLean3dVisualizer.ingestConversationTurn(lastUserPrompt, nextReply, null);
+          lexLean3dVisualizer.ingestConversationTurn(lastUserPrompt, bootChatRes?.reply || '', bootChatRes);
         }
       }
     }
-    if (!workerBooted) {
-      const bootChatRes = dispatchStudioEnvelope('chat', lastUserPrompt);
-      selectedTraceIndex = 0;
-      if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ingestConversationTurn === 'function') {
-        lexLean3dVisualizer.ingestConversationTurn(lastUserPrompt, bootChatRes?.reply || '', bootChatRes);
-      }
+    if (claudeChatInput) {
+      claudeChatInput.value = '';
+      claudeChatInput.focus();
     }
+    bindHoloObservatoryControls();
+    renderHoloObservatoryDeck();
+    fetchRecordedTraces();
   }
-  if (claudeChatInput) {
-    claudeChatInput.value = '';
-    claudeChatInput.focus();
-  }
-  bindHoloObservatoryControls();
-  renderHoloObservatoryDeck();
-  fetchRecordedTraces();
 } catch (err) {
   appendChatTurn(
     'assistant',

@@ -6343,7 +6343,7 @@ impl StudioEngine {
             self.foundry_turn = Some(FoundryTurnSession {
                 turn_id,
                 model_id: target_model,
-                container_sha256: String::new(),
+                container_sha256: crate::embedded_native_q31_sha256(),
                 system_prompt: sys_prompt,
                 user_prompt_trimmed: req.prompt.trim().to_string(),
                 max_new_tokens: effective_max_new,
@@ -6638,7 +6638,7 @@ impl StudioEngine {
                 )
                 .as_bytes(),
             );
-            let weights_kappa = format!("sha256:{receipt_sha256}");
+            let weights_kappa = format!("sha256:{}", session.container_sha256);
             if status == "needs_tool" {
                 return serde_json::json!({
                     "status": "needs_tool",
