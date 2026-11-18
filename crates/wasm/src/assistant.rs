@@ -5933,15 +5933,23 @@ struct FoundryTurnRequest {
     workspace_files: Vec<FoundryWorkspaceFile>,
     #[serde(default)]
     active_file: Option<String>,
-    #[serde(default, alias = "preferredModel")]
+    #[serde(default, alias = "preferredModel", alias = "model")]
     selected_model: Option<String>,
     #[serde(default)]
     tool_results: Vec<FoundryToolResult>,
     #[serde(default)]
     max_new_tokens: Option<usize>,
+    #[serde(default, alias = "surfaceMode")]
+    surface_mode: String,
+    #[serde(default, alias = "composerMode")]
+    composer_mode: String,
+    #[serde(default, alias = "sliceTokens")]
+    slice_tokens: Option<usize>,
+    #[serde(default, alias = "liveHud")]
+    live_hud: bool,
 }
 
-/// Active non-blocking 4-token chunked Foundry turn session stored on `StudioEngine` (`R4-56`).
+/// Active non-blocking chunked Studio/Foundry turn session stored on `StudioEngine` (`R4-56`, `R4-60`).
 #[derive(Debug, Clone)]
 pub struct FoundryTurnSession {
     /// Monotonic session identifier.
@@ -5950,6 +5958,18 @@ pub struct FoundryTurnSession {
     pub model_id: String,
     /// Container SHA-256 hex digest (empty for embedded `native-q31-d85`).
     pub container_sha256: String,
+    /// Active surface mode (`"studio"` or `"chat"`).
+    pub surface_mode: String,
+    /// Active composer policy mode (`"agent"` or `"plan"`).
+    pub composer_mode: String,
+    /// Per-slice token decode budget clamped in `1..=4` (`R4-60`).
+    pub slice_tokens: usize,
+    /// True when emitting a live `HoloStepObservatoryFrame` for every decoded token (`R4-60`).
+    pub live_hud: bool,
+    /// Time-to-first-token latency in milliseconds recorded at step `0` (`R4-60`).
+    pub ttft_ms: u32,
+    /// True once `ttft_ms` has been captured on the first decoded token.
+    pub ttft_recorded: bool,
     /// Constructed Foundry system prompt including `BUILD_SYSTEM_PREFIX` and workspace tree.
     pub system_prompt: String,
     /// Trimmed user prompt text for KV turn span persistence.
@@ -6133,6 +6153,40 @@ fn foundry_tok_per_sec_json(tokens_emitted: usize, started_ms: u64) -> serde_jso
     let tps_milli = (tokens_emitted as u64).saturating_mul(1_000_000) / elapsed_ms;
     let rendered = format!("{}.{:03}", tps_milli / 1000, tps_milli % 1000);
     serde_json::from_str(&rendered).unwrap_or_else(|_| serde_json::json!(0))
+}
+
+/// Formal R4.StudioFrame compute integer throughput scaled by 10 (`tok/s * 10`) without floats.
+fn foundry_tps_x10(tokens_emitted: usize, started_ms: u64) -> u16 {
+    let elapsed_ms = crate::api::host_monotonic_ms()
+        .saturating_sub(started_ms)
+        .max(1);
+    ((tokens_emitted as u64).saturating_mul(10_000) / elapsed_ms).min(u64::from(u16::MAX)) as u16
+}
+
+/// Formal R4.StudioFrame stamp timing, enforce `R4.StudioFrame.admitLiveTokenFrame`, emit trace hook, and record frame.
+fn admit_and_push_studio_frame(
+    mut frame: crate::holo_geometric_runtime::HoloStepObservatoryFrame,
+    ttft_ms: u32,
+    tps_x10: u16,
+    slice_frames: &mut Vec<crate::holo_geometric_runtime::HoloStepObservatoryFrame>,
+    session_frames: &mut Vec<crate::holo_geometric_runtime::HoloStepObservatoryFrame>,
+) {
+    frame.ttft_ms = ttft_ms;
+    frame.tps_x10 = tps_x10;
+    let verdict = crate::lexlean_generated::r4_studio_frame::admit_live_token_frame(
+        frame.has_geometric_shortlist,
+        frame.top_candidates.iter().any(|c| c.hamming_d.is_some()),
+        0,
+        100_000,
+    );
+    if verdict != crate::lexlean_generated::r4_studio_frame::LiveFrameVerdict::FrameAdmitted {
+        return;
+    }
+    crate::holo_geometric_runtime::emit_holo_trace_frame(&frame);
+    slice_frames.push(frame.clone());
+    if session_frames.len() < 64 {
+        session_frames.push(frame);
+    }
 }
 
 /// Formal R4.HoloGeometricRuntime build structured integer geometric metrics for Foundry stepper responses.
@@ -6327,15 +6381,52 @@ impl StudioEngine {
             .max_new_tokens
             .unwrap_or(FOUNDRY_DEFAULT_MAX_NEW_TOKENS)
             .clamp(1, 8192);
-        let (core_sys, ws_header, ws_excerpts) =
-            format_foundry_system_parts(&req.workspace_files, req.active_file.as_deref());
+        let surface_mode = {
+            let s = req.surface_mode.trim().to_ascii_lowercase();
+            if s.is_empty() {
+                "studio".to_string()
+            } else {
+                s
+            }
+        };
+        let composer_mode = {
+            let c = req.composer_mode.trim().to_ascii_lowercase();
+            if c.is_empty() {
+                "agent".to_string()
+            } else {
+                c
+            }
+        };
+        let live_hud = req.live_hud;
+        let slice_tokens = match req.slice_tokens {
+            Some(n) => n.clamp(1, FOUNDRY_SLICE_TOKENS),
+            None => {
+                if live_hud {
+                    2
+                } else {
+                    FOUNDRY_SLICE_TOKENS
+                }
+            }
+        };
+        let (core_sys, ws_header, ws_excerpts) = if surface_mode == "chat" {
+            (
+                Self::default_holo_chat_system_prompt(&target_model),
+                String::new(),
+                Vec::new(),
+            )
+        } else {
+            format_foundry_system_parts(&req.workspace_files, req.active_file.as_deref())
+        };
         let user_turn = format_foundry_user_turn(&req.prompt, &req.tool_results);
         let tool_iterations_used = req.tool_results.len();
         let started_ms = crate::api::host_monotonic_ms();
 
         if target_model == "uor-r4.native-q31-d85" {
-            let sys_prompt =
-                format_foundry_system_prompt(&req.workspace_files, req.active_file.as_deref());
+            let sys_prompt = if surface_mode == "chat" {
+                Self::default_holo_chat_system_prompt("uor-r4.native-q31-d85")
+            } else {
+                format_foundry_system_prompt(&req.workspace_files, req.active_file.as_deref())
+            };
             let effective_max_new = requested_max_new.min(crate::native_q31_lane::D85_MAX_CTX);
             let mut d85_tokens = self.native_q31.encode_bytes(user_turn.as_bytes());
             if d85_tokens.is_empty() {
@@ -6348,6 +6439,12 @@ impl StudioEngine {
                 turn_id,
                 model_id: target_model,
                 container_sha256: crate::embedded_native_q31_sha256(),
+                surface_mode: surface_mode.clone(),
+                composer_mode: composer_mode.clone(),
+                slice_tokens,
+                live_hud,
+                ttft_ms: 0,
+                ttft_recorded: false,
                 system_prompt: sys_prompt,
                 user_prompt_trimmed: req.prompt.trim().to_string(),
                 max_new_tokens: effective_max_new,
@@ -6382,6 +6479,10 @@ impl StudioEngine {
                 "turn_id": turn_id,
                 "model_id": "uor-r4.native-q31-d85",
                 "max_new_tokens": effective_max_new,
+                "surface_mode": surface_mode,
+                "composer_mode": composer_mode,
+                "slice_tokens": slice_tokens,
+                "live_hud": live_hud,
             })
             .to_string();
         }
@@ -6462,6 +6563,12 @@ impl StudioEngine {
             turn_id,
             model_id: target_model.clone(),
             container_sha256,
+            surface_mode: surface_mode.clone(),
+            composer_mode: composer_mode.clone(),
+            slice_tokens,
+            live_hud,
+            ttft_ms: 0,
+            ttft_recorded: false,
             system_prompt: sys_prompt,
             user_prompt_trimmed: req.prompt.trim().to_string(),
             max_new_tokens,
@@ -6498,11 +6605,15 @@ impl StudioEngine {
             "model_id": target_model,
             "max_new_tokens": max_new_tokens,
             "prefix_reused_tokens": reuse_len,
+            "surface_mode": surface_mode,
+            "composer_mode": composer_mode,
+            "slice_tokens": slice_tokens,
+            "live_hud": live_hud,
         })
         .to_string()
     }
 
-    /// Formal R4.HoloGeometricRuntime execute up to 4 pure-integer token steps for an active Foundry turn (`R4-56`).
+    /// Formal R4.HoloGeometricRuntime execute up to `slice_tokens` pure-integer token steps for an active Studio/Foundry turn (`R4-56`, `R4-60`).
     pub fn holo_step_foundry_turn(&mut self, turn_id: u64) -> String {
         let Some(mut session) = self.foundry_turn.take() else {
             return serde_json::json!({
@@ -6559,13 +6670,14 @@ impl StudioEngine {
             let mut slice_delta = String::new();
             let mut status: &'static str = "streaming";
             let mut detected_tool_cmd: Option<String> = None;
+            let mut slice_frames = Vec::new();
 
-            for _ in 0..FOUNDRY_SLICE_TOKENS {
+            for _ in 0..session.slice_tokens {
                 if session.tokens_emitted >= session.max_new_tokens {
                     status = "done";
                     break;
                 }
-                let (next_opt, cksum) = self.native_q31.step_next_token(
+                let (next_opt, cksum, frame) = self.native_q31.step_next_token_with_frame(
                     &session.native_q31_tokens,
                     session.native_q31_start_len,
                     session.step_idx,
@@ -6577,7 +6689,14 @@ impl StudioEngine {
                 };
                 session.native_q31_tokens.push(next_id);
                 session.tokens_emitted += 1;
+                let cur_step = session.step_idx;
                 session.step_idx += 1;
+                if !session.ttft_recorded {
+                    let elapsed =
+                        crate::api::host_monotonic_ms().saturating_sub(session.started_ms);
+                    session.ttft_ms = elapsed.min(u64::from(u32::MAX)) as u32;
+                    session.ttft_recorded = true;
+                }
                 let tok_bytes = self.native_q31.token_bytes(next_id);
                 session.raw_stream.extend_from_slice(tok_bytes);
                 let flushed = crate::holo_geometric_runtime::flush_incremental_utf8(
@@ -6586,6 +6705,22 @@ impl StudioEngine {
                     false,
                 );
                 slice_delta.push_str(&flushed);
+                if crate::holo_geometric_runtime::should_emit_decode_observatory_frame(
+                    cur_step,
+                    session.tokens_emitted,
+                    session.max_new_tokens,
+                    session.live_hud,
+                ) {
+                    let cur_tps_x10 = foundry_tps_x10(session.tokens_emitted, session.started_ms);
+                    admit_and_push_studio_frame(
+                        frame,
+                        session.ttft_ms,
+                        cur_tps_x10,
+                        &mut slice_frames,
+                        &mut session.observatory_frames,
+                    );
+                    session.last_emitted_decode_step = cur_step;
+                }
                 if let Some(cmd) =
                     detect_mvm_exec_tool_call(&session.raw_stream, session.tool_iterations_used)
                 {
@@ -6613,6 +6748,10 @@ impl StudioEngine {
                 session.native_q31_prompt_tokens,
             );
             let tps = foundry_tok_per_sec_json(session.tokens_emitted, session.started_ms);
+            let tps_x10 = foundry_tps_x10(session.tokens_emitted, session.started_ms);
+            let ttft_ms = session.ttft_ms;
+            session.emitted_observatory_frames = session.observatory_frames.len();
+            let latest_step_frame = slice_frames.last().cloned();
             if status == "streaming" {
                 let model_id = session.model_id.clone();
                 let tokens_emitted = session.tokens_emitted;
@@ -6624,6 +6763,10 @@ impl StudioEngine {
                     "delta": slice_delta,
                     "tokens_emitted": tokens_emitted,
                     "tok_per_sec": tps,
+                    "ttft_ms": ttft_ms,
+                    "tps_x10": tps_x10,
+                    "observatory_frames": slice_frames,
+                    "frame": latest_step_frame,
                     "geometric_metrics": gm,
                 })
                 .to_string();
@@ -6636,6 +6779,7 @@ impl StudioEngine {
             );
             slice_delta.push_str(&tail_lossy);
             session.active = false;
+            self.last_holo_observatory_frames = session.observatory_frames.clone();
             let full_reply = String::from_utf8_lossy(&session.raw_stream).to_string();
             let receipt_sha256 = crate::sha256_hex(
                 format!(
@@ -6653,6 +6797,10 @@ impl StudioEngine {
                     "delta": slice_delta,
                     "tokens_emitted": session.tokens_emitted,
                     "tok_per_sec": tps,
+                    "ttft_ms": ttft_ms,
+                    "tps_x10": tps_x10,
+                    "observatory_frames": slice_frames,
+                    "frame": latest_step_frame,
                     "tool_call": {
                         "name": "mvm_exec",
                         "cmd": detected_tool_cmd.unwrap_or_default(),
@@ -6670,6 +6818,10 @@ impl StudioEngine {
                 "delta": slice_delta,
                 "tokens_emitted": session.tokens_emitted,
                 "tok_per_sec": tps,
+                "ttft_ms": ttft_ms,
+                "tps_x10": tps_x10,
+                "observatory_frames": slice_frames,
+                "frame": latest_step_frame,
                 "receipt_sha256": receipt_sha256,
                 "weights_kappa": weights_kappa,
                 "geometric_metrics": gm,
@@ -6688,8 +6840,12 @@ impl StudioEngine {
         let mut slice_delta = String::new();
         let mut status: &'static str = "streaming";
         let mut detected_tool_cmd: Option<String> = None;
+        let frame_start = session
+            .emitted_observatory_frames
+            .min(session.observatory_frames.len());
+        let mut slice_frames = session.observatory_frames[frame_start..].to_vec();
 
-        for _ in 0..FOUNDRY_SLICE_TOKENS {
+        for _ in 0..session.slice_tokens {
             if session.tokens_emitted >= session.max_new_tokens
                 || model.kv_cache.tokens.len() >= model.max_seq
             {
@@ -6704,17 +6860,30 @@ impl StudioEngine {
                 &model.tokenizer,
             );
             if chosen_id == model.eos_token_id || chosen_id == model.eot_token_id {
-                if session.step_idx > 0 && session.last_emitted_decode_step != session.step_idx {
+                if !session.live_hud
+                    && session.step_idx > 0
+                    && session.last_emitted_decode_step != session.step_idx
+                {
                     let prev_id = session.generated_ids.last().copied().unwrap_or(chosen_id);
-                    crate::holo_geometric_runtime::record_observatory_frame(
-                        model,
+                    let frame = crate::holo_geometric_runtime::build_observatory_frame(
+                        &model.tokenizer,
+                        &model.scratch,
+                        &model.exp_table,
                         &session.last_scored,
                         prev_id,
                         false,
                         session.step_idx,
                         "decode",
+                        model.kv_cache.tokens.len().saturating_sub(1),
                         session.prefix_reused_tokens,
                         session.active_backend,
+                    );
+                    let cur_tps_x10 = foundry_tps_x10(session.tokens_emitted, session.started_ms);
+                    admit_and_push_studio_frame(
+                        frame,
+                        session.ttft_ms,
+                        cur_tps_x10,
+                        &mut slice_frames,
                         &mut session.observatory_frames,
                     );
                 }
@@ -6725,6 +6894,11 @@ impl StudioEngine {
             session.generated_ids.push(chosen_id);
             session.recent_tokens.push(chosen_id);
             session.tokens_emitted += 1;
+            if !session.ttft_recorded {
+                let elapsed = crate::api::host_monotonic_ms().saturating_sub(session.started_ms);
+                session.ttft_ms = elapsed.min(u64::from(u32::MAX)) as u32;
+                session.ttft_recorded = true;
+            }
 
             if let Some(tok_bytes) = model.tokenizer.id_to_raw.get(chosen_id as usize) {
                 session.raw_stream.extend_from_slice(tok_bytes);
@@ -6742,16 +6916,27 @@ impl StudioEngine {
                 cur_step,
                 session.tokens_emitted,
                 session.max_new_tokens,
+                session.live_hud,
             ) {
-                crate::holo_geometric_runtime::record_observatory_frame(
-                    model,
+                let frame = crate::holo_geometric_runtime::build_observatory_frame(
+                    &model.tokenizer,
+                    &model.scratch,
+                    &model.exp_table,
                     &session.last_scored,
                     chosen_id,
                     false,
                     cur_step,
                     "decode",
+                    model.kv_cache.tokens.len().saturating_sub(1),
                     session.prefix_reused_tokens,
                     session.active_backend,
+                );
+                let cur_tps_x10 = foundry_tps_x10(session.tokens_emitted, session.started_ms);
+                admit_and_push_studio_frame(
+                    frame,
+                    session.ttft_ms,
+                    cur_tps_x10,
+                    &mut slice_frames,
                     &mut session.observatory_frames,
                 );
                 session.last_emitted_decode_step = cur_step;
@@ -6802,12 +6987,10 @@ impl StudioEngine {
             session.flock_total,
         );
         let tps = foundry_tok_per_sec_json(session.tokens_emitted, session.started_ms);
-        let frame_start = session
-            .emitted_observatory_frames
-            .min(session.observatory_frames.len());
-        let step_observatory_frames = session.observatory_frames[frame_start..].to_vec();
+        let tps_x10 = foundry_tps_x10(session.tokens_emitted, session.started_ms);
+        let ttft_ms = session.ttft_ms;
         session.emitted_observatory_frames = session.observatory_frames.len();
-        let latest_step_frame = step_observatory_frames.last().cloned();
+        let latest_step_frame = slice_frames.last().cloned();
         let prefix_reused_tokens = session.prefix_reused_tokens;
 
         if status == "streaming" {
@@ -6821,8 +7004,10 @@ impl StudioEngine {
                 "delta": slice_delta,
                 "tokens_emitted": tokens_emitted,
                 "tok_per_sec": tps,
+                "ttft_ms": ttft_ms,
+                "tps_x10": tps_x10,
                 "prefix_reused_tokens": prefix_reused_tokens,
-                "observatory_frames": step_observatory_frames,
+                "observatory_frames": slice_frames,
                 "frame": latest_step_frame,
                 "geometric_metrics": gm,
             })
@@ -6869,8 +7054,10 @@ impl StudioEngine {
                 "delta": slice_delta,
                 "tokens_emitted": session.tokens_emitted,
                 "tok_per_sec": tps,
+                "ttft_ms": ttft_ms,
+                "tps_x10": tps_x10,
                 "prefix_reused_tokens": prefix_reused_tokens,
-                "observatory_frames": step_observatory_frames,
+                "observatory_frames": slice_frames,
                 "frame": latest_step_frame,
                 "tool_call": {
                     "name": "mvm_exec",
@@ -6890,8 +7077,10 @@ impl StudioEngine {
             "delta": slice_delta,
             "tokens_emitted": session.tokens_emitted,
             "tok_per_sec": tps,
+            "ttft_ms": ttft_ms,
+            "tps_x10": tps_x10,
             "prefix_reused_tokens": prefix_reused_tokens,
-            "observatory_frames": step_observatory_frames,
+            "observatory_frames": slice_frames,
             "frame": latest_step_frame,
             "receipt_sha256": receipt_sha256,
             "weights_kappa": weights_kappa,
@@ -6933,6 +7122,7 @@ impl StudioEngine {
         serde_json::json!({
             "status": "cancelled",
             "turn_id": turn_id,
+            "kv_checkpoint_len": checkpoint,
         })
         .to_string()
     }
@@ -6951,6 +7141,14 @@ impl StudioEngine {
             .as_ref()
             .filter(|s| s.turn_id == turn_id)
             .map(|s| s.max_new_tokens)
+    }
+
+    /// Formal R4.HoloGeometricRuntime inspect the pre-turn KV checkpoint length of a Foundry turn (`R4-60`).
+    pub fn active_foundry_turn_kv_checkpoint_len(&self, turn_id: u64) -> Option<usize> {
+        self.foundry_turn
+            .as_ref()
+            .filter(|s| s.turn_id == turn_id)
+            .map(|s| s.kv_checkpoint_len)
     }
 
     /// Formal R4.HoloGeometricRuntime inspect the number of recorded observatory frames from the last Foundry turn.

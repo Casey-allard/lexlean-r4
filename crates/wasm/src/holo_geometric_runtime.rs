@@ -7,6 +7,7 @@ use crate::holo_kappa_store::{parse_safetensors_header, HoloKappaStoreError};
 use crate::lexlean_generated::r4_holo_geometric_runtime::{
     admit_holo_geometric_runtime, compute_shortlist_budget, AttentionOrderCheck, HoloRuntimeVerdict,
 };
+use crate::lexlean_generated::r4_studio_frame::{admit_live_token_frame, LiveFrameVerdict};
 use crate::r4_geometric_stack::R4StackError;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
@@ -900,7 +901,7 @@ pub struct HoloInt4RhtMatrix {
     pub nibbles: Vec<u8>,
 }
 
-/// Top logit candidate snapshot for live Observatory race chart (`R4-51`).
+/// Top logit candidate snapshot for live Observatory race chart (`R4-51`, `R4-60`).
 #[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]
 pub struct HoloCandidateBar {
     /// Vocabulary token ID.
@@ -909,8 +910,14 @@ pub struct HoloCandidateBar {
     pub token_text: String,
     /// Pure-integer Q16 logit score.
     pub logit_q16: i32,
+    /// Pure-integer normalized candidate probability in `[0, 1000]` permille (`R4-60`).
+    #[serde(default)]
+    pub prob_permille: u16,
     /// True when selected by greedy/cycle-guarded argmax.
     pub selected: bool,
+    /// Real 512-bit RHT Hamming distance when geometric shortlisting is active (`None` on `NativeQ31`).
+    #[serde(default)]
+    pub hamming_d: Option<u16>,
 }
 
 /// Top attended KV position peak recorded during Starling Flock attention (`R4-51`).
@@ -922,7 +929,7 @@ pub struct HoloAttnPeak {
     pub weight_q16: u16,
 }
 
-/// Genuine per-token neural & geometric observatory frame streamed live during inference (`R4-51`).
+/// Genuine per-token neural & geometric observatory frame streamed live during inference (`R4-51`, `R4-60`).
 #[derive(Clone, Debug, Default, PartialEq, Eq, serde::Serialize)]
 pub struct HoloStepObservatoryFrame {
     /// Step index within the active phase.
@@ -948,7 +955,17 @@ pub struct HoloStepObservatoryFrame {
     /// Downsampled 32-bin distribution across the 513 possible 512-bit RHT Hamming distances.
     pub hamming_hist_32: [u32; 32],
     /// Minimum Hamming distance observed over `vocab_sigs`.
+    #[serde(default)]
     pub min_hamming: u16,
+    /// True when active model uses SWAR Hamming shortlisting (`false` on `NativeQ31`).
+    #[serde(default)]
+    pub has_geometric_shortlist: bool,
+    /// Time-to-first-token latency in milliseconds (`R4-60`).
+    #[serde(default)]
+    pub ttft_ms: u32,
+    /// Live tokens-per-second throughput scaled by `10` (`R4-60`).
+    #[serde(default)]
+    pub tps_x10: u16,
     /// Quantized `[x, y, z]` trajectory coordinate in `[-1000, 1000]` from `q_sig512`.
     pub q_manifold_xyz: [i16; 3],
     /// Top-6 integer logit race candidates at `lm_head`.
@@ -4675,6 +4692,7 @@ impl HoloV13Model {
             let frame = build_observatory_frame(
                 &self.tokenizer,
                 &self.scratch,
+                &self.exp_table,
                 &last_scored,
                 last_tok,
                 true,
@@ -4684,8 +4702,16 @@ impl HoloV13Model {
                 reuse_len,
                 active_backend,
             );
-            emit_holo_trace_frame(&frame);
-            observatory_frames.push(frame);
+            if admit_live_token_frame(
+                frame.has_geometric_shortlist,
+                frame.top_candidates.iter().any(|c| c.hamming_d.is_some()),
+                0,
+                100_000,
+            ) == LiveFrameVerdict::FrameAdmitted
+            {
+                emit_holo_trace_frame(&frame);
+                observatory_frames.push(frame);
+            }
         }
 
         let mut generated = Vec::new();
@@ -4726,7 +4752,12 @@ impl HoloV13Model {
                     emit_holo_stream_delta(&delta, step_idx);
                 }
             }
-            if should_emit_decode_observatory_frame(step_idx, generated.len(), max_new_tokens) {
+            if should_emit_decode_observatory_frame(
+                step_idx,
+                generated.len(),
+                max_new_tokens,
+                false,
+            ) {
                 record_observatory_frame(
                     self,
                     &last_scored,
@@ -4910,11 +4941,66 @@ impl HoloV13Model {
     }
 }
 
+/// Formal R4.StudioFrame compute normalized integer permille (`0..=1000`) probabilities over up to 6 Q16 logit candidates without floats.
+pub fn compute_top6_prob_permille(exp_table: &[u32], logits_q16: &[(u32, i32)]) -> Vec<u16> {
+    let n = logits_q16.len().min(6);
+    if n == 0 {
+        return Vec::new();
+    }
+    let cands = &logits_q16[..n];
+    let max_l = cands.iter().map(|&(_, l)| l).fold(i32::MIN, i32::max);
+    let mut weights = [0u64; 6];
+    let mut den = 0u128;
+    let max_diff_q16 = i64::from(EXP_RANGE) << 16;
+    for (idx, &(_, logit_q16)) in cands.iter().enumerate() {
+        let diff_q16 = (i64::from(max_l) - i64::from(logit_q16)).max(0);
+        let w = if exp_table.len() >= 2 {
+            exp_neg_with_table(exp_table, diff_q16)
+        } else if diff_q16 >= max_diff_q16 {
+            0
+        } else {
+            u64::from(exp_neg_q30((diff_q16 as u64) << 14))
+        };
+        weights[idx] = w;
+        den = den.saturating_add(u128::from(w));
+    }
+
+    let mut probs = vec![0u16; n];
+    let mut rems = [0u128; 6];
+    let fallback = (1000usize / n) as u16;
+    for idx in 0..n {
+        let num = u128::from(weights[idx]).saturating_mul(1000);
+        if let (Some(q), Some(r)) = (num.checked_div(den), num.checked_rem(den)) {
+            probs[idx] = q as u16;
+            rems[idx] = r;
+        } else {
+            probs[idx] = fallback;
+        }
+    }
+
+    let assigned: usize = probs.iter().map(|&p| usize::from(p)).sum();
+    let rem_units = 1000usize.saturating_sub(assigned);
+    if rem_units > 0 {
+        let mut order = [0usize, 1, 2, 3, 4, 5];
+        order[..n].sort_by(|&a, &b| {
+            rems[b]
+                .cmp(&rems[a])
+                .then_with(|| cands[b].1.cmp(&cands[a].1))
+                .then_with(|| a.cmp(&b))
+        });
+        for &idx in order[..n].iter().take(rem_units) {
+            probs[idx] = probs[idx].saturating_add(1);
+        }
+    }
+    probs
+}
+
 /// Formal R4.HoloGeometricRuntime assemble one genuine `HoloStepObservatoryFrame` from live scratch arrays.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn build_observatory_frame(
     tokenizer: &HoloTok13,
     scratch: &HoloScratch,
+    exp_table: &[u32],
     scored: &[(u32, i32)],
     chosen_id: u32,
     is_prefill: bool,
@@ -4945,15 +5031,19 @@ pub(crate) fn build_observatory_frame(
             }
         }
     }
+    let probs = compute_top6_prob_permille(exp_table, &top_arr[..top_len]);
     let top_candidates: Vec<HoloCandidateBar> = top_arr[..top_len]
         .iter()
-        .map(|&(tid, logit_q16)| {
+        .enumerate()
+        .map(|(idx, &(tid, logit_q16))| {
             let text: String = tokenizer.decode(&[tid]).chars().take(24).collect();
             HoloCandidateBar {
                 token_id: tid,
                 token_text: text,
                 logit_q16,
+                prob_permille: probs.get(idx).copied().unwrap_or(0),
                 selected: !is_prefill && tid == chosen_id,
+                hamming_d: scratch.hamming_dists.get(tid as usize).copied(),
             }
         })
         .collect();
@@ -4971,6 +5061,9 @@ pub(crate) fn build_observatory_frame(
         final_attn_peaks: scratch.last_attn_peaks.clone(),
         hamming_hist_32: scratch.last_hamming_hist32,
         min_hamming: scratch.last_min_hamming,
+        has_geometric_shortlist: true,
+        ttft_ms: 0,
+        tps_x10: 0,
         q_manifold_xyz: rht512_sig_to_xyz(&scratch.last_q_sig512),
         top_candidates,
         shortlist_count: scored.len(),
@@ -4997,7 +5090,7 @@ pub(crate) fn emit_holo_trace_frame(frame: &HoloStepObservatoryFrame) {
 pub(crate) fn emit_holo_trace_frame(_frame: &HoloStepObservatoryFrame) {}
 
 /// Formal R4.HoloGeometricRuntime flush complete UTF-8 sequences from raw token bytes without emitting premature U+FFFD.
-pub(crate) fn flush_incremental_utf8(
+pub fn flush_incremental_utf8(
     raw_stream: &[u8],
     emitted_raw: &mut usize,
     flush_lossy_end: bool,
@@ -5041,8 +5134,10 @@ pub(crate) fn should_emit_decode_observatory_frame(
     cur_step: usize,
     emitted_tokens: usize,
     max_new_tokens: usize,
+    every_token: bool,
 ) -> bool {
-    cur_step == 1
+    every_token
+        || cur_step == 1
         || (cur_step > 0 && cur_step.is_multiple_of(4))
         || emitted_tokens >= max_new_tokens
 }
@@ -5063,6 +5158,7 @@ pub(crate) fn record_observatory_frame(
     let frame = build_observatory_frame(
         &model.tokenizer,
         &model.scratch,
+        &model.exp_table,
         last_scored,
         token_id,
         is_prefill,
@@ -5072,6 +5168,15 @@ pub(crate) fn record_observatory_frame(
         reuse_len,
         active_backend,
     );
+    if admit_live_token_frame(
+        frame.has_geometric_shortlist,
+        frame.top_candidates.iter().any(|c| c.hamming_d.is_some()),
+        0,
+        100_000,
+    ) != LiveFrameVerdict::FrameAdmitted
+    {
+        return;
+    }
     emit_holo_trace_frame(&frame);
     if frames.len() < 64 {
         frames.push(frame);

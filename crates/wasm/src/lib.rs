@@ -9088,7 +9088,7 @@ pub fn studio_native_q31_train_step(text: &str) -> String {
     .to_string()
 }
 
-/// Formal R4.HoloGeometricRuntime begin a non-blocking 4-token Foundry turn session (`R4-56`).
+/// Formal R4.HoloGeometricRuntime begin a non-blocking chunked Studio/Foundry turn session (`R4-56`, `R4-60`).
 #[wasm_bindgen]
 pub fn holo_begin_foundry_turn(payload_json: &str) -> String {
     let mut guard = match studio_engine_cell().lock() {
@@ -9099,7 +9099,7 @@ pub fn holo_begin_foundry_turn(payload_json: &str) -> String {
     engine.holo_begin_foundry_turn(payload_json)
 }
 
-/// Formal R4.HoloGeometricRuntime execute up to 4 quantized pure-integer token steps on an active Foundry turn (`R4-56`).
+/// Formal R4.HoloGeometricRuntime execute up to `slice_tokens` (`1..=4`) pure-integer token steps and emit live HUD frames on an active Studio/Foundry turn (`R4-56`, `R4-60`).
 #[wasm_bindgen]
 pub fn holo_step_foundry_turn(turn_id: u64) -> String {
     let mut guard = match studio_engine_cell().lock() {
@@ -9110,7 +9110,7 @@ pub fn holo_step_foundry_turn(turn_id: u64) -> String {
     engine.holo_step_foundry_turn(turn_id)
 }
 
-/// Formal R4.HoloGeometricRuntime atomically cancel an active Foundry turn and reset rolling state (`R4-56`).
+/// Formal R4.HoloGeometricRuntime atomically cancel an active Studio/Foundry turn and restore KV checkpoint (`R4-56`, `R4-60`).
 #[wasm_bindgen]
 pub fn holo_cancel_foundry_turn(turn_id: u64) -> String {
     let mut guard = match studio_engine_cell().lock() {

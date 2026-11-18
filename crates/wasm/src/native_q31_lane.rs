@@ -2,9 +2,13 @@
 //! Hamilton `G2` quaternion gate, `SWAR` 64-bit Hamming read, and `D19` content-addressed
 //! associative memory lane with lossless `UORQ31V1` codec and bit-identical CUDA/Wasm execution.
 
+use crate::holo_geometric_runtime::{
+    compute_top6_prob_permille, HoloCandidateBar, HoloStepObservatoryFrame,
+};
 use crate::lexlean_generated::r4_native_q31_train::{
     admit_native_q31_lane, step_d85_spin_orbit, NativeQ31LaneCheck, NativeQ31Verdict,
 };
+use crate::lexlean_generated::r4_studio_frame::{admit_live_token_frame, LiveFrameVerdict};
 use sha2::{Digest, Sha256};
 
 /// Canonical container magic for pure `Q31` `D85` checkpoints.
@@ -672,6 +676,15 @@ impl NativeQ31Model {
 
     /// Formal R4.NativeQ31Train compute pure-integer logits for a prompt token sequence + deterministic checksum.
     pub fn forward_logits(&self, tokens: &[u16]) -> (Vec<i64>, u64) {
+        let (logits, cksum, _, _, _) = self.forward_logits_observed(tokens);
+        (logits, cksum)
+    }
+
+    /// Formal R4.NativeQ31Train compute pure-integer logits alongside genuine per-layer magnitudes and sign projection.
+    fn forward_logits_observed(
+        &self,
+        tokens: &[u16],
+    ) -> (Vec<i64>, u64, Vec<u16>, Vec<u8>, [i16; 3]) {
         let d = self.d_model as usize;
         let nl = self.n_layers as usize;
         let _nh = self.n_heads as usize;
@@ -697,6 +710,9 @@ impl NativeQ31Model {
                 u64::from(self.orbital_states.max(1)),
             );
         }
+
+        let mut layer_residual_mag = Vec::with_capacity(nl);
+        let mut layer_max_bits = Vec::with_capacity(nl);
 
         // Apply G2 Hamilton quaternion gates + Cl(0,6) spin permutation + E8 nearest-root fold across layers.
         let total_quats = d / 4;
@@ -732,6 +748,18 @@ impl NativeQ31Model {
                         q31_saturate(((state[perm + c] >> 1) + (rot[c] >> 1)) + e8_bias);
                 }
             }
+            let mut sum_abs = 0u128;
+            let mut max_abs = 0u64;
+            for &val in &next_state {
+                let a = val.unsigned_abs();
+                sum_abs = sum_abs.saturating_add(u128::from(a));
+                if a > max_abs {
+                    max_abs = a;
+                }
+            }
+            let mean_abs = (sum_abs / (d.max(1) as u128)) as u64;
+            layer_residual_mag.push((mean_abs >> 15).min(u64::from(u16::MAX)) as u16);
+            layer_max_bits.push((64 - max_abs.leading_zeros()).min(32) as u8);
             state = next_state;
             orbit_state = step_d85_spin_orbit(
                 orbit_state,
@@ -742,6 +770,12 @@ impl NativeQ31Model {
 
         let state_i32: Vec<i32> = state.iter().map(|&x| x as i32).collect();
         let state_sig = swar_sign_signature_256(&state_i32);
+        let q_manifold_xyz = [
+            (((state_sig[0].count_ones() as i32 - 32) * 1000) / 32) as i16,
+            (((state_sig[1].count_ones() as i32 - 32) * 1000) / 32) as i16,
+            ((((state_sig[2].count_ones() + state_sig[3].count_ones()) as i32 - 64) * 1000) / 64)
+                as i16,
+        ];
 
         // SWAR 64-bit Hamming read + Q31 dot product against trained lm_head rows.
         let mut logits = vec![0i64; v];
@@ -782,7 +816,13 @@ impl NativeQ31Model {
             cksum ^= l as u64;
             cksum = cksum.wrapping_mul(0x0100_0000_01b3);
         }
-        (logits, cksum)
+        (
+            logits,
+            cksum,
+            layer_residual_mag,
+            layer_max_bits,
+            q_manifold_xyz,
+        )
     }
 
     /// Formal R4.NativeQ31Train return raw UTF-8 token bytes for one `D85` vocabulary ID.
@@ -793,16 +833,18 @@ impl NativeQ31Model {
             .unwrap_or(&[])
     }
 
-    /// Formal R4.NativeQ31Train execute a single pure-integer `D85` decode step and return `(next_token_id, checksum)`.
-    pub(crate) fn step_next_token(
+    /// Formal R4.NativeQ31Train apply byte-domain guards and recency penalties before argmax selection.
+    fn apply_decode_penalties_and_select(
         &self,
+        logits: &mut [i64],
         tokens: &[u16],
         start_len: usize,
         step_idx: usize,
-    ) -> (Option<u16>, u64) {
-        let (mut logits, cksum) = self.forward_logits(tokens);
+    ) -> Option<u16> {
         // Block EOS (0), non-UTF-8 high bytes (128..256), and raw ASCII control chars on generation.
-        logits[0] = i64::MIN;
+        if let Some(slot) = logits.first_mut() {
+            *slot = i64::MIN;
+        }
         for (b, slot) in logits.iter_mut().enumerate().take(32).skip(1usize) {
             if b != 10 {
                 *slot = i64::MIN;
@@ -811,22 +853,30 @@ impl NativeQ31Model {
         for slot in logits.iter_mut().take(256).skip(127usize) {
             *slot = i64::MIN;
         }
-        let gen = &tokens[start_len..];
+        let gen = &tokens[start_len.min(tokens.len())..];
         if let Some(&last) = gen.last() {
-            logits[usize::from(last)] = logits[usize::from(last)].saturating_sub(1i64 << 30);
+            if let Some(slot) = logits.get_mut(usize::from(last)) {
+                *slot = slot.saturating_sub(1i64 << 30);
+            }
         }
         if step_idx == 0 {
-            logits[usize::from(b'\n')] = logits[usize::from(b'\n')].saturating_sub(1i64 << 28);
+            if let Some(slot) = logits.get_mut(usize::from(b'\n')) {
+                *slot = slot.saturating_sub(1i64 << 28);
+            }
         }
         for &prev in gen.iter().rev().take(8) {
-            logits[usize::from(prev)] = logits[usize::from(prev)].saturating_sub(1i64 << 27);
+            if let Some(slot) = logits.get_mut(usize::from(prev)) {
+                *slot = slot.saturating_sub(1i64 << 27);
+            }
         }
         if gen.len() >= 3 {
             let n = gen.len();
             let (p0, p1, p2) = (gen[n - 3], gen[n - 2], gen[n - 1]);
             for w in gen.windows(4) {
                 if w[0] == p0 && w[1] == p1 && w[2] == p2 {
-                    logits[usize::from(w[3])] = i64::MIN;
+                    if let Some(slot) = logits.get_mut(usize::from(w[3])) {
+                        *slot = i64::MIN;
+                    }
                 }
             }
         }
@@ -839,10 +889,139 @@ impl NativeQ31Model {
         if next_id == 0
             || (step_idx > 12 && next_id == 10 && self.decode_tokens(gen).ends_with('.'))
         {
-            (None, cksum)
+            None
         } else {
-            (Some(next_id), cksum)
+            Some(next_id)
         }
+    }
+
+    /// Formal R4.NativeQ31Train execute a single pure-integer `D85` decode step and return `(next_token_id, checksum)`.
+    pub(crate) fn step_next_token(
+        &self,
+        tokens: &[u16],
+        start_len: usize,
+        step_idx: usize,
+    ) -> (Option<u16>, u64) {
+        let (mut logits, cksum) = self.forward_logits(tokens);
+        let next_opt =
+            self.apply_decode_penalties_and_select(&mut logits, tokens, start_len, step_idx);
+        (next_opt, cksum)
+    }
+
+    /// Formal R4.NativeQ31Train execute a single pure-integer `D85` decode step and emit an honest `HoloStepObservatoryFrame` (`R4-60`).
+    pub fn step_next_token_with_frame(
+        &self,
+        tokens: &[u16],
+        start_len: usize,
+        step_idx: usize,
+    ) -> (Option<u16>, u64, HoloStepObservatoryFrame) {
+        let (mut logits, cksum, layer_residual_mag, layer_max_bits, q_manifold_xyz) =
+            self.forward_logits_observed(tokens);
+        let next_opt =
+            self.apply_decode_penalties_and_select(&mut logits, tokens, start_len, step_idx);
+
+        let mut top_arr: [(u32, i64); 6] = [(0, i64::MIN); 6];
+        let mut top_len = 0usize;
+        for (idx, &val) in logits.iter().enumerate() {
+            if val == i64::MIN {
+                continue;
+            }
+            let tid = idx as u32;
+            if top_len == 6 && (val < top_arr[5].1 || (val == top_arr[5].1 && tid > top_arr[5].0)) {
+                continue;
+            }
+            let pos = top_arr[..top_len]
+                .iter()
+                .position(|&(et, el)| val > el || (val == el && tid < et))
+                .unwrap_or(top_len);
+            if pos < 6 {
+                let end = top_len.min(5);
+                for j in (pos..end).rev() {
+                    top_arr[j + 1] = top_arr[j];
+                }
+                top_arr[pos] = (tid, val);
+                if top_len < 6 {
+                    top_len += 1;
+                }
+            }
+        }
+
+        let max_abs = top_arr[..top_len]
+            .iter()
+            .map(|&(_, v)| v.unsigned_abs())
+            .fold(0u64, u64::max);
+        let mag_bits = 64 - max_abs.leading_zeros();
+        let q16_shift = mag_bits.saturating_sub(30).max(8);
+        let top_q16: Vec<(u32, i32)> = top_arr[..top_len]
+            .iter()
+            .map(|&(tid, val)| {
+                let shifted =
+                    (val >> q16_shift).clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32;
+                (tid, shifted)
+            })
+            .collect();
+        let probs = compute_top6_prob_permille(&[], &top_q16);
+        let top_candidates: Vec<HoloCandidateBar> = top_q16
+            .iter()
+            .enumerate()
+            .map(|(idx, &(tid, logit_q16))| {
+                let tok_text: String = String::from_utf8_lossy(self.token_bytes(tid as u16))
+                    .chars()
+                    .take(24)
+                    .collect();
+                HoloCandidateBar {
+                    token_id: tid,
+                    token_text: tok_text,
+                    logit_q16,
+                    prob_permille: probs.get(idx).copied().unwrap_or(0),
+                    selected: next_opt.is_some_and(|nid| u32::from(nid) == tid),
+                    hamming_d: None,
+                }
+            })
+            .collect();
+
+        let (token_id, token_text) = match next_opt {
+            Some(nid) => (
+                u32::from(nid),
+                String::from_utf8_lossy(self.token_bytes(nid))
+                    .chars()
+                    .take(24)
+                    .collect(),
+            ),
+            None => (0, String::new()),
+        };
+
+        let mut frame = HoloStepObservatoryFrame {
+            step_idx,
+            phase: "decode",
+            seq_pos: tokens.len().saturating_sub(1),
+            prefix_reused_tokens: 0,
+            token_id,
+            token_text,
+            layer_residual_mag,
+            layer_max_bits,
+            layer_flock_spans: Vec::new(),
+            final_attn_peaks: Vec::new(),
+            hamming_hist_32: [0u32; 32],
+            min_hamming: 0,
+            has_geometric_shortlist: false,
+            ttft_ms: 0,
+            tps_x10: 0,
+            q_manifold_xyz,
+            top_candidates,
+            shortlist_count: 0,
+            backend: "native-q31-d85",
+        };
+        if admit_live_token_frame(
+            frame.has_geometric_shortlist,
+            frame.top_candidates.iter().any(|c| c.hamming_d.is_some()),
+            0,
+            100_000,
+        ) != LiveFrameVerdict::FrameAdmitted
+        {
+            frame.top_candidates.clear();
+        }
+        (next_opt, cksum, frame)
     }
 
     /// Formal R4.NativeQ31Train generate a coherent pure-integer reply from `prompt`.

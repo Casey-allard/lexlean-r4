@@ -2,8 +2,13 @@
 //! Foundry `<prism-write>` + `<tool_call>` prompt assembly, UTF-8 incremental flush, and cancel/busy/empty exits.
 
 use lexlean_r4_wasm::holo_geometric_runtime::{
-    int_fwht32_i64, rht_signs_packed_u32, HOLO_TOK13_MAGIC, HOLO_V13_MAGIC, HOLO_V13_VERSION,
+    compute_top6_prob_permille, flush_incremental_utf8, int_fwht32_i64, rht_signs_packed_u32,
+    HOLO_TOK13_MAGIC, HOLO_V13_MAGIC, HOLO_V13_VERSION,
 };
+use lexlean_r4_wasm::lexlean_generated::r4_studio_frame::{
+    admit_live_token_frame, LiveFrameVerdict,
+};
+use lexlean_r4_wasm::native_q31_lane::NativeQ31Model;
 use lexlean_r4_wasm::{
     format_foundry_system_prompt, FoundryToolResult, FoundryWorkspaceFile, StudioEngine,
     UorWasmStudio, BUILD_SYSTEM_PREFIX,
@@ -827,4 +832,361 @@ fn foundry_step_emits_incremental_observatory_frames_and_prefix_reuse_r4_56() {
         engine.last_foundry_observatory_frame_count(),
         "incremental step frames must partition total recorded frames cleanly"
     );
+}
+
+#[test]
+fn test_studio_live_token_frame_prob_sum_and_native_q31_honesty_r4_60() {
+    // 1. Pure integer shift-LUT top-6 probability permille helper (zero floats, sums to 1000, monotonic)
+    let exp_len = ((EXP_RANGE as usize) << 8) + 1;
+    let exp_table: Vec<u32> = (0..exp_len)
+        .map(|i| exp_neg_q30_ref((i as u64) << 22))
+        .collect();
+
+    assert!(compute_top6_prob_permille(&exp_table, &[]).is_empty());
+
+    let single = compute_top6_prob_permille(&exp_table, &[(42, 7 << 16)]);
+    assert_eq!(single, vec![1000]);
+
+    let equal = compute_top6_prob_permille(
+        &exp_table,
+        &[
+            (1, 3 << 16),
+            (2, 3 << 16),
+            (3, 3 << 16),
+            (4, 3 << 16),
+            (5, 3 << 16),
+            (6, 3 << 16),
+        ],
+    );
+    assert_eq!(equal.len(), 6);
+    assert_eq!(equal.iter().map(|&p| u32::from(p)).sum::<u32>(), 1000);
+    assert!(equal.windows(2).all(|w| w[0] >= w[1]));
+
+    let ranked_logits = [
+        (10, 6 << 16),
+        (11, 5 << 16),
+        (12, 4 << 16),
+        (13, 3 << 16),
+        (14, 2 << 16),
+        (15, 1 << 16),
+    ];
+    let probs_lut = compute_top6_prob_permille(&exp_table, &ranked_logits);
+    let probs_direct = compute_top6_prob_permille(&[], &ranked_logits);
+    for probs in [&probs_lut, &probs_direct] {
+        assert_eq!(probs.len(), 6);
+        assert_eq!(probs.iter().map(|&p| u32::from(p)).sum::<u32>(), 1000);
+        assert!(probs.windows(2).all(|w| w[0] >= w[1]));
+        assert!(probs[0] > probs[5]);
+    }
+
+    // 2. Direct NativeQ31Model::step_next_token_with_frame + Foundry stepper honesty check
+    let q31_model = NativeQ31Model::from_bytes(include_bytes!("../src/native_q31_d85.uorq31"))
+        .expect("embedded native_q31_d85.uorq31 valid");
+    let q31_prompt_toks = q31_model.encode_bytes(b"Explain pure integer Q31 frames");
+    let (direct_tok, direct_cksum, direct_frame) =
+        q31_model.step_next_token_with_frame(&q31_prompt_toks, q31_prompt_toks.len(), 0);
+    assert!(direct_tok.is_some());
+    assert_ne!(direct_cksum, 0);
+    assert!(!direct_frame.has_geometric_shortlist);
+    assert_eq!(direct_frame.min_hamming, 0);
+    assert_eq!(direct_frame.shortlist_count, 0);
+    assert!(direct_frame.layer_flock_spans.is_empty());
+    assert_eq!(direct_frame.layer_residual_mag.len(), 4);
+    assert_eq!(direct_frame.top_candidates.len(), 6);
+    assert!(direct_frame
+        .top_candidates
+        .iter()
+        .all(|c| c.hamming_d.is_none()));
+    assert_eq!(
+        direct_frame
+            .top_candidates
+            .iter()
+            .map(|c| u32::from(c.prob_permille))
+            .sum::<u32>(),
+        1000
+    );
+
+    // 3. NativeQ31Model honesty via shared Foundry stepper with `model: "uor-r4.native-q31-d85"` and `live_hud: true`
+    let mut engine = StudioEngine::new_default();
+    let begin_payload = serde_json::json!({
+        "prompt": "Explain pure integer Q31 frames",
+        "model": "uor-r4.native-q31-d85",
+        "max_new_tokens": 5,
+        "live_hud": true
+    })
+    .to_string();
+    let begin: Value =
+        serde_json::from_str(&engine.holo_begin_foundry_turn(&begin_payload)).unwrap();
+    assert_eq!(begin["status"], "ready");
+    assert_eq!(begin["model_id"], "uor-r4.native-q31-d85");
+    let turn_id = begin["turn_id"].as_u64().unwrap();
+
+    let mut all_frames: Vec<Value> = Vec::new();
+    let mut step = serde_json::from_str::<Value>(&engine.holo_step_foundry_turn(turn_id)).unwrap();
+    let mut prev_tokens = 0u64;
+    loop {
+        let cur_tokens = step["tokens_emitted"].as_u64().unwrap();
+        assert!(
+            cur_tokens - prev_tokens <= 2,
+            "live_hud=true default slice_tokens must be 2, got delta={}",
+            cur_tokens - prev_tokens
+        );
+        prev_tokens = cur_tokens;
+        let frames = step["observatory_frames"]
+            .as_array()
+            .expect("native-q31 live_hud step must emit observatory_frames");
+        assert!(
+            !frames.is_empty(),
+            "native-q31 live_hud slice must emit per-token frames"
+        );
+        all_frames.extend(frames.iter().cloned());
+        if step["status"] != "streaming" {
+            break;
+        }
+        step = serde_json::from_str::<Value>(&engine.holo_step_foundry_turn(turn_id)).unwrap();
+    }
+    assert_eq!(step["status"], "done");
+    assert_eq!(all_frames.len(), 5, "must emit one frame per decoded token");
+
+    for frame in &all_frames {
+        assert_eq!(frame["backend"], "native-q31-d85");
+        assert_eq!(frame["has_geometric_shortlist"], false);
+        assert_eq!(frame["min_hamming"], 0);
+        assert_eq!(frame["shortlist_count"], 0);
+        assert!(frame["layer_flock_spans"]
+            .as_array()
+            .is_some_and(Vec::is_empty));
+        assert_eq!(
+            frame["layer_residual_mag"].as_array().map(Vec::len),
+            Some(4),
+            "NativeQ31 must expose 4 real layer magnitudes"
+        );
+        assert!(frame["tps_x10"].is_u64());
+        assert!(frame["ttft_ms"].is_u64());
+
+        let cands = frame["top_candidates"]
+            .as_array()
+            .expect("NativeQ31 frame must carry real top_candidates");
+        assert!(!cands.is_empty() && cands.len() <= 6);
+        assert!(cands[0]["prob_permille"].as_u64().unwrap() > 0);
+        let perm_sum: u64 = cands
+            .iter()
+            .map(|c| c["prob_permille"].as_u64().unwrap())
+            .sum();
+        assert_eq!(perm_sum, 1000);
+        let any_hamming = cands.iter().any(|c| !c["hamming_d"].is_null());
+        assert!(
+            !any_hamming,
+            "NativeQ31 must report hamming_d == None on every candidate"
+        );
+        assert_eq!(
+            admit_live_token_frame(
+                frame["has_geometric_shortlist"].as_bool().unwrap(),
+                any_hamming,
+                0,
+                100_000,
+            ),
+            LiveFrameVerdict::FrameAdmitted
+        );
+    }
+}
+
+#[test]
+fn test_studio_stepper_splits_4byte_utf8_and_cancels_mid_prism_write_r4_60() {
+    // 1. Feed raw 4-byte UTF-8 [0xF0, 0x9F, 0xA6, 0x80] ('🦀') across 2-byte flush calls
+    let raw_crab = [0xF0u8, 0x9Fu8, 0xA6u8, 0x80u8];
+    let mut emitted_raw = 0usize;
+    let first_half = flush_incremental_utf8(&raw_crab[..2], &mut emitted_raw, false);
+    assert_eq!(first_half, "");
+    assert_eq!(emitted_raw, 0);
+    assert!(!first_half.contains('\u{FFFD}'));
+    let second_half = flush_incremental_utf8(&raw_crab, &mut emitted_raw, false);
+    assert_eq!(second_half, "🦀");
+    assert_eq!(emitted_raw, 4);
+    assert!(!second_half.contains('\u{FFFD}'));
+
+    // Also test 2-token live_hud slice splitting 4-byte UTF-8 across two steps cleanly
+    let mut engine = StudioEngine::new_default();
+    let utf8_pieces: &[(u32, &[u8])] = &[
+        (261, &[0xF0]),
+        (262, &[0x9F]),
+        (263, &[0xA6]),
+        (264, &[0x80]),
+    ];
+    let bytes_utf8 = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 264, 257], utf8_pieces);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_utf8)
+        .expect("mount 4-byte split utf8 model");
+
+    let b_utf8: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "Emit crab emoji",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "surface_mode": "chat",
+                "live_hud": true
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    let tid_u = b_utf8["turn_id"].as_u64().unwrap();
+    let chat_sys = engine
+        .active_foundry_turn_system_prompt(tid_u)
+        .expect("chat surface system prompt");
+    assert!(
+        !chat_sys.contains("<prism-write"),
+        "surface_mode='chat' must use compact chat prompt without <prism-write rules"
+    );
+    let u1: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_u)).unwrap();
+    assert_eq!(u1["status"], "streaming");
+    assert_eq!(u1["tokens_emitted"], 2);
+    assert_eq!(u1["delta"], "");
+    assert!(!u1["delta"].as_str().unwrap().contains('\u{FFFD}'));
+    let u2: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_u)).unwrap();
+    assert_eq!(u2["delta"], "🦀");
+    assert!(!u2["delta"].as_str().unwrap().contains('\u{FFFD}'));
+    if u2["status"] == "streaming" {
+        let u3: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_u)).unwrap();
+        assert_eq!(u3["status"], "done");
+    }
+
+    // 2. Cancel mid-<prism-write path="src/app.rs">incomplete and verify KV restores to kv_checkpoint_len
+    let prism_pieces: &[(u32, &[u8])] = &[
+        (261, b"<prism-write path=\"src/app.rs\">"),
+        (262, b"incomplete"),
+        (263, b"</prism-write>"),
+    ];
+    let bytes_prism = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 257], prism_pieces);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes_prism)
+        .expect("mount prism-write cancel model");
+
+    let b_cancel: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "Write src/app.rs",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "surface_mode": "studio",
+                "composer_mode": "agent",
+                "live_hud": true
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    assert_eq!(b_cancel["status"], "ready");
+    let tid_c = b_cancel["turn_id"].as_u64().unwrap();
+    let expected_checkpoint = engine
+        .active_foundry_turn_kv_checkpoint_len(tid_c)
+        .expect("kv_checkpoint_len present");
+    let prefill_kv_len = engine
+        .holo_model_kv_prefix_tokens("uor-r4.qwen3-0.6b-holo")
+        .unwrap()
+        .len();
+    assert!(prefill_kv_len > expected_checkpoint);
+
+    let step_partial: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_c)).unwrap();
+    assert_eq!(step_partial["status"], "streaming");
+    assert_eq!(
+        step_partial["delta"],
+        "<prism-write path=\"src/app.rs\">incomplete"
+    );
+    let mid_kv_len = engine
+        .holo_model_kv_prefix_tokens("uor-r4.qwen3-0.6b-holo")
+        .unwrap()
+        .len();
+    assert_eq!(mid_kv_len, prefill_kv_len + 2);
+
+    let cancel_ack: Value = serde_json::from_str(&engine.holo_cancel_foundry_turn(tid_c)).unwrap();
+    assert_eq!(cancel_ack["status"], "cancelled");
+    assert_eq!(
+        engine
+            .holo_model_kv_prefix_tokens("uor-r4.qwen3-0.6b-holo")
+            .unwrap()
+            .len(),
+        expected_checkpoint
+    );
+    let post_cancel: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_c)).unwrap();
+    assert_eq!(post_cancel["status"], "cancelled");
+}
+
+#[test]
+fn test_studio_live_hud_per_token_emission_and_slice_clamp_r4_60() {
+    let mut engine = StudioEngine::new_default();
+    let extra: &[(u32, &[u8])] = &[
+        (261, b"a"),
+        (262, b"b"),
+        (263, b"c"),
+        (264, b"d"),
+        (265, b"e"),
+    ];
+    let bytes = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 264, 265, 257], extra);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes)
+        .expect("mount 5-token holo model");
+
+    // slice_tokens=99 clamps to 4; live_hud=true emits one decode frame per token
+    let begin: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "Count tokens live",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "live_hud": true,
+                "slice_tokens": 99
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    let tid = begin["turn_id"].as_u64().unwrap();
+    let s1: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid)).unwrap();
+    assert_eq!(s1["status"], "streaming");
+    assert_eq!(s1["tokens_emitted"], 4);
+    let frames1 = s1["observatory_frames"].as_array().unwrap();
+    // 1 prefill frame + 4 decode frames = 5 frames in first slice!
+    assert_eq!(frames1.len(), 5);
+    assert_eq!(frames1[0]["phase"], "prefill");
+    for df in &frames1[1..] {
+        assert_eq!(df["phase"], "decode");
+        assert_eq!(df["has_geometric_shortlist"], true);
+        let cands = df["top_candidates"].as_array().unwrap();
+        assert!(!cands.is_empty());
+        assert!(cands.iter().all(|c| c["hamming_d"].is_u64()));
+        let sum_perm: u64 = cands
+            .iter()
+            .map(|c| c["prob_permille"].as_u64().unwrap())
+            .sum();
+        assert_eq!(sum_perm, 1000);
+        assert_eq!(
+            admit_live_token_frame(true, true, 0, 100_000),
+            LiveFrameVerdict::FrameAdmitted
+        );
+    }
+
+    let s2: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid)).unwrap();
+    assert_eq!(s2["status"], "done");
+    assert_eq!(s2["tokens_emitted"], 5);
+    let frames2 = s2["observatory_frames"].as_array().unwrap();
+    assert_eq!(frames2.len(), 1);
+    assert_eq!(frames2[0]["phase"], "decode");
+
+    // slice_tokens=0 clamps to 1
+    let begin_min: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "Single token clamp",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "live_hud": true,
+                "slice_tokens": 0
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    assert_eq!(begin_min["slice_tokens"], 1);
+    let tid_min = begin_min["turn_id"].as_u64().unwrap();
+    let m1: Value = serde_json::from_str(&engine.holo_step_foundry_turn(tid_min)).unwrap();
+    assert_eq!(m1["tokens_emitted"], 1);
+    assert_eq!(m1["status"], "streaming");
 }
