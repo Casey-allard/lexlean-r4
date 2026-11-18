@@ -1521,10 +1521,23 @@ fn test_plan_shell_hardening_workspace_mutations_and_chat_refusal_r4_60() {
         "sed -ni 's/a/b/' src/engine.rs",
         "sed -Ei 's/a/b/' src/engine.rs",
         "sed 's/a/b/w out.txt' src/engine.rs",
+        "sed 's/a/b/; w out.txt' src/engine.rs",
+        "sed 's/a b/c/w out.txt' src/engine.rs",
+        "sed '1w out.txt' src/engine.rs",
+        "sed '/pat/w out.txt' src/engine.rs",
+        "sed '1,3w out.txt' src/engine.rs",
+        "sed '1s/a/b/w out.txt' src/engine.rs",
+        r"sed 's/a\/b/c/w out.txt' src/engine.rs",
+        "sed -nf write.sed src/engine.rs",
+        "sed -ne 'w out.txt' src/engine.rs",
+        "sed --expression='w out.txt' src/engine.rs",
     ] {
         let raw = format!(
-            "<tool_call>{{\"name\":\"mvm_exec\",\"arguments\":{{\"cmd\":\"{}\"}}}}</tool_call>",
-            mut_cmd.replace('\"', "\\\"")
+            "<tool_call>{}</tool_call>",
+            serde_json::json!({
+                "name": "mvm_exec",
+                "arguments": { "cmd": mut_cmd }
+            })
         );
         let det = detect_studio_tool_call(raw.as_bytes(), "studio", "plan", 0)
             .unwrap_or_else(|| panic!("expected detection for `{mut_cmd}`"));
@@ -1537,13 +1550,14 @@ fn test_plan_shell_hardening_workspace_mutations_and_chat_refusal_r4_60() {
         assert_eq!(exec_res["error_code"], "RefusedPlanModeMutation");
     }
 
-    // Read-only `ls`, `pwd`, `env`, `sort -rn`, and `sed -n '1,2p'` are admitted & executable in plan mode
+    // Read-only `ls`, `pwd`, `env`, `sort -rn`, and `sed -n '1,2p'` / `sed -n -e '1,5p'` are admitted & executable in plan mode
     for ro_cmd in [
         "ls",
         "pwd",
         "env",
         "sort -rn src/engine.rs",
         "sed -n '1,2p' src/engine.rs",
+        "sed -n -e '1,5p' src/engine.rs",
     ] {
         let raw = serde_json::json!({
             "name": "mvm_exec",

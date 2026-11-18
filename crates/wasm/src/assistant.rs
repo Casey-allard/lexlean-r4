@@ -6321,64 +6321,266 @@ fn split_shell_segments(cmd: &str) -> Vec<String> {
     segments
 }
 
-/// Formal R4.StudioFrame check if a `sed` script token contains a `w`/`W` file-write command or flag.
-fn sed_script_has_write_cmd(arg: &str) -> bool {
-    let trimmed = arg.trim_matches(|c| c == '\'' || c == '"');
-    if trimmed.starts_with('w')
-        || trimmed.starts_with('W')
-        || trimmed.contains(";w")
-        || trimmed.contains(";W")
-    {
-        return true;
-    }
-    if let Some(after_s) = trimmed.strip_prefix('s') {
-        if let Some(delim) = after_s.chars().next() {
-            let mut parts = after_s[delim.len_utf8()..].split(delim);
-            let _pat = parts.next();
-            let _repl = parts.next();
-            if let Some(flags) = parts.next() {
-                if flags.contains('w') || flags.contains('W') {
-                    return true;
-                }
+/// Formal R4.StudioFrame split a shell command segment into words while preserving `'...'`, `"..."`, and `\` escapes.
+fn split_shell_words(seg: &str) -> Vec<String> {
+    let mut words = Vec::new();
+    let mut cur = String::new();
+    let mut in_token = false;
+    let mut in_single = false;
+    let mut in_double = false;
+    let mut escaped = false;
+    for ch in seg.chars() {
+        if escaped {
+            if in_double && !matches!(ch, '"' | '\\' | '$' | '`' | '\n') {
+                cur.push('\\');
             }
+            cur.push(ch);
+            escaped = false;
+            in_token = true;
+            continue;
+        }
+        if ch == '\\' && !in_single {
+            escaped = true;
+            in_token = true;
+            continue;
+        }
+        if ch == '\'' && !in_double {
+            in_single = !in_single;
+            in_token = true;
+            continue;
+        }
+        if ch == '"' && !in_single {
+            in_double = !in_double;
+            in_token = true;
+            continue;
+        }
+        if !in_single && !in_double && ch.is_ascii_whitespace() {
+            if in_token {
+                words.push(std::mem::take(&mut cur));
+                in_token = false;
+            }
+            continue;
+        }
+        cur.push(ch);
+        in_token = true;
+    }
+    if escaped {
+        cur.push('\\');
+    }
+    if in_token {
+        words.push(cur);
+    }
+    words
+}
+
+/// Formal R4.StudioFrame advance past a `sed` delimited pattern/replacement segment respecting `\` escapes.
+fn scan_sed_delimited(chars: &[char], pos: &mut usize, delim: char) -> bool {
+    while *pos < chars.len() {
+        let ch = chars[*pos];
+        if ch == '\\' {
+            *pos = (*pos + 2).min(chars.len());
+            continue;
+        }
+        *pos += 1;
+        if ch == delim {
+            return true;
         }
     }
     false
 }
 
-/// Formal R4.StudioFrame verify a `sed` invocation has no in-place (`-i` / `-ni` / `--in-place`), script-file (`-f`), or `w`/`W` write commands.
+/// Formal R4.StudioFrame advance past zero, one, or two `sed` line/regex addresses (plus optional `!`).
+fn skip_sed_address(chars: &[char], pos: &mut usize) {
+    for addr_pass in 0..2 {
+        while *pos < chars.len() && chars[*pos].is_ascii_whitespace() {
+            *pos += 1;
+        }
+        if *pos >= chars.len() {
+            return;
+        }
+        let ch = chars[*pos];
+        let matched = if ch.is_ascii_digit() {
+            while *pos < chars.len() && chars[*pos].is_ascii_digit() {
+                *pos += 1;
+            }
+            if *pos < chars.len() && (chars[*pos] == '~' || chars[*pos] == '+') {
+                *pos += 1;
+                while *pos < chars.len() && chars[*pos].is_ascii_digit() {
+                    *pos += 1;
+                }
+            }
+            true
+        } else if ch == '$' {
+            *pos += 1;
+            true
+        } else if ch == '/' {
+            *pos += 1;
+            let _ = scan_sed_delimited(chars, pos, '/');
+            true
+        } else if ch == '\\' && *pos + 1 < chars.len() {
+            let delim = chars[*pos + 1];
+            *pos += 2;
+            let _ = scan_sed_delimited(chars, pos, delim);
+            true
+        } else {
+            false
+        };
+        if !matched || addr_pass == 1 {
+            break;
+        }
+        while *pos < chars.len() && chars[*pos].is_ascii_whitespace() {
+            *pos += 1;
+        }
+        if *pos < chars.len() && chars[*pos] == ',' {
+            *pos += 1;
+        } else {
+            break;
+        }
+    }
+    while *pos < chars.len() && (chars[*pos].is_ascii_whitespace() || chars[*pos] == '!') {
+        *pos += 1;
+    }
+}
+
+/// Formal R4.StudioFrame check whether a `sed` script contains a `w`/`W`/`e` write/exec command or `s///w|W|e` flag.
+fn sed_script_has_write_cmd(script: &str) -> bool {
+    let chars: Vec<char> = script.chars().collect();
+    let mut pos = 0usize;
+    while pos < chars.len() {
+        while pos < chars.len()
+            && (chars[pos].is_ascii_whitespace() || matches!(chars[pos], ';' | '{' | '}'))
+        {
+            pos += 1;
+        }
+        if pos >= chars.len() {
+            break;
+        }
+        skip_sed_address(&chars, &mut pos);
+        if pos >= chars.len() {
+            break;
+        }
+        let cmd_ch = chars[pos];
+        pos += 1;
+        match cmd_ch {
+            ';' | '{' | '}' => continue,
+            '#' => {
+                while pos < chars.len() && chars[pos] != '\n' {
+                    pos += 1;
+                }
+            }
+            'w' | 'W' | 'e' => return true,
+            's' | 'y' => {
+                if pos >= chars.len() {
+                    return true;
+                }
+                let delim = chars[pos];
+                pos += 1;
+                if !scan_sed_delimited(&chars, &mut pos, delim)
+                    || !scan_sed_delimited(&chars, &mut pos, delim)
+                {
+                    return true;
+                }
+                if cmd_ch == 's' {
+                    while pos < chars.len() && !matches!(chars[pos], ';' | '\n' | '}' | '#') {
+                        if matches!(chars[pos], 'w' | 'W' | 'e') {
+                            return true;
+                        }
+                        pos += 1;
+                    }
+                }
+            }
+            'p' | 'P' | 'd' | 'D' | 'g' | 'G' | 'h' | 'H' | 'l' | 'n' | 'N' | 'q' | 'Q' | 'x'
+            | 'z' | '=' => {}
+            'a' | 'i' | 'c' | 'r' | 'R' | ':' | 'b' | 't' | 'T' => {
+                while pos < chars.len() && !matches!(chars[pos], ';' | '\n' | '}') {
+                    pos += 1;
+                }
+            }
+            _ => return true,
+        }
+    }
+    false
+}
+
+/// Formal R4.StudioFrame verify a `sed` invocation has no in-place (`-i`/`-Ei`), script-file (`-f`/`-nf`), or `w`/`W`/`e` write commands.
 fn is_sed_read_only(rest: &[&str]) -> bool {
     let mut expect_expr = false;
     let mut saw_script = false;
+    let mut end_of_flags = false;
     for &arg in rest {
         if expect_expr {
-            saw_script = true;
             expect_expr = false;
+            saw_script = true;
             if sed_script_has_write_cmd(arg) {
                 return false;
             }
             continue;
         }
-        if arg == "-e" || arg == "--expression" {
-            expect_expr = true;
+        if !end_of_flags && arg == "--" {
+            end_of_flags = true;
             continue;
         }
-        if arg == "-f" || arg.starts_with("-f") || arg.starts_with("--file") {
+        if !end_of_flags && arg.starts_with("--") {
+            if arg.starts_with("--in-place") || arg == "--file" || arg.starts_with("--file=") {
+                return false;
+            }
+            if arg == "--expression" {
+                expect_expr = true;
+                continue;
+            }
+            if let Some(expr) = arg.strip_prefix("--expression=") {
+                saw_script = true;
+                if sed_script_has_write_cmd(expr) {
+                    return false;
+                }
+                continue;
+            }
+            if matches!(
+                arg,
+                "--quiet"
+                    | "--silent"
+                    | "--regexp-extended"
+                    | "--posix"
+                    | "--separate"
+                    | "--unbuffered"
+                    | "--null-data"
+                    | "--zero-terminated"
+            ) {
+                continue;
+            }
             return false;
         }
-        if arg.starts_with("--in-place")
-            || (arg.starts_with('-') && !arg.starts_with("--") && arg[1..].contains('i'))
-        {
-            return false;
+        if !end_of_flags && arg.starts_with('-') && arg != "-" {
+            let mut chars = arg[1..].chars();
+            while let Some(ch) = chars.next() {
+                match ch {
+                    'i' | 'f' => return false,
+                    'e' => {
+                        let inline_expr: String = chars.collect();
+                        if inline_expr.is_empty() {
+                            expect_expr = true;
+                        } else {
+                            saw_script = true;
+                            if sed_script_has_write_cmd(&inline_expr) {
+                                return false;
+                            }
+                        }
+                        break;
+                    }
+                    'n' | 'E' | 'r' | 's' | 'u' | 'z' | 'l' => {}
+                    _ => return false,
+                }
+            }
+            continue;
         }
-        if !arg.starts_with('-') && !saw_script {
+        if !saw_script {
             saw_script = true;
             if sed_script_has_write_cmd(arg) {
                 return false;
             }
         }
     }
-    !expect_expr
+    !expect_expr && saw_script
 }
 
 /// Formal R4.StudioFrame check whether an `mvm_exec` shell command may mutate `/workspace` or guest state (fail-closed).
@@ -6388,9 +6590,10 @@ pub(crate) fn is_mvm_command_mutating(cmd: &str) -> bool {
         return true;
     }
     for seg in split_shell_segments(trimmed) {
-        let mut tokens = seg.split_whitespace();
-        let mut head = None;
-        for tok in tokens.by_ref() {
+        let words = split_shell_words(&seg);
+        let mut head_idx = 0usize;
+        while head_idx < words.len() {
+            let tok = words[head_idx].as_str();
             let is_env = tok.contains('=')
                 && !tok.starts_with('-')
                 && !tok.starts_with('/')
@@ -6398,15 +6601,16 @@ pub(crate) fn is_mvm_command_mutating(cmd: &str) -> bool {
                     !k.is_empty() && k.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_')
                 });
             if !is_env {
-                head = Some(tok);
                 break;
             }
+            head_idx += 1;
         }
-        let Some(prog_raw) = head else {
+        if head_idx >= words.len() {
             continue;
-        };
+        }
+        let prog_raw = words[head_idx].as_str();
         let prog = prog_raw.rsplit('/').next().unwrap_or(prog_raw);
-        let rest: Vec<&str> = tokens.collect();
+        let rest: Vec<&str> = words[head_idx + 1..].iter().map(String::as_str).collect();
         let seg_read_only = match prog {
             "pwd" | "ls" | "cat" | "head" | "tail" | "wc" | "grep" | "rg" | "stat" | "file"
             | "uname" | "whoami" | "id" | "date" | "sha256sum" | "md5sum" | "diff" | "cmp"
