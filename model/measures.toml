@@ -43,4 +43,4 @@ record = "Quality::measureRouteTableTotal"
 method = "R4.UorustPrismDevrel.routeTableTotalCount"
 source = "src/R4/UorustPrismDevrel.lex.tex"
 direction = "atLeast"
-threshold = 9
+threshold = 11

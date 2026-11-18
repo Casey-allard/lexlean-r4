@@ -78,6 +78,13 @@ prism_record = "Foundation.Release::HoloIdentityBundle"
 facet = "release"
 note = "Stitch PrismId sha256 kappa chain and Hologram v4 .holo selectable app archive for UOR-Foundation/foundry."
 
+[[route]]
+id = "R4-UR11"
+rust_fact = "studio-frame-live-hud"
+prism_record = "Foundation.Design::ResponsiveStudioFrame"
+facet = "design"
+note = "Responsive Studio Frame, Agent/Plan composer policy, off-origin hydration consent, and live token HUD."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -127,6 +134,11 @@ response = "route R4-UR09\nfact prism-release-pack\nrecord Foundation.Release::S
 case = "route R4-UR10"
 request_hex = "707269736d2d686f6c6f2d6964656e74697479"
 response = "route R4-UR10\nfact prism-holo-identity\nrecord Foundation.Release::HoloIdentityBundle\nfacet release"
+
+[[vector]]
+case = "route R4-UR11"
+request_hex = "73747564696f2d6672616d652d6c6976652d687564"
+response = "route R4-UR11\nfact studio-frame-live-hud\nrecord Foundation.Design::ResponsiveStudioFrame\nfacet design"
 
 [[vector]]
 case = "error empty"

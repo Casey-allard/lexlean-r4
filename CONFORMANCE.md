@@ -372,6 +372,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-48` | `build` | Pure LexLean models CI/CD workflow and publishing turnaround optimization (r4-workflow-optimization): layered Cargo target and registry caching in GitHub Pages deployment workflows (.github/workflows/pages.yml) keyed on Cargo.lock content digests with container mount isolation, normative acceptance gate fast-fail sub-target reordering (Justfile recipe vv sequencing fmt-check -> template-check -> model -> lint -> test -> features -> deny) executing zero-cost static verifications before compilation passes, and decoupled static weight shard distribution (public/weights/manifest.json) replacing monolithic static payload deployments with lightweight content-addressed manifest pointers. Formal controls establish no external GitHub Actions runner hardware performance, network bandwidth guarantees, or remote service availability. |
 
+## r4_60_studio_frame_live_hud
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-60` | `build` | Pure LexLean models the responsive Prism Studio Frame, Agent/Plan composer tool policy, off-origin shard hydration consent, and live token HUD frame invariants (R4.StudioFrame): WindowSizeClass breakpoints (Compact <600px, Medium 600..839px, Expanded >=840px) across StudioSurfaceMode (Chat, Studio, ObservatoryEmbed, PreviewEmbed), ComposerToolPolicy admission permitting AgentFull mutating and read-only tools and PlanReadOnly read-only tools while refusing PlanReadOnly mutating tools, HydrationConsentVerdict admitting same-origin, consented off-origin, and explicit offline Q31 fallback while refusing unconsented off-origin hydration with RefusedOffOriginConsentRequired, and LiveFrameVerdict admitting fuel-bounded honest frames while refusing synthetic Hamming metrics on Q31 (RefusedSyntheticHammingOnQ31) and exhausted preview fuel (RefusedPreviewFuelExhausted). Formal controls establish no external browser viewport layout, CDN availability, or user consent persistence beyond modeled verdicts. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

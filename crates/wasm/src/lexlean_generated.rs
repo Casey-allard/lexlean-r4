@@ -47894,3 +47894,134 @@ pub mod r4_ontological_telos {
         }) == TelosVerdict::TelosAdmitted
     }
 }
+
+/// Generated from `R4.StudioFrame` (`src/R4/StudioFrame.lex.tex`, `R4-60`).
+pub mod r4_studio_frame {
+    /// Inductive `R4.StudioFrame.WindowSizeClass`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum WindowSizeClass {
+        Compact,
+        Medium,
+        Expanded,
+    }
+
+    /// Inductive `R4.StudioFrame.StudioSurfaceMode`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum StudioSurfaceMode {
+        Chat,
+        Studio,
+        ObservatoryEmbed,
+        PreviewEmbed,
+    }
+
+    /// Inductive `R4.StudioFrame.ComposerToolPolicy`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ComposerToolPolicy {
+        AgentFull,
+        PlanReadOnly,
+    }
+
+    /// Inductive `R4.StudioFrame.HydrationConsentVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HydrationConsentVerdict {
+        AdmittedSameOrigin,
+        AdmittedConsentedOffOrigin,
+        FallbackOfflineQ31,
+        RefusedOffOriginConsentRequired,
+    }
+
+    /// Inductive `R4.StudioFrame.LiveFrameVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum LiveFrameVerdict {
+        FrameAdmitted,
+        RefusedSyntheticHammingOnQ31,
+        RefusedPreviewFuelExhausted,
+    }
+
+    /// Function `R4.StudioFrame.classifyWindowWidth`.
+    pub fn classify_window_width(width_px: u64) -> WindowSizeClass {
+        if width_px < 600 {
+            WindowSizeClass::Compact
+        } else if width_px < 840 {
+            WindowSizeClass::Medium
+        } else {
+            WindowSizeClass::Expanded
+        }
+    }
+
+    /// Function `R4.StudioFrame.surfaceIsChromelessEmbed`.
+    pub fn surface_is_chromeless_embed(mode: StudioSurfaceMode) -> bool {
+        matches!(
+            mode,
+            StudioSurfaceMode::ObservatoryEmbed | StudioSurfaceMode::PreviewEmbed
+        )
+    }
+
+    /// Function `R4.StudioFrame.admitStudioTool`.
+    pub fn admit_studio_tool(policy: ComposerToolPolicy, is_mutating: bool) -> bool {
+        match policy {
+            ComposerToolPolicy::AgentFull => true,
+            ComposerToolPolicy::PlanReadOnly => !is_mutating,
+        }
+    }
+
+    /// Function `R4.StudioFrame.admitOffOriginHydration`.
+    pub fn admit_off_origin_hydration(
+        same_origin: bool,
+        consent_granted: bool,
+        offline_fallback: bool,
+    ) -> HydrationConsentVerdict {
+        if same_origin {
+            HydrationConsentVerdict::AdmittedSameOrigin
+        } else if consent_granted {
+            HydrationConsentVerdict::AdmittedConsentedOffOrigin
+        } else if offline_fallback {
+            HydrationConsentVerdict::FallbackOfflineQ31
+        } else {
+            HydrationConsentVerdict::RefusedOffOriginConsentRequired
+        }
+    }
+
+    /// Function `R4.StudioFrame.admitLiveTokenFrame`.
+    pub fn admit_live_token_frame(
+        has_shortlist: bool,
+        reports_hamming: bool,
+        preview_steps: u64,
+        max_fuel: u64,
+    ) -> LiveFrameVerdict {
+        if !has_shortlist && reports_hamming {
+            LiveFrameVerdict::RefusedSyntheticHammingOnQ31
+        } else if max_fuel == 0 || preview_steps > max_fuel {
+            LiveFrameVerdict::RefusedPreviewFuelExhausted
+        } else {
+            LiveFrameVerdict::FrameAdmitted
+        }
+    }
+
+    /// Function `R4.StudioFrame.verifyStudioFrameAdmitted`.
+    pub fn verify_studio_frame_admitted() -> bool {
+        classify_window_width(390) == WindowSizeClass::Compact
+            && classify_window_width(600) == WindowSizeClass::Medium
+            && classify_window_width(840) == WindowSizeClass::Expanded
+            && admit_studio_tool(ComposerToolPolicy::AgentFull, true)
+            && admit_studio_tool(ComposerToolPolicy::PlanReadOnly, false)
+            && !admit_studio_tool(ComposerToolPolicy::PlanReadOnly, true)
+            && admit_off_origin_hydration(true, false, false)
+                == HydrationConsentVerdict::AdmittedSameOrigin
+            && admit_off_origin_hydration(false, true, false)
+                == HydrationConsentVerdict::AdmittedConsentedOffOrigin
+            && admit_off_origin_hydration(false, false, true)
+                == HydrationConsentVerdict::FallbackOfflineQ31
+            && admit_off_origin_hydration(false, false, false)
+                == HydrationConsentVerdict::RefusedOffOriginConsentRequired
+            && admit_live_token_frame(false, true, 10, 100_000)
+                == LiveFrameVerdict::RefusedSyntheticHammingOnQ31
+            && admit_live_token_frame(true, true, 100_001, 100_000)
+                == LiveFrameVerdict::RefusedPreviewFuelExhausted
+            && admit_live_token_frame(true, true, 120, 100_000) == LiveFrameVerdict::FrameAdmitted
+            && surface_is_chromeless_embed(StudioSurfaceMode::ObservatoryEmbed)
+            && surface_is_chromeless_embed(StudioSurfaceMode::PreviewEmbed)
+            && !surface_is_chromeless_embed(StudioSurfaceMode::Studio)
+            && !surface_is_chromeless_embed(StudioSurfaceMode::Chat)
+    }
+}
