@@ -9,15 +9,14 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: 'pages'
-  cancel-in-progress: false
-
 jobs:
   build:
     name: build and verify browser application
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    concurrency:
+      group: 'pages-build-${{ github.ref }}'
+      cancel-in-progress: true
     permissions:
       contents: read
       pages: write
@@ -32,9 +31,10 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: target
-          key: r4-pages-target-${{ hashFiles('Cargo.lock') }}
+          key: r4-pages-target-v2-${{ hashFiles('Cargo.lock') }}-${{ hashFiles('crates/**/src/**/*.rs', 'xtask/src/**/*.rs', 'src/R4/**/*.lex.tex') }}
           restore-keys: |
-            r4-pages-target-
+            r4-pages-target-v2-${{ hashFiles('Cargo.lock') }}-
+            r4-pages-target-v2-
 
       - name: Run preflight acceptance gate through the locked SDK
         shell: bash
@@ -76,6 +76,9 @@ jobs:
         shell: bash
         run: |
           rm -rf target/debug/incremental target/wasm32-unknown-unknown/release/incremental || true
+          if [ -d target/debug/deps ]; then
+            find target/debug/deps -maxdepth 1 -type f -executable -mtime +1 -delete || true
+          fi
 
       - name: Verify browser closure and provenance
         shell: bash
@@ -138,6 +141,9 @@ jobs:
     timeout-minutes: 45
     needs: build
     if: github.ref == 'refs/heads/main'
+    concurrency:
+      group: 'pages-deploy'
+      cancel-in-progress: false
     permissions:
       contents: read
       pages: write

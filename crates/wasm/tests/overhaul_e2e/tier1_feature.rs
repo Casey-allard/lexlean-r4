@@ -101,6 +101,54 @@ fn test_t1_f01_pages_workflow_execution_order() {
     );
 }
 
+#[test]
+fn test_t1_f01_pages_workflow_rolling_cache_and_job_concurrency() {
+    let workflow_path = repo_root().join(".github/workflows/pages.yml");
+    let content = std::fs::read_to_string(&workflow_path).expect("read pages.yml");
+    let spec = PagesWorkflowSpec::parse(&content).expect("parse pages.yml");
+    assert!(
+        spec.cache_key.starts_with("r4-pages-target-v2-"),
+        "Cache key must use rolling v2 prefix: {}",
+        spec.cache_key
+    );
+    assert!(
+        spec.cache_key.contains("hashFiles('Cargo.lock')")
+            && spec.cache_key.contains("crates/**/src/**/*.rs"),
+        "Cache key must bind both Cargo.lock and crate sources: {}",
+        spec.cache_key
+    );
+    assert!(
+        spec.restore_keys
+            .iter()
+            .any(|k| k.starts_with("r4-pages-target-v2-")),
+        "Restore keys must fall back cleanly across v2 cache entries: {:?}",
+        spec.restore_keys
+    );
+    assert!(
+        content.contains("group: 'pages-build-${{ github.ref }}'"),
+        "Build job must define branch-scoped build concurrency group"
+    );
+    assert!(
+        content.contains("group: 'pages-deploy'"),
+        "Deploy job must serialize under pages-deploy concurrency group"
+    );
+    let (build_section, deploy_section) = content
+        .split_once("\n  deploy:")
+        .expect("pages.yml must declare build and deploy jobs");
+    assert!(
+        build_section.contains("cancel-in-progress: true"),
+        "Build job concurrency must cancel superseded runs"
+    );
+    assert!(
+        deploy_section.contains("cancel-in-progress: false"),
+        "Deploy job concurrency must not cancel an active pages upload"
+    );
+    assert!(
+        content.contains("if [ -d target/debug/deps ]; then"),
+        "Cache prune step must guard missing target/debug/deps on cold runners"
+    );
+}
+
 // =========================================================================
 // F02: Fast-Fail Gate Reordering Verifier (Justfile)
 // =========================================================================
