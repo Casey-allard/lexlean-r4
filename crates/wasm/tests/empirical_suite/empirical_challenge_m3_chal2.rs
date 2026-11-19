@@ -1,14 +1,3 @@
-#![allow(
-    missing_docs,
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    clippy::identity_op,
-    clippy::manual_range_contains,
-    clippy::useless_vec,
-    clippy::collapsible_if,
-    unused_imports
-)]
 //! Empirical Adversarial Challenge Suite 2 for Milestone M3:
 //! Eliminate Interceptors & Native Routing.
 //!

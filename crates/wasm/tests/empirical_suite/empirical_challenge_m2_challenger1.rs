@@ -1,11 +1,3 @@
-#![allow(
-    missing_docs,
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    unused_variables,
-    unused_imports
-)]
 //! Empirical Adversarial Challenge Suite 1 for Milestone M2:
 //! Geometric Next-Token Prediction Engine.
 //!
@@ -23,15 +15,12 @@ use lexlean_r4_wasm::lut_stack_exec::{
     LutStackSession, ServedPointKey, CORE_CURRICULUM_TURNS, FBS_WIDTH, MEMORY_PAD,
     VERIFIED_FRONTIER_ANCHOR_TAG,
 };
-use std::sync::{Arc, OnceLock};
+use std::sync::Arc;
 
-pub const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
+use crate::BOOTSTRAP_BYTES;
 
 pub fn get_test_model() -> Arc<LutStackModel> {
-    static MODEL: OnceLock<Arc<LutStackModel>> = OnceLock::new();
-    Arc::clone(MODEL.get_or_init(|| {
-        Arc::new(LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully"))
-    }))
+    crate::shared_bootstrap_lut()
 }
 
 // ---------------------------------------------------------------------------

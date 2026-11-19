@@ -1,11 +1,3 @@
-#![allow(
-    missing_docs,
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    unused_variables,
-    unused_imports
-)]
 //! Empirical Challenger Stress & Scalability Test Suite for Milestone 1:
 //! Two-Level Hierarchical Radix / Geometric Index over /8 ServedPointKey.
 //!

@@ -692,6 +692,7 @@ impl Rv64Process {
 }
 
 /// Complete `MVM-Wasm` RV64IMAC Linux MicroVM instance with CoW storage and `SpiralCore` switch.
+#[derive(Clone)]
 pub struct MvmSandbox {
     guest_cid: u16,
     inodes: BTreeMap<String, GuestInode>,

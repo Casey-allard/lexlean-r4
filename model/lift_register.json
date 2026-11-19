@@ -13129,7 +13129,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "3c7327c4515c849d3cf21df0b36cef778d8a0b8fe0c2e68197a7c1d45922093a",
+      "kappa": "4c1c650bfbde93dcab98fef0a1862b5d4f66730863a75425e346dab31c5986aa",
       "function": "crates/wasm/src/lib.rs::StudioEngine::new_default",
       "status": "lifted",
       "definition": "lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::AutoReceiptGated",

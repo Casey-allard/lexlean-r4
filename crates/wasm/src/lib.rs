@@ -1356,18 +1356,118 @@ pub fn embedded_native_q31_sha256() -> String {
         .clone()
 }
 
+#[derive(Clone)]
+struct StudioBaselineSnapshot {
+    vocab: Vec<TokenAtom>,
+    turns: Vec<KnowledgeTurn>,
+    opening_table: Vec<OpeningTableRow>,
+    reply_table: Vec<ReplyTableRow>,
+    point_table: Vec<PointKeyRow>,
+    occupied_cells: [[bool; E8_ROOT_COUNT]; E8_ROOT_COUNT],
+    workspace_files: Vec<WorkspaceFile>,
+    lut_stack: Arc<lut_stack_exec::LutStackModel>,
+    mvm: mvm::MvmSandbox,
+}
+
+static STUDIO_BASELINE_CELL: OnceLock<StudioBaselineSnapshot> = OnceLock::new();
+
 impl StudioEngine {
     /// Construct a fresh `StudioEngine` pre-populated with the 20 UOR-R4 domain knowledge turns
     /// and the default Claude-Code-Desktop virtual workspace.
     pub fn new_default() -> Self {
-        let mut engine = Self {
-            vocab: Vec::new(),
-            turns: Vec::new(),
-            opening_table: Vec::new(),
-            reply_table: Vec::new(),
-            point_table: Vec::new(),
-            occupied_cells: [[false; E8_ROOT_COUNT]; E8_ROOT_COUNT],
-            workspace_files: Vec::new(),
+        let native_q31 = {
+            static NATIVE_Q31_CELL: OnceLock<native_q31_lane::NativeQ31Model> = OnceLock::new();
+            NATIVE_Q31_CELL
+                .get_or_init(|| {
+                    native_q31_lane::NativeQ31Model::from_bytes(EMBEDDED_NATIVE_Q31_D85_BYTES)
+                        .expect("embedded native_q31_d85.uorq31 is valid UORQ31V1")
+                })
+                .clone()
+        };
+        let baseline = STUDIO_BASELINE_CELL.get_or_init(|| {
+            let mut seed = Self {
+                vocab: Vec::new(),
+                turns: Vec::new(),
+                opening_table: Vec::new(),
+                reply_table: Vec::new(),
+                point_table: Vec::new(),
+                occupied_cells: [[false; E8_ROOT_COUNT]; E8_ROOT_COUNT],
+                workspace_files: Vec::new(),
+                gate_trits: vec![0i8; TERNARY_FOREST_NODES],
+                training_epoch: 0,
+                training_history: Vec::new(),
+                chat_history: Vec::new(),
+                binder_memory: Vec::new(),
+                last_language: "rust".to_string(),
+                active_workspace_path: "src/attention.rs".to_string(),
+                lut_stack: default_lut_stack_model(),
+                #[cfg(not(target_arch = "wasm32"))]
+                lut_stack_source: "bootstrap_v8.uorlut (WASM embedded)".to_string(),
+                #[cfg(target_arch = "wasm32")]
+                lut_stack_source: "bootstrap_v8_seed.uorlut (WASM compact seed)".to_string(),
+                last_lut_generation: None,
+                rolling_context: lut_stack_exec::RollingContextState::default(),
+                mvm: mvm::MvmSandbox::boot_default().expect("embedded UORMVM01 initramfs boots"),
+                gllm_v9: gllm_v9::GllmV9Model::default_embedded(),
+                r4_stack: r4_geometric_stack::R4GeometricStackEngine::embedded_seed(),
+                holo_models: std::collections::BTreeMap::new(),
+                holo_stream_builder: None,
+                hf_repo_compiler: None,
+                native_q31: native_q31.clone(),
+                ciris_ledger: ciris_ledger::CirisCausalLedger::new(),
+                prism_identity: prism_holo_compiler::PrismIdentityLedger::default(),
+                last_brain_pulses: Vec::new(),
+                pending_mvm_bridge: None,
+                pending_chat_bridge: None,
+                generation_head_id: "gen-0".to_string(),
+                generation_parent_id: "gen-0".to_string(),
+                generation_index: 0,
+                generation_fault_strikes: 0,
+                generation_rolled_back: false,
+                generation_last_verdict: "Healthy".to_string(),
+                admitted_capsules: Vec::new(),
+                telos_step_index: 0,
+                telos_shortlist_k: 1536,
+                telos_flock_window: 256,
+                telos_incumbent_loss: 1_000,
+                last_holo_observatory_frames: Vec::new(),
+                foundry_turn: None,
+                next_foundry_turn_id: 0,
+                default_mlp_policy: crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::AutoReceiptGated,
+                default_mlp_shortlist_k: holo_geometric_runtime::DEFAULT_MLP_SHORTLIST_K,
+            };
+            seed.register_special_tokens();
+            for (prompt, reply) in default_knowledge_turns() {
+                seed.admit_turn(prompt, reply);
+            }
+            seed.init_default_workspace();
+            seed.sync_workspace_into_mvm();
+            let baseline_map: std::collections::BTreeMap<String, String> = seed
+                .workspace_files
+                .iter()
+                .map(|wf| (wf.path.clone(), wf.content.clone()))
+                .collect();
+            seed.mvm.record_workspace_baseline_from_map(&baseline_map);
+            StudioBaselineSnapshot {
+                vocab: seed.vocab,
+                turns: seed.turns,
+                opening_table: seed.opening_table,
+                reply_table: seed.reply_table,
+                point_table: seed.point_table,
+                occupied_cells: seed.occupied_cells,
+                workspace_files: seed.workspace_files,
+                lut_stack: seed.lut_stack,
+                mvm: seed.mvm,
+            }
+        });
+        Self {
+            vocab: baseline.vocab.clone(),
+            turns: baseline.turns.clone(),
+            opening_table: baseline.opening_table.clone(),
+            reply_table: baseline.reply_table.clone(),
+            point_table: baseline.point_table.clone(),
+            occupied_cells: baseline.occupied_cells,
+            workspace_files: baseline.workspace_files.clone(),
             gate_trits: vec![0i8; TERNARY_FOREST_NODES],
             training_epoch: 0,
             training_history: Vec::new(),
@@ -1375,28 +1475,20 @@ impl StudioEngine {
             binder_memory: Vec::new(),
             last_language: "rust".to_string(),
             active_workspace_path: "src/attention.rs".to_string(),
-            lut_stack: default_lut_stack_model(),
+            lut_stack: Arc::clone(&baseline.lut_stack),
             #[cfg(not(target_arch = "wasm32"))]
             lut_stack_source: "bootstrap_v8.uorlut (WASM embedded)".to_string(),
             #[cfg(target_arch = "wasm32")]
             lut_stack_source: "bootstrap_v8_seed.uorlut (WASM compact seed)".to_string(),
             last_lut_generation: None,
             rolling_context: lut_stack_exec::RollingContextState::default(),
-            mvm: mvm::MvmSandbox::boot_default().expect("embedded UORMVM01 initramfs boots"),
+            mvm: baseline.mvm.clone(),
             gllm_v9: gllm_v9::GllmV9Model::default_embedded(),
             r4_stack: r4_geometric_stack::R4GeometricStackEngine::embedded_seed(),
             holo_models: std::collections::BTreeMap::new(),
             holo_stream_builder: None,
             hf_repo_compiler: None,
-            native_q31: {
-                static NATIVE_Q31_CELL: OnceLock<native_q31_lane::NativeQ31Model> = OnceLock::new();
-                NATIVE_Q31_CELL
-                    .get_or_init(|| {
-                        native_q31_lane::NativeQ31Model::from_bytes(EMBEDDED_NATIVE_Q31_D85_BYTES)
-                            .expect("embedded native_q31_d85.uorq31 is valid UORQ31V1")
-                    })
-                    .clone()
-            },
+            native_q31,
             ciris_ledger: ciris_ledger::CirisCausalLedger::new(),
             prism_identity: prism_holo_compiler::PrismIdentityLedger::default(),
             last_brain_pulses: Vec::new(),
@@ -1418,20 +1510,12 @@ impl StudioEngine {
             next_foundry_turn_id: 0,
             default_mlp_policy: crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::AutoReceiptGated,
             default_mlp_shortlist_k: holo_geometric_runtime::DEFAULT_MLP_SHORTLIST_K,
-        };
-        engine.register_special_tokens();
-        for (prompt, reply) in default_knowledge_turns() {
-            engine.admit_turn(prompt, reply);
         }
-        engine.init_default_workspace();
-        engine.sync_workspace_into_mvm();
-        let baseline_map: std::collections::BTreeMap<String, String> = engine
-            .workspace_files
-            .iter()
-            .map(|wf| (wf.path.clone(), wf.content.clone()))
-            .collect();
-        engine.mvm.record_workspace_baseline_from_map(&baseline_map);
-        engine
+    }
+
+    #[cfg(test)]
+    pub(crate) fn cached_baseline_initialized() -> bool {
+        STUDIO_BASELINE_CELL.get().is_some()
     }
 
     /// Synchronize active Studio `/workspace` files into the `MVM-Wasm` CoW filesystem.
@@ -14274,5 +14358,27 @@ mod tests {
         assert_eq!(status["status"], "ok");
         assert_eq!(status["rolled_back"], true);
         assert_eq!(status["facets"].as_array().map(Vec::len), Some(4));
+    }
+
+    #[test]
+    fn test_wave0_studio_engine_new_default_clones_cached_baseline_deterministically() {
+        let mut e1 = StudioEngine::new_default();
+        assert!(StudioEngine::cached_baseline_initialized());
+        let e2 = StudioEngine::new_default();
+        assert_eq!(e1.turns.len(), 20);
+        assert_eq!(e1.turns.len(), e2.turns.len());
+        assert_eq!(e1.workspace_files, e2.workspace_files);
+        assert_eq!(e1.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
+
+        e1.workspace_files[0].content.push_str("\n// mutated\n");
+        e1.mvm
+            .write_guest_file("/workspace/mutated.txt", b"mutated\n")
+            .expect("write mutated file");
+        assert_ne!(e1.workspace_files, e2.workspace_files);
+        assert_ne!(e1.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
+
+        let e3 = StudioEngine::new_default();
+        assert_eq!(e3.workspace_files, e2.workspace_files);
+        assert_eq!(e3.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
     }
 }

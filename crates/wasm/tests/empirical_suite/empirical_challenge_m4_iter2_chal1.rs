@@ -1,11 +1,3 @@
-#![allow(
-    clippy::needless_range_loop,
-    clippy::field_reassign_with_default,
-    clippy::doc_lazy_continuation,
-    clippy::identity_op,
-    clippy::manual_range_contains,
-    clippy::useless_vec
-)]
 //! Empirical Challenge 1 Stress Suite for Milestone 4 Iteration 2
 //! Adversarial Fuzzing & Compression Stress Harness
 //!
@@ -23,16 +15,8 @@ use lexlean_r4_wasm::otel::{
 };
 use serde_json::Value;
 
-const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../src/bootstrap_v8.uorlut");
-
 fn load_test_model() -> LutStackModel {
-    static MODEL: std::sync::OnceLock<Arc<LutStackModel>> = std::sync::OnceLock::new();
-    MODEL
-        .get_or_init(|| {
-            Arc::new(LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully"))
-        })
-        .as_ref()
-        .clone()
+    crate::shared_bootstrap_lut().as_ref().clone()
 }
 
 #[test]
