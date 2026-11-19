@@ -6439,15 +6439,20 @@ pub fn parse_arxiv_atom_feed(xml: &str) -> Result<Vec<ArxivPaper>, String> {
     Ok(papers)
 }
 
-/// Fetch raw Atom XML from the arXiv API using `curl` with a 10-second timeout.
-pub fn fetch_arxiv_atom_feed(query: &str, limit: usize) -> Result<String, String> {
+/// Fetch raw Atom XML from the arXiv API using `curl` (or `curl_bin_override`) with a 10-second timeout.
+pub fn fetch_arxiv_atom_feed(
+    query: &str,
+    limit: usize,
+    curl_bin_override: Option<&Path>,
+) -> Result<String, String> {
     let url = format!(
         "https://export.arxiv.org/api/query?search_query={}&max_results={}&sortBy=submittedDate&sortOrder=descending",
         url_encode(query),
         limit
     );
 
-    let output = Command::new("curl")
+    let curl_bin = curl_bin_override.unwrap_or_else(|| Path::new("curl"));
+    let output = Command::new(curl_bin)
         .arg("--max-time")
         .arg("10")
         .arg("-s")
@@ -6509,6 +6514,7 @@ pub fn literature_sync(
     offline: bool,
     offline_fallback: bool,
     write: bool,
+    curl_bin_override: Option<&Path>,
 ) -> Result<usize, String> {
     let query_str =
         query.unwrap_or("cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO");
@@ -6522,7 +6528,7 @@ pub fn literature_sync(
         return Ok(lit.paper.len());
     }
 
-    let fetched_xml = match fetch_arxiv_atom_feed(query_str, limit) {
+    let fetched_xml = match fetch_arxiv_atom_feed(query_str, limit, curl_bin_override) {
         Ok(xml) => Some(xml),
         Err(err) => {
             if offline_fallback {
@@ -6659,7 +6665,16 @@ pub fn run_literature_sync_cmd(root: &Path, args: &[String]) -> Result<(), Strin
         return Ok(());
     }
 
-    literature_sync(root, Some(&query), limit, offline, offline_fallback, write).map(|_| ())
+    literature_sync(
+        root,
+        Some(&query),
+        limit,
+        offline,
+        offline_fallback,
+        write,
+        None,
+    )
+    .map(|_| ())
 }
 
 #[cfg(test)]
@@ -7303,7 +7318,7 @@ and establish non-blocking progress guarantees.
     #[test]
     fn test_literature_sync_offline_mode() {
         let root = repo_model::repo_root();
-        let result = literature_sync(&root, None, 5, true, false, false);
+        let result = literature_sync(&root, None, 5, true, false, false, None);
         assert!(result.is_ok(), "offline mode must succeed without network");
 
         let check_res = run_literature_sync_cmd(&root, &["--check".to_string()]);
@@ -7619,6 +7634,7 @@ and establish non-blocking progress guarantees.
             true,
             false,
             false,
+            None,
         );
         let count = res.expect("offline sync must succeed");
         assert!(

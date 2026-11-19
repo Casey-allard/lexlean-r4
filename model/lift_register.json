@@ -18751,7 +18751,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "f5be8125e78d7c4eb57e0cb0149ad3bc88aee39be9f522d50d24296290b5cfdf",
+      "kappa": "070abde5088b3372bf324e67ff2abfaf5958c3585e9c7c46267852fdcf566349",
       "function": "xtask/src/engine.rs::fetch_arxiv_atom_feed",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -18779,7 +18779,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "994cb4db74d25ba52bbdaf293bd78358203ed233d76ba7e37e47c7c5c7d328a2",
+      "kappa": "b079fa28acf328c789de5be47a77613227513072ae30bbb5eafe357d1e4c1271",
       "function": "xtask/src/engine.rs::literature_sync",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -19007,7 +19007,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "90cb5eab9a425d6ea945abf1218e9a663984ce9969dd3133d1ea35f86b78362b",
+      "kappa": "43a55acde3e60f212beb82eb7cada825070791da283a2ee7cf946427e1ba5a64",
       "function": "xtask/src/engine.rs::run_literature_sync_cmd",
       "status": "effect",
       "effect": "stdio-console-effect",

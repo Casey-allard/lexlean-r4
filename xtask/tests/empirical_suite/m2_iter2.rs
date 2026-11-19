@@ -226,11 +226,7 @@ fn challenge_mock_network_curl_html_502_offline_fallback() {
     perms.set_mode(0o755);
     fs::set_permissions(&mock_curl_path, perms).expect("set permissions");
 
-    let original_path = std::env::var("PATH").unwrap_or_default();
-    let new_path = format!("{}:{}", temp_dir.display(), original_path);
-    std::env::set_var("PATH", &new_path);
-
-    // Verify baseline catalog
+    // Inject mock curl path explicitly instead of mutating process-global PATH across threads.
     let base_lit = load_literature(&root).expect("load base literature");
     let expected_count = base_lit.paper.len();
 
@@ -243,6 +239,7 @@ fn challenge_mock_network_curl_html_502_offline_fallback() {
         false, // offline: false (attempt network)
         true,  // offline_fallback: true
         false, // write: false
+        Some(mock_curl_path.as_path()),
     );
 
     // 2. With offline_fallback = false:
@@ -254,10 +251,9 @@ fn challenge_mock_network_curl_html_502_offline_fallback() {
         false, // offline: false (attempt network)
         false, // offline_fallback: false
         false, // write: false
+        Some(mock_curl_path.as_path()),
     );
 
-    // Clean up environment and files
-    std::env::set_var("PATH", original_path);
     let _ = fs::remove_file(&mock_curl_path);
     let _ = fs::remove_dir(&temp_dir);
 
@@ -296,7 +292,7 @@ fn challenge_dry_run_immutability_guarantee() {
     let initial_bytes = std::fs::read(&lit_path).expect("read literature.toml");
 
     // Execute dry run with offline_fallback
-    let res = literature_sync(&root, None, 5, false, true, false);
+    let res = literature_sync(&root, None, 5, false, true, false, None);
     assert!(res.is_ok());
 
     let post_bytes = std::fs::read(&lit_path).expect("read literature.toml after dry-run");

@@ -113,8 +113,10 @@ fn test_t1_f01_pages_workflow_rolling_cache_and_job_concurrency() {
     );
     assert!(
         spec.cache_key.contains("hashFiles('Cargo.lock')")
-            && spec.cache_key.contains("crates/**/src/**/*.rs"),
-        "Cache key must bind both Cargo.lock and crate sources: {}",
+            && spec.cache_key.contains("crates/**/src/**/*.rs")
+            && spec.cache_key.contains("'Cargo.toml'")
+            && spec.cache_key.contains("'crates/**/tests/**/*.rs'"),
+        "Cache key must bind Cargo.lock, manifests, crate sources, and tests: {}",
         spec.cache_key
     );
     assert!(
@@ -124,6 +126,13 @@ fn test_t1_f01_pages_workflow_rolling_cache_and_job_concurrency() {
         "Restore keys must fall back cleanly across v2 cache entries: {:?}",
         spec.restore_keys
     );
+    let (header, jobs_body) = content
+        .split_once("\njobs:")
+        .expect("pages.yml must declare top-level jobs section");
+    assert!(
+        !header.contains("concurrency:"),
+        "Top-level workflow header must not define workflow-wide concurrency"
+    );
     assert!(
         content.contains("group: 'pages-build-${{ github.ref }}'"),
         "Build job must define branch-scoped build concurrency group"
@@ -132,7 +141,7 @@ fn test_t1_f01_pages_workflow_rolling_cache_and_job_concurrency() {
         content.contains("group: 'pages-deploy'"),
         "Deploy job must serialize under pages-deploy concurrency group"
     );
-    let (build_section, deploy_section) = content
+    let (build_section, deploy_section) = jobs_body
         .split_once("\n  deploy:")
         .expect("pages.yml must declare build and deploy jobs");
     assert!(
@@ -144,8 +153,8 @@ fn test_t1_f01_pages_workflow_rolling_cache_and_job_concurrency() {
         "Deploy job concurrency must not cancel an active pages upload"
     );
     assert!(
-        content.contains("if [ -d target/debug/deps ]; then"),
-        "Cache prune step must guard missing target/debug/deps on cold runners"
+        content.contains("if [ -d target/debug/deps ]; then") && content.contains("! -name '*.so'"),
+        "Cache prune step must guard missing target/debug/deps and preserve .so proc-macro libraries"
     );
 }
 

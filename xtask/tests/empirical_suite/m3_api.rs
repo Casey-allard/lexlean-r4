@@ -1002,6 +1002,9 @@ fn challenge_11_live_daemon_concurrency_hammer_200_requests() {
 
 #[test]
 fn challenge_12_loopback_12_point_test_suite_regression_gate() {
+    let _daemon_guard = crate::XTASK_DAEMON_LOCK
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
     let root = repo_model::repo_root();
     engine::run_api_test_cmd(&root, &[]).expect("12-point loopback test suite must pass cleanly");
 }
