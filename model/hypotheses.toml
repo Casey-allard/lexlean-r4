@@ -14,6 +14,16 @@ status = "minted"
 statement = "Exclude falsified configuration R4-F11 (r4:v1:stem:unanchored-pointkey-shift21:k=4) and enforce 28-bit PointKey anchor invariant."
 
 [[hypothesis]]
+label = "H-VERIFIED-OPEN-BASIN-R4-F290"
+form = "obligation"
+family = "open-basin"
+sources = ["R4-F290"]
+weight = 16
+tick = "2026-11-05T03:30:00Z"
+status = "minted"
+statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F290 (r4:v1:literature:2611.24924:H-LIT-2611.24924-01:k=14)"
+
+[[hypothesis]]
 label = "H-VERIFIED-DIALOGUE-STEM-R4-F289"
 form = "obligation"
 family = "dialogue-stem"
@@ -152,13 +162,3 @@ weight = 16
 tick = "2026-11-05T03:30:00Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F276 (r4:v1:manifold:dialogue-stem:ination-host:r7925:k=8)"
-
-[[hypothesis]]
-label = "H-VERIFIED-OPEN-BASIN-R4-F275"
-form = "obligation"
-family = "open-basin"
-sources = ["R4-F275"]
-weight = 16
-tick = "2026-11-05T03:30:00Z"
-status = "minted"
-statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F275 (r4:v1:manifold:open-basin:ment-shoes:r10444:k=14)"
