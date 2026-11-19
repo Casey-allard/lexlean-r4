@@ -2,8 +2,8 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2782,
-    "lifted": 2007,
+    "total_functions": 2786,
+    "lifted": 2011,
     "effect": 271,
     "foreign": 160,
     "residue": 344
@@ -3544,6 +3544,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "38fd76670d2a64694f401331ccfb3e15205c03678dbdd3c059597b89fabee387",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_catalog_hydration",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_catalog_hydration",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "11e6ee6ff00a6a759a34094c128dfbbc6f89e4f63f2c3f57f4100104ac779ecb",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_causal_kv_step",
       "status": "lifted",
@@ -3625,6 +3632,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_host_egress",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_host_egress",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "c5f0f61e7cb162521ef3b86d0bd515fb11df44f015e53f02098b110bb8af3c04",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_hud_presentation",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_hud_presentation",
       "exact_divergence_free": true
     },
     {
@@ -7307,6 +7321,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::map_gqa_kv_head",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::map_gqa_kv_head",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "eaeb21994dc779aa12f29eb9cf0a8f3d0f066906b344ec374a3d56121ad27b3b",
+      "function": "crates/wasm/src/lexlean_generated.rs::max_catalog_hydration_concurrency",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::max_catalog_hydration_concurrency",
       "exact_divergence_free": true
     },
     {
@@ -12504,6 +12525,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "33482fc22a622dfda88e07bd4708790fd650df084b636d65cd9c9a27677e35ca",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_compact_studio_auto_hydration_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_compact_studio_auto_hydration_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "fc54f14c5a8655d5bfd5573dc6e715206d658815664091bccac8452389c4170b",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_dag_synthesis",
       "status": "lifted",
@@ -13676,7 +13704,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "62cf3788073b3e024d60d7609bf407100d6a884a0864b57457faadb99409b3f3",
+      "kappa": "7dabcec19fb62726ac1185a0f4dc92cfbcc9e6ea798f1dc39306eaeb6b5d7b7d",
       "function": "crates/wasm/src/lib.rs::studio_dispatch",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",

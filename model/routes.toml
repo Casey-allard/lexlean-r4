@@ -92,6 +92,13 @@ prism_record = "Foundation.Qual::WebGpuGeodesicSlab"
 facet = "qual"
 note = "Pure-integer WebGPU WGSL zero-LSB compute pipelines, 256-bit geodesic SwiGLU shortlisting, and HOLOSLAB2 single-slab OPFS custody."
 
+[[route]]
+id = "R4-UR13"
+rust_fact = "compact-studio-auto-hydration"
+prism_record = "Foundation.Design::CompactStudioAutoHydration"
+facet = "design"
+note = "Compact Cursor-grade Studio UI, 2-model Qwen3 catalog auto-hydration, CONCURRENCY=3 parity recovery, and non-blocking Dropdown Neural HUD."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -151,6 +158,11 @@ response = "route R4-UR11\nfact studio-frame-live-hud\nrecord Foundation.Design:
 case = "route R4-UR12"
 request_hex = "7765626770752d67656f64657369632d736c6162"
 response = "route R4-UR12\nfact webgpu-geodesic-slab\nrecord Foundation.Qual::WebGpuGeodesicSlab\nfacet qual"
+
+[[vector]]
+case = "route R4-UR13"
+request_hex = "636f6d706163742d73747564696f2d6175746f2d687964726174696f6e"
+response = "route R4-UR13\nfact compact-studio-auto-hydration\nrecord Foundation.Design::CompactStudioAutoHydration\nfacet design"
 
 [[vector]]
 case = "error empty"

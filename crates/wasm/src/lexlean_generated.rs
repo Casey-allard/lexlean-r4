@@ -48024,6 +48024,113 @@ pub mod r4_studio_frame {
             && !surface_is_chromeless_embed(StudioSurfaceMode::Studio)
             && !surface_is_chromeless_embed(StudioSurfaceMode::Chat)
     }
+
+    /// Inductive `R4.StudioFrame.HydrationOriginPolicy` (`R4-62`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HydrationOriginPolicy {
+        SameOrigin,
+        FirstPartyCatalog,
+        ExternalUntrustedOrigin,
+    }
+
+    /// Inductive `R4.StudioFrame.CatalogHydrationVerdict` (`R4-62`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum CatalogHydrationVerdict {
+        HydrationAdmitted,
+        EmergencyOfflineQ31Admitted,
+        RefusedExternalOriginConsentRequired,
+        RefusedSilentModelDowngrade,
+    }
+
+    /// Inductive `R4.StudioFrame.HudPresentationMode` (`R4-62`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HudPresentationMode {
+        DropdownCompactStrip,
+        DropdownExpandedDeck,
+        ChromelessEmbed,
+    }
+
+    /// Inductive `R4.StudioFrame.HudBackdropVerdict` (`R4-62`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HudBackdropVerdict {
+        HudNonBlockingAdmitted,
+        RefusedBlockingBackdropOnLiveHud,
+    }
+
+    /// Function `R4.StudioFrame.maxCatalogHydrationConcurrency` (`R4-62`).
+    pub fn max_catalog_hydration_concurrency() -> u64 {
+        3
+    }
+
+    /// Function `R4.StudioFrame.admitCatalogHydration` (`R4-62`).
+    pub fn admit_catalog_hydration(
+        origin: HydrationOriginPolicy,
+        explicit_consent: bool,
+        emergency_offline_toggle: bool,
+        silent_sticky_declined: bool,
+    ) -> CatalogHydrationVerdict {
+        if silent_sticky_declined && !emergency_offline_toggle {
+            CatalogHydrationVerdict::RefusedSilentModelDowngrade
+        } else if emergency_offline_toggle {
+            CatalogHydrationVerdict::EmergencyOfflineQ31Admitted
+        } else {
+            match origin {
+                HydrationOriginPolicy::SameOrigin | HydrationOriginPolicy::FirstPartyCatalog => {
+                    CatalogHydrationVerdict::HydrationAdmitted
+                }
+                HydrationOriginPolicy::ExternalUntrustedOrigin => {
+                    if explicit_consent {
+                        CatalogHydrationVerdict::HydrationAdmitted
+                    } else {
+                        CatalogHydrationVerdict::RefusedExternalOriginConsentRequired
+                    }
+                }
+            }
+        }
+    }
+
+    /// Function `R4.StudioFrame.admitHudPresentation` (`R4-62`).
+    pub fn admit_hud_presentation(
+        mode: HudPresentationMode,
+        has_blocking_backdrop: bool,
+    ) -> HudBackdropVerdict {
+        if has_blocking_backdrop {
+            HudBackdropVerdict::RefusedBlockingBackdropOnLiveHud
+        } else {
+            match mode {
+                HudPresentationMode::DropdownCompactStrip
+                | HudPresentationMode::DropdownExpandedDeck
+                | HudPresentationMode::ChromelessEmbed => {
+                    HudBackdropVerdict::HudNonBlockingAdmitted
+                }
+            }
+        }
+    }
+
+    /// Function `R4.StudioFrame.verifyCompactStudioAutoHydrationAdmitted` (`R4-62`).
+    pub fn verify_compact_studio_auto_hydration_admitted() -> bool {
+        max_catalog_hydration_concurrency() == 3
+            && admit_catalog_hydration(
+                HydrationOriginPolicy::FirstPartyCatalog,
+                false,
+                false,
+                false,
+            ) == CatalogHydrationVerdict::HydrationAdmitted
+            && admit_catalog_hydration(
+                HydrationOriginPolicy::ExternalUntrustedOrigin,
+                false,
+                false,
+                false,
+            ) == CatalogHydrationVerdict::RefusedExternalOriginConsentRequired
+            && admit_catalog_hydration(HydrationOriginPolicy::FirstPartyCatalog, false, false, true)
+                == CatalogHydrationVerdict::RefusedSilentModelDowngrade
+            && admit_catalog_hydration(HydrationOriginPolicy::FirstPartyCatalog, false, true, true)
+                == CatalogHydrationVerdict::EmergencyOfflineQ31Admitted
+            && admit_hud_presentation(HudPresentationMode::DropdownCompactStrip, false)
+                == HudBackdropVerdict::HudNonBlockingAdmitted
+            && admit_hud_presentation(HudPresentationMode::DropdownExpandedDeck, true)
+                == HudBackdropVerdict::RefusedBlockingBackdropOnLiveHud
+    }
 }
 
 /// Generated from `R4.WebGpuGeodesicRuntime` (`src/R4/WebGpuGeodesicRuntime.lex.tex`, `R4-61`).

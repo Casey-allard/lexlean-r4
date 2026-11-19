@@ -384,6 +384,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-61` | `build` | Pure LexLean models the WebGPU pure-integer WGSL compute parity admission, geodesic SwiGLU active-neuron shortlisting selection, single-slab HOLOSLAB2 OPFS custody verdicts, and prefill tile width clamping (R4.WebGpuGeodesicRuntime): WgslParityVerdict admitting zero-float zero-LSB kernels within the 4 MiB Wasm staging ceiling (ZeroLsbAdmitted) while refusing float WGSL ops (RefusedFloatOpInWgsl), CPU-vs-WGSL LSB drift (RefusedWgslCpuParityDrift), and staging overflow (RefusedWasmStagingBudgetExceeded); MlpShortlistMode gating AutoReceiptGated sparse SwiGLU activation strictly on sparse top-1 >= 9000 bps and mean KL <= 35000 micros while allowing explicit ForceGeodesicSparse/ForceDenseExact overrides and refusing out-of-bounds shortlist widths (RefusedInvalidNeuronShortlist); and HoloSlabVerdict admitting sealed HOLOSLAB2 slabs (SlabSealAdmitted) and full Merkle verification/repair (SlabFullMerkleVerified) while refusing insufficient storage quota (RefusedInsufficientStorageQuota), seal mismatches (RefusedSlabSealMismatch), and piece digest mismatches (RefusedSlabPieceHashMismatch). Formal controls establish no physical WebGPU driver availability, browser OPFS quota sizes, or unmeasured empirical benchmark perplexity beyond modeled verdicts and committed receipts. |
 
+## r4_62_compact_studio_auto_hydration
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-62` | `build` | Pure LexLean models the R4-62 compact Cursor-grade Studio UI, 2-model Qwen3 catalog hydration policy, non-blocking Dropdown Neural HUD overlay admission, and bounded download retry concurrency (R4.StudioFrame): HydrationOriginPolicy admitting SameOrigin and FirstPartyCatalog Qwen3-0.6B/1.7B weights automatically at maxCatalogHydrationConcurrency = 3 (HydrationAdmitted) while requiring explicit confirmation for ExternalUntrustedOrigin (RefusedExternalOriginConsentRequired), routing to Native Q31 only on explicit EmergencyOfflineQ31Admitted toggles, and refusing sticky background declined flags with RefusedSilentModelDowngrade; and HudPresentationMode admitting non-blocking DropdownCompactStrip, DropdownExpandedDeck, and ChromelessEmbed (HudNonBlockingAdmitted) while refusing any blocking backdrop over live telemetry (RefusedBlockingBackdropOnLiveHud). Formal controls establish modeled admission verdicts only, not external network availability, GPU driver limits, or browser layout engines. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

@@ -10052,6 +10052,54 @@ pub fn studio_ciris_status() -> String {
     engine.ciris_ledger.status_json()
 }
 
+/// Formal R4.StudioFrame evaluate first-party catalog auto-hydration and non-blocking Neural HUD policy (`R4-62`).
+#[wasm_bindgen]
+pub fn studio_admit_catalog_hydration_json(
+    origin_kind: &str,
+    explicit_consent: bool,
+    emergency_offline_toggle: bool,
+    silent_sticky_declined: bool,
+    hud_mode: &str,
+    has_blocking_backdrop: bool,
+) -> String {
+    use crate::lexlean_generated::r4_studio_frame::{
+        admit_catalog_hydration, admit_hud_presentation, max_catalog_hydration_concurrency,
+        CatalogHydrationVerdict, HudBackdropVerdict, HudPresentationMode, HydrationOriginPolicy,
+    };
+    let origin = match origin_kind.trim().to_ascii_lowercase().as_str() {
+        "same_origin" | "same-origin" => HydrationOriginPolicy::SameOrigin,
+        "first_party_catalog" | "first-party-catalog" | "catalog" => {
+            HydrationOriginPolicy::FirstPartyCatalog
+        }
+        _ => HydrationOriginPolicy::ExternalUntrustedOrigin,
+    };
+    let mode = match hud_mode.trim().to_ascii_lowercase().as_str() {
+        "expanded" | "dropdown_expanded_deck" => HudPresentationMode::DropdownExpandedDeck,
+        "chromeless" | "chromeless_embed" | "embed" => HudPresentationMode::ChromelessEmbed,
+        _ => HudPresentationMode::DropdownCompactStrip,
+    };
+    let hydration_verdict = admit_catalog_hydration(
+        origin,
+        explicit_consent,
+        emergency_offline_toggle,
+        silent_sticky_declined,
+    );
+    let hud_verdict = admit_hud_presentation(mode, has_blocking_backdrop);
+    let admitted = matches!(
+        hydration_verdict,
+        CatalogHydrationVerdict::HydrationAdmitted
+            | CatalogHydrationVerdict::EmergencyOfflineQ31Admitted
+    ) && matches!(hud_verdict, HudBackdropVerdict::HudNonBlockingAdmitted);
+    serde_json::json!({
+        "status": if admitted { "ok" } else { "error" },
+        "admitted": admitted,
+        "hydration_verdict": format!("{hydration_verdict:?}"),
+        "hud_verdict": format!("{hud_verdict:?}"),
+        "max_catalog_hydration_concurrency": max_catalog_hydration_concurrency(),
+    })
+    .to_string()
+}
+
 pub(crate) fn format_mvm_agent_prompt(raw: &str) -> String {
     let trimmed = raw.trim();
     if trimmed.contains("<tool_response>") {

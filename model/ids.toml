@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-62"
+level = "build"
+suite = "r4_62_compact_studio_auto_hydration"
+statement = "Pure LexLean models the R4-62 compact Cursor-grade Studio UI, 2-model Qwen3 catalog hydration policy, non-blocking Dropdown Neural HUD overlay admission, and bounded download retry concurrency (R4.StudioFrame): HydrationOriginPolicy admitting SameOrigin and FirstPartyCatalog Qwen3-0.6B/1.7B weights automatically at maxCatalogHydrationConcurrency = 3 (HydrationAdmitted) while requiring explicit confirmation for ExternalUntrustedOrigin (RefusedExternalOriginConsentRequired), routing to Native Q31 only on explicit EmergencyOfflineQ31Admitted toggles, and refusing sticky background declined flags with RefusedSilentModelDowngrade; and HudPresentationMode admitting non-blocking DropdownCompactStrip, DropdownExpandedDeck, and ChromelessEmbed (HudNonBlockingAdmitted) while refusing any blocking backdrop over live telemetry (RefusedBlockingBackdropOnLiveHud). Formal controls establish modeled admission verdicts only, not external network availability, GPU driver limits, or browser layout engines."
+
+[[id]]
 id = "R4-61"
 level = "build"
 suite = "r4_61_webgpu_geodesic_slab"
