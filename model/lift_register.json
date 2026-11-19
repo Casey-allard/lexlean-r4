@@ -17449,7 +17449,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "1233d4369ce76d882a7e630d16c0b28c71c9e2a9a9b212cd484d9c9aca0cc3ca",
+      "kappa": "64b4b219b2ee3ed8ec7d17ef3a7138245783ee204e154dd572e5f09d1c72aace",
       "function": "public/app.js::initCursorIdeWorkbench",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -17477,7 +17477,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "ba649738a8f4141d6666ac8b786b527d05d85b84270020605bb5c9d5b1dfc675",
+      "kappa": "a2cd0c41064bace4111146c7ac1bfcb964a2494e28999b4ce5f76012fd632e8d",
       "function": "public/app.js::initLayoutAndConnectedControls",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",

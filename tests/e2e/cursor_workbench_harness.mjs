@@ -3515,7 +3515,7 @@ await testAsync('F19.5: updateCursorGhostText reads Worker { suggestion } respon
   }
 });
 
-test('F19.6: #new-path-modal rejects invalid characters and reveals #new-path-error', () => {
+test('F19.6: #new-path-modal rejects invalid characters / .. segments and shell-quotes dir commands', () => {
   const { doc } = setupCursorWorkbenchSandbox();
   const modal = doc.getElementById('new-path-modal');
   const form = doc.getElementById('new-path-form');
@@ -3529,6 +3529,34 @@ test('F19.6: #new-path-modal rejects invalid characters and reveals #new-path-er
   assert.ok(errEl, '#new-path-error must be populated dynamically if absent');
   assert.match(errEl.textContent, /Invalid path:/);
   assert.equal(errEl.hasAttribute('hidden'), false, '#new-path-error must be visible on validation failure');
+
+  // Embedded .. inside segment must also be rejected consistently
+  input.value = 'src/a..b/file.rs';
+  form.dispatchEvent({ type: 'submit', preventDefault: () => {} });
+  assert.equal(modal.hasAttribute('hidden'), false, 'Embedded .. sequence must be rejected');
+
+  // Directory creation dispatches single-quoted mkdir -p to Worker mvm_exec
+  const prevWorker = globalThis.engineWorkerClient;
+  const mvmCalls = [];
+  globalThis.engineWorkerClient = {
+    enabled: true,
+    async rpc(op, payload) {
+      mvmCalls.push({ op, payload });
+      return { status: 'ok' };
+    },
+  };
+  try {
+    doc.getElementById('cursor-new-folder-btn').click();
+    input.value = 'src/quoted_dir';
+    form.dispatchEvent({ type: 'submit', preventDefault: () => {} });
+    assert.equal(modal.hasAttribute('hidden'), true);
+    assert.ok(
+      mvmCalls.some((c) => c.op === 'studio_dispatch' && c.payload.includes(`mkdir -p '/workspace/src/quoted_dir'`)),
+      'Directory submit must wrap /workspace path in POSIX single quotes'
+    );
+  } finally {
+    globalThis.engineWorkerClient = prevWorker;
+  }
 });
 
 test('F19.7: rejectPatchBatch clears staged patch globals and chat diff DOM cleanly', () => {

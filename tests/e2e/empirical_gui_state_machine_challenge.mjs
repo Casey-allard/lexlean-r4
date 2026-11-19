@@ -87,11 +87,22 @@ class MockDOMElement {
   removeAttribute(k) { this.attributes.delete(k); }
 
   appendChild(child) {
+    if (child) child.parentNode = this;
     this.children.push(child);
+  }
+
+  removeChild(child) {
+    const idx = this.children.indexOf(child);
+    if (idx >= 0) this.children.splice(idx, 1);
+    if (child && child.parentNode === this) child.parentNode = null;
+    return child;
   }
 
   replaceChildren(...newChildren) {
     this.children = [...newChildren];
+    for (const c of this.children) {
+      if (c) c.parentNode = this;
+    }
   }
 
   addEventListener(type, fn) {
@@ -975,7 +986,9 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
        evaluatePreviewScriptWithFuel,
        renderPreviewWorkspace,
        handlePreviewInspectRequest,
+       initPreviewSurfaceHost,
        _r460PendingInspectWaiters,
+       getLatestPreviewDiag: () => _r460LatestPreviewDiag,
      };`
   );
 
@@ -1305,6 +1318,12 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     );
     assert.equal(tplRes.value, 'sum=42!', 'Template literal interpolation must evaluate in fuel-bounded AST evaluator');
 
+    assert.throws(
+      () => r460.evaluatePreviewScriptWithFuel('const b = `bad=${1 2}`;', { document, console: { log: () => {}, warn: () => {}, error: () => {} } }, 100000),
+      (err) => err && /Unexpected token/.test(String(err.message || '')),
+      'Trailing garbage inside template ${...} interpolation must throw SyntaxError'
+    );
+
     const rootTargetEl = document.getElementById('preview-root');
     body.appendChild(rootTargetEl);
     const pvDiag = r460.renderPreviewWorkspace(
@@ -1320,26 +1339,346 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     assert.equal(pvDiag.errors.length, 0);
     assert.ok(pvDiag.console.includes('[log] val=42'), 'Template literal inside console.log must evaluate cleanly');
 
-    // Cross-frame preview_inspect round-trip
-    const iframeEl = document.getElementById('live-preview-iframe');
-    iframeEl.contentWindow = {
-      postMessage(msg) {
-        assert.equal(msg.protocol, 'uor-preview/1');
-        assert.equal(msg.type, 'render_files');
-        assert.equal(msg.op, 'render_files');
-        const waiter = r460._r460PendingInspectWaiters.get(String(msg.requestId));
-        assert.ok(waiter, 'handlePreviewInspectRequest must register inspect waiter by requestId');
-        waiter({ errors: [], console: ['inspected'], rootHtmlPreview: 'sum=42' });
+    // 7.4b Real two-window message flow: handlePreviewInspectRequest -> initPreviewSurfaceHost -> parent 'message' listener -> preview_inspect_reply
+    const childEnv = createDOMEnvironment();
+    const childListeners = new Map();
+    const mockParentListeners = new Map();
+    const previewConsoleOutputEl = document.getElementById('preview-console-output');
+    previewConsoleOutputEl.textContent = 'stale console line';
+
+    const mockParentWin = {
+      innerWidth: 1280,
+      devicePixelRatio: 2,
+      addEventListener(type, fn) {
+        if (!mockParentListeners.has(type)) mockParentListeners.set(type, []);
+        mockParentListeners.get(type).push(fn);
+      },
+      dispatchEvent(ev) {
+        for (const fn of mockParentListeners.get(ev.type) || []) fn(ev);
       },
     };
-    const inspectPayload = await r460.handlePreviewInspectRequest({ rpc_id: 42, selector: '#app' });
-    assert.equal(inspectPayload.ok, true);
-    assert.equal(inspectPayload.rootHtmlPreview, 'sum=42');
-    assert.ok(
-      rpcCalls.some((c) => c.op === 'preview_inspect_reply' && c.payload.rpc_id === 42 && c.payload.report.rootHtmlPreview === 'sum=42'),
-      'preview_inspect_reply must forward child iframe report'
+    const mockChildWin = {
+      innerWidth: 640,
+      innerHeight: 480,
+      devicePixelRatio: 1,
+      parent: mockParentWin,
+      addEventListener(type, fn) {
+        if (!childListeners.has(type)) childListeners.set(type, []);
+        childListeners.get(type).push(fn);
+      },
+      postMessage(data) {
+        queueMicrotask(() => {
+          for (const fn of childListeners.get('message') || []) {
+            fn({ data, source: mockParentWin });
+          }
+        });
+      },
+    };
+    mockParentWin.postMessage = (data) => {
+      queueMicrotask(() => {
+        mockParentWin.dispatchEvent({ type: 'message', data, source: mockChildWin });
+      });
+    };
+
+    const childR460 = sandboxR460(
+      childEnv.document,
+      mockChildWin,
+      throwingLocalStorage,
+      AppStateMock,
+      { enabled: false, ready: false, holoStatus: { mounted_count: 0 } },
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      { frames: [], qTrail: [], paused: false, lockedFrameIdx: null },
+      null
     );
-    console.log('  ✓ 7.4 ?surface=preview 100k fuel limit, CSSOM adoptedStyleSheets, template interpolation & preview_inspect verified.');
+    childR460.initPreviewSurfaceHost();
+
+    const iframeEl = document.getElementById('live-preview-iframe');
+    iframeEl.contentWindow = mockChildWin;
+
+    // Evaluate real parent window 'message' listener from initLayoutAndConnectedControls()
+    const parentMsgStart = appJsContent.indexOf("  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {\n    window.addEventListener('message', (ev) => {\n      if (livePreviewIframe");
+    const parentMsgEnd = appJsContent.indexOf('\n  const studioToastCloseBtn =', parentMsgStart);
+    assert.ok(parentMsgStart !== -1 && parentMsgEnd > parentMsgStart, 'Parent preview message listener must exist in public/app.js');
+    const parentMsgCode = appJsContent.slice(parentMsgStart, parentMsgEnd);
+    let sharedLatestPreviewDiag = { renderedAtMs: 0, fileCount: 0, scriptSteps: 0, errors: [], console: [], rootHtmlPreview: '' };
+    new Function(
+      'window',
+      'livePreviewIframe',
+      'activeWorkbenchMode',
+      'sendFilesToPreviewIframe',
+      'previewConsoleOutput',
+      '_r460LatestPreviewDiag',
+      '_r460PendingInspectWaiters',
+      `"use strict";\n${parentMsgCode}`
+    )(
+      mockParentWin,
+      iframeEl,
+      'code',
+      () => {},
+      previewConsoleOutputEl,
+      sharedLatestPreviewDiag,
+      r460._r460PendingInspectWaiters
+    );
+
+    // Spoofed source must be ignored by parent listener
+    let spoofCalled = false;
+    r460._r460PendingInspectWaiters.set('spoof-req', () => { spoofCalled = true; });
+    mockParentWin.dispatchEvent({
+      type: 'message',
+      source: { otherWindow: true },
+      data: { protocol: 'uor-preview/1', op: 'inspect_reply', requestId: 'spoof-req', report: { console: ['evil'] } },
+    });
+    assert.equal(spoofCalled, false, 'Parent preview listener must reject messages whose ev.source !== iframe.contentWindow');
+    r460._r460PendingInspectWaiters.delete('spoof-req');
+
+    workerMock.getWorkspaceListObject = () => ({
+      files: [{ path: 'app.js', content: 'const v = 7; document.body.textContent = `live=${v * 6}`;' }],
+    });
+    const inspectPayload = await r460.handlePreviewInspectRequest({ rpc_id: 99, selector: '#app' });
+    assert.equal(inspectPayload.ok, true);
+    assert.equal(inspectPayload.rootHtmlPreview, 'live=42', 'Child initPreviewSurfaceHost must evaluate workspace and reply via postMessage');
+    assert.equal(previewConsoleOutputEl.textContent, '', 'Empty report.console must clear stale #preview-console-output');
+    assert.ok(
+      rpcCalls.some((c) => c.op === 'preview_inspect_reply' && c.payload.rpc_id === 99 && c.payload.report.rootHtmlPreview === 'live=42'),
+      'preview_inspect_reply must forward genuine two-window inspect_reply report'
+    );
+    console.log('  ✓ 7.4 ?surface=preview 100k fuel limit, CSSOM adoptedStyleSheets, template interpolation & two-window preview_inspect verified.');
+
+    // 7.5 Real un-mocked runClaudeChat + submitComposerPrompt + applyCompletedChatPostEffects integration
+    const composerStart = appJsContent.indexOf('const AGENTIC_SLASH_COMMANDS = [');
+    const composerEnd = appJsContent.indexOf('\nconst composerAutocompleteMenu =', composerStart);
+    const chatCoreStart = appJsContent.indexOf('const applyCompletedChatPostEffects =');
+    const chatCoreEnd = appJsContent.indexOf('\nfunction renderTrainReport(res)', chatCoreStart);
+    const submitStart = appJsContent.indexOf('function submitComposerPrompt() {');
+    const submitEnd = appJsContent.indexOf('\nif (claudeChatForm)', submitStart);
+    assert.ok(composerStart !== -1 && composerEnd > composerStart);
+    assert.ok(chatCoreStart !== -1 && chatCoreEnd > chatCoreStart);
+    assert.ok(submitStart !== -1 && submitEnd > submitStart);
+
+    const streamRpcCalls = [];
+    let pendingTurnResolvers = [];
+    const realChatWorker = {
+      enabled: true,
+      ready: true,
+      holoStatus: { mounted_count: 1 },
+      activeChatStreamHook: null,
+      rpcWithId(op, payload) {
+        const id = streamRpcCalls.length + 100;
+        let resolveP, rejectP;
+        const promise = new Promise((res, rej) => { resolveP = res; rejectP = rej; });
+        streamRpcCalls.push({ id, op, payload, resolve: resolveP, reject: rejectP });
+        pendingTurnResolvers.push({ resolve: resolveP, reject: rejectP });
+        return { id, promise };
+      },
+      rpc: async () => ({ status: 'ok' }),
+    };
+    const activeThread = { id: 't1', messages: [] };
+    const chatInputEl = document.getElementById('claude-chat-input');
+    chatInputEl.style = {};
+    chatInputEl.focus = () => {};
+    const composerStopEl = document.getElementById('composer-stop-btn');
+    const composerSendEl = document.getElementById('composer-send-btn');
+    const chatTranscriptEl = document.getElementById('chat-messages');
+    const appendedTurns = [];
+    const postEffectIngests = [];
+    const toastLog = [];
+    const chatAppState = {
+      config: { selectedModel: 'uor-r4.qwen3-0.6b-holo', composerMode: 'agentic', operatingMode: 'coding', retainLambda: 0.85, pluralityVotes: 8 },
+      workspace: { pendingPatches: {} },
+    };
+
+    const chatRuntime = new Function(
+      'document',
+      'AppState',
+      'engineWorkerClient',
+      'holoObservatoryState',
+      'DEFAULT_HONEST_MODEL_ID',
+      'safeStorageGet',
+      'isConsentGrantedVal',
+      'createLiveTokenHudController',
+      'ingestHoloObservatoryFrame',
+      'updateLiveAgentStatusBar',
+      'runVerdantTelosTick',
+      'secopsAudit',
+      'renderColoredUnifiedDiff',
+      'renderInteractiveArtifactPreview',
+      'renderPendingPatchPills',
+      'updateDynamicPlanningPanel',
+      'renderDynamicPoolPanel',
+      'renderCoworkStatusBar',
+      'renderInferenceResult',
+      'dispatchStudioEnvelope',
+      'renderStudioState',
+      'lexLean3dVisualizer',
+      'fetchRecordedTraces',
+      'renderMLInspector',
+      'renderFormattedMarkdownInto',
+      'getActiveThread',
+      'persistThreadsToStorage',
+      'renderThreadSidebar',
+      'appendChatTurn',
+      'showStudioToast',
+      'renderHydrationConsentCard',
+      'applySlashCommandSelection',
+      'closeComposerAutocomplete',
+      'updateComposerTokenBadge',
+      'claudeChatInput',
+      'composerModelSelect',
+      'composerStopBtn',
+      'composerSendBtn',
+      'chatTranscript',
+      'chatTargetBadge',
+      'chatDiffFile',
+      'chatDiffPreview',
+      'chatApplyPatchBtn',
+      'chatDiagConsensus',
+      'chatDiagResonance',
+      'chatDiagRoot',
+      'chatDiagReceipt',
+      'activeWorkspacePath',
+      'pendingPatchPath',
+      'pendingProposedCode',
+      'pendingDiffPreview',
+      'selectedTraceIndex',
+      `"use strict";
+       ${appJsContent.slice(composerStart, composerEnd)}
+       ${appJsContent.slice(chatCoreStart, chatCoreEnd)}
+       ${appJsContent.slice(submitStart, submitEnd)}
+       return { tsComposer, applyCompletedChatPostEffects, runClaudeChat, submitComposerPrompt };`
+    )(
+      document,
+      chatAppState,
+      realChatWorker,
+      obsStateMock,
+      'uor-r4.native-q31-d85',
+      r460.safeStorageGet,
+      (v) => v === '1' || v === 'true' || v === 'granted',
+      r460.createLiveTokenHudController,
+      (frame, meta) => { postEffectIngests.push({ frame, meta }); },
+      () => {},
+      async () => ({}),
+      { recordEvent: () => {} },
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      () => ({ status: 'ok', files: [] }),
+      () => {},
+      null,
+      () => {},
+      () => {},
+      (el, txt) => { if (el) el.textContent = String(txt ?? ''); },
+      () => activeThread,
+      () => {},
+      () => {},
+      (role, title, bodyText, patchPath = '', patchCode = '', _s, chatMeta = {}) => {
+        appendedTurns.push({ role, title, body: bodyText });
+        activeThread.messages.push({ role, title, body: bodyText, patchPath, patchCode, chatMeta });
+      },
+      (msg, level) => toastLog.push({ msg, level }),
+      r460.renderHydrationConsentCard,
+      () => {},
+      () => {},
+      () => {},
+      chatInputEl,
+      composerModelSelectEl,
+      composerStopEl,
+      composerSendEl,
+      chatTranscriptEl,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'src/lib.rs',
+      '',
+      '',
+      '',
+      0
+    );
+
+    // 7.5a Double-submit guard & live streamed completion -> { role, title, body } + applyCompletedChatPostEffects
+    chatInputEl.value = 'verify live turn';
+    chatRuntime.submitComposerPrompt();
+    assert.equal(chatRuntime.tsComposer.isTurnActive(), true, 'tsComposer.isTurnActive() must become true while turn streams');
+    chatInputEl.value = 'duplicate blocked';
+    chatRuntime.submitComposerPrompt();
+    assert.equal(streamRpcCalls.length, 1, 'submitComposerPrompt must block double submission while turn active');
+
+    realChatWorker.activeChatStreamHook({
+      stage: 'token_step',
+      delta: 'live ',
+      frame: {
+        step_idx: 0,
+        token_text: 'live ',
+        has_geometric_shortlist: true,
+        min_hamming: 24,
+        shortlist_count: 1024,
+        ttft_ms: 25,
+        tps_x10: 550,
+        q_manifold_xyz: [1, 2, 3],
+        layer_max_bits: new Array(28).fill(18),
+        top_candidates: [],
+      },
+    });
+    streamRpcCalls[0].resolve({
+      status: 'ok',
+      backend: 'uor-r4.qwen3-0.6b-holo',
+      reply: 'live streamed reply',
+      tokens_emitted: 1,
+      otel_trace_id: 'trace-r460',
+      holo_observatory_frames: [{ step_idx: 77 }],
+    });
+    for (let k = 0; k < 10; k += 1) await Promise.resolve();
+    assert.equal(chatRuntime.tsComposer.isTurnActive(), false, 'Turn completion must clear tsComposer.isTurnActive()');
+    const lastAssistant = activeThread.messages[activeThread.messages.length - 1];
+    assert.equal(lastAssistant.role, 'assistant');
+    assert.equal(lastAssistant.body, 'live streamed reply');
+    assert.ok(typeof lastAssistant.title === 'string' && lastAssistant.title.includes('uor-r4.qwen3-0.6b-holo'), 'Streamed thread record must store { role, title, body } compatible with renderActiveThreadMessages');
+    assert.ok(postEffectIngests.some((e) => e.frame.step_idx === 77), 'Completed streamed turn must invoke applyCompletedChatPostEffects');
+
+    // 7.5b Pinned Observatory frame must not be overwritten by applyCompletedChatPostEffects batch
+    const preLockedIngestCount = postEffectIngests.length;
+    obsStateMock.lockedFrameIdx = 3;
+    chatRuntime.applyCompletedChatPostEffects('pinned test', { holo_observatory_frames: [{ step_idx: 88 }] }, 'reply', {});
+    assert.equal(postEffectIngests.length, preLockedIngestCount, 'lockedFrameIdx !== null must protect pinned Observatory frame from batch replay overwrite');
+
+    // 7.5c Cancelled turn persists cleanly without error toast
+    obsStateMock.lockedFrameIdx = null;
+    chatRuntime.runClaudeChat('cancel turn test', true);
+    assert.equal(streamRpcCalls.length, 2);
+    realChatWorker.activeChatStreamHook({
+      stage: 'token_step',
+      delta: 'partial answer',
+      frame: {
+        step_idx: 0,
+        token_text: 'partial answer',
+        has_geometric_shortlist: false,
+        min_hamming: 0,
+        shortlist_count: 0,
+        q_manifold_xyz: [0, 0, 0],
+        layer_max_bits: [12],
+        top_candidates: [],
+      },
+    });
+    const cancelErr = Object.assign(new Error('Cancelled by user'), { error_code: 'Cancelled', details: { cancelled: true } });
+    streamRpcCalls[1].reject(cancelErr);
+    for (let k = 0; k < 10; k += 1) await Promise.resolve();
+    assert.equal(toastLog.filter((t) => t.level === 'error').length, 0, 'Cancelled turn must NOT emit error toast');
+    const cancelledRecord = activeThread.messages[activeThread.messages.length - 1];
+    assert.equal(cancelledRecord.role, 'assistant');
+    assert.equal(cancelledRecord.body, 'partial answer');
+    assert.equal(cancelledRecord.chatMeta.cancelled, true, 'Cancelled turn must persist partial text cleanly');
+    console.log('  ✓ 7.5 Real runClaudeChat, submitComposerPrompt double-submit guard, lockedFrameIdx guard & cancel persistence verified.');
   } finally {
     globalThis.CSSStyleSheet = origCSSStyleSheet;
   }

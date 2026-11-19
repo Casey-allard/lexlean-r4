@@ -2793,11 +2793,13 @@ const applyCompletedChatPostEffects = (trimmed, chatRes, replyProse, chatMeta = 
     holoObservatoryState.lastDecodeDurationMs = (holoObservatoryState.firstDeltaMs > 0 && totalMs > holoObservatoryState.firstDeltaMs)
       ? Math.max(1, totalMs - holoObservatoryState.firstDeltaMs)
       : Math.max(1, totalMs);
-    for (let fi = 0; fi < chatRes.holo_observatory_frames.length; fi += 1) {
-      ingestHoloObservatoryFrame(chatRes.holo_observatory_frames[fi], {
-        prefixReused: Number(chatRes.holo_prefix_reused_tokens) || 0,
-        selectedModel: chatRes.selected_model || '',
-      });
+    if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState.lockedFrameIdx === null) {
+      for (let fi = 0; fi < chatRes.holo_observatory_frames.length; fi += 1) {
+        ingestHoloObservatoryFrame(chatRes.holo_observatory_frames[fi], {
+          prefixReused: Number(chatRes.holo_prefix_reused_tokens) || 0,
+          selectedModel: chatRes.selected_model || '',
+        });
+      }
     }
     if (engineWorkerClient && engineWorkerClient.enabled) {
       runVerdantTelosTick({
@@ -6711,7 +6713,11 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
     toks = tokenizePreviewJs(exprSrc);
     pos = 0;
     try {
-      return parseExpr();
+      const exprAst = parseExpr();
+      if (peek().type !== 'eof') {
+        throw new SyntaxError(`Unexpected token '${peek().value}' inside template interpolation`);
+      }
+      return exprAst;
     } finally {
       toks = savedToks;
       pos = savedPos;
@@ -15596,7 +15602,7 @@ function initCursorIdeWorkbench() {
       const rawInput = (newPathInput && newPathInput.value ? newPathInput.value : '').trim();
       const kindVal = (newPathKindInput && newPathKindInput.value === 'dir') ? 'dir' : 'file';
       const normalized = rawInput.replace(/^\/workspace\/?/, '').replace(/^\/+/, '').replace(/\/+$/, '');
-      const hasBadSegment = normalized.split('/').some((seg) => !seg || seg === '..' || seg === '.');
+      const hasBadSegment = normalized.split('/').some((seg) => !seg || seg === '..' || seg === '.') || normalized.includes('..');
       const hasBadChars = !/^[A-Za-z0-9_./-]+$/.test(normalized);
       if (!normalized || rawInput.includes('\0') || rawInput.includes('\\') || hasBadSegment || hasBadChars) {
         const errMsg = 'Invalid path: only [A-Za-z0-9_./-] allowed without (..), empty names, or NUL bytes.';
@@ -15613,7 +15619,8 @@ function initCursorIdeWorkbench() {
         const ws = dispatchStudioEnvelope('workspace_write', `${normalized}/.gitkeep\n`);
         renderWorkspaceList(ws);
         if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
-          engineWorkerClient.rpc('studio_dispatch', `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: `mkdir -p /workspace/${normalized}`, cwd: '/workspace' })}`).catch(() => {});
+          const qPath = (`/workspace/${normalized}`).split("'").join('\x27\\\x27\x27');
+          engineWorkerClient.rpc('studio_dispatch', `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: `mkdir -p '${qPath}'`, cwd: '/workspace' })}`).catch(() => {});
         }
         closeNewPathModal();
         if (workspaceStatus) workspaceStatus.textContent = `Created /workspace/${normalized}`;
@@ -17558,8 +17565,8 @@ function initLayoutAndConnectedControls() {
           if (typeof _r460LatestPreviewDiag !== 'undefined' && _r460LatestPreviewDiag) {
             _r460LatestPreviewDiag = { ..._r460LatestPreviewDiag, ...report };
           }
-          if (previewConsoleOutput && Array.isArray(report.console) && report.console.length > 0) {
-            previewConsoleOutput.textContent = report.console.join('\n');
+          if (previewConsoleOutput && Array.isArray(report.console)) {
+            previewConsoleOutput.textContent = report.console.length > 0 ? report.console.join('\n') : '';
           }
         }
         if (msgOp === 'inspect_reply' && msg.requestId != null && typeof _r460PendingInspectWaiters !== 'undefined') {
