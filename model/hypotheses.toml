@@ -9,9 +9,19 @@ form = "exclusion"
 family = "open-basin"
 sources = ["R4-F11"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Exclude falsified configuration R4-F11 (r4:v1:stem:unanchored-pointkey-shift21:k=4) and enforce 28-bit PointKey anchor invariant."
+
+[[hypothesis]]
+label = "H-VERIFIED-OPEN-BASIN-R4-F287"
+form = "obligation"
+family = "open-basin"
+sources = ["R4-F287"]
+weight = 16
+tick = "2026-11-19T02:02:34Z"
+status = "minted"
+statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F287 (r4:v1:manifold:open-basin:ination-size:r2639:k=14)"
 
 [[hypothesis]]
 label = "H-VERIFIED-CODE-SYNTHESIS-R4-F286"
@@ -19,7 +29,7 @@ form = "obligation"
 family = "code-synthesis"
 sources = ["R4-F286"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F286 (r4:v1:manifold:code-synthesis:root-ines:r9588:k=8)"
 
@@ -29,7 +39,7 @@ form = "obligation"
 family = "stem-reasoning"
 sources = ["R4-F285"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F285 (r4:v1:manifold:stem-reasoning:body-arian:r9786:k=8)"
 
@@ -39,7 +49,7 @@ form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F284"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F284 (r4:v1:manifold:dialogue-stem:base-ater:r7727:k=8)"
 
@@ -49,7 +59,7 @@ form = "obligation"
 family = "open-basin"
 sources = ["R4-F283"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F283 (r4:v1:manifold:open-basin:original-atter:r10520:k=14)"
 
@@ -59,7 +69,7 @@ form = "obligation"
 family = "code-synthesis"
 sources = ["R4-F282"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F282 (r4:v1:manifold:code-synthesis:same-sitting:r10864:k=8)"
 
@@ -69,7 +79,7 @@ form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F281"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F281 (r4:v1:literature:2611.23208:H-LIT-2611.23208-01:k=7)"
 
@@ -79,7 +89,7 @@ form = "obligation"
 family = "open-basin"
 sources = ["R4-F280"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F280 (r4:v1:literature:2611.23216:H-LIT-2611.23216-01:k=14)"
 
@@ -89,7 +99,7 @@ form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F279"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F279 (r4:v1:literature:2611.23219:H-LIT-2611.23219-01:k=7)"
 
@@ -99,7 +109,7 @@ form = "obligation"
 family = "open-basin"
 sources = ["R4-F278"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F278 (r4:v1:literature:2611.23225:H-LIT-2611.23225-01:k=14)"
 
@@ -109,7 +119,7 @@ form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F277"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F277 (r4:v1:literature:2611.23229:H-LIT-2611.23229-01:k=7)"
 
@@ -119,7 +129,7 @@ form = "obligation"
 family = "dialogue-stem"
 sources = ["R4-F276"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F276 (r4:v1:manifold:dialogue-stem:ination-host:r7925:k=8)"
 
@@ -129,7 +139,7 @@ form = "obligation"
 family = "open-basin"
 sources = ["R4-F275"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F275 (r4:v1:manifold:open-basin:ment-shoes:r10444:k=14)"
 
@@ -139,7 +149,7 @@ form = "obligation"
 family = "code-synthesis"
 sources = ["R4-F274"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F274 (r4:v1:manifold:code-synthesis:order-ance:r9253:k=8)"
 
@@ -149,16 +159,6 @@ form = "obligation"
 family = "stem-reasoning"
 sources = ["R4-F273"]
 weight = 16
-tick = "2026-11-19T00:38:50Z"
+tick = "2026-11-19T02:02:34Z"
 status = "minted"
 statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F273 (r4:v1:manifold:stem-reasoning:circle-inside:r9191:k=8)"
-
-[[hypothesis]]
-label = "H-VERIFIED-DIALOGUE-STEM-R4-F272"
-form = "obligation"
-family = "dialogue-stem"
-sources = ["R4-F272"]
-weight = 16
-tick = "2026-11-19T00:38:50Z"
-status = "minted"
-statement = "Maintain verified 28-bit PointKey and 4-gram continuation invariant for R4-F272 (r4:v1:manifold:dialogue-stem:check-three:r8948:k=8)"
