@@ -54,3 +54,28 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `101`
   - **Diagnostic**: `panicked at crates/conformance/tests/prism_holo_identity.rs:301:43: called Result::unwrap_err() on an Ok value: HoloV4Summary { verdict: PrismHoloAdmitted, ... }`
 - **Restored result**: Restored `let blake3_footer_valid = actual_footer == expected_footer;` in `crates/wasm/src/prism_holo_compiler.rs`; `cargo test -p repo-conformance --test prism_holo_identity` exited `0` (`test result: ok. 1 passed`).
+
+## Wave 1 `R4-60` Prism Studio Frame, Live Mini-HUD & Consent Gates (`v0.14.0`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `11,466,169` bytes / `10.94 MiB` < `15 MiB`, `provenance.json`), `wasm=4f79f2d679e3`, `js=7e8174eecfa0`, `core=9d7855e56dfa`.
+- **`build-holo --sync-site-manifest` / `--verify-site-manifest`**: verified Hologram v4 archive (`12,891,907` bytes <= `33,554,432` B / `32 MiB`, `blake3=9bc380aed5308918`, `wasmSha256=4f79f2d679e3942e`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **`check-model`**: `CONFORMANCE.md` equals `model/`, `60` conformance IDs (`R4-01..R4-60`, including `R4-60` / `R4.StudioFrame`).
+- **`lift-register`**: `total=2749`, `lifted=1972`, `effect=269`, `foreign=164`, `residue=344` (`<= 355`, `UE-16` monotone).
+- **`ratchet-check`**: shrink-only + Peirce triadic verified (`r30_gen=255`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=344`, `float=0`, `matmul=0`, `unwired_ui=0`).
+- **`check-routes`**: `11` routes and `14` test vectors verified under `uorust/routes/1`.
+- **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=344`, `routes=11`, `provenance_sources=24`).
+- **`synthesize`**: `score_milli=987`, `complexity=344`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
+
+### 5. Unwired UI Control Gate (`R4-60`)
+- **Planted defect**: Inserted `<button id="dead-probe" type="button">Dead Probe</button>` into `public/index.html`.
+- **Failing command**: `cargo run -q -p xtask -- ratchet-check`
+  - **Exit code**: `1`
+  - **Diagnostic**: `gate failed: shrink-only ratchet refused \`unwired_ui_controls\`: measured=1 ceiling=0 verdict=RefusedResidualRegression; unwired_controls=["dead-probe"]`
+- **Restored result**: Reverted `public/index.html` (`git checkout -- public/index.html`, empty `git diff`); `cargo run -q -p xtask -- ratchet-check` exited `0` (`ratchet-check: shrink-only + Peirce triadic verified (r30_gen=255, orphans=0, ungrounded=0, ignored=0, residue=344, float=0, matmul=0, unwired_ui=0)`).
+
+### 6. Off-Origin Weight Download Consent Gate (`R4-60`)
+- **Planted defect**: Bypassed `options.allowOffOriginHydration` / `storedConsent` verification in `hydrate_holo_model` inside `crates/wasm/js/worker_host_bridge.js` (`const allowOffOriginHydration = true;`).
+- **Failing command**: `node tests/e2e/foundry_observatory_e2e.mjs`
+  - **Exit code**: `1`
+  - **Diagnostic**: `FOUNDRY OBSERVATORY E2E FAILED: AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false` (`Error: Unable to fetch UORR4V13 manifest for uor-r4.qwen3-0.6b-holo at async testStudioBridgeConsentAndGitDeletions_R4_60 (file:///Users/casey.allard/lexlean-r4/tests/e2e/foundry_observatory_e2e.mjs:1322:5)`) instead of rejecting with `ConsentRequiredForWeightDownload`.
+- **Restored result**: Reverted `crates/wasm/js/worker_host_bridge.js` (`git checkout -- crates/wasm/js/worker_host_bridge.js`, empty `git diff`); `node tests/e2e/foundry_observatory_e2e.mjs` exited `0` (`=== ALL R4-59/R4-60 OBSERVATORY & STUDIO BRIDGE E2E CHECKS PASSED ===`).
