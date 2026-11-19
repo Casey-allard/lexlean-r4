@@ -57,8 +57,8 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
 
 ## Wave 1 `R4-60` Prism Studio Frame, Live Mini-HUD & Consent Gates (`v0.14.0`)
 
-- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `11,466,169` bytes / `10.94 MiB` < `15 MiB`, `provenance.json`), `wasm=4f79f2d679e3`, `js=7e8174eecfa0`, `core=9d7855e56dfa`.
-- **`build-holo --sync-site-manifest` / `--verify-site-manifest`**: verified Hologram v4 archive (`12,891,907` bytes <= `33,554,432` B / `32 MiB`, `blake3=9bc380aed5308918`, `wasmSha256=4f79f2d679e3942e`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `11,466,357` bytes / `10.94 MiB` < `15 MiB`, `provenance.json`), `wasm=72df96274259`, `js=c515c626a2e1`, `core=9d7855e56dfa`.
+- **`build-holo --sync-site-manifest` / `--verify-site-manifest`**: verified Hologram v4 archive (`12,904,592` bytes <= `33,554,432` B / `32 MiB`, `blake3=8e8373a86270d928`, `wasmSha256=72df96274259cd14`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
 - **`check-model`**: `CONFORMANCE.md` equals `model/`, `60` conformance IDs (`R4-01..R4-60`, including `R4-60` / `R4.StudioFrame`).
 - **`lift-register`**: `total=2749`, `lifted=1972`, `effect=269`, `foreign=164`, `residue=344` (`<= 355`, `UE-16` monotone).
 - **`ratchet-check`**: shrink-only + Peirce triadic verified (`r30_gen=255`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=344`, `float=0`, `matmul=0`, `unwired_ui=0`).

@@ -1826,7 +1826,24 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
   assert.equal(seenBridgeReqs[0].branch, 'dev');
   assert.equal(edgeTurnEvents.filter((e) => e.event === 'token_step').length, 0, 'live_hud: false in studio turn must suppress token_step events');
 
-  for (const [modeName, label] of [['plan_write', 'workspace_write'], ['plan_git_push', 'github_git commit_push'], ['plan_mvm_rm', 'mvm_exec rm']]) {
+  const origEdgeHoloStepTurn = edgeHooks.holoStepTurn;
+  for (const [modeName, label] of [
+    ['plan_write', 'workspace_write'],
+    ['plan_git_push', 'github_git commit_push'],
+    ['plan_mvm_rm', 'mvm_exec rm'],
+    ['plan_mvm_newline_rm', 'mvm_exec newline rm'],
+  ]) {
+    if (modeName === 'plan_mvm_newline_rm') {
+      edgeHooks.holoStepTurn = (tidBig) =>
+        JSON.stringify({
+          status: 'needs_tool',
+          turn_id: Number(tidBig),
+          delta: '',
+          tool_call: { name: 'mvm_exec', cmd: 'ls\nrm -f index.html', arguments: { cmd: 'ls\nrm -f index.html' } },
+        });
+    } else {
+      edgeHooks.holoStepTurn = origEdgeHoloStepTurn;
+    }
     edgeMode = modeName;
     const planRefusal = await execute_inprism_foundry_turn(
       { id: `edge-${modeName}`, payload: { prompt: 'Inspect only', surface_mode: 'studio', composer_mode: 'plan' } },
@@ -1835,6 +1852,7 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
     assert.equal(planRefusal.ok, false, `plan mode must refuse ${label}`);
     assert.equal(planRefusal.error_code, 'RefusedPlanModeMutation', `expected RefusedPlanModeMutation for ${label}, got ${JSON.stringify(planRefusal)}`);
   }
+  edgeHooks.holoStepTurn = origEdgeHoloStepTurn;
 
   edgeMode = 'pull_sync';
   edgeTurnEvents.length = 0;
@@ -2222,6 +2240,121 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
     const declinedWeightFetches = declinedFetchUrls.filter((u) => !u.includes('provenance.json'));
     assert.equal(declinedWeightFetches.length, 0, `persisted declined consent must skip weight fetches at boot, saw: ${JSON.stringify(declinedFetchUrls)}`);
     assert.equal(declinedEvents.filter((e) => e && e.event === 'hydration_consent_required').length, 0, 'declined boot must not re-emit hydration_consent_required');
+
+    // 5) Real Dedicated Worker consent persistence & flip when typeof localStorage === 'undefined'
+    const prevAllowFlag = globalThis.__uorAllowOffOriginHydration;
+    try {
+      delete globalThis.localStorage;
+      delete globalThis.__uorAllowOffOriginHydration;
+      assert.equal(typeof globalThis.localStorage, 'undefined', 'Dedicated Worker test must run with typeof localStorage === undefined');
+
+      const memFetchUrls = [];
+      globalThis.fetch = async (url) => {
+        memFetchUrls.push(String(url));
+        return new Response('Not Found', { status: 404 });
+      };
+
+      const memRpcWaiters = new Map();
+      const waitForMemRpc = (id) =>
+        new Promise((resolve, reject) => {
+          const t = setTimeout(() => reject(new Error(`Timeout waiting for Worker RPC ${id}`)), 3000);
+          memRpcWaiters.set(id, (m) => {
+            clearTimeout(t);
+            resolve(m);
+          });
+        });
+
+      let memReadyResolve;
+      const memReadyP = new Promise((resolve, reject) => {
+        const t = setTimeout(() => reject(new Error('Timeout waiting for memory-consent Worker ready')), 3000);
+        memReadyResolve = (m) => {
+          clearTimeout(t);
+          resolve(m);
+        };
+      });
+      const memScope = new MockStudioWorkerScope();
+      memScope.postMessage = (m) => {
+        if (m && m.event === 'ready') memReadyResolve(m);
+        if (m && m.event === 'preview_inspect_request') {
+          memScope.onmessage({
+            data: {
+              id: `reply-${m.rpc_id}`,
+              op: 'preview_inspect_reply',
+              payload: { rpc_id: m.rpc_id, ok: true, summary: 'DOM healthy (#app)' },
+            },
+          });
+        }
+        if (m && m.id != null && typeof m.ok === 'boolean' && memRpcWaiters.has(m.id)) {
+          const cb = memRpcWaiters.get(m.id);
+          memRpcWaiters.delete(m.id);
+          cb(m);
+        }
+      };
+      globalThis.self = memScope;
+      await import('../../crates/wasm/js/worker_host_bridge.js?studio_r4_60_mem_consent=1');
+      await memReadyP;
+
+      const declinePolicyP = waitForMemRpc('mem-policy-decline');
+      memScope.onmessage({
+        data: {
+          id: 'mem-policy-decline',
+          op: 'set_bridge_policy',
+          payload: { allowOffOriginHydration: false, consentDeclined: true, bootSync: true },
+        },
+      });
+      const declinePolicyRes = await declinePolicyP;
+      assert.equal(declinePolicyRes.ok, true, `set_bridge_policy decline failed: ${JSON.stringify(declinePolicyRes)}`);
+      assert.equal(declinePolicyRes.result.allow_off_origin_hydration, false);
+      assert.equal(declinePolicyRes.result.consent_declined, true);
+
+      const declinedTurnP = waitForMemRpc('mem-turn-declined');
+      memScope.onmessage({
+        data: {
+          id: 'mem-turn-declined',
+          op: 'inprism_r4_turn',
+          payload: { prompt: 'Run offline Q31 under undefined localStorage' },
+        },
+      });
+      const declinedTurnRes = await declinedTurnP;
+      assert.equal(declinedTurnRes.ok, true, `inprism_r4_turn after consentDeclined must succeed with Q31, got: ${JSON.stringify(declinedTurnRes)}`);
+      assert.equal(declinedTurnRes.result.model_id, 'uor-r4.native-q31-d85', 'Declined Worker consent without localStorage must route inprism_r4_turn to uor-r4.native-q31-d85');
+
+      const approvePolicyP = waitForMemRpc('mem-policy-approve');
+      memScope.onmessage({
+        data: {
+          id: 'mem-policy-approve',
+          op: 'set_bridge_policy',
+          payload: { allowOffOriginHydration: true, consentDeclined: false },
+        },
+      });
+      const approvePolicyRes = await approvePolicyP;
+      assert.equal(approvePolicyRes.ok, true);
+      assert.equal(approvePolicyRes.result.allow_off_origin_hydration, true);
+      assert.equal(approvePolicyRes.result.consent_declined, false);
+
+      memFetchUrls.length = 0;
+      const approvedTurnP = waitForMemRpc('mem-turn-approved');
+      memScope.onmessage({
+        data: {
+          id: 'mem-turn-approved',
+          op: 'inprism_r4_turn',
+          payload: { prompt: 'Attempt off-origin hydration after approval' },
+        },
+      });
+      const approvedTurnRes = await approvedTurnP;
+      assert.notEqual(
+        approvedTurnRes.error_code,
+        'ConsentRequiredForWeightDownload',
+        `Approved Worker policy must not throw ConsentRequiredForWeightDownload: ${JSON.stringify(approvedTurnRes)}`,
+      );
+      assert.ok(
+        memFetchUrls.some((u) => u.includes('raw.githubusercontent.com') || u.includes('huggingface.co')),
+        `set_bridge_policy({ allowOffOriginHydration: true }) must proceed to off-origin mirror check, saw fetches: ${JSON.stringify(memFetchUrls)}`,
+      );
+    } finally {
+      if (prevAllowFlag === undefined) delete globalThis.__uorAllowOffOriginHydration;
+      else globalThis.__uorAllowOffOriginHydration = prevAllowFlag;
+    }
   } finally {
     globalThis.WorkerGlobalScope = prevWgs;
     globalThis.self = prevSelf;

@@ -1615,6 +1615,19 @@ fn test_plan_shell_hardening_workspace_mutations_and_chat_refusal_r4_60() {
     .unwrap();
     assert_eq!(plan_chat_res["status"], "error");
     assert_eq!(plan_chat_res["error_code"], "RefusedPlanModeMutation");
+    let upper_plan_chat_res: Value = serde_json::from_str(
+        &engine.chat_assistant_json(
+            &serde_json::json!({
+                "prompt": "Delete src/engine.rs",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "composer_mode": "PLAN"
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    assert_eq!(upper_plan_chat_res["status"], "error");
+    assert_eq!(upper_plan_chat_res["error_code"], "RefusedPlanModeMutation");
     assert_eq!(
         engine.list_workspace(),
         ws_before,
@@ -1659,6 +1672,11 @@ fn test_plan_shell_hardening_workspace_mutations_and_chat_refusal_r4_60() {
     ))
     .unwrap();
     assert_eq!(rename_res["status"], "ok");
+    assert_eq!(
+        rename_res["changed_files"],
+        serde_json::json!(["src/draft.rs", "src/renamed.rs"]),
+        "workspace_rename changed_files must contain real paths [from, to]"
+    );
     assert!(!engine
         .list_workspace()
         .contains(&"src/draft.rs".to_string()));

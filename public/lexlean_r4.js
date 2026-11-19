@@ -3487,27 +3487,34 @@ function __uorIsSameOriginMirror(rawUrl, httpOrigin) {
   }
 }
 
+const __uorWorkerMemoryStorage = new Map();
+
 function safeStorageGet(key) {
   /* Formal R4.StudioFrame */
+  const k = String(key || '');
   try {
-    const store = typeof localStorage !== 'undefined' ? localStorage : null;
-    if (!store || typeof store.getItem !== 'function') return null;
-    return store.getItem(String(key || ''));
+    if (typeof localStorage !== 'undefined' && localStorage && typeof localStorage.getItem === 'function') {
+      return localStorage.getItem(k);
+    }
   } catch {
-    return null;
+    // Fallback to module-scoped memory map when localStorage throws SecurityError
   }
+  return __uorWorkerMemoryStorage.has(k) ? __uorWorkerMemoryStorage.get(k) : null;
 }
 
 function safeStorageSet(key, value) {
   /* Formal R4.StudioFrame */
+  const k = String(key || '');
+  const v = String(value);
+  __uorWorkerMemoryStorage.set(k, v);
   try {
-    const store = typeof localStorage !== 'undefined' ? localStorage : null;
-    if (!store || typeof store.setItem !== 'function') return false;
-    store.setItem(String(key || ''), String(value));
-    return true;
+    if (typeof localStorage !== 'undefined' && localStorage && typeof localStorage.setItem === 'function') {
+      localStorage.setItem(k, v);
+    }
   } catch {
-    return false;
+    // Memory map already stored value when localStorage is unavailable or throws SecurityError
   }
+  return true;
 }
 
 export async function flushMvmCowToOpfs() {
@@ -3641,7 +3648,9 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
   const allowOffOriginHydration =
     options && typeof options.allowOffOriginHydration === 'boolean'
       ? options.allowOffOriginHydration
-      : Boolean(globalThis.__uorAllowOffOriginHydration) || storedConsent === '1' || storedConsent === 'true';
+      : storedConsent === 'declined'
+        ? false
+        : Boolean(globalThis.__uorAllowOffOriginHydration) || storedConsent === '1' || storedConsent === 'true';
   if (options && (options.offlineFallback === true || options.consentDeclined === true || options.decline === true)) {
     if (options.rememberConsent !== false) {
       safeStorageSet('uor_allow_off_origin_hydration', 'declined');
@@ -4077,7 +4086,7 @@ function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
     const trimmed = rawCmd.trim();
     if (!trimmed) return false;
     if (/[><`]|(\$\()/.test(trimmed)) return true;
-    const segments = trimmed.split(/&&|\|\||[;|]/).map((s) => s.trim()).filter(Boolean);
+    const segments = trimmed.split(/&&|\|\||[;|\r\n]/).map((s) => s.trim()).filter(Boolean);
     for (const seg of segments) {
       const parts = seg.split(/\s+/);
       const bin = (parts[0] || '').toLowerCase();
@@ -6990,6 +6999,10 @@ export class SpiralCoreHostBridge {
       opts.mode !== undefined ? opts.mode : opts.networkMode,
     );
     this.consentGranted = Boolean(opts.consentGranted);
+    this.allowOffOriginHydration =
+      typeof opts.allowOffOriginHydration === 'boolean' ? opts.allowOffOriginHydration : null;
+    this.consentDeclined =
+      typeof opts.consentDeclined === 'boolean' ? opts.consentDeclined : null;
     this.onAuditEvent = typeof opts.onAuditEvent === 'function' ? opts.onAuditEvent : null;
     this.auditLog = [];
     this.webAccessEnabled = opts.webAccessEnabled !== false;
@@ -7329,6 +7342,16 @@ export class SpiralCoreHostBridge {
     } else if (typeof opts.consent_granted === 'boolean') {
       this.consentGranted = opts.consent_granted;
     }
+    if (typeof opts.allowOffOriginHydration === 'boolean') {
+      this.allowOffOriginHydration = opts.allowOffOriginHydration;
+    } else if (typeof opts.allow_off_origin_hydration === 'boolean') {
+      this.allowOffOriginHydration = opts.allow_off_origin_hydration;
+    }
+    if (typeof opts.consentDeclined === 'boolean') {
+      this.consentDeclined = opts.consentDeclined;
+    } else if (typeof opts.consent_declined === 'boolean') {
+      this.consentDeclined = opts.consent_declined;
+    }
     if (typeof opts.onAuditEvent === 'function') {
       this.onAuditEvent = opts.onAuditEvent;
     }
@@ -7361,6 +7384,8 @@ export class SpiralCoreHostBridge {
       mode: this.mode,
       consent_granted: this.consentGranted,
       web_access_enabled: this.webAccessEnabled,
+      allow_off_origin_hydration: this.allowOffOriginHydration,
+      consent_declined: this.consentDeclined,
       esbuild_configured: Boolean(this.esbuildModuleUrl && this.esbuildWasmUrl),
     };
   }
@@ -12583,9 +12608,10 @@ function __uorStartDedicatedEngineWorker() {
     if (p.offlineFallback || p.fallbackOfflineQ31 || p.consentDeclined) return true;
     const rawPref = String(p.preferredModel || p.selected_model || p.model || '').trim();
     if (rawPref) return false;
+    if (p.allowOffOriginHydration === true || isQwenMounted()) return false;
     const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
     if (offOriginHydrationDeclined || storedConsent === 'declined') return true;
-    if (p.allowOffOriginHydration === true || storedConsent === '1' || storedConsent === 'true') {
+    if (storedConsent === '1' || storedConsent === 'true') {
       return false;
     }
     if ((bootNativeQ31Fallback || inlineLowLatency) && !isQwenMounted() && isQ31Ready()) {
@@ -12605,7 +12631,11 @@ function __uorStartDedicatedEngineWorker() {
 
   const createWorkerTurnHooks = () => ({
     postEvent,
-    postResponse: (resp) => self.postMessage(resp),
+    postResponse: (resp) => {
+      if (typeof self !== 'undefined' && self && typeof self.postMessage === 'function') {
+        self.postMessage(resp);
+      }
+    },
     dispatchBridge: dispatchWithConnectedBridge,
     executeHostBridge: async (bridgeReq) => hostBridge.execute(prepareGitBridgePayload(bridgeReq)),
     flushMvmCowToOpfs: () => flushMvmCowToOpfs(),
@@ -12796,6 +12826,50 @@ function __uorStartDedicatedEngineWorker() {
           });
           return;
         }
+        const hasConsentField = Boolean(
+          payload &&
+            (typeof payload.allowOffOriginHydration === 'boolean' ||
+              typeof payload.consentDeclined === 'boolean'),
+        );
+        if (hasConsentField) {
+          if (payload.consentDeclined === true || payload.allowOffOriginHydration === false) {
+            offOriginHydrationDeclined = true;
+            bootNativeQ31Fallback = true;
+            globalThis.__uorAllowOffOriginHydration = false;
+            safeStorageSet('uor_allow_off_origin_hydration', 'declined');
+            if (wasmReady && !payload.bootSync && !isQwenMounted() && isQ31Ready()) {
+              emitNativeQ31ReadyFallback('consent_declined');
+            }
+          } else if (payload.allowOffOriginHydration === true) {
+            offOriginHydrationDeclined = false;
+            bootNativeQ31Fallback = false;
+            globalThis.__uorAllowOffOriginHydration = true;
+            safeStorageSet('uor_allow_off_origin_hydration', '1');
+            if (wasmReady && !payload.bootSync && !isQwenMounted() && payload.hydrateNow === true) {
+              selectOptimalInitialHoloModel()
+                .then((plan) =>
+                  hydrate_holo_model(
+                    plan.initialModel,
+                    (prog) => {
+                      postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+                      postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+                    },
+                    false,
+                    { allowOffOriginHydration: true, rememberConsent: true },
+                  ).then((holo) => {
+                    postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+                    postEvent('holo_ready', {
+                      holo,
+                      recommendedModel: plan.initialModel,
+                      promoted: false,
+                      kappaStore: globalThis.__uorHoloKappaStatus || null,
+                    });
+                  }),
+                )
+                .catch(() => {});
+            }
+          }
+        }
         try {
           if (typeof studio_dispatch === 'function') {
             studio_dispatch(`1\tstudio\tmvm_set_policy\t${JSON.stringify(payload || {})}`);
@@ -12887,6 +12961,7 @@ function __uorStartDedicatedEngineWorker() {
         if (decline) {
           offOriginHydrationDeclined = true;
           bootNativeQ31Fallback = true;
+          globalThis.__uorAllowOffOriginHydration = false;
           safeStorageSet('uor_allow_off_origin_hydration', 'declined');
           const q31Holo = emitNativeQ31ReadyFallback('consent_declined') || {
             model_id: 'uor-r4.native-q31-d85',

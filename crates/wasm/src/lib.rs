@@ -1859,16 +1859,29 @@ impl StudioEngine {
             }
             "workspace_write" | "workspace_delete" | "workspace_rename" => {
                 match self.apply_workspace_mutation(&inv.name, &inv.arguments) {
-                    Ok((target, detail)) => serde_json::json!({
-                        "status": "ok",
-                        "tool": inv.name,
-                        "target": target,
-                        "exit_code": 0,
-                        "stdout": detail,
-                        "stderr": "",
-                        "changed_files": [target],
-                    })
-                    .to_string(),
+                    Ok((target, detail)) => {
+                        let changed_files: Vec<String> = if inv.name == "workspace_rename" {
+                            if detail.starts_with("Kept ") {
+                                Vec::new()
+                            } else if let Some((from, to)) = target.split_once(" -> ") {
+                                vec![from.to_string(), to.to_string()]
+                            } else {
+                                vec![target.clone()]
+                            }
+                        } else {
+                            vec![target.clone()]
+                        };
+                        serde_json::json!({
+                            "status": "ok",
+                            "tool": inv.name,
+                            "target": target,
+                            "exit_code": 0,
+                            "stdout": detail,
+                            "stderr": "",
+                            "changed_files": changed_files,
+                        })
+                        .to_string()
+                    }
                     Err(msg) => serde_json::json!({
                         "status": "error",
                         "error_code": "WorkspaceMutationFailed",
@@ -6752,7 +6765,7 @@ impl StudioEngine {
                         .get("composer_mode")
                         .or_else(|| map.get("mode"))
                         .and_then(|v| v.as_str())
-                        .map(|s| s.trim().to_string())
+                        .map(|s| s.trim().to_ascii_lowercase())
                         .filter(|s| !s.is_empty())
                         .unwrap_or_else(|| "agentic".to_string());
                     let repo_s = map

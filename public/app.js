@@ -882,6 +882,12 @@ const engineWorkerClient = {
       this.worker.onerror = () => {
         // Keep shadow workspace operational if worker script fails in restricted environment
       };
+      const initConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
+      if (initConsent === 'declined') {
+        this.rpc('set_bridge_policy', { allowOffOriginHydration: false, consentDeclined: true, bootSync: true }).catch(() => {});
+      } else if (initConsent === '1' || initConsent === 'true') {
+        this.rpc('set_bridge_policy', { allowOffOriginHydration: true, consentDeclined: false, bootSync: true }).catch(() => {});
+      }
       return true;
     } catch {
       this.enabled = false;
@@ -3161,6 +3167,8 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       retain_lambda: AppState.config.retainLambda ?? 0.85,
       plurality_votes: AppState.config.pluralityVotes ?? 8,
       active_file: (typeof activeWorkspacePath === 'string' && activeWorkspacePath) || '',
+      repo: (AppState.config && AppState.config.connectedGitRepo) || '',
+      branch: (AppState.config && AppState.config.connectedGitBranch) || 'main',
       web_access: engineWorkerClient.webAccessEnabled,
     });
     if (typeof tsComposer.beginTurn === 'function') {
@@ -4365,6 +4373,9 @@ if (composerModelSelect) {
     composerModelSelect.value = AppState.config.selectedModel;
   }
   composerModelSelect.addEventListener('change', (e) => {
+    if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
+      holoObservatoryState.manualModelPinned = true;
+    }
     syncComposerModel(e.target.value);
   });
 }
@@ -4374,6 +4385,9 @@ if (globalModelSelect) {
     globalModelSelect.value = AppState.config.selectedModel;
   }
   globalModelSelect.addEventListener('change', (e) => {
+    if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
+      holoObservatoryState.manualModelPinned = true;
+    }
     syncComposerModel(e.target.value);
   });
 }
@@ -5955,6 +5969,147 @@ let _r460LatestPreviewDiag = {
   rootHtmlPreview: '',
 };
 
+const _r460PreviewTimers = {
+  timeouts: new Set(),
+  intervals: new Set(),
+  rafs: new Set(),
+};
+
+const clearPreviewTimers = () => {
+  for (const id of _r460PreviewTimers.timeouts) {
+    if (typeof clearTimeout === 'function') clearTimeout(id);
+  }
+  _r460PreviewTimers.timeouts.clear();
+  for (const id of _r460PreviewTimers.intervals) {
+    if (typeof clearInterval === 'function') clearInterval(id);
+  }
+  _r460PreviewTimers.intervals.clear();
+  for (const id of _r460PreviewTimers.rafs) {
+    if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(id);
+    else if (typeof clearTimeout === 'function') clearTimeout(id);
+  }
+  _r460PreviewTimers.rafs.clear();
+};
+
+const createPreviewTimerGlobals = (onError) => {
+  const reportErr = (err) => {
+    if (typeof onError === 'function') onError(err);
+  };
+  const safeSetTimeout = (fn, ms = 0, ...args) => {
+    if (typeof fn !== 'function' || typeof setTimeout !== 'function') return 0;
+    const delay = Math.max(0, Number(ms) || 0);
+    let handle = 0;
+    handle = setTimeout(() => {
+      _r460PreviewTimers.timeouts.delete(handle);
+      try {
+        fn(...args);
+      } catch (err) {
+        reportErr(err);
+      }
+    }, delay);
+    _r460PreviewTimers.timeouts.add(handle);
+    return handle;
+  };
+  const safeClearTimeout = (id) => {
+    _r460PreviewTimers.timeouts.delete(id);
+    if (typeof clearTimeout === 'function') clearTimeout(id);
+  };
+  const safeSetInterval = (fn, ms = 16, ...args) => {
+    if (typeof fn !== 'function' || typeof setInterval !== 'function') return 0;
+    const delay = Math.max(16, Number(ms) || 16);
+    let handle = 0;
+    handle = setInterval(() => {
+      try {
+        fn(...args);
+      } catch (err) {
+        safeClearInterval(handle);
+        reportErr(err);
+      }
+    }, delay);
+    _r460PreviewTimers.intervals.add(handle);
+    return handle;
+  };
+  const safeClearInterval = (id) => {
+    _r460PreviewTimers.intervals.delete(id);
+    if (typeof clearInterval === 'function') clearInterval(id);
+  };
+  const safeRequestAnimationFrame = (fn) => {
+    if (typeof fn !== 'function') return 0;
+    let handle = 0;
+    if (typeof requestAnimationFrame === 'function') {
+      handle = requestAnimationFrame((ts) => {
+        _r460PreviewTimers.rafs.delete(handle);
+        try {
+          fn(ts);
+        } catch (err) {
+          reportErr(err);
+        }
+      });
+    } else if (typeof setTimeout === 'function') {
+      handle = setTimeout(() => {
+        _r460PreviewTimers.rafs.delete(handle);
+        try {
+          fn(typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now());
+        } catch (err) {
+          reportErr(err);
+        }
+      }, 16);
+    }
+    _r460PreviewTimers.rafs.add(handle);
+    return handle;
+  };
+  const safeCancelAnimationFrame = (id) => {
+    _r460PreviewTimers.rafs.delete(id);
+    if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(id);
+    else if (typeof clearTimeout === 'function') clearTimeout(id);
+  };
+  return {
+    Date,
+    performance: {
+      now: () => (typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now()),
+    },
+    setTimeout: safeSetTimeout,
+    clearTimeout: safeClearTimeout,
+    setInterval: safeSetInterval,
+    clearInterval: safeClearInterval,
+    requestAnimationFrame: safeRequestAnimationFrame,
+    cancelAnimationFrame: safeCancelAnimationFrame,
+  };
+};
+
+const attachPreviewSelectorDiag = (baseDiag, rootEl, selector) => {
+  const diag = baseDiag && typeof baseDiag === 'object' ? { ...baseDiag } : {};
+  const cleanSel = typeof selector === 'string' ? selector.trim() : '';
+  if (!cleanSel) return diag;
+  if (!rootEl || typeof rootEl.querySelector !== 'function') {
+    return {
+      ...diag,
+      selector: cleanSel,
+      selectorMatched: false,
+      selectorText: '',
+      selectorError: 'Root element querySelector unavailable',
+    };
+  }
+  try {
+    const el = rootEl.querySelector(cleanSel);
+    return {
+      ...diag,
+      selector: cleanSel,
+      selectorMatched: Boolean(el),
+      selectorText: el ? String(el.textContent || '').slice(0, 512) : '',
+      selectorError: '',
+    };
+  } catch (err) {
+    return {
+      ...diag,
+      selector: cleanSel,
+      selectorMatched: false,
+      selectorText: '',
+      selectorError: err && err.message ? err.message : String(err),
+    };
+  }
+};
+
 const safeStorageGet = (key) => {
   const k = String(key ?? '');
   try {
@@ -6495,8 +6650,31 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
           allowOffOriginHydration: true,
           rememberConsent: true,
         });
+        engineWorkerClient.rpc('set_bridge_policy', {
+          allowOffOriginHydration: true,
+          consentDeclined: false,
+        }).catch(() => {});
       }
-      statusNote.textContent = 'Verified weights mounted. Re-running prompt...';
+      if (typeof AppState !== 'undefined' && AppState.config) {
+        AppState.config.selectedModel = modelId;
+      }
+      if (typeof syncComposerModel === 'function') {
+        syncComposerModel(modelId);
+      }
+      if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+        engineWorkerClient.rpc('holo_runtime_status', {}).then((res) => {
+          const hs = (res && res.holo && typeof res.mounted_count !== 'number') ? res.holo : res;
+          if (hs && typeof hs.mounted_count === 'number') {
+            engineWorkerClient.holoStatus = hs;
+          }
+          if (typeof updateWeightCacheBadge === 'function') updateWeightCacheBadge();
+          if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
+          if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
+        }).catch(() => {});
+      }
+      statusNote.textContent = pendingPrompt
+        ? 'Verified weights mounted. Re-running prompt...'
+        : `Verified weights (${modelId}) mounted. Ready.`;
       if (pendingPrompt && typeof runClaudeChat === 'function') {
         runClaudeChat(pendingPrompt, false);
       }
@@ -6525,6 +6703,7 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
         await engineWorkerClient.rpc('hydrate_holo_model', {
           modelId,
           decline: true,
+          consentDeclined: true,
           fallbackModel,
         });
       }
@@ -6566,6 +6745,70 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
     const twoCharOps = new Set(['===', '!==', '>>>', '**=', '<<=', '>>=', '&&=', '||=', '??=']);
     const multiOps = new Set(['=>', '==', '!=', '<=', '>=', '&&', '||', '??', '++', '--', '+=', '-=', '*=', '/=', '%=', '**', '<<', '>>', '?.']);
     const keywords = new Set(['let', 'const', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'do', 'break', 'continue', 'new', 'typeof', 'true', 'false', 'null', 'undefined', 'throw', 'try', 'catch', 'finally', 'of', 'in', 'void']);
+    const scanPreviewTemplatePart = (src, startIdx) => {
+      const len = src.length;
+      let idx = startIdx + 1;
+      const parts = [];
+      let out = '';
+      while (idx < len && src[idx] !== '`') {
+        if (src[idx] === '\\' && idx + 1 < len) {
+          const esc = src[idx + 1];
+          if (esc === 'n') out += '\n';
+          else if (esc === 'r') out += '\r';
+          else if (esc === 't') out += '\t';
+          else out += esc;
+          idx += 2;
+        } else if (src[idx] === '$' && src[idx + 1] === '\x7b') {
+          if (out) {
+            parts.push({ kind: 'str', value: out });
+            out = '';
+          }
+          idx += 2;
+          const exprStart = idx;
+          let depth = 1;
+          while (idx < len && depth > 0) {
+            const c = src[idx];
+            if (c === String.fromCharCode(34) || c === "'") {
+              const q = c;
+              idx += 1;
+              while (idx < len && src[idx] !== q) {
+                idx += (src[idx] === '\\' && idx + 1 < len) ? 2 : 1;
+              }
+              if (idx < len) idx += 1;
+              continue;
+            }
+            if (c === '`') {
+              const nested = scanPreviewTemplatePart(src, idx);
+              idx = nested.nextIdx;
+              continue;
+            }
+            if (c === '/' && src[idx + 1] === '/') {
+              while (idx < len && src[idx] !== '\n') idx += 1;
+              continue;
+            }
+            if (c === '/' && src[idx + 1] === '*') {
+              idx += 2;
+              while (idx < len && !(src[idx] === '*' && src[idx + 1] === '/')) idx += 1;
+              idx += 2;
+              continue;
+            }
+            if (c === '\x7b') depth += 1;
+            else if (c === '\x7d') {
+              depth -= 1;
+              if (depth === 0) break;
+            }
+            idx += 1;
+          }
+          parts.push({ kind: 'expr', raw: src.slice(exprStart, idx) });
+          if (idx < len && src[idx] === '\x7d') idx += 1;
+        } else {
+          out += src[idx];
+          idx += 1;
+        }
+      }
+      if (idx < len && src[idx] === '`') idx += 1;
+      return { parts, out, nextIdx: idx };
+    };
     while (i < n) {
       const ch = input[i];
       if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') {
@@ -6604,56 +6847,13 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
         continue;
       }
       if (ch === '`') {
-        i += 1;
-        const parts = [];
-        let out = '';
-        while (i < n && input[i] !== '`') {
-          if (input[i] === '\\' && i + 1 < n) {
-            const esc = input[i + 1];
-            if (esc === 'n') out += '\n';
-            else if (esc === 'r') out += '\r';
-            else if (esc === 't') out += '\t';
-            else out += esc;
-            i += 2;
-          } else if (input[i] === '$' && input[i + 1] === '\x7b') {
-            if (out) {
-              parts.push({ kind: 'str', value: out });
-              out = '';
-            }
-            i += 2;
-            const exprStart = i;
-            let depth = 1;
-            while (i < n && depth > 0) {
-              const c = input[i];
-              if (c === String.fromCharCode(34) || c === "'" || c === '`') {
-                const q = c;
-                i += 1;
-                while (i < n && input[i] !== q) {
-                  i += (input[i] === '\\' && i + 1 < n) ? 2 : 1;
-                }
-                if (i < n) i += 1;
-                continue;
-              }
-              if (c === '\x7b') depth += 1;
-              else if (c === '\x7d') {
-                depth -= 1;
-                if (depth === 0) break;
-              }
-              i += 1;
-            }
-            parts.push({ kind: 'expr', raw: input.slice(exprStart, i) });
-            if (i < n && input[i] === '\x7d') i += 1;
-          } else {
-            out += input[i];
-            i += 1;
-          }
-        }
-        if (i < n && input[i] === '`') i += 1;
-        if (parts.length === 0) {
-          tokens.push({ type: 'string', value: out });
+        const scanned = scanPreviewTemplatePart(input, i);
+        i = scanned.nextIdx;
+        if (scanned.parts.length === 0) {
+          tokens.push({ type: 'string', value: scanned.out });
         } else {
-          if (out) parts.push({ kind: 'str', value: out });
-          tokens.push({ type: 'template', parts });
+          if (scanned.out) scanned.parts.push({ kind: 'str', value: scanned.out });
+          tokens.push({ type: 'template', parts: scanned.parts });
         }
         continue;
       }
@@ -7101,6 +7301,10 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
   };
 
   const rootScope = { parent: null, vars: new Map() };
+  const defaultPreviewGlobals = createPreviewTimerGlobals((err) => {
+    const c = env.console || { error: () => {} };
+    if (typeof c.error === 'function') c.error(err && err.message ? err.message : String(err));
+  });
   const builtIns = {
     Math,
     Number,
@@ -7117,6 +7321,7 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
     isFinite: Number.isFinite,
     isNaN: Number.isNaN,
     WebAssembly: (typeof WebAssembly !== 'undefined') ? WebAssembly : undefined,
+    ...defaultPreviewGlobals,
     console: env.console || { log: () => {}, warn: () => {}, error: () => {}, info: () => {} },
     document: env.document,
     window: env.window,
@@ -7455,7 +7660,8 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
   return { value: completionVal, steps };
 };
 
-const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
+const renderPreviewWorkspace = (files, rootEl, postDiag = null, selector = '') => {
+  clearPreviewTimers();
   if (!rootEl) return { fileCount: 0, scriptSteps: 0, errors: [] };
   if (typeof rootEl.replaceChildren === 'function') rootEl.replaceChildren();
 
@@ -7573,7 +7779,12 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
   if (collectedCss.length > 0) {
     const safeCss = sanitizeCssText(collectedCss.join('\n'));
     let appliedAdopted = false;
-    if (typeof CSSStyleSheet === 'function' && typeof document !== 'undefined' && Array.isArray(document.adoptedStyleSheets)) {
+    if (
+      typeof CSSStyleSheet === 'function' &&
+      typeof document !== 'undefined' &&
+      document.adoptedStyleSheets != null &&
+      typeof document.adoptedStyleSheets === 'object'
+    ) {
       try {
         const sheet = new CSSStyleSheet();
         sheet.replaceSync(safeCss);
@@ -7583,14 +7794,22 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
         appliedAdopted = false;
       }
     }
-    if (!appliedAdopted && typeof document.adoptedStyleSheets === 'undefined') {
+    if (!appliedAdopted) {
       const styleEl = document.createElement('style');
       styleEl.setAttribute('data-preview-cssom', 'true');
       styleEl.textContent = safeCss;
       rootEl.appendChild(styleEl);
     }
-  } else if (typeof document !== 'undefined' && Array.isArray(document.adoptedStyleSheets) && document.adoptedStyleSheets.length > 0) {
-    document.adoptedStyleSheets = [];
+  } else if (
+    typeof document !== 'undefined' &&
+    document.adoptedStyleSheets != null &&
+    document.adoptedStyleSheets.length > 0
+  ) {
+    try {
+      document.adoptedStyleSheets = [];
+    } catch {
+      // Ignore read-only adoptedStyleSheets clear failures
+    }
   }
 
   const pushLog = (level, args) => {
@@ -7621,6 +7840,12 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
     warn: (...args) => pushLog('warn', args),
     error: (...args) => pushLog('error', args),
   };
+  const previewGlobals = createPreviewTimerGlobals((err) => {
+    const msg = err && err.message ? err.message : String(err);
+    const code = (err && (err.code || err.error_code)) || 'PreviewScriptError';
+    errors.push({ code, message: msg });
+    pushLog('error', [`${code}: ${msg}`]);
+  });
   const scopedWin = {
     innerWidth: typeof window !== 'undefined' ? window.innerWidth : 640,
     innerHeight: typeof window !== 'undefined' ? window.innerHeight : 480,
@@ -7628,6 +7853,7 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
     document: scopedDoc,
     console: scopedConsole,
     WebAssembly: (typeof WebAssembly !== 'undefined') ? WebAssembly : undefined,
+    ...previewGlobals,
   };
 
   let totalSteps = 0;
@@ -7635,7 +7861,7 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
     try {
       const execOut = evaluatePreviewScriptWithFuel(
         scriptSrc,
-        { document: scopedDoc, console: scopedConsole, window: scopedWin },
+        { document: scopedDoc, console: scopedConsole, window: scopedWin, ...previewGlobals },
         100000
       );
       totalSteps += Number(execOut.steps || 0);
@@ -7647,7 +7873,7 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
     }
   }
 
-  _r460LatestPreviewDiag = {
+  const baseDiag = {
     renderedAtMs: Date.now(),
     fileCount: fileMap.size,
     scriptSteps: totalSteps,
@@ -7655,6 +7881,7 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
     console: consoleLogs,
     rootHtmlPreview: String(rootEl.textContent || '').slice(0, 512),
   };
+  _r460LatestPreviewDiag = attachPreviewSelectorDiag(baseDiag, rootEl, selector);
   if (typeof postDiag === 'function') {
     postDiag({ kind: 'rendered', diag: _r460LatestPreviewDiag });
   }
@@ -7761,10 +7988,16 @@ const initPreviewSurfaceHost = () => {
       if (msgOp === 'render_files') {
         const diag = renderPreviewWorkspace(msg.files || {}, rootEl, (evDiag) => {
           postToParent({ op: evDiag.kind === 'console' ? 'console' : 'rendered', ...evDiag });
-        });
+        }, msg.selector);
         postToParent({ op: 'inspect_reply', type: 'inspect_reply', requestId: msg.requestId || null, report: diag, diag });
       } else if (msgOp === 'inspect') {
-        postToParent({ op: 'inspect_reply', type: 'inspect_reply', requestId: msg.requestId || null, report: _r460LatestPreviewDiag, diag: _r460LatestPreviewDiag });
+        const currentDiag = {
+          ..._r460LatestPreviewDiag,
+          ...(rootEl ? { rootHtmlPreview: String(rootEl.textContent || '').slice(0, 512) } : {}),
+        };
+        const diag = attachPreviewSelectorDiag(currentDiag, rootEl, msg.selector);
+        _r460LatestPreviewDiag = diag;
+        postToParent({ op: 'inspect_reply', type: 'inspect_reply', requestId: msg.requestId || null, report: diag, diag });
       }
     });
   }
@@ -13276,21 +13509,27 @@ if (studioTrainForm) {
   });
 }
 
-loadThreadsFromStorage();
-renderThreadSidebar();
-renderLiteratureFeed();
-renderActiveThreadMessages();
-if (document.getElementById('neural-3d-canvas')) {
-  lexLean3dVisualizer = new LexLean3DVisualizer();
-  lexLean3dVisualizer.init('neural-3d-canvas', { deferGL: true });
-}
-renderTraceInspector();
-initSidebarViews();
-initDragAndDropIngestion();
-initCustomizationsAndMcp();
-if (document.getElementById('terminal-container')) {
-  lexLeanTerminal = new LexLeanTerminal();
-  lexLeanTerminal.init('terminal-container');
+const isChildSurfaceEarly = typeof window !== 'undefined'
+  && window.location
+  && (String(window.location.search || '').includes('surface=preview')
+    || String(window.location.search || '').includes('surface=observatory'));
+if (!isChildSurfaceEarly) {
+  loadThreadsFromStorage();
+  renderThreadSidebar();
+  renderLiteratureFeed();
+  renderActiveThreadMessages();
+  if (document.getElementById('neural-3d-canvas')) {
+    lexLean3dVisualizer = new LexLean3DVisualizer();
+    lexLean3dVisualizer.init('neural-3d-canvas', { deferGL: true });
+  }
+  renderTraceInspector();
+  initSidebarViews();
+  initDragAndDropIngestion();
+  initCustomizationsAndMcp();
+  if (document.getElementById('terminal-container')) {
+    lexLeanTerminal = new LexLeanTerminal();
+    lexLeanTerminal.init('terminal-container');
+  }
 }
 
 const toggleRightDrawerBtn = document.getElementById('toggle-right-drawer-btn');
@@ -17620,7 +17859,11 @@ function initLayoutAndConnectedControls() {
         safeStorageSet('uor_allow_off_origin_hydration', granted ? '1' : 'declined');
       }
       if (engineWorkerClient.enabled) {
-        engineWorkerClient.rpc('set_bridge_policy', { allowOffOriginHydration: granted }).catch(() => {});
+        engineWorkerClient.rpc('set_bridge_policy', {
+          allowOffOriginHydration: granted,
+          consentDeclined: !granted,
+          hydrateNow: granted,
+        }).catch(() => {});
       }
       if (settingsStatusEl) {
         settingsStatusEl.textContent = granted

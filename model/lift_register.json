@@ -358,7 +358,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "bd3038b431e93eff5ec01a79d64eeb5aee671a31fc8ba6bcc9c4fb57c8aa427f",
+      "kappa": "aee8381f406139f61369479e042c796c2c361011032a2b2645d16384f215b0f6",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -428,7 +428,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0d995992dc6b36250bd5b93bbdf76bf3e3873b6f75846150ef08def589a4b654",
+      "kappa": "7c5bef43de423bbc241288822e4ca973347530c50928e1f3c13b44c90e523ac7",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -520,14 +520,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "df7b4766f0075c3b699cbe10c5d873f6893f8c8854bab2fa35cabe936885e501",
+      "kappa": "22c9d0f0315ee56053f28a5808a2f62c470ec13225dd080c654c1404f0ad81ae",
       "function": "crates/wasm/js/worker_host_bridge.js::safeStorageGet",
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
-      "kappa": "c9b2d09f4378b80937ef597ee29d44c347f8473c6608d03cfcb8d2b72206d4bc",
+      "kappa": "b656826a1eae6efba58472b9d1f45283c1a464cc97985e67ca8e2fe5c7e3e584",
       "function": "crates/wasm/js/worker_host_bridge.js::safeStorageSet",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -12611,7 +12611,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "e6ca17f78326a2e577ffb260448f35bd827b75d53f5e7091697c83b9e8cd84e4",
+      "kappa": "32c919ee57740a5727fbffb884abd513c0412b59844c8f0925c3b757305e76a8",
       "function": "crates/wasm/src/lib.rs::StudioEngine::chat_assistant_json",
       "status": "lifted",
       "definition": "R4.Binder",
@@ -12699,7 +12699,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "1938ec72f3134b84c84d745e1daac903af479c77940a7badc2ec0e53124f04f9",
+      "kappa": "26b5595a0c460c2c201ca4f5eeeb1b4adbdbc73bba894ba0c423c15b719f3330",
       "function": "crates/wasm/src/lib.rs::StudioEngine::execute_studio_tool_json",
       "status": "lifted",
       "definition": "R4.StudioFrame",
@@ -17477,7 +17477,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a2cd0c41064bace4111146c7ac1bfcb964a2494e28999b4ce5f76012fd632e8d",
+      "kappa": "5bdfc90da07eecbc7272327ac7fecd38cd6c2d137d49211b54a0677bdd39cf11",
       "function": "public/app.js::initLayoutAndConnectedControls",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -17917,7 +17917,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "6e2a65b3fef376506ce2b0b33d9532bde4fc12f24da22f554eef2a76ee2e0f0a",
+      "kappa": "27bc1cd186e82184bdf7f9056ec64e24cb2637ca1fc4839b66ec140725ea3398",
       "function": "public/app.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",

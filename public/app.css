@@ -2472,6 +2472,7 @@ body.density-compact #prism-global-topbar {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
   .cursor-mini-btn,
+  .cursor-status-btn,
   .cursor-wb-btn,
   .cursor-editor-tab,
   .prism-seg-btn,
@@ -2488,7 +2489,10 @@ body.density-compact #prism-global-topbar {
   .sidebar-action-icon-btn,
   .composer-action-btn,
   .composer-trigger-pill,
-  .composer-send-btn {
+  .composer-send-btn,
+  .cursor-mini-btn,
+  .cursor-cmdk-close,
+  .canvas-close-btn {
     min-width: 44px;
     min-height: 44px;
   }
@@ -2517,6 +2521,7 @@ body.density-compact #prism-global-topbar {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
   .cursor-mini-btn,
+  .cursor-status-btn,
   .cursor-wb-btn,
   .cursor-editor-tab,
   .prism-seg-btn,
@@ -2533,7 +2538,10 @@ body.density-compact #prism-global-topbar {
   .sidebar-action-icon-btn,
   .composer-action-btn,
   .composer-trigger-pill,
-  .composer-send-btn {
+  .composer-send-btn,
+  .cursor-mini-btn,
+  .cursor-cmdk-close,
+  .canvas-close-btn {
     min-width: 44px;
     min-height: 44px;
   }

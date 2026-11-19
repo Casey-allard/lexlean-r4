@@ -830,6 +830,28 @@ fn test_empirical_cowork_css_spec_and_wcag_conformance() {
         "app.css must define Material 3 Expanded breakpoint (@media (min-width: 840px))"
     );
     assert!(
+        app_css.contains("@media (pointer: coarse)"),
+        "app.css must define coarse pointer tap targets (@media (pointer: coarse))"
+    );
+    for media_hdr in ["@media (max-width: 599px)", "@media (pointer: coarse)"] {
+        let m_start = app_css.find(media_hdr).expect("media query exists");
+        let m_slice = &app_css[m_start..];
+        let m_end = m_slice
+            .find("/* ====")
+            .unwrap_or_else(|| m_slice.len().min(1600));
+        let block = &m_slice[..m_end];
+        for sel in [
+            ".cursor-status-btn",
+            ".cursor-cmdk-close",
+            ".canvas-close-btn",
+        ] {
+            assert!(
+                block.contains(sel),
+                "{media_hdr} tap-target block in app.css must include {sel}"
+            );
+        }
+    }
+    assert!(
         app_css.contains("max-height: min(88dvh, 720px)"),
         "app.css modals must enforce max-height: min(88dvh, 720px)"
     );

@@ -1282,6 +1282,28 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
       'Consent retry must call runClaudeChat(prompt, false) without duplicating user bubble'
     );
 
+    // Approve with empty pendingPrompt when AppState was on Native Q31 must switch back to modelId & show Ready status
+    AppStateMock.config.selectedModel = 'uor-r4.native-q31-d85';
+    await r460.renderHydrationConsentCard(
+      chatMessagesEl,
+      {
+        model_id: 'uor-r4.qwen3-0.6b-holo',
+        approx_bytes: 429916160,
+        mirrors: ['https://huggingface.co/example/model/piece_0000.bin'],
+      },
+      ''
+    );
+    const emptyCards = chatMessagesEl.querySelectorAll('.holo-consent-card');
+    const emptyCard = emptyCards[emptyCards.length - 1];
+    const emptyApproveBtn = emptyCard.querySelector('.holo-consent-approve-btn');
+    const emptyStatusNote = emptyCard.querySelector('.holo-consent-status');
+    await emptyApproveBtn.click();
+    for (let k = 0; k < 8; k += 1) await Promise.resolve();
+    assert.equal(AppStateMock.config.selectedModel, 'uor-r4.qwen3-0.6b-holo', 'Approve must switch AppState.config.selectedModel back from native-q31-d85');
+    assert.ok(syncedModels.includes('uor-r4.qwen3-0.6b-holo'), 'Approve must invoke syncComposerModel(modelId)');
+    assert.ok(emptyStatusNote.textContent.includes('Ready'), `Empty pendingPrompt approve must show Ready status, got: ${emptyStatusNote.textContent}`);
+    assert.equal(emptyStatusNote.textContent.includes('Re-running prompt'), false, 'Empty pendingPrompt approve must not claim Re-running prompt');
+
     await r460.renderHydrationConsentCard(
       chatMessagesEl,
       {
@@ -1445,7 +1467,115 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
       rpcCalls.some((c) => c.op === 'preview_inspect_reply' && c.payload.rpc_id === 99 && c.payload.report.rootHtmlPreview === 'live=42'),
       'preview_inspect_reply must forward genuine two-window inspect_reply report'
     );
-    console.log('  ✓ 7.4 ?surface=preview 100k fuel limit, CSSOM adoptedStyleSheets, template interpolation & two-window preview_inspect verified.');
+
+    // 7.4c Clock snippet (Date, performance.now, setInterval, nested template literals), CSSOM fallback, selector & timer cleanup on re-render
+    const nestedTplRes = r460.evaluatePreviewScriptWithFuel(
+      'const x = 9; `outer ${`inner ${x * 2}`}`;',
+      { document, console: { log: () => {}, warn: () => {}, error: () => {} } },
+      100000
+    );
+    assert.equal(nestedTplRes.value, 'outer inner 18', 'Nested template literals inside ${...} must tokenize and evaluate accurately');
+
+    const clockWinListeners = new Map();
+    const clockPosted = [];
+    const clockEnv = createDOMEnvironment();
+    const clockRoot = clockEnv.document.getElementById('preview-sandbox-root');
+    clockEnv.document.body.appendChild(clockRoot);
+    const clockChildWin = {
+      innerWidth: 640,
+      innerHeight: 480,
+      devicePixelRatio: 1,
+      location: { search: '?surface=preview' },
+      parent: {
+        postMessage(data) {
+          clockPosted.push(data);
+        },
+      },
+      addEventListener(type, fn) {
+        if (!clockWinListeners.has(type)) clockWinListeners.set(type, []);
+        clockWinListeners.get(type).push(fn);
+      },
+    };
+    const clockR460 = sandboxR460(
+      clockEnv.document,
+      clockChildWin,
+      throwingLocalStorage,
+      AppStateMock,
+      { enabled: false, ready: false, holoStatus: { mounted_count: 0 } },
+      () => {},
+      () => {},
+      () => {},
+      () => {},
+      { frames: [], qTrail: [], paused: false, lockedFrameIdx: null },
+      null
+    );
+    clockR460.initPreviewSurfaceHost();
+    const clockCode = [
+      'let ticks = 0;',
+      "const el = document.createElement('div');",
+      "el.id = 'clock';",
+      'document.body.appendChild(el);',
+      'const tick = () => {',
+      '  ticks += 1;',
+      '  const d = new Date();',
+      '  const p = performance.now();',
+      '  el.textContent = `clock ${`t=${d.getTime()}:${ticks}:${p >= 0}`}`;',
+      '};',
+      'tick();',
+      'setInterval(tick, 16);',
+    ].join('\n');
+    for (const fn of clockWinListeners.get('message') || []) {
+      fn({
+        source: clockChildWin.parent,
+        data: {
+          protocol: 'uor-preview/1',
+          op: 'render_files',
+          requestId: 'clk-1',
+          selector: '#clock',
+          files: {
+            'styles.css': '#clock { font-weight: bold; }',
+            'app.js': clockCode,
+          },
+        },
+      });
+    }
+    const clk1Reply = clockPosted.find((m) => m && m.op === 'inspect_reply' && m.requestId === 'clk-1');
+    assert.ok(clk1Reply && clk1Reply.report, 'render_files with selector #clock must emit inspect_reply');
+    assert.equal(clk1Reply.report.errors.length, 0, `Clock snippet must execute without errors, got: ${JSON.stringify(clk1Reply.report.errors)}`);
+    assert.equal(clk1Reply.report.selector, '#clock');
+    assert.equal(clk1Reply.report.selectorMatched, true);
+    assert.match(clk1Reply.report.selectorText, /^clock t=\d+:1:true$/);
+    assert.equal(clockEnv.document.querySelectorAll('style').length, 1, 'When adoptedStyleSheets is unavailable, CSSOM fallback must inject <style data-preview-cssom="true">');
+    assert.equal(clockEnv.document.querySelectorAll('style')[0].getAttribute('data-preview-cssom'), 'true');
+
+    await new Promise((r) => setTimeout(r, 55));
+    for (const fn of clockWinListeners.get('message') || []) {
+      fn({
+        source: clockChildWin.parent,
+        data: { protocol: 'uor-preview/1', op: 'inspect', requestId: 'clk-2', selector: '#clock' },
+      });
+    }
+    const clk2Reply = clockPosted.find((m) => m && m.op === 'inspect_reply' && m.requestId === 'clk-2');
+    assert.ok(clk2Reply && clk2Reply.report && clk2Reply.report.selectorMatched, 'inspect must match #clock after interval ticks');
+    const tickMatch = clk2Reply.report.selectorText.match(/:(\d+):true$/);
+    assert.ok(tickMatch && Number(tickMatch[1]) >= 2, `setInterval must advance #clock ticks >= 2, got ${clk2Reply.report.selectorText}`);
+
+    const clockElRef = clockRoot.querySelector('#clock');
+    const stoppedBefore = clockElRef.textContent;
+    for (const fn of clockWinListeners.get('message') || []) {
+      fn({
+        source: clockChildWin.parent,
+        data: {
+          protocol: 'uor-preview/1',
+          op: 'render_files',
+          requestId: 'clk-3',
+          files: { 'app.js': 'document.body.textContent = "stopped";' },
+        },
+      });
+    }
+    await new Promise((r) => setTimeout(r, 45));
+    assert.equal(clockElRef.textContent, stoppedBefore, 'Re-rendering preview must clear prior setInterval handles');
+    console.log('  ✓ 7.4 ?surface=preview 100k fuel limit, CSSOM fallback, clock Date/performance/setInterval, nested template & selector inspect verified.');
 
     // 7.5 Real un-mocked runClaudeChat + submitComposerPrompt + applyCompletedChatPostEffects integration
     const composerStart = appJsContent.indexOf('const AGENTIC_SLASH_COMMANDS = [');
@@ -1486,7 +1616,15 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     const postEffectIngests = [];
     const toastLog = [];
     const chatAppState = {
-      config: { selectedModel: 'uor-r4.qwen3-0.6b-holo', composerMode: 'agentic', operatingMode: 'coding', retainLambda: 0.85, pluralityVotes: 8 },
+      config: {
+        selectedModel: 'uor-r4.qwen3-0.6b-holo',
+        composerMode: 'agentic',
+        operatingMode: 'coding',
+        retainLambda: 0.85,
+        pluralityVotes: 8,
+        connectedGitRepo: 'uor-test/clock-repo',
+        connectedGitBranch: 'feat-clock',
+      },
       workspace: { pendingPatches: {} },
     };
 
@@ -1610,6 +1748,8 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     chatInputEl.value = 'verify live turn';
     chatRuntime.submitComposerPrompt();
     assert.equal(chatRuntime.tsComposer.isTurnActive(), true, 'tsComposer.isTurnActive() must become true while turn streams');
+    assert.equal(streamRpcCalls[0].payload.repo, 'uor-test/clock-repo', 'studio_stream_turn must pass connectedGitRepo as payload.repo');
+    assert.equal(streamRpcCalls[0].payload.branch, 'feat-clock', 'studio_stream_turn must pass connectedGitBranch as payload.branch');
     chatInputEl.value = 'duplicate blocked';
     chatRuntime.submitComposerPrompt();
     assert.equal(streamRpcCalls.length, 1, 'submitComposerPrompt must block double submission while turn active');
@@ -1678,7 +1818,34 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     assert.equal(cancelledRecord.role, 'assistant');
     assert.equal(cancelledRecord.body, 'partial answer');
     assert.equal(cancelledRecord.chatMeta.cancelled, true, 'Cancelled turn must persist partial text cleanly');
-    console.log('  ✓ 7.5 Real runClaudeChat, submitComposerPrompt double-submit guard, lockedFrameIdx guard & cancel persistence verified.');
+
+    // 7.5d Global #model-select change listener sets manualModelPinned = true & top-level child surface guard exists
+    const modelSelStart = appJsContent.indexOf('if (composerModelSelect) {');
+    const modelSelEnd = appJsContent.indexOf('\nif (composerStopBtn)', modelSelStart);
+    assert.ok(modelSelStart !== -1 && modelSelEnd > modelSelStart);
+    const pinObsState = { manualModelPinned: false };
+    const pinGlobalSelect = document.createElement('select');
+    pinGlobalSelect.id = 'model-select';
+    pinGlobalSelect.value = 'uor-r4.qwen3-1.7b-holo';
+    new Function(
+      'composerModelSelect',
+      'globalModelSelect',
+      'AppState',
+      'holoObservatoryState',
+      'syncComposerModel',
+      `"use strict";\n${appJsContent.slice(modelSelStart, modelSelEnd)}`
+    )(
+      null,
+      pinGlobalSelect,
+      { config: { selectedModel: 'uor-r4.qwen3-0.6b-holo' } },
+      pinObsState,
+      () => {}
+    );
+    pinGlobalSelect.value = 'uor-r4.qwen3-1.7b-holo';
+    pinGlobalSelect.dispatchEvent({ type: 'change', target: pinGlobalSelect });
+    assert.equal(pinObsState.manualModelPinned, true, 'Global #model-select change must set holoObservatoryState.manualModelPinned = true');
+    assert.ok(appJsContent.includes('isChildSurfaceEarly'), 'public/app.js must guard top-level chat/3D/terminal init on ?surface=preview and ?surface=observatory');
+    console.log('  ✓ 7.5 Real runClaudeChat (repo/branch), submitComposerPrompt, #model-select pin, lockedFrameIdx & cancel persistence verified.');
   } finally {
     globalThis.CSSStyleSheet = origCSSStyleSheet;
   }

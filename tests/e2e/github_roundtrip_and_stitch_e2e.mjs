@@ -638,8 +638,9 @@ async function runSuite() {
     assert.ok(rawHtml.includes('<meta name="prism-surface" content="prism/r4-workspace/1">'));
     assert.ok(rawHtml.includes('id="studio-update-banner"'));
     assert.ok(rawHtml.includes('New Studio Version Live'));
-    assert.ok(rawHtml.includes('id="topbar-feed-btn" type="button" class="topbar-btn" data-canvas-tab="feed">Self-Improvement</button>'));
-    assert.ok(rawHtml.includes('id="topbar-consolidation-btn" type="button" class="topbar-btn" data-canvas-tab="consolidation">Consolidate Weights</button>'));
+    assert.ok(rawHtml.includes('id="canvas-tab-feed"') && rawHtml.includes('data-tab-id="feed"'), 'index.html must expose Self-Improve inspector tab #canvas-tab-feed');
+    assert.ok(rawHtml.includes('id="canvas-tab-consolidation"') && rawHtml.includes('data-tab-id="consolidation"'), 'index.html must expose Consolidation inspector tab #canvas-tab-consolidation');
+    assert.ok(rawHtml.includes('id="toggle-inspectors-btn"') && rawHtml.includes('id="open-github-connect-btn"'), 'index.html must expose #toggle-inspectors-btn and #open-github-connect-btn');
     for (const legacyId of ['claude-3-5-sonnet', 'gpt-4o', 'deepseek-r1', 'uor-r4-500b']) {
       assert.equal(rawHtml.includes(legacyId), false, `index.html must not contain legacy model ${legacyId}`);
       assert.equal(rawJs.includes(legacyId), false, `app.js must not contain legacy model ${legacyId}`);
@@ -648,8 +649,8 @@ async function runSuite() {
       assert.ok(rawHtml.includes(`value="${honestId}"`), `index.html missing ${honestId}`);
       assert.ok(rawJs.includes(`id: '${honestId}'`), `app.js COMPOSER_MODELS missing ${honestId}`);
     }
-    assert.ok(rawCss.includes('#cowork-agent-status-bar:not([hidden]) {\n  display: flex;'), '#cowork-agent-status-bar:not([hidden]) must display flex cleanly');
-    assert.equal(rawCss.includes('body[data-layout-mode="chat"] #cowork-agent-status-bar'), false, 'chat mode must not unconditionally hide #cowork-agent-status-bar');
+    assert.ok(rawCss.includes('#prism-global-topbar'), 'app.css must style #prism-global-topbar');
+    assert.equal(rawCss.includes('body[data-layout-mode="chat"] #cowork-agent-status-bar'), false, 'chat mode must not unconditionally hide status controls');
     assert.ok(rawCss.includes('body.embed-me-compact > main'), 'app.css must style ?embed=me compact mode');
     assert.ok(rawJs.includes('force_refresh_reload') && rawJs.includes('studio_update_available') && rawJs.includes('prism:open-repo') && rawJs.includes('prism:ready'), 'app.js must implement provenance reload banner and ?embed=me postMessage bridge');
 
