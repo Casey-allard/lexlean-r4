@@ -1824,7 +1824,7 @@ test('F14.1: Model selector dropdown contains only local UOR-R4 execution modes'
   const select = doc.getElementById('composer-model-select');
   assert.ok(select, '#composer-model-select must exist');
   const options = select.querySelectorAll('option');
-  assert.ok(options.length >= 4, 'Must have at least 4 execution modes');
+  assert.equal(options.length, 2, 'R4-62 dropdown must expose strictly 2 active Qwen3 execution modes');
 
   for (const opt of options) {
     const val = String(opt.getAttribute('value') || opt.value || '');

@@ -148,17 +148,20 @@ button:focus {
   outline-offset: 2px;
 }
 
-/* Base Interactive Elements */
+/* Base Interactive Elements (Cursor-grade compact desktop controls) */
 button {
   width: auto;
-  min-height: 36px;
+  min-height: 26px;
   margin: 0;
-  padding: 0.35rem 0.72rem;
+  padding: 0 8px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 12px;
   font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
   background: var(--bg-surface);
   color: var(--text-primary);
   cursor: pointer;
@@ -193,9 +196,10 @@ button:disabled {
 
 .btn-xs,
 .btn-sm {
-  min-height: 36px;
-  padding: 0.25rem 0.6rem;
-  font-size: 0.74rem;
+  min-height: 24px;
+  height: 24px;
+  padding: 0 7px;
+  font-size: 11px;
 }
 
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
@@ -203,14 +207,20 @@ select,
 textarea {
   width: 100%;
   min-width: 0;
-  min-height: 36px;
+  min-height: 28px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  padding: 0.35rem 0.6rem;
+  padding: 0 8px;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 12px;
   color: var(--text-primary);
   background: var(--bg-surface);
+}
+
+textarea {
+  min-height: 44px;
+  padding: 6px 8px;
+  font-size: 0.84rem;
 }
 
 input[type="range"] {
@@ -296,14 +306,16 @@ prism-frame,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.45rem;
+  flex-wrap: nowrap;
+  gap: 6px;
   width: 100%;
   min-width: 0;
-  min-height: 48px;
-  padding: 0.35rem 0.75rem;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 10px;
   background: var(--topbar-bg);
   border-bottom: 1px solid var(--border-hairline);
+  overflow: hidden;
   z-index: 200;
 }
 
@@ -313,9 +325,9 @@ prism-frame,
 .topbar-actions {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 6px;
   min-width: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .prism-topbar-actions,
@@ -360,13 +372,15 @@ prism-frame,
 }
 
 .prism-seg-btn {
-  min-height: 36px;
-  padding: 0.25rem 0.75rem;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 8px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--text-secondary);
-  font-size: 0.76rem;
+  font-size: 12px;
+  line-height: 1;
 }
 
 .prism-seg-btn.active {
@@ -377,10 +391,11 @@ prism-frame,
 .prism-model-select {
   width: auto;
   min-width: 0;
-  max-width: clamp(9rem, 26vw, 19rem);
-  min-height: 36px;
-  padding: 0.25rem 0.55rem;
-  font-size: 0.76rem;
+  max-width: clamp(9rem, 24vw, 17rem);
+  height: 26px;
+  min-height: 26px;
+  padding: 0 8px;
+  font-size: 12px;
   font-weight: 600;
   border-radius: var(--radius-sm);
   background: var(--bg-subtle);
@@ -392,12 +407,14 @@ prism-frame,
 .prism-status-pill {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 0.15rem 0.55rem;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 9px;
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 11px;
   font-weight: 600;
+  line-height: 1;
   background: var(--bg-subtle);
   color: var(--text-secondary);
   border: 1px solid var(--border-subtle);
@@ -406,16 +423,19 @@ prism-frame,
 
 .prism-icon-btn,
 .prism-pill-btn {
-  min-height: 36px;
-  padding: 0.25rem 0.65rem;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 9px;
   border-radius: var(--radius-sm);
-  font-size: 0.76rem;
+  font-size: 12px;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .prism-icon-btn {
-  min-width: 36px;
-  padding: 0.25rem 0.5rem;
+  min-width: 28px;
+  width: 28px;
+  padding: 0 6px;
   display: inline-grid;
   place-items: center;
 }
@@ -577,7 +597,7 @@ body[data-layout-mode="chat"] #prism-right-column {
 /* Default Expanded (>= 840px) - Studio Mode */
 body[data-layout-mode="studio"] > main {
   grid-template-columns: clamp(220px, 20vw, 280px) minmax(0, 1.35fr) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) 28px;
+  grid-template-rows: minmax(0, 1fr) 22px;
 }
 
 body[data-layout-mode="studio"] > main.sidebar-collapsed {
@@ -1106,13 +1126,16 @@ body.theme-warm-light .cursor-mini-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.35rem;
-  padding: 0.25rem 0.5rem;
-  min-height: 40px;
+  flex-wrap: nowrap;
+  gap: 6px;
+  padding: 0 8px;
+  height: 30px;
+  min-height: 30px;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-hairline);
   min-width: 0;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 #cursor-editor-tabs,
@@ -1120,7 +1143,7 @@ body.theme-warm-light .cursor-mini-btn {
 .editor-tabs {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 4px;
   flex: 1 1 auto;
   min-width: 0;
   overflow-x: auto;
@@ -1130,13 +1153,14 @@ body.theme-warm-light .cursor-mini-btn {
 
 .cursor-editor-tab,
 .editor-tab {
-  min-height: 36px;
-  padding: 0.25rem 0.65rem;
+  height: 24px;
+  min-height: 24px;
+  padding: 0 8px;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 5px;
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: 11px;
   background: var(--bg-subtle);
   color: var(--text-secondary);
   border: 1px solid var(--border-hairline);
@@ -1161,16 +1185,18 @@ body.theme-warm-light .cursor-mini-btn {
 .cursor-workbench-toolbar {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.25rem;
+  flex-wrap: nowrap;
+  gap: 4px;
   min-width: 0;
   flex-shrink: 0;
 }
 
 .cursor-wb-btn {
-  min-height: 36px;
-  padding: 0.25rem 0.55rem;
-  font-size: 0.74rem;
+  height: 24px;
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  line-height: 1;
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
@@ -1188,13 +1214,14 @@ body.theme-warm-light .cursor-mini-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.25rem 0.65rem;
-  min-height: 28px;
+  gap: 6px;
+  padding: 0 8px;
+  height: 22px;
+  min-height: 22px;
   background: var(--bg-subtle);
   border-bottom: 1px solid var(--border-hairline);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 11px;
   color: var(--text-secondary);
   flex-shrink: 0;
   min-width: 0;
@@ -1376,19 +1403,30 @@ body.theme-warm-light .cursor-mini-btn {
   overflow-y: auto;
 }
 
+.cursor-editor-subheader,
+.cursor-editor-actions {
+  display: none;
+}
+
 .cursor-ghost-text-bar,
 .cursor-problems-strip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  padding: 0.25rem 0.5rem;
+  flex-wrap: nowrap;
+  gap: 6px;
+  min-height: 20px;
+  padding: 0 8px;
   background: var(--bg-surface);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-sm);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 11px;
+}
+
+.cursor-ghost-text-bar:empty,
+#cursor-ghost-text-bar[hidden] {
+  display: none !important;
 }
 
 .cursor-ghost-preview {
@@ -1597,8 +1635,10 @@ body.theme-warm-light .diff-line-hunk {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.28rem 0.65rem;
+  gap: 6px;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 8px;
   background: #161b22;
   border-bottom: 1px solid #30363d;
   flex-shrink: 0;
@@ -1889,12 +1929,42 @@ body.theme-warm-light .diff-line-hunk {
   min-width: 0;
 }
 
+.hydration-inline-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 5px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.hydration-inline-progress-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--bg-muted);
+  overflow: hidden;
+}
+
+.hydration-inline-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--accent-primary);
+  transition: width 120ms linear;
+}
+
 .composer-action-btn,
 .composer-trigger-pill,
 .composer-send-btn {
-  min-width: 36px;
-  min-height: 36px;
-  padding: 0 0.5rem;
+  min-width: 26px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0 7px;
   border-radius: 999px;
   display: inline-grid;
   place-items: center;
@@ -1907,8 +1977,9 @@ body.theme-warm-light .diff-line-hunk {
 }
 
 .composer-stop-btn {
-  min-height: 36px;
-  padding: 0.25rem 0.7rem;
+  height: 24px;
+  min-height: 24px;
+  padding: 0 9px;
   background: #b91c1c;
   border-color: #991b1b;
   color: #ffffff;
@@ -1926,13 +1997,14 @@ body.theme-warm-light .diff-line-hunk {
 }
 
 .composer-mode-btn {
-  min-height: 36px;
-  padding: 0.2rem 0.65rem;
+  height: 22px;
+  min-height: 22px;
+  padding: 0 8px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 11px;
 }
 
 .composer-mode-btn.active {
@@ -1961,22 +2033,16 @@ body.theme-warm-light .diff-line-hunk {
   overflow-y: auto;
 }
 
-/* Studio Docked Observatory Split */
+/* Studio Docked Observatory Split retired in favor of Floating Dropdown Neural HUD (R4-62) */
 #observatory-dock-split,
-.observatory-dock-split {
-  display: flex;
-  flex-direction: column;
-  flex: 0 1 42%;
-  min-height: 0;
-  min-width: 0;
-  overflow-y: auto;
-  border-top: 1px solid var(--border-strong);
-  background: var(--bg-surface);
-  padding: 0.5rem;
-}
-
+.observatory-dock-split,
 #observatory-dock-split:empty {
-  display: none;
+  display: none !important;
+  height: 0 !important;
+  flex: 0 0 0px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
 }
 
 [data-observatory-host="dock"] #observatory-dock-split .holo-observatory-deck {
@@ -1990,7 +2056,8 @@ body.density-compact .chat-turn {
 
 body.density-compact .gpt-topbar,
 body.density-compact #prism-global-topbar {
-  min-height: 44px;
+  height: 38px;
+  min-height: 38px;
 }
 
 /* ============================================================================
@@ -2003,15 +2070,15 @@ body.density-compact #prism-global-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  height: 28px;
-  min-height: 28px;
-  padding: 0 0.65rem;
+  gap: 6px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0 8px;
   background: #0f172a;
   color: #f8fafc;
   border-top: 1px solid #334155;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 11px;
   overflow: hidden;
   min-width: 0;
 }
@@ -2023,27 +2090,27 @@ body.density-compact #prism-global-topbar {
 .status-bar-right {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 6px;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .cursor-status-btn {
-  min-height: 22px;
-  padding: 0.05rem 0.4rem;
-  font-size: 0.66rem;
+  height: 18px;
+  min-height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
   background: #1e293b;
   color: #f8fafc;
   border: 1px solid #475569;
 }
 
 /* ============================================================================
-   7. Modals (#github-connect-modal, #settings-modal, #new-path-modal, #inspectors-modal)
+   7. Modals (#github-connect-modal, #settings-modal, #new-path-modal) & Floating HUD (#inspectors-modal)
    ============================================================================ */
 
 .prism-modal,
-.inspectors-modal,
 .github-connect-modal,
 .cursor-command-palette {
   position: fixed;
@@ -2060,6 +2127,25 @@ body.density-compact #prism-global-topbar {
   position: fixed;
   inset: 0;
   background: rgba(5, 8, 15, 0.72);
+}
+
+#inspectors-modal-backdrop {
+  display: none;
+  pointer-events: none;
+  background: transparent;
+}
+
+#inspectors-modal,
+.inspectors-modal {
+  position: fixed;
+  inset: 40px 10px auto auto;
+  z-index: 90;
+  display: block;
+  width: min(560px, calc(100vw - 20px));
+  max-height: calc(100dvh - 52px);
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
 }
 
 .prism-modal-dialog,
@@ -2084,16 +2170,65 @@ body.density-compact #prism-global-topbar {
 .inspectors-modal-dialog {
   position: relative;
   z-index: 1;
-  width: min(1240px, 94vw);
-  max-height: min(88dvh, 720px);
+  width: 100%;
+  max-width: 100%;
+  max-height: min(84dvh, 680px);
   background: var(--bg-surface);
   color: var(--text-primary);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-composer);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  pointer-events: auto;
+}
+
+.neural-hud-compact-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 10px;
+  min-height: 44px;
+  background: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-hairline);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.neural-hud-metrics-row,
+.neural-hud-actions-row {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.neural-hud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.neural-hud-sparkline-canvas {
+  width: 110px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+  background: #05070c;
+  display: block;
+}
+
+body:not(.surface-observatory):not([data-surface="observatory"]) #inspectors-modal:not(.hud-expanded) .inspectors-modal-body {
+  display: none;
 }
 
 .inspectors-modal-header,
@@ -2335,7 +2470,7 @@ body.density-compact #prism-global-topbar {
   body[data-layout-mode="studio"] > main,
   body[data-window-class="expanded"][data-layout-mode="studio"] > main {
     grid-template-columns: clamp(220px, 20vw, 280px) minmax(0, 1.35fr) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) 28px;
+    grid-template-rows: minmax(0, 1fr) 22px;
   }
 
   body[data-layout-mode="studio"] > main.sidebar-collapsed,
@@ -2349,7 +2484,7 @@ body.density-compact #prism-global-topbar {
   body[data-layout-mode="studio"] > main,
   body[data-window-class="medium"][data-layout-mode="studio"] > main {
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) !important;
-    grid-template-rows: minmax(0, 1fr) 28px !important;
+    grid-template-rows: minmax(0, 1fr) 22px !important;
   }
 
   body[data-layout-mode="chat"] > main,
@@ -2519,9 +2654,15 @@ body.density-compact #prism-global-topbar {
   .holo-live-hud {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  #inspectors-modal,
+  .inspectors-modal {
+    inset: 38px 6px auto 6px;
+    width: auto;
+  }
 }
 
-@media (pointer: coarse) {
+@media (pointer: coarse) and (hover: none) {
   button,
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
@@ -2596,6 +2737,8 @@ body.surface-observatory #inspectors-modal-backdrop,
 body[data-surface="observatory"] #inspectors-modal-backdrop,
 body.surface-observatory .inspectors-modal-header,
 body[data-surface="observatory"] .inspectors-modal-header,
+body.surface-observatory #neural-hud-compact-strip,
+body[data-surface="observatory"] #neural-hud-compact-strip,
 body.surface-observatory .inspectors-modal-body > .canvas-panel:not(#canvas-panel-traces),
 body[data-surface="observatory"] .inspectors-modal-body > .canvas-panel:not(#canvas-panel-traces),
 body.surface-observatory #canvas-panel-traces > *:not(#holo-observatory-deck),

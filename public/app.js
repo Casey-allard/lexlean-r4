@@ -4416,7 +4416,10 @@ function syncComposerModel(modelId) {
 }
 
 if (composerModelSelect) {
-  if (AppState && AppState.config && AppState.config.selectedModel && COMPOSER_MODELS.some((m) => m.id === AppState.config.selectedModel)) {
+  if (
+    AppState && AppState.config &&
+    (AppState.config.selectedModel === 'uor-r4.qwen3-0.6b-holo' || AppState.config.selectedModel === 'uor-r4.qwen3-1.7b-holo')
+  ) {
     composerModelSelect.value = AppState.config.selectedModel;
   }
   composerModelSelect.addEventListener('change', (e) => {
@@ -4429,7 +4432,10 @@ if (composerModelSelect) {
 }
 
 if (globalModelSelect) {
-  if (AppState && AppState.config && AppState.config.selectedModel && COMPOSER_MODELS.some((m) => m.id === AppState.config.selectedModel)) {
+  if (
+    AppState && AppState.config &&
+    (AppState.config.selectedModel === 'uor-r4.qwen3-0.6b-holo' || AppState.config.selectedModel === 'uor-r4.qwen3-1.7b-holo')
+  ) {
     globalModelSelect.value = AppState.config.selectedModel;
   }
   globalModelSelect.addEventListener('change', (e) => {
@@ -4966,10 +4972,26 @@ const INSPECTOR_MODAL_TAB_IDS = new Set([
 ]);
 const inspectorsModalEl = document.getElementById('inspectors-modal');
 
+/** Formal R4.StudioFrame synchronize ARIA expanded state across Neural HUD triggers. */
+function syncNeuralHudTriggerState(isOpen, isExpanded) {
+  const toggleBtn = document.getElementById('toggle-inspectors-btn');
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (toggleBtn.classList) toggleBtn.classList.toggle('active', Boolean(isOpen));
+  }
+  const expandBtn = document.getElementById('neural-hud-expand-btn');
+  if (expandBtn) {
+    expandBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+    expandBtn.textContent = isExpanded ? 'Collapse ▴' : '4-Canvas Deck ▾';
+  }
+}
+
 function closeInspectorsModal() {
   if (inspectorsModalEl) {
     inspectorsModalEl.setAttribute('hidden', '');
+    if (inspectorsModalEl.classList) inspectorsModalEl.classList.remove('hud-expanded');
   }
+  syncNeuralHudTriggerState(false, false);
   if (lexLean3dVisualizer && lexLean3dVisualizer.animFrameId && typeof cancelAnimationFrame === 'function') {
     cancelAnimationFrame(lexLean3dVisualizer.animFrameId);
     lexLean3dVisualizer.animFrameId = null;
@@ -4978,9 +5000,14 @@ function closeInspectorsModal() {
   activeCanvasTabId = 'terminal';
 }
 
-function openInspectorsModal(tabId = 'traces') {
+function openInspectorsModal(tabId = 'traces', expandDeck = false) {
   const targetTab = INSPECTOR_MODAL_TAB_IDS.has(tabId) ? tabId : 'traces';
+  const shouldExpand = Boolean(expandDeck) || targetTab !== 'traces';
+  if (inspectorsModalEl && inspectorsModalEl.classList) {
+    inspectorsModalEl.classList.toggle('hud-expanded', shouldExpand);
+  }
   activateCanvasTab(targetTab);
+  syncNeuralHudTriggerState(true, shouldExpand);
 }
 
 function activateCanvasTab(tabId) {
@@ -4989,6 +5016,11 @@ function activateCanvasTab(tabId) {
   if (INSPECTOR_MODAL_TAB_IDS.has(tabId)) {
     if (inspectorsModalEl) {
       inspectorsModalEl.removeAttribute('hidden');
+      if (tabId !== 'traces' && inspectorsModalEl.classList) {
+        inspectorsModalEl.classList.add('hud-expanded');
+      }
+      const isExpanded = Boolean(inspectorsModalEl.classList && inspectorsModalEl.classList.contains('hud-expanded'));
+      syncNeuralHudTriggerState(true, isExpanded);
     }
     for (const btn of canvasTabButtons) {
       const btnTab = btn.getAttribute('data-tab-id');
@@ -5401,10 +5433,12 @@ function renderVerdantSynthesisPanel() {
   }
 }
 
+const MAX_HUD_RING_FRAMES = 64;
 const holoObservatoryState = {
   frames: [],
   storageGeom: null,
   paused: false,
+  hudRafPending: false,
   lockedFrameIdx: null,
   qTrail: [],
   rotAngle: 0.42,
@@ -5468,12 +5502,26 @@ async function refreshHoloStorageGeometry(modelId = '') {
   return geom;
 }
 
+/** Formal R4.StudioFrame coalesce floating HUD and 4-canvas redraws via requestAnimationFrame. */
+function scheduleHoloObservatoryRender() {
+  if (typeof requestAnimationFrame !== 'function') {
+    renderHoloObservatoryDeck();
+    return;
+  }
+  if (holoObservatoryState.hudRafPending) return;
+  holoObservatoryState.hudRafPending = true;
+  requestAnimationFrame(() => {
+    holoObservatoryState.hudRafPending = false;
+    renderHoloObservatoryDeck();
+  });
+}
+
 function ingestHoloObservatoryFrame(frame, batchMeta = null) {
   /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
   if (!frame || typeof frame !== 'object') return;
   if (holoObservatoryState.paused) return;
   holoObservatoryState.frames.push(frame);
-  if (holoObservatoryState.frames.length > 96) {
+  if (holoObservatoryState.frames.length > MAX_HUD_RING_FRAMES) {
     holoObservatoryState.frames.shift();
   }
   if (Array.isArray(frame.q_manifold_xyz) && frame.q_manifold_xyz.length === 3) {
@@ -5494,7 +5542,7 @@ function ingestHoloObservatoryFrame(frame, batchMeta = null) {
     holoObservatoryState.backend = String(frame.backend);
   }
   holoObservatoryState.rotAngle = (holoObservatoryState.rotAngle + 0.08) % (Math.PI * 2);
-  renderHoloObservatoryDeck();
+  scheduleHoloObservatoryRender();
 }
 
 function drawHoloCanvasHeader(ctx, w, h, subtitle) {
@@ -5557,20 +5605,20 @@ function renderHoloObservatoryDeck() {
       badgeEl.textContent = 'Awaiting Live Token Frame';
     }
   }
+  const ttftStr = holoObservatoryState.firstDeltaMs ? `${holoObservatoryState.firstDeltaMs}ms` : '—';
+  const decMs = holoObservatoryState.lastDecodeDurationMs > 0
+    ? holoObservatoryState.lastDecodeDurationMs
+    : holoObservatoryState.lastTurnDurationMs;
+  const genToks = holoObservatoryState.lastGeneratedTokens || 0;
+  const streamedToks = (holoObservatoryState.firstDeltaMs > 0 && genToks > 1) ? (genToks - 1) : genToks;
+  let tpsValStr = '—';
+  if (holoObservatoryState.directTokPerSec && holoObservatoryState.directTokPerSec > 0) {
+    tpsValStr = `${Number(holoObservatoryState.directTokPerSec).toFixed(1)} tok/s`;
+  } else if (decMs > 0 && streamedToks > 0) {
+    tpsValStr = `${(streamedToks / (decMs / 1000)).toFixed(1)} tok/s`;
+  }
   if (speedEl) {
-    const ttft = holoObservatoryState.firstDeltaMs ? `${holoObservatoryState.firstDeltaMs}ms TTFT` : '—';
-    const decMs = holoObservatoryState.lastDecodeDurationMs > 0
-      ? holoObservatoryState.lastDecodeDurationMs
-      : holoObservatoryState.lastTurnDurationMs;
-    const genToks = holoObservatoryState.lastGeneratedTokens || 0;
-    const streamedToks = (holoObservatoryState.firstDeltaMs > 0 && genToks > 1) ? (genToks - 1) : genToks;
-    let tps = '—';
-    if (holoObservatoryState.directTokPerSec && holoObservatoryState.directTokPerSec > 0) {
-      tps = `${Number(holoObservatoryState.directTokPerSec).toFixed(1)} tok/s`;
-    } else if (decMs > 0 && streamedToks > 0) {
-      tps = `${(streamedToks / (decMs / 1000)).toFixed(1)} tok/s`;
-    }
-    speedEl.textContent = `${ttft} · ${tps}`;
+    speedEl.textContent = `${holoObservatoryState.firstDeltaMs ? `${ttftStr} TTFT` : '—'} · ${tpsValStr}`;
   }
   if (prefixEl) {
     prefixEl.textContent = `${holoObservatoryState.prefixReused || 0} tok cached`;
@@ -5588,6 +5636,46 @@ function renderHoloObservatoryDeck() {
     backendEl.textContent = uorc
       ? `${holoObservatoryState.backend} · uorc gen=${uorc.generation ?? 0} (${uorc.verdict || 'TelosAdmitted'})`
       : holoObservatoryState.backend;
+  }
+
+  // Update floating Dropdown Neural HUD compact ribbon (`R4-62`)
+  const hudTtftEl = document.getElementById('neural-hud-ttft');
+  const hudTpsEl = document.getElementById('neural-hud-tps');
+  const hudBackendEl = document.getElementById('neural-hud-backend');
+  const hudKvEl = document.getElementById('neural-hud-kv');
+  const hudSparkCanvas = document.getElementById('neural-hud-sparkline-canvas');
+  if (hudTtftEl) hudTtftEl.textContent = ttftStr;
+  if (hudTpsEl) hudTpsEl.textContent = tpsValStr;
+  if (hudBackendEl) {
+    hudBackendEl.textContent = latest && Array.isArray(latest.layer_residual_mag)
+      ? `${holoObservatoryState.backend} (${latest.layer_residual_mag.length}L)`
+      : String(holoObservatoryState.backend || 'wasm-simd128');
+  }
+  if (hudKvEl) hudKvEl.textContent = `${holoObservatoryState.prefixReused || 0} tok`;
+  if (hudSparkCanvas && typeof hudSparkCanvas.getContext === 'function') {
+    const sCtx = hudSparkCanvas.getContext('2d');
+    const sw = hudSparkCanvas.width || 110;
+    const sh = hudSparkCanvas.height || 22;
+    if (sCtx && typeof sCtx.clearRect === 'function') {
+      sCtx.clearRect(0, 0, sw, sh);
+      sCtx.fillStyle = '#05070c';
+      sCtx.fillRect(0, 0, sw, sh);
+      const pts = holoObservatoryState.frames;
+      if (pts.length > 0) {
+        sCtx.strokeStyle = '#38bdf8';
+        sCtx.lineWidth = 1.4;
+        sCtx.beginPath();
+        for (let i = 0; i < pts.length; i += 1) {
+          const f = pts[i];
+          const val = Number(f && (f.min_hamming ?? f.tps_x10 ?? 32));
+          const x = pts.length === 1 ? sw - 2 : (i / (pts.length - 1)) * (sw - 4) + 2;
+          const y = sh - 3 - Math.min(sh - 6, Math.max(0, (val % 64) / 64 * (sh - 6)));
+          if (i === 0) sCtx.moveTo(x, y);
+          else sCtx.lineTo(x, y);
+        }
+        sCtx.stroke();
+      }
+    }
   }
 
   // 1. 28-Layer Residual & Bit-Width Waterfall
@@ -6348,28 +6436,21 @@ const syncObservatoryHost = () => {
   const obsDeck = document.getElementById('holo-observatory-deck');
   const dockSplit = document.getElementById('observatory-dock-split');
   const tracesPanel = document.getElementById('canvas-panel-traces');
-  if (!body || !obsDeck) return 'modal';
+  if (!body || !obsDeck) return 'hud';
 
-  const searchStr = (typeof window !== 'undefined' && window.location && window.location.search) || '';
-  const isObsSurface = searchStr.includes('surface=observatory');
-  const winClass = (body.dataset && body.dataset.windowClass)
-    || (typeof body.getAttribute === 'function' && body.getAttribute('data-window-class'))
-    || 'expanded';
-  const layoutMode = (body.dataset && body.dataset.layoutMode)
-    || (typeof body.getAttribute === 'function' && body.getAttribute('data-layout-mode'))
-    || 'chat';
+  const targetHost = tracesPanel || obsDeck.parentNode;
+  const hostTag = 'hud';
 
-  const shouldDock = !isObsSurface && layoutMode === 'studio' && (winClass === 'expanded' || winClass === 'medium') && Boolean(dockSplit);
-  const targetHost = shouldDock ? dockSplit : tracesPanel;
-  const hostTag = shouldDock ? 'dock' : 'modal';
-
+  if (dockSplit) {
+    dockSplit.setAttribute('hidden', '');
+    dockSplit.setAttribute('aria-hidden', 'true');
+  }
   if (targetHost) {
     const alreadyThere = Array.isArray(targetHost.children)
       ? targetHost.children.includes(obsDeck)
       : (obsDeck.parentNode === targetHost);
     if (!alreadyThere) {
       if (dockSplit && dockSplit !== targetHost) _detachChildSafely(dockSplit, obsDeck);
-      if (tracesPanel && tracesPanel !== targetHost) _detachChildSafely(tracesPanel, obsDeck);
       targetHost.appendChild(obsDeck);
     }
   }
@@ -6421,7 +6502,7 @@ const lockObservatoryToFrame = (frame, framesPrefix = null, lockedIdx = null) =>
   if (!holoObservatoryState || !frame) return;
   holoObservatoryState.lockedFrameIdx = lockedIdx;
   if (Array.isArray(framesPrefix) && framesPrefix.length > 0) {
-    holoObservatoryState.frames = framesPrefix.slice(-96);
+    holoObservatoryState.frames = framesPrefix.slice(-64);
   } else {
     holoObservatoryState.frames = [frame];
   }
@@ -14251,6 +14332,10 @@ function dismissCursorGhostText() {
   if (overlayEl) {
     overlayEl.innerHTML = '';
   }
+  const ghostBarEl = document.getElementById('cursor-ghost-text-bar');
+  if (ghostBarEl) {
+    ghostBarEl.setAttribute('hidden', '');
+  }
   const previewEl = document.getElementById('cursor-ghost-text-preview');
   if (previewEl) {
     previewEl.textContent = '';
@@ -15093,6 +15178,10 @@ function updateCursorGhostText() {
     overlayEl.scrollLeft = workspaceEditorTextarea.scrollLeft;
   }
 
+  const ghostBarEl = document.getElementById('cursor-ghost-text-bar');
+  if (ghostBarEl) {
+    ghostBarEl.removeAttribute('hidden');
+  }
   if (previewEl) {
     previewEl.textContent = ghostLine.replace(/\n/g, ' ↵ ');
   }
@@ -18315,7 +18404,21 @@ function initLayoutAndConnectedControls() {
 
   const closeInspectorsBtn = document.getElementById('close-inspectors-modal-btn');
   const inspectorsBackdrop = document.getElementById('inspectors-modal-backdrop');
+  const neuralHudExpandBtn = document.getElementById('neural-hud-expand-btn');
+  const neuralHudCloseBtn = document.getElementById('neural-hud-close-btn');
   if (closeInspectorsBtn) closeInspectorsBtn.addEventListener('click', () => closeInspectorsModal());
+  if (neuralHudCloseBtn) neuralHudCloseBtn.addEventListener('click', () => closeInspectorsModal());
+  if (neuralHudExpandBtn) {
+    neuralHudExpandBtn.addEventListener('click', () => {
+      if (!inspectorsModalEl) return;
+      const expanded = inspectorsModalEl.classList ? inspectorsModalEl.classList.toggle('hud-expanded') : false;
+      syncNeuralHudTriggerState(true, expanded);
+      if (expanded) {
+        if (typeof renderHoloObservatoryDeck === 'function') renderHoloObservatoryDeck();
+        if (lexLean3dVisualizer && typeof lexLean3dVisualizer.resize === 'function') lexLean3dVisualizer.resize();
+      }
+    });
+  }
   if (inspectorsBackdrop) inspectorsBackdrop.addEventListener('click', () => closeInspectorsModal());
 
   const githubModal = document.getElementById('github-connect-modal');

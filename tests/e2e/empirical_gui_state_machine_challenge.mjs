@@ -1056,14 +1056,17 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     assert.equal(prismFrame.dataset.windowClass, 'compact');
     assert.equal(sidebarEl.classList.contains('sidebar-collapsed'), true, 'Compact 500px must collapse sidebar');
     body.dataset.layoutMode = 'studio';
-    r460.syncObservatoryHost();
+    const compactHost = r460.syncObservatoryHost();
+    assert.equal(compactHost, 'hud');
     assert.ok(tracesPanelEl.children.includes(obsDeckEl), 'Compact mode must keep Observatory inside #inspectors-modal');
     r460.applyWindowWidthClass(1280);
     assert.equal(body.dataset.windowClass, 'expanded');
     assert.equal(sidebarEl.classList.contains('sidebar-collapsed'), false, 'Widening to 1280px must recover sidebar unless manually collapsed');
-    r460.syncObservatoryHost();
-    assert.ok(dockSplitEl.children.includes(obsDeckEl), 'Expanded Studio mode must dock Observatory into #observatory-dock-split');
-    console.log('  ✓ 7.1 M3 window size classes, sidebar 500->1280 recovery & Observatory dock verified.');
+    const expandedHost = r460.syncObservatoryHost();
+    assert.equal(expandedHost, 'hud');
+    assert.ok(tracesPanelEl.children.includes(obsDeckEl), 'R4-62 Studio mode keeps Observatory hosted inside floating #inspectors-modal');
+    assert.equal(dockSplitEl.children.length, 0, '#observatory-dock-split must remain empty so Studio chat fills full column height');
+    console.log('  ✓ 7.1 M3 window size classes, sidebar 500->1280 recovery & non-blocking Neural HUD host verified.');
 
     // 7.2 Live Mini-HUD + <=512 token ring-buffer scrubber + Worker handleMessage + lock/unlock/eviction + Q31 honesty
     const hudCtrl = r460.createLiveTokenHudController(chatMessagesEl);
@@ -1120,6 +1123,7 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     const obsBefore = obsRenderCount;
     tokSpans[0].dispatchEvent({ type: 'click', target: tokSpans[0] });
     assert.ok(obsRenderCount > obsBefore, 'Clicking scrubber token must re-render Observatory deck');
+    assert.equal(obsStateMock.frames.length <= 64, true);
     assert.equal(obsStateMock.frames[obsStateMock.frames.length - 1].step_idx, Number(tokSpans[0].getAttribute('data-frame-idx')) + 8, 'Scrubber lock must select exact ring-buffered frame');
     assert.equal(obsStateMock.lockedFrameIdx, 0, 'Clicking span 0 must pin lockedFrameIdx=0');
     assert.equal(tokSpans[0].getAttribute('aria-pressed'), 'true');

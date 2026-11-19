@@ -38,7 +38,7 @@
       <div class="prism-topbar-actions topbar-actions">
         <button id="toggle-web-access-btn" type="button" class="prism-pill-btn topbar-pill-web-on" aria-pressed="true" title="Toggle SpiralCore Net Mode">Net: SpiralCore</button>
         <button id="open-github-connect-btn" type="button" class="prism-pill-btn" title="Connect GitHub Vault and Sync Repository">GitHub</button>
-        <button id="toggle-inspectors-btn" type="button" class="prism-pill-btn" title="Open Observatory and Engine Inspectors">Observatory</button>
+        <button id="toggle-inspectors-btn" type="button" class="prism-pill-btn" aria-expanded="false" aria-controls="inspectors-modal" title="Toggle Live Neural HUD &amp; Engine Inspectors">&#9889; HUD &#9662;</button>
         <button id="open-settings-modal-btn" type="button" class="prism-icon-btn" title="Open Studio Settings" aria-label="Settings">&#9881;</button>
       </div>
     </header>
@@ -284,7 +284,7 @@
                 </div>
               </div>
 
-              <div id="cursor-ghost-text-bar" class="cursor-ghost-text-bar" role="status" aria-live="polite" aria-label="Ghost-Text Autocomplete">
+              <div id="cursor-ghost-text-bar" class="cursor-ghost-text-bar" role="status" aria-live="polite" aria-label="Ghost-Text Autocomplete" hidden>
                 <span class="cursor-ghost-pill">Tab &middot; /7+/8</span>
                 <code id="cursor-ghost-text-preview" class="cursor-ghost-preview">pub fn flock_consensus_step(q12: &amp;[i16; 8]) -&gt; u8</code>
                 <span id="cursor-ghost-meta" class="cursor-ghost-meta">Basin #18</span>
@@ -432,7 +432,7 @@
       </section>
 
       <!-- Docked Observatory Host in Studio Mode (data-observatory-host="dock") -->
-      <aside id="observatory-dock-split" class="observatory-dock-split" data-observatory-host="dock" aria-label="Studio Live Observatory Dock"></aside>
+      <aside id="observatory-dock-split" class="observatory-dock-split" data-observatory-host="hud" aria-label="Studio Live Observatory Dock" hidden aria-hidden="true"></aside>
     </div>
 
     <!-- Bottom IDE Status Bar -->
@@ -678,13 +678,13 @@
     </div>
   </div>
 
-  <!-- Observatory & Engine Inspectors Modal (also ?surface=observatory host) -->
-  <div id="inspectors-modal" class="inspectors-modal" hidden role="dialog" aria-modal="true" aria-label="3D Holographic Brain and Engine Inspectors">
-    <div id="inspectors-modal-backdrop" class="inspectors-modal-backdrop"></div>
+  <!-- Non-Blocking Dropdown Neural HUD & Engine Inspectors (also ?surface=observatory host) -->
+  <div id="inspectors-modal" class="inspectors-modal" hidden role="region" aria-label="Live Neural HUD and Engine Inspectors">
+    <div id="inspectors-modal-backdrop" class="inspectors-modal-backdrop" hidden></div>
     <div class="inspectors-modal-dialog">
       <div class="inspectors-modal-header">
         <div class="inspectors-modal-brand">
-          <strong>Observatory &amp; Engine Inspectors</strong>
+          <strong>Neural HUD &amp; Engine Inspectors</strong>
           <span id="inspectors-live-pulse-pill" class="panel-badge">Live Worker Stream</span>
         </div>
         <nav class="canvas-tabs inspectors-tabs-nav" role="tablist" aria-label="Engine Inspector Tabs">
@@ -711,6 +711,20 @@
           </button>
         </nav>
         <button id="close-inspectors-modal-btn" type="button" class="btn-secondary btn-xs" title="Close Inspectors (Esc)" aria-label="Close Inspectors">&times; Close</button>
+      </div>
+
+      <div id="neural-hud-compact-strip" class="neural-hud-compact-strip" role="region" aria-label="Compact Live Neural HUD Ribbon">
+        <div class="neural-hud-metrics-row">
+          <span class="neural-hud-chip"><strong>TTFT</strong> <code id="neural-hud-ttft">&mdash;</code></span>
+          <span class="neural-hud-chip"><strong>Speed</strong> <code id="neural-hud-tps">&mdash;</code></span>
+          <span class="neural-hud-chip"><strong>Lane</strong> <code id="neural-hud-backend">wasm-simd128</code></span>
+          <span class="neural-hud-chip"><strong>KV</strong> <code id="neural-hud-kv">0 tok</code></span>
+        </div>
+        <div class="neural-hud-actions-row">
+          <canvas id="neural-hud-sparkline-canvas" class="neural-hud-sparkline-canvas" width="110" height="22" title="Kappa Resonance Sparkline"></canvas>
+          <button id="neural-hud-expand-btn" type="button" class="btn-secondary btn-xs" aria-expanded="false" aria-controls="canvas-panel-traces">4-Canvas Deck &#9662;</button>
+          <button id="neural-hud-close-btn" type="button" class="btn-secondary btn-xs" title="Hide Neural HUD" aria-label="Hide Neural HUD">&times;</button>
+        </div>
       </div>
 
       <div class="inspectors-modal-body">
