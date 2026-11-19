@@ -6,7 +6,11 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
-import { SpiralCoreHostBridge } from '../../crates/wasm/js/worker_host_bridge.js';
+import {
+  SpiralCoreHostBridge,
+  hydrate_holo_model,
+  execute_inprism_foundry_turn,
+} from '../../crates/wasm/js/worker_host_bridge.js';
 import { startLocalRelay } from '../../relay/local-relay.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -1268,13 +1272,699 @@ async function testSetPolicyAndWorkerBridgePolicyRejectsInsecureRelay() {
   console.log('  ✓ setPolicy & Worker set_bridge_policy/set_host_config InsecureTransportRejected verified.');
 }
 
+async function testStudioBridgeConsentAndGitDeletions_R4_60() {
+  console.log('5. Testing R4-60 off-origin consent (SecurityError/Q31 fallback), deletion-aware /workspace/.git sync & studio_stream_turn...');
+
+  // 5a. Off-origin hydration consent with simulated SecurityError on localStorage + Pages 404 .bin shards + allowOffOriginHydration=true
+  const prevLoc = globalThis.location;
+  const prevFetch = globalThis.fetch;
+  const prevIdb = globalThis.indexedDB;
+  const prevLsDesc = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  const prevBeginMountV = globalThis.studio_begin_holo_v13_mount_verified;
+  const prevBeginMount = globalThis.studio_begin_holo_v13_mount;
+  const prevPushPiece = globalThis.studio_push_holo_v13_piece;
+  const prevFinMount = globalThis.studio_finalize_holo_v13_mount;
+
+  try {
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      get() {
+        const err = new Error('The operation is insecure (simulated opaque-origin SecurityError)');
+        err.name = 'SecurityError';
+        throw err;
+      },
+    });
+    globalThis.indexedDB = undefined;
+    globalThis.location = {
+      origin: 'https://casey-allard.github.io',
+      href: 'https://casey-allard.github.io/lexlean-r4/',
+    };
+
+    const piece0Bytes = new TextEncoder().encode('UORR4V13-test-piece-0');
+    const piece0Sha = crypto.createHash('sha256').update(piece0Bytes).digest('hex');
+    const testManifest = {
+      format: 'UORR4V13',
+      container_sha256: piece0Sha,
+      total_bytes: 429916160,
+      mirrors: ['https://raw.githubusercontent.com/Casey-allard/lexlean-r4/weights-v13-qwen3-0.6b/'],
+      pieces: [{ index: 0, file: 'piece_0000.bin', sha256: piece0Sha, byte_length: piece0Bytes.byteLength }],
+    };
+
+    const offOriginHits = [];
+    // Case A: neither manifest nor shards on same-origin -> ConsentRequiredForWeightDownload with model_id, approx_bytes, mirrors
+    globalThis.fetch = async (url) => {
+      const s = String(url || '');
+      if (s.startsWith('https://raw.githubusercontent.com/')) {
+        offOriginHits.push(s);
+      }
+      return new Response('Not Found', { status: 404 });
+    };
+    await assert.rejects(
+      () => hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, true, {}),
+      (err) =>
+        err &&
+        err.code === 'ConsentRequiredForWeightDownload' &&
+        err.model_id === 'uor-r4.qwen3-0.6b-holo' &&
+        Number(err.approx_bytes) > 0 &&
+        Array.isArray(err.mirrors) &&
+        err.mirrors.some((m) => m.includes('raw.githubusercontent.com')),
+    );
+    assert.equal(offOriginHits.length, 0, 'must not touch off-origin mirror before explicit consent');
+
+    // Case B: Pages deployment scenario — same-origin manifest.json returns 200 OK while piece_0000.bin returns 404!
+    // Must throw ConsentRequiredForWeightDownload (NOT RefusedInsufficientParityShards)!
+    globalThis.fetch = async (url) => {
+      const s = String(url || '');
+      if (s.startsWith('https://casey-allard.github.io/') && s.endsWith('/manifest.json')) {
+        return new Response(JSON.stringify(testManifest), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      if (s.startsWith('https://raw.githubusercontent.com/')) {
+        offOriginHits.push(s);
+        if (s.endsWith('/manifest.json')) {
+          return new Response(JSON.stringify(testManifest), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          });
+        }
+        if (s.endsWith('/piece_0000.bin')) {
+          return new Response(piece0Bytes, { status: 200 });
+        }
+      }
+      return new Response('Not Found', { status: 404 });
+    };
+
+    await assert.rejects(
+      () => hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, true, { allowOffOriginHydration: false }),
+      (err) =>
+        err &&
+        err.code === 'ConsentRequiredForWeightDownload' &&
+        err.model_id === 'uor-r4.qwen3-0.6b-holo' &&
+        Array.isArray(err.mirrors) &&
+        err.mirrors.some((m) => m.includes('raw.githubusercontent.com')),
+    );
+    assert.equal(offOriginHits.length, 0, 'GitHub Pages 404 .bin shards must request off-origin consent, not fetch or fail parity');
+
+    // Case C: allowOffOriginHydration: true + rememberConsent: true proceeds cleanly despite localStorage SecurityError
+    let mountedPieces = 0;
+    globalThis.studio_begin_holo_v13_mount_verified = () => JSON.stringify({ status: 'ok' });
+    globalThis.studio_begin_holo_v13_mount = () => JSON.stringify({ status: 'ok' });
+    globalThis.studio_push_holo_v13_piece = () => {
+      mountedPieces += 1;
+      return JSON.stringify({ status: 'ok' });
+    };
+    globalThis.studio_finalize_holo_v13_mount = () =>
+      JSON.stringify({ status: 'ok', model_id: 'uor-r4.qwen3-0.6b-holo', mounted: true });
+
+    const hydrated = await hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, true, {
+      allowOffOriginHydration: true,
+      rememberConsent: true,
+    });
+    assert.equal(hydrated.status, 'ok');
+    assert.equal(mountedPieces, 1);
+    assert.ok(offOriginHits.some((u) => u.endsWith('/piece_0000.bin')));
+  } finally {
+    globalThis.location = prevLoc;
+    globalThis.fetch = prevFetch;
+    globalThis.indexedDB = prevIdb;
+    if (prevLsDesc) Object.defineProperty(globalThis, 'localStorage', prevLsDesc);
+    else delete globalThis.localStorage;
+    globalThis.studio_begin_holo_v13_mount_verified = prevBeginMountV;
+    globalThis.studio_begin_holo_v13_mount = prevBeginMount;
+    globalThis.studio_push_holo_v13_piece = prevPushPiece;
+    globalThis.studio_finalize_holo_v13_mount = prevFinMount;
+  }
+
+  // 5b. SpiralCoreHostBridge clone -> .git/uor_state.json + .git/tree_index.json -> local delete -> git status / diff -> commit_push (sha: null)
+  const postedTrees = [];
+  const remoteFiles = new Map([
+    ['README.md', '# Studio Repo\n'],
+    ['src/keep.rs', 'pub fn keep() -> i32 { 1 }\n'],
+    ['src/old.rs', 'pub fn old() -> i32 { 0 }\n'],
+  ]);
+  const gitMockFetch = async (url, init = {}) => {
+    const u = new URL(String(url));
+    assert.equal(u.hostname, 'api.github.com', 'GITHUB_TOKEN git calls must target api.github.com directly');
+    const auth = init.headers?.Authorization || init.headers?.authorization || '';
+    assert.equal(auth, 'Bearer ghp_studio_del_pat');
+
+    if (u.pathname === '/repos/uor-test/studio-del') {
+      return new Response(JSON.stringify({ default_branch: 'main', private: false, html_url: 'https://github.com/uor-test/studio-del' }), { status: 200 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/branches') {
+      return new Response(JSON.stringify([{ name: 'main' }]), { status: 200 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/trees/main') {
+      const tree = Array.from(remoteFiles.entries()).map(([p, c]) => ({
+        path: p,
+        type: 'blob',
+        size: c.length,
+        sha: `sha_${p}`,
+      }));
+      return new Response(JSON.stringify({ sha: 'commit_head_1', tree }), { status: 200 });
+    }
+    if (u.pathname.startsWith('/repos/uor-test/studio-del/git/blobs/')) {
+      const sha = decodeURIComponent(u.pathname.split('/').pop() || '');
+      const filePath = sha.replace(/^sha_/, '');
+      const content = remoteFiles.get(filePath) ?? '';
+      return new Response(
+        JSON.stringify({ encoding: 'base64', content: Buffer.from(content, 'utf8').toString('base64'), size: content.length }),
+        { status: 200 },
+      );
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/ref/heads/main' && (init.method || 'GET') === 'GET') {
+      return new Response(JSON.stringify({ ref: 'refs/heads/main', object: { sha: 'commit_head_1' } }), { status: 200 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/commits/commit_head_1') {
+      return new Response(JSON.stringify({ sha: 'commit_head_1', tree: { sha: 'tree_base_1' } }), { status: 200 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/trees' && init.method === 'POST') {
+      const body = JSON.parse(String(init.body || '{}'));
+      postedTrees.push(body);
+      return new Response(JSON.stringify({ sha: 'tree_next_2' }), { status: 201 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/commits' && init.method === 'POST') {
+      return new Response(JSON.stringify({ sha: 'commit_next_2' }), { status: 201 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/refs/heads/main' && init.method === 'PATCH') {
+      return new Response(JSON.stringify({ ref: 'refs/heads/main', object: { sha: 'commit_next_2' } }), { status: 200 });
+    }
+    throw new Error(`Unexpected git mock URL: ${init.method || 'GET'} ${u.pathname}`);
+  };
+
+  const gitBridge = new SpiralCoreHostBridge({ fetchImpl: gitMockFetch, mode: 'sandboxed' });
+  gitBridge.setSecret('GITHUB_TOKEN', 'ghp_studio_del_pat');
+
+  const cloneRes = await gitBridge.execute({
+    op: 'git',
+    subcommand: 'clone',
+    repo: 'uor-test/studio-del',
+    branch: 'main',
+  });
+  assert.equal(cloneRes.ok, true);
+  assert.equal(cloneRes.files.length, 3);
+  const uorStateRaw = gitBridge.readWorkspaceFile('/workspace/.git/uor_state.json');
+  const treeIndexRaw = gitBridge.readWorkspaceFile('/workspace/.git/tree_index.json');
+  assert.ok(uorStateRaw && treeIndexRaw, 'clone must write /workspace/.git/uor_state.json and /workspace/.git/tree_index.json');
+  const treeIndex = JSON.parse(treeIndexRaw);
+  assert.ok(treeIndex.entries && treeIndex.entries['src/old.rs'], 'tree_index.json must track src/old.rs');
+
+  // Local workspace mutation: remove src/old.rs, modify README.md, add src/new.rs
+  gitBridge.deleteWorkspaceFile('src/old.rs');
+  gitBridge.writeWorkspaceFile('README.md', '# Studio Repo v2\n');
+  gitBridge.writeWorkspaceFile('src/new.rs', 'pub fn added() -> i32 { 7 }\n');
+
+  const statusRes = await gitBridge.execute({ op: 'git', subcommand: 'status' });
+  assert.equal(statusRes.ok, true, `git status failed: ${JSON.stringify(statusRes)}`);
+  assert.ok(statusRes.deleted.includes('src/old.rs'), `git status must list deleted src/old.rs: ${JSON.stringify(statusRes)}`);
+  assert.ok(statusRes.modified.includes('README.md'));
+  assert.ok(statusRes.added.includes('src/new.rs'));
+  assert.ok(statusRes.body_text.includes('deleted') && statusRes.body_text.includes('src/old.rs'));
+
+  const diffRes = await gitBridge.execute({ op: 'git', subcommand: 'diff' });
+  assert.equal(diffRes.ok, true, `git diff failed: ${JSON.stringify(diffRes)}`);
+  assert.ok(diffRes.deleted.includes('src/old.rs'));
+  assert.ok(diffRes.diff_text.includes('--- a/src/old.rs') && diffRes.diff_text.includes('+++ /dev/null'));
+
+  const pushRes = await gitBridge.execute({
+    op: 'git',
+    subcommand: 'commit_push',
+    repo: 'uor-test/studio-del',
+    branch: 'main',
+    message: 'Remove src/old.rs and update README',
+  });
+  assert.equal(pushRes.ok, true, `commit_push failed: ${JSON.stringify(pushRes)}`);
+  assert.equal(pushRes.deleted_files, 1);
+  assert.equal(postedTrees.length, 1);
+  const delEntry = postedTrees[0].tree.find((e) => e.path === 'src/old.rs');
+  assert.deepEqual(
+    delEntry,
+    { path: 'src/old.rs', mode: '100644', type: 'blob', sha: null },
+    'commit_push must emit sha: null in git/trees payload for deleted tracked file',
+  );
+  const postPushStatus = await gitBridge.execute({ op: 'git', subcommand: 'status' });
+  assert.equal(postPushStatus.clean, true, 'tree_index.json must reflect committed deletions and writes');
+
+  // 5c. execute_inprism_foundry_turn in surface_mode:"studio" routes preview_inspect, emits token_step per step,
+  //     commits only closed <prism-write>, and discards unclosed <prism-write> on holo_cancel_foundry_turn
+  const studioWs = new Map([['index.html', '<div id="app">hi</div>']]);
+  const studioEvents = [];
+  let previewCalled = 0;
+  let cowFlushed = 0;
+  let beginCounter = 0;
+  let activeSess = null;
+  const cancelledSessions = new Set();
+  const studioStepperHooks = {
+    holoRuntimeStatus: () =>
+      JSON.stringify({
+        qwen3_06b_mounted: true,
+        qwen3_17b_mounted: false,
+        models: [{ model_id: 'uor-r4.qwen3-0.6b-holo', container_sha256: 'c'.repeat(64) }],
+      }),
+    collectWorkspaceSnapshot: () => ({
+      files: Array.from(studioWs.entries()).map(([p, c]) => ({ path: p, content: c })),
+    }),
+    dispatchBridge: async (env) => {
+      if (env.includes('\tworkspace_write\t')) {
+        const body = env.split('\t').slice(3).join('\t');
+        const nl = body.indexOf('\n');
+        const p = body.slice(0, nl).trim();
+        const c = body.slice(nl + 1);
+        studioWs.set(p, c);
+        return { status: 'ok', files: Array.from(studioWs.entries()).map(([k, v]) => ({ path: k, content: v })) };
+      }
+      if (env.includes('\tworkspace_delete\t')) {
+        const p = env.split('\t').slice(3).join('\t').trim();
+        studioWs.delete(p);
+        return { status: 'ok' };
+      }
+      return { status: 'ok', exit_code: 0, mvm_stdout: '' };
+    },
+    flushMvmCowToOpfs: async () => {
+      cowFlushed += 1;
+      return true;
+    },
+    previewInspect: async (args) => {
+      previewCalled += 1;
+      return { ok: true, selector: args.selector, dom_text: 'hi', console_errors: [] };
+    },
+    ensureIdentity: async () => ({ prism_id: 'did:prism:studio-test' }),
+    signAction: async (action, targetKappa) => ({ action, targetKappa }),
+    postEvent: (event, data) => studioEvents.push({ event, data }),
+    holoBeginTurn: (payloadJson) => {
+      const req = JSON.parse(payloadJson);
+      assert.equal(req.surface_mode, 'studio');
+      const tid = ++beginCounter;
+      const hop = Array.isArray(req.tool_results) ? req.tool_results.length : 0;
+      activeSess = {
+        tid,
+        step: 0,
+        hop,
+        prompt: req.prompt,
+      };
+      return JSON.stringify({ status: 'ready', turn_id: tid, model_id: 'uor-r4.qwen3-0.6b-holo', prefix_reused_tokens: 120 });
+    },
+    holoStepTurn: (tidBig) => {
+      const tid = Number(tidBig);
+      if (cancelledSessions.has(tid)) {
+        activeSess = null;
+        return JSON.stringify({ status: 'cancelled', turn_id: tid, delta: '', tokens_emitted: 0, tok_per_sec: 0 });
+      }
+      if (!activeSess || activeSess.tid !== tid) {
+        return JSON.stringify({ status: 'error', error_code: 'TurnNotFound', message: 'not found' });
+      }
+      const s = activeSess.step++;
+      if (activeSess.prompt.includes('CANCEL_MID_WRITE')) {
+        if (s === 0) {
+          return JSON.stringify({
+            status: 'streaming',
+            turn_id: tid,
+            delta: '<prism-write path="src/aborted.rs">incomplete',
+            tokens_emitted: 2,
+            tok_per_sec: 44,
+            observatory_frames: [{ step_idx: 0, token_text: '<prism-write', top_candidates: [], has_geometric_shortlist: true }],
+          });
+        }
+        return JSON.stringify({
+          status: 'done',
+          turn_id: tid,
+          delta: '</prism-write>',
+          tokens_emitted: 3,
+          tok_per_sec: 45,
+        });
+      }
+      if (activeSess.hop === 0) {
+        return JSON.stringify({
+          status: 'needs_tool',
+          turn_id: tid,
+          delta: '<tool_call>{"name":"preview_inspect","arguments":{"selector":"#app"}}</tool_call>',
+          tokens_emitted: 2,
+          tok_per_sec: 50,
+          observatory_frames: [{ step_idx: 0, token_text: 'inspect', top_candidates: [{ token_id: 1, token_text: 'inspect', logit_q16: 100, prob_permille: 1000, hamming_d: 12 }], has_geometric_shortlist: true }],
+          tool_call: { name: 'preview_inspect', arguments: { selector: '#app' }, is_mutating: false },
+        });
+      }
+      if (s === 0) {
+        return JSON.stringify({
+          status: 'streaming',
+          turn_id: tid,
+          delta: '<prism-write path="src/closed.rs">pub fn ok() -> i32 { ',
+          tokens_emitted: 2,
+          tok_per_sec: 60,
+          observatory_frames: [{ step_idx: 1, token_text: 'pub', top_candidates: [{ token_id: 2, token_text: 'pub', logit_q16: 120, prob_permille: 1000, hamming_d: 10 }], has_geometric_shortlist: true }],
+        });
+      }
+      return JSON.stringify({
+        status: 'done',
+        turn_id: tid,
+        delta: '42 }\n</prism-write>',
+        tokens_emitted: 4,
+        tok_per_sec: 64,
+        observatory_frames: [{ step_idx: 2, token_text: '42', top_candidates: [{ token_id: 3, token_text: '42', logit_q16: 140, prob_permille: 1000, hamming_d: 8 }], has_geometric_shortlist: true }],
+        receipt_sha256: 'd'.repeat(64),
+      });
+    },
+    holoCancelTurn: (tidBig) => {
+      const tid = Number(tidBig);
+      cancelledSessions.add(tid);
+      activeSess = null;
+      return JSON.stringify({ status: 'cancelled', turn_id: tid, kv_checkpoint_len: 120 });
+    },
+  };
+
+  const studioRes = await execute_inprism_foundry_turn(
+    { id: 'studio-turn-1', payload: { prompt: 'Inspect preview and write closed.rs', surface_mode: 'studio', live_hud: true } },
+    studioStepperHooks,
+  );
+  assert.equal(studioRes.ok, true, `studio turn failed: ${JSON.stringify(studioRes)}`);
+  assert.equal(previewCalled, 1, 'preview_inspect tool hop must be routed cleanly');
+  assert.equal(studioWs.get('src/closed.rs'), 'pub fn ok() -> i32 { 42 }\n');
+  assert.ok(cowFlushed >= 1, 'closed <prism-write> must flush OPFS CoW');
+  const tokenSteps = studioEvents.filter((e) => e.event === 'token_step');
+  assert.ok(tokenSteps.length >= 3, `expected per-step token_step events, got ${tokenSteps.length}`);
+  assert.ok(tokenSteps.every((e) => e.data.turn_id != null && 'frame' in e.data && 'delta' in e.data && 'tok_per_sec' in e.data));
+  const fsChanged = studioEvents.find((e) => e.event === 'workspace_fs_changed');
+  assert.ok(fsChanged && fsChanged.data.changed_paths.includes('src/closed.rs'), 'must emit workspace_fs_changed for closed <prism-write>');
+
+  // Unclosed <prism-write> cancel must NOT write src/aborted.rs
+  let cancelTriggered = false;
+  const cancelHooks = {
+    ...studioStepperHooks,
+    isCancelled: (_owner, tid) => (tid != null && cancelledSessions.has(Number(tid))) || cancelTriggered,
+    postEvent: (event, data) => {
+      studioEvents.push({ event, data });
+      if (event === 'token_step' && String(data.delta || '').includes('<prism-write path="src/aborted.rs">')) {
+        cancelTriggered = true;
+        cancelHooks.holoCancelTurn(data.turn_id);
+      }
+    },
+  };
+  const cancelRes = await execute_inprism_foundry_turn(
+    { id: 'studio-turn-cancel', payload: { prompt: 'CANCEL_MID_WRITE', surface_mode: 'studio', live_hud: true } },
+    cancelHooks,
+  );
+  assert.equal(cancelRes.ok, false);
+  assert.equal(cancelRes.cancelled, true);
+  assert.equal(studioWs.has('src/aborted.rs'), false, 'unclosed <prism-write> must NEVER be written when cancelled');
+
+  // 5d. Full Worker RPC test: studio_stream_turn + studio_cancel_turn + preview_inspect_reply + studio_cmdk_edit + studio_ghost_complete + boot Q31 fallback
+  const prevWgs = globalThis.WorkerGlobalScope;
+  const prevSelf = globalThis.self;
+  const prevWbg = globalThis.__wbg_init;
+  const prevPanic = globalThis.init_panic_hook;
+  const prevBoot = globalThis.studio_bootstrap;
+  const prevPack = globalThis.studio_weight_pack_status;
+  const prevDispatch = globalThis.studio_dispatch;
+  const prevHoloStatus = globalThis.studio_holo_runtime_status;
+  const prevQ31Status = globalThis.studio_native_q31_status;
+  const prevBegin = globalThis.holo_begin_foundry_turn;
+  const prevStep = globalThis.holo_step_foundry_turn;
+  const prevCancel = globalThis.holo_cancel_foundry_turn;
+  const prevLocW = globalThis.location;
+  const prevFetchW = globalThis.fetch;
+  const prevIdbW = globalThis.indexedDB;
+  const prevLsWDesc = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+
+  const workerEvents = [];
+  const rpcWaiters = new Map();
+  const waitForRpc = (id) =>
+    new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error(`Timeout waiting for Worker RPC ${id}`)), 3000);
+      rpcWaiters.set(id, (msg) => {
+        clearTimeout(t);
+        resolve(msg);
+      });
+    });
+
+  let readyResolve;
+  let bootFallbackResolve;
+  const readyPromise = new Promise((r) => { readyResolve = r; });
+  const bootFallbackPromise = new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('Timeout waiting for Q31 boot fallback holo_ready/hydration_consent_required')), 3000);
+    bootFallbackResolve = (msg) => {
+      clearTimeout(t);
+      resolve(msg);
+    };
+  });
+
+  try {
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      get() {
+        const err = new Error('Storage disabled');
+        err.name = 'SecurityError';
+        throw err;
+      },
+    });
+    globalThis.indexedDB = undefined;
+    globalThis.location = { origin: 'https://casey-allard.github.io', href: 'https://casey-allard.github.io/lexlean-r4/' };
+    globalThis.fetch = async () => new Response('Not Found', { status: 404 });
+
+    class MockStudioWorkerScope {
+      constructor() {
+        this.name = 'uor-r4-engine-worker';
+      }
+      postMessage(msg) {
+        workerEvents.push(msg);
+        if (msg && msg.event === 'ready') readyResolve(msg);
+        if (msg && msg.event === 'holo_ready' && msg.recommendedModel === 'uor-r4.native-q31-d85') {
+          bootFallbackResolve(msg);
+        }
+        if (msg && msg.event === 'preview_inspect_request') {
+          this.onmessage({
+            data: {
+              id: `reply-${msg.rpc_id}`,
+              op: 'preview_inspect_reply',
+              payload: { rpc_id: msg.rpc_id, ok: true, summary: 'DOM healthy (#app)' },
+            },
+          });
+        }
+        if (msg && msg.id != null && typeof msg.ok === 'boolean' && rpcWaiters.has(msg.id)) {
+          const cb = rpcWaiters.get(msg.id);
+          rpcWaiters.delete(msg.id);
+          cb(msg);
+        }
+      }
+    }
+    const mockSelf = new MockStudioWorkerScope();
+    globalThis.WorkerGlobalScope = MockStudioWorkerScope;
+    globalThis.self = mockSelf;
+    globalThis.__wbg_init = async () => ({});
+    globalThis.init_panic_hook = () => {};
+    globalThis.studio_bootstrap = () => '{}';
+    globalThis.studio_weight_pack_status = () => JSON.stringify({ mounted_packs: [] });
+
+    const workerWs = new Map([['src/main.rs', 'fn main() {}\n']]);
+    const workerBeginPayloads = [];
+    let wTurnSeq = 0;
+    let wActive = null;
+    const wCancelled = new Set();
+
+    globalThis.studio_dispatch = (env) => {
+      if (env.includes('\tstate\t')) return JSON.stringify({ status: 'ok' });
+      if (env.includes('\tworkspace_list\t')) {
+        return JSON.stringify({
+          status: 'ok',
+          files: Array.from(workerWs.entries()).map(([p, c]) => ({ path: p, content: c })),
+        });
+      }
+      if (env.includes('\tworkspace_read\t')) {
+        const p = env.split('\t').slice(3).join('\t').trim();
+        return workerWs.has(p)
+          ? JSON.stringify({ status: 'ok', path: p, content: workerWs.get(p) })
+          : JSON.stringify({ status: 'error', reason: 'FileNotFound' });
+      }
+      if (env.includes('\tworkspace_write\t')) {
+        const body = env.split('\t').slice(3).join('\t');
+        const nl = body.indexOf('\n');
+        const p = body.slice(0, nl).trim();
+        workerWs.set(p, body.slice(nl + 1));
+        return JSON.stringify({ status: 'ok' });
+      }
+      if (env.includes('\tworkspace_delete\t')) {
+        const p = env.split('\t').slice(3).join('\t').trim();
+        workerWs.delete(p);
+        return JSON.stringify({ status: 'ok' });
+      }
+      return JSON.stringify({ status: 'ok', exit_code: 0, mvm_stdout: '' });
+    };
+    globalThis.studio_holo_runtime_status = () =>
+      JSON.stringify({ qwen3_06b_mounted: false, qwen3_17b_mounted: false, models: [] });
+    globalThis.studio_native_q31_status = () =>
+      JSON.stringify({ status: 'ok', model_id: 'uor-r4.native-q31-d85', ready: true });
+    globalThis.holo_begin_foundry_turn = (payloadJson) => {
+      const req = JSON.parse(payloadJson);
+      workerBeginPayloads.push(req);
+      const tid = ++wTurnSeq;
+      wActive = { tid, req, step: 0, hop: Array.isArray(req.tool_results) ? req.tool_results.length : 0 };
+      return JSON.stringify({ status: 'ready', turn_id: tid, model_id: req.selected_model || 'uor-r4.native-q31-d85' });
+    };
+    globalThis.holo_step_foundry_turn = (tidBig) => {
+      const tid = Number(tidBig);
+      if (wCancelled.has(tid)) {
+        wActive = null;
+        return JSON.stringify({ status: 'cancelled', turn_id: tid, delta: '', tokens_emitted: 0, tok_per_sec: 0 });
+      }
+      const s = wActive.step++;
+      if (wActive.req.prompt.includes('[Cmd+K Inline Edit')) {
+        return JSON.stringify({
+          status: 'done',
+          turn_id: tid,
+          delta: 'fn main() { println!("cmdk"); }\n',
+          tokens_emitted: 6,
+          tok_per_sec: 30,
+          receipt_sha256: 'e'.repeat(64),
+        });
+      }
+      if (wActive.req.prompt.includes('[Ghost Complete')) {
+        return JSON.stringify({
+          status: 'done',
+          turn_id: tid,
+          delta: ' -> i32 { 0 }',
+          tokens_emitted: 4,
+          tok_per_sec: 35,
+          receipt_sha256: 'f'.repeat(64),
+        });
+      }
+      if (wActive.req.prompt.includes('WORKER_CANCEL_TEST')) {
+        if (s === 0) {
+          return JSON.stringify({ status: 'streaming', turn_id: tid, delta: '<prism-write path="src/never.rs">partial', tokens_emitted: 2, tok_per_sec: 20 });
+        }
+        return JSON.stringify({ status: 'done', turn_id: tid, delta: '</prism-write>', tokens_emitted: 3, tok_per_sec: 20 });
+      }
+      if (wActive.hop === 0) {
+        return JSON.stringify({
+          status: 'needs_tool',
+          turn_id: tid,
+          delta: '<tool_call>{"name":"preview_inspect","arguments":{"selector":"#app"}}</tool_call>',
+          tokens_emitted: 2,
+          tok_per_sec: 25,
+          tool_call: { name: 'preview_inspect', arguments: { selector: '#app' }, is_mutating: false },
+        });
+      }
+      return JSON.stringify({
+        status: 'done',
+        turn_id: tid,
+        delta: 'Preview OK: DOM healthy',
+        tokens_emitted: 5,
+        tok_per_sec: 28,
+        receipt_sha256: '1'.repeat(64),
+      });
+    };
+    globalThis.holo_cancel_foundry_turn = (tidBig) => {
+      const tid = Number(tidBig);
+      wCancelled.add(tid);
+      wActive = null;
+      return JSON.stringify({ status: 'cancelled', turn_id: tid, kv_checkpoint_len: 0 });
+    };
+
+    await import('../../crates/wasm/js/worker_host_bridge.js?studio_r4_60_test=1');
+    await readyPromise;
+    const bootFallback = await bootFallbackPromise;
+    assert.equal(bootFallback.recommendedModel, 'uor-r4.native-q31-d85');
+    assert.ok(
+      workerEvents.some((e) => e && e.event === 'hydration_consent_required' && e.model_id === 'uor-r4.qwen3-0.6b-holo'),
+      'boot fallback must emit hydration_consent_required alongside Q31 holo_ready',
+    );
+
+    // Offline Q31 fallback via studio_stream_turn + preview_inspect_reply roundtrip
+    const streamP = waitForRpc('rpc-studio-stream-1');
+    mockSelf.onmessage({
+      data: {
+        id: 'rpc-studio-stream-1',
+        op: 'studio_stream_turn',
+        payload: { prompt: 'Check preview', offlineFallback: true, liveHud: true },
+      },
+    });
+    const streamRes = await streamP;
+    assert.equal(streamRes.ok, true, `studio_stream_turn failed: ${JSON.stringify(streamRes)}`);
+    assert.equal(streamRes.result.model_id, 'uor-r4.native-q31-d85');
+    assert.ok(streamRes.result.reply.includes('Preview OK'));
+
+    // studio_cancel_turn discards unclosed <prism-write>
+    const cancelTurnP = waitForRpc('rpc-studio-cancel-target');
+    mockSelf.onmessage({
+      data: {
+        id: 'rpc-studio-cancel-target',
+        op: 'studio_stream_turn',
+        payload: { prompt: 'WORKER_CANCEL_TEST', offlineFallback: true },
+      },
+    });
+    await new Promise((r) => setTimeout(r, 0));
+    const cancelAckP = waitForRpc('rpc-studio-cancel-ack');
+    mockSelf.onmessage({
+      data: { id: 'rpc-studio-cancel-ack', op: 'studio_cancel_turn', payload: { targetId: 'rpc-studio-cancel-target' } },
+    });
+    const cancelAck = await cancelAckP;
+    const cancelledTurn = await cancelTurnP;
+    assert.equal(cancelAck.ok, true);
+    assert.equal(cancelledTurn.cancelled, true);
+    assert.equal(workerWs.has('src/never.rs'), false);
+
+    // studio_cmdk_edit (max 192 tokens) & studio_ghost_complete (max 48 tokens)
+    const cmdkP = waitForRpc('rpc-cmdk-1');
+    mockSelf.onmessage({
+      data: {
+        id: 'rpc-cmdk-1',
+        op: 'studio_cmdk_edit',
+        payload: { path: 'src/main.rs', code: 'fn main() {}\n', instruction: 'Log cmdk' },
+      },
+    });
+    const cmdkRes = await cmdkP;
+    assert.equal(cmdkRes.ok, true, `studio_cmdk_edit failed: ${JSON.stringify(cmdkRes)}`);
+    assert.equal(cmdkRes.result.status, 'ok');
+    assert.ok(cmdkRes.result.diff_hunk.includes('cmdk'));
+    assert.equal(cmdkRes.result.receipt_sha256, 'e'.repeat(64));
+    assert.ok(workerBeginPayloads.some((r) => r.prompt.includes('[Cmd+K Inline Edit') && r.max_new_tokens <= 192));
+    assert.equal(workerWs.get('src/main.rs'), 'fn main() {}\n', 'studio_cmdk_edit must return diff_hunk without mutating workspace before Accept');
+
+    const ghostP = waitForRpc('rpc-ghost-1');
+    mockSelf.onmessage({
+      data: {
+        id: 'rpc-ghost-1',
+        op: 'studio_ghost_complete',
+        payload: { path: 'src/lib.rs', prefix: 'pub fn zero()' },
+      },
+    });
+    const ghostRes = await ghostP;
+    assert.equal(ghostRes.ok, true, `studio_ghost_complete failed: ${JSON.stringify(ghostRes)}`);
+    assert.equal(ghostRes.result.status, 'ok');
+    assert.ok(ghostRes.result.suggestion.includes('-> i32'));
+    assert.equal(ghostRes.result.receipt_sha256, 'f'.repeat(64));
+    assert.ok(workerBeginPayloads.some((r) => r.prompt.includes('[Ghost Complete') && r.max_new_tokens <= 48));
+  } finally {
+    globalThis.WorkerGlobalScope = prevWgs;
+    globalThis.self = prevSelf;
+    globalThis.__wbg_init = prevWbg;
+    globalThis.init_panic_hook = prevPanic;
+    globalThis.studio_bootstrap = prevBoot;
+    globalThis.studio_weight_pack_status = prevPack;
+    globalThis.studio_dispatch = prevDispatch;
+    globalThis.studio_holo_runtime_status = prevHoloStatus;
+    globalThis.studio_native_q31_status = prevQ31Status;
+    globalThis.holo_begin_foundry_turn = prevBegin;
+    globalThis.holo_step_foundry_turn = prevStep;
+    globalThis.holo_cancel_foundry_turn = prevCancel;
+    globalThis.location = prevLocW;
+    globalThis.fetch = prevFetchW;
+    globalThis.indexedDB = prevIdbW;
+    if (prevLsWDesc) Object.defineProperty(globalThis, 'localStorage', prevLsWDesc);
+    else delete globalThis.localStorage;
+  }
+
+  console.log('  ✓ R4-60 off-origin consent (SecurityError + Q31 boot fallback), deletion-aware git sync & studio_stream_turn verified.');
+}
+
 async function main() {
-  console.log('=== E2E: Prism capabilities/1 Network Gate, CORS-Direct GitHub, SpiralCore Failback & Observatory (R4-59) ===');
+  console.log('=== E2E: Prism capabilities/1 Network Gate, CORS-Direct GitHub, SpiralCore Failback & Observatory (R4-59/R4-60) ===');
   await testCapabilitiesGateAndSpiralCoreFailback();
   await testCorsDirectGithubGitDataAndDohSsrf();
   await testObservatoryChromelessHandshakeAndRender();
   await testSetPolicyAndWorkerBridgePolicyRejectsInsecureRelay();
-  console.log('=== ALL R4-59 OBSERVATORY & SPIRALCORE E2E CHECKS PASSED ===');
+  await testStudioBridgeConsentAndGitDeletions_R4_60();
+  console.log('=== ALL R4-59/R4-60 OBSERVATORY & STUDIO BRIDGE E2E CHECKS PASSED ===');
 }
 
 main().catch((err) => {

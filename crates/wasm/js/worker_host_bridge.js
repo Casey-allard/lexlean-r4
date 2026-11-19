@@ -1880,6 +1880,7 @@ const HOLO_PIECE_BUDGET_BYTES = 1048576;
 const HOLO_MODEL_CATALOG = {
   'uor-r4.qwen3-0.6b-holo': {
     label: 'Qwen3-0.6B Holo (28L UORR4V13)',
+    approx_bytes: 410 * 1024 * 1024,
     mirrors: [
       'weights/v13_qwen3_0_6b/',
       'https://raw.githubusercontent.com/Casey-allard/lexlean-r4/weights-v13-qwen3-0.6b/',
@@ -1887,6 +1888,7 @@ const HOLO_MODEL_CATALOG = {
   },
   'uor-r4.qwen3-1.7b-holo': {
     label: 'Qwen3-1.7B Holo (28L UORR4V13)',
+    approx_bytes: Math.round(1.09 * 1024 * 1024 * 1024),
     mirrors: [
       'weights/v13_qwen3_1_7b/',
       'https://raw.githubusercontent.com/Casey-allard/lexlean-r4/weights-v13-qwen3-1.7b/',
@@ -2080,12 +2082,59 @@ function __uorIsSameOriginMirror(rawUrl, httpOrigin) {
   }
 }
 
-function __uorConsentError(msg) {
+function safeStorageGet(key) {
+  /* Formal R4.StudioFrame */
+  try {
+    const store = typeof localStorage !== 'undefined' ? localStorage : null;
+    if (!store || typeof store.getItem !== 'function') return null;
+    return store.getItem(String(key || ''));
+  } catch {
+    return null;
+  }
+}
+
+function safeStorageSet(key, value) {
+  /* Formal R4.StudioFrame */
+  try {
+    const store = typeof localStorage !== 'undefined' ? localStorage : null;
+    if (!store || typeof store.setItem !== 'function') return false;
+    store.setItem(String(key || ''), String(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function flushMvmCowToOpfs() {
+  /* Formal R4.StudioFrame */
+  return await persist_mvm_cow_sectors_to_opfs();
+}
+
+function __uorConsentError(msgOrDetails, maybeDetails) {
   /* Formal R4.HoloGeometricRuntime */
-  const err = new Error(
-    msg || 'ConsentRequiredForWeightDownload: off-origin ~410 MiB Holo weight download requires explicit user confirmation (allowOffOriginHydration=true)',
-  );
+  const hasMsgObj = msgOrDetails && typeof msgOrDetails === 'object';
+  const details = hasMsgObj
+    ? msgOrDetails
+    : maybeDetails && typeof maybeDetails === 'object'
+      ? maybeDetails
+      : {};
+  const modelId = String(details.model_id || details.modelId || 'uor-r4.qwen3-0.6b-holo');
+  const approxBytes = Number(details.approx_bytes) > 0
+    ? Number(details.approx_bytes)
+    : modelId.includes('1.7b')
+      ? Math.round(1.09 * 1024 * 1024 * 1024)
+      : 410 * 1024 * 1024;
+  const mirrors = Array.isArray(details.mirrors) ? details.mirrors.slice() : [];
+  const msg = !hasMsgObj && typeof msgOrDetails === 'string' && msgOrDetails
+    ? msgOrDetails
+    : details.message || `ConsentRequiredForWeightDownload: off-origin ~${Math.round(approxBytes / (1024 * 1024))} MiB Holo weight download (${modelId}) requires explicit user confirmation (allowOffOriginHydration=true)`;
+  const err = new Error(msg);
   err.code = 'ConsentRequiredForWeightDownload';
+  err.error_code = 'ConsentRequiredForWeightDownload';
+  err.model_id = modelId;
+  err.approx_bytes = approxBytes;
+  err.mirrors = mirrors;
+  err.details = { model_id: modelId, approx_bytes: approxBytes, mirrors };
   return err;
 }
 
@@ -2183,10 +2232,25 @@ export async function selectOptimalInitialHoloModel() {
 export async function hydrate_holo_model(modelId, onProgress, forceReload = false, options) {
   options = options && typeof options === 'object' ? options : {};
   const key = String(modelId || 'uor-r4.qwen3-0.6b-holo').trim();
+  const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
   const allowOffOriginHydration =
     options && typeof options.allowOffOriginHydration === 'boolean'
       ? options.allowOffOriginHydration
-      : Boolean(globalThis.__uorAllowOffOriginHydration);
+      : Boolean(globalThis.__uorAllowOffOriginHydration) || storedConsent === '1' || storedConsent === 'true';
+  if (options && (options.offlineFallback === true || options.consentDeclined === true || options.decline === true)) {
+    if (options.rememberConsent !== false) {
+      safeStorageSet('uor_allow_off_origin_hydration', 'declined');
+    }
+    return {
+      status: 'fallback',
+      fallback_model: 'uor-r4.native-q31-d85',
+      model_id: 'uor-r4.native-q31-d85',
+      declined_model: key,
+    };
+  }
+  if (allowOffOriginHydration && options && options.rememberConsent === true) {
+    safeStorageSet('uor_allow_off_origin_hydration', '1');
+  }
   const inflightKey = `${key}:${allowOffOriginHydration ? 'off' : 'same'}`;
   if (!forceReload && holoHydrationInflight.has(inflightKey)) {
     return await holoHydrationInflight.get(inflightKey);
@@ -2196,6 +2260,9 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     if (!spec) {
       throw new Error(`Unknown Holo catalog model: ${key}`);
     }
+    const approxBytes =
+      Number(spec.approx_bytes) ||
+      (key.includes('1.7b') ? Math.round(1.09 * 1024 * 1024 * 1024) : 410 * 1024 * 1024);
     const httpOrigin =
       typeof location !== 'undefined' && location.origin && /^https?:/i.test(location.origin)
         ? location.origin.replace(/\/+$/, '')
@@ -2214,6 +2281,8 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         offOriginCandidates.push(cBase);
       }
     }
+    const httpOffOrigin = offOriginCandidates.filter((u) => /^https?:/i.test(u));
+    const consentMirrorsBase = httpOffOrigin.length > 0 ? httpOffOrigin : offOriginCandidates;
     const candidates = allowOffOriginHydration
       ? [...sameOriginCandidates, ...offOriginCandidates]
       : sameOriginCandidates;
@@ -2240,7 +2309,11 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         manifest = idx.manifest;
         baseUrl = 'opfs://local-kappa';
       } else if (!allowOffOriginHydration && offOriginCandidates.length > 0) {
-        throw __uorConsentError();
+        throw __uorConsentError(undefined, {
+          model_id: key,
+          approx_bytes: approxBytes,
+          mirrors: consentMirrorsBase,
+        });
       } else {
         throw new Error(`Unable to fetch UORR4V13 manifest for ${key}`);
       }
@@ -2254,6 +2327,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     }
     const pieceCount = manifest.pieces.length;
     const containerSha = String(manifest.container_sha256 || '').toLowerCase();
+    const manifestTotalBytes = Number(manifest.total_bytes) || approxBytes;
     const resolveOrRecoverPiece = async (pieceMeta) => {
       const sha = String(pieceMeta.sha256 || '').toLowerCase();
       const expectedLen = Number(pieceMeta.byte_length) || 0;
@@ -2261,15 +2335,34 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         const cached = await sharedKappaStore.getVerifiedPiece(sha, expectedLen);
         if (cached) return { bytes: cached, fromOpfs: true };
       }
-      const allUrls = [...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []), baseUrl]
-        .filter((u) => typeof u === 'string' && u.startsWith('http'))
-        .map((u) => (u.endsWith('/') ? u : `${u}/`));
+      const allUrls = Array.from(
+        new Set(
+          [
+            ...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []),
+            ...httpOffOrigin,
+            baseUrl,
+          ]
+            .filter((u) => typeof u === 'string' && u.startsWith('http'))
+            .map((u) => (u.endsWith('/') ? u : `${u}/`)),
+        ),
+      );
       const urls = allowOffOriginHydration
         ? allUrls
         : allUrls.filter((u) => __uorIsSameOriginMirror(u, httpOrigin));
-      if (urls.length === 0 && !allowOffOriginHydration && allUrls.length > 0) {
-        throw __uorConsentError();
+      const offOriginMirrors = Array.from(
+        new Set([
+          ...consentMirrorsBase,
+          ...allUrls.filter((u) => !__uorIsSameOriginMirror(u, httpOrigin)),
+        ]),
+      );
+      if (urls.length === 0 && !allowOffOriginHydration && offOriginMirrors.length > 0) {
+        throw __uorConsentError(undefined, {
+          model_id: key,
+          approx_bytes: manifestTotalBytes,
+          mirrors: offOriginMirrors,
+        });
       }
+      let sawMissingOnSameOrigin = false;
       for (const mBase of urls) {
         if (sharedKappaStore.liarMirrors.has(mBase)) continue;
         try {
@@ -2277,8 +2370,11 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
           await sharedKappaStore.putPiece(sha, buf);
           return { bytes: buf, fromOpfs: false };
         } catch (err) {
-          if (String(err && err.message).includes('RefusedPieceHashMismatch')) {
+          const errMsg = String(err && err.message);
+          if (errMsg.includes('RefusedPieceHashMismatch')) {
             sharedKappaStore.liarMirrors.add(mBase);
+          } else {
+            sawMissingOnSameOrigin = true;
           }
         }
       }
@@ -2308,6 +2404,13 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
             }
           }
         }
+      }
+      if (!allowOffOriginHydration && offOriginMirrors.length > 0 && (urls.length === 0 || sawMissingOnSameOrigin)) {
+        throw __uorConsentError(undefined, {
+          model_id: key,
+          approx_bytes: manifestTotalBytes,
+          mirrors: offOriginMirrors,
+        });
       }
       throw new Error(`RefusedInsufficientParityShards: failed piece ${pieceMeta.index} (${sha})`);
     };
@@ -2409,6 +2512,119 @@ let __uorAnonInprismTurnSeq = 0;
  * download consent (`ConsentRequiredForWeightDownload`) and emitting structured observability
  * metrics on both `chat_chunk` events and the final `inprism_r4_turn` result.
  */
+function parseClosedPrismTagsIncremental(text, startIdx = 0) {
+  /* Formal R4.StudioFrame */
+  const src = String(text || '');
+  let pos = Math.max(0, Number(startIdx) || 0);
+  const ops = [];
+  const tags = [
+    { open: '<prism-write', close: '</prism-write>', op: 'write' },
+    { open: '<prism-delete', close: '</prism-delete>', op: 'delete' },
+    { open: '<prism-rename', close: '</prism-rename>', op: 'rename' },
+  ];
+  const extractAttr = (tagHeader, attrName) => {
+    const m = new RegExp(`${attrName}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'i').exec(tagHeader);
+    return m ? String(m[1] !== undefined ? m[1] : (m[2] || '')).trim() : '';
+  };
+
+  while (pos < src.length) {
+    let bestIdx = -1;
+    let bestTag = null;
+    for (const t of tags) {
+      const idx = src.indexOf(t.open, pos);
+      if (idx >= 0 && (bestIdx < 0 || idx < bestIdx)) {
+        bestIdx = idx;
+        bestTag = t;
+      }
+    }
+    if (bestIdx < 0 || !bestTag) {
+      pos = Math.max(pos, src.length - 16);
+      break;
+    }
+    const gtIdx = src.indexOf('>', bestIdx);
+    if (gtIdx < 0) {
+      pos = bestIdx;
+      break;
+    }
+    const header = src.slice(bestIdx, gtIdx + 1);
+    const selfClosing = /\/\s*>$/.test(header);
+    const pathAttr = extractAttr(header, 'path');
+    if (selfClosing) {
+      if (bestTag.op === 'delete' && pathAttr) {
+        ops.push({ op: 'delete', path: pathAttr });
+      }
+      pos = gtIdx + 1;
+      continue;
+    }
+    const closeIdx = src.indexOf(bestTag.close, gtIdx + 1);
+    if (closeIdx < 0) {
+      pos = bestIdx;
+      break;
+    }
+    const rawBody = src.slice(gtIdx + 1, closeIdx);
+    if (bestTag.op === 'write' && pathAttr) {
+      const content = rawBody.replace(/^\r?\n/, '');
+      ops.push({ op: 'write', path: pathAttr, content });
+    } else if (bestTag.op === 'delete') {
+      const delPath = pathAttr || rawBody.trim();
+      if (delPath) ops.push({ op: 'delete', path: delPath });
+    } else if (bestTag.op === 'rename') {
+      const fromPath = extractAttr(header, 'from') || extractAttr(header, 'old_path') || pathAttr;
+      const toPath = extractAttr(header, 'to') || extractAttr(header, 'new_path');
+      if (fromPath && toPath) ops.push({ op: 'rename', from: fromPath, to: toPath });
+    }
+    pos = closeIdx + bestTag.close.length;
+  }
+  return { ops, nextCursor: pos };
+}
+
+function searchWorkspaceFilesSnapshot(files, query, maxHits = 12) {
+  /* Formal R4.StudioFrame */
+  const needle = String(query || '').trim().toLowerCase();
+  if (!needle) return 'Empty search query.';
+  const list = Array.isArray(files) ? files : [];
+  const hits = [];
+  for (const wf of list) {
+    if (!wf || !wf.path) continue;
+    const content = typeof wf.content === 'string' ? wf.content : '';
+    const lines = content.split('\n');
+    for (let idx = 0; idx < lines.length; idx += 1) {
+      if (lines[idx].toLowerCase().includes(needle)) {
+        hits.push(`${wf.path}:${idx + 1}: ${lines[idx].trim()}`);
+        if (hits.length >= maxHits) return hits.join('\n');
+      }
+    }
+  }
+  return hits.length > 0 ? hits.join('\n') : `No workspace matches for \`${needle}\`.`;
+}
+
+function buildUnifiedDiffHunk(oldText, newText, filePath, isDeleted = false) {
+  /* Formal R4.StudioFrame */
+  const cleanPath = String(filePath || 'file').replace(/^\/+/, '');
+  const oldLines = String(oldText || '').split('\n');
+  if (oldLines.length > 0 && oldLines[oldLines.length - 1] === '') oldLines.pop();
+  if (isDeleted) {
+    const body = oldLines.map((l) => `-${l}`).join('\n');
+    return `diff --git a/${cleanPath} b/${cleanPath}\ndeleted file mode 100644\n--- a/${cleanPath}\n+++ /dev/null\n@@ -1,${oldLines.length} +0,0 @@\n${body}`;
+  }
+  const newLines = String(newText || '').split('\n');
+  if (newLines.length > 0 && newLines[newLines.length - 1] === '') newLines.pop();
+  if (oldLines.join('\n') === newLines.join('\n')) return '';
+  const maxLen = Math.max(oldLines.length, newLines.length);
+  const bodyLines = [];
+  for (let i = 0; i < maxLen; i += 1) {
+    const a = i < oldLines.length ? oldLines[i] : null;
+    const b = i < newLines.length ? newLines[i] : null;
+    if (a === b && a !== null) {
+      bodyLines.push(` ${a}`);
+    } else {
+      if (a !== null) bodyLines.push(`-${a}`);
+      if (b !== null) bodyLines.push(`+${b}`);
+    }
+  }
+  return `diff --git a/${cleanPath} b/${cleanPath}\n--- a/${cleanPath}\n+++ b/${cleanPath}\n@@ -1,${oldLines.length} +1,${newLines.length} @@\n${bodyLines.join('\n')}`;
+}
+
 export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   /* Formal R4.HoloGeometricRuntime */
   msg = msg && typeof msg === 'object' ? msg : {};
@@ -2417,6 +2633,38 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   const ownerKey = reqId != null ? reqId : `__anon_inprism_turn_${++__uorAnonInprismTurnSeq}`;
   const payload = msg && typeof msg.payload === 'object' && msg.payload !== null ? msg.payload : {};
   const prompt = typeof payload.prompt === 'string' ? payload.prompt.trim() : '';
+
+  const surfaceMode = String(
+    payload.surface_mode || payload.surfaceMode || runtimeHooks.defaultSurfaceMode || '',
+  )
+    .trim()
+    .toLowerCase();
+  const isStudioSurface = surfaceMode === 'studio';
+  const composerMode = String(
+    payload.composer_mode || payload.composerMode || (isStudioSurface ? 'agent' : ''),
+  )
+    .trim()
+    .toLowerCase();
+  const hasLiveHud =
+    payload.live_hud !== undefined ||
+    payload.liveHud !== undefined ||
+    runtimeHooks.defaultLiveHud !== undefined;
+  const liveHud =
+    payload.live_hud !== undefined
+      ? Boolean(payload.live_hud)
+      : payload.liveHud !== undefined
+        ? Boolean(payload.liveHud)
+        : Boolean(runtimeHooks.defaultLiveHud);
+  const rawSliceTokens = payload.slice_tokens ?? payload.sliceTokens;
+  const sliceTokens =
+    Number.isFinite(Number(rawSliceTokens)) && Number(rawSliceTokens) > 0
+      ? Math.trunc(Number(rawSliceTokens))
+      : isStudioSurface && liveHud
+        ? 2
+        : undefined;
+  const repoParam = String(payload.repo || '').trim();
+  const branchParam = String(payload.branch || '').trim();
+  const suppressTagCommit = Boolean(payload.suppressTagCommit || runtimeHooks.suppressTagCommit);
 
   const postEvent = typeof runtimeHooks.postEvent === 'function' ? runtimeHooks.postEvent : () => {};
   const setActiveTurnId =
@@ -2473,6 +2721,18 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
             ? JSON.parse(fnDispatch(envelope))
             : { status: 'error', exit_code: 1, message: 'studio_dispatch unavailable' };
         };
+  const flushCow =
+    typeof runtimeHooks.flushMvmCowToOpfs === 'function'
+      ? runtimeHooks.flushMvmCowToOpfs
+      : flushMvmCowToOpfs;
+  const executeHostBridge =
+    typeof runtimeHooks.executeHostBridge === 'function'
+      ? runtimeHooks.executeHostBridge
+      : null;
+  const previewInspect =
+    typeof runtimeHooks.previewInspect === 'function'
+      ? runtimeHooks.previewInspect
+      : null;
   const ensureIdentity =
     typeof runtimeHooks.ensureIdentity === 'function'
       ? runtimeHooks.ensureIdentity
@@ -2560,6 +2820,19 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     selectedModel = 'uor-r4.qwen3-1.7b-holo';
   }
 
+  const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
+  const wantsOfflineQ31 = Boolean(
+    payload.offlineFallback ||
+      payload.fallbackOfflineQ31 ||
+      payload.consentDeclined ||
+      (payload.allowOffOriginHydration === undefined &&
+        storedConsent === 'declined' &&
+        !isTargetMounted(selectedModel, runtimeStatus)),
+  );
+  if (wantsOfflineQ31) {
+    selectedModel = 'uor-r4.native-q31-d85';
+  }
+
   const knownHoloTarget =
     selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
   if (knownHoloTarget && !isTargetMounted(selectedModel, runtimeStatus)) {
@@ -2568,12 +2841,19 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       const cancelPromise = new Promise((resolve) => {
         unsubWaiter = registerCancelWaiter(ownerKey, () => resolve({ __cancelled: true }));
       });
+      const hydrateOpts = {
+        allowOffOriginHydration:
+          payload.allowOffOriginHydration !== undefined
+            ? Boolean(payload.allowOffOriginHydration)
+            : storedConsent === '1' || storedConsent === 'true',
+        ...(payload.rememberConsent !== undefined ? { rememberConsent: Boolean(payload.rememberConsent) } : {}),
+      };
       const hydrateJob = Promise.resolve(
         fnHydrate(
           selectedModel,
           (prog) => postEvent('chat_hydration', prog),
           false,
-          { allowOffOriginHydration: Boolean(payload.allowOffOriginHydration) },
+          hydrateOpts,
         ),
       );
       hydrateJob.catch(() => {});
@@ -2607,6 +2887,28 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         (String((err && err.message) || err).includes('ConsentRequiredForWeightDownload')
           ? 'ConsentRequiredForWeightDownload'
           : 'ModelNotMounted');
+      if (code === 'ConsentRequiredForWeightDownload') {
+        const consentDetails = {
+          model_id: (err && err.model_id) || selectedModel,
+          approx_bytes:
+            Number(err && err.approx_bytes) ||
+            (selectedModel.includes('1.7b') ? Math.round(1.09 * 1024 * 1024 * 1024) : 410 * 1024 * 1024),
+          mirrors: err && Array.isArray(err.mirrors) ? err.mirrors : [],
+          fallback_model: 'uor-r4.native-q31-d85',
+        };
+        postEvent('hydration_consent_required', {
+          id: reqId,
+          ...consentDetails,
+          message: (err && err.message) || String(err),
+        });
+        return {
+          id: reqId,
+          ok: false,
+          error_code: code,
+          error: (err && err.message) || String(err),
+          ...consentDetails,
+        };
+      }
       return {
         id: reqId,
         ok: false,
@@ -2657,13 +2959,58 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       if (f && f.path) afterMap.set(f.path, f.sha256 || String(f.content || ''));
     }
     const changed = new Set();
+    const deleted = new Set();
     for (const [p, v] of afterMap.entries()) {
       if (!beforeMap.has(p) || beforeMap.get(p) !== v) changed.add(p);
     }
     for (const p of beforeMap.keys()) {
-      if (!afterMap.has(p)) changed.add(p);
+      if (!afterMap.has(p)) {
+        changed.add(p);
+        deleted.add(p);
+      }
     }
-    return Array.from(changed).sort();
+    const out = Array.from(changed).sort();
+    Object.defineProperty(out, '__deletedPaths', {
+      value: Array.from(deleted).sort(),
+      enumerable: false,
+      configurable: true,
+    });
+    return out;
+  };
+
+  const commitClosedPrismTags = async (ops) => {
+    if (!Array.isArray(ops) || ops.length === 0) return;
+    const changedPaths = [];
+    const deletedPaths = [];
+    for (const op of ops) {
+      if (isCancelled(ownerKey, activeTurnNum)) return;
+      if (op.op === 'write' && op.path) {
+        await dispatchBridge(`1\tstudio\tworkspace_write\t${op.path}\n${op.content}`);
+        changedPaths.push(op.path);
+      } else if (op.op === 'delete' && op.path) {
+        await dispatchBridge(`1\tstudio\tworkspace_delete\t${op.path}`);
+        deletedPaths.push(op.path);
+      } else if (op.op === 'rename' && op.from && op.to) {
+        const readRes = await dispatchBridge(`1\tstudio\tworkspace_read\t${op.from}`);
+        const content = readRes && readRes.status === 'ok' ? String(readRes.content || '') : '';
+        await dispatchBridge(`1\tstudio\tworkspace_write\t${op.to}\n${content}`);
+        await dispatchBridge(`1\tstudio\tworkspace_delete\t${op.from}`);
+        changedPaths.push(op.to);
+        deletedPaths.push(op.from);
+      }
+    }
+    if (changedPaths.length > 0 || deletedPaths.length > 0) {
+      const snap = collectSnapshot();
+      if (snap && Array.isArray(snap.files)) workspaceFiles = snap.files;
+      await Promise.resolve(flushCow()).catch(() => false);
+      postEvent('workspace_fs_changed', {
+        source: 'studio_stream_turn',
+        turn_id: activeTurnNum,
+        changed_paths: changedPaths,
+        deleted_paths: deletedPaths,
+      });
+      postEvent('workspace_sync', { workspace: snap });
+    }
   };
 
   const buildHoloV13Summary = (stepData = {}) => {
@@ -2786,6 +3133,12 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     if (maxNewTokens !== undefined) {
       beginPayload.max_new_tokens = maxNewTokens;
     }
+    if (surfaceMode) beginPayload.surface_mode = surfaceMode;
+    if (composerMode) beginPayload.composer_mode = composerMode;
+    if (hasLiveHud || isStudioSurface) beginPayload.live_hud = liveHud;
+    if (sliceTokens !== undefined) beginPayload.slice_tokens = sliceTokens;
+    if (repoParam) beginPayload.repo = repoParam;
+    if (branchParam) beginPayload.branch = branchParam;
 
     const rawBegin = fnBegin(JSON.stringify(beginPayload));
     const beginRes = typeof rawBegin === 'string' ? JSON.parse(rawBegin) : rawBegin;
@@ -2816,6 +3169,8 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
 
     let hopToolCall = null;
     let hopDoneStep = null;
+    let hopAccumText = '';
+    let hopTagCursor = 0;
 
     for await (const stepRes of streamFoundryHopSlices(activeTurnNum)) {
       if (!stepRes) {
@@ -2900,7 +3255,36 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       const delta = typeof stepRes.delta === 'string' ? stepRes.delta : '';
       if (delta) {
         fullReplyParts.push(delta);
+        hopAccumText += delta;
       }
+
+      if (isStudioSurface || liveHud) {
+        const curTps = Number(stepRes.tok_per_sec ?? latestTokPerSec ?? 0);
+        if (stepFrames.length > 0) {
+          for (let fi = 0; fi < stepFrames.length; fi += 1) {
+            postEvent('token_step', {
+              id: reqId,
+              turn_id: activeTurnNum,
+              frame: stepFrames[fi],
+              delta: fi === stepFrames.length - 1 ? delta : '',
+              tok_per_sec: Number.isFinite(curTps) ? curTps : 0,
+              tokens_emitted: tokensEmitted,
+              prefix_reused_tokens: prefixReusedTokens,
+            });
+          }
+        } else if (delta || stepRes.status === 'streaming' || stepRes.status === 'done') {
+          postEvent('token_step', {
+            id: reqId,
+            turn_id: activeTurnNum,
+            frame: stepRes.frame || null,
+            delta,
+            tok_per_sec: Number.isFinite(curTps) ? curTps : 0,
+            tokens_emitted: tokensEmitted,
+            prefix_reused_tokens: prefixReusedTokens,
+          });
+        }
+      }
+
       if (delta || stepRes.status === 'streaming' || stepFrames.length > 0) {
         const chunkMetrics = buildObsMetrics(stepRes, stepRes.tokens_emitted, stepFrames);
         postEvent('chat_chunk', {
@@ -2918,6 +3302,23 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         });
       }
 
+      if (
+        isStudioSurface &&
+        !suppressTagCommit &&
+        composerMode !== 'plan' &&
+        !isCancelled(ownerKey, activeTurnNum) &&
+        hopAccumText.includes('<prism-')
+      ) {
+        const parsedTags = parseClosedPrismTagsIncremental(hopAccumText, hopTagCursor);
+        hopTagCursor = parsedTags.nextCursor;
+        if (parsedTags.ops.length > 0) {
+          await commitClosedPrismTags(parsedTags.ops);
+        }
+      }
+
+      if (isCancelled(ownerKey, activeTurnNum)) {
+        return cancelAndBuildResult();
+      }
       if (stepRes.status === 'needs_tool') {
         priorHopTokens = tokensEmitted;
         hopToolCall = stepRes.tool_call || null;
@@ -2933,21 +3334,233 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       if (isCancelled(ownerKey, activeTurnNum)) {
         return cancelAndBuildResult();
       }
-      const cmd = typeof hopToolCall.cmd === 'string' ? hopToolCall.cmd : '';
+      const toolName = String(hopToolCall.name || 'mvm_exec').trim() || 'mvm_exec';
+      const toolArgs =
+        hopToolCall.arguments && typeof hopToolCall.arguments === 'object'
+          ? hopToolCall.arguments
+          : {};
+      if (composerMode === 'plan' && hopToolCall.is_mutating === true) {
+        const tid = activeTurnNum;
+        setActiveTurnId(null, ownerKey);
+        clearCancelled(ownerKey, tid);
+        return {
+          id: reqId,
+          ok: false,
+          error_code: 'RefusedPlanModeMutation',
+          error: `Composer plan mode refuses mutating tool \`${toolName}\``,
+          turn_id: tid,
+        };
+      }
+
+      const cmd =
+        toolName === 'mvm_exec'
+          ? typeof hopToolCall.cmd === 'string'
+            ? hopToolCall.cmd
+            : String(toolArgs.cmd || toolArgs.command || '')
+          : '';
+      const toolTarget =
+        cmd ||
+        String(
+          toolArgs.path ||
+            toolArgs.file ||
+            toolArgs.query ||
+            toolArgs.pattern ||
+            toolArgs.url ||
+            toolArgs.repo ||
+            toolArgs.selector ||
+            '',
+        );
+
       postEvent('tool_call', {
         id: reqId,
         turn_id: activeTurnNum,
-        tool: 'mvm_exec',
-        cmd,
+        tool: toolName,
+        ...(cmd ? { cmd } : {}),
+        ...(toolTarget ? { target: toolTarget } : {}),
+        arguments: toolArgs,
         iteration: toolIterations + 1,
       });
+
       const beforeSnap = collectSnapshot();
       let execRes = {};
+      let explicitStdout = null;
+      let explicitStderr = null;
+      let explicitExitCode = null;
+      let explicitChanged = null;
+      let explicitDeleted = [];
+
       try {
-        const rawExec = await dispatchBridge(
-          `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd })}`,
-        );
-        execRes = typeof rawExec === 'string' ? JSON.parse(rawExec) : rawExec || {};
+        if (toolName === 'mvm_exec') {
+          const mvmPayload = toolArgs.cwd ? { cmd, cwd: toolArgs.cwd } : { cmd };
+          const rawExec = await dispatchBridge(`1\tstudio\tmvm_exec\t${JSON.stringify(mvmPayload)}`);
+          execRes = typeof rawExec === 'string' ? JSON.parse(rawExec) : rawExec || {};
+        } else if (toolName === 'workspace_read') {
+          const readPath = String(toolArgs.path || toolArgs.file || activeFile || '').trim();
+          const rawRead = await dispatchBridge(`1\tstudio\tworkspace_read\t${readPath}`);
+          execRes = typeof rawRead === 'string' ? JSON.parse(rawRead) : rawRead || {};
+          if (execRes && execRes.status === 'ok') {
+            explicitStdout = String(execRes.content ?? execRes.stdout ?? '');
+            explicitStderr = '';
+            explicitExitCode = 0;
+          } else {
+            explicitStdout = '';
+            explicitStderr = String((execRes && execRes.message) || `File not found: ${readPath}`);
+            explicitExitCode = 1;
+          }
+          explicitChanged = [];
+        } else if (toolName === 'workspace_search') {
+          const queryStr = String(toolArgs.query || toolArgs.pattern || toolArgs.q || '').trim();
+          const snapNow = collectSnapshot();
+          explicitStdout = searchWorkspaceFilesSnapshot(
+            snapNow && Array.isArray(snapNow.files) ? snapNow.files : workspaceFiles,
+            queryStr,
+            12,
+          );
+          explicitStderr = '';
+          explicitExitCode = 0;
+          explicitChanged = [];
+          execRes = { status: 'ok', exit_code: 0, stdout: explicitStdout };
+        } else if (toolName === 'workspace_write' || toolName === 'workspace_patch') {
+          const wPath = String(toolArgs.path || activeFile || '').trim();
+          const wContent = String(toolArgs.content ?? toolArgs.code ?? '');
+          const rawW = await dispatchBridge(`1\tstudio\tworkspace_write\t${wPath}\n${wContent}`);
+          execRes = typeof rawW === 'string' ? JSON.parse(rawW) : rawW || {};
+          explicitExitCode = execRes && execRes.status === 'ok' ? 0 : 1;
+          explicitStdout = explicitExitCode === 0 ? `Wrote ${wContent.length} bytes to ${wPath}` : '';
+          explicitStderr = explicitExitCode === 0 ? '' : String((execRes && execRes.message) || 'workspace_write failed');
+          explicitChanged = explicitExitCode === 0 && wPath ? [wPath] : [];
+        } else if (toolName === 'workspace_delete') {
+          const dPath = String(toolArgs.path || '').trim();
+          const rawD = await dispatchBridge(`1\tstudio\tworkspace_delete\t${dPath}`);
+          execRes = typeof rawD === 'string' ? JSON.parse(rawD) : rawD || {};
+          explicitExitCode = execRes && execRes.status === 'ok' ? 0 : 1;
+          explicitStdout = explicitExitCode === 0 ? `Deleted ${dPath}` : '';
+          explicitStderr = explicitExitCode === 0 ? '' : String((execRes && execRes.message) || 'workspace_delete failed');
+          explicitChanged = explicitExitCode === 0 && dPath ? [dPath] : [];
+          if (explicitExitCode === 0 && dPath) explicitDeleted = [dPath];
+        } else if (toolName === 'workspace_rename') {
+          const fromPath = String(toolArgs.from || toolArgs.old_path || toolArgs.path || '').trim();
+          const toPath = String(toolArgs.to || toolArgs.new_path || '').trim();
+          const rFrom = await dispatchBridge(`1\tstudio\tworkspace_read\t${fromPath}`);
+          if (rFrom && rFrom.status === 'ok') {
+            await dispatchBridge(`1\tstudio\tworkspace_write\t${toPath}\n${String(rFrom.content || '')}`);
+            await dispatchBridge(`1\tstudio\tworkspace_delete\t${fromPath}`);
+            execRes = { status: 'ok', exit_code: 0 };
+            explicitExitCode = 0;
+            explicitStdout = `Renamed ${fromPath} to ${toPath}`;
+            explicitStderr = '';
+            explicitChanged = [toPath, fromPath];
+            explicitDeleted = [fromPath];
+          } else {
+            execRes = { status: 'error', exit_code: 1, message: `File not found: ${fromPath}` };
+            explicitExitCode = 1;
+            explicitStdout = '';
+            explicitStderr = execRes.message;
+            explicitChanged = [];
+          }
+        } else if (toolName === 'preview_inspect') {
+          if (previewInspect) {
+            const pRes = await previewInspect(toolArgs, { id: reqId, turn_id: activeTurnNum });
+            execRes = pRes && typeof pRes === 'object' ? pRes : { ok: true, summary: String(pRes ?? '') };
+            explicitExitCode = execRes.ok === false || execRes.status === 'error' ? 1 : 0;
+            explicitStdout =
+              typeof execRes.summary === 'string'
+                ? execRes.summary
+                : typeof execRes.stdout === 'string'
+                  ? execRes.stdout
+                  : JSON.stringify(execRes);
+            explicitStderr = explicitExitCode === 0 ? '' : String(execRes.error || execRes.message || 'preview_inspect failed');
+            explicitChanged = [];
+          } else {
+            execRes = { ok: false, status: 'error', error_code: 'PreviewInspectUnavailable', message: 'Preview inspect bridge not attached' };
+            explicitExitCode = 1;
+            explicitStdout = '';
+            explicitStderr = execRes.message;
+            explicitChanged = [];
+          }
+        } else if (
+          toolName === 'github_git' ||
+          toolName === 'github_status' ||
+          toolName === 'github_clone' ||
+          toolName === 'github_push' ||
+          toolName === 'github_pr' ||
+          toolName === 'git'
+        ) {
+          if (!executeHostBridge) {
+            execRes = { ok: false, status: 'error', message: 'SpiralCore host bridge unavailable for github_git' };
+            explicitExitCode = 1;
+            explicitStdout = '';
+            explicitStderr = execRes.message;
+            explicitChanged = [];
+          } else {
+            const sub =
+              toolName === 'github_status'
+                ? 'status'
+                : toolName === 'github_clone'
+                  ? 'clone'
+                  : toolName === 'github_push'
+                    ? 'commit_push'
+                    : toolName === 'github_pr'
+                      ? 'create_pr'
+                      : String(toolArgs.subcommand || toolArgs.action || toolArgs.op || 'status').toLowerCase();
+            const gitReq = {
+              op: 'git',
+              subcommand: sub,
+              repo: toolArgs.repo || repoParam || '',
+              branch: toolArgs.branch || branchParam || '',
+              ...toolArgs,
+            };
+            if ((sub === 'push' || sub === 'commit_push') && !Array.isArray(gitReq.files)) {
+              const liveSnap = collectSnapshot();
+              const liveFiles = (liveSnap && Array.isArray(liveSnap.files) ? liveSnap.files : []).filter(
+                (f) => f && f.path && !f.path.startsWith('.git/'),
+              );
+              gitReq.files = liveFiles;
+              gitReq.full_workspace = true;
+            }
+            const gRes = await executeHostBridge(gitReq);
+            execRes = gRes || { ok: false, message: 'Empty git bridge response' };
+            if (execRes.ok && Array.isArray(execRes.files) && execRes.files.length > 0) {
+              const applied = [];
+              for (const gf of execRes.files) {
+                if (gf && typeof gf.path === 'string' && typeof gf.content === 'string') {
+                  await dispatchBridge(`1\tstudio\tworkspace_write\t${gf.path}\n${gf.content}`);
+                  applied.push(gf.path);
+                }
+              }
+              explicitChanged = applied;
+            } else {
+              explicitChanged = [];
+            }
+            explicitExitCode = execRes.ok ? 0 : 1;
+            explicitStdout = String(execRes.body_text || JSON.stringify(execRes));
+            explicitStderr = execRes.ok ? '' : String(execRes.message || execRes.error_code || 'github_git failed');
+          }
+        } else if (toolName === 'spiralcore_fetch') {
+          if (!executeHostBridge) {
+            execRes = { ok: false, status: 'error', message: 'SpiralCore host bridge unavailable for spiralcore_fetch' };
+            explicitExitCode = 1;
+            explicitStdout = '';
+            explicitStderr = execRes.message;
+            explicitChanged = [];
+          } else {
+            const fRes = await executeHostBridge({
+              op: toolArgs.op || 'http_request',
+              url: toolArgs.url || '',
+              method: toolArgs.method || 'GET',
+              headers: toolArgs.headers || {},
+              body: toolArgs.body,
+            });
+            execRes = fRes || { ok: false, message: 'Empty spiralcore_fetch response' };
+            explicitExitCode = execRes.ok ? 0 : 1;
+            explicitStdout = String(execRes.text_excerpt || execRes.body_text || JSON.stringify(execRes));
+            explicitStderr = execRes.ok ? '' : String(execRes.message || execRes.error_code || 'spiralcore_fetch failed');
+            explicitChanged = [];
+          }
+        } else {
+          const rawExec = await dispatchBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd })}`);
+          execRes = typeof rawExec === 'string' ? JSON.parse(rawExec) : rawExec || {};
+        }
       } catch (err) {
         execRes = {
           status: 'error',
@@ -2955,31 +3568,50 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
           mvm_stderr: (err && err.message) || String(err),
         };
       }
+
       const afterSnap = collectSnapshot();
-      const changedFiles = Array.isArray(execRes.changed_files)
-        ? execRes.changed_files
-        : diffChangedPaths(beforeSnap, afterSnap);
+      const diffPaths = diffChangedPaths(beforeSnap, afterSnap);
+      const changedFiles =
+        explicitChanged !== null
+          ? explicitChanged
+          : Array.isArray(execRes.changed_files)
+            ? execRes.changed_files
+            : diffPaths;
+      const deletedPaths =
+        explicitDeleted.length > 0
+          ? explicitDeleted
+          : Array.isArray(diffPaths.__deletedPaths)
+            ? diffPaths.__deletedPaths
+            : [];
       const stdout =
-        typeof execRes.mvm_stdout === 'string'
-          ? execRes.mvm_stdout
-          : typeof execRes.stdout === 'string'
-            ? execRes.stdout
-            : '';
-      const stderr =
-        typeof execRes.mvm_stderr === 'string'
-          ? execRes.mvm_stderr
-          : typeof execRes.stderr === 'string'
-            ? execRes.stderr
-            : typeof execRes.message === 'string' && execRes.status === 'error'
-              ? execRes.message
+        explicitStdout !== null
+          ? explicitStdout
+          : typeof execRes.mvm_stdout === 'string'
+            ? execRes.mvm_stdout
+            : typeof execRes.stdout === 'string'
+              ? execRes.stdout
               : '';
-      const exitCode = Number.isFinite(Number(execRes.exit_code))
-        ? Number(execRes.exit_code)
-        : execRes.status === 'ok'
-          ? 0
-          : 1;
+      const stderr =
+        explicitStderr !== null
+          ? explicitStderr
+          : typeof execRes.mvm_stderr === 'string'
+            ? execRes.mvm_stderr
+            : typeof execRes.stderr === 'string'
+              ? execRes.stderr
+              : typeof execRes.message === 'string' && execRes.status === 'error'
+                ? execRes.message
+                : '';
+      const exitCode =
+        explicitExitCode !== null
+          ? explicitExitCode
+          : Number.isFinite(Number(execRes.exit_code))
+            ? Number(execRes.exit_code)
+            : execRes.status === 'ok' || execRes.ok === true
+              ? 0
+              : 1;
 
       toolResults.push({
+        ...(toolName !== 'mvm_exec' ? { tool: toolName, target: toolTarget } : {}),
         cmd,
         exit_code: exitCode,
         stdout,
@@ -2991,14 +3623,24 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       postEvent('tool_result', {
         id: reqId,
         turn_id: activeTurnNum,
-        tool: 'mvm_exec',
-        cmd,
+        tool: toolName,
+        ...(cmd ? { cmd } : {}),
+        ...(toolTarget ? { target: toolTarget } : {}),
         exit_code: exitCode,
         stdout,
         stderr,
         changed_files: changedFiles,
         ...(execRes && execRes.workspace_diff ? { workspace_diff: execRes.workspace_diff } : {}),
       });
+      if (isStudioSurface && (changedFiles.length > 0 || deletedPaths.length > 0)) {
+        await Promise.resolve(flushCow()).catch(() => false);
+        postEvent('workspace_fs_changed', {
+          source: toolName,
+          turn_id: activeTurnNum,
+          changed_paths: changedFiles,
+          deleted_paths: deletedPaths,
+        });
+      }
       if (afterSnap && Array.isArray(afterSnap.files)) {
         workspaceFiles = afterSnap.files;
         if (!(execRes && execRes.__uorWorkspaceSyncEmitted)) {
@@ -4801,6 +5443,8 @@ export class SpiralCoreHostBridge {
   #pendingWs = new Map();
   #nextReqSeq = 1;
   #lazyRepoTrees = new Map();
+  #workspaceMap = new Map();
+  #workspaceFs = null;
   #provenanceBaseline = null;
   #esbuildPromise = null;
   #esbuildCompiler = null;
@@ -4813,6 +5457,15 @@ export class SpiralCoreHostBridge {
 
   constructor(options) {
     const opts = options && typeof options === 'object' ? options : {};
+    this.#workspaceFs = opts.workspaceFs && typeof opts.workspaceFs === 'object' ? opts.workspaceFs : null;
+    if (Array.isArray(opts.workspaceFiles)) {
+      for (const f of opts.workspaceFiles) {
+        if (f && typeof f.path === 'string' && typeof f.content === 'string') {
+          const norm = this.#normalizeWsPath(f.path);
+          if (norm) this.#workspaceMap.set(norm, f.content);
+        }
+      }
+    }
     this.relayUrl =
       opts.relayWsUrl !== undefined
         ? opts.relayWsUrl
@@ -5395,9 +6048,11 @@ export class SpiralCoreHostBridge {
       }
 
       for (const httpUrl of candidateHttpUrls) {
+        let timer = null;
         try {
           const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-          const timer = ctrl ? setTimeout(() => ctrl.abort(), this.relayTimeoutMs) : null;
+          timer = ctrl ? setTimeout(() => ctrl.abort(), this.relayTimeoutMs) : null;
+          if (timer && typeof timer.unref === 'function') timer.unref();
           const reqId = `spvs-http-${Date.now()}-${this.#nextReqSeq++}`;
           const resp = await this.#fetchImpl(httpUrl, {
             method: 'POST',
@@ -5405,7 +6060,6 @@ export class SpiralCoreHostBridge {
             body: JSON.stringify({ req_id: reqId, ...rpcBody }),
             signal: ctrl ? ctrl.signal : undefined,
           });
-          if (timer) clearTimeout(timer);
           const parsed = await resp.json();
           if (parsed && typeof parsed.ok === 'boolean') {
             this.lastTransportMode = httpUrl.includes('127.0.0.1') ? 'spvs-local-http' : 'spvs-cloud-https';
@@ -5413,6 +6067,8 @@ export class SpiralCoreHostBridge {
           }
         } catch {
           // Try next HTTP candidate
+        } finally {
+          if (timer) clearTimeout(timer);
         }
       }
     }
@@ -5537,7 +6193,12 @@ export class SpiralCoreHostBridge {
         message: 'All external bridge operations are denied by active MCP security policy',
       };
     }
-    if (!this.webAccessEnabled && rawOp !== 'pkg_fetch' && rawOp !== 'pkg') {
+    const gitSubPre =
+      rawOp === 'git_smart_http' || rawOp === 'git'
+        ? String(req.subcommand || req.action || (req.arguments && (req.arguments.action || req.arguments.subcommand)) || '').toLowerCase()
+        : '';
+    const isLocalGitRead = (rawOp === 'git_smart_http' || rawOp === 'git') && (gitSubPre === 'status' || gitSubPre === 'diff');
+    if (!this.webAccessEnabled && rawOp !== 'pkg_fetch' && rawOp !== 'pkg' && !isLocalGitRead) {
       return {
         ok: false,
         status: 403,
@@ -6352,12 +7013,210 @@ export class SpiralCoreHostBridge {
     }
   }
 
+  #normalizeWsPath(rawPath) {
+    return String(rawPath || '')
+      .trim()
+      .replace(/\\/g, '/')
+      .replace(/^\/+/, '')
+      .replace(/^workspace(?:\/+|$)/, '')
+      .replace(/^(?:\.\/)+/, '')
+      .replace(/^\/+/, '');
+  }
+
+  #wsWrite(path, content) {
+    const norm = this.#normalizeWsPath(path);
+    if (!norm) return;
+    const text = String(content ?? '');
+    this.#workspaceMap.set(norm, text);
+    if (this.#workspaceFs && typeof this.#workspaceFs.write === 'function') {
+      this.#workspaceFs.write(norm, text);
+    }
+  }
+
+  #wsRead(path) {
+    const norm = this.#normalizeWsPath(path);
+    if (!norm) return null;
+    if (this.#workspaceFs && typeof this.#workspaceFs.read === 'function') {
+      const val = this.#workspaceFs.read(norm);
+      if (val !== null && val !== undefined) return String(val);
+    }
+    return this.#workspaceMap.has(norm) ? this.#workspaceMap.get(norm) : null;
+  }
+
+  #wsDelete(path) {
+    const norm = this.#normalizeWsPath(path);
+    if (!norm) return false;
+    const hadLocal = this.#workspaceMap.delete(norm);
+    if (this.#workspaceFs && typeof this.#workspaceFs.delete === 'function') {
+      return Boolean(this.#workspaceFs.delete(norm)) || hadLocal;
+    }
+    return hadLocal;
+  }
+
+  #wsListWorkingTree() {
+    const out = new Map();
+    if (this.#workspaceFs && typeof this.#workspaceFs.list === 'function') {
+      const list = this.#workspaceFs.list();
+      if (Array.isArray(list)) {
+        for (const item of list) {
+          if (!item || typeof item.path !== 'string') continue;
+          const norm = this.#normalizeWsPath(item.path);
+          if (!norm || norm === '.git' || norm.startsWith('.git/')) continue;
+          out.set(norm, String(item.content ?? ''));
+        }
+        return out;
+      }
+    }
+    for (const [k, v] of this.#workspaceMap.entries()) {
+      if (!k || k === '.git' || k.startsWith('.git/')) continue;
+      out.set(k, v);
+    }
+    return out;
+  }
+
+  writeWorkspaceFile(path, content) {
+    this.#wsWrite(path, content);
+  }
+
+  readWorkspaceFile(path) {
+    return this.#wsRead(path);
+  }
+
+  deleteWorkspaceFile(path) {
+    return this.#wsDelete(path);
+  }
+
+  listWorkspaceFiles() {
+    return Array.from(this.#wsListWorkingTree().entries()).map(([path, content]) => ({ path, content }));
+  }
+
+  #readGitIndexAndState() {
+    let state = null;
+    let index = null;
+    try {
+      const rawState = this.#wsRead('.git/uor_state.json');
+      if (rawState) state = JSON.parse(rawState);
+    } catch {}
+    try {
+      const rawIndex = this.#wsRead('.git/tree_index.json');
+      if (rawIndex) index = JSON.parse(rawIndex);
+    } catch {}
+    return {
+      state: state && typeof state === 'object' ? state : null,
+      index: index && typeof index === 'object' ? index : null,
+    };
+  }
+
+  #writeGitIndexAndState(meta) {
+    const {
+      repoSlug,
+      remoteUrl,
+      branch,
+      headSha,
+      treeSha,
+      trackedEntries,
+      commits,
+    } = meta;
+    const headTree = {};
+    const entriesObj = {};
+    for (const [p, entry] of Object.entries(trackedEntries || {})) {
+      if (!p || p === '.git' || p.startsWith('.git/')) continue;
+      const eObj = entry && typeof entry === 'object' ? entry : {};
+      const hydrated = eObj.hydrated !== false;
+      entriesObj[p] = {
+        sha: String(eObj.sha || ''),
+        size: Number.isFinite(Number(eObj.size)) ? Number(eObj.size) : (typeof eObj.content === 'string' ? eObj.content.length : 0),
+        hydrated,
+        ...(typeof eObj.content === 'string' ? { content: eObj.content } : {}),
+      };
+      if (hydrated && typeof eObj.content === 'string') {
+        headTree[p] = eObj.content;
+      }
+    }
+    this.#wsWrite('.git/HEAD', `ref: refs/heads/${branch || 'main'}\n`);
+    this.#wsWrite('.git/tree_index.json', JSON.stringify({
+      repo: repoSlug,
+      remote_url: remoteUrl,
+      branch: branch || 'main',
+      head_sha: headSha || '',
+      tree_sha: treeSha || '',
+      entries: entriesObj,
+    }, null, 2));
+    this.#wsWrite('.git/uor_state.json', JSON.stringify({
+      branch: branch || 'main',
+      remote_url: remoteUrl,
+      head_oid: headSha || null,
+      staged: {},
+      head_tree: headTree,
+      commits: Array.isArray(commits) ? commits : [],
+      repo: repoSlug,
+      tree_sha: treeSha || '',
+    }, null, 2));
+  }
+
+  #computeGitDiffState(workingMapOverride = null) {
+    const { state, index } = this.#readGitIndexAndState();
+    const working = workingMapOverride || this.#wsListWorkingTree();
+    const entries = (index && index.entries && typeof index.entries === 'object') ? index.entries : {};
+    const headTree = (state && state.head_tree && typeof state.head_tree === 'object') ? state.head_tree : {};
+
+    const added = [];
+    const modified = [];
+    const deleted = [];
+    const diffChunks = [];
+
+    for (const [p, curContent] of working.entries()) {
+      const tracked = entries[p];
+      if (!tracked) {
+        added.push(p);
+        diffChunks.push(buildUnifiedDiffHunk('', curContent, p, false));
+      } else {
+        const baseContent = typeof tracked.content === 'string'
+          ? tracked.content
+          : (typeof headTree[p] === 'string' ? headTree[p] : null);
+        if (baseContent !== null && baseContent !== curContent) {
+          modified.push(p);
+          diffChunks.push(buildUnifiedDiffHunk(baseContent, curContent, p, false));
+        }
+      }
+    }
+
+    for (const [p, tracked] of Object.entries(entries)) {
+      if (!tracked || tracked.hydrated === false) continue;
+      if (!working.has(p)) {
+        deleted.push(p);
+        const baseContent = typeof tracked.content === 'string'
+          ? tracked.content
+          : (typeof headTree[p] === 'string' ? headTree[p] : '');
+        diffChunks.push(buildUnifiedDiffHunk(baseContent, '', p, true));
+      }
+    }
+
+    added.sort();
+    modified.sort();
+    deleted.sort();
+    return {
+      state,
+      index,
+      working,
+      added,
+      modified,
+      deleted,
+      clean: added.length === 0 && modified.length === 0 && deleted.length === 0,
+      diff_text: diffChunks.join('\n'),
+    };
+  }
+
+  async handleGit(req) {
+    return this.handleGitBridge(req);
+  }
+
   async handleGitBridge(req) {
     const rawArgs = String(req.args || (req.arguments && req.arguments.args) || '').trim();
     const argParts = rawArgs ? rawArgs.split(/\s+/) : [];
     const argsObj = (req.arguments && typeof req.arguments === 'object') ? req.arguments : {};
     const subcommand = String(req.subcommand || req.action || argsObj.action || argsObj.subcommand || argParts[0] || 'clone').toLowerCase();
-    const rawRepo = String(req.repo_url || req.repo || argsObj.repo_url || argsObj.repo || req.url || argParts[1] || '').trim();
+    let rawRepo = String(req.repo_url || req.repo || argsObj.repo_url || argsObj.repo || req.url || argParts[1] || '').trim();
 
     if (subcommand === 'detect_repo' || subcommand === 'auto_detect') {
       return this.detectHostedGitHubRepo(req);
@@ -6381,6 +7240,68 @@ export class SpiralCoreHostBridge {
           message: `Secret GITHUB_TOKEN is not allowlisted for provenance host ${provHost}`,
         };
       }
+    }
+
+    if (subcommand === 'status' || subcommand === 'diff') {
+      const diff = this.#computeGitDiffState();
+      const storedState = diff.state || {};
+      const storedIndex = diff.index || {};
+      const repoLabel = String(rawRepo || storedIndex.repo || storedState.repo || storedState.remote_url || '').trim();
+      const branchLabel = String(req.branch || argsObj.branch || storedIndex.branch || storedState.branch || 'main').trim();
+      if (subcommand === 'status') {
+        const lines = [`On branch ${branchLabel}`];
+        if (diff.clean) {
+          lines.push('nothing to commit, working tree clean');
+        } else {
+          for (const p of diff.deleted) lines.push(`  deleted:   ${p}`);
+          for (const p of diff.modified) lines.push(`  modified:  ${p}`);
+          for (const p of diff.added) lines.push(`  added:     ${p}`);
+        }
+        const statusData = {
+          repo: repoLabel,
+          branch: branchLabel,
+          head_sha: String(storedIndex.head_sha || storedState.head_oid || ''),
+          clean: diff.clean,
+          added: diff.added,
+          modified: diff.modified,
+          deleted: diff.deleted,
+        };
+        return {
+          ok: true,
+          status: 200,
+          op: 'git',
+          subcommand: 'status',
+          ...statusData,
+          data: statusData,
+          body_text: lines.join('\n'),
+        };
+      }
+      const diffData = {
+        repo: repoLabel,
+        branch: branchLabel,
+        head_sha: String(storedIndex.head_sha || storedState.head_oid || ''),
+        clean: diff.clean,
+        added: diff.added,
+        modified: diff.modified,
+        deleted: diff.deleted,
+        diff_text: diff.diff_text,
+      };
+      return {
+        ok: true,
+        status: 200,
+        op: 'git',
+        subcommand: 'diff',
+        ...diffData,
+        data: diffData,
+        body_text: diff.diff_text || 'Working tree clean (no diff).',
+      };
+    }
+
+    if (!rawRepo && subcommand !== 'watch_deploy') {
+      const { state: storedState, index: storedIndex } = this.#readGitIndexAndState();
+      const fallbackRepo = (storedIndex && (storedIndex.repo || storedIndex.remote_url)) ||
+        (storedState && (storedState.repo || storedState.remote_url)) || '';
+      if (fallbackRepo) rawRepo = String(fallbackRepo).trim();
     }
 
     if (req.path_and_query) {
@@ -6598,6 +7519,56 @@ export class SpiralCoreHostBridge {
         }));
         const allFiles = [...fetchedFiles, ...lazyEntries];
 
+        const { state: prevPullState, index: prevPullIndex } = this.#readGitIndexAndState();
+        const remoteBlobPaths = new Set(blobs.map((b) => this.#normalizeWsPath(b.path)).filter(Boolean));
+        if (subcommand === 'pull' && prevPullIndex && prevPullIndex.entries) {
+          for (const [oldPath, oldEntry] of Object.entries(prevPullIndex.entries)) {
+            if (!oldPath || remoteBlobPaths.has(oldPath)) continue;
+            if (oldEntry && oldEntry.hydrated !== false) {
+              const curText = this.#wsRead(oldPath);
+              const trackedText = typeof oldEntry.content === 'string'
+                ? oldEntry.content
+                : (prevPullState && prevPullState.head_tree && typeof prevPullState.head_tree[oldPath] === 'string'
+                  ? prevPullState.head_tree[oldPath]
+                  : null);
+              if (curText !== null && trackedText !== null && curText === trackedText) {
+                this.#wsDelete(oldPath);
+              }
+            }
+          }
+        }
+        const trackedEntries = {};
+        for (const f of fetchedFiles) {
+          const normPath = this.#normalizeWsPath(f.path);
+          if (!normPath) continue;
+          this.#wsWrite(normPath, f.content);
+          trackedEntries[normPath] = {
+            sha: f.sha || '',
+            size: f.size ?? f.content.length,
+            hydrated: true,
+            content: f.content,
+          };
+        }
+        for (const lp of lazyEntries) {
+          const normPath = this.#normalizeWsPath(lp.path);
+          if (!normPath) continue;
+          trackedEntries[normPath] = {
+            sha: lp.sha || '',
+            size: lp.size ?? 0,
+            hydrated: false,
+          };
+        }
+        const remoteHeadSha = String(treeJson.sha || '');
+        this.#writeGitIndexAndState({
+          repoSlug,
+          remoteUrl: `${coords.url}.git`,
+          branch,
+          headSha: remoteHeadSha,
+          treeSha: remoteHeadSha,
+          trackedEntries,
+          commits: prevPullState && Array.isArray(prevPullState.commits) ? prevPullState.commits : [],
+        });
+
         return {
           ok: true,
           status: 200,
@@ -6760,16 +7731,62 @@ export class SpiralCoreHostBridge {
           message: 'GitHub PAT not configured. Click GitHub in the header to store GITHUB_TOKEN in the host vault.',
         };
       }
-      const filesToPush = Array.isArray(req.files) ? req.files : Array.isArray(argsObj.files) ? argsObj.files : [];
+      const { state: prevState, index: prevIndex } = this.#readGitIndexAndState();
+      const workingMap = this.#wsListWorkingTree();
+      const explicitFiles = Array.isArray(req.files) ? req.files : Array.isArray(argsObj.files) ? argsObj.files : null;
+      const diffState = this.#computeGitDiffState(workingMap);
+
+      let filesToPush = [];
+      if (explicitFiles) {
+        const suppliedPaths = new Set();
+        const explicitDeletePaths = new Set();
+        for (const f of explicitFiles) {
+          if (!f || typeof f.path !== 'string') continue;
+          const clean = this.#normalizeWsPath(f.path);
+          if (!clean || clean === '.git' || clean.startsWith('.git/')) continue;
+          if (f.delete === true) {
+            explicitDeletePaths.add(clean);
+            filesToPush.push({ path: clean, delete: true });
+          } else {
+            suppliedPaths.add(clean);
+            filesToPush.push({
+              path: clean,
+              mode: String(f.mode || '100644'),
+              content: String(f.content ?? ''),
+            });
+          }
+        }
+        const prevEntries = (prevIndex && prevIndex.entries && typeof prevIndex.entries === 'object') ? prevIndex.entries : {};
+        for (const [trackedPath, trackedMeta] of Object.entries(prevEntries)) {
+          if (!trackedMeta || trackedMeta.hydrated === false) continue;
+          if (explicitDeletePaths.has(trackedPath)) continue;
+          if (req.full_workspace && !suppliedPaths.has(trackedPath)) {
+            filesToPush.push({ path: trackedPath, delete: true });
+          } else if (!suppliedPaths.has(trackedPath) && !workingMap.has(trackedPath)) {
+            filesToPush.push({ path: trackedPath, delete: true });
+          }
+        }
+      } else {
+        for (const p of diffState.added) {
+          filesToPush.push({ path: p, mode: '100644', content: workingMap.get(p) ?? '' });
+        }
+        for (const p of diffState.modified) {
+          filesToPush.push({ path: p, mode: '100644', content: workingMap.get(p) ?? '' });
+        }
+        for (const p of diffState.deleted) {
+          filesToPush.push({ path: p, delete: true });
+        }
+      }
+
       if (filesToPush.length === 0) {
         return {
           ok: false,
           status: 400,
           error_code: 'GitNothingToPush',
-          message: 'No modified workspace files supplied for commit_push',
+          message: 'No modified or deleted workspace files supplied for commit_push',
         };
       }
-      const branch = String(req.branch || argsObj.branch || 'main');
+      const branch = String(req.branch || argsObj.branch || (prevIndex && prevIndex.branch) || (prevState && prevState.branch) || 'main');
       const commitMessage = String(req.message || argsObj.message || req.commit_message || 'Update from UOR-R4 Connected Studio');
       try {
         const branchRefPath = branch.split('/').map(encodeURIComponent).join('/');
@@ -6821,6 +7838,47 @@ export class SpiralCoreHostBridge {
         }
         const deletedFiles = treeEntries.filter((e) => e.sha === null).length;
         const pushedFiles = treeEntries.length - deletedFiles;
+
+        if (prevIndex || this.#workspaceMap.size > 0 || this.#workspaceFs) {
+          const nextTrackedEntries = {
+            ...((prevIndex && prevIndex.entries && typeof prevIndex.entries === 'object') ? prevIndex.entries : {}),
+          };
+          for (const entry of treeEntries) {
+            if (entry.sha === null) {
+              delete nextTrackedEntries[entry.path];
+            } else {
+              nextTrackedEntries[entry.path] = {
+                sha: newTree.json.sha || '',
+                size: String(entry.content || '').length,
+                hydrated: true,
+                content: String(entry.content || ''),
+              };
+            }
+          }
+          const nextCommitTree = {};
+          for (const [tp, te] of Object.entries(nextTrackedEntries)) {
+            if (te && te.hydrated !== false && typeof te.content === 'string') {
+              nextCommitTree[tp] = te.content;
+            }
+          }
+          const nextCommits = Array.isArray(prevState && prevState.commits) ? [...prevState.commits] : [];
+          nextCommits.push({
+            oid: createdCommit.json.sha || '',
+            parent_oid: baseCommitSha || null,
+            message: commitMessage,
+            tree: nextCommitTree,
+          });
+          this.#writeGitIndexAndState({
+            repoSlug,
+            remoteUrl: `${coords.url}.git`,
+            branch,
+            headSha: String(createdCommit.json.sha || ''),
+            treeSha: String(newTree.json.sha || ''),
+            trackedEntries: nextTrackedEntries,
+            commits: nextCommits,
+          });
+        }
+
         const data = {
           repo: repoSlug,
           branch,
@@ -6836,7 +7894,7 @@ export class SpiralCoreHostBridge {
           subcommand: subcommand === 'push' ? 'push' : 'commit_push',
           ...data,
           data,
-          body_text: `Committed & pushed ${pushedFiles} file(s) to ${repoSlug}@${branch} -> ${String(createdCommit.json.sha || '').slice(0, 12)}`,
+          body_text: `Committed & pushed ${pushedFiles} file(s) (${deletedFiles} deleted) to ${repoSlug}@${branch} -> ${String(createdCommit.json.sha || '').slice(0, 12)}`,
           transport: this.lastTransportMode,
         };
       } catch (err) {
@@ -9458,10 +10516,66 @@ function __uorSynthesizeBrainPulsesFromReply(parsedRes, toolKind = 'none') {
 
 function __uorStartDedicatedEngineWorker() {
   const postEvent = (event, data = {}) => {
-    self.postMessage({ event, ...data });
+    if (typeof self !== 'undefined' && self && typeof self.postMessage === 'function') {
+      self.postMessage({ event, ...data });
+    }
+  };
+  const gitMetaFiles = new Map();
+  let offOriginHydrationDeclined = safeStorageGet('uor_allow_off_origin_hydration') === 'declined';
+  let bootNativeQ31Fallback = false;
+  let previewInspectSeq = 0;
+  const pendingPreviewInspectRpc = new Map();
+  const workerWorkspaceFs = {
+    read: (normPath) => {
+      if (normPath === '.git' || normPath.startsWith('.git/')) {
+        return gitMetaFiles.has(normPath) ? gitMetaFiles.get(normPath) : null;
+      }
+      try {
+        if (typeof studio_dispatch === 'function') {
+          const parsed = JSON.parse(studio_dispatch(`1\tstudio\tworkspace_read\t${normPath}`));
+          if (parsed && parsed.status === 'ok' && typeof parsed.content === 'string') {
+            return parsed.content;
+          }
+        }
+      } catch {}
+      return null;
+    },
+    write: (normPath, text) => {
+      if (normPath === '.git' || normPath.startsWith('.git/')) {
+        gitMetaFiles.set(normPath, String(text ?? ''));
+      }
+      try {
+        if (typeof studio_dispatch === 'function') {
+          studio_dispatch(`1\tstudio\tworkspace_write\t${normPath}\n${String(text ?? '')}`);
+        }
+      } catch {}
+    },
+    delete: (normPath) => {
+      if (normPath === '.git' || normPath.startsWith('.git/')) {
+        return gitMetaFiles.delete(normPath);
+      }
+      try {
+        if (typeof studio_dispatch === 'function') {
+          const parsed = JSON.parse(studio_dispatch(`1\tstudio\tworkspace_delete\t${normPath}`));
+          return Boolean(parsed && parsed.status === 'ok');
+        }
+      } catch {}
+      return false;
+    },
+    list: () => {
+      try {
+        const snap = __uorCollectWorkspaceSnapshot();
+        return snap && Array.isArray(snap.files)
+          ? snap.files.filter((f) => f && typeof f.path === 'string' && f.path !== '.git' && !f.path.startsWith('.git/'))
+          : [];
+      } catch {
+        return [];
+      }
+    },
   };
   const hostBridge = new SpiralCoreHostBridge({
     onAuditEvent: (ev) => postEvent('audit_event', ev),
+    workspaceFs: workerWorkspaceFs,
   });
   let wasmReady = false;
   let bootPromise = null;
@@ -9689,6 +10803,43 @@ function __uorStartDedicatedEngineWorker() {
     }
   };
 
+  const prepareGitBridgePayload = (rawReq) => {
+    if (
+      rawReq &&
+      rawReq.op === 'git' &&
+      (rawReq.subcommand === 'push' || rawReq.subcommand === 'commit_push') &&
+      !Array.isArray(rawReq.files)
+    ) {
+      const snap = __uorCollectWorkspaceSnapshot();
+      const liveFiles = (snap && Array.isArray(snap.files) ? snap.files : []).filter(
+        (f) => f && typeof f.path === 'string' && f.path !== '.git' && !f.path.startsWith('.git/'),
+      );
+      return { ...rawReq, files: liveFiles, full_workspace: true };
+    }
+    return rawReq;
+  };
+
+  const notifyGitWorkspaceSync = (gitRes) => {
+    if (!gitRes || gitRes.op !== 'git' || !gitRes.ok) return;
+    if (Array.isArray(gitRes.files) && gitRes.files.length > 0) {
+      const changed = [];
+      for (const f of gitRes.files) {
+        if (f && typeof f.path === 'string' && typeof f.content === 'string') {
+          changed.push(f.path);
+        }
+      }
+      if (changed.length > 0) {
+        flushMvmCowToOpfs().catch(() => false);
+        postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
+        postEvent('workspace_fs_changed', {
+          source: 'git_sync',
+          changed_paths: changed,
+          deleted_paths: [],
+        });
+      }
+    }
+  };
+
   const applyClonedFilesToWorkspace = (files) => {
     if (!Array.isArray(files) || files.length === 0) return null;
     for (const f of files) {
@@ -9696,6 +10847,7 @@ function __uorStartDedicatedEngineWorker() {
         studio_dispatch(`1\tstudio\tworkspace_write\t${f.path}\n${f.content}`);
       }
     }
+    flushMvmCowToOpfs().catch(() => false);
     const snap = __uorCollectWorkspaceSnapshot();
     postEvent('workspace_sync', { workspace: snap });
     return snap;
@@ -9733,24 +10885,13 @@ function __uorStartDedicatedEngineWorker() {
         ],
       });
 
-      let execBridgeReq = bridgeReq;
-      if (
-        execBridgeReq &&
-        execBridgeReq.op === 'git' &&
-        (execBridgeReq.subcommand === 'push' || execBridgeReq.subcommand === 'commit_push') &&
-        !Array.isArray(execBridgeReq.files)
-      ) {
-        const snap = __uorCollectWorkspaceSnapshot();
-        if (snap && Array.isArray(snap.files) && snap.files.length > 0) {
-          execBridgeReq = { ...execBridgeReq, files: snap.files };
-        }
-      }
+      const execBridgeReq = prepareGitBridgePayload(bridgeReq);
       const bridgeResp = await hostBridge.execute(execBridgeReq);
       if (bridgeResp && bridgeResp.op === 'git') {
-        if (Array.isArray(bridgeResp.files) && bridgeResp.files.length > 0) {
-          applyClonedFilesToWorkspace(bridgeResp.files);
-        } else if (typeof bridgeResp.path === 'string' && typeof bridgeResp.content === 'string') {
+        if (typeof bridgeResp.path === 'string' && typeof bridgeResp.content === 'string') {
           applyClonedFilesToWorkspace([{ path: bridgeResp.path, content: bridgeResp.content }]);
+        } else {
+          notifyGitWorkspaceSync(bridgeResp);
         }
       }
       postEvent('bridge_activity', {
@@ -9813,6 +10954,140 @@ function __uorStartDedicatedEngineWorker() {
     }
     return parsed;
   };
+
+  const isQwenMounted = () => {
+    try {
+      const fnStatus = typeof studio_holo_runtime_status === 'function'
+        ? studio_holo_runtime_status
+        : globalThis.studio_holo_runtime_status;
+      if (typeof fnStatus !== 'function') return false;
+      const hs = JSON.parse(fnStatus());
+      return Boolean(
+        hs &&
+          (hs.qwen3_06b_mounted ||
+            hs.qwen3_17b_mounted ||
+            (Array.isArray(hs.models) &&
+              hs.models.some((m) => m && String(m.model_id || '').includes('qwen3')))),
+      );
+    } catch {
+      return false;
+    }
+  };
+
+  const isQ31Ready = () => {
+    try {
+      const fnQ31 = typeof studio_native_q31_status === 'function'
+        ? studio_native_q31_status
+        : globalThis.studio_native_q31_status;
+      if (typeof fnQ31 !== 'function') return false;
+      const st = JSON.parse(fnQ31());
+      return Boolean(st && (st.ready || st.status === 'ok'));
+    } catch {
+      return false;
+    }
+  };
+
+  const shouldUseOfflineQ31Fallback = (reqPayload, inlineLowLatency = false) => {
+    const p = reqPayload && typeof reqPayload === 'object' ? reqPayload : {};
+    if (p.offlineFallback || p.fallbackOfflineQ31 || p.consentDeclined) return true;
+    const rawPref = String(p.preferredModel || p.selected_model || p.model || '').trim();
+    if (rawPref) return false;
+    if (offOriginHydrationDeclined) return true;
+    if (inlineLowLatency && !p.allowOffOriginHydration && !isQwenMounted() && (bootNativeQ31Fallback || isQ31Ready())) {
+      return true;
+    }
+    return false;
+  };
+
+  const stripCodeFences = (rawText) => {
+    const s = String(rawText || '');
+    const m = /^```[a-zA-Z0-9_-]*\r?\n([\s\S]*?)\r?\n?```$/.exec(s.trim());
+    return m ? m[1] : s;
+  };
+
+  const createWorkerTurnHooks = () => ({
+    postEvent,
+    postResponse: (resp) => self.postMessage(resp),
+    dispatchBridge: dispatchWithConnectedBridge,
+    executeHostBridge: async (bridgeReq) => hostBridge.execute(prepareGitBridgePayload(bridgeReq)),
+    flushMvmCowToOpfs: () => flushMvmCowToOpfs(),
+    collectWorkspaceSnapshot: () => __uorCollectWorkspaceSnapshot(),
+    previewInspect: (args) =>
+      new Promise((resolve) => {
+        const rpcId = `pv_${++previewInspectSeq}`;
+        const timer = setTimeout(() => {
+          if (pendingPreviewInspectRpc.has(rpcId)) {
+            pendingPreviewInspectRpc.delete(rpcId);
+            resolve({ ok: false, rpc_id: rpcId, error_code: 'PreviewInspectTimeout', message: 'Preview inspect RPC timed out' });
+          }
+        }, 5000);
+        if (timer && typeof timer.unref === 'function') timer.unref();
+        pendingPreviewInspectRpc.set(rpcId, {
+          resolve: (res) => {
+            clearTimeout(timer);
+            resolve(res);
+          },
+        });
+        postEvent('preview_inspect_request', {
+          rpc_id: rpcId,
+          selector: args && args.selector ? String(args.selector) : '#app',
+          args: args || {},
+        });
+      }),
+    claimTurnOwnership: (ownerReqId) => {
+      const resolvedOwner =
+        ownerReqId != null ? ownerReqId : `__anon_inprism_turn_${++__uorAnonInprismTurnSeq}`;
+      if (
+        activeInprismBusy ||
+        (activeInprismRequestId != null && activeInprismRequestId !== resolvedOwner)
+      ) {
+        return { ok: false, activeTurnId: activeInprismTurnId };
+      }
+      activeInprismBusy = true;
+      activeInprismRequestId = resolvedOwner;
+      return { ok: true, activeTurnId: activeInprismTurnId };
+    },
+    releaseTurnOwnership: (ownerReqId) => {
+      if (
+        activeInprismBusy &&
+        (ownerReqId == null || activeInprismRequestId === ownerReqId)
+      ) {
+        activeInprismBusy = false;
+        activeInprismRequestId = null;
+        activeInprismTurnId = null;
+      }
+    },
+    setActiveTurnId: (tid, ownerReqId) => {
+      if (ownerReqId === undefined || activeInprismRequestId === ownerReqId) {
+        activeInprismTurnId = tid;
+      }
+    },
+    registerCancelWaiter: (ownerReqId, cb) => {
+      const key = String(ownerReqId);
+      let set = pendingInprismCancelWaiters.get(key);
+      if (!set) {
+        set = new Set();
+        pendingInprismCancelWaiters.set(key, set);
+      }
+      set.add(cb);
+      return () => {
+        const cur = pendingInprismCancelWaiters.get(key);
+        if (cur) {
+          cur.delete(cb);
+          if (cur.size === 0) pendingInprismCancelWaiters.delete(key);
+        }
+      };
+    },
+    isCancelled: (reqId, turnId) =>
+      cancelledInprismRequests.has(reqId) ||
+      cancelledInprismRequests.has(String(reqId)) ||
+      (turnId != null && cancelledInprismTurns.has(Number(turnId))),
+    clearCancelled: (reqId, turnId) => {
+      cancelledInprismRequests.delete(reqId);
+      cancelledInprismRequests.delete(String(reqId));
+      if (turnId != null) cancelledInprismTurns.delete(Number(turnId));
+    },
+  });
 
   const handleWorkerMessage = async (msg) => {
     const { id, op, payload } = msg || {};
@@ -9880,21 +11155,13 @@ function __uorStartDedicatedEngineWorker() {
             },
           ],
         });
-        let reqPayload = payload || {};
-        if (
-          reqPayload.op === 'git' &&
-          (reqPayload.subcommand === 'push' || reqPayload.subcommand === 'commit_push') &&
-          !Array.isArray(reqPayload.files)
-        ) {
-          const snap = __uorCollectWorkspaceSnapshot();
-          reqPayload = { ...reqPayload, files: snap.files };
-        }
+        const reqPayload = prepareGitBridgePayload(payload || {});
         const res = await hostBridge.execute(reqPayload);
         if (res && res.op === 'git') {
-          if (Array.isArray(res.files) && res.files.length > 0) {
-            applyClonedFilesToWorkspace(res.files);
-          } else if (typeof res.path === 'string' && typeof res.content === 'string') {
+          if (typeof res.path === 'string' && typeof res.content === 'string') {
             applyClonedFilesToWorkspace([{ path: res.path, content: res.content }]);
+          } else {
+            notifyGitWorkspaceSync(res);
           }
         }
         postEvent('bridge_activity', {
@@ -10018,13 +11285,62 @@ function __uorStartDedicatedEngineWorker() {
       if (op === 'hydrate_holo_model') {
         const modelId = String((payload && payload.modelId) || 'uor-r4.qwen3-0.6b-holo');
         const force = Boolean(payload && payload.force);
-        const allowOffOriginHydration = Boolean(payload && payload.allowOffOriginHydration);
-        const holo = await hydrate_holo_model(modelId, (prog) => {
-          postEvent('boot_progress', { stage: 'holo_v13', ...prog });
-          postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-        }, force, { allowOffOriginHydration });
-        postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-        self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
+        const decline = Boolean(payload && (payload.decline || payload.consentDeclined));
+        if (decline) {
+          offOriginHydrationDeclined = true;
+          bootNativeQ31Fallback = true;
+          safeStorageSet('uor_allow_off_origin_hydration', 'declined');
+          const q31Holo = { model_id: 'uor-r4.native-q31-d85', ready: isQ31Ready() };
+          postEvent('holo_ready', {
+            holo: q31Holo,
+            recommendedModel: 'uor-r4.native-q31-d85',
+            promoted: false,
+            fallbackReason: 'consent_declined',
+            kappaStore: globalThis.__uorHoloKappaStatus || null,
+          });
+          self.postMessage({
+            id,
+            ok: true,
+            result: {
+              declined: true,
+              fallback_model: 'uor-r4.native-q31-d85',
+              recommendedModel: 'uor-r4.native-q31-d85',
+              holo: q31Holo,
+            },
+          });
+          return;
+        }
+        const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
+        const allowOffOriginHydration = payload && payload.allowOffOriginHydration !== undefined
+          ? Boolean(payload.allowOffOriginHydration)
+          : (storedConsent === '1' || storedConsent === 'true');
+        const rememberConsent = payload && payload.rememberConsent !== undefined
+          ? Boolean(payload.rememberConsent)
+          : true;
+        try {
+          const holo = await hydrate_holo_model(modelId, (prog) => {
+            postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+            postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+          }, force, { allowOffOriginHydration, rememberConsent });
+          if (allowOffOriginHydration) {
+            offOriginHydrationDeclined = false;
+            if (rememberConsent) safeStorageSet('uor_allow_off_origin_hydration', '1');
+          }
+          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+          self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
+        } catch (err) {
+          const code = (err && (err.error_code || err.code)) || '';
+          if (code === 'ConsentRequiredForWeightDownload') {
+            postEvent('hydration_consent_required', {
+              model_id: err.model_id || modelId,
+              approx_bytes: Number(err.approx_bytes) || 429916160,
+              mirrors: Array.isArray(err.mirrors) ? err.mirrors : [],
+              fallback_model: 'uor-r4.native-q31-d85',
+              message: err.message || String(err),
+            });
+          }
+          throw err;
+        }
         return;
       }
       if (op === 'holo_storage_geometry') {
@@ -10242,7 +11558,7 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: true, result: desc });
         return;
       }
-      if (op === 'cancel_inprism_turn') {
+      if (op === 'cancel_inprism_turn' || op === 'studio_cancel_turn') {
         const hasTarget = payload && payload.targetId != null;
         const hasReq = payload && payload.requestId != null;
         const hasReqSnake = payload && payload.reqId != null;
@@ -10362,70 +11678,129 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: true, result: { ok: true, op, interleaved: true } });
         return;
       }
-      if (op === 'inprism_r4_turn') {
+      if (op === 'preview_inspect_reply') {
+        const rpcId = payload && (payload.rpc_id || payload.rpcId || payload.id);
+        const key = rpcId != null ? String(rpcId) : '';
+        const waiter = key ? pendingPreviewInspectRpc.get(key) : null;
+        if (waiter) {
+          pendingPreviewInspectRpc.delete(key);
+          waiter.resolve(payload || { ok: true, rpc_id: key });
+        }
+        if (id != null) {
+          self.postMessage({ id, ok: true, result: { ok: true, rpc_id: key } });
+        }
+        return;
+      }
+      if (op === 'inprism_r4_turn' || op === 'studio_stream_turn') {
         /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
+        const reqPayload = payload && typeof payload === 'object' ? { ...payload } : {};
+        if (op === 'studio_stream_turn') {
+          if (!reqPayload.surface_mode) reqPayload.surface_mode = 'studio';
+          if (reqPayload.live_hud === undefined) {
+            reqPayload.live_hud = reqPayload.liveHud !== undefined ? Boolean(reqPayload.liveHud) : true;
+          }
+          if (shouldUseOfflineQ31Fallback(reqPayload, false) && !reqPayload.selected_model && !reqPayload.preferredModel) {
+            reqPayload.offlineFallback = true;
+          }
+        }
         const resEnvelope = await execute_inprism_foundry_turn(
-          { id, payload },
-          {
-            postEvent,
-            postResponse: (resp) => self.postMessage(resp),
-            dispatchBridge: dispatchWithConnectedBridge,
-            claimTurnOwnership: (ownerReqId) => {
-              const resolvedOwner =
-                ownerReqId != null ? ownerReqId : `__anon_inprism_turn_${++__uorAnonInprismTurnSeq}`;
-              if (
-                activeInprismBusy ||
-                (activeInprismRequestId != null && activeInprismRequestId !== resolvedOwner)
-              ) {
-                return { ok: false, activeTurnId: activeInprismTurnId };
-              }
-              activeInprismBusy = true;
-              activeInprismRequestId = resolvedOwner;
-              return { ok: true, activeTurnId: activeInprismTurnId };
-            },
-            releaseTurnOwnership: (ownerReqId) => {
-              if (
-                activeInprismBusy &&
-                (ownerReqId == null || activeInprismRequestId === ownerReqId)
-              ) {
-                activeInprismBusy = false;
-                activeInprismRequestId = null;
-                activeInprismTurnId = null;
-              }
-            },
-            setActiveTurnId: (tid, ownerReqId) => {
-              if (ownerReqId === undefined || activeInprismRequestId === ownerReqId) {
-                activeInprismTurnId = tid;
-              }
-            },
-            registerCancelWaiter: (ownerReqId, cb) => {
-              const key = String(ownerReqId);
-              let set = pendingInprismCancelWaiters.get(key);
-              if (!set) {
-                set = new Set();
-                pendingInprismCancelWaiters.set(key, set);
-              }
-              set.add(cb);
-              return () => {
-                const cur = pendingInprismCancelWaiters.get(key);
-                if (cur) {
-                  cur.delete(cb);
-                  if (cur.size === 0) pendingInprismCancelWaiters.delete(key);
-                }
-              };
-            },
-            isCancelled: (reqId, turnId) =>
-              cancelledInprismRequests.has(reqId) ||
-              cancelledInprismRequests.has(String(reqId)) ||
-              (turnId != null && cancelledInprismTurns.has(Number(turnId))),
-            clearCancelled: (reqId, turnId) => {
-              cancelledInprismRequests.delete(reqId);
-              cancelledInprismRequests.delete(String(reqId));
-              if (turnId != null) cancelledInprismTurns.delete(Number(turnId));
-            },
-          },
+          { id, payload: reqPayload },
+          createWorkerTurnHooks(),
         );
         self.postMessage(resEnvelope);
+        return;
+      }
+      if (op === 'studio_cmdk_edit') {
+        /* Formal R4.StudioFrame */
+        const p = payload && typeof payload === 'object' ? payload : {};
+        const editPath = String(p.path || 'src/main.rs');
+        const origCode = String(p.code ?? '');
+        const instruction = String(p.instruction || 'Apply inline edit').trim();
+        const maxTokens = Math.min(192, Math.max(1, Number(p.max_new_tokens || p.maxTokens || 192) || 192));
+        const selectionSuffix = p.selection && typeof p.selection === 'string'
+          ? `\nSelection:\n\`\`\`\n${p.selection}\n\`\`\``
+          : '';
+        const prompt = `[Cmd+K Inline Edit: ${editPath}]\nInstruction: ${instruction}\nOriginal code:\n\`\`\`\n${origCode}\n\`\`\`${selectionSuffix}\nRespond with only the updated code.`;
+        const reqPayload = {
+          ...p,
+          prompt,
+          active_file: editPath,
+          surface_mode: 'studio',
+          composer_mode: 'agent',
+          live_hud: Boolean(p.live_hud ?? p.liveHud),
+          max_new_tokens: maxTokens,
+          suppressTagCommit: true,
+          ...(shouldUseOfflineQ31Fallback(p, true) ? { offlineFallback: true } : {}),
+        };
+        const turnRes = await execute_inprism_foundry_turn(
+          { id, payload: reqPayload },
+          createWorkerTurnHooks(),
+        );
+        if (!turnRes || !turnRes.ok) {
+          self.postMessage(turnRes);
+          return;
+        }
+        const rawReply = (turnRes.result && (turnRes.result.reply || turnRes.result.assistant_reply)) || '';
+        const proposedCode = stripCodeFences(rawReply);
+        const diffHunk = buildUnifiedDiffHunk(origCode, proposedCode, editPath, false);
+        self.postMessage({
+          id,
+          ok: true,
+          result: {
+            status: 'ok',
+            path: editPath,
+            diff_hunk: diffHunk,
+            proposed_code: proposedCode,
+            receipt_sha256: turnRes.result ? (turnRes.result.receipt_sha256 || null) : null,
+            model_id: turnRes.result ? (turnRes.result.model_id || null) : null,
+            tokens_emitted: turnRes.result ? (turnRes.result.tokens_emitted || 0) : 0,
+            tok_per_sec: turnRes.result ? (turnRes.result.tok_per_sec || 0) : 0,
+          },
+        });
+        return;
+      }
+      if (op === 'studio_ghost_complete') {
+        /* Formal R4.StudioFrame */
+        const p = payload && typeof payload === 'object' ? payload : {};
+        const ghostPath = String(p.path || 'src/lib.rs');
+        const prefix = String(p.prefix ?? '');
+        const suffix = String(p.suffix ?? '');
+        const maxTokens = Math.min(48, Math.max(1, Number(p.max_new_tokens || p.maxTokens || 48) || 48));
+        const prompt = `[Ghost Complete: ${ghostPath}]\nPrefix:\n${prefix}${suffix ? `\nSuffix:\n${suffix}` : ''}\nComplete concisely at cursor.`;
+        const reqPayload = {
+          ...p,
+          prompt,
+          active_file: ghostPath,
+          surface_mode: 'studio',
+          composer_mode: 'agent',
+          live_hud: false,
+          max_new_tokens: maxTokens,
+          suppressTagCommit: true,
+          ...(shouldUseOfflineQ31Fallback(p, true) ? { offlineFallback: true } : {}),
+        };
+        const turnRes = await execute_inprism_foundry_turn(
+          { id, payload: reqPayload },
+          createWorkerTurnHooks(),
+        );
+        if (!turnRes || !turnRes.ok) {
+          self.postMessage(turnRes);
+          return;
+        }
+        const rawReply = (turnRes.result && (turnRes.result.reply || turnRes.result.assistant_reply)) || '';
+        const suggestion = stripCodeFences(rawReply);
+        self.postMessage({
+          id,
+          ok: true,
+          result: {
+            status: 'ok',
+            path: ghostPath,
+            suggestion,
+            receipt_sha256: turnRes.result ? (turnRes.result.receipt_sha256 || null) : null,
+            model_id: turnRes.result ? (turnRes.result.model_id || null) : null,
+            tokens_emitted: turnRes.result ? (turnRes.result.tokens_emitted || 0) : 0,
+            tok_per_sec: turnRes.result ? (turnRes.result.tok_per_sec || 0) : 0,
+          },
+        });
         return;
       }
       if (op === 'mvm_sync_workspace_in') {
@@ -10449,10 +11824,15 @@ function __uorStartDedicatedEngineWorker() {
       }
       self.postMessage({ id, ok: false, error: `Unknown worker op: ${op}` });
     } catch (err) {
+      const errCode = err && (err.error_code || err.code);
       self.postMessage({
         id,
         ok: false,
-        ...(err && err.code ? { error_code: err.code } : {}),
+        ...(errCode ? { error_code: errCode } : {}),
+        ...(err && err.model_id ? { model_id: err.model_id } : {}),
+        ...(err && err.approx_bytes ? { approx_bytes: err.approx_bytes } : {}),
+        ...(err && Array.isArray(err.mirrors) ? { mirrors: err.mirrors } : {}),
+        ...(err && err.fallback_model ? { fallback_model: err.fallback_model } : {}),
         error: err && err.message ? err.message : String(err),
       });
     }
@@ -10528,12 +11908,52 @@ function __uorStartDedicatedEngineWorker() {
             }).catch(() => {});
           }
         });
-      }).catch(() => {});
+      }).catch((err) => {
+        bootNativeQ31Fallback = true;
+        const errCode = (err && (err.error_code || err.code)) || '';
+        const isConsentErr = errCode === 'ConsentRequiredForWeightDownload' ||
+          String((err && err.message) || err || '').includes('ConsentRequiredForWeightDownload');
+        if (isConsentErr) {
+          const modelId = (err && err.model_id) || 'uor-r4.qwen3-0.6b-holo';
+          const cat = (HOLO_MODEL_CATALOG && HOLO_MODEL_CATALOG[modelId]) || null;
+          postEvent('hydration_consent_required', {
+            model_id: modelId,
+            approx_bytes: Number(err && err.approx_bytes) || (cat && cat.approx_bytes) || 429916160,
+            mirrors: (err && Array.isArray(err.mirrors)) ? err.mirrors : ((cat && cat.mirrors) || []),
+            fallback_model: 'uor-r4.native-q31-d85',
+            message: (err && err.message) || String(err),
+          });
+        }
+        let q31Meta = null;
+        let q31Ready = false;
+        try {
+          const fnQ31 = typeof studio_native_q31_status === 'function'
+            ? studio_native_q31_status
+            : globalThis.studio_native_q31_status;
+          if (typeof fnQ31 === 'function') {
+            q31Meta = JSON.parse(fnQ31());
+            q31Ready = Boolean(q31Meta && (q31Meta.ready || q31Meta.status === 'ok'));
+          }
+        } catch {}
+        if (q31Ready) {
+          postEvent('holo_ready', {
+            holo: q31Meta || { model_id: 'uor-r4.native-q31-d85', ready: true },
+            recommendedModel: 'uor-r4.native-q31-d85',
+            promoted: false,
+            fallbackReason: isConsentErr ? 'consent_required' : 'hydration_unavailable',
+            kappaStore: globalThis.__uorHoloKappaStatus || null,
+          });
+        }
+      });
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {
         hostBridge.checkProvenanceUpdate('').catch(() => null);
         if (typeof setInterval === 'function') {
-          setInterval(() => {
+          const provenancePollTimer = setInterval(() => {
+            if (typeof self === 'undefined' || !self) {
+              clearInterval(provenancePollTimer);
+              return;
+            }
             hostBridge
               .checkProvenanceUpdate('')
               .then((upd) => {
@@ -10543,6 +11963,9 @@ function __uorStartDedicatedEngineWorker() {
               })
               .catch(() => {});
           }, 60000);
+          if (provenancePollTimer && typeof provenancePollTimer.unref === 'function') {
+            provenancePollTimer.unref();
+          }
         }
       }
     })().catch((err) => {
@@ -11320,6 +12743,7 @@ if (typeof globalThis === 'object' && globalThis) {
     buildAfflomMeAppDescriptor: build_afflom_me_app_descriptor,
     buildFoundryStudioDescriptor: build_afflom_me_app_descriptor,
     executeInprismFoundryTurn: execute_inprism_foundry_turn,
+    flushMvmCowToOpfs,
   };
 
   globalThis.LexLean = {
@@ -11332,6 +12756,7 @@ if (typeof globalThis === 'object' && globalThis) {
     decodeSpvsWireFrame,
     persist_mvm_cow_sectors_to_opfs,
     restore_mvm_cow_sectors_from_opfs,
+    flushMvmCowToOpfs,
     stitch_prism_identity_ensure,
     stitch_prism_identity_bind_persona,
     compile_and_verify_holo_v4_in_worker,
