@@ -2,7 +2,7 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-17T04:06:43Z"
+synced_at = "2026-11-19T04:31:55Z"
 query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
 
 [[paper]]
@@ -340,4 +340,119 @@ categories = [
     "cs.AI",
 ]
 abstract = 'When LLMs turn requirements into code, every underspecified constraint becomes behavior that the model must decide during generation. We test when specifications move beyond structure and begin to control generated behavior. In a controlled experiment, 72 participants implemented and revised Python tasks with an LLM under three levels of specification explicitness. The results show a clear break between lightweight structure and explicit behavioral obligations. Lightweight structure reduced hidden-test failures by only 8.7%. Requiring participants to specify constraints, invariants, negative requirements, edge cases, tie-breaking rules, and exception handling cut failures by 47.2% and reduced the number of distinct failure modes by 20.5%. The largest drops were in failure modes tied to implicit obligations. Invariant violations fell by 66.1%, and unsupported assumptions fell by 59.5%. After a requirement change, specifications with explicit behavioral obligations produced regressions in more submissions, but each affected submission lost less previously correct behavior. Explicit specifications also changed how developers judged generated code. Without explicit obligations, participants overestimated generated-code correctness by about 23 percentage points. With explicit obligations, they produced better code but judged it more cautiously. Thus, the lesson is sharper than "better specifications help." Lightweight structure barely helped, while explicit behavioral obligations nearly halved failures, made regressions shallower, and improved calibration.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.24932"
+title = "Knowing What You Know: A Trait Theory of Reviewer Value in Human-AI Cognitive Systems"
+authors = [
+    "Priyanka Sinha",
+    "Sugam Pandey",
+]
+published = "2026-11-18T18:55:07Z"
+updated = "2026-11-18T18:55:07Z"
+primary_category = "cs.AI"
+categories = [
+    "cs.AI",
+    "cs.CE",
+    "cs.HC",
+    "cs.LG",
+]
+abstract = "When a capable model and a human reviewer cooperate on the same decision, which human still adds value? We argue this is a question about a single cognitive trait, metacognitive calibration: the alignment between a reviewer's behavioral confidence and the actual correctness of their judgments. We develop a trait theory of reviewer value to make it precise. The theory makes five claims: value is governed by calibration rather than by activity, speed, agreement, or tenure; calibration leaves observable traces in behavioral telemetry; those traces are non-diagnostic on their own, because the fast, low-revision signature of a calibrated expert is indistinguishable from that of a confident novice until it is gated by outcomes; human calibration and a model's self-knowledge are the same construct, so the joint system should defer to whichever agent is better calibrated on each item; and individual calibration is causally identifiable only above the level of the single judgment. We ground each claim in a six-month production window of an AI-assisted accounting system (541621 reviewer events, 483 reviewers), and find that a purely behavioral expertise profile inverts the ground truth, scoring an overconfident cohort (5.2 percent correction survival) higher than genuine experts (99.2 percent); that reviewer quality is flat across tenure, so the trait is not learned on the job; and that the same calibration logic that separates good from bad reviewers, applied to the model, concentrates 92.5 percent of human effort on genuine errors. We close with the boundary the theory must respect: under majority-vote aggregation, individual causal value is unidentifiable."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.24927"
+title = "Mapping the AI Supply Chain: Dependencies, Vulnerabilities, and Market Concentration in the AI Ecosystem"
+authors = [
+    "Sarah H. Cen",
+    "Lindsey A. Gailmard",
+    "Joohan Kim",
+    "Rishi Bommasani",
+    "Daniel E. Ho",
+    "Percy Liang",
+]
+published = "2026-11-18T18:53:58Z"
+updated = "2026-11-18T18:53:58Z"
+primary_category = "cs.CY"
+categories = [
+    "cs.CY",
+    "cs.AI",
+]
+abstract = "AI systems are built across many organizations that contribute models, data, compute, capital, talent, and other assets. While the layers of the AI stack are relatively well understood, the relationships between actors and components across layers remains sparsely documented. In this work, we focus on the organizations that make up the AI supply chain: the complex network of actors that contribute to the development and deployment of AI. We motivate the examination of the organizational AI supply chain---highlighting concerns about concentration, power, chokepoints, cascading failures, fragmented accountability, and risk---then describe our pipeline for mapping the AI supply chain. Our pipeline yields our main contribution: a multilayered, large-scale dataset of actors and relationships in the AI ecosystem, annotated with dates, descriptions, types, tags, and more. This work takes a step toward systematically mapping and measuring the AI supply chain and its properties, cataloging how models, data, chips, infrastructure, capital, and even talent flow between organizations. This data enable critical examinations of industry relationships and yield insights into the political economy of AI development and concentration. We provide several illustrative analyses, including studying the most central actors, analyzing network concentration, and identifying communities and chokepoints. While our dataset is fairly comprehensive, it is also necessarily incomplete: public documents omit private deals, and coverage is shaped by search design. Together, the approach, data, and findings aim to serve as a resource for studying the AI ecosystem. The dataset is publicly available at https://huggingface.co/datasets/sarahcen/ai-supply-chain and can be explored interactively at https://aisupplychains.org/."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.24924"
+title = "Agentic Harness Engineering Beta: Requirement-Centered Evolution of Agent Harnesses"
+authors = [
+    "Jiahang Lin",
+    "Jiahao Chen",
+    "Yiding Wang",
+    "Shichun Liu",
+    "Chengjun Pan",
+    "Shihan Dou",
+    "Honglin Guo",
+    "Yuyang Hu",
+    "Changhao Jiang",
+    "Zhenhua Han",
+    "Hang Yan",
+    "Qi Zhang",
+    "Tao Gui",
+    "Xuanjing Huang",
+]
+published = "2026-11-18T18:52:13Z"
+updated = "2026-11-18T18:52:13Z"
+primary_category = "cs.SE"
+categories = [
+    "cs.SE",
+    "cs.AI",
+]
+abstract = "Real-world harness engineering is driven by explicit and implicit user requirements, which guide development and validation. However, existing harness evolution methods often overlook implicit requirements and interaction needs, while using a single evolution agent to modify the harness and benchmark scores to select changes. This process often produces narrow patches and leads to benchmark-specific local optima. We introduce Agentic Harness Engineering Beta (AHE-Beta), a requirement-centered loop that brings real-world engineering practices into harness evolution. The loop consists of three steps: (1) User-driven evaluation lets simulated users raise their requirements as issues while they work with the harness over multiple turns. (2) Team-based modification implements those requirements as generalizable changes rather than task-specific patches. (3) Requirement-driven selection merges a change only when it resolves a verified requirement and passes review. Empirically, on held-out tasks, AHE-Beta raises pass@1 from 21.9% to 33.3% while using 40.8% fewer tokens than Base Harness, and achieves higher pass@1 than Claude Code, Meta-Harness, and AHE. In a blind human A/B test, real users prefer AHE-Beta in 31 of 48 valid pairs and rate it higher on all five dimensions, matching the directional preference of the user simulator. The human A/B results show that AHE-Beta achieves its goal of aligning harness evolution with real-world user requirements. Without further evolution, the gains transfer to GLM-5.3 and DeepSeek-V4.1-Flash with pass@1 improvements of 15.8% and 5.3% over Base Harness. Together, these results show that requirement-centered harness evolution is a more general method for improving agent capabilities."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.24902"
+title = "Mine Locally, Verify Globally: Exact Recovery, Compilation, and Distortion of Mined Temporal Rules"
+authors = [
+    "Nikolaos Kekatos",
+    "Priyanka Sinha",
+    "Stylianos Basagiannis",
+    "Antonio Anastasio Bruto da Costa",
+    "Alexios Lekidis",
+    "Pabitra Mitra",
+    "Tom Nianios",
+]
+published = "2026-11-18T18:41:11Z"
+updated = "2026-11-18T18:41:11Z"
+primary_category = "cs.DC"
+categories = [
+    "cs.DC",
+    "cs.LO",
+    "cs.NI",
+]
+abstract = "Specification mining extracts temporal rules that describe relationships between events in recorded system traces. Applying these rules in distributed monitoring systems is more difficult because observations come from different nodes, whose clocks may not be synchronized, and events may be lost or reordered during transmission. In this paper, we study how to aggregate the coverage of mined rules across observers, determine whether their temporal windows are needed during monitoring, and characterize their detection under event loss. Our evaluation uses IPv6 packet traces collected from 21 receivers across four continents. We show that local mining followed by global confirmation recovers centralized rule coverage under suitable conditions while substantially reducing communication overhead. In contrast, merging traces with unaligned clocks can distort coverage by introducing incorrect temporal matches. A window-gain criterion identifies rules that require temporal state, while our loss analysis and broker experiments demonstrate why contiguous losses can be more damaging than independent losses. The results identify separate requirements for aggregating observations, selecting monitor state, and handling event loss."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.24899"
+title = """"I Don't Think It's a Scam": A First Look at Family Intervention Barriers in Elder Abuse Discussions on Reddit and Baidu Tieba"""
+authors = [
+    "Yipeng Wang",
+    "Huy Gia Han Vu",
+    "Jiaming Liu",
+    "Mihika Mehta",
+    "Poojitha Thota",
+    "Shirin Nilizadeh",
+    "Mohit Singhal",
+]
+published = "2026-11-18T18:38:06Z"
+updated = "2026-11-18T18:38:06Z"
+primary_category = "cs.SI"
+categories = [
+    "cs.SI",
+    "cs.CR",
+    "cs.CY",
+]
+abstract = '''When older adults trust scammers despite warnings, families face obstacles to intervention. Complainants aged 60 and older reported \$4.9 billion in losses in 2024 to the U.S. Internet Crime Complaint Center. To investigate family intervention barriers to elder scams, we collected 2M Reddit posts from May 2021 to June 2026 and 2B Baidu Tieba posts from 2007 to 2026. The final corpora contain 13,082 Reddit posts and 3,933 Baidu Tieba posts, labeled using platform-specific codebooks, manual reference annotations, and LLM coding. Through a mixed-methods analysis, we find that scams often extend beyond a single incident and are reported alongside debt problems and broken family relationships. In 68.0\% of Reddit posts recording reactions, older adults showed resistance or continued involvement; in Baidu Tieba family-confrontation posts, 41.9\% showed continued belief. Relatives identified fraud in 74.4\% of Reddit posts and narrated cases on Baidu Tieba, but without the victim's consent, relatives may lack the legal authority to intervene. In Reddit posts recording reactions, account locks or credential changes appeared in 8.9\% under resistance or continued involvement, compared with 33.3\% under acceptance. Measures such as phone or network monitoring and financial takeover were reported more often under resistance. Recovering funds is very limited in posts recording follow-up results of fraud; Baidu Tieba users reported that police classified older adults' voluntary transfers as civil disputes.'''
 hypothesis = []
