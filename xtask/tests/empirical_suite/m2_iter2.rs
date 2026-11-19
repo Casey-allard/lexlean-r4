@@ -8,25 +8,11 @@
 //!    (e.g. `<html><body>502 Bad Gateway</body></html>`) under `offline_fallback = true` vs `false`.
 //! 3. Dry-run immutability of catalog under fallback and sync operations.
 
-#![allow(dead_code, unused_imports, clippy::all)]
-
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/lut_stack_exec.rs"]
-pub mod lut_stack_exec;
-
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/otel.rs"]
-pub mod otel;
-
-#[allow(dead_code, clippy::all)]
-#[path = "../src/engine.rs"]
-mod engine;
-
-use engine::{
+use xtask::engine::{
     extract_tag_content, literature_sync, load_literature, normalize_whitespace,
     parse_arxiv_atom_feed, strip_html_tags, unescape_xml, ArxivPaper, LiteratureFile,
 };

@@ -31,6 +31,7 @@ undocumented_unsafe_blocks = "deny"
 missing_safety_doc = "deny"
 
 [profile.dev]
+opt-level = 2
 debug = false
 
 [profile.release]

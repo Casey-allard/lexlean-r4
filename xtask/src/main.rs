@@ -10,26 +10,8 @@ use std::process::ExitCode;
 
 use repo_model::{codegen, Model};
 
-mod audit;
-mod bootstrap;
-mod engine;
-#[allow(dead_code, clippy::all, missing_docs)]
-#[path = "../../crates/wasm/src/lexlean_generated.rs"]
-pub mod lexlean_generated;
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/lut_stack_exec.rs"]
-pub mod lut_stack_exec;
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/otel.rs"]
-pub mod otel;
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/prism_holo_compiler.rs"]
-pub mod prism_holo_compiler;
-mod routes_and_measures;
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/wasm_ast_eval.rs"]
-pub mod wasm_ast_eval;
-use engine::wasm_bundle;
+use xtask::engine::wasm_bundle;
+use xtask::{audit, bootstrap, engine, prism_holo_compiler, routes_and_measures, Fail};
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
@@ -158,11 +140,6 @@ fn main() -> ExitCode {
     }
 }
 
-/// A gate failure, reported with the rule it broke.
-type Fail = Box<dyn std::error::Error>;
-
-/// R1, `CM-01`: the generated Rust consts equal the model, numeral for
-/// numeral.
 fn check_model(root: &Path, write: bool) -> Result<(), Fail> {
     let model = Model::load(&root.join("model"))?;
     model.check()?;

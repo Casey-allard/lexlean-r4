@@ -17,25 +17,17 @@ use std::sync::Arc;
 use std::thread;
 use std::time::{Duration, Instant};
 
-#[allow(dead_code)]
-#[path = "../../crates/wasm/src/lut_stack_exec.rs"]
-pub mod lut_stack_exec;
-
-#[allow(dead_code)]
-#[path = "../../crates/wasm/src/otel.rs"]
-pub mod otel;
-
-use lut_stack_exec::{
+use xtask::lut_stack_exec::{
     LutStackModel, RollingContextState, ServedPointKey, VERIFIED_FRONTIER_ANCHOR_TAG,
 };
-use otel::{build_inference_trace, fnv1a64};
+use xtask::otel::{build_inference_trace, fnv1a64};
 
-const BOOTSTRAP_BYTES: &[u8] = include_bytes!("../../crates/wasm/src/bootstrap_v8.uorlut");
+use crate::BOOTSTRAP_BYTES;
 const BOOTSTRAP_TRACE_EXPECTED: u128 = 0x756f722d72342e626f6f747374726170; // "uor-r4.bootstrap"
 const BOOTSTRAP_SPAN_EXPECTED: u64 = 0x756f722d72342e38; // "uor-r4.8"
 
 fn load_test_model() -> LutStackModel {
-    LutStackModel::parse(BOOTSTRAP_BYTES).expect("bootstrap parses successfully")
+    crate::shared_bootstrap_lut().as_ref().clone()
 }
 
 fn find_free_port() -> u16 {
@@ -374,6 +366,9 @@ fn test_stress_sentinel_grid_point_and_writer_provenance() {
 
 #[test]
 fn test_stress_api_concurrency_hammer_and_client_disconnects() {
+    let _daemon_guard = crate::XTASK_DAEMON_LOCK
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
     let daemon = Arc::new(TestServerDaemon::spawn());
     let addr = daemon.addr.clone();
 

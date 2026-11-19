@@ -7,25 +7,11 @@
 //! 3. ID uniqueness, zero duplicate kappa signatures, and valid prerequisite dependency DAGs.
 //! 4. Oracle sensitivity and fail-closed bounds on corrupted witnesses.
 
-#![allow(dead_code, unused_imports, clippy::all)]
-
 use std::collections::BTreeSet;
 use std::path::Path;
 
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/lut_stack_exec.rs"]
-pub mod lut_stack_exec;
-
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/otel.rs"]
-pub mod otel;
-
-#[allow(dead_code, clippy::all)]
-#[path = "../src/engine.rs"]
-mod engine;
-
-use engine::{
-    compute_claim_witnesses, evaluate_strategy_on_claim, load_frontier, load_literature,
+use xtask::engine::{
+    self, compute_claim_witnesses, evaluate_strategy_on_claim, load_frontier, load_literature,
     mine_literature_frontier_claims, ArxivPaper, ClaimWitnesses, ExtractedHypothesis,
     FrontierClaim, LiteratureFile, FAMILIES, STRATEGIES,
 };

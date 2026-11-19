@@ -11,8 +11,6 @@
 //! 6. Live TCP daemon concurrency hammer: 20 concurrent worker threads executing 200 rapid requests.
 //! 7. Full regression gate against the 12-point loopback test suite.
 
-#![allow(dead_code, unused_imports, clippy::all)]
-
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpStream;
@@ -22,19 +20,8 @@ use std::sync::{Arc, Barrier};
 use std::thread;
 use std::time::Duration;
 
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/lut_stack_exec.rs"]
-pub mod lut_stack_exec;
-
-#[allow(dead_code, clippy::all)]
-#[path = "../../crates/wasm/src/otel.rs"]
-pub mod otel;
-
-#[allow(dead_code, clippy::all)]
-#[path = "../src/engine.rs"]
-mod engine;
-
-use engine::api::{
+use xtask::engine;
+use xtask::engine::api::{
     handle_v1_chat_completions_payload, handle_v1_messages_payload, parse_assistant_turn,
     synthesize_turn_output, AnthropicMessagesRequest, AnthropicMessagesResponse,
     OpenAiChatCompletionRequest, OpenAiChatCompletionResponse, ParsedTurn,
@@ -517,11 +504,11 @@ fn challenge_thinking_tags_in_full_message_turn_separation() {
     let mut found_thinking = false;
     for b in &resp.content {
         match b {
-            crate::engine::api::AnthropicContentBlock::Thinking { thinking, .. } => {
+            xtask::engine::api::AnthropicContentBlock::Thinking { thinking, .. } => {
                 found_thinking = true;
                 assert!(thinking.contains("Wilson"));
             }
-            crate::engine::api::AnthropicContentBlock::Text { text } => {
+            xtask::engine::api::AnthropicContentBlock::Text { text } => {
                 assert!(
                     !text.contains("<thinking>") && !text.contains("</thinking>"),
                     "text content must not contain thinking XML tags: {text}"
@@ -662,10 +649,10 @@ fn challenge_7_tool_declaration_triggers_read_file_tool_use() {
     let tool_block = resp1
         .content
         .iter()
-        .find(|b| matches!(b, crate::engine::api::AnthropicContentBlock::ToolUse { .. }))
+        .find(|b| matches!(b, xtask::engine::api::AnthropicContentBlock::ToolUse { .. }))
         .expect("must contain ToolUse content block");
 
-    if let crate::engine::api::AnthropicContentBlock::ToolUse { name, input, id } = tool_block {
+    if let xtask::engine::api::AnthropicContentBlock::ToolUse { name, input, id } = tool_block {
         assert_eq!(name, "read_file");
         assert!(id.starts_with("call_"));
         assert_eq!(input["path"], "src/engine.rs");
@@ -820,6 +807,9 @@ fn challenge_9_extreme_payload_sizes_and_unicode_fuzzing() {
 
 #[test]
 fn challenge_10_live_daemon_raw_tcp_fuzzing() {
+    let _daemon_guard = crate::XTASK_DAEMON_LOCK
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
     let daemon = TestServerDaemon::spawn();
 
     // 1. Immediate socket disconnect (0 bytes)
@@ -904,6 +894,9 @@ fn challenge_10_live_daemon_raw_tcp_fuzzing() {
 
 #[test]
 fn challenge_11_live_daemon_concurrency_hammer_200_requests() {
+    let _daemon_guard = crate::XTASK_DAEMON_LOCK
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
     let daemon = Arc::new(TestServerDaemon::spawn());
     let thread_count = 20;
     let requests_per_thread = 10;
