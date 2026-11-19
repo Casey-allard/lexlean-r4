@@ -1311,28 +1311,31 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
     };
 
     const offOriginHits = [];
-    // Case A: neither manifest nor shards on same-origin -> ConsentRequiredForWeightDownload with model_id, approx_bytes, mirrors
+    // Case A: untrusted custom external mirrors require ConsentRequiredForWeightDownload unless allowOffOriginHydration=true
     globalThis.fetch = async (url) => {
       const s = String(url || '');
-      if (s.startsWith('https://raw.githubusercontent.com/')) {
+      if (s.startsWith('https://untrusted.example/')) {
         offOriginHits.push(s);
       }
       return new Response('Not Found', { status: 404 });
     };
     await assert.rejects(
-      () => hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, true, {}),
+      () =>
+        hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, true, {
+          customMirrors: ['https://untrusted.example/weights/'],
+        }),
       (err) =>
         err &&
         err.code === 'ConsentRequiredForWeightDownload' &&
         err.model_id === 'uor-r4.qwen3-0.6b-holo' &&
         Number(err.approx_bytes) > 0 &&
         Array.isArray(err.mirrors) &&
-        err.mirrors.some((m) => m.includes('raw.githubusercontent.com')),
+        err.mirrors.some((m) => m.includes('untrusted.example')),
     );
-    assert.equal(offOriginHits.length, 0, 'must not touch off-origin mirror before explicit consent');
+    assert.equal(offOriginHits.length, 0, 'must not touch untrusted external mirror before explicit consent');
 
     // Case B: Pages deployment scenario — same-origin manifest.json returns 200 OK while piece_0000.bin returns 404!
-    // Must throw ConsentRequiredForWeightDownload (NOT RefusedInsufficientParityShards)!
+    // Explicit allowOffOriginHydration: false still requests consent; default {} auto-hydrates first-party GitHub mirror!
     globalThis.fetch = async (url) => {
       const s = String(url || '');
       if (s.startsWith('https://casey-allard.github.io/') && s.endsWith('/manifest.json')) {
@@ -1365,9 +1368,9 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
         Array.isArray(err.mirrors) &&
         err.mirrors.some((m) => m.includes('raw.githubusercontent.com')),
     );
-    assert.equal(offOriginHits.length, 0, 'GitHub Pages 404 .bin shards must request off-origin consent, not fetch or fail parity');
+    assert.equal(offOriginHits.length, 0, 'explicit allowOffOriginHydration:false must gate off-origin fetches');
 
-    // Case C: allowOffOriginHydration: true + rememberConsent: true proceeds cleanly despite localStorage SecurityError
+    // Case C: default auto-hydration {} on Pages proceeds cleanly despite localStorage SecurityError & 404 same-origin pieces
     let mountedPieces = 0;
     globalThis.studio_begin_holo_v13_mount_verified = () => JSON.stringify({ status: 'ok' });
     globalThis.studio_begin_holo_v13_mount = () => JSON.stringify({ status: 'ok' });
@@ -1378,10 +1381,7 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
     globalThis.studio_finalize_holo_v13_mount = () =>
       JSON.stringify({ status: 'ok', model_id: 'uor-r4.qwen3-0.6b-holo', mounted: true });
 
-    const hydrated = await hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, true, {
-      allowOffOriginHydration: true,
-      rememberConsent: true,
-    });
+    const hydrated = await hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, true, {});
     assert.equal(hydrated.status, 'ok');
     assert.equal(mountedPieces, 1);
     assert.ok(offOriginHits.some((u) => u.endsWith('/piece_0000.bin')));
@@ -2061,9 +2061,10 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
     await readyPromise;
     const bootFallback = await bootFallbackPromise;
     assert.equal(bootFallback.recommendedModel, 'uor-r4.native-q31-d85');
-    assert.ok(
-      workerEvents.some((e) => e && e.event === 'hydration_consent_required' && e.model_id === 'uor-r4.qwen3-0.6b-holo'),
-      'boot fallback must emit hydration_consent_required alongside Q31 holo_ready',
+    assert.equal(
+      workerEvents.filter((e) => e && e.event === 'hydration_consent_required').length,
+      0,
+      'R4-62 zero-prompt auto-hydration must not emit hydration_consent_required for first-party catalog mirrors',
     );
 
     // Offline Q31 fallback via studio_stream_turn + preview_inspect_reply roundtrip
@@ -2206,13 +2207,14 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
     assert.equal(persistedGitStatus.result.repo, 'uor-test/persisted', 'workerWorkspaceFs.read must fall back to MVM workspace_read for .git/*');
     assert.equal(persistedGitStatus.result.clean, true);
 
-    // 4) Persisted 'declined' consent skips download & skips re-emitting hydration_consent_required
-    const declinedStore = new Map([['uor_allow_off_origin_hydration', 'declined']]);
+    // 4) Stale 'declined' flag is purged & auto-hydrates on boot; only uor_offline_emergency_q31='1' skips boot hydration
+    const emergencyStore = new Map([['uor_offline_emergency_q31', '1']]);
     Object.defineProperty(globalThis, 'localStorage', {
       configurable: true,
       value: {
-        getItem: (k) => (declinedStore.has(k) ? declinedStore.get(k) : null),
-        setItem: (k, v) => declinedStore.set(k, String(v)),
+        getItem: (k) => (emergencyStore.has(k) ? emergencyStore.get(k) : null),
+        setItem: (k, v) => emergencyStore.set(k, String(v)),
+        removeItem: (k) => emergencyStore.delete(k),
       },
     });
     const declinedEvents = [];
@@ -2223,7 +2225,7 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
     };
     let declinedReadyResolve;
     const declinedReadyP = new Promise((resolve, reject) => {
-      const t = setTimeout(() => reject(new Error('Timeout waiting for declined Q31 holo_ready')), 3000);
+      const t = setTimeout(() => reject(new Error('Timeout waiting for emergency Q31 holo_ready')), 3000);
       declinedReadyResolve = (m) => { clearTimeout(t); resolve(m); };
     });
     const declinedScope = new MockStudioWorkerScope();
@@ -2234,14 +2236,14 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
       }
     };
     globalThis.self = declinedScope;
-    await import('../../crates/wasm/js/worker_host_bridge.js?studio_r4_60_declined=1');
+    await import('../../crates/wasm/js/worker_host_bridge.js?studio_r4_62_emergency=1');
     const declinedHoloReady = await declinedReadyP;
-    assert.equal(declinedHoloReady.fallbackReason, 'consent_declined');
+    assert.equal(declinedHoloReady.fallbackReason, 'offline_emergency_mode');
     const declinedWeightFetches = declinedFetchUrls.filter((u) => !u.includes('provenance.json'));
-    assert.equal(declinedWeightFetches.length, 0, `persisted declined consent must skip weight fetches at boot, saw: ${JSON.stringify(declinedFetchUrls)}`);
-    assert.equal(declinedEvents.filter((e) => e && e.event === 'hydration_consent_required').length, 0, 'declined boot must not re-emit hydration_consent_required');
+    assert.equal(declinedWeightFetches.length, 0, `offline emergency mode must skip weight fetches at boot, saw: ${JSON.stringify(declinedFetchUrls)}`);
+    assert.equal(declinedEvents.filter((e) => e && e.event === 'hydration_consent_required').length, 0, 'emergency boot must not emit hydration_consent_required');
 
-    // 5) Real Dedicated Worker consent persistence & flip when typeof localStorage === 'undefined'
+    // 5) Real Dedicated Worker offlineEmergencyQ31 & stale 'declined' purge when typeof localStorage === 'undefined'
     const prevAllowFlag = globalThis.__uorAllowOffOriginHydration;
     try {
       delete globalThis.localStorage;
@@ -2266,7 +2268,7 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
 
       let memReadyResolve;
       const memReadyP = new Promise((resolve, reject) => {
-        const t = setTimeout(() => reject(new Error('Timeout waiting for memory-consent Worker ready')), 3000);
+        const t = setTimeout(() => reject(new Error('Timeout waiting for emergency-policy Worker ready')), 3000);
         memReadyResolve = (m) => {
           clearTimeout(t);
           resolve(m);
@@ -2291,65 +2293,63 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
         }
       };
       globalThis.self = memScope;
-      await import('../../crates/wasm/js/worker_host_bridge.js?studio_r4_60_mem_consent=1');
+      await import('../../crates/wasm/js/worker_host_bridge.js?studio_r4_62_mem_policy=1');
       await memReadyP;
 
-      const declinePolicyP = waitForMemRpc('mem-policy-decline');
+      const emergencyOnP = waitForMemRpc('mem-policy-emergency-on');
       memScope.onmessage({
         data: {
-          id: 'mem-policy-decline',
+          id: 'mem-policy-emergency-on',
           op: 'set_bridge_policy',
-          payload: { allowOffOriginHydration: false, consentDeclined: true, bootSync: true },
+          payload: { offlineEmergencyQ31: true, bootSync: true },
         },
       });
-      const declinePolicyRes = await declinePolicyP;
-      assert.equal(declinePolicyRes.ok, true, `set_bridge_policy decline failed: ${JSON.stringify(declinePolicyRes)}`);
-      assert.equal(declinePolicyRes.result.allow_off_origin_hydration, false);
-      assert.equal(declinePolicyRes.result.consent_declined, true);
+      const emergencyOnRes = await emergencyOnP;
+      assert.equal(emergencyOnRes.ok, true, `set_bridge_policy offlineEmergencyQ31 failed: ${JSON.stringify(emergencyOnRes)}`);
+      assert.equal(emergencyOnRes.result.offline_emergency_q31, true);
 
-      const declinedTurnP = waitForMemRpc('mem-turn-declined');
+      const emergencyTurnP = waitForMemRpc('mem-turn-emergency');
       memScope.onmessage({
         data: {
-          id: 'mem-turn-declined',
+          id: 'mem-turn-emergency',
           op: 'inprism_r4_turn',
           payload: { prompt: 'Run offline Q31 under undefined localStorage' },
         },
       });
-      const declinedTurnRes = await declinedTurnP;
-      assert.equal(declinedTurnRes.ok, true, `inprism_r4_turn after consentDeclined must succeed with Q31, got: ${JSON.stringify(declinedTurnRes)}`);
-      assert.equal(declinedTurnRes.result.model_id, 'uor-r4.native-q31-d85', 'Declined Worker consent without localStorage must route inprism_r4_turn to uor-r4.native-q31-d85');
+      const emergencyTurnRes = await emergencyTurnP;
+      assert.equal(emergencyTurnRes.ok, true, `inprism_r4_turn under offlineEmergencyQ31 must succeed with Q31, got: ${JSON.stringify(emergencyTurnRes)}`);
+      assert.equal(emergencyTurnRes.result.model_id, 'uor-r4.native-q31-d85', 'offlineEmergencyQ31 must route unadorned inprism_r4_turn to uor-r4.native-q31-d85');
 
-      const approvePolicyP = waitForMemRpc('mem-policy-approve');
+      const emergencyOffP = waitForMemRpc('mem-policy-emergency-off');
       memScope.onmessage({
         data: {
-          id: 'mem-policy-approve',
+          id: 'mem-policy-emergency-off',
           op: 'set_bridge_policy',
-          payload: { allowOffOriginHydration: true, consentDeclined: false },
+          payload: { offlineEmergencyQ31: false, consentDeclined: false },
         },
       });
-      const approvePolicyRes = await approvePolicyP;
-      assert.equal(approvePolicyRes.ok, true);
-      assert.equal(approvePolicyRes.result.allow_off_origin_hydration, true);
-      assert.equal(approvePolicyRes.result.consent_declined, false);
+      const emergencyOffRes = await emergencyOffP;
+      assert.equal(emergencyOffRes.ok, true);
+      assert.equal(emergencyOffRes.result.offline_emergency_q31, false);
 
       memFetchUrls.length = 0;
-      const approvedTurnP = waitForMemRpc('mem-turn-approved');
+      const autoTurnP = waitForMemRpc('mem-turn-auto');
       memScope.onmessage({
         data: {
-          id: 'mem-turn-approved',
+          id: 'mem-turn-auto',
           op: 'inprism_r4_turn',
-          payload: { prompt: 'Attempt off-origin hydration after approval' },
+          payload: { prompt: 'Attempt first-party auto-hydration after clearing emergency mode' },
         },
       });
-      const approvedTurnRes = await approvedTurnP;
+      const autoTurnRes = await autoTurnP;
       assert.notEqual(
-        approvedTurnRes.error_code,
+        autoTurnRes.error_code,
         'ConsentRequiredForWeightDownload',
-        `Approved Worker policy must not throw ConsentRequiredForWeightDownload: ${JSON.stringify(approvedTurnRes)}`,
+        `R4-62 auto-hydration must not throw ConsentRequiredForWeightDownload: ${JSON.stringify(autoTurnRes)}`,
       );
       assert.ok(
         memFetchUrls.some((u) => u.includes('raw.githubusercontent.com') || u.includes('huggingface.co')),
-        `set_bridge_policy({ allowOffOriginHydration: true }) must proceed to off-origin mirror check, saw fetches: ${JSON.stringify(memFetchUrls)}`,
+        `First-party turn must proceed directly to first-party mirror check, saw fetches: ${JSON.stringify(memFetchUrls)}`,
       );
     } finally {
       if (prevAllowFlag === undefined) delete globalThis.__uorAllowOffOriginHydration;

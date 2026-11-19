@@ -148,24 +148,31 @@ function createFakeStepperHooks(options = {}) {
   };
 }
 
-test('hydrate_holo_model and inprism_r4_turn enforce ConsentRequiredForWeightDownload off-origin', async () => {
+test('hydrate_holo_model and inprism_r4_turn auto-hydrate first-party catalog and enforce consent for explicit opt-out / untrusted mirrors', async () => {
   const prevLocation = globalThis.location;
   const prevFetch = globalThis.fetch;
   const prevIdb = globalThis.indexedDB;
+  const prevLsDesc = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
   let offOriginFetchCount = 0;
+  let untrustedFetchCount = 0;
 
   try {
     globalThis.location = { origin: 'http://localhost:4173', href: 'http://localhost:4173/' };
     globalThis.indexedDB = undefined;
+    delete globalThis.localStorage;
     globalThis.fetch = async (url) => {
       const target = String(url || '');
+      if (target.includes('untrusted.example')) {
+        untrustedFetchCount += 1;
+        throw new Error(`Untrusted mirror fetch forbidden without consent: ${target}`);
+      }
       if (!target.startsWith('http://localhost:4173/')) {
         offOriginFetchCount += 1;
-        throw new Error(`Off-origin fetch forbidden without consent: ${target}`);
       }
-      throw new Error('local weight mirror absent');
+      throw new Error('weight mirror offline');
     };
 
+    // 1. Explicit allowOffOriginHydration: false blocks off-origin fetches with ConsentRequiredForWeightDownload
     await assert.rejects(
       () =>
         hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, false, {
@@ -178,18 +185,40 @@ test('hydrate_holo_model and inprism_r4_turn enforce ConsentRequiredForWeightDow
     );
     assert.equal(offOriginFetchCount, 0);
 
+    // 2. Untrusted custom external mirrors still require explicit consent
+    await assert.rejects(
+      () =>
+        hydrate_holo_model('uor-r4.qwen3-0.6b-holo', () => {}, false, {
+          customMirrors: ['https://untrusted.example/weights/'],
+        }),
+      (err) =>
+        err &&
+        (err.code === 'ConsentRequiredForWeightDownload' ||
+          err.error_code === 'ConsentRequiredForWeightDownload') &&
+        Array.isArray(err.mirrors) &&
+        err.mirrors.some((m) => m.includes('untrusted.example')),
+    );
+    assert.equal(untrustedFetchCount, 0);
+
+    // 3. Default first-party catalog hydration automatically attempts first-party mirrors without consent error
     const fake = createFakeStepperHooks({ mounted: false });
     const res = await execute_inprism_foundry_turn(
-      { id: 'req-consent-1', payload: { prompt: 'Build counter app' } },
+      { id: 'req-auto-1', payload: { prompt: 'Build counter app' } },
       fake.hooks,
     );
     assert.equal(res.ok, false);
-    assert.equal(res.error_code, 'ConsentRequiredForWeightDownload');
-    assert.equal(offOriginFetchCount, 0);
+    assert.notEqual(
+      res.error_code,
+      'ConsentRequiredForWeightDownload',
+      `First-party catalog turn must not fail with ConsentRequiredForWeightDownload, got: ${JSON.stringify(res)}`,
+    );
+    assert.ok(offOriginFetchCount > 0, 'Default first-party catalog turn must auto-attempt first-party mirror');
   } finally {
     globalThis.location = prevLocation;
     globalThis.fetch = prevFetch;
     globalThis.indexedDB = prevIdb;
+    if (prevLsDesc) Object.defineProperty(globalThis, 'localStorage', prevLsDesc);
+    else delete globalThis.localStorage;
   }
 });
 
@@ -1336,5 +1365,211 @@ test('Worker rejects concurrent null-ID inprism_r4_turn during async hydration w
     globalThis.location = prevLocation;
     globalThis.fetch = prevFetch;
     globalThis.indexedDB = prevIdb;
+  }
+});
+
+test('R4-62: CONCURRENCY = 3, 3-attempt shard retry, no-cache manifest + IDB overwrite on drift, and zero silent Q31 downgrade', async () => {
+  const crypto = await import('node:crypto');
+  const prevLoc = globalThis.location;
+  const prevFetch = globalThis.fetch;
+  const prevIdb = globalThis.indexedDB;
+  const prevLsDesc = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  const prevRetryDelay = globalThis.__uorHoloRetryBaseDelayMs;
+  const prevBeginV = globalThis.studio_begin_holo_v13_mount_verified;
+  const prevBegin = globalThis.studio_begin_holo_v13_mount;
+  const prevPush = globalThis.studio_push_holo_v13_piece;
+  const prevFin = globalThis.studio_finalize_holo_v13_mount;
+
+  try {
+    globalThis.location = { origin: 'https://casey-allard.github.io', href: 'https://casey-allard.github.io/lexlean-r4/' };
+    globalThis.__uorHoloRetryBaseDelayMs = 1;
+
+    // 7 pieces of 64 bytes each to verify max in-flight batch concurrency <= 3 and retry on piece_0001
+    const pieceBytes = Array.from({ length: 7 }, (_, i) => new Uint8Array(64).fill(i + 1));
+    const pieceMetas = pieceBytes.map((buf, idx) => ({
+      index: idx,
+      file: `piece_${String(idx).padStart(4, '0')}.bin`,
+      byte_offset: idx * 64,
+      byte_length: buf.byteLength,
+      sha256: crypto.createHash('sha256').update(buf).digest('hex'),
+    }));
+    const staleSha = '0'.repeat(64);
+    const freshSha = 'f'.repeat(64);
+    const freshManifest = {
+      format: 'UORR4V13',
+      container_sha256: freshSha,
+      total_bytes: 7 * 64,
+      pieces: pieceMetas,
+    };
+
+    // Mock IndexedDB pre-seeded with stale manifest container_sha256
+    const idbRecords = new Map([
+      [
+        'uor-r4.qwen3-0.6b-holo',
+        { model_id: 'uor-r4.qwen3-0.6b-holo', container_sha256: staleSha, manifest: { format: 'UORR4V13', container_sha256: staleSha, pieces: [] } },
+      ],
+    ]);
+    let deletedBeforeWrite = false;
+    globalThis.indexedDB = {
+      open: () => {
+        const req = { result: null, onupgradeneeded: null, onsuccess: null, onerror: null };
+        queueMicrotask(() => {
+          const fakeDb = {
+            objectStoreNames: { contains: () => true },
+            createObjectStore: () => ({}),
+            close: () => {},
+            transaction: () => {
+              const tx = {
+                oncomplete: null,
+                onerror: null,
+                onabort: null,
+                objectStore: () => ({
+                  get: (k) => {
+                    const r = { result: idbRecords.get(k) || null, onsuccess: null, onerror: null };
+                    queueMicrotask(() => { if (r.onsuccess) r.onsuccess(); });
+                    return r;
+                  },
+                  put: (rec) => {
+                    idbRecords.set(rec.model_id, rec);
+                    queueMicrotask(() => { if (tx.oncomplete) tx.oncomplete(); });
+                  },
+                  delete: (k) => {
+                    if (idbRecords.has(k)) deletedBeforeWrite = true;
+                    idbRecords.delete(k);
+                    queueMicrotask(() => { if (tx.oncomplete) tx.oncomplete(); });
+                  },
+                }),
+              };
+              return tx;
+            },
+          };
+          req.result = fakeDb;
+          if (req.onsuccess) req.onsuccess();
+        });
+        return req;
+      },
+    };
+
+    let manifestCacheInit = null;
+    let inFlightShards = 0;
+    let maxInFlightShards = 0;
+    let piece1Attempts = 0;
+    let pushedCount = 0;
+    globalThis.fetch = async (url, init) => {
+      const s = String(url || '');
+      if (s.includes('https://casey-allard.github.io/') && s.endsWith('/manifest.json')) {
+        manifestCacheInit = init && init.cache;
+        return new Response(JSON.stringify(freshManifest), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      const match = s.match(/piece_(\d+)\.bin$/);
+      if (match && s.includes('https://casey-allard.github.io/')) {
+        const idx = Number(match[1]);
+        inFlightShards += 1;
+        if (inFlightShards > maxInFlightShards) maxInFlightShards = inFlightShards;
+        try {
+          await new Promise((r) => setTimeout(r, 8));
+          if (idx === 1) {
+            piece1Attempts += 1;
+            if (piece1Attempts === 1) return new Response('Service Unavailable', { status: 503 });
+            if (piece1Attempts === 2) return new Response('Too Many Requests', { status: 429 });
+          }
+          return new Response(pieceBytes[idx], { status: 200 });
+        } finally {
+          inFlightShards -= 1;
+        }
+      }
+      return new Response('Not Found', { status: 404 });
+    };
+
+    globalThis.studio_begin_holo_v13_mount_verified = () => JSON.stringify({ status: 'ok' });
+    globalThis.studio_begin_holo_v13_mount = () => JSON.stringify({ status: 'ok' });
+    globalThis.studio_push_holo_v13_piece = () => {
+      pushedCount += 1;
+      return JSON.stringify({ status: 'ok' });
+    };
+    globalThis.studio_finalize_holo_v13_mount = () =>
+      JSON.stringify({ status: 'ok', model_id: 'uor-r4.qwen3-0.6b-holo', mounted: true });
+
+    const progressEvents = [];
+    const hydrated = await hydrate_holo_model(
+      'uor-r4.qwen3-0.6b-holo',
+      (p) => progressEvents.push(p),
+      false,
+      {},
+    );
+    assert.equal(hydrated.status, 'ok');
+    assert.equal(manifestCacheInit, 'no-cache', 'manifest.json fetch must set cache: no-cache');
+    assert.equal(pushedCount, 7);
+    assert.ok(maxInFlightShards > 0 && maxInFlightShards <= 3, `Expected max in-flight pieces <= 3, got ${maxInFlightShards}`);
+    assert.equal(piece1Attempts, 3, 'Transient 503/429 on piece_0001.bin must retry up to 3 attempts');
+    assert.ok(deletedBeforeWrite, 'Stale IndexedDB manifest must be invalidated/overwritten on container_sha256 drift');
+    assert.equal(idbRecords.get('uor-r4.qwen3-0.6b-holo').container_sha256, freshSha);
+    const lastProg = progressEvents[progressEvents.length - 1];
+    assert.equal(lastProg.downloadedBytes, 7 * 64);
+    assert.equal(lastProg.totalBytes, 7 * 64);
+    assert.equal(lastProg.percent, 100);
+
+    // Verify stale localStorage 'declined' does NOT silently downgrade explicit 0.6B turn to Q31
+    const fakeStore = new Map([['uor_allow_off_origin_hydration', 'declined']]);
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (k) => (fakeStore.has(k) ? fakeStore.get(k) : null),
+        setItem: (k, v) => fakeStore.set(k, String(v)),
+        removeItem: (k) => fakeStore.delete(k),
+      },
+    });
+    globalThis.fetch = async () => new Response('Not Found', { status: 404 });
+    idbRecords.clear();
+    const fake = createFakeStepperHooks({ mounted: false });
+    const noDowngradeRes = await execute_inprism_foundry_turn(
+      { id: 'req-no-downgrade', payload: { prompt: 'Explicit 0.6B test', preferredModel: 'uor-r4.qwen3-0.6b-holo' } },
+      fake.hooks,
+    );
+    assert.equal(noDowngradeRes.ok, false);
+    assert.notEqual(
+      noDowngradeRes.result && noDowngradeRes.result.model_id,
+      'uor-r4.native-q31-d85',
+      'Stale uor_allow_off_origin_hydration=declined must never silently downgrade explicit Qwen3 turn to Q31',
+    );
+    assert.equal(fakeStore.has('uor_allow_off_origin_hydration'), false, 'Stale declined flag must be purged');
+
+    // Explicit offlineEmergencyQ31=1 in Settings routes unadorned turns cleanly to Q31 without hydration
+    fakeStore.set('uor_offline_emergency_q31', '1');
+    const emergencyBeginCalls = [];
+    const emergencyRes = await execute_inprism_foundry_turn(
+      { id: 'req-emergency-q31', payload: { prompt: 'Offline emergency Q31 test' } },
+      {
+        ...fake.hooks,
+        holoBeginTurn: (payloadJson) => {
+          const req = JSON.parse(payloadJson);
+          emergencyBeginCalls.push(req);
+          return JSON.stringify({
+            status: 'ready',
+            turn_id: 77,
+            model_id: req.selected_model || 'uor-r4.native-q31-d85',
+          });
+        },
+        holoStepTurn: () => JSON.stringify({ status: 'done', turn_id: 77, delta: 'q31 ok', tokens_emitted: 1, tok_per_sec: 12 }),
+      },
+    );
+    assert.equal(emergencyRes.ok, true);
+    assert.equal(emergencyBeginCalls[0].selected_model, 'uor-r4.native-q31-d85');
+    assert.equal(emergencyRes.result.model_id, 'uor-r4.native-q31-d85');
+  } finally {
+    globalThis.location = prevLoc;
+    globalThis.fetch = prevFetch;
+    globalThis.indexedDB = prevIdb;
+    if (prevLsDesc) Object.defineProperty(globalThis, 'localStorage', prevLsDesc);
+    else delete globalThis.localStorage;
+    if (prevRetryDelay === undefined) delete globalThis.__uorHoloRetryBaseDelayMs;
+    else globalThis.__uorHoloRetryBaseDelayMs = prevRetryDelay;
+    globalThis.studio_begin_holo_v13_mount_verified = prevBeginV;
+    globalThis.studio_begin_holo_v13_mount = prevBegin;
+    globalThis.studio_push_holo_v13_piece = prevPush;
+    globalThis.studio_finalize_holo_v13_mount = prevFin;
   }
 });
