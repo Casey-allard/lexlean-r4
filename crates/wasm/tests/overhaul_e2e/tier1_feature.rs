@@ -158,6 +158,44 @@ fn test_t1_f01_pages_workflow_rolling_cache_and_job_concurrency() {
     );
 }
 
+#[test]
+fn test_t1_f01_workspace_profiles_disable_incremental_and_fit_bootstrap_tmpfs() {
+    let cargo_toml =
+        std::fs::read_to_string(repo_root().join("Cargo.toml")).expect("read root Cargo.toml");
+    let extract_section = |header: &str| -> String {
+        let start = cargo_toml
+            .find(header)
+            .unwrap_or_else(|| panic!("Cargo.toml missing section {header}"));
+        let after = &cargo_toml[start + header.len()..];
+        let end = after.find("\n[").unwrap_or(after.len());
+        after[..end].to_string()
+    };
+    let dev = extract_section("[profile.dev]");
+    assert!(
+        dev.contains("opt-level = 0")
+            && dev.contains("debug = false")
+            && dev.contains("incremental = false"),
+        "[profile.dev] must keep opt-level=0, debug=false, incremental=false to fit 2g bootstrap tmpfs: {dev}"
+    );
+    let dev_deps = extract_section("[profile.dev.package.\"*\"]");
+    assert!(
+        dev_deps.contains("opt-level = 2"),
+        "[profile.dev.package.\"*\"] must align third-party crates at opt-level=2: {dev_deps}"
+    );
+    let dev_wasm = extract_section("[profile.dev.package.lexlean-r4-wasm]");
+    assert!(
+        dev_wasm.contains("opt-level = 2"),
+        "[profile.dev.package.lexlean-r4-wasm] must align runtime crate at opt-level=2: {dev_wasm}"
+    );
+    let test_prof = extract_section("[profile.test]");
+    assert!(
+        test_prof.contains("opt-level = 2")
+            && test_prof.contains("debug = false")
+            && test_prof.contains("incremental = false"),
+        "[profile.test] must set opt-level=2, debug=false, incremental=false: {test_prof}"
+    );
+}
+
 // =========================================================================
 // F02: Fast-Fail Gate Reordering Verifier (Justfile)
 // =========================================================================

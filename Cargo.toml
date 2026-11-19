@@ -31,8 +31,15 @@ undocumented_unsafe_blocks = "deny"
 missing_safety_doc = "deny"
 
 [profile.dev]
-opt-level = 2
+opt-level = 0
 debug = false
+incremental = false
+
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.dev.package.lexlean-r4-wasm]
+opt-level = 2
 
 [profile.release]
 opt-level = 3
@@ -42,3 +49,4 @@ codegen-units = 1
 [profile.test]
 opt-level = 2
 debug = false
+incremental = false
