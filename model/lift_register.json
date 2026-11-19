@@ -2,11 +2,11 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2786,
-    "lifted": 2011,
-    "effect": 271,
+    "total_functions": 2795,
+    "lifted": 2016,
+    "effect": 276,
     "foreign": 160,
-    "residue": 344
+    "residue": 343
   },
   "rows": [
     {
@@ -343,7 +343,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "f914c20889d853af673ed6e63e304190d6ccbf3c031df2c40bff3f9d85681b4f",
+      "kappa": "a35dadb2bdc4112e4d6e0753d2fe747890d2641a0ab17035d220a246ceeb0a0e",
+      "function": "crates/wasm/js/worker_host_bridge.js::holoDeleteManifestIndex",
+      "status": "lifted",
+      "definition": "R4.HoloKappaStore",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "22bc75ffae1e2525dc20e931ddd2a89e35d253576530762be2cbbb1fc52dc6db",
       "function": "crates/wasm/js/worker_host_bridge.js::holoFetchWithHoldTail",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -379,7 +386,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "b68a451f388c6f9940ab1602dad43a7ec50c57e92b1d6b7ade0eb0052af39cf8",
+      "kappa": "907172969f1bed4cbc15274b7426741376aa0586ffca4b89bd21ddcba886da64",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -398,6 +405,20 @@
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "454382a2b33945eb3db79a3293498c8cb1b3d68f1077d2ba91d8496605508b5c",
+      "function": "crates/wasm/js/worker_host_bridge.js::isFirstPartyCatalogMirror",
+      "status": "lifted",
+      "definition": "R4.StudioFrame",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "81c5551ffc873a811d00ac22b4a09e354b08f00dbe79d9d573bab05e367058f3",
+      "function": "crates/wasm/js/worker_host_bridge.js::isOfflineEmergencyQ31Active",
+      "status": "lifted",
+      "definition": "R4.StudioFrame",
+      "exact_divergence_free": true
     },
     {
       "kappa": "91947fa591c1ef64016fdcb006fd4830bdc0359facf388992149b0691ef673d6",
@@ -449,7 +470,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "7c5bef43de423bbc241288822e4ca973347530c50928e1f3c13b44c90e523ac7",
+      "kappa": "a789294a96b873379d3da143268754aed1a25687963b9cfe4d1be31f07fd9687",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -469,6 +490,13 @@
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "0d78527d83e9274f9b559c493c0a0913f5ec8b7b4629abfd01f5b152185962fa",
+      "function": "crates/wasm/js/worker_host_bridge.js::purgeLegacyDeclinedHydrationFlag",
+      "status": "lifted",
+      "definition": "R4.StudioFrame",
+      "exact_divergence_free": true
     },
     {
       "kappa": "30e1f53d2f8858ab1bfba02d777d7edebdef55ac4bc67b432b9e7c27ff01f26d",
@@ -550,6 +578,13 @@
     {
       "kappa": "22c9d0f0315ee56053f28a5808a2f62c470ec13225dd080c654c1404f0ad81ae",
       "function": "crates/wasm/js/worker_host_bridge.js::safeStorageGet",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "795429098359997ff8ebef44cce33ad1df7d675acdd3154b52d9cfa87721a056",
+      "function": "crates/wasm/js/worker_host_bridge.js::safeStorageRemove",
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
@@ -17337,7 +17372,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "26966c99cd9a9de427108aaa7d9f87611bef660821a30cd883adf0282293e4c4",
+      "kappa": "ce137ddcbafaa737dc307c3487af4290beafa11c65a2f07f59a6614c0681716f",
       "function": "public/app.js::activateCanvasTab",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -17475,11 +17510,10 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "65ddc03aa4ac4e1288eb82d16635431b03d23fe8b1f048a210a6491d14e4637d",
+      "kappa": "73c567f235a04f136755ffeaf8028200ec7b15b419ad44220bbfb65239e1c4ef",
       "function": "public/app.js::closeInspectorsModal",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `public/app.js::closeInspectorsModal` pending formal .lex.tex lift",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -17552,7 +17586,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "e382225b0a1ebeb8d6296e0632b5f737830d937f42774d031f9cdf307175b2a9",
+      "kappa": "87a305321eebc1b4148aeb2a357102ce5807ed630d54f2ac89e34389f3f66f9a",
       "function": "public/app.js::dismissCursorGhostText",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -17609,6 +17643,13 @@
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "69b0ae568b92b6535535cc4fd72f34c6a1089fbf69940f869bb0c847513f23c5",
+      "function": "public/app.js::formatHydrationProgressLabel",
+      "status": "lifted",
+      "definition": "R4.StudioFrame",
+      "exact_divergence_free": true
     },
     {
       "kappa": "6b49dbc944907c061699e594052ed3eb466cee0a885552e387fcd5335a97ef45",
@@ -17694,7 +17735,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "7da1a73096506d08ac7fd47ed1673981e33e109552cea6262d16566da4682b60",
+      "kappa": "82312d52fdd641a1dee170e860f1c76b3c65eb1c356b84ad8b1543324c56dacc",
       "function": "public/app.js::ingestHoloObservatoryFrame",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -17729,7 +17770,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "b7a9f8c5302fa61a4f150e33f64854aea979c411762b9982cad8f2e7af3e30aa",
+      "kappa": "c481eb907bb57711240ba0514ebf4198c94443ef7d47cff3568d3479df276789",
       "function": "public/app.js::initLayoutAndConnectedControls",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -17839,7 +17880,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "80970783caa96c430338fad25c71d302aa944b869182e35d86a3911ed237f22e",
+      "kappa": "720b443669ee9c8eba7245bd0a57a4efce0efe9c4415ac44047366b2d33dcaaa",
       "function": "public/app.js::openInspectorsModal",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -17935,7 +17976,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "91a5ec6da89675ed1dbfe2f05ad2c42dddf9d2fcf1845096248a2b54f17897b0",
+      "kappa": "4495bdca4a6745254440a8ce48b8eb93d831b3d4bb7296dfe398d7ad8477ceec",
       "function": "public/app.js::renderActiveThreadMessages",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18041,7 +18082,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "bb8ecb2f4533f5cd086540eb0c8300f48b0681fd45c16a7d2287bb70bae263dc",
+      "kappa": "b1f49d5f6fe25d517e353bfcea6f1b1cc9a73495fb83fb8bcabc4b6474ae3b7f",
       "function": "public/app.js::renderHoloObservatoryDeck",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18169,7 +18210,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "27bc1cd186e82184bdf7f9056ec64e24cb2637ca1fc4839b66ec140725ea3398",
+      "kappa": "7579f3d5f954ce756a3a9e4dbf1111e771d2470b4a47d2d839bab91827fb17c8",
       "function": "public/app.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18242,6 +18283,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "c6d4badf6cda3891bcac87efa98f0269c60c17bbca57ae20f10a173159a306fc",
+      "function": "public/app.js::scheduleHoloObservatoryRender",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "634b685aa9ed16bb027bfefd037b6113123745dd5751c24805f16614a719e8ce",
       "function": "public/app.js::selectWorkspaceFile",
       "status": "effect",
@@ -18307,7 +18355,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "1d92dba4516220450940c87d4c332aa8d03f059a6264cd9fd14515db3f833e75",
+      "kappa": "d66cfa746f89514af90d1e1c1ed4cd77b9e59cba7e626c81c2dc5ecd266a4ed2",
       "function": "public/app.js::syncComposerModel",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -18330,6 +18378,13 @@
     {
       "kappa": "24aa05fd9f8b1190bf2f0a27c2496e357b82b6f7237cc71614f87dcd59af11b3",
       "function": "public/app.js::syncCursorWorkbenchOnList",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "9bb0b55f6c8aa4b1eda5823b929c5480d956d355e647febea5075a8861f5d18e",
+      "function": "public/app.js::syncNeuralHudTriggerState",
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
@@ -18388,6 +18443,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "89f094611e26b556de805ffa45e11311d3b7434cc008fb254ccf0f8950fe7f7b",
+      "function": "public/app.js::updateInlineHydrationBar",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "6c421b88b18f2cc650a65dd701e8c3811ddcf3ad26b8f57bc2ccb99662f4e7b9",
       "function": "public/app.js::updateLiveAgentStatusBar",
       "status": "effect",
@@ -18395,7 +18457,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "c8c7fce3ba7a16bc09d04d94e80edc13a7ac60204680898b1b94dd82e7f12f2d",
+      "kappa": "67a5f610cb09a4dec483a19e768e7fd23938cda68e0f0878e8ae0eaad53068b8",
       "function": "public/app.js::updateWeightCacheBadge",
       "status": "foreign",
       "foreign_crate": "serde_json",

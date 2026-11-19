@@ -224,6 +224,33 @@ export function studio_ciris_status() {
 }
 
 /**
+ * Formal R4.StudioFrame evaluate first-party catalog auto-hydration and non-blocking Neural HUD policy (`R4-62`).
+ * @param {string} origin_kind
+ * @param {boolean} explicit_consent
+ * @param {boolean} emergency_offline_toggle
+ * @param {boolean} silent_sticky_declined
+ * @param {string} hud_mode
+ * @param {boolean} has_blocking_backdrop
+ * @returns {string}
+ */
+export function studio_admit_catalog_hydration_json(origin_kind, explicit_consent, emergency_offline_toggle, silent_sticky_declined, hud_mode, has_blocking_backdrop) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(origin_kind, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(hud_mode, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_admit_catalog_hydration_json(ptr0, len0, explicit_consent, emergency_offline_toggle, silent_sticky_declined, ptr1, len1, has_blocking_backdrop);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
  * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
  * @param {string} subcommand
  * @param {string} filter
@@ -321,23 +348,6 @@ export function studio_import_mvm_cow_sectors(bytes) {
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
- * @returns {string}
- */
-export function studio_shard_catalog() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.studio_shard_catalog();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
 }
 
@@ -530,6 +540,23 @@ export function studio_record_generation_fault(fault_reason) {
 }
 
 /**
+ * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
+ * @returns {string}
+ */
+export function studio_shard_catalog() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_shard_catalog();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
  * Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
  * @param {number} e8_root
  * @returns {Uint8Array}
@@ -567,26 +594,34 @@ function takeFromExternrefTable0(idx) {
     return value;
 }
 /**
- * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
- *
- * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
- * Returns the updated `UORLUT01` container bytes, or an error string on failure.
- * @param {Uint8Array} weights_bytes
- * @param {string} config_json
+ * Recover an original payload from any 2 of 3 raw `afflom/stitch` `xor-2-of-3` fragments and verify
+ * its SHA-256 digest when `expected_object_sha256` is non-empty.
+ * @param {boolean} has_frag0
+ * @param {Uint8Array} frag0
+ * @param {boolean} has_frag1
+ * @param {Uint8Array} frag1
+ * @param {boolean} has_frag2
+ * @param {Uint8Array} frag2
+ * @param {number} original_length
+ * @param {string} expected_object_sha256
  * @returns {Uint8Array}
  */
-export function studio_consolidate_weights(weights_bytes, config_json) {
-    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
+export function studio_stitch_recover_2of3_object(has_frag0, frag0, has_frag1, frag1, has_frag2, frag2, original_length, expected_object_sha256) {
+    const ptr0 = passArray8ToWasm0(frag0, wasm.__wbindgen_malloc);
     const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const ptr1 = passArray8ToWasm0(frag1, wasm.__wbindgen_malloc);
     const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
+    const ptr2 = passArray8ToWasm0(frag2, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passStringToWasm0(expected_object_sha256, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_stitch_recover_2of3_object(has_frag0, ptr0, len0, has_frag1, ptr1, len1, has_frag2, ptr2, len2, original_length, ptr3, len3);
     if (ret[3]) {
         throw takeFromExternrefTable0(ret[2]);
     }
-    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v3;
+    return v5;
 }
 
 /**
@@ -672,6 +707,29 @@ export function studio_verify_holo_v4_archive(archive_bytes) {
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
+}
+
+/**
+ * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
+ *
+ * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
+ * Returns the updated `UORLUT01` container bytes, or an error string on failure.
+ * @param {Uint8Array} weights_bytes
+ * @param {string} config_json
+ * @returns {Uint8Array}
+ */
+export function studio_consolidate_weights(weights_bytes, config_json) {
+    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
+    }
+    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v3;
 }
 
 /**
@@ -846,37 +904,6 @@ export function studio_stitch_recover_pair_auto(group_json, recover_left, has_le
     const ptr3 = passArray8ToWasm0(parity_bytes, wasm.__wbindgen_malloc);
     const len3 = WASM_VECTOR_LEN;
     const ret = wasm.studio_stitch_recover_pair_auto(ptr0, len0, recover_left, has_left, ptr1, len1, has_right, ptr2, len2, has_parity, ptr3, len3);
-    if (ret[3]) {
-        throw takeFromExternrefTable0(ret[2]);
-    }
-    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v5;
-}
-
-/**
- * Recover an original payload from any 2 of 3 raw `afflom/stitch` `xor-2-of-3` fragments and verify
- * its SHA-256 digest when `expected_object_sha256` is non-empty.
- * @param {boolean} has_frag0
- * @param {Uint8Array} frag0
- * @param {boolean} has_frag1
- * @param {Uint8Array} frag1
- * @param {boolean} has_frag2
- * @param {Uint8Array} frag2
- * @param {number} original_length
- * @param {string} expected_object_sha256
- * @returns {Uint8Array}
- */
-export function studio_stitch_recover_2of3_object(has_frag0, frag0, has_frag1, frag1, has_frag2, frag2, original_length, expected_object_sha256) {
-    const ptr0 = passArray8ToWasm0(frag0, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(frag1, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passArray8ToWasm0(frag2, wasm.__wbindgen_malloc);
-    const len2 = WASM_VECTOR_LEN;
-    const ptr3 = passStringToWasm0(expected_object_sha256, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len3 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_stitch_recover_2of3_object(has_frag0, ptr0, len0, has_frag1, ptr1, len1, has_frag2, ptr2, len2, original_length, ptr3, len3);
     if (ret[3]) {
         throw takeFromExternrefTable0(ret[2]);
     }
@@ -3422,6 +3449,25 @@ async function holoWriteManifestIndex(record) {
   });
 }
 
+/** Formal R4.HoloKappaStore delete stale manifest record by `modelId` on container digest drift. */
+async function holoDeleteManifestIndex(modelId) {
+  /* Formal R4.HoloKappaStore */
+  const db = await holoOpenManifestDb();
+  if (!db) return false;
+  return await new Promise((resolve) => {
+    try {
+      const tx = db.transaction(['manifests'], 'readwrite');
+      tx.objectStore('manifests').delete(modelId);
+      tx.oncomplete = () => { db.close(); resolve(true); };
+      tx.onerror = () => { db.close(); resolve(false); };
+      tx.onabort = () => { db.close(); resolve(false); };
+    } catch {
+      try { db.close(); } catch {}
+      resolve(false);
+    }
+  });
+}
+
 /**
  * Formal R4.WebGpuGeodesicRuntime (`HOLOSLAB2`) single-slab constants (`R4-61`).
  */
@@ -4698,6 +4744,67 @@ function safeStorageSet(key, value) {
   return true;
 }
 
+/** Formal R4.StudioFrame remove key from localStorage and fallback memory map. */
+function safeStorageRemove(key) {
+  /* Formal R4.StudioFrame */
+  const k = String(key || '');
+  __uorWorkerMemoryStorage.delete(k);
+  try {
+    if (typeof localStorage !== 'undefined' && localStorage && typeof localStorage.removeItem === 'function') {
+      localStorage.removeItem(k);
+    }
+  } catch {
+    // Ignore storage removal errors when localStorage is restricted
+  }
+  return true;
+}
+
+/** Formal R4.StudioFrame purge legacy sticky `declined` flag to prevent silent Q31 downgrades. */
+function purgeLegacyDeclinedHydrationFlag() {
+  /* Formal R4.StudioFrame */
+  if (safeStorageGet('uor_allow_off_origin_hydration') === 'declined') {
+    safeStorageRemove('uor_allow_off_origin_hydration');
+    return true;
+  }
+  return false;
+}
+
+/** Formal R4.StudioFrame classify whether an off-origin URL belongs to declared first-party catalog mirrors. */
+function isFirstPartyCatalogMirror(rawUrl, catalogMirrors) {
+  /* Formal R4.StudioFrame */
+  const s = String(rawUrl || '').trim();
+  if (!s) return false;
+  const norm = s.endsWith('/') ? s : `${s}/`;
+  for (const catUrl of Array.isArray(catalogMirrors) ? catalogMirrors : []) {
+    const cNorm = String(catUrl || '').trim();
+    if (!cNorm) continue;
+    const prefix = cNorm.endsWith('/') ? cNorm : `${cNorm}/`;
+    if (norm.startsWith(prefix)) return true;
+  }
+  try {
+    const parsed = new URL(norm);
+    if (
+      parsed.protocol === 'https:' &&
+      parsed.hostname === 'raw.githubusercontent.com' &&
+      parsed.pathname.startsWith('/Casey-allard/lexlean-r4/weights-v13-qwen3-')
+    ) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
+/** Formal R4.StudioFrame check whether explicit Settings Offline Emergency Q31 mode is enabled. */
+function isOfflineEmergencyQ31Active(payload, runtimeState) {
+  /* Formal R4.StudioFrame */
+  if (safeStorageGet('uor_offline_emergency_q31') === '1') return true;
+  if (runtimeState && runtimeState.offlineEmergencyQ31 === true) return true;
+  if (payload && payload.offlineEmergencyQ31 === true) return true;
+  return false;
+}
+
 export async function flushMvmCowToOpfs() {
   /* Formal R4.StudioFrame */
   return await persist_mvm_cow_sectors_to_opfs();
@@ -4731,69 +4838,102 @@ function __uorConsentError(msgOrDetails, maybeDetails) {
   return err;
 }
 
-/** Formal R4.HoloKappaStore stream HTTP response while holding `HOLD_TAIL_BYTES` (64 KiB) pending SHA-256 check. */
-async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null) {
+/** Formal R4.HoloKappaStore stream HTTP response with 3-attempt backoff retry while holding `HOLD_TAIL_BYTES` (64 KiB) pending SHA-256 check. */
+export async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null, options = null) {
+  /* Formal R4.HoloKappaStore */
+  options = options && typeof options === 'object' ? options : {};
   const init =
     byteRange && Number.isFinite(byteRange.start) && Number.isFinite(byteRange.end)
       ? { headers: { Range: `bytes=${byteRange.start}-${byteRange.end}` } }
       : undefined;
-  const resp = init ? await fetch(url, init) : await fetch(url);
-  if (byteRange && resp.status !== 206 && resp.status !== 200) {
-    throw new Error(`HTTP ${resp.status} for ${url}`);
-  }
-  if (!resp.ok) {
-    throw new Error(`HTTP ${resp.status} for ${url}`);
-  }
-  if (!resp.body || typeof resp.body.getReader !== 'function') {
-    const raw = new Uint8Array(await resp.arrayBuffer());
-    if (expectedSha) {
-      const got = (await sha256Hex(raw)).toLowerCase();
-      const exp = expectedSha.replace(/^sha256:/i, '').toLowerCase();
-      if (got !== exp) {
-        throw new Error(`RefusedPieceHashMismatch: mirror digest ${got} != ${exp}`);
+  const retryableStatuses = new Set([408, 429, 500, 502, 503, 504]);
+  const maxAttempts = 3;
+  const baseDelayMs = Math.max(
+    0,
+    Number((options && options.retryBaseDelayMs) ?? globalThis.__uorHoloRetryBaseDelayMs ?? 150) || 0,
+  );
+  let lastErr = null;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const resp = init ? await fetch(url, init) : await fetch(url);
+      if (byteRange && resp.status !== 206 && resp.status !== 200) {
+        const err = new Error(`HTTP ${resp.status} for ${url}`);
+        err.status = resp.status;
+        if (!retryableStatuses.has(resp.status) || attempt + 1 >= maxAttempts) throw err;
+        lastErr = err;
+      } else if (!resp.ok) {
+        const err = new Error(`HTTP ${resp.status} for ${url}`);
+        err.status = resp.status;
+        if (!retryableStatuses.has(resp.status) || attempt + 1 >= maxAttempts) throw err;
+        lastErr = err;
+      } else {
+        if (!resp.body || typeof resp.body.getReader !== 'function') {
+          const raw = new Uint8Array(await resp.arrayBuffer());
+          if (expectedSha) {
+            const got = (await sha256Hex(raw)).toLowerCase();
+            const exp = expectedSha.replace(/^sha256:/i, '').toLowerCase();
+            if (got !== exp) {
+              throw new Error(`RefusedPieceHashMismatch: mirror digest ${got} != ${exp}`);
+            }
+          }
+          return raw;
+        }
+        const reader = resp.body.getReader();
+        const committedChunks = [];
+        let committedLen = 0;
+        let holdBuf = new Uint8Array(0);
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (!value || value.byteLength === 0) continue;
+          const merged = new Uint8Array(holdBuf.byteLength + value.byteLength);
+          merged.set(holdBuf, 0);
+          merged.set(value, holdBuf.byteLength);
+          if (merged.byteLength > HOLO_HOLD_TAIL_BYTES) {
+            const relLen = merged.byteLength - HOLO_HOLD_TAIL_BYTES;
+            const relSlice = merged.slice(0, relLen);
+            committedChunks.push(relSlice);
+            committedLen += relSlice.byteLength;
+            holdBuf = merged.slice(relLen);
+          } else {
+            holdBuf = merged;
+          }
+        }
+        const full = new Uint8Array(committedLen + holdBuf.byteLength);
+        let cursor = 0;
+        for (const ch of committedChunks) {
+          full.set(ch, cursor);
+          cursor += ch.byteLength;
+        }
+        full.set(holdBuf, cursor);
+        if (expectedSha) {
+          const got = (await sha256Hex(full)).toLowerCase();
+          const exp = expectedSha.replace(/^sha256:/i, '').toLowerCase();
+          if (got !== exp) {
+            // Discard held unverified payload immediately
+            holdBuf = new Uint8Array(0);
+            committedChunks.length = 0;
+            throw new Error(`RefusedPieceHashMismatch: mirror digest ${got} != ${exp}`);
+          }
+        }
+        return full;
       }
+    } catch (err) {
+      const msg = String((err && err.message) || err || '');
+      const status = err && Number(err.status);
+      const nonRetryable =
+        msg.includes('RefusedPieceHashMismatch') ||
+        (Number.isFinite(status) && status > 0 && !retryableStatuses.has(status));
+      if (nonRetryable || attempt + 1 >= maxAttempts) {
+        throw err;
+      }
+      lastErr = err;
     }
-    return raw;
-  }
-  const reader = resp.body.getReader();
-  const committedChunks = [];
-  let committedLen = 0;
-  let holdBuf = new Uint8Array(0);
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    if (!value || value.byteLength === 0) continue;
-    const merged = new Uint8Array(holdBuf.byteLength + value.byteLength);
-    merged.set(holdBuf, 0);
-    merged.set(value, holdBuf.byteLength);
-    if (merged.byteLength > HOLO_HOLD_TAIL_BYTES) {
-      const relLen = merged.byteLength - HOLO_HOLD_TAIL_BYTES;
-      const relSlice = merged.slice(0, relLen);
-      committedChunks.push(relSlice);
-      committedLen += relSlice.byteLength;
-      holdBuf = merged.slice(relLen);
-    } else {
-      holdBuf = merged;
+    if (baseDelayMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, baseDelayMs * (attempt + 1)));
     }
   }
-  const full = new Uint8Array(committedLen + holdBuf.byteLength);
-  let cursor = 0;
-  for (const ch of committedChunks) {
-    full.set(ch, cursor);
-    cursor += ch.byteLength;
-  }
-  full.set(holdBuf, cursor);
-  if (expectedSha) {
-    const got = (await sha256Hex(full)).toLowerCase();
-    const exp = expectedSha.replace(/^sha256:/i, '').toLowerCase();
-    if (got !== exp) {
-      // Discard held unverified payload immediately
-      holdBuf = new Uint8Array(0);
-      committedChunks.length = 0;
-      throw new Error(`RefusedPieceHashMismatch: mirror digest ${got} != ${exp}`);
-    }
-  }
-  return full;
+  throw lastErr || new Error(`Failed to fetch ${url}`);
 }
 
 /** Formal R4.HoloGeometricRuntime select the fast interactive Qwen3-0.6B default (1.7B mounts on explicit demand). */
@@ -4825,17 +4965,8 @@ export async function selectOptimalInitialHoloModel() {
 export async function hydrate_holo_model(modelId, onProgress, forceReload = false, options) {
   options = options && typeof options === 'object' ? options : {};
   const key = String(modelId || 'uor-r4.qwen3-0.6b-holo').trim();
-  const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
-  const allowOffOriginHydration =
-    options && typeof options.allowOffOriginHydration === 'boolean'
-      ? options.allowOffOriginHydration
-      : storedConsent === 'declined'
-        ? false
-        : Boolean(globalThis.__uorAllowOffOriginHydration) || storedConsent === '1' || storedConsent === 'true';
+  purgeLegacyDeclinedHydrationFlag();
   if (options && (options.offlineFallback === true || options.consentDeclined === true || options.decline === true)) {
-    if (options.rememberConsent !== false) {
-      safeStorageSet('uor_allow_off_origin_hydration', 'declined');
-    }
     return {
       status: 'fallback',
       fallback_model: 'uor-r4.native-q31-d85',
@@ -4843,10 +4974,23 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       declined_model: key,
     };
   }
-  if (allowOffOriginHydration && options && options.rememberConsent === true) {
+  const isCatalogModel = key === 'uor-r4.qwen3-0.6b-holo' || key === 'uor-r4.qwen3-1.7b-holo';
+  const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
+  const explicitAllowOffOrigin =
+    typeof options.allowOffOriginHydration === 'boolean'
+      ? options.allowOffOriginHydration
+      : typeof globalThis.__uorAllowOffOriginHydration === 'boolean'
+        ? globalThis.__uorAllowOffOriginHydration
+        : storedConsent === '1' || storedConsent === 'true'
+          ? true
+          : undefined;
+  const hasCustomMirrors = Array.isArray(options.customMirrors) && options.customMirrors.length > 0;
+  const allowFirstPartyCatalog = isCatalogModel && explicitAllowOffOrigin !== false;
+  const allowCustomExternal = explicitAllowOffOrigin === true;
+  if (allowCustomExternal && options && options.rememberConsent === true) {
     safeStorageSet('uor_allow_off_origin_hydration', '1');
   }
-  const inflightKey = `${key}:${allowOffOriginHydration ? 'off' : 'same'}`;
+  const inflightKey = `${key}:${hasCustomMirrors ? 'custom:' : ''}${explicitAllowOffOrigin === false ? 'same' : explicitAllowOffOrigin === true ? 'ext' : 'auto'}`;
   if (!forceReload && holoHydrationInflight.has(inflightKey)) {
     return await holoHydrationInflight.get(inflightKey);
   }
@@ -4863,31 +5007,50 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         ? location.origin.replace(/\/+$/, '')
         : '';
     const slug = key.includes('1.7b') ? 'v13_qwen3_1_7b' : 'v13_qwen3_0_6b';
+    const catalogAbsoluteMirrors = spec.mirrors.map((m) =>
+      m.startsWith('http') ? m : new URL(m, import.meta.url).href,
+    );
     const rawCandidates = [
       ...(httpOrigin ? [`${httpOrigin}/weights/${slug}/`] : []),
-      ...spec.mirrors.map((m) => (m.startsWith('http') ? m : new URL(m, import.meta.url).href)),
+      ...(hasCustomMirrors
+        ? options.customMirrors.map((m) => {
+            const s = String(m || '').trim();
+            return s.startsWith('http') ? s : new URL(s, import.meta.url).href;
+          })
+        : catalogAbsoluteMirrors),
     ];
     const sameOriginCandidates = [];
-    const offOriginCandidates = [];
+    const firstPartyOffOriginCandidates = [];
+    const untrustedExternalCandidates = [];
     for (const cBase of rawCandidates) {
       if (__uorIsSameOriginMirror(cBase, httpOrigin)) {
         if (!sameOriginCandidates.includes(cBase)) sameOriginCandidates.push(cBase);
-      } else if (!offOriginCandidates.includes(cBase)) {
-        offOriginCandidates.push(cBase);
+      } else if (isCatalogModel && isFirstPartyCatalogMirror(cBase, catalogAbsoluteMirrors)) {
+        if (!firstPartyOffOriginCandidates.includes(cBase)) firstPartyOffOriginCandidates.push(cBase);
+      } else if (!untrustedExternalCandidates.includes(cBase)) {
+        untrustedExternalCandidates.push(cBase);
       }
     }
+    const offOriginCandidates = [...firstPartyOffOriginCandidates, ...untrustedExternalCandidates];
     const httpOffOrigin = offOriginCandidates.filter((u) => /^https?:/i.test(u));
-    const consentMirrorsBase = httpOffOrigin.length > 0 ? httpOffOrigin : offOriginCandidates;
-    const candidates = allowOffOriginHydration
-      ? [...sameOriginCandidates, ...offOriginCandidates]
-      : sameOriginCandidates;
+    const consentMirrorsBase =
+      explicitAllowOffOrigin === false
+        ? (httpOffOrigin.length > 0 ? httpOffOrigin : offOriginCandidates)
+        : untrustedExternalCandidates.filter((u) => /^https?:/i.test(u)).length > 0
+          ? untrustedExternalCandidates.filter((u) => /^https?:/i.test(u))
+          : untrustedExternalCandidates;
+    const candidates = [
+      ...sameOriginCandidates,
+      ...(allowFirstPartyCatalog ? firstPartyOffOriginCandidates : []),
+      ...(allowCustomExternal ? untrustedExternalCandidates : []),
+    ];
     let manifest = null;
     let baseUrl = '';
     for (const cBase of candidates) {
       const norm = cBase.endsWith('/') ? cBase : `${cBase}/`;
       if (sharedKappaStore.liarMirrors.has(norm)) continue;
       try {
-        const resp = await fetch(`${norm}manifest.json`);
+        const resp = await fetch(`${norm}manifest.json`, { cache: 'no-cache' });
         if (resp.ok) {
           const parsed = await resp.json();
           if (parsed && parsed.format === 'UORR4V13' && Array.isArray(parsed.pieces)) {
@@ -4898,18 +5061,28 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         }
       } catch {}
     }
+    const existingIdx = await holoReadManifestIndex(key).catch(() => null);
     if (!manifest) {
-      const idx = await holoReadManifestIndex(key);
       const warmOffline = !forceReload
         ? await sharedKappaStore.readWarmSlabSeal(key).catch(() => null)
         : null;
-      if (idx && idx.manifest && Array.isArray(idx.manifest.pieces)) {
-        manifest = idx.manifest;
+      const blockedByConsent =
+        (explicitAllowOffOrigin === false && offOriginCandidates.length > 0) ||
+        (!allowCustomExternal && untrustedExternalCandidates.length > 0);
+      if (blockedByConsent && !(existingIdx && existingIdx.manifest) && !(warmOffline && warmOffline.ok)) {
+        throw __uorConsentError(undefined, {
+          model_id: key,
+          approx_bytes: approxBytes,
+          mirrors: consentMirrorsBase,
+        });
+      }
+      if (existingIdx && existingIdx.manifest && Array.isArray(existingIdx.manifest.pieces)) {
+        manifest = existingIdx.manifest;
         baseUrl = 'opfs://local-kappa';
       } else if (warmOffline && warmOffline.ok && warmOffline.seal) {
         manifest = warmOffline.seal;
         baseUrl = 'opfs://models/model.holoslab';
-      } else if (!allowOffOriginHydration && offOriginCandidates.length > 0) {
+      } else if (consentMirrorsBase.length > 0 && blockedByConsent) {
         throw __uorConsentError(undefined, {
           model_id: key,
           approx_bytes: approxBytes,
@@ -4919,16 +5092,28 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         throw new Error(`Unable to fetch UORR4V13 manifest for ${key}`);
       }
     }
-    let stitchManifest = null;
-    if (baseUrl.startsWith('http') && (allowOffOriginHydration || __uorIsSameOriginMirror(baseUrl, httpOrigin))) {
-      try {
-        const sr = await fetch(`${baseUrl}manifest.stitch.json`);
-        if (sr.ok) stitchManifest = await sr.json();
-      } catch {}
-    }
     const pieceCount = manifest.pieces.length;
     const containerSha = String(manifest.container_sha256 || '').toLowerCase();
     const manifestTotalBytes = Number(manifest.total_bytes) || approxBytes;
+    if (
+      existingIdx &&
+      containerSha &&
+      String(existingIdx.container_sha256 || '').toLowerCase() !== containerSha
+    ) {
+      await holoDeleteManifestIndex(key).catch(() => false);
+    }
+    let stitchManifest = null;
+    if (
+      baseUrl.startsWith('http') &&
+      (__uorIsSameOriginMirror(baseUrl, httpOrigin) ||
+        (allowFirstPartyCatalog && isFirstPartyCatalogMirror(baseUrl, catalogAbsoluteMirrors)) ||
+        allowCustomExternal)
+    ) {
+      try {
+        const sr = await fetch(`${baseUrl}manifest.stitch.json`, { cache: 'no-cache' });
+        if (sr.ok) stitchManifest = await sr.json();
+      } catch {}
+    }
     const warmCheck = !forceReload
       ? await sharedKappaStore.readWarmSlabSeal(key, containerSha, manifestTotalBytes).catch(() => null)
       : null;
@@ -4948,10 +5133,15 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
           throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
         }
         if (typeof onProgress === 'function' && (chunkIdx === 0 || off + chunkView.byteLength >= total || chunkIdx % 8 === 0)) {
+          const downloadedBytes = Math.min(total, off + chunkView.byteLength);
+          const percent = total > 0 ? Math.min(100, Math.round((downloadedBytes / total) * 100)) : 100;
           onProgress({
             modelId: key,
-            index: Math.min(pieceCount, Math.max(1, Math.round(((off + chunkView.byteLength) / Math.max(1, total)) * pieceCount))),
+            index: Math.min(pieceCount, Math.max(1, Math.round((downloadedBytes / Math.max(1, total)) * pieceCount))),
             total: pieceCount,
+            downloadedBytes,
+            totalBytes: total,
+            percent,
             cachedHits: pieceCount,
             stitchRecoveries: sharedKappaStore.stitchRecoveries,
             label: `HOLOSLAB2 warm seal ${key} (${warmCheck.elapsedMs.toFixed(1)} ms)`,
@@ -4962,6 +5152,12 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       if (!finWarm || finWarm.status !== 'ok') {
         throw new Error((finWarm && finWarm.message) || 'studio_finalize_holo_v13_mount failed');
       }
+      await holoWriteManifestIndex({
+        model_id: key,
+        container_sha256: containerSha,
+        manifest,
+        updatedAt: new Date().toISOString(),
+      });
       globalThis.__uorHoloKappaStatus = {
         container_format: 'UORR4V13',
         slab_format: HOLOSLAB2_MAGIC,
@@ -4997,23 +5193,32 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         new Set(
           [
             ...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []),
-            ...httpOffOrigin,
+            ...(hasCustomMirrors
+              ? options.customMirrors
+              : firstPartyOffOriginCandidates),
             baseUrl,
           ]
             .filter((u) => typeof u === 'string' && u.startsWith('http'))
             .map((u) => (u.endsWith('/') ? u : `${u}/`)),
         ),
       );
-      const urls = allowOffOriginHydration
-        ? allUrls
-        : allUrls.filter((u) => __uorIsSameOriginMirror(u, httpOrigin));
+      const isAdmittedPieceMirror = (u) => {
+        if (__uorIsSameOriginMirror(u, httpOrigin)) return true;
+        if (allowCustomExternal) return true;
+        if (hasCustomMirrors) {
+          return isCatalogModel && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors) && options.customMirrors.includes(u);
+        }
+        return allowFirstPartyCatalog && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors);
+      };
+      const urls = allUrls.filter(isAdmittedPieceMirror);
       const offOriginMirrors = Array.from(
         new Set([
           ...consentMirrorsBase,
-          ...allUrls.filter((u) => !__uorIsSameOriginMirror(u, httpOrigin)),
+          ...allUrls.filter((u) => !isAdmittedPieceMirror(u)),
+          ...(explicitAllowOffOrigin === false ? allUrls.filter((u) => !__uorIsSameOriginMirror(u, httpOrigin)) : []),
         ]),
       );
-      if (urls.length === 0 && !allowOffOriginHydration && offOriginMirrors.length > 0) {
+      if (urls.length === 0 && offOriginMirrors.length > 0 && (explicitAllowOffOrigin === false || !allowCustomExternal)) {
         throw __uorConsentError(undefined, {
           model_id: key,
           approx_bytes: manifestTotalBytes,
@@ -5067,7 +5272,11 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
           }
         }
       }
-      if (!allowOffOriginHydration && offOriginMirrors.length > 0 && (urls.length === 0 || sawMissingOnSameOrigin)) {
+      if (
+        offOriginMirrors.length > 0 &&
+        (explicitAllowOffOrigin === false || (!allowCustomExternal && untrustedExternalCandidates.length > 0)) &&
+        (urls.length === 0 || sawMissingOnSameOrigin)
+      ) {
         throw __uorConsentError(undefined, {
           model_id: key,
           approx_bytes: manifestTotalBytes,
@@ -5089,7 +5298,9 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     };
 
     let cachedHits = 0;
-    const CONCURRENCY = 6;
+    let downloadedBytes = 0;
+    const totalBytes = manifestTotalBytes;
+    const CONCURRENCY = 3;
     try {
       for (let i = 0; i < pieceCount; i += CONCURRENCY) {
         const batch = manifest.pieces.slice(i, Math.min(i + CONCURRENCY, pieceCount));
@@ -5097,22 +5308,33 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         ensureMountStarted();
         for (let j = 0; j < results.length; j++) {
           const res = results[j];
+          const pm = batch[j];
           if (res.fromOpfs) cachedHits += 1;
+          const pieceByteLen = Number((pm && pm.byte_length) || (res.bytes && res.bytes.byteLength) || 0);
           const pushOut = JSON.parse(studio_push_holo_v13_piece(res.bytes));
+          res.bytes = null;
+          results[j] = null;
           if (!pushOut || pushOut.status !== 'ok') {
             throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
           }
+          downloadedBytes += pieceByteLen;
           const stepNum = i + j + 1;
-          if (typeof onProgress === 'function' && (stepNum === 1 || stepNum === pieceCount || stepNum % 16 === 0)) {
+          const percent = totalBytes > 0
+            ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100))
+            : Math.min(100, Math.round((stepNum / Math.max(1, pieceCount)) * 100));
+          if (typeof onProgress === 'function' && (stepNum === 1 || stepNum === pieceCount || pieceCount <= 16 || stepNum % 4 === 0)) {
             onProgress({
               modelId: key,
               index: stepNum,
               total: pieceCount,
+              downloadedBytes,
+              totalBytes,
+              percent,
               cachedHits,
               stitchRecoveries: sharedKappaStore.stitchRecoveries,
               label: cachedHits === stepNum
                 ? `OPFS verified ${key} (${stepNum}/${pieceCount})`
-                : `Streaming ${key} piece ${stepNum}/${pieceCount} into HOLOSLAB2...`,
+                : `Streaming ${key} ${percent}% (${stepNum}/${pieceCount})...`,
             });
           }
         }
@@ -5564,14 +5786,14 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     selectedModel = 'uor-r4.qwen3-1.7b-holo';
   }
 
-  const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
+  purgeLegacyDeclinedHydrationFlag();
+  const explicitQwenRequested = explicit17b || explicit06b;
+  const emergencyOfflineQ31 = isOfflineEmergencyQ31Active(payload, runtimeHooks);
   const wantsOfflineQ31 = Boolean(
     payload.offlineFallback ||
       payload.fallbackOfflineQ31 ||
       payload.consentDeclined ||
-      (payload.allowOffOriginHydration === undefined &&
-        storedConsent === 'declined' &&
-        !isTargetMounted(selectedModel, runtimeStatus)),
+      (!explicitQwenRequested && emergencyOfflineQ31 && !isTargetMounted(selectedModel, runtimeStatus)),
   );
   if (wantsOfflineQ31) {
     selectedModel = 'uor-r4.native-q31-d85';
@@ -5586,10 +5808,10 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         unsubWaiter = registerCancelWaiter(ownerKey, () => resolve({ __cancelled: true }));
       });
       const hydrateOpts = {
-        allowOffOriginHydration:
-          payload.allowOffOriginHydration !== undefined
-            ? Boolean(payload.allowOffOriginHydration)
-            : storedConsent === '1' || storedConsent === 'true',
+        ...(payload.allowOffOriginHydration !== undefined
+          ? { allowOffOriginHydration: Boolean(payload.allowOffOriginHydration) }
+          : {}),
+        ...(Array.isArray(payload.customMirrors) ? { customMirrors: payload.customMirrors } : {}),
         ...(payload.rememberConsent !== undefined ? { rememberConsent: Boolean(payload.rememberConsent) } : {}),
       };
       const hydrateJob = Promise.resolve(
@@ -8263,6 +8485,7 @@ export class SpiralCoreHostBridge {
       typeof opts.allowOffOriginHydration === 'boolean' ? opts.allowOffOriginHydration : null;
     this.consentDeclined =
       typeof opts.consentDeclined === 'boolean' ? opts.consentDeclined : null;
+    this.offlineEmergencyQ31 = Boolean(opts.offlineEmergencyQ31 ?? opts.offline_emergency_q31);
     this.onAuditEvent = typeof opts.onAuditEvent === 'function' ? opts.onAuditEvent : null;
     this.auditLog = [];
     this.webAccessEnabled = opts.webAccessEnabled !== false;
@@ -8612,6 +8835,11 @@ export class SpiralCoreHostBridge {
     } else if (typeof opts.consent_declined === 'boolean') {
       this.consentDeclined = opts.consent_declined;
     }
+    if (typeof opts.offlineEmergencyQ31 === 'boolean') {
+      this.offlineEmergencyQ31 = opts.offlineEmergencyQ31;
+    } else if (typeof opts.offline_emergency_q31 === 'boolean') {
+      this.offlineEmergencyQ31 = opts.offline_emergency_q31;
+    }
     if (typeof opts.onAuditEvent === 'function') {
       this.onAuditEvent = opts.onAuditEvent;
     }
@@ -8646,6 +8874,7 @@ export class SpiralCoreHostBridge {
       web_access_enabled: this.webAccessEnabled,
       allow_off_origin_hydration: this.allowOffOriginHydration,
       consent_declined: this.consentDeclined,
+      offline_emergency_q31: this.offlineEmergencyQ31,
       esbuild_configured: Boolean(this.esbuildModuleUrl && this.esbuildWasmUrl),
     };
   }
@@ -13379,7 +13608,9 @@ function __uorStartDedicatedEngineWorker() {
     }
   };
   const gitMetaFiles = new Map();
-  let offOriginHydrationDeclined = safeStorageGet('uor_allow_off_origin_hydration') === 'declined';
+  purgeLegacyDeclinedHydrationFlag();
+  let offlineEmergencyQ31 = safeStorageGet('uor_offline_emergency_q31') === '1';
+  let explicitWorkerAllowOffOrigin;
   let bootNativeQ31Fallback = false;
   let previewInspectSeq = 0;
   const pendingPreviewInspectRpc = new Map();
@@ -13867,13 +14098,11 @@ function __uorStartDedicatedEngineWorker() {
     const p = reqPayload && typeof reqPayload === 'object' ? reqPayload : {};
     if (p.offlineFallback || p.fallbackOfflineQ31 || p.consentDeclined) return true;
     const rawPref = String(p.preferredModel || p.selected_model || p.model || '').trim();
+    if (rawPref === 'uor-r4.native-q31-d85' || rawPref === 'native-q31-d85') return true;
     if (rawPref) return false;
     if (p.allowOffOriginHydration === true || isQwenMounted()) return false;
-    const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
-    if (offOriginHydrationDeclined || storedConsent === 'declined') return true;
-    if (storedConsent === '1' || storedConsent === 'true') {
-      return false;
-    }
+    purgeLegacyDeclinedHydrationFlag();
+    if (offlineEmergencyQ31 || safeStorageGet('uor_offline_emergency_q31') === '1') return true;
     if ((bootNativeQ31Fallback || inlineLowLatency) && !isQwenMounted() && isQ31Ready()) {
       return true;
     }
@@ -13890,6 +14119,7 @@ function __uorStartDedicatedEngineWorker() {
   };
 
   const createWorkerTurnHooks = () => ({
+    offlineEmergencyQ31,
     postEvent,
     postResponse: (resp) => {
       if (typeof self !== 'undefined' && self && typeof self.postMessage === 'function') {
@@ -14086,25 +14316,42 @@ function __uorStartDedicatedEngineWorker() {
           });
           return;
         }
+        const hasEmergencyField = Boolean(
+          payload &&
+            (typeof payload.offlineEmergencyQ31 === 'boolean' ||
+              typeof payload.offline_emergency_q31 === 'boolean'),
+        );
+        if (hasEmergencyField) {
+          offlineEmergencyQ31 = Boolean(payload.offlineEmergencyQ31 ?? payload.offline_emergency_q31);
+          if (offlineEmergencyQ31) {
+            safeStorageSet('uor_offline_emergency_q31', '1');
+            bootNativeQ31Fallback = true;
+            if (wasmReady && !payload.bootSync && !isQwenMounted() && isQ31Ready()) {
+              emitNativeQ31ReadyFallback('offline_emergency_mode');
+            }
+          } else {
+            safeStorageRemove('uor_offline_emergency_q31');
+            bootNativeQ31Fallback = false;
+          }
+        }
         const hasConsentField = Boolean(
           payload &&
             (typeof payload.allowOffOriginHydration === 'boolean' ||
               typeof payload.consentDeclined === 'boolean'),
         );
         if (hasConsentField) {
-          if (payload.consentDeclined === true || payload.allowOffOriginHydration === false) {
-            offOriginHydrationDeclined = true;
-            bootNativeQ31Fallback = true;
+          purgeLegacyDeclinedHydrationFlag();
+          if (payload.allowOffOriginHydration === false) {
+            explicitWorkerAllowOffOrigin = false;
             globalThis.__uorAllowOffOriginHydration = false;
-            safeStorageSet('uor_allow_off_origin_hydration', 'declined');
-            if (wasmReady && !payload.bootSync && !isQwenMounted() && isQ31Ready()) {
-              emitNativeQ31ReadyFallback('consent_declined');
+          } else if (payload.allowOffOriginHydration === true || payload.consentDeclined === false) {
+            explicitWorkerAllowOffOrigin = payload.allowOffOriginHydration === true ? true : undefined;
+            if (payload.allowOffOriginHydration === true) {
+              globalThis.__uorAllowOffOriginHydration = true;
+              safeStorageSet('uor_allow_off_origin_hydration', '1');
+            } else {
+              delete globalThis.__uorAllowOffOriginHydration;
             }
-          } else if (payload.allowOffOriginHydration === true) {
-            offOriginHydrationDeclined = false;
-            bootNativeQ31Fallback = false;
-            globalThis.__uorAllowOffOriginHydration = true;
-            safeStorageSet('uor_allow_off_origin_hydration', '1');
             if (wasmReady && !payload.bootSync && !isQwenMounted() && payload.hydrateNow === true) {
               selectOptimalInitialHoloModel()
                 .then((plan) =>
@@ -14115,7 +14362,9 @@ function __uorStartDedicatedEngineWorker() {
                       postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
                     },
                     false,
-                    { allowOffOriginHydration: true, rememberConsent: true },
+                    explicitWorkerAllowOffOrigin !== undefined
+                      ? { allowOffOriginHydration: explicitWorkerAllowOffOrigin, rememberConsent: true }
+                      : { rememberConsent: true },
                   ).then((holo) => {
                     postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
                     postEvent('holo_ready', {
@@ -14268,13 +14517,9 @@ function __uorStartDedicatedEngineWorker() {
       if (op === 'hydrate_holo_model') {
         const modelId = String((payload && payload.modelId) || 'uor-r4.qwen3-0.6b-holo');
         const force = Boolean(payload && payload.force);
-        const decline = Boolean(payload && (payload.decline || payload.consentDeclined));
-        if (decline) {
-          offOriginHydrationDeclined = true;
-          bootNativeQ31Fallback = true;
-          globalThis.__uorAllowOffOriginHydration = false;
-          safeStorageSet('uor_allow_off_origin_hydration', 'declined');
-          const q31Holo = emitNativeQ31ReadyFallback('consent_declined') || {
+        const offlineFallbackReq = Boolean(payload && (payload.offlineFallback || payload.decline || payload.consentDeclined));
+        if (offlineFallbackReq) {
+          const q31Holo = emitNativeQ31ReadyFallback('offline_emergency_mode') || {
             model_id: 'uor-r4.native-q31-d85',
             ready: false,
           };
@@ -14290,21 +14535,25 @@ function __uorStartDedicatedEngineWorker() {
           });
           return;
         }
-        const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
-        const allowOffOriginHydration = payload && payload.allowOffOriginHydration !== undefined
-          ? Boolean(payload.allowOffOriginHydration)
-          : (storedConsent === '1' || storedConsent === 'true');
+        const allowOffOriginHydration =
+          payload && payload.allowOffOriginHydration !== undefined
+            ? Boolean(payload.allowOffOriginHydration)
+            : explicitWorkerAllowOffOrigin;
         const rememberConsent = payload && payload.rememberConsent !== undefined
           ? Boolean(payload.rememberConsent)
           : true;
         try {
+          const hydrateOpts = {
+            ...(allowOffOriginHydration !== undefined ? { allowOffOriginHydration } : {}),
+            ...(payload && Array.isArray(payload.customMirrors) ? { customMirrors: payload.customMirrors } : {}),
+            rememberConsent,
+          };
           const holo = await hydrate_holo_model(modelId, (prog) => {
             postEvent('boot_progress', { stage: 'holo_v13', ...prog });
             postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-          }, force, { allowOffOriginHydration, rememberConsent });
+          }, force, hydrateOpts);
           bootNativeQ31Fallback = false;
-          offOriginHydrationDeclined = false;
-          if (allowOffOriginHydration && rememberConsent) {
+          if (allowOffOriginHydration === true && rememberConsent) {
             safeStorageSet('uor_allow_off_origin_hydration', '1');
           }
           postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
@@ -14864,21 +15113,23 @@ function __uorStartDedicatedEngineWorker() {
         await handleWorkerMessage(queued);
       }
 
-      // Boot on optimal Qwen3 lane (`1.7b-holo` if already warm in OPFS, else fast `0.6b-holo` + background `1.7b-holo` promotion).
-      const storedBootConsent = safeStorageGet('uor_allow_off_origin_hydration');
-      if (storedBootConsent === 'declined') {
-        offOriginHydrationDeclined = true;
+      // Boot on optimal Qwen3 lane (`0.6b-holo` auto-hydrating from first-party catalog unless Offline Emergency Q31 mode is active).
+      purgeLegacyDeclinedHydrationFlag();
+      if (offlineEmergencyQ31 || safeStorageGet('uor_offline_emergency_q31') === '1') {
         bootNativeQ31Fallback = true;
-        emitNativeQ31ReadyFallback('consent_declined');
+        emitNativeQ31ReadyFallback('offline_emergency_mode');
       } else {
         selectOptimalInitialHoloModel().then((plan) => {
           const emitProg = (prog) => {
             postEvent('boot_progress', { stage: 'holo_v13', ...prog });
             postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
           };
-          return hydrate_holo_model(plan.initialModel, emitProg, false).then((holo) => {
+          const bootHydrateOpts =
+            explicitWorkerAllowOffOrigin !== undefined
+              ? { allowOffOriginHydration: explicitWorkerAllowOffOrigin }
+              : {};
+          return hydrate_holo_model(plan.initialModel, emitProg, false, bootHydrateOpts).then((holo) => {
             bootNativeQ31Fallback = false;
-            offOriginHydrationDeclined = false;
             postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
             postEvent('holo_ready', {
               holo,
@@ -14887,7 +15138,7 @@ function __uorStartDedicatedEngineWorker() {
               kappaStore: globalThis.__uorHoloKappaStatus || null,
             });
             if (plan.promoteTarget) {
-              hydrate_holo_model(plan.promoteTarget, emitProg, false).then((holo17) => {
+              hydrate_holo_model(plan.promoteTarget, emitProg, false, bootHydrateOpts).then((holo17) => {
                 postEvent('holo_ready', {
                   holo: holo17,
                   recommendedModel: plan.promoteTarget,

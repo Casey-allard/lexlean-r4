@@ -502,11 +502,17 @@ assert.ok(rawHtml.includes('id="toggle-inspectors-btn"'), 'Must include #toggle-
 assert.ok(rawHtml.includes('id="inspectors-modal"'), 'Must include #inspectors-modal');
 assert.ok(rawHtml.includes('id="github-connect-modal"'), 'Must include #github-connect-modal');
 
+const dockableCanvasPaneIdx = rawHtml.indexOf('id="dockable-canvas-pane"');
 const inspectorsModalIdx = rawHtml.indexOf('id="inspectors-modal"');
+const diffPanelIdx = rawHtml.indexOf('id="canvas-panel-diff"');
+assert.ok(dockableCanvasPaneIdx !== -1, 'Must include #dockable-canvas-pane');
+assert.ok(
+  diffPanelIdx > dockableCanvasPaneIdx && diffPanelIdx < inspectorsModalIdx,
+  'canvas-panel-diff must reside inside #dockable-canvas-pane before #inspectors-modal',
+);
 for (const panelId of [
   'canvas-panel-traces',
   'canvas-panel-inspector',
-  'canvas-panel-diff',
   'canvas-panel-diagnostics',
   'canvas-panel-mcp',
   'canvas-panel-feed',
@@ -516,30 +522,33 @@ for (const panelId of [
   assert.ok(rawHtml.indexOf(`id="${panelId}"`) > inspectorsModalIdx, `${panelId} must reside inside #inspectors-modal`);
 }
 assert.ok(
-  rawCss.includes('body:not([data-layout-mode="chat"]) #workbench-sidebar-content:has(#sidebar-view-history[hidden]) > #sidebar-panel-history'),
-  'app.css must scope :has(#sidebar-view-history[hidden]) hiding rule to non-chat modes'
+  rawCss.includes('body[data-layout-mode="studio"] #sidebar-view-history'),
+  'app.css must hide #sidebar-view-history in Studio mode so Explorer/SCM/Search take the left rail'
 );
 assert.ok(
-  rawCss.includes('body[data-layout-mode="chat"] #workbench-sidebar-content > .sidebar-top'),
-  'app.css must render .sidebar-top in Chat-First mode'
+  rawCss.includes('body[data-layout-mode="chat"] #sidebar-view-explorer')
+    && rawCss.includes('body[data-layout-mode="chat"] #sidebar-view-scm')
+    && rawCss.includes('body[data-layout-mode="chat"] #sidebar-view-search'),
+  'app.css must hide Studio views in Chat-First mode so #sidebar-view-history stays primary'
 );
 assert.ok(
-  rawCss.includes('body[data-layout-mode="chat"] #workbench-sidebar-content > #sidebar-view-history'),
-  'app.css must render #sidebar-view-history (+ New Agentic Session) in Chat-First mode'
+  rawCss.includes('body[data-layout-mode="chat"] #dockable-canvas-pane')
+    && rawCss.includes('body[data-layout-mode="studio"] #dockable-canvas-pane'),
+  'app.css must hide #dockable-canvas-pane in Chat mode and place it in column 2 in Studio mode'
 );
 assert.ok(
-  rawCss.includes('body[data-layout-mode="chat"] #workbench-sidebar-content > .sidebar-footer'),
-  'app.css must render .sidebar-footer in Chat-First mode'
+  rawCss.includes('display: none !important;') && rawCss.includes('#observatory-dock-split'),
+  'app.css must hide #observatory-dock-split in favor of the floating Neural HUD'
 );
 assert.ok(
-  rawCss.includes('body[data-layout-mode="chat"] #claude-code-desktop #toggle-sidebar-btn'),
-  'app.css must show #toggle-sidebar-btn in Chat-First mode'
+  rawHtml.includes('id="toggle-sidebar-btn"'),
+  'index.html must include #toggle-sidebar-btn'
 );
 assert.ok(
-  !rawHtml.includes('id="sidebar-view-history" class="sidebar-view-content" role="region" aria-label="Chat Sessions &amp; History" hidden'),
+  rawHtml.includes('id="sidebar-view-history" class="sidebar-view-content" role="region" aria-label="Chat Sessions and History">'),
   'index.html must not start #sidebar-view-history hidden in default Chat-First mode'
 );
-console.log('  ✓ 7.1 Chat-First landing, visible left sidebar, Studio IDE toggle, and full-height #inspectors-modal layout verified.');
+console.log('  ✓ 7.1 Chat-First landing, visible left sidebar, Studio IDE toggle, and floating HUD #inspectors-modal layout verified.');
 
 const rawLexleanJs = readFileSync(resolve(PUBLIC_DIR, 'lexlean_r4.js'), 'utf8');
 assert.ok(rawAppJs.includes("name: 'uor-r4-engine-worker'"), 'app.js must spawn uor-r4-engine-worker');
@@ -646,8 +655,15 @@ try {
     assert.equal(loadedV10.d_model, 256);
   }
 
-  // Verify chat_v10_turn returns ok + brain_pulses
-  const chatTurn = JSON.parse(studio_dispatch('1\tstudio\tchat_v10_turn\thi'));
+  // Verify retired uor-r4.recompiled-v12-agent refuses strictly while honest uor-r4.native-q31-d85 returns ok + brain_pulses
+  const retiredChatTurn = JSON.parse(studio_dispatch('1\tstudio\tchat_v10_turn\thi'));
+  assert.equal(retiredChatTurn.status, 'error');
+  assert.equal(retiredChatTurn.error_code, 'RefusedRetiredScaffoldMode');
+  const chatTurn = JSON.parse(
+    studio_dispatch(
+      `1\tstudio\tchat_v10_turn\t${JSON.stringify({ prompt: 'hi', selected_model: 'uor-r4.native-q31-d85' })}`,
+    ),
+  );
   assert.equal(chatTurn.status, 'ok');
   assert.ok(Array.isArray(chatTurn.brain_pulses) && chatTurn.brain_pulses.length > 0, 'chat_v10_turn must emit brain_pulses');
 

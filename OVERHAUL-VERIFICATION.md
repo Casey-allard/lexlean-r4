@@ -105,3 +105,20 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Diagnostic**: `thread 'holo_kappa_store::tests::holoslab2_seal_enforces_quota_merkle_and_piece_hashes' panicked at crates/wasm/src/holo_kappa_store.rs:776:9: assertion failed: !bad_size.ok`
 - **Restored result**: Restored full `seal_matches` validation expression in `crates/wasm/src/holo_kappa_store.rs`; `cargo test -p lexlean-r4-wasm --lib holoslab2` exited `0` (`test result: ok. 1 passed; 0 failed`).
 
+## Wave 1 Redesign (`R4-62`): Compact Desktop Studio UI, Non-Blocking Dropdown Neural HUD & Zero-Prompt Auto-Hydration (`v0.14.0`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `11,514,089` bytes / `10.98 MiB` < `15 MiB`, `provenance.json`), `wasm=7795d62f624b`, `js=1adae764ebcb`, `core=89fa1186b92b`.
+- **`build-holo --sync-site-manifest` / `--verify-site-manifest`**: verified Hologram v4 archive (`13,045,043` bytes <= `33,554,432` B / `32 MiB`, `blake3=54611d8807b6b2e6`, `wasmSha256=7795d62f624b1afc`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **`check-model`**: `CONFORMANCE.md` matches `model/`, `62` conformance IDs (`R4-01..R4-62`, including `R4-62` / `R4.StudioFrame` catalog auto-hydration & floating HUD policy).
+- **`lift-register`**: `total=2795`, `lifted=2016`, `effect=276`, `foreign=160`, `residue=343` (`< 344` incumbent, `<= 355` threshold, `UE-16` monotone).
+- **`ratchet-check`**: `r30_gen=261`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=343`, `float=0`, `matmul=0`, `unwired_ui=0`.
+- **`check-routes`**: `13` routes (including `R4-UR13` / `compact-studio-auto-hydration`) and `16` test vectors verified under `uorust/routes/1`.
+- **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=343`, `routes=13`, `provenance_sources=24`).
+- **`synthesize`**: `score_milli=987`, `complexity=343`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
+
+### 9. Silent Sticky Q31 Downgrade Regression Gate (`R4-62`)
+- **Planted defect**: Short-circuited `purgeLegacyDeclinedHydrationFlag()` in `crates/wasm/js/worker_host_bridge.js` to return `false` without removing `uor_allow_off_origin_hydration = 'declined'`.
+- **Failing command**: `NODE_OPTIONS="--max-old-space-size=1024" node tests/e2e/foundry_worker_stepper_unit.mjs`
+  - **Exit code**: `1`
+  - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Stale declined flag must be purged` at `tests/e2e/foundry_worker_stepper_unit.mjs:1538`
+- **Restored result**: Restored `safeStorageRemove('uor_allow_off_origin_hydration')` inside `purgeLegacyDeclinedHydrationFlag()`; `NODE_OPTIONS="--max-old-space-size=1024" node tests/e2e/foundry_worker_stepper_unit.mjs` exited `0` (`tests 12, pass 12, fail 0`).

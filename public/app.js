@@ -4974,6 +4974,7 @@ const inspectorsModalEl = document.getElementById('inspectors-modal');
 
 /** Formal R4.StudioFrame synchronize ARIA expanded state across Neural HUD triggers. */
 function syncNeuralHudTriggerState(isOpen, isExpanded) {
+  /* Formal R4.StudioFrame */
   const toggleBtn = document.getElementById('toggle-inspectors-btn');
   if (toggleBtn) {
     toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
@@ -5504,6 +5505,7 @@ async function refreshHoloStorageGeometry(modelId = '') {
 
 /** Formal R4.StudioFrame coalesce floating HUD and 4-canvas redraws via requestAnimationFrame. */
 function scheduleHoloObservatoryRender() {
+  /* Formal R4.StudioFrame */
   if (typeof requestAnimationFrame !== 'function') {
     renderHoloObservatoryDeck();
     return;
@@ -13759,6 +13761,7 @@ if (loadWeightsTopbarBtn && snapshotUploadInput) {
 
 /** Formal R4.StudioFrame format byte hydration progress pill (`Downloading XX% · YY / 410 MB`). */
 function formatHydrationProgressLabel(prog) {
+  /* Formal R4.StudioFrame */
   if (!prog || typeof prog !== 'object') return '';
   const totalBytes = Number(prog.totalBytes) || 0;
   const dlBytes = Number(prog.downloadedBytes) || 0;
@@ -13781,6 +13784,7 @@ function formatHydrationProgressLabel(prog) {
 
 /** Formal R4.StudioFrame toggle and update the inline composer weight hydration progress strip. */
 function updateInlineHydrationBar(prog) {
+  /* Formal R4.StudioFrame */
   if (typeof document === 'undefined' || typeof document.getElementById !== 'function') return;
   const bar = document.getElementById('hydration-inline-progress');
   const labelEl = document.getElementById('hydration-inline-progress-label');

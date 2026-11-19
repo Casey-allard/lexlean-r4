@@ -1953,6 +1953,7 @@ async function holoWriteManifestIndex(record) {
 
 /** Formal R4.HoloKappaStore delete stale manifest record by `modelId` on container digest drift. */
 async function holoDeleteManifestIndex(modelId) {
+  /* Formal R4.HoloKappaStore */
   const db = await holoOpenManifestDb();
   if (!db) return false;
   return await new Promise((resolve) => {
@@ -3247,6 +3248,7 @@ function safeStorageSet(key, value) {
 
 /** Formal R4.StudioFrame remove key from localStorage and fallback memory map. */
 function safeStorageRemove(key) {
+  /* Formal R4.StudioFrame */
   const k = String(key || '');
   __uorWorkerMemoryStorage.delete(k);
   try {
@@ -3261,6 +3263,7 @@ function safeStorageRemove(key) {
 
 /** Formal R4.StudioFrame purge legacy sticky `declined` flag to prevent silent Q31 downgrades. */
 function purgeLegacyDeclinedHydrationFlag() {
+  /* Formal R4.StudioFrame */
   if (safeStorageGet('uor_allow_off_origin_hydration') === 'declined') {
     safeStorageRemove('uor_allow_off_origin_hydration');
     return true;
@@ -3270,6 +3273,7 @@ function purgeLegacyDeclinedHydrationFlag() {
 
 /** Formal R4.StudioFrame classify whether an off-origin URL belongs to declared first-party catalog mirrors. */
 function isFirstPartyCatalogMirror(rawUrl, catalogMirrors) {
+  /* Formal R4.StudioFrame */
   const s = String(rawUrl || '').trim();
   if (!s) return false;
   const norm = s.endsWith('/') ? s : `${s}/`;
@@ -3296,6 +3300,7 @@ function isFirstPartyCatalogMirror(rawUrl, catalogMirrors) {
 
 /** Formal R4.StudioFrame check whether explicit Settings Offline Emergency Q31 mode is enabled. */
 function isOfflineEmergencyQ31Active(payload, runtimeState) {
+  /* Formal R4.StudioFrame */
   if (safeStorageGet('uor_offline_emergency_q31') === '1') return true;
   if (runtimeState && runtimeState.offlineEmergencyQ31 === true) return true;
   if (payload && payload.offlineEmergencyQ31 === true) return true;
@@ -3336,7 +3341,9 @@ function __uorConsentError(msgOrDetails, maybeDetails) {
 }
 
 /** Formal R4.HoloKappaStore stream HTTP response with 3-attempt backoff retry while holding `HOLD_TAIL_BYTES` (64 KiB) pending SHA-256 check. */
-export async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null, options = {}) {
+export async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = null, options = null) {
+  /* Formal R4.HoloKappaStore */
+  options = options && typeof options === 'object' ? options : {};
   const init =
     byteRange && Number.isFinite(byteRange.start) && Number.isFinite(byteRange.end)
       ? { headers: { Range: `bytes=${byteRange.start}-${byteRange.end}` } }
