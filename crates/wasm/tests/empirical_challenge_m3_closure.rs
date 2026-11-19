@@ -333,7 +333,6 @@ fn test_empirical_dom_ids_uniqueness_hierarchy_and_accessibility() {
         "preview-console-output",
         "preview-refresh-btn",
         "canvas-tab-workspace",
-        "canvas-tab-diff",
         "canvas-tab-feed",
         "canvas-tab-diagnostics",
         "canvas-tab-consolidation",
@@ -390,11 +389,22 @@ fn test_empirical_dom_ids_uniqueness_hierarchy_and_accessibility() {
         "index.html must have accessible title"
     );
 
-    // Polite live regions on status elements
-    assert!(index_html.contains("id=\"studio-toast-banner\""));
-    assert!(index_html.contains("role=\"status\" aria-live=\"polite\""));
-    assert!(index_html.contains("id=\"workspace-status\""));
-    assert!(index_html.contains("id=\"github-connect-status\""));
+    // Ensure dangling #canvas-tab-diff inside #inspectors-modal stays retired (#workbench-tab-diff owns Diff)
+    assert!(
+        !index_html.contains("id=\"canvas-tab-diff\""),
+        "index.html must not contain dangling #canvas-tab-diff inside #inspectors-modal"
+    );
+
+    // Polite live regions (role="status" + aria-live="polite" together on every status element)
+    assert!(index_html.contains(
+        "id=\"studio-toast-banner\" class=\"studio-toast-banner\" role=\"status\" aria-live=\"polite\""
+    ));
+    assert!(index_html.contains(
+        "id=\"workspace-status\" class=\"admit-output\" role=\"status\" aria-live=\"polite\""
+    ));
+    assert!(index_html.contains(
+        "id=\"github-connect-status\" class=\"admit-output\" role=\"status\" aria-live=\"polite\""
+    ));
 
     // Tablist & tabs accessible roles
     assert!(index_html.contains("role=\"tablist\""));

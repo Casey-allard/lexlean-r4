@@ -1702,7 +1702,7 @@ pub fn audit_codebase_and_inference(
             "engine-frontier-ledger",
             "literature-feed-list",
             "mcp-audit-export-btn",
-            "otel-trace-badge",
+            "live-otel-trace-badge",
             "dockable-canvas-pane",
             "claude-chat-form",
             "claude-chat-input",
@@ -1714,9 +1714,16 @@ pub fn audit_codebase_and_inference(
             "holo-observatory-deck",
             "inspectors-modal",
         ] {
-            if !html.contains(required_id) || !js.contains(required_id) {
+            let id_attr = format!("id=\"{required_id}\"");
+            if !html.contains(&id_attr) || !js.contains(required_id) {
                 dead_ui_bindings.push(required_id.to_string());
             }
+        }
+        if !js.contains("data-canvas-tab") {
+            dead_ui_bindings.push("data-canvas-tab".to_string());
+        }
+        if !js.contains("canvas-panel-") {
+            dead_ui_bindings.push("canvas-panel-".to_string());
         }
         for prism_frame_id in [
             "prism-global-topbar",
@@ -1733,10 +1740,8 @@ pub fn audit_codebase_and_inference(
             "canvas-panel-feed",
             "canvas-tab-feed",
         ] {
-            if !html.contains(prism_frame_id)
-                || !js.contains("data-canvas-tab")
-                || !js.contains("canvas-panel-")
-            {
+            let id_attr = format!("id=\"{prism_frame_id}\"");
+            if !html.contains(&id_attr) {
                 dead_ui_bindings.push(prism_frame_id.to_string());
             }
         }

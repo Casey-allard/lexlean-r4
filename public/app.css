@@ -198,7 +198,7 @@ button:disabled {
   font-size: 0.74rem;
 }
 
-input,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 select,
 textarea {
   width: 100%;
@@ -211,6 +211,25 @@ textarea {
   font-size: 0.84rem;
   color: var(--text-primary);
   background: var(--bg-surface);
+}
+
+input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: 1.15rem;
+  height: 1.15rem;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
 }
 
 label {
@@ -241,6 +260,23 @@ output:empty {
   display: grid;
   gap: 0.35rem;
   min-width: 0;
+}
+
+.field-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.field label:has(> input[type="checkbox"]),
+.field label:has(> input[type="radio"]) {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 36px;
+  cursor: pointer;
 }
 
 /* ============================================================================
@@ -539,14 +575,12 @@ body[data-layout-mode="chat"] #prism-right-column {
 }
 
 /* Default Expanded (>= 840px) - Studio Mode */
-body[data-layout-mode="studio"] > main,
-body[data-window-class="expanded"][data-layout-mode="studio"] > main {
+body[data-layout-mode="studio"] > main {
   grid-template-columns: clamp(220px, 20vw, 280px) minmax(0, 1.35fr) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) 28px;
 }
 
-body[data-layout-mode="studio"] > main.sidebar-collapsed,
-body[data-window-class="expanded"][data-layout-mode="studio"] > main.sidebar-collapsed {
+body[data-layout-mode="studio"] > main.sidebar-collapsed {
   grid-template-columns: 44px minmax(0, 1.35fr) minmax(0, 1fr);
 }
 
@@ -2288,17 +2322,24 @@ body.density-compact #prism-global-topbar {
 
 /* ============================================================================
    9. Material 3 Window Size Class Breakpoints (Medium 600-839px, Compact <= 599px)
-   Placed AFTER base Expanded rules so responsive CSS holds on initial paint.
+   Placed AFTER base Expanded rules; [data-window-class] attributes are guarded by @media.
    ============================================================================ */
 
 /* Material 3 Expanded (>= 840px) explicit rule */
 @media (min-width: 840px) {
-  body[data-layout-mode="studio"] > main {
+  body[data-layout-mode="studio"] > main,
+  body[data-window-class="expanded"][data-layout-mode="studio"] > main {
     grid-template-columns: clamp(220px, 20vw, 280px) minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 28px;
+  }
+
+  body[data-layout-mode="studio"] > main.sidebar-collapsed,
+  body[data-window-class="expanded"][data-layout-mode="studio"] > main.sidebar-collapsed {
+    grid-template-columns: 44px minmax(0, 1.35fr) minmax(0, 1fr);
   }
 }
 
-/* Material 3 Medium (600px..839px): Collapsible Left Drawer + Clean 2-Column Split */
+/* Material 3 Medium (600px..839px): Collapsible Left Drawer (hidden unless .sidebar-expanded) + 2-Column Split */
 @media (min-width: 600px) and (max-width: 839px) {
   body[data-layout-mode="studio"] > main,
   body[data-window-class="medium"][data-layout-mode="studio"] > main {
@@ -2311,70 +2352,91 @@ body.density-compact #prism-global-topbar {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 
-  #threads-sidebar {
+  #threads-sidebar,
+  body[data-window-class="medium"] #threads-sidebar,
+  main.sidebar-collapsed #threads-sidebar {
+    display: none !important;
     position: fixed;
-    top: 48px;
+    top: 0;
     bottom: 0;
     left: 0;
     width: min(296px, 82vw);
-    z-index: 600;
+    height: 100dvh;
+    z-index: 700;
     box-shadow: var(--shadow-composer);
   }
 
-  main.sidebar-collapsed #threads-sidebar {
-    display: none !important;
+  main.sidebar-expanded:not(.sidebar-collapsed) #threads-sidebar,
+  body[data-window-class="medium"] main.sidebar-expanded:not(.sidebar-collapsed) #threads-sidebar {
+    display: flex !important;
   }
 
-  body[data-layout-mode="studio"] #dockable-canvas-pane {
+  main.sidebar-expanded:not(.sidebar-collapsed) .workbench-sidebar-content {
+    display: flex;
+  }
+
+  body[data-layout-mode="studio"] #dockable-canvas-pane,
+  body[data-window-class="medium"][data-layout-mode="studio"] #dockable-canvas-pane {
     grid-column: 1 !important;
     grid-row: 1 !important;
   }
 
   body[data-layout-mode="studio"] #prism-right-column,
-  body[data-layout-mode="chat"] #prism-right-column {
+  body[data-window-class="medium"][data-layout-mode="studio"] #prism-right-column {
     grid-column: 2 !important;
     grid-row: 1 !important;
   }
 
-  body[data-layout-mode="chat"] #prism-right-column {
+  body[data-layout-mode="chat"] #prism-right-column,
+  body[data-window-class="medium"][data-layout-mode="chat"] #prism-right-column {
     grid-column: 1 !important;
+    grid-row: 1 !important;
   }
 }
 
-body[data-window-class="medium"][data-layout-mode="studio"] > main {
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-}
-
-/* Material 3 Compact (<= 599px): Single Column Stack + Slide-Over Drawer + >= 44px Tap Targets */
+/* Material 3 Compact (<= 599px): Single Column Stack + Slide-Over Drawer (hidden unless .sidebar-expanded) + >= 44x44px Tap Targets */
 @media (max-width: 599px) {
-  body {
+  body,
+  body[data-window-class="compact"] {
     height: auto;
     min-height: 100dvh;
     overflow-y: auto;
   }
 
   body[data-layout-mode="chat"] > main,
-  body[data-layout-mode="studio"] > main {
+  body[data-layout-mode="studio"] > main,
+  body[data-window-class="compact"][data-layout-mode="chat"] > main,
+  body[data-window-class="compact"][data-layout-mode="studio"] > main {
     grid-template-columns: minmax(0, 1fr) !important;
     grid-template-rows: auto auto !important;
     overflow-y: auto;
   }
 
-  #threads-sidebar {
+  #threads-sidebar,
+  body[data-window-class="compact"] #threads-sidebar,
+  main.sidebar-collapsed #threads-sidebar {
+    display: none !important;
     position: fixed;
-    top: 48px;
+    top: 0;
     bottom: 0;
     left: 0;
     width: min(300px, 88vw);
-    z-index: 700;
+    height: 100dvh;
+    z-index: 750;
     box-shadow: var(--shadow-composer);
   }
 
-  main.sidebar-collapsed #threads-sidebar {
-    display: none !important;
+  main.sidebar-expanded:not(.sidebar-collapsed) #threads-sidebar,
+  body[data-window-class="compact"] main.sidebar-expanded:not(.sidebar-collapsed) #threads-sidebar {
+    display: flex !important;
   }
 
-  body[data-layout-mode="studio"] #dockable-canvas-pane {
+  main.sidebar-expanded:not(.sidebar-collapsed) .workbench-sidebar-content {
+    display: flex;
+  }
+
+  body[data-layout-mode="studio"] #dockable-canvas-pane,
+  body[data-window-class="compact"][data-layout-mode="studio"] #dockable-canvas-pane {
     grid-column: 1 !important;
     grid-row: 1 !important;
     min-height: 56dvh;
@@ -2383,13 +2445,23 @@ body[data-window-class="medium"][data-layout-mode="studio"] > main {
   }
 
   body[data-layout-mode="studio"] #prism-right-column,
-  body[data-layout-mode="chat"] #prism-right-column {
+  body[data-window-class="compact"][data-layout-mode="studio"] #prism-right-column {
     grid-column: 1 !important;
     grid-row: 2 !important;
+    height: auto;
+    min-height: 44dvh;
   }
 
-  body[data-layout-mode="chat"] #prism-right-column {
+  body[data-layout-mode="chat"] #prism-right-column,
+  body[data-window-class="compact"][data-layout-mode="chat"] #prism-right-column {
+    grid-column: 1 !important;
     grid-row: 1 !important;
+    height: auto;
+    min-height: calc(100dvh - 56px);
+  }
+
+  .chat-transcript {
+    min-height: 18dvh;
   }
 
   body[data-layout-mode="studio"] #ide-status-bar {
@@ -2397,19 +2469,41 @@ body[data-window-class="medium"][data-layout-mode="studio"] > main {
   }
 
   button,
-  input,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
   .cursor-mini-btn,
   .cursor-wb-btn,
   .cursor-editor-tab,
   .prism-seg-btn,
-  .prism-icon-btn,
   .prism-pill-btn,
   .composer-mode-btn,
-  .composer-send-btn,
   .composer-stop-btn,
+  .field label:has(> input[type="checkbox"]),
+  .field label:has(> input[type="radio"]) {
+    min-height: 44px;
+  }
+
+  .prism-icon-btn,
+  .prism-toast-close,
+  .sidebar-action-icon-btn,
   .composer-action-btn,
-  .composer-trigger-pill {
+  .composer-trigger-pill,
+  .composer-send-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .cursor-activity-bar,
+  .activity-bar {
+    width: 48px;
+    min-width: 48px;
+  }
+
+  .cursor-act-btn,
+  .activity-bar-btn {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
     min-height: 44px;
   }
 
@@ -2418,17 +2512,43 @@ body[data-window-class="medium"][data-layout-mode="studio"] > main {
   }
 }
 
-body[data-window-class="compact"] button,
-body[data-window-class="compact"] .cursor-mini-btn {
-  min-height: 44px;
-}
-
 @media (pointer: coarse) {
   button,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
   .cursor-mini-btn,
   .cursor-wb-btn,
+  .cursor-editor-tab,
   .prism-seg-btn,
-  .prism-pill-btn {
+  .prism-pill-btn,
+  .composer-mode-btn,
+  .composer-stop-btn,
+  .field label:has(> input[type="checkbox"]),
+  .field label:has(> input[type="radio"]) {
+    min-height: 44px;
+  }
+
+  .prism-icon-btn,
+  .prism-toast-close,
+  .sidebar-action-icon-btn,
+  .composer-action-btn,
+  .composer-trigger-pill,
+  .composer-send-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .cursor-activity-bar,
+  .activity-bar {
+    width: 48px;
+    min-width: 48px;
+  }
+
+  .cursor-act-btn,
+  .activity-bar-btn {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
     min-height: 44px;
   }
 }
@@ -2451,14 +2571,12 @@ body.surface-observatory prism-frame,
 body[data-surface="observatory"] prism-frame,
 body.surface-observatory #prism-global-topbar,
 body[data-surface="observatory"] #prism-global-topbar,
-body.surface-observatory .gpt-topbar,
-body[data-surface="observatory"] .gpt-topbar,
 body.surface-observatory #threads-sidebar,
 body[data-surface="observatory"] #threads-sidebar,
 body.surface-observatory #observatory-dock-split,
 body[data-surface="observatory"] #observatory-dock-split,
-body.surface-observatory #cowork-agent-status-bar,
-body[data-surface="observatory"] #cowork-agent-status-bar,
+body.surface-observatory #prism-compat-hooks,
+body[data-surface="observatory"] #prism-compat-hooks,
 body.surface-observatory > main,
 body[data-surface="observatory"] > main,
 body.surface-observatory #inspectors-modal-backdrop,
@@ -2510,6 +2628,13 @@ body[data-surface="observatory"] #holo-observatory-deck {
   border-color: var(--border, #334155) !important;
   color: var(--foreground, #f8fafc) !important;
   font-family: var(--font-mono, ui-monospace, Menlo, monospace) !important;
+}
+
+body.surface-preview,
+body[data-surface="preview"] {
+  height: auto !important;
+  overflow: auto !important;
+  margin: 0;
 }
 
 body.surface-preview > *:not(#preview-sandbox-root),

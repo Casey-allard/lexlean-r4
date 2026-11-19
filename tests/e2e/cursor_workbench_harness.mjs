@@ -1253,10 +1253,11 @@ test('F4.3: Terminal key shortcut Ctrl+` triggers bottom panel toggle', () => {
   assert.ok(!pane.classList.contains('cursor-bottom-panel-collapsed'), 'Ctrl+` reopened the panel');
 });
 
-test('F4.4: Terminal toolbar button #cursor-toggle-bottom-panel-btn triggers toggle', () => {
+test('F4.4: Terminal toolbar button #topbar-terminal-btn triggers bottom drawer toggle', () => {
   const { doc, controller, elements } = setupCursorWorkbenchSandbox();
-  const btn = doc.getElementById('cursor-toggle-bottom-panel-btn');
-  assert.ok(btn, '#cursor-toggle-bottom-panel-btn must exist in toolbar');
+  const btn = doc.getElementById('topbar-terminal-btn');
+  assert.ok(btn, '#topbar-terminal-btn must exist in workbench toolbar');
+  assert.equal(doc.getElementById('cursor-toggle-bottom-panel-btn'), null, 'retired #cursor-toggle-bottom-panel-btn must be removed');
   controller.activeCanvasTabId = 'terminal';
 
   btn.click();
@@ -1283,18 +1284,24 @@ test('F4.6: Terminal prompt displays in-browser shell label', () => {
 // ----------------------------------------------------------------------------
 suite('Feature 5: Right AI Pane (Chat & Composer)');
 
-test('F5.1: Right AI pane contains mode buttons: Agent, Ask, Edit', () => {
+test('F5.1: Right AI pane contains <prism-frame> composer mode buttons (#composer-mode-agent, #composer-mode-plan) and @ mention pill', () => {
   const { doc } = setupCursorWorkbenchSandbox();
-  const modeAgent = doc.getElementById('cursor-mode-agent-btn');
-  const modeAsk = doc.getElementById('cursor-mode-ask-btn');
-  const modeEdit = doc.getElementById('cursor-mode-edit-btn');
+  const modeAgent = doc.getElementById('composer-mode-agent');
+  const modePlan = doc.getElementById('composer-mode-plan');
+  const mentionBtn = doc.getElementById('composer-mention-btn');
 
-  assert.ok(modeAgent, '#cursor-mode-agent-btn must exist');
-  assert.ok(modeAsk, '#cursor-mode-ask-btn must exist');
-  assert.ok(modeEdit, '#cursor-mode-edit-btn must exist');
+  assert.ok(modeAgent, '#composer-mode-agent must exist');
+  assert.ok(modePlan, '#composer-mode-plan must exist');
+  assert.ok(mentionBtn, '#composer-mention-btn must exist');
+  assert.equal(modeAgent.getAttribute('data-composer-mode'), 'agentic');
+  assert.equal(modePlan.getAttribute('data-composer-mode'), 'plan');
+  assert.ok(modeAgent.classList.contains('active'));
+  assert.equal(doc.getElementById('cursor-mode-agent-btn'), null, 'legacy #cursor-mode-agent-btn must be retired');
+  assert.equal(doc.getElementById('cursor-mode-ask-btn'), null, 'legacy #cursor-mode-ask-btn must be retired');
+  assert.equal(doc.getElementById('cursor-mode-edit-btn'), null, 'legacy #cursor-mode-edit-btn must be retired');
 });
 
-test('F5.2: Keyboard shortcut Cmd+L sets AI mode to Ask and focuses input', () => {
+test('F5.2: Keyboard shortcut Cmd+L selects Plan mode (#composer-mode-plan) and focuses input', () => {
   const { doc, elements } = setupCursorWorkbenchSandbox();
   let focused = false;
   elements.claudeChatInput.addEventListener('focus', () => {
@@ -1302,12 +1309,13 @@ test('F5.2: Keyboard shortcut Cmd+L sets AI mode to Ask and focuses input', () =
   });
 
   doc.dispatchEvent({ type: 'keydown', metaKey: true, key: 'l' });
-  const askBtn = doc.getElementById('cursor-mode-ask-btn');
-  assert.ok(askBtn.classList.contains('active'));
+  const planBtn = doc.getElementById('composer-mode-plan');
+  assert.ok(planBtn, '#composer-mode-plan must exist');
+  assert.ok(planBtn.classList.contains('active'));
   assert.equal(focused, true);
 });
 
-test('F5.3: Keyboard shortcut Cmd+I sets AI mode to Composer (Agent) and focuses input', () => {
+test('F5.3: Keyboard shortcut Cmd+I sets AI mode to Agent (#composer-mode-agent) and focuses input', () => {
   const { doc, elements } = setupCursorWorkbenchSandbox();
   let focused = false;
   elements.claudeChatInput.addEventListener('focus', () => {
@@ -1315,29 +1323,23 @@ test('F5.3: Keyboard shortcut Cmd+I sets AI mode to Composer (Agent) and focuses
   });
 
   doc.dispatchEvent({ type: 'keydown', metaKey: true, key: 'i' });
-  const agentBtn = doc.getElementById('cursor-mode-agent-btn');
+  const agentBtn = doc.getElementById('composer-mode-agent');
+  assert.ok(agentBtn, '#composer-mode-agent must exist');
   assert.ok(agentBtn.classList.contains('active'));
   assert.equal(focused, true);
 });
 
-test('F5.4: Context pills insert tags into composer input', () => {
+test('F5.4: Context mention pill #composer-mention-btn exists and inserts @ tag into composer input', () => {
   const { doc, elements } = setupCursorWorkbenchSandbox();
-  const ctxFileBtn = doc.getElementById('cursor-ctx-file-btn');
-  const ctxCodebaseBtn = doc.getElementById('cursor-ctx-codebase-btn');
-  const ctxTermBtn = doc.getElementById('cursor-ctx-terminal-btn');
+  const mentionBtn = doc.getElementById('composer-mention-btn');
 
-  assert.ok(ctxFileBtn, '@file context pill must exist');
-  assert.ok(ctxCodebaseBtn, '@workspace context pill must exist');
-  assert.ok(ctxTermBtn, '@terminal context pill must exist');
+  assert.ok(mentionBtn, '#composer-mention-btn must exist');
+  assert.equal(doc.getElementById('cursor-ctx-file-btn'), null, 'legacy #cursor-ctx-file-btn must be retired');
+  assert.equal(doc.getElementById('cursor-ctx-codebase-btn'), null, 'legacy #cursor-ctx-codebase-btn must be retired');
+  assert.equal(doc.getElementById('cursor-ctx-terminal-btn'), null, 'legacy #cursor-ctx-terminal-btn must be retired');
 
-  ctxFileBtn.click();
-  assert.ok(elements.claudeChatInput.value.includes('@src/attention.rs'));
-
-  ctxCodebaseBtn.click();
-  assert.ok(elements.claudeChatInput.value.includes('@workspace'));
-
-  ctxTermBtn.click();
-  assert.ok(elements.claudeChatInput.value.includes('@terminal'));
+  mentionBtn.click();
+  assert.ok(elements.claudeChatInput.value.includes('@'), 'clicking #composer-mention-btn inserts @ context trigger');
 });
 
 test('F5.5: Staged diff controls: Accept All and Reject All buttons exist', () => {

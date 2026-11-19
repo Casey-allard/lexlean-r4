@@ -502,7 +502,7 @@
             <select id="github-branch-select" aria-label="Select GitHub Branch">
               <option value="main" selected>main</option>
             </select>
-            <input id="github-new-branch-input" type="text" placeholder="feat/my-branch" autocomplete="off" spellcheck="false">
+            <input id="github-new-branch-input" type="text" aria-label="New GitHub Branch Name" placeholder="feat/my-branch" autocomplete="off" spellcheck="false">
             <button id="github-create-branch-btn" type="button" class="btn-secondary">Create Branch</button>
           </div>
         </div>
@@ -651,7 +651,7 @@
     <div class="cursor-palette-dialog">
       <div class="cursor-palette-header">
         <span id="cursor-palette-mode-badge" class="cursor-palette-mode-badge">Quick Open (Cmd+P)</span>
-        <input id="cursor-palette-input" class="cursor-palette-input" type="text" placeholder="Type a file name or &gt; for commands..." autocomplete="off">
+        <input id="cursor-palette-input" class="cursor-palette-input" type="text" aria-label="Quick Open and Command Palette Filter" placeholder="Type a file name or &gt; for commands..." autocomplete="off">
         <button id="cursor-palette-close-btn" type="button" class="btn-secondary btn-xs" title="Close (Esc)">Esc</button>
       </div>
       <div id="cursor-palette-list" class="cursor-palette-list" role="listbox" aria-label="Quick Open Results"></div>
@@ -678,9 +678,6 @@
           </button>
           <button id="canvas-tab-inspector" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-inspector" data-tab-id="inspector">
             <span>ML Inspector</span>
-          </button>
-          <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
-            <span>Diff</span>
           </button>
           <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
             <span>Diagnostics</span>
@@ -941,6 +938,12 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Hidden compatibility hooks preserved for honest_model_plumbing_e2e and app.js contracts -->
+  <div id="prism-compat-hooks" hidden aria-hidden="true">
+    <button id="cursor-hydrate-shards-btn" type="button" hidden aria-hidden="true" tabindex="-1"></button>
+    <button id="cursor-train-quick-btn" type="button" hidden aria-hidden="true" tabindex="-1"></button>
   </div>
 
   <!-- Isolated ?surface=preview mount -->
