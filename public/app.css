@@ -2184,6 +2184,11 @@ body.density-compact #prism-global-topbar {
   gap: 0.45rem;
 }
 
+.holo-obs-actions .neural-btn {
+  max-width: 100%;
+  white-space: nowrap;
+}
+
 .holo-obs-title {
   font-size: 0.84rem;
   color: #f1f5f9;

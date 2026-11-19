@@ -85,6 +85,13 @@ prism_record = "Foundation.Design::ResponsiveStudioFrame"
 facet = "design"
 note = "Responsive Studio Frame, Agent/Plan composer policy, off-origin hydration consent, and live token HUD."
 
+[[route]]
+id = "R4-UR12"
+rust_fact = "webgpu-geodesic-slab"
+prism_record = "Foundation.Qual::WebGpuGeodesicSlab"
+facet = "qual"
+note = "Pure-integer WebGPU WGSL zero-LSB compute pipelines, 256-bit geodesic SwiGLU shortlisting, and HOLOSLAB2 single-slab OPFS custody."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -139,6 +146,11 @@ response = "route R4-UR10\nfact prism-holo-identity\nrecord Foundation.Release::
 case = "route R4-UR11"
 request_hex = "73747564696f2d6672616d652d6c6976652d687564"
 response = "route R4-UR11\nfact studio-frame-live-hud\nrecord Foundation.Design::ResponsiveStudioFrame\nfacet design"
+
+[[vector]]
+case = "route R4-UR12"
+request_hex = "7765626770752d67656f64657369632d736c6162"
+response = "route R4-UR12\nfact webgpu-geodesic-slab\nrecord Foundation.Qual::WebGpuGeodesicSlab\nfacet qual"
 
 [[vector]]
 case = "error empty"

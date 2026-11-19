@@ -79,3 +79,29 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `1`
   - **Diagnostic**: `FOUNDRY OBSERVATORY E2E FAILED: AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false` (`Error: Unable to fetch UORR4V13 manifest for uor-r4.qwen3-0.6b-holo at async testStudioBridgeConsentAndGitDeletions_R4_60 (file:///Users/casey.allard/lexlean-r4/tests/e2e/foundry_observatory_e2e.mjs:1322:5)`) instead of rejecting with `ConsentRequiredForWeightDownload`.
 - **Restored result**: Reverted `crates/wasm/js/worker_host_bridge.js` (`git checkout -- crates/wasm/js/worker_host_bridge.js`, empty `git diff`); `node tests/e2e/foundry_observatory_e2e.mjs` exited `0` (`=== ALL R4-59/R4-60 OBSERVATORY & STUDIO BRIDGE E2E CHECKS PASSED ===`).
+
+## Wave 2 `R4-61` Pure-Integer WebGPU WGSL, Geodesic SwiGLU & HOLOSLAB2 Gates (`v0.14.0`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm`, `provenance.json`), `wasm=87950fde301d`, `js=4b2821b65884`, `core=9f48685d06d1`.
+- **`build-holo --sync-site-manifest`**: verified Hologram v4 archive (`13,001,366` bytes <= `33,554,432` B / `32 MiB`, `blake3=e8ae2bbb03825bee`, `wasmSha256=87950fde301d7f20`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **`check-model`**: `CONFORMANCE.md` matches `model/` with `R4-61` (`R4.WebGpuGeodesicRuntime`) admitted.
+- **`lift-register`**: `total=2782`, `lifted=2007`, `effect=271`, `foreign=160`, `residue=344` (`<= 355`, `UE-16` monotone).
+- **`ratchet-check`**: `r30_gen=261`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=344`, `float=0`, `matmul=0`, `unwired_ui=0`.
+- **`check-routes`**: `12` routes (including `R4-UR12` / `webgpu-geodesic-slab`) and `15` test vectors verified under `uorust/routes/1`.
+- **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=344`, `routes=12`, `provenance_sources=24`).
+- **`synthesize`**: `score_milli=987`, `complexity=344`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
+
+### 7. WGSL Pure-Integer & 0-LSB Parity Gate (`W2-1`, `R4-61`)
+- **Planted defect**: Inserted `var bad_float: f32 = 0;` inside `WGSL_HOLO_SHADERS.holo_int4_gemv_gemm` in `crates/wasm/js/worker_host_bridge.js`.
+- **Failing command**: `node tests/e2e/webgpu_geodesic_slab_r4_61_e2e.mjs`
+  - **Exit code**: `1`
+  - **Diagnostic**: `R4-61 E2E FAILED: AssertionError [ERR_ASSERTION]: expected WGSL shader purity ok, got {"ok":false,"verdict":"RefusedFloatOpInWgsl","float_ops":1,"offenders":["holo_int4_gemv_gemm"]}`
+- **Restored result**: Removed `var bad_float: f32 = 0;` from `crates/wasm/js/worker_host_bridge.js`; `node tests/e2e/webgpu_geodesic_slab_r4_61_e2e.mjs` exited `0` (`=== ALL R4-61 WEBGPU WGSL + GEODESIC SWIGLU + HOLOSLAB2 E2E CHECKS PASSED ===`).
+
+### 8. HOLOSLAB2 Merkle Seal & Piece Integrity Gate (`W2-2`, `R4-61`)
+- **Planted defect**: Replaced `seal_matches` verification with `let seal_matches = true;` inside `validate_holoslab2_mount` in `crates/wasm/src/holo_kappa_store.rs`.
+- **Failing command**: `cargo test -p lexlean-r4-wasm --lib holoslab2`
+  - **Exit code**: `101`
+  - **Diagnostic**: `thread 'holo_kappa_store::tests::holoslab2_seal_enforces_quota_merkle_and_piece_hashes' panicked at crates/wasm/src/holo_kappa_store.rs:776:9: assertion failed: !bad_size.ok`
+- **Restored result**: Restored full `seal_matches` validation expression in `crates/wasm/src/holo_kappa_store.rs`; `cargo test -p lexlean-r4-wasm --lib holoslab2` exited `0` (`test result: ok. 1 passed; 0 failed`).
+

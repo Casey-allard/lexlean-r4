@@ -7,6 +7,9 @@ use crate::lexlean_generated::r4_holo_kappa_store::{
     admit_holo_kappa_piece, admit_range_slice, KappaStoreCheck, KappaStoreVerdict,
     RangeWindowCheck, StoreOperationKind, DEFAULT_HOLD_BYTES, DEFAULT_PIECE_BYTES,
 };
+use crate::lexlean_generated::r4_webgpu_geodesic_runtime::{
+    admit_holo_slab_mount, HoloSlabVerdict,
+};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -23,6 +26,15 @@ pub const PIECE_BUDGET_BYTES: usize = DEFAULT_PIECE_BYTES as usize;
 
 /// Maximum Safetensors JSON header length admitted in browser streaming mode (64 MiB).
 pub const MAX_SAFETENSORS_HEADER_BYTES: usize = 64 * 1024 * 1024;
+
+/// Canonical magic identifier for single-slab zero-rehash OPFS custody (`HOLOSLAB2`, `R4-61`).
+pub const HOLOSLAB2_MAGIC: &str = "HOLOSLAB2";
+/// Canonical schema identifier for `manifest.verified.json` (`R4-61`).
+pub const HOLOSLAB2_SCHEMA: &str = "uor-r4.holoslab/2";
+/// Pre-allocated HTTP ring buffer size (2 MiB) for zero-allocation single-pass streaming (`R4-61`).
+pub const HOLOSLAB2_RING_BYTES: usize = 2 * 1024 * 1024;
+/// Maximum Wasm/GPU slab read staging chunk size (4 MiB, `R4-61`).
+pub const HOLOSLAB2_MAX_STAGING_BYTES: usize = 4 * 1024 * 1024;
 
 /// Typed public failure modes (`R5`) for `R4-50` `OpfsKappaStore` and `HfRepoHolo` operations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -536,6 +548,141 @@ pub struct HoloKappaStoreStatus {
     pub persisted_ready: bool,
 }
 
+/// Piece offset entry inside a sealed `HOLOSLAB2` single-file OPFS container (`R4-61`).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HoloSlab2PieceEntry {
+    /// Zero-based piece index.
+    pub index: usize,
+    /// Sequential byte offset inside `model.holoslab`.
+    pub byte_offset: u64,
+    /// Exact piece length in bytes.
+    pub byte_length: u64,
+    /// Lowercase SHA-256 hex digest of this piece.
+    pub sha256: String,
+}
+
+/// Sealed `manifest.verified.json` metadata for `HOLOSLAB2` single-slab custody (`R4-61`).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HoloSlab2Seal {
+    /// Schema marker (`uor-r4.holoslab/2`).
+    pub schema: String,
+    /// Format magic (`HOLOSLAB2`).
+    pub magic: String,
+    /// Container SHA-256 digest committed by the upstream manifest.
+    pub container_sha256: String,
+    /// Linear Merkle root SHA-256 over sequential piece SHA-256 digests.
+    pub merkle_root_sha256: String,
+    /// Expected contiguous slab byte size.
+    pub total_bytes: u64,
+    /// Number of pieces covered inside the slab.
+    pub piece_count: usize,
+    /// Logical model wire identifier.
+    pub model_id: String,
+    /// Ordered piece map inside `model.holoslab`.
+    #[serde(default)]
+    pub pieces: Vec<HoloSlab2PieceEntry>,
+}
+
+/// Outcome of validating a `HOLOSLAB2` OPFS slab seal via `R4.WebGpuGeodesicRuntime.admitHoloSlabMount`.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HoloSlab2ValidationReport {
+    /// True when the slab seal / Merkle check passed.
+    pub ok: bool,
+    /// Canonical `R4-61` verdict name (`SlabSealAdmitted`, `SlabFullMerkleVerified`, or typed `Refused*`).
+    pub verdict: String,
+    /// Expected contiguous byte size of `model.holoslab`.
+    pub total_bytes: u64,
+    /// Piece count recorded in the seal.
+    pub piece_count: usize,
+    /// Computed linear Merkle root over `pieces` digests (when present).
+    pub computed_merkle_root: String,
+}
+
+/// Formal R4.WebGpuGeodesicRuntime compute deterministic Merkle-chain SHA-256 over ordered piece hashes.
+pub fn compute_holoslab2_merkle_root(pieces: &[HoloSlab2PieceEntry]) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(HOLOSLAB2_MAGIC.as_bytes());
+    hasher.update((pieces.len() as u64).to_le_bytes());
+    for entry in pieces {
+        hasher.update((entry.index as u64).to_le_bytes());
+        hasher.update(entry.byte_offset.to_le_bytes());
+        hasher.update(entry.byte_length.to_le_bytes());
+        hasher.update(entry.sha256.trim().to_ascii_lowercase().as_bytes());
+    }
+    let digest = hasher.finalize();
+    let mut out = String::with_capacity(64);
+    for b in digest {
+        use std::fmt::Write;
+        let _ = write!(&mut out, "{b:02x}");
+    }
+    out
+}
+
+/// Formal R4.WebGpuGeodesicRuntime map `HoloSlabVerdict` to its canonical `R4-61` verdict string.
+pub fn holoslab_verdict_label(verdict: HoloSlabVerdict) -> &'static str {
+    match verdict {
+        HoloSlabVerdict::SlabSealAdmitted => "SlabSealAdmitted",
+        HoloSlabVerdict::SlabFullMerkleVerified => "SlabFullMerkleVerified",
+        HoloSlabVerdict::RefusedInsufficientStorageQuota => "RefusedInsufficientStorageQuota",
+        HoloSlabVerdict::RefusedSlabSealMismatch => "RefusedSlabSealMismatch",
+        HoloSlabVerdict::RefusedSlabPieceHashMismatch => "RefusedSlabPieceHashMismatch",
+    }
+}
+
+/// Formal R4.WebGpuGeodesicRuntime validate a `HOLOSLAB2` single-slab manifest seal, byte length, quota, and Merkle root.
+pub fn validate_holoslab2_mount(
+    seal: &HoloSlab2Seal,
+    quota_bytes: u64,
+    required_bytes: u64,
+    actual_slab_bytes: u64,
+    full_scan_requested: bool,
+    piece_hashes_valid: bool,
+) -> HoloSlab2ValidationReport {
+    let computed_merkle = compute_holoslab2_merkle_root(&seal.pieces);
+    let mut running_offset = 0u64;
+    let mut layout_contiguous = true;
+    for (idx, p) in seal.pieces.iter().enumerate() {
+        if p.index != idx || p.byte_offset != running_offset {
+            layout_contiguous = false;
+            break;
+        }
+        running_offset = running_offset.saturating_add(p.byte_length);
+    }
+    let seal_matches = seal.magic == HOLOSLAB2_MAGIC
+        && seal.schema == HOLOSLAB2_SCHEMA
+        && seal.total_bytes > 0
+        && actual_slab_bytes == seal.total_bytes
+        && seal.pieces.len() == seal.piece_count
+        && running_offset == seal.total_bytes
+        && layout_contiguous
+        && constant_time_eq_bytes(
+            computed_merkle.as_bytes(),
+            seal.merkle_root_sha256
+                .trim()
+                .to_ascii_lowercase()
+                .as_bytes(),
+        );
+
+    let verdict = admit_holo_slab_mount(
+        quota_bytes,
+        required_bytes,
+        seal_matches,
+        full_scan_requested,
+        piece_hashes_valid,
+    );
+    let ok = matches!(
+        verdict,
+        HoloSlabVerdict::SlabSealAdmitted | HoloSlabVerdict::SlabFullMerkleVerified
+    );
+    HoloSlab2ValidationReport {
+        ok,
+        verdict: holoslab_verdict_label(verdict).to_string(),
+        total_bytes: seal.total_bytes,
+        piece_count: seal.piece_count,
+        computed_merkle_root: computed_merkle,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -597,5 +744,53 @@ mod tests {
             err.verdict(),
             KappaStoreVerdict::RefusedCorruptSafetensorsHeader
         );
+    }
+
+    #[test]
+    fn holoslab2_seal_enforces_quota_merkle_and_piece_hashes() {
+        let p0 = HoloSlab2PieceEntry {
+            index: 0,
+            byte_offset: 0,
+            byte_length: 1024,
+            sha256: sha256_hex(b"piece-0"),
+        };
+        let p1 = HoloSlab2PieceEntry {
+            index: 1,
+            byte_offset: 1024,
+            byte_length: 512,
+            sha256: sha256_hex(b"piece-1"),
+        };
+        let pieces = vec![p0, p1];
+        let merkle = compute_holoslab2_merkle_root(&pieces);
+        let seal = HoloSlab2Seal {
+            schema: HOLOSLAB2_SCHEMA.to_string(),
+            magic: HOLOSLAB2_MAGIC.to_string(),
+            container_sha256: "a".repeat(64),
+            merkle_root_sha256: merkle,
+            total_bytes: 1536,
+            piece_count: 2,
+            model_id: "uor-r4.qwen3-0.6b-holo".to_string(),
+            pieces,
+        };
+
+        let warm = validate_holoslab2_mount(&seal, 4096, 1536, 1536, false, true);
+        assert!(warm.ok);
+        assert_eq!(warm.verdict, "SlabSealAdmitted");
+
+        let full = validate_holoslab2_mount(&seal, 4096, 1536, 1536, true, true);
+        assert!(full.ok);
+        assert_eq!(full.verdict, "SlabFullMerkleVerified");
+
+        let low_quota = validate_holoslab2_mount(&seal, 1000, 1536, 1536, false, true);
+        assert!(!low_quota.ok);
+        assert_eq!(low_quota.verdict, "RefusedInsufficientStorageQuota");
+
+        let bad_size = validate_holoslab2_mount(&seal, 4096, 1536, 1535, false, true);
+        assert!(!bad_size.ok);
+        assert_eq!(bad_size.verdict, "RefusedSlabSealMismatch");
+
+        let bad_piece = validate_holoslab2_mount(&seal, 4096, 1536, 1536, true, false);
+        assert!(!bad_piece.ok);
+        assert_eq!(bad_piece.verdict, "RefusedSlabPieceHashMismatch");
     }
 }

@@ -5905,13 +5905,91 @@ function renderHoloObservatoryDeck() {
 }
 
 let __holoObsButtonsBound = false;
+function __uorFormatMlpButtonText(mode) {
+  /* Formal R4.WebGpuGeodesicRuntime */
+  const norm = String(mode || 'auto').toLowerCase();
+  if (norm === 'sparse' || norm === 'geodesicsparse1536') return 'MLP: Sparse K=1536';
+  if (norm === 'dense' || norm === 'denseexact') return 'MLP: Dense 0-LSB';
+  return 'MLP: Auto';
+}
+
+function __uorNormalizeMlpPolicy(mode) {
+  /* Formal R4.WebGpuGeodesicRuntime */
+  const norm = String(mode || 'auto').toLowerCase();
+  if (norm === 'sparse' || norm === 'geodesicsparse1536') return 'sparse';
+  if (norm === 'dense' || norm === 'denseexact') return 'dense';
+  return 'auto';
+}
+
+async function applyHoloMlpMode(mode) {
+  /* Formal R4.WebGpuGeodesicRuntime */
+  const policy = __uorNormalizeMlpPolicy(mode);
+  if (typeof safeStorageSet === 'function') {
+    safeStorageSet('uor_mlp_shortlist_mode', policy);
+  }
+  let res = null;
+  if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+    res = await engineWorkerClient.rpc('set_holo_mlp_mode', { mode: policy, shortlistK: 1536 });
+  } else {
+    res = dispatchStudioEnvelope('set_holo_mlp_mode', policy);
+  }
+  const selEl = document.getElementById('settings-mlp-shortlist-mode');
+  if (selEl) selEl.value = policy;
+  const obsBtn = document.getElementById('holo-obs-mlp-mode-btn');
+  if (obsBtn) obsBtn.textContent = __uorFormatMlpButtonText(policy);
+  const statusEl = document.getElementById('settings-modal-status');
+  if (statusEl && res) {
+    statusEl.textContent = `SwiGLU Shortlist Policy: ${policy} -> verdict=${res.mlp_mode || res.verdict || 'ok'}`;
+  }
+  renderHoloObservatoryDeck();
+  return res;
+}
+
+async function verifyHoloOpfsSlab(repair = true) {
+  /* Formal R4.WebGpuGeodesicRuntime */
+  const selModel = document.getElementById('composer-model-select');
+  const modelId = (selModel && selModel.value) || 'uor-r4.qwen3-0.6b-holo';
+  let res = null;
+  if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+    res = await engineWorkerClient.rpc(repair ? 'repair_holo_slab' : 'verify_holo_slab', { modelId, repair });
+  } else {
+    res = { ok: false, verdict: 'RefusedSlabSealMismatch', message: 'Worker OPFS slab verify requires active Worker bridge.' };
+  }
+  const verdict = (res && res.verdict) || 'RefusedSlabSealMismatch';
+  const statusEl = document.getElementById('settings-modal-status');
+  if (statusEl) {
+    statusEl.textContent = `HOLOSLAB2 Verify (${modelId}): ${verdict}${res && res.repairedPieces ? ` · healed=${res.repairedPieces}` : ''}`;
+  }
+  const badgeEl = document.getElementById('holo-obs-status-badge');
+  if (badgeEl) {
+    badgeEl.textContent = `HOLOSLAB2: ${verdict}`;
+  }
+  return res;
+}
+
 function bindHoloObservatoryControls() {
   /* Formal R4.HoloGeometricRuntime (src/R4/HoloGeometricRuntime.lex.tex) */
   if (__holoObsButtonsBound) return;
   const refreshBtn = document.getElementById('holo-obs-refresh-storage-btn');
   const pauseBtn = document.getElementById('holo-obs-pause-toggle');
-  if (!refreshBtn && !pauseBtn) return;
+  const mlpBtn = document.getElementById('holo-obs-mlp-mode-btn');
+  const verifySlabBtn = document.getElementById('holo-obs-verify-slab-btn');
+  if (!refreshBtn && !pauseBtn && !mlpBtn && !verifySlabBtn) return;
   __holoObsButtonsBound = true;
+  if (mlpBtn) {
+    const savedPolicy = typeof safeStorageGet === 'function' ? safeStorageGet('uor_mlp_shortlist_mode') : 'auto';
+    mlpBtn.textContent = __uorFormatMlpButtonText(savedPolicy || 'auto');
+    mlpBtn.addEventListener('click', () => {
+      const cur = __uorNormalizeMlpPolicy((typeof safeStorageGet === 'function' && safeStorageGet('uor_mlp_shortlist_mode')) || 'auto');
+      const next = cur === 'auto' ? 'sparse' : cur === 'sparse' ? 'dense' : 'auto';
+      applyHoloMlpMode(next).catch(() => {});
+    });
+  }
+  if (verifySlabBtn) {
+    verifySlabBtn.addEventListener('click', () => {
+      verifyHoloOpfsSlab(true).catch(() => {});
+    });
+  }
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
       const sel = document.getElementById('composer-model-select');
@@ -18016,6 +18094,8 @@ function initLayoutAndConnectedControls() {
   const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn');
   const settingsBackdrop = document.getElementById('settings-modal-backdrop');
   const allowOffOriginChk = document.getElementById('settings-allow-off-origin-weights');
+  const mlpShortlistSelect = document.getElementById('settings-mlp-shortlist-mode');
+  const settingsVerifySlabBtn = document.getElementById('settings-verify-slab-btn');
   const settingsStatusEl = document.getElementById('settings-modal-status');
   const closeSettingsModal = () => {
     if (settingsModal) settingsModal.setAttribute('hidden', '');
@@ -18030,11 +18110,27 @@ function initLayoutAndConnectedControls() {
       if (allowOffOriginChk) {
         allowOffOriginChk.checked = readConsentStored();
       }
+      if (mlpShortlistSelect && typeof safeStorageGet === 'function') {
+        mlpShortlistSelect.value = __uorNormalizeMlpPolicy(safeStorageGet('uor_mlp_shortlist_mode') || 'auto');
+      }
       settingsModal.removeAttribute('hidden');
     });
   }
   if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
   if (settingsBackdrop) settingsBackdrop.addEventListener('click', closeSettingsModal);
+  if (mlpShortlistSelect) {
+    if (typeof safeStorageGet === 'function') {
+      mlpShortlistSelect.value = __uorNormalizeMlpPolicy(safeStorageGet('uor_mlp_shortlist_mode') || 'auto');
+    }
+    mlpShortlistSelect.addEventListener('change', () => {
+      applyHoloMlpMode(mlpShortlistSelect.value).catch(() => {});
+    });
+  }
+  if (settingsVerifySlabBtn) {
+    settingsVerifySlabBtn.addEventListener('click', () => {
+      verifyHoloOpfsSlab(true).catch(() => {});
+    });
+  }
   if (allowOffOriginChk) {
     allowOffOriginChk.checked = readConsentStored();
     allowOffOriginChk.addEventListener('change', () => {

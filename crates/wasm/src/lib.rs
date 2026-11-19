@@ -531,6 +531,9 @@ pub struct StudioEngine {
     pub(crate) last_holo_observatory_frames: Vec<holo_geometric_runtime::HoloStepObservatoryFrame>,
     pub(crate) foundry_turn: Option<assistant::FoundryTurnSession>,
     pub(crate) next_foundry_turn_id: u64,
+    pub(crate) default_mlp_policy:
+        crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy,
+    pub(crate) default_mlp_shortlist_k: usize,
 }
 
 /// Formal R4.HoloGeometricRuntime parse a single `<tool_call>` body JSON slice into `(tool_name, args)`.
@@ -1413,6 +1416,8 @@ impl StudioEngine {
             last_holo_observatory_frames: Vec::new(),
             foundry_turn: None,
             next_foundry_turn_id: 0,
+            default_mlp_policy: crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::AutoReceiptGated,
+            default_mlp_shortlist_k: holo_geometric_runtime::DEFAULT_MLP_SHORTLIST_K,
         };
         engine.register_special_tokens();
         for (prompt, reply) in default_knowledge_turns() {
@@ -2349,11 +2354,20 @@ impl StudioEngine {
                     "n_kv_heads": m.n_kv_heads,
                     "head_dim": m.head_dim,
                     "vocab_size": m.vocab_size,
+                    "max_prefill_tile": holo_geometric_runtime::MAX_PREFILL_TILE,
+                    "mlp_mode": m.mlp_mode_label(),
+                    "mlp_shortlist_k": m.mlp_shortlist_k,
+                    "active_mlp_neurons": m.scratch.active_mlp_neurons_last,
                     "float_ops": 0,
                     "dense_matmul_ops": 0,
                 })
             })
             .collect();
+        let policy_label = match self.default_mlp_policy {
+            crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::AutoReceiptGated => "auto",
+            crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::ForceGeodesicSparse => "sparse",
+            crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::ForceDenseExact => "dense",
+        };
         serde_json::json!({
             "status": "ok",
             "schema": "uor-r4.holo-geometric-runtime/13",
@@ -2361,6 +2375,9 @@ impl StudioEngine {
             "models": &mounted,
             "mounted_models": mounted,
             "simd128": cfg!(target_feature = "simd128"),
+            "max_prefill_tile": holo_geometric_runtime::MAX_PREFILL_TILE,
+            "default_mlp_policy": policy_label,
+            "default_mlp_shortlist_k": self.default_mlp_shortlist_k,
             "qwen3_06b_mounted": self.holo_models.contains_key("uor-r4.qwen3-0.6b-holo"),
             "qwen3_17b_mounted": self.holo_models.contains_key("uor-r4.qwen3-1.7b-holo"),
             "hf_repo_mounted": self.holo_models.keys().any(|k| k == "uor-r4.hf-repo-holo" || k.starts_with("uor-r4.hf-repo-holo:")),
@@ -2440,6 +2457,70 @@ impl StudioEngine {
             "status": "ok",
             "shortlist_k": self.telos_shortlist_k,
             "flock_window": self.telos_flock_window,
+            "updated_models": self.holo_models.len(),
+        })
+        .to_string()
+    }
+
+    /// Formal R4.WebGpuGeodesicRuntime configure SwiGLU active-neuron shortlisting policy across mounted `HoloV13Model`s (`R4-61`).
+    pub fn set_holo_mlp_mode_json(&mut self, mode: &str, shortlist_k: usize) -> String {
+        use crate::lexlean_generated::r4_webgpu_geodesic_runtime::{
+            select_mlp_shortlist_mode, MlpShortlistMode, MlpUserPolicy,
+        };
+        if shortlist_k == 0 || shortlist_k > 65_536 {
+            return serde_json::json!({
+                "status": "error",
+                "error_code": "RefusedInvalidNeuronShortlist",
+                "verdict": "RefusedInvalidNeuronShortlist",
+                "shortlist_k": shortlist_k,
+            })
+            .to_string();
+        }
+        let policy = match mode.trim().to_ascii_lowercase().as_str() {
+            "sparse" | "force_sparse" | "geodesicsparse1536" => MlpUserPolicy::ForceGeodesicSparse,
+            "dense" | "force_dense" | "denseexact" => MlpUserPolicy::ForceDenseExact,
+            _ => MlpUserPolicy::AutoReceiptGated,
+        };
+        for m in self.holo_models.values_mut() {
+            let ffn_cap = m.intermediate_size.max(1);
+            let verdict = select_mlp_shortlist_mode(
+                policy,
+                (shortlist_k.min(ffn_cap)) as u64,
+                ffn_cap as u64,
+                m.sparse_receipt_top1_bps,
+                m.sparse_receipt_kl_micros,
+            );
+            if verdict == MlpShortlistMode::RefusedInvalidNeuronShortlist {
+                return serde_json::json!({
+                    "status": "error",
+                    "error_code": "RefusedInvalidNeuronShortlist",
+                    "verdict": "RefusedInvalidNeuronShortlist",
+                    "shortlist_k": shortlist_k,
+                })
+                .to_string();
+            }
+        }
+        self.default_mlp_policy = policy;
+        self.default_mlp_shortlist_k = shortlist_k;
+        let mut active_label = match policy {
+            MlpUserPolicy::ForceGeodesicSparse => "GeodesicSparse1536",
+            MlpUserPolicy::ForceDenseExact | MlpUserPolicy::AutoReceiptGated => "DenseExact",
+        };
+        for m in self.holo_models.values_mut() {
+            let k_for_model = shortlist_k.min(m.intermediate_size.max(1));
+            m.set_mlp_policy(policy, k_for_model);
+            active_label = m.mlp_mode_label();
+        }
+        let policy_str = match policy {
+            MlpUserPolicy::AutoReceiptGated => "auto",
+            MlpUserPolicy::ForceGeodesicSparse => "sparse",
+            MlpUserPolicy::ForceDenseExact => "dense",
+        };
+        serde_json::json!({
+            "status": "ok",
+            "policy": policy_str,
+            "mlp_mode": active_label,
+            "mlp_shortlist_k": self.default_mlp_shortlist_k,
             "updated_models": self.holo_models.len(),
         })
         .to_string()
@@ -2804,13 +2885,17 @@ impl StudioEngine {
         .to_string())
     }
 
-    /// Finalize SHA-256 verification and mount the streamed `HoloV13Model` (`R4-51`).
+    /// Formal R4.HoloGeometricRuntime finalize SHA-256 verification and mount the streamed `HoloV13Model` (`R4-51`).
     pub fn finalize_holo_v13_mount(&mut self) -> Result<String, r4_geometric_stack::R4StackError> {
         let (key, builder) = self
             .holo_stream_builder
             .take()
             .ok_or(r4_geometric_stack::R4StackError::TruncatedContainer)?;
-        let model = builder.finalize()?;
+        let mut model = builder.finalize()?;
+        let init_k = self
+            .default_mlp_shortlist_k
+            .min(model.intermediate_size.max(1));
+        model.set_mlp_policy(self.default_mlp_policy, init_k);
         self.holo_models.insert(key.clone(), model);
         let default_sys = self.build_holo_studio_system_prompt(&key, "agentic", "", "main");
         if let Some(mounted) = self.holo_models.get_mut(&key) {
@@ -2819,7 +2904,7 @@ impl StudioEngine {
         Ok(self.holo_runtime_status_json())
     }
 
-    /// Verify and hot-mount a complete `UORR4V13` container byte buffer (`R4-51`).
+    /// Formal R4.HoloGeometricRuntime verify and hot-mount a complete `UORR4V13` container byte buffer (`R4-51`).
     pub fn mount_holo_v13_bytes(
         &mut self,
         model_id: &str,
@@ -2830,7 +2915,11 @@ impl StudioEngine {
         } else {
             model_id.trim().to_string()
         };
-        let model = holo_geometric_runtime::HoloV13Model::from_bytes(key.clone(), bytes)?;
+        let mut model = holo_geometric_runtime::HoloV13Model::from_bytes(key.clone(), bytes)?;
+        let init_k = self
+            .default_mlp_shortlist_k
+            .min(model.intermediate_size.max(1));
+        model.set_mlp_policy(self.default_mlp_policy, init_k);
         self.holo_models.insert(key.clone(), model);
         let default_sys = self.build_holo_studio_system_prompt(&key, "agentic", "", "main");
         if let Some(mounted) = self.holo_models.get_mut(&key) {
@@ -8992,6 +9081,9 @@ fn execute_studio_command(command: &str, payload: &str) -> String {
         "record_generation_fault" => engine.record_generation_fault_json(payload),
         "verdant_synthesis_status" => engine.verdant_synthesis_status_json(),
         "holo_storage_geometry" => engine.holo_storage_geometry_json(payload),
+        "set_holo_mlp_mode" => {
+            engine.set_holo_mlp_mode_json(payload, holo_geometric_runtime::DEFAULT_MLP_SHORTLIST_K)
+        }
         "telos_tick" => engine.run_telos_self_improvement_tick_json(payload),
         "shard_status" | "shards" => engine.shard_catalog_json(),
         "shard_export" => {
@@ -9466,6 +9558,86 @@ pub fn studio_set_holo_budgets(shortlist_k: usize, flock_window: usize) -> Strin
     };
     let engine = guard.get_or_insert_with(StudioEngine::new_default);
     engine.set_holo_budgets_json(shortlist_k, flock_window)
+}
+
+/// Formal R4.WebGpuGeodesicRuntime configure Geodesic SwiGLU active-neuron shortlist mode across mounted `HoloV13Model`s (`R4-61`).
+#[wasm_bindgen]
+pub fn studio_set_holo_mlp_mode(mode: &str, shortlist_k: usize) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.set_holo_mlp_mode_json(mode, shortlist_k)
+}
+
+/// Formal R4.WebGpuGeodesicRuntime validate a sealed `HOLOSLAB2` OPFS manifest against quota, slab byte length, and Merkle root (`R4-61`).
+#[wasm_bindgen]
+pub fn studio_validate_holoslab2_seal(
+    seal_json: &str,
+    quota_bytes: u64,
+    required_bytes: u64,
+    actual_slab_bytes: u64,
+    full_scan: bool,
+    piece_hashes_valid: bool,
+) -> String {
+    let Ok(seal) = serde_json::from_str::<holo_kappa_store::HoloSlab2Seal>(seal_json) else {
+        return serde_json::json!({
+            "ok": false,
+            "verdict": "RefusedSlabSealMismatch",
+            "total_bytes": 0,
+            "piece_count": 0,
+            "computed_merkle_root": "",
+        })
+        .to_string();
+    };
+    let report = holo_kappa_store::validate_holoslab2_mount(
+        &seal,
+        quota_bytes,
+        required_bytes,
+        actual_slab_bytes,
+        full_scan,
+        piece_hashes_valid,
+    );
+    serde_json::to_string(&report).unwrap_or_else(|_| {
+        serde_json::json!({
+            "ok": false,
+            "verdict": "RefusedSlabSealMismatch",
+        })
+        .to_string()
+    })
+}
+
+/// Formal R4.WebGpuGeodesicRuntime verify pure-integer WGSL kernel parity and chunk budget (`R4-61`).
+#[wasm_bindgen]
+pub fn studio_verify_wgsl_kernel_parity(
+    float_ops: u32,
+    max_abs_lsb_diff: u32,
+    staging_chunk_bytes: u32,
+) -> String {
+    use crate::lexlean_generated::r4_webgpu_geodesic_runtime::{
+        admit_wgsl_integer_kernel, WgslParityVerdict,
+    };
+    let verdict = admit_wgsl_integer_kernel(
+        u64::from(float_ops),
+        u64::from(max_abs_lsb_diff),
+        u64::from(staging_chunk_bytes),
+        4_194_304,
+    );
+    let label = match verdict {
+        WgslParityVerdict::ZeroLsbAdmitted => "ZeroLsbAdmitted",
+        WgslParityVerdict::RefusedFloatOpInWgsl => "RefusedFloatOpInWgsl",
+        WgslParityVerdict::RefusedWgslCpuParityDrift => "RefusedWgslCpuParityDrift",
+        WgslParityVerdict::RefusedWasmStagingBudgetExceeded => "RefusedWasmStagingBudgetExceeded",
+    };
+    serde_json::json!({
+        "ok": verdict == WgslParityVerdict::ZeroLsbAdmitted,
+        "verdict": label,
+        "float_ops": float_ops,
+        "max_abs_lsb_diff": max_abs_lsb_diff,
+        "staging_chunk_bytes": staging_chunk_bytes,
+    })
+    .to_string()
 }
 
 /// Formal R4.HoloGeometricRuntime query OPFS stationary layout + MVM CoW dirty sectors + RHT vocab clusters.

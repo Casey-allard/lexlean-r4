@@ -378,6 +378,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-60` | `build` | Pure LexLean models the responsive Prism Studio Frame, Agent/Plan composer tool policy, off-origin shard hydration consent, and live token HUD frame invariants (R4.StudioFrame): WindowSizeClass breakpoints (Compact <600px, Medium 600..839px, Expanded >=840px) across StudioSurfaceMode (Chat, Studio, ObservatoryEmbed, PreviewEmbed), ComposerToolPolicy admission permitting AgentFull mutating and read-only tools and PlanReadOnly read-only tools while refusing PlanReadOnly mutating tools, HydrationConsentVerdict admitting same-origin, consented off-origin, and explicit offline Q31 fallback while refusing unconsented off-origin hydration with RefusedOffOriginConsentRequired, and LiveFrameVerdict admitting fuel-bounded honest frames while refusing synthetic Hamming metrics on Q31 (RefusedSyntheticHammingOnQ31) and exhausted preview fuel (RefusedPreviewFuelExhausted). Formal controls establish no external browser viewport layout, CDN availability, or user consent persistence beyond modeled verdicts. |
 
+## r4_61_webgpu_geodesic_slab
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-61` | `build` | Pure LexLean models the WebGPU pure-integer WGSL compute parity admission, geodesic SwiGLU active-neuron shortlisting selection, single-slab HOLOSLAB2 OPFS custody verdicts, and prefill tile width clamping (R4.WebGpuGeodesicRuntime): WgslParityVerdict admitting zero-float zero-LSB kernels within the 4 MiB Wasm staging ceiling (ZeroLsbAdmitted) while refusing float WGSL ops (RefusedFloatOpInWgsl), CPU-vs-WGSL LSB drift (RefusedWgslCpuParityDrift), and staging overflow (RefusedWasmStagingBudgetExceeded); MlpShortlistMode gating AutoReceiptGated sparse SwiGLU activation strictly on sparse top-1 >= 9000 bps and mean KL <= 35000 micros while allowing explicit ForceGeodesicSparse/ForceDenseExact overrides and refusing out-of-bounds shortlist widths (RefusedInvalidNeuronShortlist); and HoloSlabVerdict admitting sealed HOLOSLAB2 slabs (SlabSealAdmitted) and full Merkle verification/repair (SlabFullMerkleVerified) while refusing insufficient storage quota (RefusedInsufficientStorageQuota), seal mismatches (RefusedSlabSealMismatch), and piece digest mismatches (RefusedSlabPieceHashMismatch). Formal controls establish no physical WebGPU driver availability, browser OPFS quota sizes, or unmeasured empirical benchmark perplexity beyond modeled verdicts and committed receipts. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

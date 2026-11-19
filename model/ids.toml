@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-61"
+level = "build"
+suite = "r4_61_webgpu_geodesic_slab"
+statement = "Pure LexLean models the WebGPU pure-integer WGSL compute parity admission, geodesic SwiGLU active-neuron shortlisting selection, single-slab HOLOSLAB2 OPFS custody verdicts, and prefill tile width clamping (R4.WebGpuGeodesicRuntime): WgslParityVerdict admitting zero-float zero-LSB kernels within the 4 MiB Wasm staging ceiling (ZeroLsbAdmitted) while refusing float WGSL ops (RefusedFloatOpInWgsl), CPU-vs-WGSL LSB drift (RefusedWgslCpuParityDrift), and staging overflow (RefusedWasmStagingBudgetExceeded); MlpShortlistMode gating AutoReceiptGated sparse SwiGLU activation strictly on sparse top-1 >= 9000 bps and mean KL <= 35000 micros while allowing explicit ForceGeodesicSparse/ForceDenseExact overrides and refusing out-of-bounds shortlist widths (RefusedInvalidNeuronShortlist); and HoloSlabVerdict admitting sealed HOLOSLAB2 slabs (SlabSealAdmitted) and full Merkle verification/repair (SlabFullMerkleVerified) while refusing insufficient storage quota (RefusedInsufficientStorageQuota), seal mismatches (RefusedSlabSealMismatch), and piece digest mismatches (RefusedSlabPieceHashMismatch). Formal controls establish no physical WebGPU driver availability, browser OPFS quota sizes, or unmeasured empirical benchmark perplexity beyond modeled verdicts and committed receipts."
+
+[[id]]
 id = "R4-60"
 level = "build"
 suite = "r4_60_studio_frame_live_hud"

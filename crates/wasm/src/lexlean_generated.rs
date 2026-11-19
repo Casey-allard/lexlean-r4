@@ -48025,3 +48025,154 @@ pub mod r4_studio_frame {
             && !surface_is_chromeless_embed(StudioSurfaceMode::Chat)
     }
 }
+
+/// Generated from `R4.WebGpuGeodesicRuntime` (`src/R4/WebGpuGeodesicRuntime.lex.tex`, `R4-61`).
+pub mod r4_webgpu_geodesic_runtime {
+    /// Inductive `R4.WebGpuGeodesicRuntime.WgslParityVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum WgslParityVerdict {
+        ZeroLsbAdmitted,
+        RefusedFloatOpInWgsl,
+        RefusedWgslCpuParityDrift,
+        RefusedWasmStagingBudgetExceeded,
+    }
+
+    /// Inductive `R4.WebGpuGeodesicRuntime.MlpUserPolicy`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum MlpUserPolicy {
+        AutoReceiptGated,
+        ForceGeodesicSparse,
+        ForceDenseExact,
+    }
+
+    /// Inductive `R4.WebGpuGeodesicRuntime.MlpShortlistMode`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum MlpShortlistMode {
+        GeodesicSparse1536,
+        DenseExact,
+        RefusedInvalidNeuronShortlist,
+    }
+
+    /// Inductive `R4.WebGpuGeodesicRuntime.HoloSlabVerdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HoloSlabVerdict {
+        SlabSealAdmitted,
+        SlabFullMerkleVerified,
+        RefusedInsufficientStorageQuota,
+        RefusedSlabSealMismatch,
+        RefusedSlabPieceHashMismatch,
+    }
+
+    /// Function `R4.WebGpuGeodesicRuntime.admitWgslIntegerKernel`.
+    pub fn admit_wgsl_integer_kernel(
+        float_ops: u64,
+        max_abs_lsb_diff: u64,
+        staging_chunk_bytes: u64,
+        max_staging_bytes: u64,
+    ) -> WgslParityVerdict {
+        if float_ops != 0 {
+            WgslParityVerdict::RefusedFloatOpInWgsl
+        } else if max_abs_lsb_diff != 0 {
+            WgslParityVerdict::RefusedWgslCpuParityDrift
+        } else if max_staging_bytes == 0 || max_staging_bytes < staging_chunk_bytes {
+            WgslParityVerdict::RefusedWasmStagingBudgetExceeded
+        } else {
+            WgslParityVerdict::ZeroLsbAdmitted
+        }
+    }
+
+    /// Function `R4.WebGpuGeodesicRuntime.selectMlpShortlistMode`.
+    pub fn select_mlp_shortlist_mode(
+        policy: MlpUserPolicy,
+        shortlist_k: u64,
+        ffn_dim: u64,
+        sparse_top1_bps: u64,
+        sparse_mean_kl_micros: u64,
+    ) -> MlpShortlistMode {
+        if ffn_dim == 0 || shortlist_k == 0 || ffn_dim < shortlist_k {
+            return MlpShortlistMode::RefusedInvalidNeuronShortlist;
+        }
+        match policy {
+            MlpUserPolicy::AutoReceiptGated => {
+                if 9000 <= sparse_top1_bps && sparse_mean_kl_micros <= 35_000 {
+                    MlpShortlistMode::GeodesicSparse1536
+                } else {
+                    MlpShortlistMode::DenseExact
+                }
+            }
+            MlpUserPolicy::ForceGeodesicSparse => MlpShortlistMode::GeodesicSparse1536,
+            MlpUserPolicy::ForceDenseExact => MlpShortlistMode::DenseExact,
+        }
+    }
+
+    /// Function `R4.WebGpuGeodesicRuntime.admitHoloSlabMount`.
+    pub fn admit_holo_slab_mount(
+        quota_bytes: u64,
+        required_bytes: u64,
+        seal_matches_manifest: bool,
+        full_scan_requested: bool,
+        piece_hashes_valid: bool,
+    ) -> HoloSlabVerdict {
+        if quota_bytes < required_bytes {
+            HoloSlabVerdict::RefusedInsufficientStorageQuota
+        } else if !seal_matches_manifest {
+            HoloSlabVerdict::RefusedSlabSealMismatch
+        } else if !piece_hashes_valid {
+            HoloSlabVerdict::RefusedSlabPieceHashMismatch
+        } else if full_scan_requested {
+            HoloSlabVerdict::SlabFullMerkleVerified
+        } else {
+            HoloSlabVerdict::SlabSealAdmitted
+        }
+    }
+
+    /// Function `R4.WebGpuGeodesicRuntime.classifyPrefillTileWidth`.
+    pub fn classify_prefill_tile_width(seq_len: u64, max_tile: u64) -> u64 {
+        if seq_len == 0 {
+            0
+        } else if seq_len <= max_tile {
+            seq_len
+        } else {
+            max_tile
+        }
+    }
+
+    /// Function `R4.WebGpuGeodesicRuntime.verifyWebGpuGeodesicRuntimeAdmitted`.
+    pub fn verify_webgpu_geodesic_runtime_admitted() -> bool {
+        admit_wgsl_integer_kernel(0, 0, 4_194_304, 4_194_304) == WgslParityVerdict::ZeroLsbAdmitted
+            && admit_wgsl_integer_kernel(1, 0, 4_194_304, 4_194_304)
+                == WgslParityVerdict::RefusedFloatOpInWgsl
+            && admit_wgsl_integer_kernel(0, 1, 4_194_304, 4_194_304)
+                == WgslParityVerdict::RefusedWgslCpuParityDrift
+            && admit_wgsl_integer_kernel(0, 0, 8_388_608, 4_194_304)
+                == WgslParityVerdict::RefusedWasmStagingBudgetExceeded
+            && select_mlp_shortlist_mode(MlpUserPolicy::AutoReceiptGated, 1536, 6144, 9167, 30_286)
+                == MlpShortlistMode::GeodesicSparse1536
+            && select_mlp_shortlist_mode(MlpUserPolicy::AutoReceiptGated, 1536, 6144, 8900, 42_000)
+                == MlpShortlistMode::DenseExact
+            && select_mlp_shortlist_mode(MlpUserPolicy::ForceDenseExact, 1536, 6144, 9167, 30_286)
+                == MlpShortlistMode::DenseExact
+            && select_mlp_shortlist_mode(MlpUserPolicy::ForceGeodesicSparse, 1536, 6144, 0, 100_000)
+                == MlpShortlistMode::GeodesicSparse1536
+            && select_mlp_shortlist_mode(
+                MlpUserPolicy::ForceGeodesicSparse,
+                6145,
+                6144,
+                9167,
+                30_286,
+            ) == MlpShortlistMode::RefusedInvalidNeuronShortlist
+            && admit_holo_slab_mount(2_000_000_000, 1_140_250_782, true, false, true)
+                == HoloSlabVerdict::SlabSealAdmitted
+            && admit_holo_slab_mount(2_000_000_000, 1_140_250_782, true, true, true)
+                == HoloSlabVerdict::SlabFullMerkleVerified
+            && admit_holo_slab_mount(100_000_000, 1_140_250_782, true, false, true)
+                == HoloSlabVerdict::RefusedInsufficientStorageQuota
+            && admit_holo_slab_mount(2_000_000_000, 1_140_250_782, false, false, true)
+                == HoloSlabVerdict::RefusedSlabSealMismatch
+            && admit_holo_slab_mount(2_000_000_000, 1_140_250_782, true, true, false)
+                == HoloSlabVerdict::RefusedSlabPieceHashMismatch
+            && classify_prefill_tile_width(0, 32) == 0
+            && classify_prefill_tile_width(19, 32) == 19
+            && classify_prefill_tile_width(64, 32) == 32
+    }
+}

@@ -576,8 +576,17 @@
             <span>Allow Verified Off-Origin Weight Downloads (HuggingFace Mirrors)</span>
           </label>
         </div>
+        <div class="field">
+          <label for="settings-mlp-shortlist-mode">SwiGLU Geodesic Neuron Shortlisting (R4-61)</label>
+          <select id="settings-mlp-shortlist-mode" class="sidebar-select">
+            <option value="auto" selected>Auto (Receipt-Gated)</option>
+            <option value="sparse">Geodesic Sparse (K=1536)</option>
+            <option value="dense">Dense Exact (0-LSB)</option>
+          </select>
+        </div>
         <div class="github-input-row">
           <button id="topbar-prism-holo-btn" type="button" class="btn-secondary">Prism ID &amp; .holo Compiler</button>
+          <button id="settings-verify-slab-btn" type="button" class="btn-secondary">Verify / Repair OPFS Slab</button>
         </div>
         <output id="settings-modal-status" class="admit-output" role="status" aria-live="polite"></output>
       </div>
@@ -722,6 +731,8 @@
                 <span id="holo-obs-status-badge" class="neural-3d-status">Awaiting Live Token Frame</span>
               </div>
               <div class="holo-obs-actions">
+                <button id="holo-obs-mlp-mode-btn" type="button" class="neural-btn">MLP: Auto</button>
+                <button id="holo-obs-verify-slab-btn" type="button" class="neural-btn">Verify Slab</button>
                 <button id="holo-obs-refresh-storage-btn" type="button" class="neural-btn">Refresh Storage Map</button>
                 <button id="holo-obs-pause-toggle" type="button" class="neural-btn">Live Stream: ON</button>
               </div>
