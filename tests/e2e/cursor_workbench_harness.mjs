@@ -3486,6 +3486,88 @@ test('F19.4: Escape never hides #dockable-canvas-pane or #cursor-code-editor', (
   assert.equal(doc.getElementById('cursor-code-editor').hasAttribute('hidden'), false, 'Escape must never hide code editor');
 });
 
+await testAsync('F19.5: updateCursorGhostText reads Worker { suggestion } response cleanly', async () => {
+  const { controller, elements, doc } = setupCursorWorkbenchSandbox();
+  const prevWorker = globalThis.engineWorkerClient;
+  const ghostCalls = [];
+  globalThis.engineWorkerClient = {
+    enabled: true,
+    async rpc(op, payload) {
+      ghostCalls.push({ op, payload });
+      return { status: 'ok', path: payload.path, suggestion: '  return x + 1;', model_id: 'uor-r4.qwen3-0.6b-holo' };
+    },
+  };
+  try {
+    elements.workspaceEditorTextarea.value = 'pub fn inc(x: i32) -> i32 {\n';
+    elements.workspaceEditorTextarea.setSelectionRange(
+      elements.workspaceEditorTextarea.value.length,
+      elements.workspaceEditorTextarea.value.length
+    );
+    controller.updateCursorGhostText();
+    for (let k = 0; k < 6; k += 1) await Promise.resolve();
+    assert.equal(ghostCalls.length, 1);
+    assert.equal(ghostCalls[0].op, 'studio_ghost_complete');
+    assert.equal(controller.cursorGhostState.suggestion, 'return x + 1;');
+    const inlineSpan = doc.getElementById('cursor-ghost-overlay').querySelector('.cursor-ghost-inline');
+    assert.ok(inlineSpan && inlineSpan.textContent === 'return x + 1;', 'Overlay must display trimmed Worker suggestion');
+  } finally {
+    globalThis.engineWorkerClient = prevWorker;
+  }
+});
+
+test('F19.6: #new-path-modal rejects invalid characters and reveals #new-path-error', () => {
+  const { doc } = setupCursorWorkbenchSandbox();
+  const modal = doc.getElementById('new-path-modal');
+  const form = doc.getElementById('new-path-form');
+  const input = doc.getElementById('new-path-input');
+  doc.getElementById('cursor-new-file-quick-btn').click();
+  assert.equal(modal.hasAttribute('hidden'), false);
+  input.value = 'src/bad file!.rs';
+  form.dispatchEvent({ type: 'submit', preventDefault: () => {} });
+  assert.equal(modal.hasAttribute('hidden'), false, 'Invalid character path must keep #new-path-modal open');
+  const errEl = form.querySelector('#new-path-error') || doc.getElementById('new-path-error');
+  assert.ok(errEl, '#new-path-error must be populated dynamically if absent');
+  assert.match(errEl.textContent, /Invalid path:/);
+  assert.equal(errEl.hasAttribute('hidden'), false, '#new-path-error must be visible on validation failure');
+});
+
+test('F19.7: rejectPatchBatch clears staged patch globals and chat diff DOM cleanly', () => {
+  const { doc, controller, AppState } = setupCursorWorkbenchSandbox();
+  AppState.workspace.pendingPatches = {
+    'src/attention.rs': { targetFile: 'src/attention.rs', proposedCode: 'fn patched() {}', diffPreview: '+fn patched() {}' },
+  };
+  AppState.workspace.pendingPatchPath = 'src/attention.rs';
+  AppState.workspace.pendingProposedCode = 'fn patched() {}';
+  const applyBtn = doc.getElementById('chat-apply-patch-btn');
+  const diffEl = doc.getElementById('chat-diff-preview');
+  const fileEl = doc.getElementById('chat-diff-file');
+  const targetBadge = doc.getElementById('chat-target-badge');
+  applyBtn.disabled = false;
+  if (diffEl) diffEl.textContent = '+fn patched() {}';
+  controller.rejectPatchBatch();
+  assert.deepEqual(AppState.workspace.pendingPatches, {});
+  assert.equal(AppState.workspace.pendingPatchPath, '');
+  assert.equal(AppState.workspace.pendingProposedCode, '');
+  assert.equal(applyBtn.disabled, true);
+  if (fileEl) assert.equal(fileEl.textContent, 'no pending patch');
+  if (targetBadge) assert.equal(targetBadge.textContent, 'target: none');
+  if (diffEl) assert.match(diffEl.textContent, /No diff staged yet/);
+});
+
+test('F19.8: setCursorAiMode delegates to setComposerModeUI directly when present', () => {
+  const { doc } = setupCursorWorkbenchSandbox();
+  const calls = [];
+  const prevFn = globalThis.setComposerModeUI;
+  globalThis.setComposerModeUI = (m) => calls.push(m);
+  try {
+    doc.dispatchEvent({ type: 'keydown', metaKey: true, key: 'l', preventDefault: () => {} });
+    doc.dispatchEvent({ type: 'keydown', metaKey: true, key: 'i', preventDefault: () => {} });
+    assert.deepEqual(calls, ['plan', 'agentic']);
+  } finally {
+    globalThis.setComposerModeUI = prevFn;
+  }
+});
+
 // ============================================================================
 // FINAL SUMMARY & DIAGNOSTICS REPORT
 // ============================================================================

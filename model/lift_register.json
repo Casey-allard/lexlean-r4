@@ -17449,7 +17449,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "1e3e1628a20b9351fbba8ff27b4ddde06ff23cb5bb763a715930bfea27e387a9",
+      "kappa": "1233d4369ce76d882a7e630d16c0b28c71c9e2a9a9b212cd484d9c9aca0cc3ca",
       "function": "public/app.js::initCursorIdeWorkbench",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -17477,7 +17477,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "908765743d21be85d7b72bae2d4006d71e61dca8a380d7f16d17395ef8c53d73",
+      "kappa": "ba649738a8f4141d6666ac8b786b527d05d85b84270020605bb5c9d5b1dfc675",
       "function": "public/app.js::initLayoutAndConnectedControls",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -17669,7 +17669,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "cc75ef0bda63b2ebb5ed4a7b4eff02c8f8f254e828307ca6b8d6144e958129b1",
+      "kappa": "7a477f7d338b48e5cb6c09fc70cf6c9e5fe7584d69ac120bcc6439a54d227356",
       "function": "public/app.js::registerBrowserTerminalBridgeHooks",
       "status": "foreign",
       "foreign_crate": "serde_json",
@@ -17697,7 +17697,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "7c695180a56fe75e53a5478ab232e7b7f1d1c2e101bcc238bb60b1c6c3aace9c",
+      "kappa": "080c127f4694bdf84e2baf0436b5528860cc05d6e804e9e9a58f8a196281d2ec",
       "function": "public/app.js::renderCompletedChatResponse",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -17917,7 +17917,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "c104aea94e4c4b229a66e0e59c72b3da3e2515c537111f1decd93cd0c76ea5e5",
+      "kappa": "6e2a65b3fef376506ce2b0b33d9532bde4fc12f24da22f554eef2a76ee2e0f0a",
       "function": "public/app.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -17983,28 +17983,28 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "25bf45c04ed083ff8c957a4a8dc4844a3045534cd0cf423010f54bf84693bc3d",
+      "kappa": "c009ad4a58b905a9fc722f96d7f0d7dac850ee9c3584671e4e956534b6434eb8",
       "function": "public/app.js::scheduleCursorGhostText",
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
-      "kappa": "7ec811d2fab25360d41863402ad5fba4e419264aa6b9edb9b2e64d0c850cc516",
+      "kappa": "634b685aa9ed16bb027bfefd037b6113123745dd5751c24805f16614a719e8ce",
       "function": "public/app.js::selectWorkspaceFile",
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
-      "kappa": "8aec809f7e44a52fc045535f4434bb6495e6e497d467a5ba7fa686a59710aefb",
+      "kappa": "f77d7143ff883252a9b2823bd3965d9672ea757aa4b7bc04438ce40d1f35d43b",
       "function": "public/app.js::setComposerModeUI",
       "status": "effect",
       "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
-      "kappa": "151b34c69b3d65fc6699589f99af8243ff915e3cd1965129a66d05b31098420b",
+      "kappa": "d6344886a8b69ab62c6614063c57fc373eaf041e7caa12400e0929b5b6620d49",
       "function": "public/app.js::setCursorAiMode",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18048,7 +18048,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2e111f5ba2796937e54a51e39b19b3e9ce2752442ffdb6616b00d0913a8d2136",
+      "kappa": "bdc25259d59c8adc62304ca8fe8f43a0dfd7579db3f96b7f7d9019df6cb5012a",
       "function": "public/app.js::submitComposerPrompt",
       "status": "effect",
       "effect": "dom-browser-environment-io",

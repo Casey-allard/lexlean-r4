@@ -41,7 +41,7 @@ function stripComposerTypeScript(src) {
     .replace(/const\s+chip\s*:\s*ComposerAttachmentChip\s*=/g, 'const chip =')
     .replace(/public\s+detectAutocompleteTrigger\s*\(\s*text\s*:\s*string\s*,\s*cursorOffset\s*:\s*number\s*\)\s*:\s*\{[\s\S]*?\}\s*\{/g, 'detectAutocompleteTrigger(text, cursorOffset) {')
     .replace(/public\s+attachFile\s*\(\s*file\s*:\s*\{[^}]+\}\s*\)\s*:\s*boolean\s*\{/g, 'attachFile(file) {')
-    .replace(/public\s+(\w+)\s*\(([^)]*)\)\s*:\s*[^{]+\{/g, (_m, name, params) => {
+    .replace(/(?:public|private)\s+(\w+)\s*\(([^)]*)\)\s*:\s*[^{]+\{/g, (_m, name, params) => {
       const cleanParams = params
         .split(',')
         .map((p) => p.trim().replace(/\??\s*:.*$/, ''))

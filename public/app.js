@@ -942,12 +942,19 @@ const engineWorkerClient = {
     }
     renderWorkspaceList(this.getWorkspaceListObject());
     if (typeof editorTabManager !== 'undefined' && editorTabManager) {
+      const ta = editorTabManager.textarea || document.getElementById('workspace-editor-textarea');
       for (const [p, meta] of this.workspaceFiles.entries()) {
         if (editorTabManager.tabs.has(p)) {
           const t = editorTabManager.tabs.get(p);
-          if (t && !t.dirty && typeof meta.content === 'string') {
-            t.content = meta.content;
+          if (t && !t.isDirty && typeof meta.content === 'string') {
+            t.buffer = meta.content;
             t.savedContent = meta.content;
+            if (p === editorTabManager.activePath && ta && ta.value !== meta.content) {
+              ta.value = meta.content;
+              if (typeof editorTabManager.updateLineNumbers === 'function') {
+                editorTabManager.updateLineNumbers();
+              }
+            }
           }
         }
       }
@@ -1545,6 +1552,8 @@ function selectWorkspaceFile(pathText) {
     hydrateLazyGitBlob(pathText).catch(() => {});
   }
   if (typeof editorTabManager !== 'undefined' && editorTabManager && editorTabManager.tabs.has(pathText)) {
+    activeWorkspacePath = pathText;
+    if (editorFilePath) editorFilePath.textContent = pathText;
     editorTabManager.switchTo(pathText);
     if (typeof renderCursorScmSection === 'function') {
       renderCursorScmSection(engineWorkerClient.getWorkspaceListObject());
@@ -2770,46 +2779,10 @@ function updateLiveAgentStatusBar(chatRes) {
   }
 }
 
-function renderCompletedChatResponse(trimmed, chatRes) {
-  if (!chatRes || chatRes.status !== 'ok') {
-    appendChatTurn('assistant', 'UOR-R4 v12', chatRes && chatRes.message ? chatRes.message : 'Chat error');
-    return;
-  }
-
+const applyCompletedChatPostEffects = (trimmed, chatRes, replyProse, chatMeta = {}) => {
+  if (!chatRes) return;
   const gen = chatRes.generation || {};
-  const tokGen = chatRes.token_generation || gen.token_generation || {};
   const gm = chatRes.geometric_metrics || null;
-  let replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
-  if (!replyProse.includes('$$') && /ospf routing identity|formal geometric routing identity/i.test(trimmed)) {
-    const rootIdx = chatRes.icosian_root ?? 0;
-    const clAct = chatRes.flock_consensus_action ?? 0;
-    const l1Dist = gen.l1_distance ?? 0;
-    replyProse += `\n\n### Formal Geometric Routing Identity\nUnder the **UOR-R4** $\\text{Cl}(0,6) \\times E_8$ manifold (Icosian Root $r_{${rootIdx}}$, Clifford action $g_{${clAct}}$, $L_1 = ${l1Dist}$):\n$$\\mathcal{H}_{\\text{OSPF}}(x) = \\arg\\min_{k \\in \\mathcal{B}_{/8}} \\left( \\|q_{12}(x) - k\\|_1 + \\lambda \\sum_{h=1}^{8} \\frac{\\psi_h^\\dagger \\gamma_{${clAct}} \\psi_h}{\\sqrt{1 + d_{\\text{Hamming}}(x, r_{${rootIdx}})}} \\right)$$`;
-  }
-  const activeModeLabel = chatRes.selected_model || AppState.config.selectedModel || 'uor-r4.qwen3-0.6b-holo';
-  const tierLabel = chatRes.execution_tier || (gm && gm.active_tier) || 'R4GeometricStack';
-  const gmSummary = gm
-    ? ` · ${gm.n_layers || 0}L/${gm.d_model || 0}D · 0 float_ops · ${gm.nibble_lut_lookups || 0} LUTs`
-    : '';
-  const assistantTitle = typeof tokGen.stepped_tokens === 'number' && tokGen.stepped_tokens > 0
-    ? `${activeModeLabel} (${tierLabel}) · ${tokGen.stepped_tokens} tok${gmSummary}`
-    : `${activeModeLabel} (${tierLabel})${gmSummary}`;
-  const patchTarget = chatRes.is_coding_turn ? chatRes.target_file : '';
-  const patchBody = chatRes.is_coding_turn ? (chatRes.proposed_code || '') : '';
-  const chatMeta = {
-    thinking: chatRes.thinking || null,
-    geometricThinking: chatRes.geometric_thinking || null,
-    toolCards: Array.isArray(chatRes.bridge_tool_cards) && chatRes.bridge_tool_cards.length > 0
-      ? chatRes.bridge_tool_cards
-      : synthesizeAgenticToolCards(trimmed, chatRes),
-    otelTraceId: chatRes.otel_trace_id || '',
-    otelSavingsPct: chatRes.otel_savings_pct || 0,
-    otelSpanCount: chatRes.otel_span_count || 5,
-    otelWinningRow: chatRes.otel_winning_row || 0,
-    contextDigest: chatRes.context_digest || '',
-    turnIndex: chatRes.turn_index || 1,
-  };
-  appendChatTurn('assistant', assistantTitle, replyProse, patchTarget, patchBody, true, chatMeta);
   updateLiveAgentStatusBar(chatRes);
 
   if (Array.isArray(chatRes.holo_observatory_frames) && chatRes.holo_observatory_frames.length > 0) {
@@ -2865,7 +2838,7 @@ function renderCompletedChatResponse(trimmed, chatRes) {
     }
   }
 
-  if (chatRes.is_coding_turn) {
+  if (chatRes.is_coding_turn && chatRes.target_file) {
     pendingPatchPath = chatRes.target_file;
     pendingProposedCode = chatRes.proposed_code || '';
     pendingDiffPreview = chatRes.diff_preview || '';
@@ -2935,9 +2908,15 @@ function renderCompletedChatResponse(trimmed, chatRes) {
     }
   }
 
-  if (chatDiagConsensus) chatDiagConsensus.textContent = `Cl(${chatRes.flock_consensus_action})`;
-  if (chatDiagResonance) chatDiagResonance.textContent = String(chatRes.flock_weighted_resonance);
-  if (chatDiagRoot) chatDiagRoot.textContent = `root #${chatRes.icosian_root}`;
+  if (chatDiagConsensus && chatRes.flock_consensus_action !== undefined) {
+    chatDiagConsensus.textContent = `Cl(${chatRes.flock_consensus_action})`;
+  }
+  if (chatDiagResonance && chatRes.flock_weighted_resonance !== undefined) {
+    chatDiagResonance.textContent = String(chatRes.flock_weighted_resonance);
+  }
+  if (chatDiagRoot && chatRes.icosian_root !== undefined) {
+    chatDiagRoot.textContent = `root #${chatRes.icosian_root}`;
+  }
   if (chatDiagReceipt) {
     chatDiagReceipt.textContent = chatRes.receipt_sha256 ? chatRes.receipt_sha256.slice(0, 24) : '';
   }
@@ -2953,6 +2932,49 @@ function renderCompletedChatResponse(trimmed, chatRes) {
   }
   fetchRecordedTraces();
   renderMLInspector();
+};
+
+function renderCompletedChatResponse(trimmed, chatRes) {
+  if (!chatRes || chatRes.status !== 'ok') {
+    appendChatTurn('assistant', 'UOR-R4 v12', chatRes && chatRes.message ? chatRes.message : 'Chat error');
+    return;
+  }
+
+  const gen = chatRes.generation || {};
+  const tokGen = chatRes.token_generation || gen.token_generation || {};
+  const gm = chatRes.geometric_metrics || null;
+  let replyProse = chatRes.assistant_reply || gen.reply || 'Synthesized geometric response.';
+  if (!replyProse.includes('$$') && /ospf routing identity|formal geometric routing identity/i.test(trimmed)) {
+    const rootIdx = chatRes.icosian_root ?? 0;
+    const clAct = chatRes.flock_consensus_action ?? 0;
+    const l1Dist = gen.l1_distance ?? 0;
+    replyProse += `\n\n### Formal Geometric Routing Identity\nUnder the **UOR-R4** $\\text{Cl}(0,6) \\times E_8$ manifold (Icosian Root $r_{${rootIdx}}$, Clifford action $g_{${clAct}}$, $L_1 = ${l1Dist}$):\n$$\\mathcal{H}_{\\text{OSPF}}(x) = \\arg\\min_{k \\in \\mathcal{B}_{/8}} \\left( \\|q_{12}(x) - k\\|_1 + \\lambda \\sum_{h=1}^{8} \\frac{\\psi_h^\\dagger \\gamma_{${clAct}} \\psi_h}{\\sqrt{1 + d_{\\text{Hamming}}(x, r_{${rootIdx}})}} \\right)$$`;
+  }
+  const activeModeLabel = chatRes.selected_model || AppState.config.selectedModel || 'uor-r4.qwen3-0.6b-holo';
+  const tierLabel = chatRes.execution_tier || (gm && gm.active_tier) || 'R4GeometricStack';
+  const gmSummary = gm
+    ? ` · ${gm.n_layers || 0}L/${gm.d_model || 0}D · 0 float_ops · ${gm.nibble_lut_lookups || 0} LUTs`
+    : '';
+  const assistantTitle = typeof tokGen.stepped_tokens === 'number' && tokGen.stepped_tokens > 0
+    ? `${activeModeLabel} (${tierLabel}) · ${tokGen.stepped_tokens} tok${gmSummary}`
+    : `${activeModeLabel} (${tierLabel})${gmSummary}`;
+  const patchTarget = chatRes.is_coding_turn ? chatRes.target_file : '';
+  const patchBody = chatRes.is_coding_turn ? (chatRes.proposed_code || '') : '';
+  const chatMeta = {
+    thinking: chatRes.thinking || null,
+    geometricThinking: chatRes.geometric_thinking || null,
+    toolCards: Array.isArray(chatRes.bridge_tool_cards) && chatRes.bridge_tool_cards.length > 0
+      ? chatRes.bridge_tool_cards
+      : synthesizeAgenticToolCards(trimmed, chatRes),
+    otelTraceId: chatRes.otel_trace_id || '',
+    otelSavingsPct: chatRes.otel_savings_pct || 0,
+    otelSpanCount: chatRes.otel_span_count || 5,
+    otelWinningRow: chatRes.otel_winning_row || 0,
+    contextDigest: chatRes.context_digest || '',
+    turnIndex: chatRes.turn_index || 1,
+  };
+  appendChatTurn('assistant', assistantTitle, replyProse, patchTarget, patchBody, true, chatMeta);
+  applyCompletedChatPostEffects(trimmed, chatRes, replyProse, chatMeta);
 }
 
 function runClaudeChat(promptText, recordUserBubble = true) {
@@ -3102,12 +3124,18 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       chatTranscript.scrollTop = chatTranscript.scrollHeight;
     }
 
+    if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
+      holoObservatoryState.lockedFrameIdx = null;
+    }
+
     let streamedReplyText = '';
     let consentRendered = false;
     let wasCancelled = false;
     const toolEvents = [];
     const allowOffOrigin = typeof safeStorageGet === 'function'
-      && safeStorageGet('uor_allow_off_origin_hydration') === 'granted';
+      && (typeof isConsentGrantedVal === 'function'
+        ? isConsentGrantedVal(safeStorageGet('uor_allow_off_origin_hydration'))
+        : safeStorageGet('uor_allow_off_origin_hydration') === '1');
 
     const finishStreamingControls = () => {
       if (typeof tsComposer.endTurn === 'function') tsComposer.endTurn();
@@ -3126,7 +3154,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       composer_mode: activeComposerMode === 'plan' ? 'plan' : 'agent',
       surface_mode: 'studio',
       live_hud: true,
-      allow_off_origin: allowOffOrigin,
+      allowOffOriginHydration: allowOffOrigin,
       operating_mode: AppState.config.operatingMode || 'coding',
       retain_lambda: AppState.config.retainLambda ?? 0.85,
       plurality_votes: AppState.config.pluralityVotes ?? 8,
@@ -3228,6 +3256,29 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     };
     engineWorkerClient.activeChatStreamHook = liveHook;
 
+    const persistCancelledTurn = (partialText, backendTag) => {
+      const text = partialText || '[Turn stopped by user]';
+      if (statusLineEl) {
+        renderFormattedMarkdownInto(statusLineEl, text);
+      }
+      if (rightMetaEl) {
+        rightMetaEl.textContent = 'cancelled';
+      }
+      const titleLabel = leftMetaEl ? leftMetaEl.textContent : (backendTag || selectedModel);
+      const thread = getActiveThread();
+      thread.messages.push({
+        role: 'assistant',
+        title: titleLabel,
+        body: text,
+        patchPath: '',
+        patchCode: '',
+        chatMeta: { toolCards: toolEvents, cancelled: true },
+        timestamp: Date.now(),
+      });
+      persistThreadsToStorage();
+      renderThreadSidebar();
+    };
+
     reqHandle.promise
       .then((chatRes) => {
         if (engineWorkerClient.activeChatStreamHook === liveHook) {
@@ -3243,6 +3294,12 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           }
           return;
         }
+        const cancelledReply = wasCancelled || Boolean(chatRes && (chatRes.cancelled || chatRes.error_code === 'Cancelled'));
+        if (cancelledReply && placeholderCard && statusLineEl) {
+          const partial = (chatRes && (chatRes.reply || chatRes.assistant_reply)) || streamedReplyText;
+          persistCancelledTurn(partial, chatRes && chatRes.backend);
+          return;
+        }
         if (hudCtrl && hudCtrl.frames.length > 0 && placeholderCard && statusLineEl) {
           const finalText = (chatRes && (chatRes.reply || chatRes.assistant_reply)) || streamedReplyText || '';
           renderFormattedMarkdownInto(statusLineEl, finalText);
@@ -3252,20 +3309,28 @@ function runClaudeChat(promptText, recordUserBubble = true) {
             leftMetaEl.textContent = `${backendTag} · ${toks} tok`;
           }
           if (rightMetaEl) {
-            rightMetaEl.textContent = wasCancelled ? 'cancelled' : 'verified';
+            rightMetaEl.textContent = 'verified';
           }
+          const titleLabel = leftMetaEl ? leftMetaEl.textContent : selectedModel;
+          const chatMeta = {
+            toolCards: toolEvents,
+            otelTraceId: (chatRes && chatRes.otel_trace_id) || '',
+            otelSavingsPct: (chatRes && chatRes.otel_savings_pct) || 0,
+            otelSpanCount: (chatRes && chatRes.otel_span_count) || 5,
+          };
           const thread = getActiveThread();
           thread.messages.push({
             role: 'assistant',
-            titleText: leftMetaEl ? leftMetaEl.textContent : selectedModel,
-            bodyText: finalText,
+            title: titleLabel,
+            body: finalText,
             patchPath: (chatRes && chatRes.target_file) || '',
             patchCode: (chatRes && chatRes.proposed_code) || '',
-            chatMeta: { toolCards: toolEvents },
+            chatMeta,
+            timestamp: Date.now(),
           });
           persistThreadsToStorage();
           renderThreadSidebar();
-          updateLiveAgentStatusBar(chatRes || {});
+          applyCompletedChatPostEffects(trimmed, chatRes || {}, finalText, chatMeta);
         } else {
           if (placeholderCard && placeholderCard.parentNode) {
             placeholderCard.parentNode.removeChild(placeholderCard);
@@ -3311,8 +3376,14 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           }
           return;
         }
-        if (wasCancelled && statusLineEl) {
-          renderFormattedMarkdownInto(statusLineEl, streamedReplyText || '[Turn stopped by user]');
+        const isCancelledErr = wasCancelled
+          || Boolean(err && ((err.details && err.details.cancelled) || err.error_code === 'Cancelled'));
+        if (isCancelledErr) {
+          if (placeholderCard && statusLineEl) {
+            persistCancelledTurn(streamedReplyText, selectedModel);
+          } else {
+            appendChatTurn('assistant', selectedModel || DEFAULT_HONEST_MODEL_ID, streamedReplyText || '[Turn stopped by user]');
+          }
           return;
         }
         if (placeholderCard && placeholderCard.parentNode) {
@@ -4061,12 +4132,16 @@ class AgenticTypeScriptComposer {
     if (typeof AppState !== 'undefined' && AppState.config) {
       AppState.config.composerMode = normalized;
     }
-    try {
-      if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof COMPOSER_MODE_STORAGE_KEY !== 'undefined') {
-        localStorage.setItem(COMPOSER_MODE_STORAGE_KEY, normalized);
+    if (typeof safeStorageSet === 'function' && typeof COMPOSER_MODE_STORAGE_KEY !== 'undefined') {
+      safeStorageSet(COMPOSER_MODE_STORAGE_KEY, normalized);
+    } else {
+      try {
+        if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof COMPOSER_MODE_STORAGE_KEY !== 'undefined') {
+          localStorage.setItem(COMPOSER_MODE_STORAGE_KEY, normalized);
+        }
+      } catch {
+        // Ignore storage error
       }
-    } catch {
-      // Ignore storage error
     }
   }
 
@@ -4106,12 +4181,16 @@ class AgenticTypeScriptComposer {
     if (typeof AppState !== 'undefined' && AppState.config) {
       AppState.config.selectedModel = modelId;
     }
-    try {
-      if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof MODEL_STORAGE_KEY !== 'undefined') {
-        localStorage.setItem(MODEL_STORAGE_KEY, modelId);
+    if (typeof safeStorageSet === 'function' && typeof MODEL_STORAGE_KEY !== 'undefined') {
+      safeStorageSet(MODEL_STORAGE_KEY, modelId);
+    } else {
+      try {
+        if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof MODEL_STORAGE_KEY !== 'undefined') {
+          localStorage.setItem(MODEL_STORAGE_KEY, modelId);
+        }
+      } catch {
+        // Ignore storage error
       }
-    } catch {
-      // Ignore storage error
     }
     return true;
   }
@@ -4558,10 +4637,9 @@ function setComposerModeUI(mode) {
   }
   for (const btn of composerModeButtons) {
     const m = btn.getAttribute('data-composer-mode');
-    const isActive = m === activeMode || (m === 'agentic' && activeMode !== 'plan');
-    btn.classList.toggle('active', m === activeMode || (m === 'agentic' && !['plan'].includes(activeMode)));
-    btn.setAttribute('aria-pressed', (m === activeMode || (m === 'agentic' && activeMode !== 'plan')) ? 'true' : 'false');
-    void isActive;
+    const isActive = m === activeMode;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   }
   if (claudeChatInput) {
     if (activeMode === 'plan' && !claudeChatInput.value.trim()) {
@@ -4608,6 +4686,7 @@ if (composerMentionBtn && claudeChatInput) {
 
 function submitComposerPrompt() {
   if (!claudeChatInput) return;
+  if (typeof tsComposer.isTurnActive === 'function' && tsComposer.isTurnActive()) return;
   const rawVal = claudeChatInput.value.trim();
   if (!rawVal) return;
 
@@ -5261,6 +5340,7 @@ const holoObservatoryState = {
   frames: [],
   storageGeom: null,
   paused: false,
+  lockedFrameIdx: null,
   qTrail: [],
   rotAngle: 0.42,
   turnStartMs: 0,
@@ -5859,7 +5939,11 @@ function bindVerdantWatchdogButtons() {
 // ============================================================================
 
 const _r460MemoryStorage = new Map();
+const _r460PendingInspectWaiters = new Map();
+let _r460ManualSidebarCollapse = false;
 let _r460ToastTimer = null;
+let _r460InspectSeq = 1;
+const isConsentGrantedVal = (val) => val === '1' || val === 'true' || val === 'granted';
 let _r460LatestPreviewDiag = {
   renderedAtMs: 0,
   fileCount: 0,
@@ -6007,6 +6091,7 @@ const applyWindowWidthClass = (widthPx) => {
   const body = document.body;
   const prismFrame = document.getElementById('prism-frame');
   const mainEl = typeof document.querySelector === 'function' ? document.querySelector('main') : null;
+  const sidebarEl = document.getElementById('threads-sidebar');
   const prevWinClass = body && ((body.dataset && body.dataset.windowClass) || (typeof body.getAttribute === 'function' && body.getAttribute('data-window-class')));
 
   if (body) {
@@ -6017,11 +6102,16 @@ const applyWindowWidthClass = (widthPx) => {
     if (prismFrame.dataset) prismFrame.dataset.windowClass = winClass;
     if (typeof prismFrame.setAttribute === 'function') prismFrame.setAttribute('data-window-class', winClass);
   }
-  if (mainEl && mainEl.classList && prevWinClass !== winClass) {
+  if (mainEl && mainEl.classList) {
     if (winClass === 'expanded') {
       mainEl.classList.remove('sidebar-expanded');
-    } else if (!mainEl.classList.contains('sidebar-expanded')) {
+      if (!_r460ManualSidebarCollapse) {
+        mainEl.classList.remove('sidebar-collapsed');
+        if (sidebarEl && sidebarEl.classList) sidebarEl.classList.remove('sidebar-collapsed');
+      }
+    } else if (prevWinClass !== winClass && !mainEl.classList.contains('sidebar-expanded')) {
       mainEl.classList.add('sidebar-collapsed');
+      if (sidebarEl && sidebarEl.classList) sidebarEl.classList.add('sidebar-collapsed');
     }
   }
   syncObservatoryHost();
@@ -6097,6 +6187,10 @@ const renderHoloMiniHud = (hudEl, frame, opts = {}) => {
     const dpr = Math.max(1, Math.min(2, dprRaw));
     const cssW = 132;
     const cssH = 48;
+    if (canvas.style) {
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
+    }
     if (canvas.width !== cssW * dpr || canvas.height !== cssH * dpr) {
       canvas.width = cssW * dpr;
       canvas.height = cssH * dpr;
@@ -6166,7 +6260,7 @@ const renderHoloMiniHud = (hudEl, frame, opts = {}) => {
   const statSpan = document.createElement('span');
   statSpan.className = 'holo-hud-stats';
   statSpan.textContent = hasShortlist
-    ? `TTFT ${ttftMs}ms · ${tpsText} · KV ${kvPct}% · d_H=${frame.min_hamming ?? 0}`
+    ? `TTFT ${ttftMs}ms · ${tpsText} · KV ${kvPct}% · d_min=${frame.min_hamming ?? 0} / 512`
     : `TTFT ${ttftMs}ms · ${tpsText} · KV ${kvPct}% · 256D Integer Lane`;
   metaRow.appendChild(statSpan);
 
@@ -6232,7 +6326,7 @@ const createLiveTokenHudController = (chatMessagesEl, assistantBubbleEl = null) 
         spans[si].classList.toggle('is-selected', si === idx);
       }
       if (spans[si] && typeof spans[si].setAttribute === 'function') {
-        spans[si].setAttribute('aria-pressed', si === idx ? 'true' : 'false');
+        spans[si].setAttribute('aria-pressed', (lockInObs && si === idx) ? 'true' : 'false');
       }
     }
     const prefix = frames.slice(0, idx + 1);
@@ -6244,7 +6338,24 @@ const createLiveTokenHudController = (chatMessagesEl, assistantBubbleEl = null) 
     if (lockInObs) {
       lockedIdx = idx;
       lockObservatoryToFrame(selectedFrame, prefix, idx);
+    } else {
+      lockObservatoryToFrame(selectedFrame, prefix, null);
     }
+  };
+
+  const toggleOrUnlockFrameIndex = (idxVal) => {
+    if (lockedIdx === idxVal) {
+      lockedIdx = null;
+      if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
+        holoObservatoryState.lockedFrameIdx = null;
+      }
+      const latestIdx = frames.length - 1;
+      if (latestIdx >= 0) {
+        selectFrameIndex(latestIdx, false);
+      }
+      return;
+    }
+    selectFrameIndex(idxVal, true);
   };
 
   const pushTokenStep = (stepEvt) => {
@@ -6255,7 +6366,13 @@ const createLiveTokenHudController = (chatMessagesEl, assistantBubbleEl = null) 
       frames.shift();
       shifted = true;
       if (lockedIdx !== null) {
-        lockedIdx = lockedIdx > 0 ? lockedIdx - 1 : 0;
+        lockedIdx -= 1;
+        if (lockedIdx < 0) {
+          lockedIdx = null;
+          if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
+            holoObservatoryState.lockedFrameIdx = null;
+          }
+        }
       }
     }
     if (Array.isArray(frame.q_manifold_xyz) && frame.q_manifold_xyz.length === 3) {
@@ -6267,6 +6384,7 @@ const createLiveTokenHudController = (chatMessagesEl, assistantBubbleEl = null) 
     span.className = 'holo-tok-span';
     span.setAttribute('role', 'button');
     span.setAttribute('tabindex', '0');
+    span.setAttribute('aria-pressed', 'false');
     span.setAttribute('data-frame-idx', String(frames.length - 1));
     span.textContent = String(frame.token_text ?? (stepEvt && stepEvt.delta) ?? '');
     span.addEventListener('mouseenter', () => {
@@ -6277,7 +6395,14 @@ const createLiveTokenHudController = (chatMessagesEl, assistantBubbleEl = null) 
     });
     span.addEventListener('click', () => {
       const idxVal = Number(span.getAttribute('data-frame-idx'));
-      selectFrameIndex(idxVal, true);
+      toggleOrUnlockFrameIndex(idxVal);
+    });
+    span.addEventListener('keydown', (ev) => {
+      if (ev && (ev.key === 'Enter' || ev.key === ' ')) {
+        if (typeof ev.preventDefault === 'function') ev.preventDefault();
+        const idxVal = Number(span.getAttribute('data-frame-idx'));
+        toggleOrUnlockFrameIndex(idxVal);
+      }
     });
     spans.push(span);
     scrubberEl.appendChild(span);
@@ -6304,8 +6429,10 @@ const createLiveTokenHudController = (chatMessagesEl, assistantBubbleEl = null) 
     hudEl,
     scrubberEl,
     containerEl: hostEl,
+    getLockedIdx: () => lockedIdx,
     pushTokenStep,
     selectFrameIndex,
+    toggleOrUnlockFrameIndex,
   };
 };
 
@@ -6342,7 +6469,7 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
   const approveBtn = document.createElement('button');
   approveBtn.type = 'button';
   approveBtn.className = 'btn-primary holo-consent-approve-btn';
-  approveBtn.textContent = 'Approve & Download';
+  approveBtn.textContent = 'Download Verified Weights (~410 MiB / ~1.09 GiB)';
 
   const offlineBtn = document.createElement('button');
   offlineBtn.type = 'button';
@@ -6355,20 +6482,21 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
   approveBtn.addEventListener('click', async () => {
     approveBtn.disabled = true;
     offlineBtn.disabled = true;
-    safeStorageSet('uor_allow_off_origin_hydration', 'granted');
+    safeStorageSet('uor_allow_off_origin_hydration', '1');
     const chk = document.getElementById('settings-allow-off-origin-weights');
     if (chk) chk.checked = true;
     statusNote.textContent = 'Hydrating verified shards...';
     try {
       if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
         await engineWorkerClient.rpc('hydrate_holo_model', {
-          model_id: modelId,
-          allow_off_origin: true,
+          modelId,
+          allowOffOriginHydration: true,
+          rememberConsent: true,
         });
       }
       statusNote.textContent = 'Verified weights mounted. Re-running prompt...';
       if (pendingPrompt && typeof runClaudeChat === 'function') {
-        runClaudeChat(pendingPrompt, true);
+        runClaudeChat(pendingPrompt, false);
       }
     } catch (err) {
       statusNote.textContent = `Hydration error: ${err && err.message ? err.message : String(err)}`;
@@ -6393,9 +6521,9 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
     try {
       if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
         await engineWorkerClient.rpc('hydrate_holo_model', {
-          model_id: modelId,
+          modelId,
           decline: true,
-          fallback_model: fallbackModel,
+          fallbackModel,
         });
       }
     } catch {
@@ -6403,7 +6531,7 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
     }
     statusNote.textContent = `Switched to ${fallbackModel}.`;
     if (pendingPrompt && typeof runClaudeChat === 'function') {
-      runClaudeChat(pendingPrompt, true);
+      runClaudeChat(pendingPrompt, false);
     }
   });
 
@@ -6452,7 +6580,7 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
         i += 2;
         continue;
       }
-      if (ch === String.fromCharCode(34) || ch === "'" || ch === '`') {
+      if (ch === String.fromCharCode(34) || ch === "'") {
         const quote = ch;
         i += 1;
         let out = '';
@@ -6471,6 +6599,60 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
         }
         i += 1;
         tokens.push({ type: 'string', value: out });
+        continue;
+      }
+      if (ch === '`') {
+        i += 1;
+        const parts = [];
+        let out = '';
+        while (i < n && input[i] !== '`') {
+          if (input[i] === '\\' && i + 1 < n) {
+            const esc = input[i + 1];
+            if (esc === 'n') out += '\n';
+            else if (esc === 'r') out += '\r';
+            else if (esc === 't') out += '\t';
+            else out += esc;
+            i += 2;
+          } else if (input[i] === '$' && input[i + 1] === '\x7b') {
+            if (out) {
+              parts.push({ kind: 'str', value: out });
+              out = '';
+            }
+            i += 2;
+            const exprStart = i;
+            let depth = 1;
+            while (i < n && depth > 0) {
+              const c = input[i];
+              if (c === String.fromCharCode(34) || c === "'" || c === '`') {
+                const q = c;
+                i += 1;
+                while (i < n && input[i] !== q) {
+                  i += (input[i] === '\\' && i + 1 < n) ? 2 : 1;
+                }
+                if (i < n) i += 1;
+                continue;
+              }
+              if (c === '\x7b') depth += 1;
+              else if (c === '\x7d') {
+                depth -= 1;
+                if (depth === 0) break;
+              }
+              i += 1;
+            }
+            parts.push({ kind: 'expr', raw: input.slice(exprStart, i) });
+            if (i < n && input[i] === '\x7d') i += 1;
+          } else {
+            out += input[i];
+            i += 1;
+          }
+        }
+        if (i < n && input[i] === '`') i += 1;
+        if (parts.length === 0) {
+          tokens.push({ type: 'string', value: out });
+        } else {
+          if (out) parts.push({ kind: 'str', value: out });
+          tokens.push({ type: 'template', parts });
+        }
         continue;
       }
       if ((ch >= '0' && ch <= '9') || (ch === '.' && input[i + 1] >= '0' && input[i + 1] <= '9')) {
@@ -6521,8 +6703,20 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
     return tokens;
   };
 
-  const toks = tokenizePreviewJs(src);
+  let toks = tokenizePreviewJs(src);
   let pos = 0;
+  const parseNestedExpr = (exprSrc) => {
+    const savedToks = toks;
+    const savedPos = pos;
+    toks = tokenizePreviewJs(exprSrc);
+    pos = 0;
+    try {
+      return parseExpr();
+    } finally {
+      toks = savedToks;
+      pos = savedPos;
+    }
+  };
   const peek = () => toks[pos] || { type: 'eof', value: '' };
   const next = () => { const t = toks[pos]; pos += 1; return t; };
   const match = (type, val) => {
@@ -6830,6 +7024,15 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
       next();
       return { type: 'Literal', value: t.value };
     }
+    if (t.type === 'template') {
+      next();
+      const compiledParts = t.parts.map((part) => (
+        part.kind === 'str'
+          ? { kind: 'str', value: part.value }
+          : { kind: 'expr', ast: parseNestedExpr(part.raw) }
+      ));
+      return { type: 'Template', parts: compiledParts };
+    }
     if (match('kw', 'true')) return { type: 'Literal', value: true };
     if (match('kw', 'false')) return { type: 'Literal', value: false };
     if (match('kw', 'null')) return { type: 'Literal', value: null };
@@ -6980,6 +7183,13 @@ const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
     if (!node) return undefined;
     switch (node.type) {
       case 'Literal': return node.value;
+      case 'Template': {
+        let out = '';
+        for (const p of node.parts) {
+          out += p.kind === 'str' ? p.value : String(evalExpr(p.ast, scope));
+        }
+        return out;
+      }
       case 'Ident': {
         const s = resolveScope(scope, node.name);
         if (!s) throw new ReferenceError(`${node.name} is not defined`);
@@ -7356,21 +7566,25 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
 
   if (collectedCss.length > 0) {
     const safeCss = sanitizeCssText(collectedCss.join('\n'));
-    const styleEl = document.createElement('style');
-    styleEl.setAttribute('data-preview-cssom', 'true');
-    if (typeof CSSStyleSheet === 'function' && styleEl) {
+    let appliedAdopted = false;
+    if (typeof CSSStyleSheet === 'function' && typeof document !== 'undefined' && Array.isArray(document.adoptedStyleSheets)) {
       try {
         const sheet = new CSSStyleSheet();
         sheet.replaceSync(safeCss);
-        const serialized = Array.from(sheet.cssRules || []).map((r) => r.cssText).join('\n');
-        styleEl.textContent = serialized || safeCss;
+        document.adoptedStyleSheets = [sheet];
+        appliedAdopted = true;
       } catch {
-        styleEl.textContent = safeCss;
+        appliedAdopted = false;
       }
-    } else {
-      styleEl.textContent = safeCss;
     }
-    rootEl.appendChild(styleEl);
+    if (!appliedAdopted && typeof document.adoptedStyleSheets === 'undefined') {
+      const styleEl = document.createElement('style');
+      styleEl.setAttribute('data-preview-cssom', 'true');
+      styleEl.textContent = safeCss;
+      rootEl.appendChild(styleEl);
+    }
+  } else if (typeof document !== 'undefined' && Array.isArray(document.adoptedStyleSheets) && document.adoptedStyleSheets.length > 0) {
+    document.adoptedStyleSheets = [];
   }
 
   const pushLog = (level, args) => {
@@ -7441,11 +7655,57 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
   return _r460LatestPreviewDiag;
 };
 
-const handlePreviewInspectRequest = (msg) => {
+const handlePreviewInspectRequest = async (msg) => {
   const rpcId = msg && (msg.rpc_id || msg.requestId || msg.id || null);
+  const liveIframe = typeof document !== 'undefined' && typeof document.getElementById === 'function'
+    ? document.getElementById('live-preview-iframe')
+    : null;
+  let reportToSend = _r460LatestPreviewDiag;
+
+  if (liveIframe && liveIframe.contentWindow && typeof liveIframe.contentWindow.postMessage === 'function') {
+    const reqKey = String(rpcId || `inspect_${_r460InspectSeq++}`);
+    const filesObj = {};
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && typeof engineWorkerClient.getWorkspaceListObject === 'function') {
+      const ws = engineWorkerClient.getWorkspaceListObject();
+      if (ws && Array.isArray(ws.files)) {
+        for (const f of ws.files) filesObj[f.path] = f.content || '';
+      }
+    } else if (typeof dispatchStudioEnvelope === 'function') {
+      const ws = dispatchStudioEnvelope('workspace_list', '');
+      if (ws && Array.isArray(ws.files)) {
+        for (const f of ws.files) filesObj[f.path] = f.content || '';
+      }
+    }
+
+    reportToSend = await new Promise((resolveInspect) => {
+      let timer = null;
+      const done = (rep) => {
+        if (timer !== null && typeof clearTimeout === 'function') {
+          clearTimeout(timer);
+          timer = null;
+        }
+        _r460PendingInspectWaiters.delete(reqKey);
+        resolveInspect(rep || _r460LatestPreviewDiag);
+      };
+      _r460PendingInspectWaiters.set(reqKey, done);
+      if (typeof setTimeout === 'function') {
+        timer = setTimeout(() => done(_r460LatestPreviewDiag), 250);
+        if (timer && typeof timer.unref === 'function') timer.unref();
+      }
+      liveIframe.contentWindow.postMessage({
+        protocol: 'uor-preview/1',
+        type: 'render_files',
+        op: 'render_files',
+        requestId: reqKey,
+        selector: (msg && msg.selector) || '#app',
+        files: filesObj,
+      }, '*');
+    });
+  }
+
   const replyPayload = {
-    ok: _r460LatestPreviewDiag.errors.length === 0,
-    ..._r460LatestPreviewDiag,
+    ok: !reportToSend.errors || reportToSend.errors.length === 0,
+    ...reportToSend,
     surface: (document.body && document.body.dataset && document.body.dataset.surface) || 'studio',
   };
   if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
@@ -7488,19 +7748,22 @@ const initPreviewSurfaceHost = () => {
     window.addEventListener('message', (ev) => {
       if (window.parent && ev && ev.source && ev.source !== window.parent) return;
       const msg = ev && ev.data ? ev.data : null;
-      if (!msg || typeof msg !== 'object' || msg.protocol !== 'uor-preview/1') return;
-      if (msg.op === 'render_files') {
+      if (!msg || typeof msg !== 'object') return;
+      const msgOp = msg.op || msg.type;
+      if (msg.protocol && msg.protocol !== 'uor-preview/1') return;
+      if (!msg.protocol && msgOp !== 'render_files' && msgOp !== 'inspect') return;
+      if (msgOp === 'render_files') {
         const diag = renderPreviewWorkspace(msg.files || {}, rootEl, (evDiag) => {
           postToParent({ op: evDiag.kind === 'console' ? 'console' : 'rendered', ...evDiag });
         });
-        postToParent({ op: 'inspect_reply', requestId: msg.requestId || null, report: diag });
-      } else if (msg.op === 'inspect') {
-        postToParent({ op: 'inspect_reply', requestId: msg.requestId || null, report: _r460LatestPreviewDiag });
+        postToParent({ op: 'inspect_reply', type: 'inspect_reply', requestId: msg.requestId || null, report: diag, diag });
+      } else if (msgOp === 'inspect') {
+        postToParent({ op: 'inspect_reply', type: 'inspect_reply', requestId: msg.requestId || null, report: _r460LatestPreviewDiag, diag: _r460LatestPreviewDiag });
       }
     });
   }
 
-  postToParent({ op: 'ready', surface: 'preview' });
+  postToParent({ op: 'ready', type: 'ready', surface: 'preview' });
 };
 
 // ============================================================================
@@ -11026,6 +11289,10 @@ class LexLeanTerminal {
           this.setExitCode(1);
           return;
         }
+        if (inPlace && typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
+          break;
+        }
         const readRes = dispatchStudioEnvelope('workspace_read', targetPath);
         if (!readRes || readRes.status !== 'ok') {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m File not found: ${targetPath}`);
@@ -11228,6 +11495,20 @@ class LexLeanTerminal {
       case 'git': {
         this.ensureGitInitialized();
         const sub = (args[0] || 'status').toLowerCase();
+        if (
+          sub !== 'clone'
+          && sub !== 'pull'
+          && sub !== 'push'
+          && sub !== 'fetch'
+          && sub !== 'remote'
+          && typeof engineWorkerClient !== 'undefined'
+          && engineWorkerClient.enabled
+          && typeof globalThis.__uorRunMvmExecInTerm === 'function'
+          && (!rawLine || (!rawLine.includes('|') && !rawLine.includes('>')))
+        ) {
+          globalThis.__uorRunMvmExecInTerm('git', [sub, ...args.slice(1)], rawLine || ['git', ...args].join(' '), this);
+          break;
+        }
         const ws = dispatchStudioEnvelope('workspace_list', '');
         const files = ws && Array.isArray(ws.files) ? ws.files : [];
         const currentMap = new Map();
@@ -11715,6 +11996,10 @@ class LexLeanTerminal {
           this.setExitCode(1);
           return;
         }
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
+          break;
+        }
         try {
           const ws = dispatchStudioEnvelope('workspace_write', `${filePath}\n`);
           renderWorkspaceList(ws);
@@ -11732,6 +12017,24 @@ class LexLeanTerminal {
           this.printAnsi('Usage: write <workspace-path> <content>');
           this.setExitCode(1);
           return;
+        }
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+          engineWorkerClient
+            .rpc('studio_dispatch', `1\tstudio\tworkspace_write\t${filePath}\n${content}`)
+            .then((ws) => {
+              renderWorkspaceList(ws);
+              selectWorkspaceFile(filePath);
+              this.printAnsi(`\x1b[32m[OK]\x1b[0m Wrote ${content.length} bytes to ${filePath}`);
+              this.setExitCode(0);
+              if (typeof globalThis.__uorRefreshWorkspaceAfterFsChange === 'function') {
+                globalThis.__uorRefreshWorkspaceAfterFsChange({ source: 'write' }).catch(() => {});
+              }
+            })
+            .catch((err) => {
+              this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Write error: ${err?.message || String(err)}`);
+              this.setExitCode(1);
+            });
+          break;
         }
         try {
           const ws = dispatchStudioEnvelope('workspace_write', `${filePath}\n${content}`);
@@ -12703,20 +13006,6 @@ for (const modalEl of [workspaceModal, diagnosticsModal]) {
   }
 }
 
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
-    setModalOpen(workspaceModal, false);
-    setModalOpen(diagnosticsModal, false);
-    if (typeof closeInspectorsModal === 'function') closeInspectorsModal();
-    for (const mid of ['settings-modal', 'new-path-modal', 'github-connect-modal', 'prism-holo-modal']) {
-      const mel = document.getElementById(mid);
-      if (mel && !mel.hasAttribute('hidden')) {
-        mel.setAttribute('hidden', '');
-      }
-    }
-  }
-});
-
 if (chatApplyPatchBtn) {
   chatApplyPatchBtn.addEventListener('click', () => {
     if (!pendingPatchPath || !pendingProposedCode) return;
@@ -13328,6 +13617,9 @@ function scheduleCursorGhostText(delay = 180) {
     cursorGhostDebounceTimer = null;
     updateCursorGhostText();
   }, delay);
+  if (cursorGhostDebounceTimer && typeof cursorGhostDebounceTimer.unref === 'function') {
+    cursorGhostDebounceTimer.unref();
+  }
 }
 
 function dismissCursorGhostText() {
@@ -14209,7 +14501,8 @@ function updateCursorGhostText() {
       })
       .then((res) => {
         if (ghostReqSeq !== updateCursorGhostText._seq) return;
-        const workerSug = res && (res.completion || res.text || res.reply) ? String(res.completion || res.text || res.reply).trim() : '';
+        const rawWorkerSug = res ? (res.suggestion || res.completion || res.text || res.reply) : '';
+        const workerSug = rawWorkerSug ? String(rawWorkerSug).trim() : '';
         if (!workerSug) return;
         cursorGhostState.suggestion = workerSug;
         cursorGhostState.sourceTag = (res && res.model_id) || 'Worker Holo Ghost';
@@ -14322,9 +14615,9 @@ function fuzzyScoreMatch(query, target) {
 }
 
 function setCursorAiMode(mode) {
-  const modeAgentBtn = document.getElementById('cursor-mode-agent');
-  const modeAskBtn = document.getElementById('cursor-mode-ask');
-  const modeEditBtn = document.getElementById('cursor-mode-edit');
+  const modeAgentBtn = document.getElementById('cursor-mode-agent-btn') || document.getElementById('cursor-mode-agent');
+  const modeAskBtn = document.getElementById('cursor-mode-ask-btn') || document.getElementById('cursor-mode-ask');
+  const modeEditBtn = document.getElementById('cursor-mode-edit-btn') || document.getElementById('cursor-mode-edit');
   for (const [btn, m] of [
     [modeAgentBtn, 'agent'],
     [modeAskBtn, 'ask'],
@@ -14335,12 +14628,26 @@ function setCursorAiMode(mode) {
       btn.setAttribute('aria-pressed', m === mode ? 'true' : 'false');
     }
   }
+  const isPlan = mode === 'ask' || mode === 'plan';
+  if (typeof setComposerModeUI === 'function') {
+    setComposerModeUI(isPlan ? 'plan' : 'agentic');
+    return;
+  }
   const compAgent = document.getElementById('composer-mode-agent');
   const compPlan = document.getElementById('composer-mode-plan');
   const compFast = document.getElementById('composer-mode-fast');
-  if (mode === 'agent' && compAgent) compAgent.click();
-  if (mode === 'ask' && compPlan) compPlan.click();
-  if (mode === 'edit' && compFast) compFast.click();
+  if (compAgent) {
+    compAgent.classList.toggle('active', !isPlan);
+    compAgent.setAttribute('aria-pressed', !isPlan ? 'true' : 'false');
+  }
+  if (compPlan) {
+    compPlan.classList.toggle('active', isPlan);
+    compPlan.setAttribute('aria-pressed', isPlan ? 'true' : 'false');
+  }
+  if (compFast) {
+    compFast.classList.toggle('active', mode === 'edit');
+    compFast.setAttribute('aria-pressed', mode === 'edit' ? 'true' : 'false');
+  }
 }
 
 function toggleCursorSidebar(forceState) {
@@ -15071,6 +15378,9 @@ function initCursorIdeWorkbench() {
     const winClass = (document.body && ((document.body.dataset && document.body.dataset.windowClass) || (typeof document.body.getAttribute === 'function' && document.body.getAttribute('data-window-class')))) || 'expanded';
     const isCurrentlyCollapsed = sidebar.classList.contains('sidebar-collapsed') || (mainEl && mainEl.classList.contains('sidebar-collapsed'));
     const shouldCollapse = typeof forceState === 'boolean' ? forceState : !isCurrentlyCollapsed;
+    if (typeof _r460ManualSidebarCollapse !== 'undefined') {
+      _r460ManualSidebarCollapse = shouldCollapse;
+    }
     sidebar.classList.toggle('sidebar-collapsed', shouldCollapse);
     sidebar.classList.toggle('sidebar-open', !shouldCollapse);
     if (mainEl) {
@@ -15224,7 +15534,16 @@ function initCursorIdeWorkbench() {
   const newPathInput = document.getElementById('new-path-input');
   const newPathKindInput = document.getElementById('new-path-kind-input');
   const newPathTitleEl = document.getElementById('new-path-modal-title');
-  const newPathErrorEl = document.getElementById('new-path-error');
+  let newPathErrorEl = document.getElementById('new-path-error');
+  if (!newPathErrorEl && newPathForm && typeof document.createElement === 'function') {
+    newPathErrorEl = document.createElement('p');
+    newPathErrorEl.id = 'new-path-error';
+    newPathErrorEl.className = 'form-error-text';
+    newPathErrorEl.setAttribute('role', 'alert');
+    newPathErrorEl.setAttribute('hidden', '');
+    newPathErrorEl.hidden = true;
+    newPathForm.appendChild(newPathErrorEl);
+  }
   const newPathSubmitBtn = document.getElementById('new-path-submit-btn');
   const newPathCancelBtn = document.getElementById('new-path-cancel-btn');
   const closeNewPathModalBtn = document.getElementById('close-new-path-modal-btn');
@@ -15235,7 +15554,11 @@ function initCursorIdeWorkbench() {
       newPathModal.setAttribute('hidden', '');
       newPathModal.hidden = true;
     }
-    if (newPathErrorEl) newPathErrorEl.textContent = '';
+    if (newPathErrorEl) {
+      newPathErrorEl.textContent = '';
+      newPathErrorEl.setAttribute('hidden', '');
+      newPathErrorEl.hidden = true;
+    }
   };
 
   const openNewPathModal = (kind = 'file') => {
@@ -15247,7 +15570,11 @@ function initCursorIdeWorkbench() {
     if (newPathSubmitBtn) {
       newPathSubmitBtn.textContent = normalizedKind === 'dir' ? 'Create Directory' : 'Create File';
     }
-    if (newPathErrorEl) newPathErrorEl.textContent = '';
+    if (newPathErrorEl) {
+      newPathErrorEl.textContent = '';
+      newPathErrorEl.setAttribute('hidden', '');
+      newPathErrorEl.hidden = true;
+    }
     if (newPathInput) {
       newPathInput.placeholder = normalizedKind === 'dir' ? '/workspace/src/new_dir' : '/workspace/src/module.rs';
     }
@@ -15269,9 +15596,15 @@ function initCursorIdeWorkbench() {
       const rawInput = (newPathInput && newPathInput.value ? newPathInput.value : '').trim();
       const kindVal = (newPathKindInput && newPathKindInput.value === 'dir') ? 'dir' : 'file';
       const normalized = rawInput.replace(/^\/workspace\/?/, '').replace(/^\/+/, '').replace(/\/+$/, '');
-      if (!normalized || rawInput.includes('\0') || normalized.split('/').some((seg) => seg === '..' || seg === '.')) {
-        const errMsg = 'Invalid path: path traversal (..) and empty names are rejected.';
-        if (newPathErrorEl) newPathErrorEl.textContent = errMsg;
+      const hasBadSegment = normalized.split('/').some((seg) => !seg || seg === '..' || seg === '.');
+      const hasBadChars = !/^[A-Za-z0-9_./-]+$/.test(normalized);
+      if (!normalized || rawInput.includes('\0') || rawInput.includes('\\') || hasBadSegment || hasBadChars) {
+        const errMsg = 'Invalid path: only [A-Za-z0-9_./-] allowed without (..), empty names, or NUL bytes.';
+        if (newPathErrorEl) {
+          newPathErrorEl.textContent = errMsg;
+          newPathErrorEl.removeAttribute('hidden');
+          newPathErrorEl.hidden = false;
+        }
         if (workspaceStatus) workspaceStatus.textContent = errMsg;
         if (typeof showStudioToast === 'function') showStudioToast(errMsg, 'error', 4000);
         return;
@@ -15545,20 +15878,25 @@ function initCursorIdeWorkbench() {
     const compPlan = document.getElementById('composer-mode-plan');
     const compFast = document.getElementById('composer-mode-fast');
     const isPlan = mode === 'ask' || mode === 'plan';
-    if (compAgent) {
-      compAgent.classList.toggle('active', !isPlan);
-      compAgent.setAttribute('aria-pressed', !isPlan ? 'true' : 'false');
+    if (typeof setComposerModeUI === 'function') {
+      setComposerModeUI(isPlan ? 'plan' : 'agentic');
+    } else {
+      if (compAgent) {
+        compAgent.classList.toggle('active', !isPlan);
+        compAgent.setAttribute('aria-pressed', !isPlan ? 'true' : 'false');
+      }
+      if (compPlan) {
+        compPlan.classList.toggle('active', isPlan);
+        compPlan.setAttribute('aria-pressed', isPlan ? 'true' : 'false');
+      }
+      if (compFast) {
+        compFast.classList.toggle('active', mode === 'edit');
+        compFast.setAttribute('aria-pressed', mode === 'edit' ? 'true' : 'false');
+      }
+      if (typeof AppState !== 'undefined' && AppState.config) {
+        AppState.config.composerMode = isPlan ? 'plan' : 'agentic';
+      }
     }
-    if (compPlan) {
-      compPlan.classList.toggle('active', isPlan);
-      compPlan.setAttribute('aria-pressed', isPlan ? 'true' : 'false');
-    }
-    if (typeof AppState !== 'undefined' && AppState.config) {
-      AppState.config.composerMode = isPlan ? 'plan' : 'agentic';
-    }
-    if (mode === 'agent' && compAgent) compAgent.click();
-    if (isPlan && compPlan) compPlan.click();
-    if (mode === 'edit' && compFast) compFast.click();
   }
 
   if (modeAgentBtn) modeAgentBtn.addEventListener('click', () => setCursorAiMode('agent'));
@@ -15619,6 +15957,29 @@ function initCursorIdeWorkbench() {
   function rejectPatchBatch() {
     if (AppState.workspace && AppState.workspace.pendingPatches) {
       AppState.workspace.pendingPatches = {};
+    }
+    if (typeof pendingPatchPath !== 'undefined') pendingPatchPath = '';
+    if (typeof pendingProposedCode !== 'undefined') pendingProposedCode = '';
+    if (typeof pendingDiffPreview !== 'undefined') pendingDiffPreview = '';
+    if (AppState.workspace) {
+      AppState.workspace.pendingPatchPath = '';
+      AppState.workspace.pendingProposedCode = '';
+    }
+    const diffEl = (typeof chatDiffPreview !== 'undefined' && chatDiffPreview) || document.getElementById('chat-diff-preview');
+    const fileEl = (typeof chatDiffFile !== 'undefined' && chatDiffFile) || document.getElementById('chat-diff-file');
+    const badgeEl = (typeof chatTargetBadge !== 'undefined' && chatTargetBadge) || document.getElementById('chat-target-badge');
+    const applyBtnEl = (typeof chatApplyPatchBtn !== 'undefined' && chatApplyPatchBtn) || document.getElementById('chat-apply-patch-btn');
+    if (diffEl) {
+      diffEl.textContent = 'No diff staged yet. Use Agentic mode or /patch <goal> to synthesize a proposed diff.';
+    }
+    if (fileEl) {
+      fileEl.textContent = 'no pending patch';
+    }
+    if (badgeEl) {
+      badgeEl.textContent = 'target: none';
+    }
+    if (applyBtnEl) {
+      applyBtnEl.disabled = true;
     }
     renderPendingPatchPills();
     const cmdkDiff = document.getElementById('cursor-cmdk-diff-hunk');
@@ -15832,21 +16193,35 @@ function initCursorIdeWorkbench() {
       return;
     }
     if (ev.key === 'Escape') {
+      if (typeof cursorPaletteOpen !== 'undefined' && cursorPaletteOpen) {
+        ev.preventDefault();
+        closeCursorCommandPalette();
+        return;
+      }
       if (newPathModal && !newPathModal.hasAttribute('hidden')) {
         ev.preventDefault();
         closeNewPathModal();
         return;
       }
-      const settingsEl = document.getElementById('settings-modal');
-      if (settingsEl && !settingsEl.hasAttribute('hidden')) {
-        ev.preventDefault();
-        settingsEl.setAttribute('hidden', '');
-        return;
-      }
-      if (typeof cursorPaletteOpen !== 'undefined' && cursorPaletteOpen) {
-        ev.preventDefault();
-        closeCursorCommandPalette();
-        return;
+      const modalCloseOrder = [
+        ['settings-modal', null],
+        ['inspectors-modal', () => (typeof closeInspectorsModal === 'function' ? closeInspectorsModal() : null)],
+        ['github-connect-modal', null],
+        ['prism-holo-modal', null],
+        ['workspace-modal', (el) => (typeof setModalOpen === 'function' ? setModalOpen(el, false) : el.setAttribute('hidden', ''))],
+        ['diagnostics-modal', (el) => (typeof setModalOpen === 'function' ? setModalOpen(el, false) : el.setAttribute('hidden', ''))],
+      ];
+      for (const [mid, closer] of modalCloseOrder) {
+        const mel = document.getElementById(mid);
+        if (mel && !mel.hasAttribute('hidden')) {
+          ev.preventDefault();
+          if (closer) closer(mel);
+          else {
+            mel.setAttribute('hidden', '');
+            mel.hidden = true;
+          }
+          return;
+        }
       }
       if (typeof cursorCmdKState !== 'undefined' && cursorCmdKState && cursorCmdKState.open) {
         ev.preventDefault();
@@ -16047,8 +16422,9 @@ function registerBrowserTerminalBridgeHooks() {
 
   globalThis.__uorRunMvmExecInTerm = (cmd, _args, fullCmd, term) => {
     if (!engineWorkerClient.enabled) return;
+    const termCwd = (term && term.env && term.env.CWD) || (term && term.cwd) || '/workspace';
     engineWorkerClient
-      .rpc('studio_dispatch', `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: fullCmd, cwd: term.cwd || '/workspace' })}`)
+      .rpc('studio_dispatch', `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: fullCmd, cwd: termCwd })}`)
       .then((res) => {
         if (res?.mvm_stdout) {
           for (const line of String(res.mvm_stdout).replace(/\n$/, '').split('\n')) term.printAnsi(line);
@@ -16064,7 +16440,10 @@ function registerBrowserTerminalBridgeHooks() {
           );
         }
         term.setExitCode(res?.exit_code ?? 0);
-        if (typeof globalThis.__uorRefreshWorkspaceAfterFsChange === 'function') {
+        const mutatingMvmCmds = new Set(['mkdir', 'rm', 'mv', 'cp', 'touch', 'sed', 'cc', 'gcc', 'python', 'python3', 'node', 'pkg']);
+        const isMutatingGit = cmd === 'git' && /\b(?:commit|checkout|reset|init|add|merge|rm|mv)\b/.test(String(fullCmd || ''));
+        const hasShellRedirect = typeof fullCmd === 'string' && fullCmd.includes('>');
+        if ((mutatingMvmCmds.has(cmd) || isMutatingGit || hasShellRedirect) && typeof globalThis.__uorRefreshWorkspaceAfterFsChange === 'function') {
           globalThis.__uorRefreshWorkspaceAfterFsChange({ source: cmd }).catch(() => {});
         }
       })
@@ -17100,7 +17479,7 @@ function initLayoutAndConnectedControls() {
       }
     }
     if (livePreviewIframe && livePreviewIframe.contentWindow && typeof livePreviewIframe.contentWindow.postMessage === 'function') {
-      livePreviewIframe.contentWindow.postMessage({ protocol: 'uor-preview/1', op: 'render_files', files: filesObj }, '*');
+      livePreviewIframe.contentWindow.postMessage({ protocol: 'uor-preview/1', type: 'render_files', op: 'render_files', files: filesObj }, '*');
     }
   };
 
@@ -17163,15 +17542,29 @@ function initLayoutAndConnectedControls() {
   }
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
     window.addEventListener('message', (ev) => {
+      if (livePreviewIframe && livePreviewIframe.contentWindow && ev && ev.source && ev.source !== livePreviewIframe.contentWindow) {
+        return;
+      }
       const msg = ev && ev.data ? ev.data : null;
       if (!msg || typeof msg !== 'object' || msg.protocol !== 'uor-preview/1') return;
-      if (msg.op === 'ready' && activeWorkbenchMode === 'preview') {
+      const msgOp = msg.op || msg.type || '';
+      if (msgOp === 'ready' && activeWorkbenchMode === 'preview') {
         sendFilesToPreviewIframe();
-      } else if (msg.op === 'console' && previewConsoleOutput && msg.line) {
+      } else if (msgOp === 'console' && previewConsoleOutput && msg.line) {
         previewConsoleOutput.textContent += `\n${msg.line}`;
-      } else if ((msg.op === 'rendered' || msg.op === 'inspect_reply') && msg.diag) {
-        if (previewConsoleOutput && Array.isArray(msg.diag.console) && msg.diag.console.length > 0) {
-          previewConsoleOutput.textContent = msg.diag.console.join('\n');
+      } else if (msgOp === 'rendered' || msgOp === 'inspect_reply') {
+        const report = msg.report || msg.diag || null;
+        if (report && typeof report === 'object') {
+          if (typeof _r460LatestPreviewDiag !== 'undefined' && _r460LatestPreviewDiag) {
+            _r460LatestPreviewDiag = { ..._r460LatestPreviewDiag, ...report };
+          }
+          if (previewConsoleOutput && Array.isArray(report.console) && report.console.length > 0) {
+            previewConsoleOutput.textContent = report.console.join('\n');
+          }
+        }
+        if (msgOp === 'inspect_reply' && msg.requestId != null && typeof _r460PendingInspectWaiters !== 'undefined') {
+          const waiter = _r460PendingInspectWaiters.get(String(msg.requestId));
+          if (waiter) waiter(report || _r460LatestPreviewDiag);
         }
       }
     });
@@ -17197,10 +17590,15 @@ function initLayoutAndConnectedControls() {
   const closeSettingsModal = () => {
     if (settingsModal) settingsModal.setAttribute('hidden', '');
   };
+  const readConsentStored = () => {
+    if (typeof safeStorageGet !== 'function') return false;
+    const raw = safeStorageGet('uor_allow_off_origin_hydration');
+    return typeof isConsentGrantedVal === 'function' ? isConsentGrantedVal(raw) : (raw === '1' || raw === 'true' || raw === 'granted');
+  };
   if (openSettingsModalBtn && settingsModal) {
     openSettingsModalBtn.addEventListener('click', () => {
-      if (allowOffOriginChk && typeof safeStorageGet === 'function') {
-        allowOffOriginChk.checked = safeStorageGet('uor_allow_off_origin_hydration') === 'granted';
+      if (allowOffOriginChk) {
+        allowOffOriginChk.checked = readConsentStored();
       }
       settingsModal.removeAttribute('hidden');
     });
@@ -17208,13 +17606,11 @@ function initLayoutAndConnectedControls() {
   if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
   if (settingsBackdrop) settingsBackdrop.addEventListener('click', closeSettingsModal);
   if (allowOffOriginChk) {
-    if (typeof safeStorageGet === 'function') {
-      allowOffOriginChk.checked = safeStorageGet('uor_allow_off_origin_hydration') === 'granted';
-    }
+    allowOffOriginChk.checked = readConsentStored();
     allowOffOriginChk.addEventListener('change', () => {
       const granted = Boolean(allowOffOriginChk.checked);
       if (typeof safeStorageSet === 'function') {
-        safeStorageSet('uor_allow_off_origin_hydration', granted ? 'granted' : 'declined');
+        safeStorageSet('uor_allow_off_origin_hydration', granted ? '1' : 'declined');
       }
       if (engineWorkerClient.enabled) {
         engineWorkerClient.rpc('set_bridge_policy', { allowOffOriginHydration: granted }).catch(() => {});
@@ -17525,7 +17921,7 @@ function initLayoutAndConnectedControls() {
   }
 
   document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape') {
+    if (ev.key === 'Escape' && !ev.defaultPrevented) {
       const prismHoloEl = document.getElementById('prism-holo-modal');
       const settingsEl = document.getElementById('settings-modal');
       const newPathEl = document.getElementById('new-path-modal');

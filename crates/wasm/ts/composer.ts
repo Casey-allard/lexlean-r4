@@ -163,6 +163,20 @@ export const AGENTIC_SLASH_COMMANDS: readonly SlashCommandSpec[] = [
     template: '',
     action: 'clear',
   },
+  {
+    command: '/holo',
+    title: 'Compile & Verify .holo v4 Package',
+    badge: 'holo://app',
+    description: 'Compile live 6-file closure into HOLO v4 + Core-Wasm archive for UOR Foundry',
+    template: '/holo',
+  },
+  {
+    command: '/prism-id',
+    title: 'Inspect Stitch Prism Identity',
+    badge: 'P-256 Kappa',
+    description: 'Initialize or inspect non-extractable Stitch PrismId sha256 kappa chain',
+    template: '/prism-id',
+  },
 ];
 
 export class AgenticTypeScriptComposer {
@@ -191,6 +205,22 @@ export class AgenticTypeScriptComposer {
     return this.state;
   }
 
+  private persistStorage(key: string, value: string): void {
+    const safeFn = Reflect.get(globalThis, 'safeStorageSet');
+    if (typeof safeFn === 'function') {
+      safeFn(key, value);
+      return;
+    }
+    try {
+      const ls = Reflect.get(globalThis, 'localStorage');
+      if (ls && typeof ls.setItem === 'function') {
+        ls.setItem(key, value);
+      }
+    } catch {
+      // Restricted iframe / non-browser environments may block localStorage
+    }
+  }
+
   public setMode(mode: ComposerMode | string): void {
     const normalized = String(mode || '').trim().toLowerCase();
     if (normalized === 'agent' || normalized === 'agentic' || normalized === 'edit' || normalized === 'coding') {
@@ -206,6 +236,7 @@ export class AgenticTypeScriptComposer {
     } else {
       this.state.mode = 'agentic';
     }
+    this.persistStorage('uor_composer_mode', this.state.mode);
   }
 
   public isPlanReadOnly(): boolean {
@@ -240,6 +271,7 @@ export class AgenticTypeScriptComposer {
     const exists = COMPOSER_MODELS.some((m) => m.id === modelId);
     if (exists || modelId) {
       this.state.selectedModel = modelId;
+      this.persistStorage('uor_composer_model', modelId);
       return true;
     }
     return false;

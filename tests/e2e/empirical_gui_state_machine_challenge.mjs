@@ -882,6 +882,9 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
   createMockCanvas('holo-storage-geometry-canvas', 460, 220);
 
   const origCreate = document.createElement.bind(document);
+  document.head = origCreate('head');
+  document.adoptedStyleSheets = [];
+  body.appendChild(document.head);
   document.createElement = (tag) => {
     const el = origCreate(tag);
     el.dataset = {};
@@ -971,6 +974,8 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
        PreviewScriptFuelExhausted,
        evaluatePreviewScriptWithFuel,
        renderPreviewWorkspace,
+       handlePreviewInspectRequest,
+       _r460PendingInspectWaiters,
      };`
   );
 
@@ -1000,154 +1005,344 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
   let syncedModels = [];
   let obsRenderCount = 0;
 
-  const r460 = sandboxR460(
-    document,
-    mockWin,
-    throwingLocalStorage,
-    AppStateMock,
-    workerMock,
-    (prompt) => rerunPrompts.push(prompt),
-    (m) => {
-      syncedModels.push(m);
-      AppStateMock.config.selectedModel = m;
-      modelSelectEl.value = m;
-      composerModelSelectEl.value = m;
-    },
-    () => {},
-    () => { obsRenderCount += 1; },
-    obsStateMock,
-    null
-  );
+  const origCSSStyleSheet = globalThis.CSSStyleSheet;
+  globalThis.CSSStyleSheet = class MockCSSStyleSheet {
+    replaceSync(css) {
+      this.cssText = String(css ?? '');
+    }
+  };
+  mockWin.CSSStyleSheet = globalThis.CSSStyleSheet;
+  try {
+    const r460 = sandboxR460(
+      document,
+      mockWin,
+      throwingLocalStorage,
+      AppStateMock,
+      workerMock,
+      (prompt, appendUserBubble) => rerunPrompts.push({ prompt, appendUserBubble }),
+      (m) => {
+        syncedModels.push(m);
+        AppStateMock.config.selectedModel = m;
+        modelSelectEl.value = m;
+        composerModelSelectEl.value = m;
+      },
+      () => {},
+      () => { obsRenderCount += 1; },
+      obsStateMock,
+      null
+    );
 
-  // 7.1 M3 Window Size Classes (<600 compact, 600..839 medium, >=840 expanded)
-  assert.equal(r460.classifyWindowWidth(390), 'compact');
-  assert.equal(r460.classifyWindowWidth(599), 'compact');
-  assert.equal(r460.classifyWindowWidth(600), 'medium');
-  assert.equal(r460.classifyWindowWidth(839), 'medium');
-  assert.equal(r460.classifyWindowWidth(840), 'expanded');
-  r460.applyWindowWidthClass(500);
-  assert.equal(body.dataset.windowClass, 'compact');
-  assert.equal(prismFrame.dataset.windowClass, 'compact');
-  body.dataset.layoutMode = 'studio';
-  r460.syncObservatoryHost();
-  assert.ok(tracesPanelEl.children.includes(obsDeckEl), 'Compact mode must keep Observatory inside #inspectors-modal');
-  r460.applyWindowWidthClass(1280);
-  assert.equal(body.dataset.windowClass, 'expanded');
-  r460.syncObservatoryHost();
-  assert.ok(dockSplitEl.children.includes(obsDeckEl), 'Expanded Studio mode must dock Observatory into #observatory-dock-split');
-  console.log('  ✓ 7.1 M3 window size classes & responsive Observatory dock verified.');
+    // 7.1 M3 Window Size Classes (<600 compact, 600..839 medium, >=840 expanded) & Sidebar Recovery
+    assert.equal(r460.classifyWindowWidth(390), 'compact');
+    assert.equal(r460.classifyWindowWidth(599), 'compact');
+    assert.equal(r460.classifyWindowWidth(600), 'medium');
+    assert.equal(r460.classifyWindowWidth(839), 'medium');
+    assert.equal(r460.classifyWindowWidth(840), 'expanded');
+    r460.applyWindowWidthClass(500);
+    assert.equal(body.dataset.windowClass, 'compact');
+    assert.equal(prismFrame.dataset.windowClass, 'compact');
+    assert.equal(sidebarEl.classList.contains('sidebar-collapsed'), true, 'Compact 500px must collapse sidebar');
+    body.dataset.layoutMode = 'studio';
+    r460.syncObservatoryHost();
+    assert.ok(tracesPanelEl.children.includes(obsDeckEl), 'Compact mode must keep Observatory inside #inspectors-modal');
+    r460.applyWindowWidthClass(1280);
+    assert.equal(body.dataset.windowClass, 'expanded');
+    assert.equal(sidebarEl.classList.contains('sidebar-collapsed'), false, 'Widening to 1280px must recover sidebar unless manually collapsed');
+    r460.syncObservatoryHost();
+    assert.ok(dockSplitEl.children.includes(obsDeckEl), 'Expanded Studio mode must dock Observatory into #observatory-dock-split');
+    console.log('  ✓ 7.1 M3 window size classes, sidebar 500->1280 recovery & Observatory dock verified.');
 
-  // 7.2 Live Mini-HUD + <=512 token ring-buffer scrubber + XSS safety + Q31 honesty
-  const hudCtrl = r460.createLiveTokenHudController(chatMessagesEl);
-  for (let i = 0; i < 520; i++) {
-    const tokText = i === 10 ? '<img src=x onerror=alert(1)>' : `tok${i} `;
+    // 7.2 Live Mini-HUD + <=512 token ring-buffer scrubber + Worker handleMessage + lock/unlock/eviction + Q31 honesty
+    const hudCtrl = r460.createLiveTokenHudController(chatMessagesEl);
+    for (let i = 0; i < 520; i++) {
+      const tokText = i === 10 ? '<img src=x onerror=alert(1)>' : `tok${i} `;
+      hudCtrl.pushTokenStep({
+        frame: {
+          step_idx: i,
+          phase: 'decode',
+          seq_pos: 20 + i,
+          prefix_reused_tokens: 18,
+          token_id: 100 + i,
+          token_text: tokText,
+          has_geometric_shortlist: true,
+          min_hamming: 30 + (i % 20),
+          shortlist_count: 1536,
+          ttft_ms: 42,
+          tps_x10: 615,
+          q_manifold_xyz: [i - 250, (i * 3) % 400, -100],
+          layer_max_bits: new Array(28).fill(18 + (i % 6)),
+          layer_residual_mag: new Array(28).fill(500 + i),
+          hamming_hist_32: new Array(32).fill(10),
+          top_candidates: [
+            { token_id: 1, token_text: tokText, logit_q16: 9000, prob_permille: 614, hamming_d: 31, selected: true },
+            { token_id: 2, token_text: 'alt', logit_q16: 7200, prob_permille: 182, hamming_d: 44, selected: false },
+          ],
+          backend: 'holo-v13-simd128',
+        },
+        delta: tokText,
+        tokens_emitted: i + 1,
+        tok_per_sec: 61.5,
+        prefix_reused_tokens: 18,
+      });
+    }
+    const hudEl = chatMessagesEl.querySelector('.holo-live-hud');
+    const scrubberEl = chatMessagesEl.querySelector('.holo-token-scrubber');
+    assert.ok(hudEl, '.holo-live-hud must be created inside assistant message');
+    assert.ok(scrubberEl, '.holo-token-scrubber must be created inside assistant message');
+    assert.ok(hudEl.querySelector('.holo-hud-canvas'), 'Mini-HUD must contain .holo-hud-canvas');
+    const tokSpans = scrubberEl.querySelectorAll('.holo-tok-span');
+    assert.ok(tokSpans.length <= 512 && tokSpans.length > 0, `Scrubber must cap retained spans at <= 512 (got ${tokSpans.length})`);
+    assert.equal(hudCtrl.frames.length, 512, 'Ring buffer must retain strictly <= 512 frames');
+    const xssSpan = tokSpans.find((s) => s.textContent.includes('<img src=x onerror=alert(1)>'));
+    assert.ok(xssSpan, 'XSS payload token must be preserved as literal textContent');
+    assert.equal(xssSpan.children.length, 0, 'XSS payload must NOT parse any child <img> element');
+
+    // Hover while unlocked updates Mini-HUD + Observatory without pinning
+    const obsHoverBefore = obsRenderCount;
+    tokSpans[4].dispatchEvent({ type: 'mouseenter', target: tokSpans[4] });
+    assert.ok(obsRenderCount > obsHoverBefore, 'Hovering scrubber span must update Observatory deck');
+    assert.equal(obsStateMock.lockedFrameIdx, null, 'Hover must NOT lock frame index');
+
+    // Click locks; click again unlocks; Enter locks; Space unlocks
+    const obsBefore = obsRenderCount;
+    tokSpans[0].dispatchEvent({ type: 'click', target: tokSpans[0] });
+    assert.ok(obsRenderCount > obsBefore, 'Clicking scrubber token must re-render Observatory deck');
+    assert.equal(obsStateMock.frames[obsStateMock.frames.length - 1].step_idx, Number(tokSpans[0].getAttribute('data-frame-idx')) + 8, 'Scrubber lock must select exact ring-buffered frame');
+    assert.equal(obsStateMock.lockedFrameIdx, 0, 'Clicking span 0 must pin lockedFrameIdx=0');
+    assert.equal(tokSpans[0].getAttribute('aria-pressed'), 'true');
+    tokSpans[0].dispatchEvent({ type: 'click', target: tokSpans[0] });
+    assert.equal(obsStateMock.lockedFrameIdx, null, 'Clicking pinned span again must unlock back to live mode');
+    assert.equal(tokSpans[0].getAttribute('aria-pressed'), 'false');
+
+    tokSpans[5].dispatchEvent({ type: 'keydown', key: 'Enter', preventDefault: () => {} });
+    assert.equal(obsStateMock.lockedFrameIdx, 5, 'Enter key on scrubber span must lock frame');
+    tokSpans[5].dispatchEvent({ type: 'keydown', key: ' ', preventDefault: () => {} });
+    assert.equal(obsStateMock.lockedFrameIdx, null, 'Space key on pinned scrubber span must unlock frame');
+
+    // 512-ring eviction unlock: pin span 0, then push 1 more frame -> index 0 evicted -> unlocked
+    tokSpans[0].dispatchEvent({ type: 'click', target: tokSpans[0] });
+    assert.equal(obsStateMock.lockedFrameIdx, 0);
     hudCtrl.pushTokenStep({
       frame: {
-        step_idx: i,
+        step_idx: 520,
         phase: 'decode',
-        seq_pos: 20 + i,
+        seq_pos: 540,
         prefix_reused_tokens: 18,
-        token_id: 100 + i,
-        token_text: tokText,
+        token_id: 620,
+        token_text: 'evict ',
         has_geometric_shortlist: true,
-        min_hamming: 30 + (i % 20),
+        min_hamming: 32,
         shortlist_count: 1536,
         ttft_ms: 42,
-        tps_x10: 615,
-        q_manifold_xyz: [i - 250, (i * 3) % 400, -100],
-        layer_max_bits: new Array(28).fill(18 + (i % 6)),
-        layer_residual_mag: new Array(28).fill(500 + i),
-        hamming_hist_32: new Array(32).fill(10),
-        top_candidates: [
-          { token_id: 1, token_text: tokText, logit_q16: 9000, prob_permille: 614, hamming_d: 31, selected: true },
-          { token_id: 2, token_text: 'alt', logit_q16: 7200, prob_permille: 182, hamming_d: 44, selected: false },
-        ],
+        tps_x10: 620,
+        q_manifold_xyz: [1, 2, 3],
+        layer_max_bits: new Array(28).fill(20),
+        top_candidates: [{ token_id: 620, token_text: 'evict ', logit_q16: 8800, prob_permille: 600, hamming_d: 32, selected: true }],
         backend: 'holo-v13-simd128',
       },
-      delta: tokText,
-      tokens_emitted: i + 1,
-      tok_per_sec: 61.5,
-      prefix_reused_tokens: 18,
+      delta: 'evict ',
     });
+    assert.equal(obsStateMock.lockedFrameIdx, null, 'Evicting pinned token from 512-ring must unlock live stream');
+
+    // Real engineWorkerClient.handleMessage('token_step') integration
+    const workerStart = appJsContent.indexOf('const engineWorkerClient = {');
+    const workerEnd = appJsContent.indexOf('const headerBrainPulseState = {');
+    assert.ok(workerStart !== -1 && workerEnd > workerStart, 'engineWorkerClient block must exist in public/app.js');
+    const workerCode = appJsContent
+      .slice(workerStart, workerEnd)
+      .replace(/import\.meta\.url/g, "'http://localhost/app.js'");
+    const liveWorkerCalls = [];
+    const tsComposerStub = { activeTurnId: null, setActiveTurnId(tid) { this.activeTurnId = tid; } };
+    const realWorkerClient = new Function(
+      'document',
+      'window',
+      'AppState',
+      'holoObservatoryState',
+      'ingestHoloObservatoryFrame',
+      'tsComposer',
+      'DEFAULT_STARTER_WORKSPACE_FILES',
+      `${workerCode}\nreturn engineWorkerClient;`
+    )(
+      document,
+      mockWin,
+      AppStateMock,
+      obsStateMock,
+      (frame, meta) => {
+        liveWorkerCalls.push({ frame, meta });
+        obsStateMock.frames.push(frame);
+        obsRenderCount += 1;
+      },
+      tsComposerStub,
+      []
+    );
+    const streamedEvents = [];
+    realWorkerClient.activeChatStreamHook = (ev) => {
+      streamedEvents.push(ev);
+      if (ev.stage === 'token_step') hudCtrl.pushTokenStep(ev);
+    };
+    realWorkerClient.handleMessage({
+      event: 'token_step',
+      turn_id: 91,
+      prefix_reused_tokens: 16,
+      delta: 'step91 ',
+      frame: {
+        step_idx: 521,
+        phase: 'decode',
+        seq_pos: 541,
+        prefix_reused_tokens: 16,
+        token_id: 621,
+        token_text: 'step91 ',
+        has_geometric_shortlist: true,
+        min_hamming: 28,
+        shortlist_count: 1400,
+        ttft_ms: 41,
+        tps_x10: 630,
+        q_manifold_xyz: [4, 5, 6],
+        layer_max_bits: new Array(28).fill(19),
+        top_candidates: [{ token_id: 621, token_text: 'step91 ', logit_q16: 9100, prob_permille: 640, hamming_d: 28, selected: true }],
+        backend: 'holo-v13-simd128',
+      },
+    });
+    assert.equal(tsComposerStub.activeTurnId, 91, 'Worker token_step must update tsComposer.activeTurnId');
+    assert.equal(liveWorkerCalls.length, 1, 'Worker token_step must drive real ingestHoloObservatoryFrame');
+    assert.equal(liveWorkerCalls[0].meta.prefixReused, 16);
+    assert.equal(streamedEvents.length, 1);
+    assert.equal(streamedEvents[0].stage, 'token_step');
+
+    // Q31 honesty when !has_geometric_shortlist
+    const q31Hud = r460.createLiveTokenHudController(chatMessagesEl);
+    q31Hud.pushTokenStep({
+      frame: {
+        step_idx: 0,
+        phase: 'decode',
+        seq_pos: 5,
+        prefix_reused_tokens: 0,
+        token_id: 7,
+        token_text: 'q31',
+        has_geometric_shortlist: false,
+        min_hamming: 0,
+        shortlist_count: 0,
+        ttft_ms: 12,
+        tps_x10: 450,
+        q_manifold_xyz: [10, 20, 30],
+        layer_max_bits: [12, 13, 14, 15],
+        top_candidates: [
+          { token_id: 7, token_text: 'q31', logit_q16: 4000, prob_permille: 700, hamming_d: null, selected: true },
+        ],
+        backend: 'native-q31-d85',
+      },
+      delta: 'q31',
+    });
+    const q31Card = q31Hud.hudEl;
+    assert.ok(q31Card.querySelector('.holo-q31-badge'), 'Native Q31 HUD must render honest Q31 Exact Lane badge');
+    console.log('  ✓ 7.2 Live Mini-HUD, 512-token scrubber, Worker handleMessage, lock/unlock/eviction & Q31 honesty verified.');
+
+    // 7.3 Consent Card Approve ('1' + allowOffOriginHydration + appendUserBubble=false) & Decline -> Native Q31
+    await r460.renderHydrationConsentCard(
+      chatMessagesEl,
+      {
+        model_id: 'uor-r4.qwen3-0.6b-holo',
+        approx_bytes: 429916160,
+        mirrors: ['https://huggingface.co/example/model/piece_0000.bin'],
+      },
+      'approve test prompt'
+    );
+    const consentCardApprove = chatMessagesEl.querySelector('.holo-consent-card');
+    assert.ok(consentCardApprove, 'Consent card must render inline');
+    const approveBtn = consentCardApprove.querySelector('.holo-consent-approve-btn');
+    assert.ok(approveBtn, 'Approve button must exist');
+    assert.equal(approveBtn.textContent, 'Download Verified Weights (~410 MiB / ~1.09 GiB)');
+    await approveBtn.click();
+    for (let k = 0; k < 8; k += 1) await Promise.resolve();
+    assert.equal(r460.safeStorageGet('uor_allow_off_origin_hydration'), '1', 'Approve must persist consent as "1"');
+    assert.ok(
+      rpcCalls.some((c) => (
+        c.op === 'hydrate_holo_model'
+        && c.payload.modelId === 'uor-r4.qwen3-0.6b-holo'
+        && c.payload.allowOffOriginHydration === true
+        && c.payload.rememberConsent === true
+      )),
+      'Approve must send exact { modelId, allowOffOriginHydration: true, rememberConsent: true }'
+    );
+    assert.ok(
+      rerunPrompts.some((r) => r.prompt === 'approve test prompt' && r.appendUserBubble === false),
+      'Consent retry must call runClaudeChat(prompt, false) without duplicating user bubble'
+    );
+
+    await r460.renderHydrationConsentCard(
+      chatMessagesEl,
+      {
+        model_id: 'uor-r4.qwen3-0.6b-holo',
+        approx_bytes: 429916160,
+        mirrors: ['https://huggingface.co/example/model/piece_0000.bin'],
+      },
+      'hello world'
+    );
+    const allCards = chatMessagesEl.querySelectorAll('.holo-consent-card');
+    const offlineBtn = allCards[allCards.length - 1].querySelector('.holo-consent-offline-btn');
+    assert.ok(offlineBtn, 'Offline Native Q31 fallback button must exist');
+    await offlineBtn.click();
+    for (let k = 0; k < 8; k += 1) await Promise.resolve();
+    assert.equal(r460.safeStorageGet('uor_allow_off_origin_hydration'), 'declined', 'SecurityError must fall back to memory storage');
+    assert.equal(AppStateMock.config.selectedModel, 'uor-r4.native-q31-d85', 'Declining must auto-switch to Native Q31');
+    assert.ok(
+      rerunPrompts.some((r) => r.prompt === 'hello world' && r.appendUserBubble === false),
+      'Declining must re-run pending prompt with appendUserBubble=false'
+    );
+    assert.ok(rpcCalls.some((c) => c.op === 'hydrate_holo_model' && c.payload.decline === true), 'Must notify Worker of consent decline');
+    console.log('  ✓ 7.3 Off-origin weight consent Approve ("1"), SecurityError fallback & zero-duplicate retry verified.');
+
+    // 7.4 ?surface=preview 100,000-step fuel limit, CSSOM adoptedStyleSheets, template literal & preview_inspect round-trip
+    assert.throws(
+      () => r460.evaluatePreviewScriptWithFuel('while (true) {}', { document, console: { log: () => {}, warn: () => {}, error: () => {} } }, 100000),
+      (err) => err && (err.code === 'PreviewScriptFuelExhausted' || err.error_code === 'PreviewScriptFuelExhausted'),
+      'Infinite while (true) {} loop must fail with PreviewScriptFuelExhausted'
+    );
+    const tplRes = r460.evaluatePreviewScriptWithFuel(
+      'const a = 21; const msg = `sum=${a * 2}!`; msg;',
+      { document, console: { log: () => {}, warn: () => {}, error: () => {} } },
+      100000
+    );
+    assert.equal(tplRes.value, 'sum=42!', 'Template literal interpolation must evaluate in fuel-bounded AST evaluator');
+
+    const rootTargetEl = document.getElementById('preview-root');
+    body.appendChild(rootTargetEl);
+    const pvDiag = r460.renderPreviewWorkspace(
+      {
+        'styles.css': '.box { color: red; }',
+        'app.js': 'const n = 21; document.body.textContent = `sum=${n * 2}`; console.log(`val=${n * 2}`);',
+      },
+      rootTargetEl
+    );
+    assert.equal(document.querySelectorAll('style').length, 0, 'Preview CSS must use adoptedStyleSheets without injecting CSP-violating <style> elements');
+    assert.equal(document.adoptedStyleSheets.length, 1, 'document.adoptedStyleSheets must receive CSSStyleSheet');
+    assert.equal(rootTargetEl.textContent, 'sum=42', 'Preview script must update preview-root via template literal');
+    assert.equal(pvDiag.errors.length, 0);
+    assert.ok(pvDiag.console.includes('[log] val=42'), 'Template literal inside console.log must evaluate cleanly');
+
+    // Cross-frame preview_inspect round-trip
+    const iframeEl = document.getElementById('live-preview-iframe');
+    iframeEl.contentWindow = {
+      postMessage(msg) {
+        assert.equal(msg.protocol, 'uor-preview/1');
+        assert.equal(msg.type, 'render_files');
+        assert.equal(msg.op, 'render_files');
+        const waiter = r460._r460PendingInspectWaiters.get(String(msg.requestId));
+        assert.ok(waiter, 'handlePreviewInspectRequest must register inspect waiter by requestId');
+        waiter({ errors: [], console: ['inspected'], rootHtmlPreview: 'sum=42' });
+      },
+    };
+    const inspectPayload = await r460.handlePreviewInspectRequest({ rpc_id: 42, selector: '#app' });
+    assert.equal(inspectPayload.ok, true);
+    assert.equal(inspectPayload.rootHtmlPreview, 'sum=42');
+    assert.ok(
+      rpcCalls.some((c) => c.op === 'preview_inspect_reply' && c.payload.rpc_id === 42 && c.payload.report.rootHtmlPreview === 'sum=42'),
+      'preview_inspect_reply must forward child iframe report'
+    );
+    console.log('  ✓ 7.4 ?surface=preview 100k fuel limit, CSSOM adoptedStyleSheets, template interpolation & preview_inspect verified.');
+  } finally {
+    globalThis.CSSStyleSheet = origCSSStyleSheet;
   }
-  const hudEl = chatMessagesEl.querySelector('.holo-live-hud');
-  const scrubberEl = chatMessagesEl.querySelector('.holo-token-scrubber');
-  assert.ok(hudEl, '.holo-live-hud must be created inside assistant message');
-  assert.ok(scrubberEl, '.holo-token-scrubber must be created inside assistant message');
-  assert.ok(hudEl.querySelector('.holo-hud-canvas'), 'Mini-HUD must contain .holo-hud-canvas');
-  const tokSpans = scrubberEl.querySelectorAll('.holo-tok-span');
-  assert.ok(tokSpans.length <= 512 && tokSpans.length > 0, `Scrubber must cap retained spans at <= 512 (got ${tokSpans.length})`);
-  assert.equal(hudCtrl.frames.length, 512, 'Ring buffer must retain strictly <= 512 frames');
-  const xssSpan = tokSpans.find((s) => s.textContent.includes('<img src=x onerror=alert(1)>'));
-  assert.ok(xssSpan, 'XSS payload token must be preserved as literal textContent');
-  assert.equal(xssSpan.children.length, 0, 'XSS payload must NOT parse any child <img> element');
-
-  // Hover/click scrubber span locks Mini-HUD and Observatory to exact frame
-  const obsBefore = obsRenderCount;
-  tokSpans[0].dispatchEvent({ type: 'click', target: tokSpans[0] });
-  assert.ok(obsRenderCount > obsBefore, 'Clicking scrubber token must re-render Observatory deck');
-  assert.equal(obsStateMock.frames[obsStateMock.frames.length - 1].step_idx, Number(tokSpans[0].getAttribute('data-frame-idx')) + 8, 'Scrubber lock must select exact ring-buffered frame');
-
-  // Q31 honesty when !has_geometric_shortlist
-  const q31Hud = r460.createLiveTokenHudController(chatMessagesEl);
-  q31Hud.pushTokenStep({
-    frame: {
-      step_idx: 0,
-      phase: 'decode',
-      seq_pos: 5,
-      prefix_reused_tokens: 0,
-      token_id: 7,
-      token_text: 'q31',
-      has_geometric_shortlist: false,
-      min_hamming: 0,
-      shortlist_count: 0,
-      ttft_ms: 12,
-      tps_x10: 450,
-      q_manifold_xyz: [10, 20, 30],
-      layer_max_bits: [12, 13, 14, 15],
-      top_candidates: [
-        { token_id: 7, token_text: 'q31', logit_q16: 4000, prob_permille: 700, hamming_d: null, selected: true },
-      ],
-      backend: 'native-q31-d85',
-    },
-    delta: 'q31',
-  });
-  const q31Card = q31Hud.hudEl;
-  const q31Text = q31Card.textContent || JSON.stringify(q31Card);
-  assert.ok(q31Card.querySelector('.holo-q31-badge'), 'Native Q31 HUD must render honest Q31 Exact Lane badge');
-  console.log('  ✓ 7.2 Live Mini-HUD, 512-token scrubber ring buffer, XSS safety & Q31 honesty verified.');
-
-  // 7.3 Consent Card with SecurityError on localStorage -> Native Q31 fallback
-  await r460.renderHydrationConsentCard(
-    chatMessagesEl,
-    {
-      model_id: 'uor-r4.qwen3-0.6b-holo',
-      approx_bytes: 429916160,
-      mirrors: ['https://raw.githubusercontent.com/example/model/piece_0000.bin'],
-    },
-    'hello world'
-  );
-  const consentCard = chatMessagesEl.querySelector('.holo-consent-card');
-  assert.ok(consentCard, 'Consent card must render inline');
-  const offlineBtn = consentCard.querySelector('.holo-consent-offline-btn');
-  assert.ok(offlineBtn, 'Offline Native Q31 fallback button must exist');
-  await offlineBtn.click();
-  for (let k = 0; k < 8; k += 1) await Promise.resolve();
-  assert.equal(r460.safeStorageGet('uor_allow_off_origin_hydration'), 'declined', 'SecurityError must fall back to memory storage');
-  assert.equal(AppStateMock.config.selectedModel, 'uor-r4.native-q31-d85', 'Declining must auto-switch to Native Q31');
-  assert.ok(rerunPrompts.includes('hello world'), 'Declining must re-run pending prompt');
-  assert.ok(rpcCalls.some((c) => c.op === 'hydrate_holo_model' && c.payload.decline === true), 'Must notify Worker of consent decline');
-  console.log('  ✓ 7.3 Off-origin weight consent SecurityError & Native Q31 fallback verified.');
-
-  // 7.4 ?surface=preview 100,000-step fuel limit (PreviewScriptFuelExhausted)
-  assert.throws(
-    () => r460.evaluatePreviewScriptWithFuel('while (true) {}', { document, console: { log: () => {}, warn: () => {}, error: () => {} } }, 100000),
-    (err) => err && (err.code === 'PreviewScriptFuelExhausted' || err.error_code === 'PreviewScriptFuelExhausted'),
-    'Infinite while (true) {} loop must fail with PreviewScriptFuelExhausted'
-  );
-  const okRes = r460.evaluatePreviewScriptWithFuel('let sum = 0; for (let i = 1; i <= 5; i += 1) { sum += i; } sum;', { document, console: { log: () => {}, warn: () => {}, error: () => {} } }, 100000);
-  assert.equal(okRes.value, 15, 'Valid bounded JS loop must compute exact result');
-  console.log('  ✓ 7.4 ?surface=preview 100,000-step fuel limit (PreviewScriptFuelExhausted) verified.');
 }
 
 console.log('\n================================================================');
