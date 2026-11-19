@@ -1537,6 +1537,53 @@ test('R4-62: CONCURRENCY = 3, 3-attempt shard retry, no-cache manifest + IDB ove
     );
     assert.equal(fakeStore.has('uor_allow_off_origin_hydration'), false, 'Stale declined flag must be purged');
 
+    // Send-triggered 1.7B hydration inside execute_inprism_foundry_turn emits hydration_progress(stage=holo_v13) + holo_ready
+    const fake17b = createFakeStepperHooks({ mounted: false });
+    const events17b = [];
+    let is17bMounted = false;
+    const turn17bRes = await execute_inprism_foundry_turn(
+      { id: 'req-send-17b-hydrate', payload: { prompt: 'Hydrate 1.7B on first send', selected_model: 'uor-r4.qwen3-1.7b-holo' } },
+      {
+        ...fake17b.hooks,
+        postEvent: (ev, data) => events17b.push({ event: ev, ...(data && typeof data === 'object' ? data : {}) }),
+        hydrateHoloModel: async (modelId, onProgress) => {
+          onProgress({ modelId, percent: 50, downloadedBytes: 100, totalBytes: 200 });
+          is17bMounted = true;
+          return {
+            status: 'ok',
+            mounted_count: 1,
+            qwen3_17b_mounted: true,
+            models: [{ model_id: modelId, n_layers: 28, d_model: 2048 }],
+          };
+        },
+        holoRuntimeStatus: () =>
+          JSON.stringify(
+            is17bMounted
+              ? {
+                  mounted_count: 1,
+                  qwen3_17b_mounted: true,
+                  models: [{ model_id: 'uor-r4.qwen3-1.7b-holo', n_layers: 28, d_model: 2048 }],
+                }
+              : { mounted_count: 0, qwen3_06b_mounted: false, qwen3_17b_mounted: false, models: [] },
+          ),
+        holoBeginTurn: (payloadJson) => {
+          const req = JSON.parse(payloadJson);
+          return JSON.stringify({ status: 'ready', turn_id: 88, model_id: req.selected_model });
+        },
+        holoStepTurn: () => JSON.stringify({ status: 'done', turn_id: 88, delta: '1.7b ok', tokens_emitted: 1, tok_per_sec: 15 }),
+      },
+    );
+    assert.equal(turn17bRes.ok, true);
+    const progEv = events17b.find(
+      (ev) => ev.event === 'hydration_progress' && ev.stage === 'holo_v13' && ev.modelId === 'uor-r4.qwen3-1.7b-holo',
+    );
+    assert.ok(progEv, 'Send-triggered hydration must emit hydration_progress with stage=holo_v13');
+    assert.equal(progEv.percent, 50);
+    const readyEv = events17b.find((ev) => ev.event === 'holo_ready');
+    assert.ok(readyEv, 'Send-triggered hydration completion must emit holo_ready');
+    assert.equal(readyEv.recommendedModel, 'uor-r4.qwen3-1.7b-holo');
+    assert.equal(readyEv.holo && readyEv.holo.qwen3_17b_mounted, true);
+
     // Explicit offlineEmergencyQ31=1 in Settings routes unadorned turns cleanly to Q31 without hydration
     fakeStore.set('uor_offline_emergency_q31', '1');
     const emergencyBeginCalls = [];

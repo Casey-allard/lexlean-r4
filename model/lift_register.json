@@ -4,8 +4,8 @@
   "summary": {
     "total_functions": 2795,
     "lifted": 2016,
-    "effect": 276,
-    "foreign": 160,
+    "effect": 277,
+    "foreign": 159,
     "residue": 343
   },
   "rows": [
@@ -350,7 +350,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "22bc75ffae1e2525dc20e931ddd2a89e35d253576530762be2cbbb1fc52dc6db",
+      "kappa": "f9459de42625ec86b6e1cb42efaac368956a16f0f6b1d6ab962e757ef9b10099",
       "function": "crates/wasm/js/worker_host_bridge.js::holoFetchWithHoldTail",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -386,7 +386,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "907172969f1bed4cbc15274b7426741376aa0586ffca4b89bd21ddcba886da64",
+      "kappa": "5dee3757e5542a0d806a9930971e96dd3a81fdf87a060975fb6eff597a1e0ed7",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -470,7 +470,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a789294a96b873379d3da143268754aed1a25687963b9cfe4d1be31f07fd9687",
+      "kappa": "eb3c89c923041c9890ce0cc522359816a49451ebef413b15e10090c6bc810caa",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -17372,7 +17372,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "ce137ddcbafaa737dc307c3487af4290beafa11c65a2f07f59a6614c0681716f",
+      "kappa": "ab44a46a7f39308b47ac0e2b60a1001c04ec653c174f6757c451d435c2b20192",
       "function": "public/app.js::activateCanvasTab",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -17763,14 +17763,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "b326a5d9adb907c5cf1e4027777f2cabce983783b30c8f333098dab3cee855e5",
+      "kappa": "63e5ea1e9c5cf0ef1e41d48e2329b481cdb3309255580c2b5e35f8b545898080",
       "function": "public/app.js::initEmbedMeBridge",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
-      "kappa": "c481eb907bb57711240ba0514ebf4198c94443ef7d47cff3568d3479df276789",
+      "kappa": "7689eaca54778283cdf8cf35c070aedf5c3fa4c0500d09664dac066fade64d30",
       "function": "public/app.js::initLayoutAndConnectedControls",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -18210,7 +18210,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "7579f3d5f954ce756a3a9e4dbf1111e771d2470b4a47d2d839bab91827fb17c8",
+      "kappa": "9d13eb94dff1b85e46405376e4463e741bf24d3aee824560a2b01378b942344e",
       "function": "public/app.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18355,10 +18355,10 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "d66cfa746f89514af90d1e1c1ed4cd77b9e59cba7e626c81c2dc5ecd266a4ed2",
+      "kappa": "64b7aa03e40556b63151cfaf8b147bedd55cbd156eb888cf88cd0b0be848c098",
       "function": "public/app.js::syncComposerModel",
-      "status": "foreign",
-      "foreign_crate": "serde_json",
+      "status": "effect",
+      "effect": "browser-opfs-worker-gpu-effect",
       "exact_divergence_free": false
     },
     {
@@ -18457,7 +18457,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "67a5f610cb09a4dec483a19e768e7fd23938cda68e0f0878e8ae0eaad53068b8",
+      "kappa": "b85bd7b24d56567fa88fa101021b98e442e8848f2c156cee52e4b9071fd54fe6",
       "function": "public/app.js::updateWeightCacheBadge",
       "status": "foreign",
       "foreign_crate": "serde_json",

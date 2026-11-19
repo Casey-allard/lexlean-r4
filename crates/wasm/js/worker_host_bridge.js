@@ -3432,7 +3432,9 @@ export async function holoFetchWithHoldTail(url, expectedSha = '', byteRange = n
       lastErr = err;
     }
     if (baseDelayMs > 0) {
-      await new Promise((resolve) => setTimeout(resolve, baseDelayMs * (attempt + 1)));
+      const expMs = baseDelayMs * (2 ** attempt);
+      const jitterMs = Math.round(expMs * 0.25 * Math.random());
+      await new Promise((resolve) => setTimeout(resolve, expMs + jitterMs));
     }
   }
   throw lastErr || new Error(`Failed to fetch ${url}`);
@@ -3546,22 +3548,31 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       ...(allowFirstPartyCatalog ? firstPartyOffOriginCandidates : []),
       ...(allowCustomExternal ? untrustedExternalCandidates : []),
     ];
+    const manifestRetryStatuses = new Set([429, 500, 502, 503, 504]);
     let manifest = null;
     let baseUrl = '';
     for (const cBase of candidates) {
       const norm = cBase.endsWith('/') ? cBase : `${cBase}/`;
       if (sharedKappaStore.liarMirrors.has(norm)) continue;
-      try {
-        const resp = await fetch(`${norm}manifest.json`, { cache: 'no-cache' });
-        if (resp.ok) {
-          const parsed = await resp.json();
-          if (parsed && parsed.format === 'UORR4V13' && Array.isArray(parsed.pieces)) {
-            manifest = parsed;
-            baseUrl = norm;
-            break;
+      for (let mAttempt = 0; mAttempt < 3; mAttempt += 1) {
+        try {
+          const resp = await fetch(`${norm}manifest.json`, { cache: 'no-cache' });
+          if (resp.ok) {
+            const parsed = await resp.json();
+            if (parsed && parsed.format === 'UORR4V13' && Array.isArray(parsed.pieces)) {
+              manifest = parsed;
+              baseUrl = norm;
+              break;
+            }
           }
+          if (!manifestRetryStatuses.has(resp.status) || mAttempt + 1 >= 3) break;
+        } catch {
+          if (mAttempt + 1 >= 3) break;
         }
-      } catch {}
+        const mDelayMs = 150 * (2 ** mAttempt);
+        await new Promise((resolve) => setTimeout(resolve, mDelayMs + Math.round(mDelayMs * 0.25 * Math.random())));
+      }
+      if (manifest) break;
     }
     const existingIdx = await holoReadManifestIndex(key).catch(() => null);
     if (!manifest) {
@@ -4319,7 +4330,15 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       const hydrateJob = Promise.resolve(
         fnHydrate(
           selectedModel,
-          (prog) => postEvent('chat_hydration', prog),
+          (prog) => {
+            const enriched = {
+              stage: 'holo_v13',
+              modelId: selectedModel,
+              ...(prog && typeof prog === 'object' ? prog : {}),
+            };
+            postEvent('hydration_progress', enriched);
+            postEvent('chat_hydration', enriched);
+          },
           false,
           hydrateOpts,
         ),
@@ -4349,6 +4368,23 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
           runtimeStatus = typeof rawStatus === 'string' ? JSON.parse(rawStatus) : rawStatus;
         } catch (_) {}
       }
+      const hydratedVal = raceOut && raceOut.val && typeof raceOut.val === 'object' ? raceOut.val : null;
+      const holoPayload =
+        runtimeStatus && typeof runtimeStatus.mounted_count === 'number' && runtimeStatus.mounted_count > 0
+          ? runtimeStatus
+          : hydratedVal || {
+              mounted_count: 1,
+              model_id: selectedModel,
+              qwen3_06b_mounted: selectedModel === 'uor-r4.qwen3-0.6b-holo',
+              qwen3_17b_mounted: selectedModel === 'uor-r4.qwen3-1.7b-holo',
+            };
+      postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+      postEvent('holo_ready', {
+        holo: holoPayload,
+        recommendedModel: selectedModel,
+        promoted: false,
+        kappaStore: globalThis.__uorHoloKappaStatus || null,
+      });
     } catch (err) {
       const code =
         (err && (err.error_code || err.code)) ||

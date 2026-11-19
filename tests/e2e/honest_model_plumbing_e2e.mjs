@@ -414,6 +414,31 @@ async function verifyPartDWasmHonestRoutingAndWatchdog() {
   assert.equal(typeof wasmMod.studio_admit_generation_capsule, 'function', 'studio_admit_generation_capsule must be exported');
   assert.equal(typeof wasmMod.studio_record_generation_fault, 'function', 'studio_record_generation_fault must be exported');
   assert.equal(typeof wasmMod.studio_verdant_synthesis_status, 'function', 'studio_verdant_synthesis_status must be exported');
+  assert.equal(typeof wasmMod.studio_admit_catalog_hydration_json, 'function', 'studio_admit_catalog_hydration_json must be exported');
+
+  // Verify live Wasm R4-62 studio_admit_catalog_hydration_json positive & negative verdicts
+  const r462Ok = JSON.parse(
+    wasmMod.studio_admit_catalog_hydration_json('first_party_catalog', false, false, false, 'dropdown_compact_strip', false),
+  );
+  assert.equal(r462Ok.admitted, true);
+  assert.equal(r462Ok.hydration_verdict, 'HydrationAdmitted');
+  assert.equal(r462Ok.hud_verdict, 'HudNonBlockingAdmitted');
+  assert.equal(r462Ok.max_catalog_hydration_concurrency, 3);
+  const r462Consent = JSON.parse(
+    wasmMod.studio_admit_catalog_hydration_json('external_untrusted', false, false, false, 'dropdown_compact_strip', false),
+  );
+  assert.equal(r462Consent.admitted, false);
+  assert.equal(r462Consent.hydration_verdict, 'RefusedExternalOriginConsentRequired');
+  const r462Declined = JSON.parse(
+    wasmMod.studio_admit_catalog_hydration_json('first_party_catalog', false, false, true, 'dropdown_compact_strip', false),
+  );
+  assert.equal(r462Declined.admitted, false);
+  assert.equal(r462Declined.hydration_verdict, 'RefusedSilentModelDowngrade');
+  const r462Backdrop = JSON.parse(
+    wasmMod.studio_admit_catalog_hydration_json('first_party_catalog', false, false, false, 'dropdown_compact_strip', true),
+  );
+  assert.equal(r462Backdrop.admitted, false);
+  assert.equal(r462Backdrop.hud_verdict, 'RefusedBlockingBackdropOnLiveHud');
 
   // Check initial Holo v13 + Native Q31 D85 status
   const dispatchChatJson = (obj) =>

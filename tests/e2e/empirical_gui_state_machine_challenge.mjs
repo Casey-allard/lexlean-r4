@@ -1350,13 +1350,22 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     assert.ok(offlineBtn, 'Offline Native Q31 fallback button must exist');
     await offlineBtn.click();
     for (let k = 0; k < 8; k += 1) await Promise.resolve();
-    assert.equal(r460.safeStorageGet('uor_allow_off_origin_hydration'), 'declined', 'SecurityError must fall back to memory storage');
+    assert.equal(r460.safeStorageGet('uor_allow_off_origin_hydration'), null, 'Emergency Q31 switch must never write sticky declined flag');
+    assert.equal(r460.safeStorageGet('uor_offline_emergency_q31'), '1', 'Switching to Offline Native Q31 must set uor_offline_emergency_q31=1');
     assert.equal(AppStateMock.config.selectedModel, 'uor-r4.native-q31-d85', 'Declining must auto-switch to Native Q31');
     assert.ok(
       rerunPrompts.some((r) => r.prompt === 'hello world' && r.appendUserBubble === false),
       'Declining must re-run pending prompt with appendUserBubble=false'
     );
-    assert.ok(rpcCalls.some((c) => c.op === 'hydrate_holo_model' && c.payload.decline === true), 'Must notify Worker of consent decline');
+    assert.ok(
+      rpcCalls.some(
+        (c) =>
+          c.op === 'hydrate_holo_model' &&
+          c.payload.offlineFallback === true &&
+          c.payload.consentDeclined === false,
+      ),
+      'Must notify Worker with explicit offlineFallback=true and consentDeclined=false',
+    );
     console.log('  ✓ 7.3 Off-origin weight consent Approve ("1"), SecurityError fallback & zero-duplicate retry verified.');
 
     // 7.4 ?surface=preview 100,000-step fuel limit, CSSOM adoptedStyleSheets, template literal & preview_inspect round-trip

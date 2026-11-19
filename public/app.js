@@ -427,6 +427,26 @@ const AppState = {
   }
 };
 
+(() => {
+  try {
+    const emergency = typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function'
+      && localStorage.getItem('uor_offline_emergency_q31') === '1';
+    if (emergency) {
+      AppState.config.selectedModel = 'uor-r4.native-q31-d85';
+    } else if (
+      AppState.config.selectedModel !== 'uor-r4.qwen3-0.6b-holo'
+      && AppState.config.selectedModel !== 'uor-r4.qwen3-1.7b-holo'
+    ) {
+      AppState.config.selectedModel = DEFAULT_HONEST_MODEL_ID;
+      if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
+        localStorage.setItem(MODEL_STORAGE_KEY, DEFAULT_HONEST_MODEL_ID);
+      }
+    }
+  } catch {
+    // Ignore storage unavailability in sandboxed contexts
+  }
+})();
+
 function computeUnifiedDiffJs(oldText, newText, targetPath, contextLines = 3) {
   const oldLines = String(oldText || '').split('\n');
   const newLines = String(newText || '').split('\n');
@@ -1015,18 +1035,20 @@ const engineWorkerClient = {
     }
 
     const evType = msg && msg.event;
-    if (evType === 'boot_progress' || evType === 'hydration_progress') {
-      if (msg.stage === 'holo_v13' || msg.stage === 'hf_stream' || msg.stage === 'r4_shards') {
-        this.hydrationProgress = msg;
+    if (evType === 'boot_progress' || evType === 'hydration_progress' || evType === 'chat_hydration') {
+      const stageTag = msg.stage || (msg.modelId ? 'holo_v13' : '');
+      if (stageTag === 'holo_v13' || stageTag === 'hf_stream' || stageTag === 'r4_shards') {
+        const normalizedProg = msg.stage ? msg : { ...msg, stage: stageTag };
+        this.hydrationProgress = normalizedProg;
         if (typeof updateWeightCacheBadge === 'function') {
           updateWeightCacheBadge();
         }
         if (typeof updateInlineHydrationBar === 'function') {
-          updateInlineHydrationBar(msg);
+          updateInlineHydrationBar(normalizedProg);
         }
-      }
-      if ((msg.stage === 'holo_v13' || msg.stage === 'hf_stream' || msg.stage === 'r4_shards') && typeof this.activeChatStreamHook === 'function') {
-        this.activeChatStreamHook(msg);
+        if (typeof this.activeChatStreamHook === 'function') {
+          this.activeChatStreamHook(normalizedProg);
+        }
       }
       return;
     }
@@ -3182,8 +3204,12 @@ function runClaudeChat(promptText, recordUserBubble = true) {
         : safeStorageGet('uor_allow_off_origin_hydration') === '1');
 
     const finishStreamingControls = () => {
+      if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient) {
+        engineWorkerClient.hydrationProgress = null;
+      }
       if (typeof tsComposer.endTurn === 'function') tsComposer.endTurn();
       if (typeof updateInlineHydrationBar === 'function') updateInlineHydrationBar(null);
+      if (typeof updateWeightCacheBadge === 'function') updateWeightCacheBadge();
       if (composerStopBtn) {
         composerStopBtn.setAttribute('hidden', '');
         composerStopBtn.hidden = true;
@@ -4234,15 +4260,17 @@ class AgenticTypeScriptComposer {
     if (typeof AppState !== 'undefined' && AppState.config) {
       AppState.config.selectedModel = modelId;
     }
-    if (typeof safeStorageSet === 'function' && typeof MODEL_STORAGE_KEY !== 'undefined') {
-      safeStorageSet(MODEL_STORAGE_KEY, modelId);
-    } else {
-      try {
-        if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof MODEL_STORAGE_KEY !== 'undefined') {
-          localStorage.setItem(MODEL_STORAGE_KEY, modelId);
+    if (modelId === 'uor-r4.qwen3-0.6b-holo' || modelId === 'uor-r4.qwen3-1.7b-holo') {
+      if (typeof safeStorageSet === 'function' && typeof MODEL_STORAGE_KEY !== 'undefined') {
+        safeStorageSet(MODEL_STORAGE_KEY, modelId);
+      } else {
+        try {
+          if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof MODEL_STORAGE_KEY !== 'undefined') {
+            localStorage.setItem(MODEL_STORAGE_KEY, modelId);
+          }
+        } catch {
+          // Ignore storage error
         }
-      } catch {
-        // Ignore storage error
       }
     }
     return true;
@@ -4412,6 +4440,18 @@ function syncComposerModel(modelId) {
   }
   if (typeof updateWeightCacheBadge === 'function') {
     updateWeightCacheBadge();
+  }
+  if (typeof renderCoworkStatusBar === 'function') {
+    renderCoworkStatusBar();
+  }
+  if (typeof updateDynamicPlanningPanel === 'function') {
+    updateDynamicPlanningPanel();
+  }
+  if (typeof renderDynamicPoolPanel === 'function') {
+    renderDynamicPoolPanel();
+  }
+  if (typeof emitPrismEmbedEvent === 'function') {
+    emitPrismEmbedEvent('prism:status');
   }
 }
 
@@ -5049,11 +5089,17 @@ function activateCanvasTab(tabId) {
     }
     if (tabId === 'traces') {
       fetchRecordedTraces();
-      if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ensureGLReady === 'function') {
-        lexLean3dVisualizer.ensureGLReady();
-      }
-      if (lexLean3dVisualizer && typeof lexLean3dVisualizer.resize === 'function') {
-        lexLean3dVisualizer.resize();
+      const hudBodyVisible =
+        !inspectorsModalEl
+        || (inspectorsModalEl.classList && inspectorsModalEl.classList.contains('hud-expanded'))
+        || (document.body && document.body.getAttribute('data-surface') === 'observatory');
+      if (hudBodyVisible) {
+        if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ensureGLReady === 'function') {
+          lexLean3dVisualizer.ensureGLReady();
+        }
+        if (lexLean3dVisualizer && typeof lexLean3dVisualizer.resize === 'function') {
+          lexLean3dVisualizer.resize();
+        }
       }
     }
     if (tabId === 'inspector') {
@@ -5366,7 +5412,7 @@ const DEFAULT_VERDANT_FACETS = [
   {
     facet: 'UiAndPlumbing',
     kpi_id: 'R4-46',
-    metric: '4 Honest Composer Modes',
+    metric: '2 Qwen3 Catalog + Offline Q31 Modes',
     status: 'ACTIVE · Exact 6-File Closure',
     summary: '#composer-model-select + composer_mode wired end-to-end into chat_assistant_json and geometric_metrics with OPFS .uorc 3-strike watchdog.',
   },
@@ -6532,7 +6578,7 @@ const lockObservatoryToFrame = (frame, framesPrefix = null, lockedIdx = null) =>
     && typeof document !== 'undefined'
     && document.body
     && document.body.dataset
-    && document.body.dataset.observatoryHost === 'modal'
+    && (document.body.dataset.observatoryHost === 'hud' || document.body.dataset.observatoryHost === 'modal')
     && typeof openInspectorsModal === 'function'
   ) {
     openInspectorsModal('traces');
@@ -6940,22 +6986,30 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
     if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient) {
       engineWorkerClient.pendingConsentDetails = null;
     }
-    safeStorageSet('uor_allow_off_origin_hydration', 'declined');
+    if (typeof safeStorageRemove === 'function') {
+      safeStorageRemove('uor_allow_off_origin_hydration');
+    }
+    safeStorageSet('uor_offline_emergency_q31', '1');
     const chk = document.getElementById('settings-allow-off-origin-weights');
     if (chk) chk.checked = false;
+    const emergencyChk = document.getElementById('settings-offline-q31-toggle');
+    if (emergencyChk) emergencyChk.checked = true;
     const fallbackModel = 'uor-r4.native-q31-d85';
     if (typeof AppState !== 'undefined' && AppState.config) {
       AppState.config.selectedModel = fallbackModel;
     }
     if (typeof syncComposerModel === 'function') {
       syncComposerModel(fallbackModel);
+    } else if (typeof tsComposer !== 'undefined' && typeof tsComposer.setModel === 'function') {
+      tsComposer.setModel(fallbackModel);
     }
     try {
       if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
         await engineWorkerClient.rpc('hydrate_holo_model', {
           modelId,
-          decline: true,
-          consentDeclined: true,
+          offlineFallback: true,
+          offlineEmergencyQ31: true,
+          consentDeclined: false,
           fallbackModel,
         });
       }
@@ -13839,12 +13893,12 @@ function updateWeightCacheBadge() {
     ),
   );
   if (weightCacheBadge) {
-    if (offlineEmergency) {
-      weightCacheBadge.textContent = 'Offline Q31 · Emergency';
-      weightCacheBadge.setAttribute('data-cache-state', 'offline-q31');
-    } else if (hydProg) {
+    if (hydProg) {
       weightCacheBadge.textContent = formatHydrationProgressLabel(hydProg);
       weightCacheBadge.setAttribute('data-cache-state', 'downloading');
+    } else if (offlineEmergency) {
+      weightCacheBadge.textContent = 'Offline Q31 · Emergency';
+      weightCacheBadge.setAttribute('data-cache-state', 'offline-q31');
     } else if (targetMounted) {
       const gpuReady = Boolean(
         (webgpuInfo && webgpuInfo.webgpu_active)
@@ -17908,13 +17962,19 @@ function initEmbedMeBridge() {
       });
     } else if (action === 'set-model' && msg.model) {
       const nextModel = String(msg.model).trim();
-      const selEl = document.getElementById('composer-model-select');
-      if (selEl) selEl.value = nextModel;
       if (AppState && AppState.config) AppState.config.selectedModel = nextModel;
-      if (typeof tsComposer !== 'undefined' && typeof tsComposer.setModel === 'function') {
-        tsComposer.setModel(nextModel);
+      if (typeof syncComposerModel === 'function') {
+        syncComposerModel(nextModel);
+      } else {
+        const selEl = document.getElementById('composer-model-select');
+        if (selEl && (nextModel === 'uor-r4.qwen3-0.6b-holo' || nextModel === 'uor-r4.qwen3-1.7b-holo')) {
+          selEl.value = nextModel;
+        }
+        if (typeof tsComposer !== 'undefined' && typeof tsComposer.setModel === 'function') {
+          tsComposer.setModel(nextModel);
+        }
+        renderCoworkStatusBar();
       }
-      renderCoworkStatusBar();
       replyBridge(ev.source || null, {
         ...getPrismEmbedStatusSnapshot('uor-workspace-bridge/1:status'),
         protocol: 'uor-workspace-bridge/1',
@@ -18350,10 +18410,14 @@ function initLayoutAndConnectedControls() {
       } else if (typeof safeStorageRemove === 'function') {
         safeStorageRemove('uor_offline_emergency_q31');
       }
+      const nextModel = enabled
+        ? 'uor-r4.native-q31-d85'
+        : ((typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value) || DEFAULT_HONEST_MODEL_ID);
       if (AppState && AppState.config) {
-        AppState.config.selectedModel = enabled
-          ? 'uor-r4.native-q31-d85'
-          : ((typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value) || DEFAULT_HONEST_MODEL_ID);
+        AppState.config.selectedModel = nextModel;
+      }
+      if (typeof tsComposer !== 'undefined' && typeof tsComposer.setModel === 'function') {
+        tsComposer.setModel(nextModel);
       }
       if (engineWorkerClient.enabled) {
         engineWorkerClient.rpc('set_bridge_policy', {
@@ -18419,6 +18483,7 @@ function initLayoutAndConnectedControls() {
       syncNeuralHudTriggerState(true, expanded);
       if (expanded) {
         if (typeof renderHoloObservatoryDeck === 'function') renderHoloObservatoryDeck();
+        if (lexLean3dVisualizer && typeof lexLean3dVisualizer.ensureGLReady === 'function') lexLean3dVisualizer.ensureGLReady();
         if (lexLean3dVisualizer && typeof lexLean3dVisualizer.resize === 'function') lexLean3dVisualizer.resize();
       }
     });
@@ -18621,23 +18686,11 @@ function initLayoutAndConnectedControls() {
   }
 
   const composerModelSel = document.getElementById('composer-model-select');
-  if (composerModelSel) {
-    if (AppState && AppState.config && AppState.config.selectedModel) {
-      composerModelSel.value = AppState.config.selectedModel;
+  if (composerModelSel && AppState && AppState.config) {
+    const curModel = AppState.config.selectedModel;
+    if (curModel === 'uor-r4.qwen3-0.6b-holo' || curModel === 'uor-r4.qwen3-1.7b-holo') {
+      composerModelSel.value = curModel;
     }
-    composerModelSel.addEventListener('change', () => {
-      holoObservatoryState.manualModelPinned = true;
-      if (AppState && AppState.config) {
-        AppState.config.selectedModel = composerModelSel.value || 'uor-r4.qwen3-0.6b-holo';
-      }
-      if (typeof syncComposerModel === 'function') {
-        syncComposerModel(composerModelSel.value);
-      }
-      renderCoworkStatusBar();
-      updateDynamicPlanningPanel();
-      renderDynamicPoolPanel();
-      emitPrismEmbedEvent('prism:status');
-    });
   }
 
   if (cloneGithubRepoBtn) {

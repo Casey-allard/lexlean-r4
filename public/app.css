@@ -757,8 +757,8 @@ main.sidebar-collapsed .workbench-sidebar-content {
 }
 
 .sidebar-action-icon-btn {
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 24px;
+  min-height: 24px;
   padding: 0;
   display: inline-grid;
   place-items: center;
@@ -826,8 +826,8 @@ main.sidebar-collapsed .workbench-sidebar-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
-  padding: 0.25rem 0.55rem;
+  min-height: 24px;
+  padding: 2px 7px;
   font-size: 0.72rem;
   font-weight: 600;
   border: 1px solid var(--border-strong);
@@ -868,8 +868,8 @@ body.theme-warm-light .cursor-mini-btn {
 .cursor-tree-filter {
   width: 100%;
   min-width: 0;
-  min-height: 36px;
-  font-size: 0.78rem;
+  min-height: 26px;
+  font-size: 0.75rem;
 }
 
 .cursor-file-tree {
@@ -905,8 +905,8 @@ body.theme-warm-light .cursor-mini-btn {
 .cursor-tree-item {
   width: 100%;
   min-width: 0;
-  min-height: 36px;
-  padding: 0.25rem 0.45rem;
+  min-height: 24px;
+  padding: 2px 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1034,7 +1034,7 @@ body.theme-warm-light .cursor-mini-btn {
 /* Chat History Sidebar */
 .new-chat-btn {
   width: 100%;
-  min-height: 36px;
+  min-height: 28px;
   text-align: left;
   background: var(--sidebar-surface);
   color: var(--text-primary);
@@ -1052,8 +1052,8 @@ body.theme-warm-light .cursor-mini-btn {
 .thread-item-btn,
 .sidebar-preset-item {
   width: 100%;
-  min-height: 36px;
-  padding: 0.35rem 0.6rem;
+  min-height: 28px;
+  padding: 3px 8px;
   text-align: left;
   background: transparent;
   color: var(--text-secondary);
@@ -1591,8 +1591,8 @@ body.theme-warm-light .diff-line-hunk {
 }
 
 .canvas-tab-btn {
-  min-height: 36px;
-  padding: 0.2rem 0.55rem;
+  min-height: 24px;
+  padding: 2px 7px;
   font-size: 0.72rem;
   background: transparent;
   border: 1px solid transparent;
@@ -1678,8 +1678,8 @@ body.theme-warm-light .diff-line-hunk {
 
 .btn-terminal-action,
 .canvas-close-btn {
-  min-height: 36px;
-  padding: 0.2rem 0.5rem;
+  min-height: 22px;
+  padding: 2px 6px;
   font-size: 0.72rem;
   background: #21262d;
   color: #f3f4f6;
@@ -2479,6 +2479,28 @@ body:not(.surface-observatory):not([data-surface="observatory"]) #inspectors-mod
   }
 }
 
+/* Medium & Compact (<= 839px): allow topbar wrapping so zero controls clip horizontally */
+@media (max-width: 839px) {
+  #prism-global-topbar,
+  .prism-global-topbar,
+  body.density-compact #prism-global-topbar,
+  body.density-compact .gpt-topbar {
+    height: auto;
+    min-height: 38px;
+    flex-wrap: wrap;
+    overflow: visible;
+    padding: 4px 8px;
+    row-gap: 4px;
+  }
+
+  .prism-topbar-left,
+  .prism-topbar-center,
+  .prism-topbar-actions,
+  .topbar-actions {
+    flex-wrap: wrap;
+  }
+}
+
 /* Material 3 Medium (600px..839px): Collapsible Left Drawer (hidden unless .sidebar-expanded) + 2-Column Split */
 @media (min-width: 600px) and (max-width: 839px) {
   body[data-layout-mode="studio"] > main,
@@ -2615,6 +2637,13 @@ body:not(.surface-observatory):not([data-surface="observatory"]) #inspectors-mod
   .cursor-status-btn,
   .cursor-wb-btn,
   .cursor-editor-tab,
+  .cursor-tree-filter,
+  .cursor-tree-item,
+  .new-chat-btn,
+  .thread-item-btn,
+  .sidebar-preset-item,
+  .canvas-tab-btn,
+  .btn-terminal-action,
   .prism-seg-btn,
   .prism-pill-btn,
   .composer-mode-btn,
@@ -2651,6 +2680,21 @@ body:not(.surface-observatory):not([data-surface="observatory"]) #inspectors-mod
     min-height: 44px;
   }
 
+  #prism-global-topbar,
+  .prism-global-topbar,
+  body.density-compact #prism-global-topbar,
+  body.density-compact .gpt-topbar,
+  .cursor-editor-tabs-bar,
+  .editor-tabs-bar,
+  .terminal-topbar,
+  .cursor-workbench-bar,
+  .cursor-breadcrumbs-bar {
+    height: auto;
+    min-height: 38px;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
   .holo-live-hud {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -2663,6 +2707,21 @@ body:not(.surface-observatory):not([data-surface="observatory"]) #inspectors-mod
 }
 
 @media (pointer: coarse) and (hover: none) {
+  #prism-global-topbar,
+  .prism-global-topbar,
+  body.density-compact #prism-global-topbar,
+  body.density-compact .gpt-topbar,
+  .cursor-editor-tabs-bar,
+  .editor-tabs-bar,
+  .terminal-topbar,
+  .cursor-workbench-bar,
+  .cursor-breadcrumbs-bar {
+    height: auto;
+    min-height: 38px;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
   button,
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
@@ -2670,6 +2729,13 @@ body:not(.surface-observatory):not([data-surface="observatory"]) #inspectors-mod
   .cursor-status-btn,
   .cursor-wb-btn,
   .cursor-editor-tab,
+  .cursor-tree-filter,
+  .cursor-tree-item,
+  .new-chat-btn,
+  .thread-item-btn,
+  .sidebar-preset-item,
+  .canvas-tab-btn,
+  .btn-terminal-action,
   .prism-seg-btn,
   .prism-pill-btn,
   .composer-mode-btn,
