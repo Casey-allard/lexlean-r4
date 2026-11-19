@@ -73,13 +73,21 @@ const composerModelsMatch = appJsContent.match(
 );
 assert.ok(composerModelsMatch, 'Failed to extract COMPOSER_MODELS from public/app.js');
 
+const progModelsMatch = appJsContent.match(
+  /const PROGRAMMATIC_HONEST_MODELS = (\[[\s\S]*?\]);/
+);
+assert.ok(progModelsMatch, 'Failed to extract PROGRAMMATIC_HONEST_MODELS from public/app.js');
+
 const EmbeddedComposerClass = new Function(
   `"use strict";
    const COMPOSER_MODELS = ${composerModelsMatch[1]};
+   const PROGRAMMATIC_HONEST_MODELS = ${progModelsMatch[1]};
    const AGENTIC_SLASH_COMMANDS = [];
    ${composerClassMatch[0]};
-   return { AgenticTypeScriptComposer, COMPOSER_MODELS };`
+   return { AgenticTypeScriptComposer, COMPOSER_MODELS, PROGRAMMATIC_HONEST_MODELS };`
 )();
+
+const PROGRAMMATIC_HONEST_MODELS = EmbeddedComposerClass.PROGRAMMATIC_HONEST_MODELS;
 
 console.log('✓ Successfully loaded both TypeScript source and embedded app.js classes.\n');
 
@@ -293,23 +301,26 @@ for (const { name, ComposerClass, models } of implementations) {
   console.log('    ✓ Uncommitted draft restoration passed across all test payloads.');
 
   // =========================================================================
-  // SUITE 3: RAPID MODEL SWITCHING (All 4 honest UOR-R4 v0.13.0 modes)
+  // SUITE 3: RAPID MODEL SWITCHING (2 UI Qwen3 models + 2 programmatic modes)
   // =========================================================================
-  console.log('  Suite 3: Rapid Model Switching Across All 4 UOR-R4 v0.13.0 Modes');
+  console.log('  Suite 3: Rapid Model Switching Across 2 UI Qwen3 Models + Programmatic Modes');
 
   {
     const composer = new ComposerClass();
     const expectedModelIds = [
       'uor-r4.qwen3-0.6b-holo',
       'uor-r4.qwen3-1.7b-holo',
+    ];
+    const allProgrammaticIds = [
+      ...expectedModelIds,
       'uor-r4.native-q31-d85',
       'uor-r4.hf-repo-holo',
     ];
 
-    // Verify model inventory
+    // Verify 2-model user dropdown inventory (`R4-62`)
     const registered = composer.getModelOptions();
-    assert.equal(registered.length, 4, 'Must have exactly 4 models registered');
-    for (let i = 0; i < 4; i++) {
+    assert.equal(registered.length, 2, 'COMPOSER_MODELS must expose strictly the 2 user-facing Qwen3 models');
+    for (let i = 0; i < 2; i++) {
       assert.equal(registered[i].id, expectedModelIds[i]);
       assert.ok(registered[i].name.length > 0, `Model ${expectedModelIds[i]} must have non-empty name`);
       assert.ok(registered[i].contextWindow.length > 0, `Model ${expectedModelIds[i]} must have contextWindow`);
@@ -319,9 +330,9 @@ for (const { name, ComposerClass, models } of implementations) {
     // Default model
     assert.equal(composer.getSelectedModel(), 'uor-r4.qwen3-0.6b-holo');
 
-    // 1,000 rapid switches in round-robin and random sequence
+    // 1,000 rapid switches across all programmatic & UI modes in round-robin and random sequence
     for (let iter = 0; iter < 1000; iter++) {
-      const targetModel = expectedModelIds[iter % expectedModelIds.length];
+      const targetModel = allProgrammaticIds[iter % allProgrammaticIds.length];
       const ok = composer.setModel(targetModel);
       assert.equal(ok, true, `setModel(${targetModel}) must return true`);
       assert.equal(composer.getSelectedModel(), targetModel, `getSelectedModel() must match ${targetModel}`);
@@ -329,8 +340,8 @@ for (const { name, ComposerClass, models } of implementations) {
 
     // Random shuffle 1,000 switches
     for (let iter = 0; iter < 1000; iter++) {
-      const idx = Math.floor(Math.random() * expectedModelIds.length);
-      const targetModel = expectedModelIds[idx];
+      const idx = Math.floor(Math.random() * allProgrammaticIds.length);
+      const targetModel = allProgrammaticIds[idx];
       const ok = composer.setModel(targetModel);
       assert.equal(ok, true);
       assert.equal(composer.getSelectedModel(), targetModel);
@@ -486,7 +497,7 @@ function syncComposerModel(modelId) {
   if (selectEl.value !== modelId) {
     selectEl.value = modelId;
   }
-  const opt = COMPOSER_MODELS.find((m) => m.id === modelId);
+  const opt = [...COMPOSER_MODELS, ...PROGRAMMATIC_HONEST_MODELS].find((m) => m.id === modelId);
   if (opt) {
     topbarTag.textContent = `${opt.name} · ${opt.badge}`;
   }
@@ -573,7 +584,7 @@ inputEl.addEventListener('input', () => {
 syncComposerModel('uor-r4.qwen3-1.7b-holo');
 assert.equal(domComposer.getSelectedModel(), 'uor-r4.qwen3-1.7b-holo');
 assert.equal(selectEl.value, 'uor-r4.qwen3-1.7b-holo');
-assert.equal(topbarTag.textContent, 'Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4) · Int4 OPFS · 1.7B');
+assert.equal(topbarTag.textContent, 'Qwen3 1.7B · Reasoning (1.1 GB) · Reasoning · 1.1 GB');
 
 syncComposerModel('uor-r4.native-q31-d85');
 assert.equal(domComposer.getSelectedModel(), 'uor-r4.native-q31-d85');

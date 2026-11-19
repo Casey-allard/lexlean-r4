@@ -49,16 +49,23 @@ export interface ComposerModelOption {
 export const COMPOSER_MODELS: readonly ComposerModelOption[] = [
   {
     id: 'uor-r4.qwen3-0.6b-holo',
-    name: 'Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)',
+    name: 'Qwen3 0.6B · Fast (410 MB)',
     contextWindow: '256k',
-    badge: 'Int4 OPFS · simd128',
+    badge: 'Fast · 410 MB',
   },
   {
     id: 'uor-r4.qwen3-1.7b-holo',
-    name: 'Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)',
+    name: 'Qwen3 1.7B · Reasoning (1.1 GB)',
     contextWindow: '256k',
-    badge: 'Int4 OPFS · 1.7B',
+    badge: 'Reasoning · 1.1 GB',
   },
+];
+
+/**
+ * Formal R4.StudioFrame programmatic/emergency backends omitted from the 2-model user dropdown
+ * but accepted via Settings Emergency Mode (`uor-r4.native-q31-d85`) and `uor-workspace-bridge/1:set-model`.
+ */
+export const PROGRAMMATIC_HONEST_MODELS: readonly ComposerModelOption[] = [
   {
     id: 'uor-r4.native-q31-d85',
     name: 'UOR-R4 Native Q31 D85 (0-Download 4L 256D)',
@@ -268,7 +275,7 @@ export class AgenticTypeScriptComposer {
   }
 
   public setModel(modelId: string): boolean {
-    const exists = COMPOSER_MODELS.some((m) => m.id === modelId);
+    const exists = [...COMPOSER_MODELS, ...PROGRAMMATIC_HONEST_MODELS].some((m) => m.id === modelId);
     if (exists || modelId) {
       this.state.selectedModel = modelId;
       this.persistStorage('uor_composer_model', modelId);

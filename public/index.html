@@ -27,12 +27,10 @@
       <div class="prism-topbar-center">
         <label for="model-select" class="sr-only">Model Picker</label>
         <select id="model-select" class="prism-model-select" aria-label="Select Local UOR-R4 Model">
-          <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)</option>
-          <option value="uor-r4.qwen3-1.7b-holo">Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)</option>
-          <option value="uor-r4.native-q31-d85">UOR-R4 Native Q31 D85 (0-Download 4L 256D)</option>
-          <option value="uor-r4.hf-repo-holo">HuggingFace Safetensors Stream (Range 206 -&gt; Holo v13)</option>
+          <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3 0.6B &middot; Fast (410 MB)</option>
+          <option value="uor-r4.qwen3-1.7b-holo">Qwen3 1.7B &middot; Reasoning (1.1 GB)</option>
         </select>
-        <span id="weight-cache-badge" class="prism-status-pill" title="Active Shard and Execution Backend">Native Q31 &middot; Ready</span>
+        <button id="weight-cache-badge" type="button" class="prism-status-pill" title="Click to download or verify active model weights">410 MB &middot; Auto-downloads on send</button>
         <span id="topbar-model-tag" class="sr-only">SpiralCore Pure-Integer</span>
         <canvas id="header-brain-pulse-canvas" class="header-brain-pulse-canvas" width="72" height="22" title="Live Neural Pulse" aria-label="Live Neural Activity Indicator"></canvas>
       </div>
@@ -392,6 +390,10 @@
         <div class="gpt-composer-dock">
           <div class="composer-shell">
             <div id="composer-autocomplete-menu" class="composer-autocomplete-menu" role="listbox" aria-label="Slash Commands and Context Mentions" hidden></div>
+            <div id="hydration-inline-progress" class="hydration-inline-progress" role="status" aria-live="polite" hidden>
+              <div id="hydration-inline-progress-label" class="hydration-inline-progress-label">Preparing model weights...</div>
+              <div class="hydration-inline-progress-track"><div id="hydration-inline-progress-fill" class="hydration-inline-progress-fill"></div></div>
+            </div>
 
             <form id="claude-chat-form" class="gpt-composer-form ts-rich-composer" novalidate>
               <div id="composer-attachments-bar" class="composer-attachments-bar" aria-label="Attached Context Chips" hidden></div>
@@ -406,10 +408,8 @@
                   <button id="composer-attach-btn" type="button" class="composer-action-btn" title="Attach File (+)" aria-label="Attach File">+</button>
                   <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
                   <select id="composer-model-select" class="composer-model-select" hidden aria-hidden="true" tabindex="-1">
-                    <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)</option>
-                    <option value="uor-r4.qwen3-1.7b-holo">Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)</option>
-                    <option value="uor-r4.native-q31-d85">UOR-R4 Native Q31 D85 (0-Download 4L 256D)</option>
-                    <option value="uor-r4.hf-repo-holo">HuggingFace Safetensors Stream (Range 206 -&gt; Holo v13)</option>
+                    <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3 0.6B &middot; Fast (410 MB)</option>
+                    <option value="uor-r4.qwen3-1.7b-holo">Qwen3 1.7B &middot; Reasoning (1.1 GB)</option>
                   </select>
                   <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands" aria-label="Slash Commands">/</button>
                   <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
@@ -571,9 +571,15 @@
           </select>
         </div>
         <div class="field">
+          <label for="settings-offline-q31-toggle">
+            <input type="checkbox" id="settings-offline-q31-toggle">
+            <span>Offline Emergency Mode: UOR-R4 Native Q31 D85 (0-Download 4L 256D)</span>
+          </label>
+        </div>
+        <div class="field">
           <label for="settings-allow-off-origin-weights">
             <input type="checkbox" id="settings-allow-off-origin-weights">
-            <span>Allow Verified Off-Origin Weight Downloads (HuggingFace Mirrors)</span>
+            <span>Allow Custom External Weight Mirrors (Non-Catalog URLs)</span>
           </label>
         </div>
         <div class="field">

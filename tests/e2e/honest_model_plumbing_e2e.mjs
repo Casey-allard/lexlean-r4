@@ -16,9 +16,12 @@ const ROOT = path.resolve(__dirname, '..', '..');
 const PUBLIC_DIR = path.join(ROOT, 'public');
 const PRE_WASM_ONLY = process.argv.includes('--pre-wasm');
 
-const FOUR_V13_MODELS = [
+const TWO_USER_QWEN3_MODELS = [
   'uor-r4.qwen3-0.6b-holo',
   'uor-r4.qwen3-1.7b-holo',
+];
+
+const PROGRAMMATIC_V13_MODELS = [
   'uor-r4.native-q31-d85',
   'uor-r4.hf-repo-holo',
 ];
@@ -119,15 +122,24 @@ async function verifyPartAClosureAndStaticUi() {
   assert.ok(html.includes('src="app.js?v=v12r4"'), 'index.html must cache-bust app.js?v=v12r4');
   assert.ok(appJs.includes("./lexlean_r4.js?v=v12r4'"), 'app.js must cache-bust ./lexlean_r4.js?v=v12r4');
 
-  // Extract #composer-model-select option values in exact order
+  // Extract #model-select & #composer-model-select option values in exact order (R4-62: 2 UI Qwen3 models)
   const selectMatch = html.match(/<select[^>]*id="composer-model-select"[^>]*>([\s\S]*?)<\/select>/i);
   assert.ok(selectMatch, '#composer-model-select must exist in public/index.html');
   const optionValues = [...selectMatch[1].matchAll(/<option[^>]*value="([^"]+)"/gi)].map((m) => m[1]);
   assert.deepEqual(
     optionValues,
-    FOUR_V13_MODELS,
-    '#composer-model-select must expose exactly the 4 real UOR-R4 v0.13.0 modes',
+    TWO_USER_QWEN3_MODELS,
+    '#composer-model-select must expose strictly the 2 user-facing Qwen3 models',
   );
+  const topSelectMatch = html.match(/<select[^>]*id="model-select"[^>]*>([\s\S]*?)<\/select>/i);
+  assert.ok(topSelectMatch, '#model-select must exist in public/index.html');
+  const topOptionValues = [...topSelectMatch[1].matchAll(/<option[^>]*value="([^"]+)"/gi)].map((m) => m[1]);
+  assert.deepEqual(
+    topOptionValues,
+    TWO_USER_QWEN3_MODELS,
+    '#model-select must expose strictly the 2 user-facing Qwen3 models',
+  );
+  assert.ok(html.includes('id="settings-offline-q31-toggle"'), 'public/index.html must expose #settings-offline-q31-toggle');
 
   // Required Self-Improvement / Watchdog / Cursor layout & wired controls
   for (const containerId of ['uorc-watchdog-banner']) {
@@ -146,6 +158,8 @@ async function verifyPartAClosureAndStaticUi() {
     'cursor-hydrate-shards-btn',
     'cursor-train-quick-btn',
     'status-problems',
+    'settings-offline-q31-toggle',
+    'hydration-inline-progress',
   ]) {
     assert.ok(html.includes(`id="${reqId}"`), `public/index.html missing id="${reqId}"`);
     assert.ok(appJs.includes(reqId), `public/app.js must bind/reference id="${reqId}"`);

@@ -135,28 +135,43 @@ fn test_empirical_chatbox_model_selector_and_history_contracts() {
     let index_html =
         std::fs::read_to_string(root.join("public/index.html")).expect("read index.html");
 
-    // All 4 honest UOR-R4 v0.13.0 execution modes in COMPOSER_MODELS
-    let models = [
-        "uor-r4.qwen3-0.6b-holo",
-        "uor-r4.qwen3-1.7b-holo",
-        "uor-r4.native-q31-d85",
-        "uor-r4.hf-repo-holo",
-    ];
+    // Strictly 2 user-facing Qwen3 models in COMPOSER_MODELS & index.html dropdowns,
+    // plus 2 programmatic/emergency lanes in PROGRAMMATIC_HONEST_MODELS (R4-62)
+    let ui_models = ["uor-r4.qwen3-0.6b-holo", "uor-r4.qwen3-1.7b-holo"];
+    let programmatic_models = ["uor-r4.native-q31-d85", "uor-r4.hf-repo-holo"];
 
-    for m in &models {
+    for m in &ui_models {
         assert!(
             ts_source.contains(&format!("id: '{m}'")),
-            "composer.ts must define model {m}"
+            "composer.ts must define UI model {m}"
         );
         assert!(
             app_js.contains(&format!("id: '{m}'")),
-            "app.js must define model {m}"
+            "app.js must define UI model {m}"
         );
         assert!(
             index_html.contains(&format!("value=\"{m}\"")),
-            "index.html must have option for {m}"
+            "index.html must have option for UI model {m}"
         );
     }
+    for m in &programmatic_models {
+        assert!(
+            ts_source.contains(&format!("id: '{m}'")),
+            "composer.ts PROGRAMMATIC_HONEST_MODELS must retain {m}"
+        );
+        assert!(
+            app_js.contains(&format!("id: '{m}'")),
+            "app.js PROGRAMMATIC_HONEST_MODELS must retain {m}"
+        );
+        assert!(
+            !index_html.contains(&format!("value=\"{m}\"")),
+            "index.html dropdowns must omit programmatic/emergency lane {m}"
+        );
+    }
+    assert!(
+        index_html.contains("id=\"settings-offline-q31-toggle\""),
+        "index.html settings modal must expose #settings-offline-q31-toggle"
+    );
 
     // Check draft preservation contract in TS and JS
     assert!(ts_source.contains("savedDraft: string | null;"));

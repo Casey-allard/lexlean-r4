@@ -884,8 +884,12 @@ const engineWorkerClient = {
         // Keep shadow workspace operational if worker script fails in restricted environment
       };
       const initConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
-      if (initConsent === 'declined') {
-        this.rpc('set_bridge_policy', { allowOffOriginHydration: false, consentDeclined: true, bootSync: true }).catch(() => {});
+      if (initConsent === 'declined' && typeof safeStorageRemove === 'function') {
+        safeStorageRemove('uor_allow_off_origin_hydration');
+      }
+      const initEmergencyQ31 = typeof safeStorageGet === 'function' && safeStorageGet('uor_offline_emergency_q31') === '1';
+      if (initEmergencyQ31) {
+        this.rpc('set_bridge_policy', { offlineEmergencyQ31: true, bootSync: true }).catch(() => {});
       } else if (initConsent === '1' || initConsent === 'true') {
         this.rpc('set_bridge_policy', { allowOffOriginHydration: true, consentDeclined: false, bootSync: true }).catch(() => {});
       }
@@ -1012,12 +1016,14 @@ const engineWorkerClient = {
 
     const evType = msg && msg.event;
     if (evType === 'boot_progress' || evType === 'hydration_progress') {
-      const badge = document.getElementById('weight-cache-badge');
-      if (badge && (msg.stage === 'holo_v13' || msg.stage === 'hf_stream' || msg.stage === 'r4_shards') && msg.total) {
-        const done = msg.done ?? msg.index ?? 0;
-        badge.textContent = msg.stage === 'hf_stream'
-          ? `HF Stream ${done}/${msg.total}`
-          : `Holo v13 Piece ${done}/${msg.total}`;
+      if (msg.stage === 'holo_v13' || msg.stage === 'hf_stream' || msg.stage === 'r4_shards') {
+        this.hydrationProgress = msg;
+        if (typeof updateWeightCacheBadge === 'function') {
+          updateWeightCacheBadge();
+        }
+        if (typeof updateInlineHydrationBar === 'function') {
+          updateInlineHydrationBar(msg);
+        }
       }
       if ((msg.stage === 'holo_v13' || msg.stage === 'hf_stream' || msg.stage === 'r4_shards') && typeof this.activeChatStreamHook === 'function') {
         this.activeChatStreamHook(msg);
@@ -1068,6 +1074,10 @@ const engineWorkerClient = {
       return;
     }
     if (evType === 'holo_ready') {
+      this.hydrationProgress = null;
+      if (typeof updateInlineHydrationBar === 'function') {
+        updateInlineHydrationBar(null);
+      }
       if (msg.kappaStore) globalThis.__uorHoloKappaStatus = msg.kappaStore;
       if (msg.holo && typeof msg.holo.mounted_count === 'number') {
         this.holoStatus = msg.holo;
@@ -1090,12 +1100,15 @@ const engineWorkerClient = {
           .then((res) => {
             const hs = (res && res.holo && typeof res.mounted_count !== 'number') ? res.holo : res;
             if (hs && typeof hs.mounted_count === 'number') this.holoStatus = hs;
+            if (res && res.webgpu) this.webgpuStatus = res.webgpu;
             updateWeightCacheBadge();
             if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
             if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
           })
           .catch(() => {});
         refreshHoloStorageGeometry(msg.recommendedModel || '').catch(() => {});
+      } else {
+        updateWeightCacheBadge();
       }
       return;
     }
@@ -2503,20 +2516,6 @@ function renderActiveThreadMessages() {
   chatMessagesDiv.id = 'chat-messages';
   chatMessagesDiv.className = 'chat-messages';
   chatTranscript.appendChild(chatMessagesDiv);
-  const curConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
-  const consentGranted = typeof isConsentGrantedVal === 'function'
-    ? isConsentGrantedVal(curConsent)
-    : (curConsent === '1' || curConsent === 'true' || curConsent === 'granted');
-  if (
-    curConsent !== 'declined'
-    && !consentGranted
-    && typeof engineWorkerClient !== 'undefined'
-    && engineWorkerClient
-    && engineWorkerClient.pendingConsentDetails
-    && typeof renderHydrationConsentCard === 'function'
-  ) {
-    renderHydrationConsentCard(chatMessagesDiv, engineWorkerClient.pendingConsentDetails, '');
-  }
 }
 
 function extractThinkingAndTools(rawText) {
@@ -3091,10 +3090,19 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     return;
   }
 
-  const selectedModel = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
-    || (typeof tsComposer !== 'undefined' && tsComposer.getSelectedModel())
-    || AppState.config.selectedModel
-    || DEFAULT_HONEST_MODEL_ID;
+  const offlineEmergencyActive =
+    (typeof safeStorageGet === 'function' && safeStorageGet('uor_offline_emergency_q31') === '1') ||
+    (AppState && AppState.config && AppState.config.selectedModel === 'uor-r4.native-q31-d85');
+  const rawTsModel = typeof tsComposer !== 'undefined' && tsComposer.getSelectedModel();
+  const isProgrammaticActive = rawTsModel === 'uor-r4.native-q31-d85' || rawTsModel === 'uor-r4.hf-repo-holo';
+  const selectedModel = offlineEmergencyActive
+    ? 'uor-r4.native-q31-d85'
+    : isProgrammaticActive
+      ? rawTsModel
+      : ((typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
+        || rawTsModel
+        || AppState.config.selectedModel
+        || DEFAULT_HONEST_MODEL_ID);
   const activeComposerMode = (typeof tsComposer !== 'undefined' && tsComposer.getState && tsComposer.getState().mode)
     || AppState.config.composerMode
     || 'agentic';
@@ -3175,6 +3183,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
 
     const finishStreamingControls = () => {
       if (typeof tsComposer.endTurn === 'function') tsComposer.endTurn();
+      if (typeof updateInlineHydrationBar === 'function') updateInlineHydrationBar(null);
       if (composerStopBtn) {
         composerStopBtn.setAttribute('hidden', '');
         composerStopBtn.hidden = true;
@@ -3190,7 +3199,8 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       composer_mode: activeComposerMode === 'plan' ? 'plan' : 'agent',
       surface_mode: 'studio',
       live_hud: true,
-      allowOffOriginHydration: allowOffOrigin,
+      ...(allowOffOrigin ? { allowOffOriginHydration: true } : {}),
+      ...(offlineEmergencyActive ? { offlineEmergencyQ31: true, offlineFallback: true } : {}),
       operating_mode: AppState.config.operatingMode || 'coding',
       retain_lambda: AppState.config.retainLambda ?? 0.85,
       plurality_votes: AppState.config.pluralityVotes ?? 8,
@@ -3280,12 +3290,14 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           ? bridgeEvt.done
           : (typeof bridgeEvt.index === 'number' ? bridgeEvt.index : 0);
         const total = typeof bridgeEvt.total === 'number' && bridgeEvt.total > 0 ? bridgeEvt.total : 1;
-        const pct = Math.min(100, Math.floor((idx * 100) / total));
+        const pct = typeof bridgeEvt.percent === 'number'
+          ? bridgeEvt.percent
+          : Math.min(100, Math.floor((idx * 100) / total));
         statusLineEl.textContent = bridgeEvt.stage === 'hf_stream'
           ? `Streaming Safetensors HTTP 206 Range (${idx}/${total}, ${pct}%)...`
-          : (bridgeEvt.label && idx === 0
-            ? bridgeEvt.label
-            : `Hydrating Holo v13 OPFS pieces (${idx}/${total}, ${pct}%) before inference...`);
+          : (typeof formatHydrationProgressLabel === 'function'
+            ? `${formatHydrationProgressLabel(bridgeEvt)} before inference...`
+            : `Downloading ${pct}% (${idx}/${total}) before inference...`);
         return;
       }
       const opLabel = bridgeEvt.op || 'bridge';
@@ -4106,16 +4118,19 @@ const AGENTIC_SLASH_COMMANDS = [
 const COMPOSER_MODELS = [
   {
     id: 'uor-r4.qwen3-0.6b-holo',
-    name: 'Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)',
+    name: 'Qwen3 0.6B · Fast (410 MB)',
     contextWindow: '256k',
-    badge: 'Int4 OPFS · simd128',
+    badge: 'Fast · 410 MB',
   },
   {
     id: 'uor-r4.qwen3-1.7b-holo',
-    name: 'Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)',
+    name: 'Qwen3 1.7B · Reasoning (1.1 GB)',
     contextWindow: '256k',
-    badge: 'Int4 OPFS · 1.7B',
+    badge: 'Reasoning · 1.1 GB',
   },
+];
+
+const PROGRAMMATIC_HONEST_MODELS = [
   {
     id: 'uor-r4.native-q31-d85',
     name: 'UOR-R4 Native Q31 D85 (0-Download 4L 256D)',
@@ -4376,14 +4391,18 @@ const composerModeButtons = document.querySelectorAll('.composer-mode-btn');
 
 function syncComposerModel(modelId) {
   tsComposer.setModel(modelId);
-  if (composerModelSelect && composerModelSelect.value !== modelId) {
+  const allCatalog = typeof PROGRAMMATIC_HONEST_MODELS !== 'undefined'
+    ? [...COMPOSER_MODELS, ...PROGRAMMATIC_HONEST_MODELS]
+    : COMPOSER_MODELS;
+  const inDropdown = COMPOSER_MODELS.some((m) => m.id === modelId);
+  if (composerModelSelect && inDropdown && composerModelSelect.value !== modelId) {
     composerModelSelect.value = modelId;
   }
-  if (globalModelSelect && globalModelSelect.value !== modelId) {
+  if (globalModelSelect && inDropdown && globalModelSelect.value !== modelId) {
     globalModelSelect.value = modelId;
   }
   if (topbarModelTag) {
-    const opt = COMPOSER_MODELS.find((m) => m.id === modelId);
+    const opt = allCatalog.find((m) => m.id === modelId);
     if (opt) {
       const liveTier = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.r4StackInfo && engineWorkerClient.r4StackInfo.active_tier)
         ? engineWorkerClient.r4StackInfo.active_tier
@@ -4397,7 +4416,7 @@ function syncComposerModel(modelId) {
 }
 
 if (composerModelSelect) {
-  if (AppState && AppState.config && AppState.config.selectedModel) {
+  if (AppState && AppState.config && AppState.config.selectedModel && COMPOSER_MODELS.some((m) => m.id === AppState.config.selectedModel)) {
     composerModelSelect.value = AppState.config.selectedModel;
   }
   composerModelSelect.addEventListener('change', (e) => {
@@ -4406,28 +4425,11 @@ if (composerModelSelect) {
     }
     const nextModel = e.target.value;
     syncComposerModel(nextModel);
-    if (nextModel === 'uor-r4.qwen3-0.6b-holo' || nextModel === 'uor-r4.qwen3-1.7b-holo') {
-      const storedConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
-      const consentGranted = typeof isConsentGrantedVal === 'function'
-        ? isConsentGrantedVal(storedConsent)
-        : (storedConsent === '1' || storedConsent === 'true' || storedConsent === 'granted');
-      const hs = typeof engineWorkerClient !== 'undefined' && engineWorkerClient ? engineWorkerClient.holoStatus : null;
-      const isMounted = Boolean(hs && (nextModel === 'uor-r4.qwen3-1.7b-holo' ? hs.qwen3_17b_mounted : hs.qwen3_06b_mounted));
-      if (!consentGranted && !isMounted && typeof renderHydrationConsentCard === 'function' && typeof document !== 'undefined') {
-        const container = document.getElementById('chat-messages')
-          || (typeof chatTranscript !== 'undefined' ? chatTranscript : null)
-          || document.getElementById('chat-transcript');
-        renderHydrationConsentCard(container, {
-          model_id: nextModel,
-          approx_bytes: nextModel === 'uor-r4.qwen3-1.7b-holo' ? 1170210816 : 429916160,
-        }, '');
-      }
-    }
   });
 }
 
 if (globalModelSelect) {
-  if (AppState && AppState.config && AppState.config.selectedModel) {
+  if (AppState && AppState.config && AppState.config.selectedModel && COMPOSER_MODELS.some((m) => m.id === AppState.config.selectedModel)) {
     globalModelSelect.value = AppState.config.selectedModel;
   }
   globalModelSelect.addEventListener('change', (e) => {
@@ -4436,23 +4438,6 @@ if (globalModelSelect) {
     }
     const nextModel = e.target.value;
     syncComposerModel(nextModel);
-    if (nextModel === 'uor-r4.qwen3-0.6b-holo' || nextModel === 'uor-r4.qwen3-1.7b-holo') {
-      const storedConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
-      const consentGranted = typeof isConsentGrantedVal === 'function'
-        ? isConsentGrantedVal(storedConsent)
-        : (storedConsent === '1' || storedConsent === 'true' || storedConsent === 'granted');
-      const hs = typeof engineWorkerClient !== 'undefined' && engineWorkerClient ? engineWorkerClient.holoStatus : null;
-      const isMounted = Boolean(hs && (nextModel === 'uor-r4.qwen3-1.7b-holo' ? hs.qwen3_17b_mounted : hs.qwen3_06b_mounted));
-      if (!consentGranted && !isMounted && typeof renderHydrationConsentCard === 'function' && typeof document !== 'undefined') {
-        const container = document.getElementById('chat-messages')
-          || (typeof chatTranscript !== 'undefined' ? chatTranscript : null)
-          || document.getElementById('chat-transcript');
-        renderHydrationConsentCard(container, {
-          model_id: nextModel,
-          approx_bytes: nextModel === 'uor-r4.qwen3-1.7b-holo' ? 1170210816 : 429916160,
-        }, '');
-      }
-    }
   });
 }
 
@@ -6278,6 +6263,21 @@ const safeStorageSet = (key, value) => {
     }
   } catch {
     // Storage access blocked (e.g. SecurityError under sandboxed/opaque origin)
+  }
+  return false;
+};
+
+/** Formal R4.StudioFrame remove persisted key from localStorage and session memory map. */
+const safeStorageRemove = (key) => {
+  const k = String(key ?? '');
+  _r460MemoryStorage.delete(k);
+  try {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
+      localStorage.removeItem(k);
+      return true;
+    }
+  } catch {
+    // Ignore storage unavailability
   }
   return false;
 };
@@ -13676,8 +13676,59 @@ if (loadWeightsTopbarBtn && snapshotUploadInput) {
   });
 }
 
+/** Formal R4.StudioFrame format byte hydration progress pill (`Downloading XX% · YY / 410 MB`). */
+function formatHydrationProgressLabel(prog) {
+  if (!prog || typeof prog !== 'object') return '';
+  const totalBytes = Number(prog.totalBytes) || 0;
+  const dlBytes = Number(prog.downloadedBytes) || 0;
+  const idx = Number(prog.done ?? prog.index ?? 0);
+  const totalPieces = Math.max(1, Number(prog.total) || 1);
+  const pct = typeof prog.percent === 'number'
+    ? Math.min(100, Math.max(0, Math.round(prog.percent)))
+    : Math.min(100, Math.max(0, Math.round((idx / totalPieces) * 100)));
+  if (totalBytes >= 1000 * 1024 * 1024) {
+    const dlGb = (dlBytes / (1024 * 1024 * 1024)).toFixed(1);
+    const totGb = (totalBytes / (1024 * 1024 * 1024)).toFixed(1);
+    return `Downloading ${pct}% · ${dlGb} / ${totGb} GB`;
+  }
+  const totMb = totalBytes > 0 ? Math.max(1, Math.round(totalBytes / (1024 * 1024))) : 410;
+  const dlMb = totalBytes > 0
+    ? Math.min(totMb, Math.max(0, Math.round(dlBytes / (1024 * 1024))))
+    : Math.min(totMb, Math.round((pct / 100) * totMb));
+  return `Downloading ${pct}% · ${dlMb} / ${totMb} MB`;
+}
+
+/** Formal R4.StudioFrame toggle and update the inline composer weight hydration progress strip. */
+function updateInlineHydrationBar(prog) {
+  if (typeof document === 'undefined' || typeof document.getElementById !== 'function') return;
+  const bar = document.getElementById('hydration-inline-progress');
+  const labelEl = document.getElementById('hydration-inline-progress-label');
+  const fillEl = document.getElementById('hydration-inline-progress-fill');
+  if (!bar) return;
+  if (!prog) {
+    bar.setAttribute('hidden', '');
+    bar.hidden = true;
+    if (fillEl && fillEl.style) fillEl.style.width = '0%';
+    return;
+  }
+  const pct = typeof prog.percent === 'number'
+    ? Math.min(100, Math.max(0, Math.round(prog.percent)))
+    : Math.min(100, Math.max(0, Math.round((Number(prog.done ?? prog.index ?? 0) / Math.max(1, Number(prog.total) || 1)) * 100)));
+  bar.removeAttribute('hidden');
+  bar.hidden = false;
+  if (labelEl) {
+    labelEl.textContent = formatHydrationProgressLabel(prog);
+  }
+  if (fillEl && fillEl.style) {
+    fillEl.style.width = `${pct}%`;
+  }
+}
+
+/** Formal R4.StudioFrame render honest clickable status pill on `#weight-cache-badge`. */
 function updateWeightCacheBadge() {
   const holoInfo = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.holoStatus) || null;
+  const webgpuInfo = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.webgpuStatus) || null;
+  const hydProg = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.hydrationProgress) || null;
   const q31Info = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.nativeQ31Info) || null;
   let r4Info = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.r4StackInfo) || null;
   if (!r4Info && (!engineWorkerClient || !engineWorkerClient.enabled) && mainThreadWasmReady && typeof studio_r4_stack_status === 'function') {
@@ -13687,25 +13738,44 @@ function updateWeightCacheBadge() {
       r4Info = null;
     }
   }
+  const selId = (typeof AppState !== 'undefined' && AppState.config && AppState.config.selectedModel === 'uor-r4.native-q31-d85')
+    ? 'uor-r4.native-q31-d85'
+    : ((typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
+      || (AppState && AppState.config && AppState.config.selectedModel)
+      || 'uor-r4.qwen3-0.6b-holo');
+  const offlineEmergency = (typeof safeStorageGet === 'function' && safeStorageGet('uor_offline_emergency_q31') === '1')
+    || selId === 'uor-r4.native-q31-d85';
+  const is17b = selId === 'uor-r4.qwen3-1.7b-holo';
+  const targetMounted = Boolean(
+    holoInfo && (
+      (is17b && holoInfo.qwen3_17b_mounted)
+      || (!is17b && holoInfo.qwen3_06b_mounted)
+      || (Array.isArray(holoInfo.models) && holoInfo.models.some((m) => m && m.model_id === selId))
+    ),
+  );
   if (weightCacheBadge) {
-    const meta = globalThis.__uorGllmV9Meta || globalThis.__uorWeightCacheMeta || {};
-    const tierFallback = engineWorkerClient.enabled && !engineWorkerClient.ready
-      ? 'Booting Holo v13 Worker...'
-      : (holoInfo && holoInfo.mounted_count > 0
-        ? `Holo v13 Mounted (${holoInfo.mounted_count} · 0 Float Ops)`
-        : (q31Info
-          ? `Native Q31 D85 (${q31Info.n_layers || 4}L/${q31Info.d_model || 256}D · 0 Float Ops)`
-          : 'Holo v13 Ready · 0 Float Ops'));
-    const label = meta.status || tierFallback;
-    const shortSha = (r4Info && r4Info.container_sha256 ? r4Info.container_sha256.slice(0, 8) : '')
-      || (meta.sha256 ? meta.sha256.slice(0, 8) : '');
-    weightCacheBadge.textContent = shortSha ? `${label} · ${shortSha}` : label;
+    if (offlineEmergency) {
+      weightCacheBadge.textContent = 'Offline Q31 · Emergency';
+      weightCacheBadge.setAttribute('data-cache-state', 'offline-q31');
+    } else if (hydProg) {
+      weightCacheBadge.textContent = formatHydrationProgressLabel(hydProg);
+      weightCacheBadge.setAttribute('data-cache-state', 'downloading');
+    } else if (targetMounted) {
+      const gpuReady = Boolean(
+        (webgpuInfo && webgpuInfo.webgpu_active)
+        || (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.webgpuActive),
+      );
+      weightCacheBadge.textContent = gpuReady ? 'Ready · WebGPU' : 'Ready · Wasm SIMD';
+      weightCacheBadge.setAttribute('data-cache-state', 'ready');
+    } else {
+      weightCacheBadge.textContent = is17b
+        ? '1.1 GB · Auto-downloads on send'
+        : '410 MB · Auto-downloads on send';
+      weightCacheBadge.setAttribute('data-cache-state', 'cold');
+    }
   }
   if (topbarModelTag) {
     try {
-      const selId = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
-        || AppState.config.selectedModel
-        || 'uor-r4.qwen3-0.6b-holo';
       if (holoInfo && Array.isArray(holoInfo.models)) {
         const mountedEntry = holoInfo.models.find((m) => m.model_id === selId);
         if (mountedEntry) {
@@ -13733,6 +13803,47 @@ function updateWeightCacheBadge() {
       // Ignore parse error during early boot
     }
   }
+}
+
+if (weightCacheBadge) {
+  weightCacheBadge.addEventListener('click', () => {
+    const selId = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
+      || (AppState && AppState.config && AppState.config.selectedModel)
+      || DEFAULT_HONEST_MODEL_ID;
+    if (selId !== 'uor-r4.qwen3-0.6b-holo' && selId !== 'uor-r4.qwen3-1.7b-holo') return;
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      const approxBytes = selId.includes('1.7b') ? Math.round(1.09 * 1024 * 1024 * 1024) : 410 * 1024 * 1024;
+      engineWorkerClient.hydrationProgress = {
+        modelId: selId,
+        percent: 0,
+        downloadedBytes: 0,
+        totalBytes: approxBytes,
+      };
+      updateWeightCacheBadge();
+      updateInlineHydrationBar(engineWorkerClient.hydrationProgress);
+      engineWorkerClient
+        .rpc('hydrate_holo_model', { modelId: selId })
+        .then((res) => {
+          engineWorkerClient.hydrationProgress = null;
+          updateInlineHydrationBar(null);
+          if (res && res.holo) engineWorkerClient.holoStatus = res.holo;
+          return engineWorkerClient.rpc('holo_runtime_status', {}).catch(() => null);
+        })
+        .then((hsRes) => {
+          if (hsRes) {
+            const hs = (hsRes.holo && typeof hsRes.mounted_count !== 'number') ? hsRes.holo : hsRes;
+            if (hs && typeof hs.mounted_count === 'number') engineWorkerClient.holoStatus = hs;
+            if (hsRes.webgpu) engineWorkerClient.webgpuStatus = hsRes.webgpu;
+          }
+          updateWeightCacheBadge();
+        })
+        .catch(() => {
+          engineWorkerClient.hydrationProgress = null;
+          updateInlineHydrationBar(null);
+          updateWeightCacheBadge();
+        });
+    }
+  });
 }
 
 if (syncWeightsBtn) {
@@ -18094,6 +18205,7 @@ function initLayoutAndConnectedControls() {
   const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn');
   const settingsBackdrop = document.getElementById('settings-modal-backdrop');
   const allowOffOriginChk = document.getElementById('settings-allow-off-origin-weights');
+  const offlineQ31Toggle = document.getElementById('settings-offline-q31-toggle');
   const mlpShortlistSelect = document.getElementById('settings-mlp-shortlist-mode');
   const settingsVerifySlabBtn = document.getElementById('settings-verify-slab-btn');
   const settingsStatusEl = document.getElementById('settings-modal-status');
@@ -18105,10 +18217,15 @@ function initLayoutAndConnectedControls() {
     const raw = safeStorageGet('uor_allow_off_origin_hydration');
     return typeof isConsentGrantedVal === 'function' ? isConsentGrantedVal(raw) : (raw === '1' || raw === 'true' || raw === 'granted');
   };
+  const readOfflineEmergencyStored = () =>
+    typeof safeStorageGet === 'function' && safeStorageGet('uor_offline_emergency_q31') === '1';
   if (openSettingsModalBtn && settingsModal) {
     openSettingsModalBtn.addEventListener('click', () => {
       if (allowOffOriginChk) {
         allowOffOriginChk.checked = readConsentStored();
+      }
+      if (offlineQ31Toggle) {
+        offlineQ31Toggle.checked = readOfflineEmergencyStored();
       }
       if (mlpShortlistSelect && typeof safeStorageGet === 'function') {
         mlpShortlistSelect.value = __uorNormalizeMlpPolicy(safeStorageGet('uor_mlp_shortlist_mode') || 'auto');
@@ -18131,24 +18248,54 @@ function initLayoutAndConnectedControls() {
       verifyHoloOpfsSlab(true).catch(() => {});
     });
   }
+  if (offlineQ31Toggle) {
+    offlineQ31Toggle.checked = readOfflineEmergencyStored();
+    offlineQ31Toggle.addEventListener('change', () => {
+      const enabled = Boolean(offlineQ31Toggle.checked);
+      if (enabled) {
+        safeStorageSet('uor_offline_emergency_q31', '1');
+      } else if (typeof safeStorageRemove === 'function') {
+        safeStorageRemove('uor_offline_emergency_q31');
+      }
+      if (AppState && AppState.config) {
+        AppState.config.selectedModel = enabled
+          ? 'uor-r4.native-q31-d85'
+          : ((typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value) || DEFAULT_HONEST_MODEL_ID);
+      }
+      if (engineWorkerClient.enabled) {
+        engineWorkerClient.rpc('set_bridge_policy', {
+          offlineEmergencyQ31: enabled,
+          consentDeclined: false,
+        }).catch(() => {});
+      }
+      if (typeof updateWeightCacheBadge === 'function') updateWeightCacheBadge();
+      if (settingsStatusEl) {
+        settingsStatusEl.textContent = enabled
+          ? 'Offline Emergency Mode active: routing turns to embedded Native Q31 D85.'
+          : 'Offline Emergency Mode disabled: Qwen3 catalog auto-hydration active.';
+      }
+    });
+  }
   if (allowOffOriginChk) {
     allowOffOriginChk.checked = readConsentStored();
     allowOffOriginChk.addEventListener('change', () => {
       const granted = Boolean(allowOffOriginChk.checked);
-      if (typeof safeStorageSet === 'function') {
-        safeStorageSet('uor_allow_off_origin_hydration', granted ? '1' : 'declined');
+      if (granted && typeof safeStorageSet === 'function') {
+        safeStorageSet('uor_allow_off_origin_hydration', '1');
+      } else if (typeof safeStorageRemove === 'function') {
+        safeStorageRemove('uor_allow_off_origin_hydration');
       }
       if (engineWorkerClient.enabled) {
         engineWorkerClient.rpc('set_bridge_policy', {
-          allowOffOriginHydration: granted,
-          consentDeclined: !granted,
+          allowOffOriginHydration: granted ? true : undefined,
+          consentDeclined: false,
           hydrateNow: granted,
         }).catch(() => {});
       }
       if (settingsStatusEl) {
         settingsStatusEl.textContent = granted
-          ? 'Verified off-origin HuggingFace mirror downloads approved.'
-          : 'Strict zero-network default active (use Offline Native Q31 without consent).';
+          ? 'Custom external mirror downloads enabled.'
+          : 'First-party catalog auto-hydration active (external custom mirrors require prompt).';
       }
     });
   }

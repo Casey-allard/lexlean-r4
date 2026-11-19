@@ -645,9 +645,13 @@ async function runSuite() {
       assert.equal(rawHtml.includes(legacyId), false, `index.html must not contain legacy model ${legacyId}`);
       assert.equal(rawJs.includes(legacyId), false, `app.js must not contain legacy model ${legacyId}`);
     }
-    for (const honestId of ['uor-r4.qwen3-0.6b-holo', 'uor-r4.qwen3-1.7b-holo', 'uor-r4.native-q31-d85', 'uor-r4.hf-repo-holo']) {
-      assert.ok(rawHtml.includes(`value="${honestId}"`), `index.html missing ${honestId}`);
+    for (const honestId of ['uor-r4.qwen3-0.6b-holo', 'uor-r4.qwen3-1.7b-holo']) {
+      assert.ok(rawHtml.includes(`value="${honestId}"`), `index.html dropdown missing ${honestId}`);
       assert.ok(rawJs.includes(`id: '${honestId}'`), `app.js COMPOSER_MODELS missing ${honestId}`);
+    }
+    for (const progId of ['uor-r4.native-q31-d85', 'uor-r4.hf-repo-holo']) {
+      assert.equal(rawHtml.includes(`value="${progId}"`), false, `index.html dropdown must omit programmatic/emergency lane ${progId}`);
+      assert.ok(rawJs.includes(`id: '${progId}'`), `app.js PROGRAMMATIC_HONEST_MODELS missing ${progId}`);
     }
     assert.ok(rawCss.includes('#prism-global-topbar'), 'app.css must style #prism-global-topbar');
     assert.equal(rawCss.includes('body[data-layout-mode="chat"] #cowork-agent-status-bar'), false, 'chat mode must not unconditionally hide status controls');
