@@ -848,6 +848,7 @@ function setupCursorWorkbenchSandbox(options = {}) {
        writeCursorDiskFileHandle,
        runCursorR432Check,
        toggleCursorBottomPanel,
+       rejectPatchBatch: (...args) => (typeof initCursorIdeWorkbench.rejectPatchBatch === 'function' ? initCursorIdeWorkbench.rejectPatchBatch(...args) : undefined),
        initCursorIdeWorkbench,
        CURSOR_IDE_COMMANDS,
        get COMMAND_REGISTRY() { return typeof COMMAND_REGISTRY !== 'undefined' ? COMMAND_REGISTRY : CURSOR_IDE_COMMANDS; },
@@ -1826,10 +1827,11 @@ test('F14.1: Model selector dropdown contains only local UOR-R4 execution modes'
   assert.ok(options.length >= 4, 'Must have at least 4 execution modes');
 
   for (const opt of options) {
+    const val = String(opt.getAttribute('value') || opt.value || '');
     const text = opt.textContent;
     assert.ok(
-      text.includes('uor-r4.lut-stack/8'),
-      `Every model option must be bound to local uor-r4.lut-stack/8. Found: ${text}`
+      val.startsWith('uor-r4.'),
+      `Every model option must be bound to local uor-r4.* runtime. Found value=${val} label=${text}`
     );
   }
 
@@ -3408,6 +3410,80 @@ test('S5: Keyboard-only navigation across Quick Open, Command Palette, and Edito
 
   // 5. Verify terminal panel toggled
   assert.ok(elements.dockableCanvasPane.classList.contains('cursor-bottom-panel-collapsed'));
+});
+
+// ============================================================================
+// FEATURE 19 (R4-60): Unified IDE / SCM / New-Path / SpiralCore / Workbench Fixes
+// ============================================================================
+suite('Feature 19: R4-60 IDE / SCM / New-Path / Drawer Isolation');
+
+test('F19.1: rejectPatchBatch replaces discardAllPendingPatches and never hides editor', () => {
+  const { doc, controller, AppState, elements } = setupCursorWorkbenchSandbox();
+  assert.equal(typeof controller.rejectPatchBatch, 'function', 'rejectPatchBatch must be exported by workbench');
+  AppState.workspace.pendingPatches = {
+    'src/attention.rs': { targetFile: 'src/attention.rs', proposedCode: 'fn patched() {}', diffPreview: '+fn patched() {}' },
+  };
+  const rejectAllBtn = doc.getElementById('cursor-reject-all-btn');
+  assert.ok(rejectAllBtn, '#cursor-reject-all-btn must exist');
+  rejectAllBtn.click();
+  assert.deepEqual(AppState.workspace.pendingPatches, {}, 'rejectPatchBatch must clear all pendingPatches without throwing');
+  assert.equal(elements.dockableCanvasPane.hasAttribute('hidden'), false, '#dockable-canvas-pane must remain visible');
+  assert.equal(doc.getElementById('cursor-code-editor').hasAttribute('hidden'), false, '#cursor-code-editor must remain visible');
+});
+
+test('F19.2: #close-canvas-pane-btn toggles ONLY #terminal-split-drawer leaving #cursor-code-editor visible', () => {
+  const { doc, elements } = setupCursorWorkbenchSandbox();
+  const closeBtn = doc.getElementById('close-canvas-pane-btn');
+  const termDrawer = doc.getElementById('terminal-split-drawer');
+  const codeEditor = doc.getElementById('cursor-code-editor');
+  assert.ok(closeBtn && termDrawer && codeEditor);
+  assert.equal(termDrawer.hasAttribute('hidden'), false, 'terminal drawer starts visible');
+  closeBtn.click();
+  assert.equal(termDrawer.hasAttribute('hidden'), true, '#close-canvas-pane-btn must hide #terminal-split-drawer');
+  assert.equal(elements.dockableCanvasPane.hasAttribute('hidden'), false, '#dockable-canvas-pane must stay visible');
+  assert.equal(codeEditor.hasAttribute('hidden'), false, '#cursor-code-editor must stay visible');
+});
+
+test('F19.3: #cursor-new-file-quick-btn & #cursor-new-folder-btn open #new-path-modal and reject .. traversal', () => {
+  const { doc, virtualFiles } = setupCursorWorkbenchSandbox();
+  const newFileBtn = doc.getElementById('cursor-new-file-quick-btn');
+  const newFolderBtn = doc.getElementById('cursor-new-folder-btn');
+  const modal = doc.getElementById('new-path-modal');
+  const form = doc.getElementById('new-path-form');
+  const input = doc.getElementById('new-path-input');
+  const kindInput = doc.getElementById('new-path-kind-input');
+  assert.ok(newFileBtn && newFolderBtn && modal && form && input && kindInput);
+  assert.equal(modal.hasAttribute('hidden'), true);
+
+  newFileBtn.click();
+  assert.equal(modal.hasAttribute('hidden'), false, 'Clicking + File must open #new-path-modal');
+  assert.equal(kindInput.value, 'file');
+
+  // Attempt traversal -> rejected, modal remains open
+  input.value = '../escape.rs';
+  form.dispatchEvent({ type: 'submit', preventDefault: () => {} });
+  assert.equal(modal.hasAttribute('hidden'), false, 'Path traversal must be rejected');
+
+  // Valid relative path -> creates file and closes modal
+  input.value = '/workspace/src/r4_60_new.rs';
+  form.dispatchEvent({ type: 'submit', preventDefault: () => {} });
+  assert.equal(modal.hasAttribute('hidden'), true, 'Valid path submit must close modal');
+  assert.ok(virtualFiles.some((f) => f.path === 'src/r4_60_new.rs'), 'New file must be written into /workspace');
+
+  newFolderBtn.click();
+  assert.equal(modal.hasAttribute('hidden'), false, 'Clicking + Dir must open #new-path-modal');
+  assert.equal(kindInput.value, 'dir');
+});
+
+test('F19.4: Escape never hides #dockable-canvas-pane or #cursor-code-editor', () => {
+  const { doc, elements } = setupCursorWorkbenchSandbox();
+  const modal = doc.getElementById('new-path-modal');
+  doc.getElementById('cursor-new-file-quick-btn').click();
+  assert.equal(modal.hasAttribute('hidden'), false);
+  doc.dispatchEvent({ type: 'keydown', key: 'Escape', preventDefault: () => {} });
+  assert.equal(modal.hasAttribute('hidden'), true, 'Escape must dismiss #new-path-modal');
+  assert.equal(elements.dockableCanvasPane.hasAttribute('hidden'), false, 'Escape must never hide center workbench');
+  assert.equal(doc.getElementById('cursor-code-editor').hasAttribute('hidden'), false, 'Escape must never hide code editor');
 });
 
 // ============================================================================

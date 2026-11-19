@@ -805,6 +805,351 @@ console.log('\n--- Challenge 6: MCP Tool Runs, Log Formatting & Merkle Consisten
   console.log('  ✓ 6.4 MCP security policy DENY mode strictly blocks execution and writes critical audit record.');
 }
 
+// ============================================================================
+// CHALLENGE 7 (R4-60): M3 Window Size Classes, Live HUD + 512-Token Scrubber,
+// Consent Card SecurityError Fallback & ?surface=preview Fuel Limit
+// ============================================================================
+console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Consent Fallback & Fuel-Bounded Preview ---');
+{
+  const startMarker = '// ============================================================================\n// R4-60 STUDIO LIVE HUD, M3 RESPONSIVE SHELL, CONSENT & PREVIEW RUNTIME';
+  const endMarker = '// ============================================================================\n// END R4-60 STUDIO RUNTIME';
+  const r460Start = appJsContent.indexOf(startMarker);
+  const r460End = appJsContent.indexOf(endMarker, r460Start);
+  assert.ok(
+    r460Start !== -1 && r460End !== -1,
+    'public/app.js must export/contain R4-60 Studio Live HUD, Consent & Preview runtime block'
+  );
+  const r460Code = appJsContent.slice(r460Start, r460End);
+
+  const { document, body } = createDOMEnvironment();
+  body.dataset = {};
+  const prismFrame = document.getElementById('prism-frame');
+  prismFrame.dataset = {};
+  const mainEl = document.createElement('main');
+  const sidebarEl = document.getElementById('threads-sidebar');
+  const dockSplitEl = document.getElementById('observatory-dock-split');
+  const inspectorsModalEl = document.getElementById('inspectors-modal');
+  const tracesPanelEl = document.getElementById('canvas-panel-traces');
+  const obsDeckEl = document.getElementById('holo-observatory-deck');
+  const chatMessagesEl = document.getElementById('chat-messages');
+  const modelSelectEl = document.getElementById('model-select');
+  const composerModelSelectEl = document.getElementById('composer-model-select');
+  const topbarModelTagEl = document.getElementById('topbar-model-tag');
+  const weightCacheBadgeEl = document.getElementById('weight-cache-badge');
+  const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+  const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+  const toastBannerEl = document.getElementById('studio-toast-banner');
+  toastBannerEl.dataset = {};
+  toastBannerEl.setAttribute('hidden', '');
+  const toastMsgEl = document.getElementById('studio-toast-message');
+  const toastCloseBtn = document.getElementById('studio-toast-close-btn');
+  const settingsAllowOffOrigin = document.getElementById('settings-allow-off-origin-weights');
+
+  const createMockCanvas = (id, w = 132, h = 48) => {
+    const c = document.getElementById(id);
+    c.tagName = 'CANVAS';
+    c.width = w;
+    c.height = h;
+    c.ops = [];
+    c.getContext = () => ({
+      fillStyle: '#000',
+      strokeStyle: '#000',
+      lineWidth: 1,
+      font: '10px monospace',
+      clearRect: (...a) => c.ops.push(['clearRect', ...a]),
+      fillRect: (...a) => c.ops.push(['fillRect', ...a]),
+      strokeRect: (...a) => c.ops.push(['strokeRect', ...a]),
+      beginPath: () => c.ops.push(['beginPath']),
+      closePath: () => c.ops.push(['closePath']),
+      moveTo: (...a) => c.ops.push(['moveTo', ...a]),
+      lineTo: (...a) => c.ops.push(['lineTo', ...a]),
+      arc: (...a) => c.ops.push(['arc', ...a]),
+      fill: () => c.ops.push(['fill']),
+      stroke: () => c.ops.push(['stroke']),
+      fillText: (...a) => c.ops.push(['fillText', ...a]),
+      scale: () => {},
+      save: () => {},
+      restore: () => {},
+      translate: () => {},
+      rotate: () => {},
+      measureText: (t) => ({ width: String(t || '').length * 6 }),
+    });
+    return c;
+  };
+  createMockCanvas('holo-layer-waterfall-canvas', 460, 220);
+  createMockCanvas('holo-shortlist-race-canvas', 460, 220);
+  createMockCanvas('holo-causal-flock-canvas', 460, 220);
+  createMockCanvas('holo-storage-geometry-canvas', 460, 220);
+
+  const origCreate = document.createElement.bind(document);
+  document.createElement = (tag) => {
+    const el = origCreate(tag);
+    el.dataset = {};
+    if (String(tag).toLowerCase() === 'canvas') {
+      el.width = 132;
+      el.height = 48;
+      el.ops = [];
+      el.getContext = () => ({
+        fillStyle: '#000',
+        strokeStyle: '#000',
+        lineWidth: 1,
+        font: '10px monospace',
+        clearRect: (...a) => el.ops.push(['clearRect', ...a]),
+        fillRect: (...a) => el.ops.push(['fillRect', ...a]),
+        strokeRect: (...a) => el.ops.push(['strokeRect', ...a]),
+        beginPath: () => el.ops.push(['beginPath']),
+        closePath: () => el.ops.push(['closePath']),
+        moveTo: (...a) => el.ops.push(['moveTo', ...a]),
+        lineTo: (...a) => el.ops.push(['lineTo', ...a]),
+        arc: (...a) => el.ops.push(['arc', ...a]),
+        fill: () => el.ops.push(['fill']),
+        stroke: () => el.ops.push(['stroke']),
+        fillText: (...a) => el.ops.push(['fillText', ...a]),
+        scale: () => {},
+        save: () => {},
+        restore: () => {},
+        translate: () => {},
+        rotate: () => {},
+        measureText: (t) => ({ width: String(t || '').length * 6 }),
+      });
+    }
+    return el;
+  };
+  document.querySelector = (sel) => (sel === 'main' ? mainEl : body.querySelector(sel));
+  document.createTextNode = (txt) => {
+    const n = origCreate('#text');
+    n.textContent = String(txt ?? '');
+    return n;
+  };
+  tracesPanelEl.appendChild(obsDeckEl);
+  body.appendChild(mainEl);
+  mainEl.appendChild(sidebarEl);
+  mainEl.appendChild(dockSplitEl);
+  body.appendChild(inspectorsModalEl);
+  inspectorsModalEl.appendChild(tracesPanelEl);
+  body.appendChild(chatMessagesEl);
+
+  const rpcCalls = [];
+  const rerunPrompts = [];
+  const postedMessages = [];
+  const throwingLocalStorage = {
+    getItem() { throw new Error('SecurityError: storage blocked'); },
+    setItem() { throw new Error('SecurityError: storage blocked'); },
+  };
+  const mockWin = {
+    innerWidth: 1280,
+    devicePixelRatio: 2,
+    location: { search: '' },
+    parent: { postMessage: (msg) => postedMessages.push(msg) },
+    addEventListener: () => {},
+    matchMedia: () => ({ matches: false, addEventListener: () => {} }),
+  };
+
+  const sandboxR460 = new Function(
+    'document',
+    'window',
+    'localStorage',
+    'AppState',
+    'engineWorkerClient',
+    'runClaudeChat',
+    'syncComposerModel',
+    'updateWeightCacheBadge',
+    'renderHoloObservatoryDeck',
+    'holoObservatoryState',
+    'renderStudioToast',
+    `"use strict";
+     ${r460Code}
+     return {
+       classifyWindowWidth,
+       applyWindowWidthClass,
+       syncObservatoryHost,
+       safeStorageGet,
+       safeStorageSet,
+       showStudioToast,
+       createLiveTokenHudController,
+       renderHydrationConsentCard,
+       PreviewScriptFuelExhausted,
+       evaluatePreviewScriptWithFuel,
+       renderPreviewWorkspace,
+     };`
+  );
+
+  const AppStateMock = {
+    config: { selectedModel: 'uor-r4.qwen3-0.6b-holo', composerMode: 'agentic' },
+    ui: { theme: 'dark', density: 'compact' },
+  };
+  const workerMock = {
+    enabled: true,
+    ready: true,
+    holoStatus: { mounted_count: 0 },
+    async rpc(op, payload) {
+      rpcCalls.push({ op, payload });
+      return { ok: true, fallback_model: 'uor-r4.native-q31-d85' };
+    },
+  };
+  const obsStateMock = {
+    frames: [],
+    qTrail: [],
+    paused: false,
+    lockedFrameIdx: null,
+    rotAngle: 0.42,
+    prefixReused: 0,
+    shortlistK: 4096,
+    backend: 'wasm-simd128',
+  };
+  let syncedModels = [];
+  let obsRenderCount = 0;
+
+  const r460 = sandboxR460(
+    document,
+    mockWin,
+    throwingLocalStorage,
+    AppStateMock,
+    workerMock,
+    (prompt) => rerunPrompts.push(prompt),
+    (m) => {
+      syncedModels.push(m);
+      AppStateMock.config.selectedModel = m;
+      modelSelectEl.value = m;
+      composerModelSelectEl.value = m;
+    },
+    () => {},
+    () => { obsRenderCount += 1; },
+    obsStateMock,
+    null
+  );
+
+  // 7.1 M3 Window Size Classes (<600 compact, 600..839 medium, >=840 expanded)
+  assert.equal(r460.classifyWindowWidth(390), 'compact');
+  assert.equal(r460.classifyWindowWidth(599), 'compact');
+  assert.equal(r460.classifyWindowWidth(600), 'medium');
+  assert.equal(r460.classifyWindowWidth(839), 'medium');
+  assert.equal(r460.classifyWindowWidth(840), 'expanded');
+  r460.applyWindowWidthClass(500);
+  assert.equal(body.dataset.windowClass, 'compact');
+  assert.equal(prismFrame.dataset.windowClass, 'compact');
+  body.dataset.layoutMode = 'studio';
+  r460.syncObservatoryHost();
+  assert.ok(tracesPanelEl.children.includes(obsDeckEl), 'Compact mode must keep Observatory inside #inspectors-modal');
+  r460.applyWindowWidthClass(1280);
+  assert.equal(body.dataset.windowClass, 'expanded');
+  r460.syncObservatoryHost();
+  assert.ok(dockSplitEl.children.includes(obsDeckEl), 'Expanded Studio mode must dock Observatory into #observatory-dock-split');
+  console.log('  ✓ 7.1 M3 window size classes & responsive Observatory dock verified.');
+
+  // 7.2 Live Mini-HUD + <=512 token ring-buffer scrubber + XSS safety + Q31 honesty
+  const hudCtrl = r460.createLiveTokenHudController(chatMessagesEl);
+  for (let i = 0; i < 520; i++) {
+    const tokText = i === 10 ? '<img src=x onerror=alert(1)>' : `tok${i} `;
+    hudCtrl.pushTokenStep({
+      frame: {
+        step_idx: i,
+        phase: 'decode',
+        seq_pos: 20 + i,
+        prefix_reused_tokens: 18,
+        token_id: 100 + i,
+        token_text: tokText,
+        has_geometric_shortlist: true,
+        min_hamming: 30 + (i % 20),
+        shortlist_count: 1536,
+        ttft_ms: 42,
+        tps_x10: 615,
+        q_manifold_xyz: [i - 250, (i * 3) % 400, -100],
+        layer_max_bits: new Array(28).fill(18 + (i % 6)),
+        layer_residual_mag: new Array(28).fill(500 + i),
+        hamming_hist_32: new Array(32).fill(10),
+        top_candidates: [
+          { token_id: 1, token_text: tokText, logit_q16: 9000, prob_permille: 614, hamming_d: 31, selected: true },
+          { token_id: 2, token_text: 'alt', logit_q16: 7200, prob_permille: 182, hamming_d: 44, selected: false },
+        ],
+        backend: 'holo-v13-simd128',
+      },
+      delta: tokText,
+      tokens_emitted: i + 1,
+      tok_per_sec: 61.5,
+      prefix_reused_tokens: 18,
+    });
+  }
+  const hudEl = chatMessagesEl.querySelector('.holo-live-hud');
+  const scrubberEl = chatMessagesEl.querySelector('.holo-token-scrubber');
+  assert.ok(hudEl, '.holo-live-hud must be created inside assistant message');
+  assert.ok(scrubberEl, '.holo-token-scrubber must be created inside assistant message');
+  assert.ok(hudEl.querySelector('.holo-hud-canvas'), 'Mini-HUD must contain .holo-hud-canvas');
+  const tokSpans = scrubberEl.querySelectorAll('.holo-tok-span');
+  assert.ok(tokSpans.length <= 512 && tokSpans.length > 0, `Scrubber must cap retained spans at <= 512 (got ${tokSpans.length})`);
+  assert.equal(hudCtrl.frames.length, 512, 'Ring buffer must retain strictly <= 512 frames');
+  const xssSpan = tokSpans.find((s) => s.textContent.includes('<img src=x onerror=alert(1)>'));
+  assert.ok(xssSpan, 'XSS payload token must be preserved as literal textContent');
+  assert.equal(xssSpan.children.length, 0, 'XSS payload must NOT parse any child <img> element');
+
+  // Hover/click scrubber span locks Mini-HUD and Observatory to exact frame
+  const obsBefore = obsRenderCount;
+  tokSpans[0].dispatchEvent({ type: 'click', target: tokSpans[0] });
+  assert.ok(obsRenderCount > obsBefore, 'Clicking scrubber token must re-render Observatory deck');
+  assert.equal(obsStateMock.frames[obsStateMock.frames.length - 1].step_idx, Number(tokSpans[0].getAttribute('data-frame-idx')) + 8, 'Scrubber lock must select exact ring-buffered frame');
+
+  // Q31 honesty when !has_geometric_shortlist
+  const q31Hud = r460.createLiveTokenHudController(chatMessagesEl);
+  q31Hud.pushTokenStep({
+    frame: {
+      step_idx: 0,
+      phase: 'decode',
+      seq_pos: 5,
+      prefix_reused_tokens: 0,
+      token_id: 7,
+      token_text: 'q31',
+      has_geometric_shortlist: false,
+      min_hamming: 0,
+      shortlist_count: 0,
+      ttft_ms: 12,
+      tps_x10: 450,
+      q_manifold_xyz: [10, 20, 30],
+      layer_max_bits: [12, 13, 14, 15],
+      top_candidates: [
+        { token_id: 7, token_text: 'q31', logit_q16: 4000, prob_permille: 700, hamming_d: null, selected: true },
+      ],
+      backend: 'native-q31-d85',
+    },
+    delta: 'q31',
+  });
+  const q31Card = q31Hud.hudEl;
+  const q31Text = q31Card.textContent || JSON.stringify(q31Card);
+  assert.ok(q31Card.querySelector('.holo-q31-badge'), 'Native Q31 HUD must render honest Q31 Exact Lane badge');
+  console.log('  ✓ 7.2 Live Mini-HUD, 512-token scrubber ring buffer, XSS safety & Q31 honesty verified.');
+
+  // 7.3 Consent Card with SecurityError on localStorage -> Native Q31 fallback
+  await r460.renderHydrationConsentCard(
+    chatMessagesEl,
+    {
+      model_id: 'uor-r4.qwen3-0.6b-holo',
+      approx_bytes: 429916160,
+      mirrors: ['https://raw.githubusercontent.com/example/model/piece_0000.bin'],
+    },
+    'hello world'
+  );
+  const consentCard = chatMessagesEl.querySelector('.holo-consent-card');
+  assert.ok(consentCard, 'Consent card must render inline');
+  const offlineBtn = consentCard.querySelector('.holo-consent-offline-btn');
+  assert.ok(offlineBtn, 'Offline Native Q31 fallback button must exist');
+  await offlineBtn.click();
+  for (let k = 0; k < 8; k += 1) await Promise.resolve();
+  assert.equal(r460.safeStorageGet('uor_allow_off_origin_hydration'), 'declined', 'SecurityError must fall back to memory storage');
+  assert.equal(AppStateMock.config.selectedModel, 'uor-r4.native-q31-d85', 'Declining must auto-switch to Native Q31');
+  assert.ok(rerunPrompts.includes('hello world'), 'Declining must re-run pending prompt');
+  assert.ok(rpcCalls.some((c) => c.op === 'hydrate_holo_model' && c.payload.decline === true), 'Must notify Worker of consent decline');
+  console.log('  ✓ 7.3 Off-origin weight consent SecurityError & Native Q31 fallback verified.');
+
+  // 7.4 ?surface=preview 100,000-step fuel limit (PreviewScriptFuelExhausted)
+  assert.throws(
+    () => r460.evaluatePreviewScriptWithFuel('while (true) {}', { document, console: { log: () => {}, warn: () => {}, error: () => {} } }, 100000),
+    (err) => err && (err.code === 'PreviewScriptFuelExhausted' || err.error_code === 'PreviewScriptFuelExhausted'),
+    'Infinite while (true) {} loop must fail with PreviewScriptFuelExhausted'
+  );
+  const okRes = r460.evaluatePreviewScriptWithFuel('let sum = 0; for (let i = 1; i <= 5; i += 1) { sum += i; } sum;', { document, console: { log: () => {}, warn: () => {}, error: () => {} } }, 100000);
+  assert.equal(okRes.value, 15, 'Valid bounded JS loop must compute exact result');
+  console.log('  ✓ 7.4 ?surface=preview 100,000-step fuel limit (PreviewScriptFuelExhausted) verified.');
+}
+
 console.log('\n================================================================');
-console.log('  CHALLENGE COMPLETE: ALL 6 EMPIRICAL CHALLENGES PASSED GREEN');
+console.log('  CHALLENGE COMPLETE: ALL 7 EMPIRICAL CHALLENGES PASSED GREEN');
 console.log('================================================================\n');

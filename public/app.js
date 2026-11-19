@@ -900,6 +900,18 @@ const engineWorkerClient = {
     });
   },
 
+  rpcWithId(op, payload) {
+    if (!this.worker) {
+      return { id: null, promise: Promise.reject(new Error('Engine worker not active')) };
+    }
+    const id = this.nextId++;
+    const promise = new Promise((resolveRpc, rejectRpc) => {
+      this.pending.set(id, { resolve: resolveRpc, reject: rejectRpc });
+      this.worker.postMessage({ id, op, payload });
+    });
+    return { id, promise };
+  },
+
   applyWorkspaceSnapshot(ws) {
     if (!ws || !Array.isArray(ws.files)) return;
     const prevEntries = new Map(this.workspaceFiles.entries());
@@ -975,7 +987,12 @@ const engineWorkerClient = {
       const waiter = this.pending.get(msg.id);
       this.pending.delete(msg.id);
       if (msg.ok) waiter.resolve(msg.result);
-      else waiter.reject(new Error(msg.error || 'Worker RPC error'));
+      else {
+        const rpcErr = new Error(msg.error || 'Worker RPC error');
+        if (msg.error_code) rpcErr.error_code = msg.error_code;
+        rpcErr.details = msg;
+        waiter.reject(rpcErr);
+      }
       return;
     }
 
@@ -1125,6 +1142,60 @@ const engineWorkerClient = {
     }
     if (evType === 'workspace_sync' && msg.workspace) {
       this.applyWorkspaceSnapshot(msg.workspace);
+      return;
+    }
+    if (evType === 'workspace_fs_changed') {
+      if (typeof globalThis.__uorRefreshWorkspaceAfterFsChange === 'function') {
+        globalThis.__uorRefreshWorkspaceAfterFsChange(msg).catch(() => {});
+      }
+      return;
+    }
+    if (evType === 'token_step') {
+      if (msg.turn_id != null && typeof tsComposer !== 'undefined' && typeof tsComposer.setActiveTurnId === 'function') {
+        tsComposer.setActiveTurnId(Number(msg.turn_id));
+      }
+      if (msg.frame && typeof holoObservatoryState !== 'undefined' && !holoObservatoryState.paused && holoObservatoryState.lockedFrameIdx === null) {
+        ingestHoloObservatoryFrame(msg.frame, {
+          prefixReused: Number(msg.prefix_reused_tokens || 0),
+          selectedModel: msg.frame.backend || '',
+        });
+      }
+      if (typeof this.activeChatStreamHook === 'function') {
+        this.activeChatStreamHook({
+          stage: 'token_step',
+          ...msg,
+        });
+      }
+      return;
+    }
+    if (evType === 'tool_call' || evType === 'tool_result' || evType === 'chat_cancelled' || evType === 'chat_error') {
+      if (typeof this.activeChatStreamHook === 'function') {
+        this.activeChatStreamHook({
+          stage: evType,
+          ...msg,
+        });
+      }
+      return;
+    }
+    if (evType === 'hydration_consent_required') {
+      if (typeof this.activeChatStreamHook === 'function') {
+        this.activeChatStreamHook({
+          stage: 'hydration_consent_required',
+          ...msg,
+        });
+      } else if (typeof renderHydrationConsentCard === 'function') {
+        const container = document.getElementById('chat-messages');
+        renderHydrationConsentCard(container, msg, '');
+      }
+      if (typeof showStudioToast === 'function') {
+        showStudioToast(`Consent required to download ${msg.model_id || 'model'}`, 'warn', 5000);
+      }
+      return;
+    }
+    if (evType === 'preview_inspect_request') {
+      if (typeof handlePreviewInspectRequest === 'function') {
+        handlePreviewInspectRequest(msg);
+      }
       return;
     }
     if (evType === 'chat_stream_delta') {
@@ -2644,28 +2715,8 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
     proseContainer.className = 'chat-prose';
     body.appendChild(proseContainer);
 
-    const tokenPieces = cleanText.split(/(\s+)/);
-    if (streamTokens && tokenPieces.length > 8 && typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
-      let idx = 0;
-      const stride = Math.max(4, Math.ceil(tokenPieces.length / 28));
-      const stepFrame = () => {
-        idx = Math.min(tokenPieces.length, idx + stride);
-        const partial = tokenPieces.slice(0, idx).join('');
-        renderFormattedMarkdownInto(proseContainer, partial);
-        if (idx < tokenPieces.length) {
-          chatTranscript.scrollTop = chatTranscript.scrollHeight;
-          window.requestAnimationFrame(stepFrame);
-        } else {
-          leftSpan.textContent = titleText;
-          attachPatchAndAuditBars();
-          chatTranscript.scrollTop = chatTranscript.scrollHeight;
-        }
-      };
-      window.requestAnimationFrame(stepFrame);
-    } else {
-      renderFormattedMarkdownInto(proseContainer, cleanText);
-      attachPatchAndAuditBars();
-    }
+    renderFormattedMarkdownInto(proseContainer, cleanText);
+    attachPatchAndAuditBars();
   } else {
     const userProse = document.createElement('div');
     userProse.className = 'chat-prose';
@@ -3012,33 +3063,118 @@ function runClaudeChat(promptText, recordUserBubble = true) {
 
   if (engineWorkerClient.enabled) {
     let placeholderCard = null;
+    let leftMetaEl = null;
+    let rightMetaEl = null;
+    let toolCallsEl = null;
     let statusLineEl = null;
+    let hudCtrl = null;
     if (chatTranscript) {
       placeholderCard = document.createElement('article');
-      placeholderCard.className = 'chat-turn-card chat-assistant chat-streaming-placeholder';
+      placeholderCard.className = 'chat-turn-card chat-assistant chat-streaming-turn';
       const meta = document.createElement('div');
       meta.className = 'chat-turn-meta';
-      meta.textContent = engineWorkerClient.ready
-        ? `${selectedModel} · ${activeTierTag} · Generating on Worker`
+      leftMetaEl = document.createElement('span');
+      leftMetaEl.textContent = engineWorkerClient.ready
+        ? `${selectedModel} · ${activeTierTag} · Streaming`
         : `${selectedModel} · Booting Engine Worker`;
+      rightMetaEl = document.createElement('span');
+      rightMetaEl.textContent = activeComposerMode === 'plan' ? 'PlanReadOnly' : 'live';
+      meta.appendChild(leftMetaEl);
+      meta.appendChild(rightMetaEl);
+
       const body = document.createElement('div');
       body.className = 'chat-turn-body';
+      toolCallsEl = document.createElement('div');
+      toolCallsEl.className = 'chat-tool-calls';
       statusLineEl = document.createElement('div');
       statusLineEl.className = 'chat-prose';
       statusLineEl.textContent = engineWorkerClient.ready
-        ? `Routing across zero-float Holo v13 geometric engine (${selectedModel})...`
-        : 'Initializing Wasm simd128 Worker & OPFS Holo v13 piece cache...';
+        ? `Streaming zero-float geometric turn (${selectedModel})...`
+        : 'Initializing Wasm simd128 Worker & OPFS Holo v13 cache...';
+      body.appendChild(toolCallsEl);
       body.appendChild(statusLineEl);
       placeholderCard.appendChild(meta);
       placeholderCard.appendChild(body);
       chatTranscript.appendChild(placeholderCard);
+      if (typeof createLiveTokenHudController === 'function') {
+        hudCtrl = createLiveTokenHudController(chatTranscript, body);
+      }
       chatTranscript.scrollTop = chatTranscript.scrollHeight;
     }
 
     let streamedReplyText = '';
+    let consentRendered = false;
+    let wasCancelled = false;
+    const toolEvents = [];
+    const allowOffOrigin = typeof safeStorageGet === 'function'
+      && safeStorageGet('uor_allow_off_origin_hydration') === 'granted';
+
+    const finishStreamingControls = () => {
+      if (typeof tsComposer.endTurn === 'function') tsComposer.endTurn();
+      if (composerStopBtn) {
+        composerStopBtn.setAttribute('hidden', '');
+        composerStopBtn.hidden = true;
+      }
+      if (composerSendBtn) {
+        composerSendBtn.disabled = false;
+      }
+    };
+
+    const reqHandle = engineWorkerClient.rpcWithId('studio_stream_turn', {
+      prompt: trimmed,
+      selected_model: selectedModel,
+      composer_mode: activeComposerMode === 'plan' ? 'plan' : 'agent',
+      surface_mode: 'studio',
+      live_hud: true,
+      allow_off_origin: allowOffOrigin,
+      operating_mode: AppState.config.operatingMode || 'coding',
+      retain_lambda: AppState.config.retainLambda ?? 0.85,
+      plurality_votes: AppState.config.pluralityVotes ?? 8,
+      active_file: (typeof activeWorkspacePath === 'string' && activeWorkspacePath) || '',
+      web_access: engineWorkerClient.webAccessEnabled,
+    });
+    if (typeof tsComposer.beginTurn === 'function') {
+      tsComposer.beginTurn(reqHandle.id);
+    }
+    if (composerStopBtn) {
+      composerStopBtn.removeAttribute('hidden');
+      composerStopBtn.hidden = false;
+    }
+    if (composerSendBtn) {
+      composerSendBtn.disabled = true;
+    }
+
     const liveHook = (bridgeEvt) => {
-      if (!statusLineEl || !bridgeEvt) return;
-      if (bridgeEvt.stage === 'chat_stream_delta') {
+      if (!bridgeEvt) return;
+      if (bridgeEvt.stage === 'hydration_consent_required') {
+        consentRendered = true;
+        if (placeholderCard && placeholderCard.parentNode) {
+          placeholderCard.parentNode.removeChild(placeholderCard);
+        }
+        if (typeof renderHydrationConsentCard === 'function' && chatTranscript) {
+          renderHydrationConsentCard(chatTranscript, bridgeEvt, trimmed);
+        }
+        return;
+      }
+      if (bridgeEvt.stage === 'chat_cancelled') {
+        wasCancelled = true;
+        if (rightMetaEl) rightMetaEl.textContent = 'cancelled';
+        return;
+      }
+      if (bridgeEvt.stage === 'tool_call' || bridgeEvt.stage === 'tool_result') {
+        toolEvents.push(bridgeEvt);
+        if (toolCallsEl) {
+          const item = document.createElement('div');
+          item.className = 'chat-tool-card';
+          const toolName = String(bridgeEvt.tool || bridgeEvt.name || 'tool');
+          item.textContent = bridgeEvt.stage === 'tool_call'
+            ? `> tool_call: ${toolName}`
+            : `< tool_result: ${toolName} (${bridgeEvt.ok === false ? 'denied/err' : 'ok'})`;
+          toolCallsEl.appendChild(item);
+        }
+        return;
+      }
+      if (bridgeEvt.stage === 'token_step') {
         const nowMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         if (!holoObservatoryState.firstDeltaMs && holoObservatoryState.turnStartMs > 0) {
           holoObservatoryState.firstDeltaMs = Math.max(1, Math.round(nowMs - holoObservatoryState.turnStartMs));
@@ -3048,14 +3184,24 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           const elapsedSinceStart = Math.round(nowMs - holoObservatoryState.turnStartMs);
           holoObservatoryState.lastDecodeDurationMs = Math.max(1, elapsedSinceStart - holoObservatoryState.firstDeltaMs);
           holoObservatoryState.lastGeneratedTokens = holoObservatoryState.deltaCount;
-          if (holoObservatoryState.deltaCount === 2 || holoObservatoryState.deltaCount % 4 === 0) {
-            const liveSpeedEl = document.getElementById('holo-obs-speed-stat');
-            if (liveSpeedEl) {
-              const liveTps = ((holoObservatoryState.deltaCount - 1) / (holoObservatoryState.lastDecodeDurationMs / 1000)).toFixed(1);
-              liveSpeedEl.textContent = `${holoObservatoryState.firstDeltaMs}ms TTFT · ${liveTps} tok/s`;
-            }
-          }
         }
+        if (hudCtrl) {
+          hudCtrl.pushTokenStep(bridgeEvt);
+        }
+        const deltaPiece = bridgeEvt.delta !== undefined
+          ? String(bridgeEvt.delta || '')
+          : String((bridgeEvt.frame && bridgeEvt.frame.token_text) || '');
+        if (deltaPiece) {
+          streamedReplyText += deltaPiece;
+          if (statusLineEl) {
+            statusLineEl.textContent = streamedReplyText;
+          }
+          if (chatTranscript) chatTranscript.scrollTop = chatTranscript.scrollHeight;
+        }
+        return;
+      }
+      if (!statusLineEl) return;
+      if (bridgeEvt.stage === 'chat_stream_delta') {
         streamedReplyText += String(bridgeEvt.text || '');
         if (streamedReplyText) {
           statusLineEl.textContent = streamedReplyText;
@@ -3082,16 +3228,55 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     };
     engineWorkerClient.activeChatStreamHook = liveHook;
 
-    engineWorkerClient
-      .rpc('studio_dispatch', `1\tstudio\tchat\t${chatPayload}`)
+    reqHandle.promise
       .then((chatRes) => {
         if (engineWorkerClient.activeChatStreamHook === liveHook) {
           engineWorkerClient.activeChatStreamHook = null;
         }
-        if (placeholderCard && placeholderCard.parentNode) {
-          placeholderCard.parentNode.removeChild(placeholderCard);
+        finishStreamingControls();
+        if (chatRes && chatRes.ok === false && chatRes.error_code === 'ConsentRequiredForWeightDownload') {
+          if (placeholderCard && placeholderCard.parentNode) {
+            placeholderCard.parentNode.removeChild(placeholderCard);
+          }
+          if (!consentRendered && typeof renderHydrationConsentCard === 'function' && chatTranscript) {
+            renderHydrationConsentCard(chatTranscript, chatRes, trimmed);
+          }
+          return;
         }
-        renderCompletedChatResponse(trimmed, chatRes);
+        if (hudCtrl && hudCtrl.frames.length > 0 && placeholderCard && statusLineEl) {
+          const finalText = (chatRes && (chatRes.reply || chatRes.assistant_reply)) || streamedReplyText || '';
+          renderFormattedMarkdownInto(statusLineEl, finalText);
+          if (leftMetaEl) {
+            const backendTag = (chatRes && chatRes.backend) || selectedModel;
+            const toks = (chatRes && chatRes.tokens_emitted) || hudCtrl.frames.length;
+            leftMetaEl.textContent = `${backendTag} · ${toks} tok`;
+          }
+          if (rightMetaEl) {
+            rightMetaEl.textContent = wasCancelled ? 'cancelled' : 'verified';
+          }
+          const thread = getActiveThread();
+          thread.messages.push({
+            role: 'assistant',
+            titleText: leftMetaEl ? leftMetaEl.textContent : selectedModel,
+            bodyText: finalText,
+            patchPath: (chatRes && chatRes.target_file) || '',
+            patchCode: (chatRes && chatRes.proposed_code) || '',
+            chatMeta: { toolCards: toolEvents },
+          });
+          persistThreadsToStorage();
+          renderThreadSidebar();
+          updateLiveAgentStatusBar(chatRes || {});
+        } else {
+          if (placeholderCard && placeholderCard.parentNode) {
+            placeholderCard.parentNode.removeChild(placeholderCard);
+          }
+          renderCompletedChatResponse(trimmed, chatRes);
+        }
+        if (chatRes && Array.isArray(chatRes.changed_paths) && chatRes.changed_paths.length > 0) {
+          if (typeof globalThis.__uorRefreshWorkspaceAfterFsChange === 'function') {
+            globalThis.__uorRefreshWorkspaceAfterFsChange({ changed_paths: chatRes.changed_paths }).catch(() => {});
+          }
+        }
         engineWorkerClient
           .rpc('studio_dispatch', '1\tstudio\tstate\t')
           .then((st) => {
@@ -3114,10 +3299,30 @@ function runClaudeChat(promptText, recordUserBubble = true) {
         if (engineWorkerClient.activeChatStreamHook === liveHook) {
           engineWorkerClient.activeChatStreamHook = null;
         }
+        finishStreamingControls();
+        const isConsentErr = (err && err.error_code === 'ConsentRequiredForWeightDownload')
+          || String((err && err.message) || err || '').includes('ConsentRequiredForWeightDownload');
+        if (isConsentErr) {
+          if (placeholderCard && placeholderCard.parentNode) {
+            placeholderCard.parentNode.removeChild(placeholderCard);
+          }
+          if (!consentRendered && typeof renderHydrationConsentCard === 'function' && chatTranscript) {
+            renderHydrationConsentCard(chatTranscript, (err && err.details) || { model_id: selectedModel }, trimmed);
+          }
+          return;
+        }
+        if (wasCancelled && statusLineEl) {
+          renderFormattedMarkdownInto(statusLineEl, streamedReplyText || '[Turn stopped by user]');
+          return;
+        }
         if (placeholderCard && placeholderCard.parentNode) {
           placeholderCard.parentNode.removeChild(placeholderCard);
         }
-        appendChatTurn('assistant', selectedModel || DEFAULT_HONEST_MODEL_ID, err && err.message ? err.message : 'Worker chat error');
+        const errMsg = err && err.message ? err.message : 'Worker chat error';
+        appendChatTurn('assistant', selectedModel || DEFAULT_HONEST_MODEL_ID, errMsg);
+        if (typeof showStudioToast === 'function') {
+          showStudioToast(errMsg, 'error', 5000);
+        }
       });
     return;
   }
@@ -3702,6 +3907,14 @@ if (studioSubsystemsForm) {
 
 const AGENTIC_SLASH_COMMANDS = [
   {
+    command: '/plan',
+    title: 'Read-Only Plan & Audit Mode',
+    badge: 'PlanReadOnly',
+    description: 'Inspect workspace, preview, and git status without mutating files',
+    template: 'Inspect /workspace and draft a plan for: ',
+    mode: 'plan',
+  },
+  {
     command: '/think',
     title: 'Deep Geometric <thinking> Trace',
     badge: '256D Q12',
@@ -3822,6 +4035,9 @@ class AgenticTypeScriptComposer {
       autocompleteTrigger: null,
       autocompleteQuery: '',
       autocompleteSelectedIndex: 0,
+      isStreaming: false,
+      activeTurnId: null,
+      activeRequestId: null,
     };
   }
 
@@ -3830,17 +4046,52 @@ class AgenticTypeScriptComposer {
   }
 
   setMode(mode) {
-    this.state.mode = mode;
+    const raw = String(mode || '').trim().toLowerCase();
+    let normalized = 'agentic';
+    if (raw === 'plan' || raw === 'ask') {
+      normalized = 'plan';
+    } else if (raw === 'thinking') {
+      normalized = 'thinking';
+    } else if (raw === 'teach') {
+      normalized = 'teach';
+    } else if (raw === 'math') {
+      normalized = 'math';
+    }
+    this.state.mode = normalized;
     if (typeof AppState !== 'undefined' && AppState.config) {
-      AppState.config.composerMode = mode;
+      AppState.config.composerMode = normalized;
     }
     try {
       if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function' && typeof COMPOSER_MODE_STORAGE_KEY !== 'undefined') {
-        localStorage.setItem(COMPOSER_MODE_STORAGE_KEY, String(mode));
+        localStorage.setItem(COMPOSER_MODE_STORAGE_KEY, normalized);
       }
     } catch {
       // Ignore storage error
     }
+  }
+
+  isPlanReadOnly() {
+    return this.state.mode === 'plan';
+  }
+
+  beginTurn(requestId = null) {
+    this.state.isStreaming = true;
+    this.state.activeRequestId = requestId ?? null;
+    this.state.activeTurnId = null;
+  }
+
+  setActiveTurnId(turnId) {
+    this.state.activeTurnId = turnId ?? null;
+  }
+
+  endTurn() {
+    this.state.isStreaming = false;
+    this.state.activeTurnId = null;
+    this.state.activeRequestId = null;
+  }
+
+  isTurnActive() {
+    return Boolean(this.state.isStreaming);
   }
 
   getSelectedModel() {
@@ -3999,6 +4250,9 @@ const composerSendBar = document.getElementById('composer-send-bar');
 const composerAttachBtn = document.getElementById('composer-attach-btn');
 const composerFileInput = document.getElementById('composer-file-input');
 const composerModelSelect = document.getElementById('composer-model-select');
+const globalModelSelect = document.getElementById('model-select');
+const composerStopBtn = document.getElementById('composer-stop-btn');
+const composerSendBtn = document.getElementById('composer-send-btn');
 const composerSlashBtn = document.getElementById('composer-slash-btn');
 const composerMentionBtn = document.getElementById('composer-mention-btn');
 const composerModeButtons = document.querySelectorAll('.composer-mode-btn');
@@ -4007,6 +4261,9 @@ function syncComposerModel(modelId) {
   tsComposer.setModel(modelId);
   if (composerModelSelect && composerModelSelect.value !== modelId) {
     composerModelSelect.value = modelId;
+  }
+  if (globalModelSelect && globalModelSelect.value !== modelId) {
+    globalModelSelect.value = modelId;
   }
   if (topbarModelTag) {
     const opt = COMPOSER_MODELS.find((m) => m.id === modelId);
@@ -4017,6 +4274,9 @@ function syncComposerModel(modelId) {
       topbarModelTag.textContent = `${opt.name} · ${opt.badge} (${liveTier})`;
     }
   }
+  if (typeof updateWeightCacheBadge === 'function') {
+    updateWeightCacheBadge();
+  }
 }
 
 if (composerModelSelect) {
@@ -4025,6 +4285,33 @@ if (composerModelSelect) {
   }
   composerModelSelect.addEventListener('change', (e) => {
     syncComposerModel(e.target.value);
+  });
+}
+
+if (globalModelSelect) {
+  if (AppState && AppState.config && AppState.config.selectedModel) {
+    globalModelSelect.value = AppState.config.selectedModel;
+  }
+  globalModelSelect.addEventListener('change', (e) => {
+    syncComposerModel(e.target.value);
+  });
+}
+
+if (composerStopBtn) {
+  composerStopBtn.addEventListener('click', () => {
+    const st = tsComposer.getState();
+    if (!tsComposer.isTurnActive()) return;
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      engineWorkerClient
+        .rpc('studio_cancel_turn', {
+          targetId: st.activeRequestId,
+          turn_id: st.activeTurnId,
+        })
+        .catch(() => {});
+    }
+    if (typeof showStudioToast === 'function') {
+      showStudioToast('Stopping turn...', 'info', 2500);
+    }
   });
 }
 
@@ -4265,22 +4552,27 @@ function renderComposerAutocomplete() {
 
 function setComposerModeUI(mode) {
   tsComposer.setMode(mode);
+  const activeMode = tsComposer.getState().mode;
+  if (typeof document !== 'undefined' && document.body && document.body.dataset) {
+    document.body.dataset.composerMode = activeMode;
+  }
   for (const btn of composerModeButtons) {
     const m = btn.getAttribute('data-composer-mode');
-    if (m === mode) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+    const isActive = m === activeMode || (m === 'agentic' && activeMode !== 'plan');
+    btn.classList.toggle('active', m === activeMode || (m === 'agentic' && !['plan'].includes(activeMode)));
+    btn.setAttribute('aria-pressed', (m === activeMode || (m === 'agentic' && activeMode !== 'plan')) ? 'true' : 'false');
+    void isActive;
   }
   if (claudeChatInput) {
-    if (mode === 'teach' && !claudeChatInput.value.trim()) {
+    if (activeMode === 'plan' && !claudeChatInput.value.trim()) {
+      claudeChatInput.placeholder = 'Plan mode (read-only analysis): Ask UOR-R4 to inspect /workspace, git status, or preview...';
+    } else if (activeMode === 'teach' && !claudeChatInput.value.trim()) {
       claudeChatInput.placeholder = 'Teach: <prompt> => <thinking>256D Q12 reasoning</thinking><desired response>';
-    } else if (mode === 'math' && !claudeChatInput.value.trim()) {
+    } else if (activeMode === 'math' && !claudeChatInput.value.trim()) {
       claudeChatInput.placeholder = 'Enter exact M6 arithmetic expression (e.g. What is 144 + 233?)...';
     } else {
       claudeChatInput.placeholder =
-        'Ask UOR-R4 anything... Type / for commands (/think, /teach, /patch, /arxiv, /math) or @ to attach workspace files & papers';
+        'Ask UOR-R4 anything... Type / for commands (/plan, /think, /teach, /patch, /arxiv, /math) or @ to attach workspace files & papers';
     }
   }
   updateComposerTokenBadge();
@@ -4305,6 +4597,7 @@ if (composerSlashBtn && claudeChatInput) {
 }
 
 if (composerMentionBtn && claudeChatInput) {
+  composerMentionBtn._mentionWired = true;
   composerMentionBtn.addEventListener('click', () => {
     const prefix = claudeChatInput.value && !claudeChatInput.value.endsWith(' ') ? `${claudeChatInput.value} @` : `${claudeChatInput.value}@`;
     claudeChatInput.value = prefix;
@@ -4473,6 +4766,13 @@ if (chatClearBtn) {
   });
 }
 
+const newThreadBtn = document.getElementById('new-thread-btn');
+if (newThreadBtn) {
+  newThreadBtn.addEventListener('click', () => {
+    createNewThread();
+  });
+}
+
 const clearAllThreadsBtn = document.getElementById('clear-all-threads-btn');
 if (clearAllThreadsBtn) {
   clearAllThreadsBtn.addEventListener('click', () => {
@@ -4514,7 +4814,6 @@ function closeCanvasDrawer() {
 const INSPECTOR_MODAL_TAB_IDS = new Set([
   'traces',
   'inspector',
-  'diff',
   'diagnostics',
   'mcp',
   'feed',
@@ -4589,6 +4888,11 @@ function activateCanvasTab(tabId) {
     return;
   }
 
+  if ((tabId === 'diff' || tabId === 'preview') && typeof globalThis.__uorSetWorkbenchMode === 'function') {
+    globalThis.__uorSetWorkbenchMode(tabId);
+    return;
+  }
+
   if (typeof setLayoutMode === 'function' && document.body && document.body.dataset.layoutMode === 'chat') {
     setLayoutMode('studio');
   }
@@ -4632,8 +4936,25 @@ function activateCanvasTab(tabId) {
 
 const closeCanvasPaneBtn = document.getElementById('close-canvas-pane-btn');
 if (closeCanvasPaneBtn) {
+  closeCanvasPaneBtn._drawerToggleWired = true;
   closeCanvasPaneBtn.addEventListener('click', () => {
-    closeCanvasDrawer();
+    const termDrawer = document.getElementById('terminal-split-drawer');
+    if (termDrawer) {
+      const willHide = !termDrawer.hasAttribute('hidden');
+      if (willHide) {
+        termDrawer.setAttribute('hidden', '');
+        termDrawer.hidden = true;
+        if (dockableCanvasPane) dockableCanvasPane.classList.add('cursor-bottom-panel-collapsed');
+      } else {
+        termDrawer.removeAttribute('hidden');
+        termDrawer.hidden = false;
+        if (dockableCanvasPane) dockableCanvasPane.classList.remove('cursor-bottom-panel-collapsed');
+      }
+      return;
+    }
+    if (dockableCanvasPane) {
+      dockableCanvasPane.classList.toggle('cursor-bottom-panel-collapsed');
+    }
   });
 }
 
@@ -5532,6 +5853,1659 @@ function bindVerdantWatchdogButtons() {
     });
   }
 }
+
+// ============================================================================
+// R4-60 STUDIO LIVE HUD, M3 RESPONSIVE SHELL, CONSENT & PREVIEW RUNTIME
+// ============================================================================
+
+const _r460MemoryStorage = new Map();
+let _r460ToastTimer = null;
+let _r460LatestPreviewDiag = {
+  renderedAtMs: 0,
+  fileCount: 0,
+  scriptSteps: 0,
+  errors: [],
+  console: [],
+  rootHtmlPreview: '',
+};
+
+const safeStorageGet = (key) => {
+  const k = String(key ?? '');
+  try {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function') {
+      const val = localStorage.getItem(k);
+      if (val !== null && val !== undefined) {
+        return val;
+      }
+    }
+  } catch {
+    // Fallback to session-scoped in-memory map under opaque/restricted origins
+  }
+  return _r460MemoryStorage.has(k) ? _r460MemoryStorage.get(k) : null;
+};
+
+const safeStorageSet = (key, value) => {
+  const k = String(key ?? '');
+  const v = String(value ?? '');
+  _r460MemoryStorage.set(k, v);
+  try {
+    if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
+      localStorage.setItem(k, v);
+      return true;
+    }
+  } catch {
+    // Storage access blocked (e.g. SecurityError under sandboxed/opaque origin)
+  }
+  return false;
+};
+
+const showStudioToast = (message, tone = 'info', autoHideMs = 4200) => {
+  const banner = document.getElementById('studio-toast-banner');
+  const msgEl = document.getElementById('studio-toast-message');
+  if (banner) {
+    const cleanTone = tone === 'error' || tone === 'warn' || tone === 'success' ? tone : 'info';
+    if (banner.dataset) {
+      banner.dataset.tone = cleanTone;
+    }
+    if (typeof banner.setAttribute === 'function') {
+      banner.setAttribute('data-tone', cleanTone);
+    }
+    if (typeof banner.removeAttribute === 'function') {
+      banner.removeAttribute('hidden');
+    }
+    banner.hidden = false;
+  }
+  if (msgEl) {
+    msgEl.textContent = String(message ?? '');
+  }
+  if (_r460ToastTimer !== null && typeof clearTimeout === 'function') {
+    clearTimeout(_r460ToastTimer);
+    _r460ToastTimer = null;
+  }
+  if (autoHideMs > 0 && typeof setTimeout === 'function' && banner) {
+    const t = setTimeout(() => {
+      if (typeof banner.setAttribute === 'function') {
+        banner.setAttribute('hidden', '');
+      }
+      banner.hidden = true;
+    }, autoHideMs);
+    if (t && typeof t.unref === 'function') {
+      t.unref();
+    }
+    _r460ToastTimer = t;
+  }
+  if (typeof renderStudioToast === 'function') {
+    renderStudioToast(message, tone);
+  }
+};
+
+const classifyWindowWidth = (widthPx) => {
+  const w = Number(widthPx);
+  if (!Number.isFinite(w) || w >= 840) return 'expanded';
+  if (w >= 600) return 'medium';
+  return 'compact';
+};
+
+const _detachChildSafely = (parent, node) => {
+  if (!parent || !node) return;
+  if (Array.isArray(parent.children) ? parent.children.includes(node) : (node.parentNode === parent)) {
+    if (typeof parent.removeChild === 'function' && node.parentNode === parent) {
+      parent.removeChild(node);
+      return;
+    }
+    if (typeof parent.replaceChildren === 'function') {
+      const kept = Array.from(parent.children || []).filter((c) => c !== node);
+      parent.replaceChildren(...kept);
+    }
+  }
+};
+
+const syncObservatoryHost = () => {
+  const body = document.body;
+  const obsDeck = document.getElementById('holo-observatory-deck');
+  const dockSplit = document.getElementById('observatory-dock-split');
+  const tracesPanel = document.getElementById('canvas-panel-traces');
+  if (!body || !obsDeck) return 'modal';
+
+  const searchStr = (typeof window !== 'undefined' && window.location && window.location.search) || '';
+  const isObsSurface = searchStr.includes('surface=observatory');
+  const winClass = (body.dataset && body.dataset.windowClass)
+    || (typeof body.getAttribute === 'function' && body.getAttribute('data-window-class'))
+    || 'expanded';
+  const layoutMode = (body.dataset && body.dataset.layoutMode)
+    || (typeof body.getAttribute === 'function' && body.getAttribute('data-layout-mode'))
+    || 'chat';
+
+  const shouldDock = !isObsSurface && layoutMode === 'studio' && (winClass === 'expanded' || winClass === 'medium') && Boolean(dockSplit);
+  const targetHost = shouldDock ? dockSplit : tracesPanel;
+  const hostTag = shouldDock ? 'dock' : 'modal';
+
+  if (targetHost) {
+    const alreadyThere = Array.isArray(targetHost.children)
+      ? targetHost.children.includes(obsDeck)
+      : (obsDeck.parentNode === targetHost);
+    if (!alreadyThere) {
+      if (dockSplit && dockSplit !== targetHost) _detachChildSafely(dockSplit, obsDeck);
+      if (tracesPanel && tracesPanel !== targetHost) _detachChildSafely(tracesPanel, obsDeck);
+      targetHost.appendChild(obsDeck);
+    }
+  }
+  if (body.dataset) {
+    body.dataset.observatoryHost = hostTag;
+  }
+  if (typeof body.setAttribute === 'function') {
+    body.setAttribute('data-observatory-host', hostTag);
+  }
+  return hostTag;
+};
+
+const applyWindowWidthClass = (widthPx) => {
+  const measured = widthPx !== undefined && widthPx !== null
+    ? Number(widthPx)
+    : (typeof window !== 'undefined' && Number.isFinite(Number(window.innerWidth)) ? Number(window.innerWidth) : 1280);
+  const winClass = classifyWindowWidth(measured);
+  const body = document.body;
+  const prismFrame = document.getElementById('prism-frame');
+  const mainEl = typeof document.querySelector === 'function' ? document.querySelector('main') : null;
+  const prevWinClass = body && ((body.dataset && body.dataset.windowClass) || (typeof body.getAttribute === 'function' && body.getAttribute('data-window-class')));
+
+  if (body) {
+    if (body.dataset) body.dataset.windowClass = winClass;
+    if (typeof body.setAttribute === 'function') body.setAttribute('data-window-class', winClass);
+  }
+  if (prismFrame) {
+    if (prismFrame.dataset) prismFrame.dataset.windowClass = winClass;
+    if (typeof prismFrame.setAttribute === 'function') prismFrame.setAttribute('data-window-class', winClass);
+  }
+  if (mainEl && mainEl.classList && prevWinClass !== winClass) {
+    if (winClass === 'expanded') {
+      mainEl.classList.remove('sidebar-expanded');
+    } else if (!mainEl.classList.contains('sidebar-expanded')) {
+      mainEl.classList.add('sidebar-collapsed');
+    }
+  }
+  syncObservatoryHost();
+  return winClass;
+};
+
+const lockObservatoryToFrame = (frame, framesPrefix = null, lockedIdx = null) => {
+  if (!holoObservatoryState || !frame) return;
+  holoObservatoryState.lockedFrameIdx = lockedIdx;
+  if (Array.isArray(framesPrefix) && framesPrefix.length > 0) {
+    holoObservatoryState.frames = framesPrefix.slice(-96);
+  } else {
+    holoObservatoryState.frames = [frame];
+  }
+  const trailSrc = holoObservatoryState.frames.slice(-32);
+  holoObservatoryState.qTrail = trailSrc
+    .filter((f) => Array.isArray(f && f.q_manifold_xyz) && f.q_manifold_xyz.length === 3)
+    .map((f) => ({
+      xyz: f.q_manifold_xyz,
+      label: String(f.token_text || '').replace(/\s+/g, ' ').slice(0, 6),
+    }));
+  if (typeof frame.shortlist_count === 'number' && frame.shortlist_count > 0) {
+    holoObservatoryState.shortlistK = frame.shortlist_count;
+  }
+  if (typeof frame.prefix_reused_tokens === 'number') {
+    holoObservatoryState.prefixReused = frame.prefix_reused_tokens;
+  }
+  if (frame.backend) {
+    holoObservatoryState.backend = String(frame.backend);
+  }
+  if (typeof renderHoloObservatoryDeck === 'function') {
+    renderHoloObservatoryDeck();
+  }
+};
+
+const renderHoloMiniHud = (hudEl, frame, opts = {}) => {
+  if (!hudEl || !frame) return;
+  const qTrail = Array.isArray(opts.qTrail) && opts.qTrail.length > 0
+    ? opts.qTrail
+    : (Array.isArray(frame.q_manifold_xyz) ? [frame.q_manifold_xyz] : []);
+  const hasShortlist = frame.has_geometric_shortlist !== false;
+
+  let canvas = typeof hudEl.querySelector === 'function' ? hudEl.querySelector('.holo-hud-canvas') : null;
+  let metaRow = typeof hudEl.querySelector === 'function' ? hudEl.querySelector('.holo-hud-meta') : null;
+  let candsBox = typeof hudEl.querySelector === 'function' ? hudEl.querySelector('.holo-hud-candidates') : null;
+
+  if (!canvas || !metaRow || !candsBox) {
+    if (typeof hudEl.replaceChildren === 'function') hudEl.replaceChildren();
+    const topStrip = document.createElement('div');
+    topStrip.className = 'holo-hud-top';
+
+    canvas = document.createElement('canvas');
+    canvas.className = 'holo-hud-canvas';
+    canvas.width = 132;
+    canvas.height = 48;
+    topStrip.appendChild(canvas);
+
+    metaRow = document.createElement('div');
+    metaRow.className = 'holo-hud-meta';
+    topStrip.appendChild(metaRow);
+
+    candsBox = document.createElement('div');
+    candsBox.className = 'holo-hud-candidates';
+
+    hudEl.appendChild(topStrip);
+    hudEl.appendChild(candsBox);
+  }
+
+  if (typeof canvas.getContext === 'function') {
+    const dprRaw = typeof window !== 'undefined' && Number.isFinite(Number(window.devicePixelRatio))
+      ? Number(window.devicePixelRatio)
+      : 1;
+    const dpr = Math.max(1, Math.min(2, dprRaw));
+    const cssW = 132;
+    const cssH = 48;
+    if (canvas.width !== cssW * dpr || canvas.height !== cssH * dpr) {
+      canvas.width = cssW * dpr;
+      canvas.height = cssH * dpr;
+    }
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      if (typeof ctx.save === 'function') ctx.save();
+      if (typeof ctx.scale === 'function') ctx.scale(dpr, dpr);
+      ctx.fillStyle = '#0b1120';
+      ctx.fillRect(0, 0, cssW, cssH);
+
+      // Left 44x44: 2D projection of q_manifold_xyz trajectory trail
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.28)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(2, 2, 42, 44);
+      if (qTrail.length > 0) {
+        ctx.strokeStyle = '#f472b6';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        for (let i = 0; i < qTrail.length; i += 1) {
+          const xyz = qTrail[i] || [0, 0, 0];
+          const nx = Math.max(-1, Math.min(1, (Number(xyz[0]) || 0) / 1000));
+          const ny = Math.max(-1, Math.min(1, (Number(xyz[1]) || 0) / 1000));
+          const px = 23 + nx * 17;
+          const py = 24 - ny * 17;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+        const tail = qTrail[qTrail.length - 1] || [0, 0, 0];
+        const hx = 23 + Math.max(-1, Math.min(1, (Number(tail[0]) || 0) / 1000)) * 17;
+        const hy = 24 - Math.max(-1, Math.min(1, (Number(tail[1]) || 0) / 1000)) * 17;
+        ctx.fillStyle = '#34d399';
+        ctx.fillRect(hx - 1.5, hy - 1.5, 3, 3);
+      }
+
+      // Right 84x44: 28-layer bit-width / residual magnitude equalizer
+      const layerBits = Array.isArray(frame.layer_max_bits) ? frame.layer_max_bits : [];
+      const barCount = Math.min(28, Math.max(4, layerBits.length || 28));
+      const stepW = 82 / barCount;
+      for (let bi = 0; bi < barCount; bi += 1) {
+        const bVal = layerBits[bi] !== undefined ? Number(layerBits[bi]) : 16;
+        const frac = Math.max(0.08, Math.min(1.0, bVal / 32));
+        const bh = Math.round(frac * 40);
+        ctx.fillStyle = bVal > 22 ? '#f59e0b' : (hasShortlist ? '#38bdf8' : '#34d399');
+        ctx.fillRect(48 + bi * stepW, 45 - bh, Math.max(1.5, stepW - 1), bh);
+      }
+      if (typeof ctx.restore === 'function') ctx.restore();
+    }
+  }
+
+  if (typeof metaRow.replaceChildren === 'function') metaRow.replaceChildren();
+  const phaseBadge = document.createElement('span');
+  phaseBadge.className = hasShortlist ? 'holo-hud-pill' : 'holo-hud-pill holo-q31-badge';
+  phaseBadge.textContent = hasShortlist
+    ? `${frame.phase || 'decode'} #${frame.step_idx ?? 0}`
+    : 'Q31 Exact Lane';
+  metaRow.appendChild(phaseBadge);
+
+  const ttftMs = Number(frame.ttft_ms || 0);
+  const tpsX10 = Number(frame.tps_x10 || 0);
+  const tpsText = tpsX10 > 0 ? `${(tpsX10 / 10).toFixed(1)} tok/s` : 'streaming';
+  const kvReuse = Number(frame.prefix_reused_tokens || 0);
+  const kvTotal = Math.max(1, Number(frame.seq_pos || 1));
+  const kvPct = Math.min(100, Math.round((kvReuse / kvTotal) * 100));
+
+  const statSpan = document.createElement('span');
+  statSpan.className = 'holo-hud-stats';
+  statSpan.textContent = hasShortlist
+    ? `TTFT ${ttftMs}ms · ${tpsText} · KV ${kvPct}% · d_H=${frame.min_hamming ?? 0}`
+    : `TTFT ${ttftMs}ms · ${tpsText} · KV ${kvPct}% · 256D Integer Lane`;
+  metaRow.appendChild(statSpan);
+
+  if (typeof candsBox.replaceChildren === 'function') candsBox.replaceChildren();
+  const cands = Array.isArray(frame.top_candidates) ? frame.top_candidates.slice(0, 6) : [];
+  for (let ci = 0; ci < cands.length; ci += 1) {
+    const c = cands[ci] || {};
+    const row = document.createElement('div');
+    row.className = c.selected ? 'holo-hud-cand is-selected' : 'holo-hud-cand';
+
+    const tokEl = document.createElement('span');
+    tokEl.className = 'holo-hud-cand-tok';
+    tokEl.textContent = String(c.token_text ?? '');
+    row.appendChild(tokEl);
+
+    const barTrack = document.createElement('span');
+    barTrack.className = 'holo-hud-bar-track';
+    const barFill = document.createElement('span');
+    barFill.className = 'holo-hud-bar';
+    const probPm = Math.max(0, Math.min(1000, Number(c.prob_permille || 0)));
+    if (barFill.style) {
+      barFill.style.width = `${Math.max(4, Math.round(probPm / 10))}%`;
+    }
+    barTrack.appendChild(barFill);
+    row.appendChild(barTrack);
+
+    const numEl = document.createElement('span');
+    numEl.className = 'holo-hud-cand-num';
+    const dhText = hasShortlist && c.hamming_d !== null && c.hamming_d !== undefined ? ` d=${c.hamming_d}` : '';
+    numEl.textContent = `${(probPm / 10).toFixed(1)}% · q16=${c.logit_q16 ?? 0}${dhText}`;
+    row.appendChild(numEl);
+
+    candsBox.appendChild(row);
+  }
+};
+
+const createLiveTokenHudController = (chatMessagesEl, assistantBubbleEl = null) => {
+  const MAX_SCRUBBER_TOKENS = 512;
+  const hostEl = assistantBubbleEl || document.createElement('article');
+  if (!assistantBubbleEl) {
+    hostEl.className = 'chat-msg chat-msg-assistant holo-live-turn';
+    if (chatMessagesEl && typeof chatMessagesEl.appendChild === 'function') {
+      chatMessagesEl.appendChild(hostEl);
+    }
+  }
+  const hudEl = document.createElement('div');
+  hudEl.className = 'holo-live-hud';
+  const scrubberEl = document.createElement('div');
+  scrubberEl.className = 'holo-token-scrubber';
+  hostEl.appendChild(hudEl);
+  hostEl.appendChild(scrubberEl);
+
+  const frames = [];
+  const spans = [];
+  const qTrail = [];
+  let lockedIdx = null;
+
+  const selectFrameIndex = (idx, lockInObs) => {
+    if (idx < 0 || idx >= frames.length) return;
+    const selectedFrame = frames[idx];
+    for (let si = 0; si < spans.length; si += 1) {
+      if (spans[si] && spans[si].classList) {
+        spans[si].classList.toggle('is-selected', si === idx);
+      }
+      if (spans[si] && typeof spans[si].setAttribute === 'function') {
+        spans[si].setAttribute('aria-pressed', si === idx ? 'true' : 'false');
+      }
+    }
+    const prefix = frames.slice(0, idx + 1);
+    const trailPrefix = prefix
+      .slice(-32)
+      .filter((f) => Array.isArray(f && f.q_manifold_xyz))
+      .map((f) => f.q_manifold_xyz);
+    renderHoloMiniHud(hudEl, selectedFrame, { qTrail: trailPrefix });
+    if (lockInObs) {
+      lockedIdx = idx;
+      lockObservatoryToFrame(selectedFrame, prefix, idx);
+    }
+  };
+
+  const pushTokenStep = (stepEvt) => {
+    const frame = (stepEvt && stepEvt.frame && typeof stepEvt.frame === 'object') ? stepEvt.frame : (stepEvt || {});
+    frames.push(frame);
+    let shifted = false;
+    if (frames.length > MAX_SCRUBBER_TOKENS) {
+      frames.shift();
+      shifted = true;
+      if (lockedIdx !== null) {
+        lockedIdx = lockedIdx > 0 ? lockedIdx - 1 : 0;
+      }
+    }
+    if (Array.isArray(frame.q_manifold_xyz) && frame.q_manifold_xyz.length === 3) {
+      qTrail.push(frame.q_manifold_xyz);
+      if (qTrail.length > 32) qTrail.shift();
+    }
+
+    const span = document.createElement('span');
+    span.className = 'holo-tok-span';
+    span.setAttribute('role', 'button');
+    span.setAttribute('tabindex', '0');
+    span.setAttribute('data-frame-idx', String(frames.length - 1));
+    span.textContent = String(frame.token_text ?? (stepEvt && stepEvt.delta) ?? '');
+    span.addEventListener('mouseenter', () => {
+      const idxVal = Number(span.getAttribute('data-frame-idx'));
+      if (lockedIdx === null) {
+        selectFrameIndex(idxVal, false);
+      }
+    });
+    span.addEventListener('click', () => {
+      const idxVal = Number(span.getAttribute('data-frame-idx'));
+      selectFrameIndex(idxVal, true);
+    });
+    spans.push(span);
+    scrubberEl.appendChild(span);
+
+    if (spans.length > MAX_SCRUBBER_TOKENS) {
+      const dropped = spans.shift();
+      _detachChildSafely(scrubberEl, dropped);
+      shifted = true;
+    }
+    if (shifted) {
+      for (let i = 0; i < spans.length; i += 1) {
+        spans[i].setAttribute('data-frame-idx', String(i));
+      }
+    }
+
+    if (lockedIdx === null) {
+      renderHoloMiniHud(hudEl, frame, { qTrail });
+    }
+    return { frameCount: frames.length };
+  };
+
+  return {
+    frames,
+    hudEl,
+    scrubberEl,
+    containerEl: hostEl,
+    pushTokenStep,
+    selectFrameIndex,
+  };
+};
+
+const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingPrompt = '') => {
+  if (!chatMessagesEl) return null;
+  const card = document.createElement('div');
+  card.className = 'holo-consent-card';
+
+  const title = document.createElement('div');
+  title.className = 'holo-consent-title';
+  const modelId = String(details.model_id || 'uor-r4.qwen3-0.6b-holo');
+  const approxMb = Math.max(1, Math.round(Number(details.approx_bytes || 429916160) / (1024 * 1024)));
+  title.textContent = `Off-Origin Weight Download Consent Required (${modelId} · ~${approxMb} MiB)`;
+  card.appendChild(title);
+
+  const mirrors = Array.isArray(details.mirrors) ? details.mirrors : [];
+  const hosts = mirrors.map((u) => {
+    try {
+      return new URL(String(u)).host || String(u);
+    } catch {
+      return String(u);
+    }
+  });
+  const body = document.createElement('p');
+  body.className = 'holo-consent-desc';
+  body.textContent = hosts.length > 0
+    ? `Strict zero-network default blocked unapproved mirror access (${hosts.join(', ')}). Approve SHA-256 verified OPFS download or switch immediately to the zero-download Native Q31 engine.`
+    : 'Strict zero-network default blocked unapproved weight download. Approve verified download or run Offline Native Q31 immediately.';
+  card.appendChild(body);
+
+  const actions = document.createElement('div');
+  actions.className = 'holo-consent-actions';
+
+  const approveBtn = document.createElement('button');
+  approveBtn.type = 'button';
+  approveBtn.className = 'btn-primary holo-consent-approve-btn';
+  approveBtn.textContent = 'Approve & Download';
+
+  const offlineBtn = document.createElement('button');
+  offlineBtn.type = 'button';
+  offlineBtn.className = 'btn-secondary holo-consent-offline-btn';
+  offlineBtn.textContent = 'Use Offline Native Q31';
+
+  const statusNote = document.createElement('span');
+  statusNote.className = 'holo-consent-status';
+
+  approveBtn.addEventListener('click', async () => {
+    approveBtn.disabled = true;
+    offlineBtn.disabled = true;
+    safeStorageSet('uor_allow_off_origin_hydration', 'granted');
+    const chk = document.getElementById('settings-allow-off-origin-weights');
+    if (chk) chk.checked = true;
+    statusNote.textContent = 'Hydrating verified shards...';
+    try {
+      if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+        await engineWorkerClient.rpc('hydrate_holo_model', {
+          model_id: modelId,
+          allow_off_origin: true,
+        });
+      }
+      statusNote.textContent = 'Verified weights mounted. Re-running prompt...';
+      if (pendingPrompt && typeof runClaudeChat === 'function') {
+        runClaudeChat(pendingPrompt, true);
+      }
+    } catch (err) {
+      statusNote.textContent = `Hydration error: ${err && err.message ? err.message : String(err)}`;
+      approveBtn.disabled = false;
+      offlineBtn.disabled = false;
+    }
+  });
+
+  offlineBtn.addEventListener('click', async () => {
+    approveBtn.disabled = true;
+    offlineBtn.disabled = true;
+    safeStorageSet('uor_allow_off_origin_hydration', 'declined');
+    const chk = document.getElementById('settings-allow-off-origin-weights');
+    if (chk) chk.checked = false;
+    const fallbackModel = 'uor-r4.native-q31-d85';
+    if (typeof AppState !== 'undefined' && AppState.config) {
+      AppState.config.selectedModel = fallbackModel;
+    }
+    if (typeof syncComposerModel === 'function') {
+      syncComposerModel(fallbackModel);
+    }
+    try {
+      if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+        await engineWorkerClient.rpc('hydrate_holo_model', {
+          model_id: modelId,
+          decline: true,
+          fallback_model: fallbackModel,
+        });
+      }
+    } catch {
+      // Proceed with local Native Q31 switch even if Worker hook is idle
+    }
+    statusNote.textContent = `Switched to ${fallbackModel}.`;
+    if (pendingPrompt && typeof runClaudeChat === 'function') {
+      runClaudeChat(pendingPrompt, true);
+    }
+  });
+
+  actions.appendChild(approveBtn);
+  actions.appendChild(offlineBtn);
+  actions.appendChild(statusNote);
+  card.appendChild(actions);
+  chatMessagesEl.appendChild(card);
+  return card;
+};
+
+class PreviewScriptFuelExhausted extends Error {
+  constructor(maxFuel = 100000, steps = 0) {
+    super(`PreviewScriptFuelExhausted: script exceeded ${maxFuel} execution steps (halted at step ${steps})`);
+    this.name = 'PreviewScriptFuelExhausted';
+    this.code = 'PreviewScriptFuelExhausted';
+    this.error_code = 'PreviewScriptFuelExhausted';
+    this.maxFuel = maxFuel;
+    this.steps = steps;
+  }
+}
+
+const evaluatePreviewScriptWithFuel = (code, env = {}, maxFuel = 100000) => {
+  const src = String(code ?? '');
+  const fuelBudget = Math.max(1, Number(maxFuel) | 0);
+  const tokenizePreviewJs = (input) => {
+    const tokens = [];
+    let i = 0;
+    const n = input.length;
+    const twoCharOps = new Set(['===', '!==', '>>>', '**=', '<<=', '>>=', '&&=', '||=', '??=']);
+    const multiOps = new Set(['=>', '==', '!=', '<=', '>=', '&&', '||', '??', '++', '--', '+=', '-=', '*=', '/=', '%=', '**', '<<', '>>', '?.']);
+    const keywords = new Set(['let', 'const', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'do', 'break', 'continue', 'new', 'typeof', 'true', 'false', 'null', 'undefined', 'throw', 'try', 'catch', 'finally', 'of', 'in', 'void']);
+    while (i < n) {
+      const ch = input[i];
+      if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') {
+        i += 1;
+        continue;
+      }
+      if (ch === '/' && input[i + 1] === '/') {
+        while (i < n && input[i] !== '\n') i += 1;
+        continue;
+      }
+      if (ch === '/' && input[i + 1] === '*') {
+        i += 2;
+        while (i < n && !(input[i] === '*' && input[i + 1] === '/')) i += 1;
+        i += 2;
+        continue;
+      }
+      if (ch === String.fromCharCode(34) || ch === "'" || ch === '`') {
+        const quote = ch;
+        i += 1;
+        let out = '';
+        while (i < n && input[i] !== quote) {
+          if (input[i] === '\\' && i + 1 < n) {
+            const esc = input[i + 1];
+            if (esc === 'n') out += '\n';
+            else if (esc === 'r') out += '\r';
+            else if (esc === 't') out += '\t';
+            else out += esc;
+            i += 2;
+          } else {
+            out += input[i];
+            i += 1;
+          }
+        }
+        i += 1;
+        tokens.push({ type: 'string', value: out });
+        continue;
+      }
+      if ((ch >= '0' && ch <= '9') || (ch === '.' && input[i + 1] >= '0' && input[i + 1] <= '9')) {
+        let j = i;
+        if (input[j] === '0' && (input[j + 1] === 'x' || input[j + 1] === 'X')) {
+          j += 2;
+          while (j < n && /[0-9a-fA-F]/.test(input[j])) j += 1;
+        } else {
+          while (j < n && /[0-9]/.test(input[j])) j += 1;
+          if (input[j] === '.') {
+            j += 1;
+            while (j < n && /[0-9]/.test(input[j])) j += 1;
+          }
+          if (input[j] === 'e' || input[j] === 'E') {
+            j += 1;
+            if (input[j] === '+' || input[j] === '-') j += 1;
+            while (j < n && /[0-9]/.test(input[j])) j += 1;
+          }
+        }
+        tokens.push({ type: 'number', value: Number(input.slice(i, j)) });
+        i = j;
+        continue;
+      }
+      if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch === '_' || ch === '$') {
+        let j = i + 1;
+        while (j < n && /[a-zA-Z0-9_$]/.test(input[j])) j += 1;
+        const word = input.slice(i, j);
+        tokens.push({ type: keywords.has(word) ? 'kw' : 'id', value: word });
+        i = j;
+        continue;
+      }
+      const s3 = input.slice(i, i + 3);
+      if (twoCharOps.has(s3)) {
+        tokens.push({ type: 'op', value: s3 });
+        i += 3;
+        continue;
+      }
+      const s2 = input.slice(i, i + 2);
+      if (multiOps.has(s2)) {
+        tokens.push({ type: 'op', value: s2 });
+        i += 2;
+        continue;
+      }
+      tokens.push({ type: 'punc', value: ch });
+      i += 1;
+    }
+    tokens.push({ type: 'eof', value: '' });
+    return tokens;
+  };
+
+  const toks = tokenizePreviewJs(src);
+  let pos = 0;
+  const peek = () => toks[pos] || { type: 'eof', value: '' };
+  const next = () => { const t = toks[pos]; pos += 1; return t; };
+  const match = (type, val) => {
+    const t = peek();
+    if (t.type === type && (val === undefined || t.value === val)) {
+      pos += 1;
+      return t;
+    }
+    return null;
+  };
+  const expect = (type, val) => {
+    const t = match(type, val);
+    if (!t) {
+      const got = peek();
+      throw new SyntaxError(`Unexpected token ${got.type}:${got.value} (expected ${val ?? type})`);
+    }
+    return t;
+  };
+
+  const parseProgram = () => {
+    const body = [];
+    while (peek().type !== 'eof') {
+      if (match('punc', ';')) continue;
+      body.push(parseStatement());
+    }
+    return { type: 'Program', body };
+  };
+
+  const parseBlock = () => {
+    expect('punc', '\x7b');
+    const body = [];
+    while (peek().type !== 'eof' && !(peek().type === 'punc' && peek().value === '\x7d')) {
+      if (match('punc', ';')) continue;
+      body.push(parseStatement());
+    }
+    expect('punc', '\x7d');
+    return { type: 'Block', body };
+  };
+
+  const parseParamList = () => {
+    expect('punc', '(');
+    const params = [];
+    while (peek().type !== 'eof' && !(peek().type === 'punc' && peek().value === ')')) {
+      params.push(expect('id').value);
+      if (!match('punc', ',')) break;
+    }
+    expect('punc', ')');
+    return params;
+  };
+
+  const parseVarDecl = (eatSemi = true) => {
+    const kind = next().value;
+    const decls = [];
+    while (true) {
+      const name = expect('id').value;
+      const init = match('punc', '=') ? parseAssign() : null;
+      decls.push({ name, init });
+      if (!match('punc', ',')) break;
+    }
+    if (eatSemi) match('punc', ';');
+    return { type: 'VarDecl', kind, decls };
+  };
+
+  const parseStatement = () => {
+    const t = peek();
+    if (t.type === 'punc' && t.value === '\x7b') return parseBlock();
+    if (t.type === 'kw' && (t.value === 'let' || t.value === 'const' || t.value === 'var')) return parseVarDecl(true);
+    if (match('kw', 'function')) {
+      const name = expect('id').value;
+      const params = parseParamList();
+      const body = parseBlock();
+      return { type: 'FnDecl', name, params, body };
+    }
+    if (match('kw', 'return')) {
+      const arg = (peek().type === 'punc' && (peek().value === ';' || peek().value === '\x7d')) ? null : parseExpr();
+      match('punc', ';');
+      return { type: 'Return', arg };
+    }
+    if (match('kw', 'throw')) {
+      const arg = parseExpr();
+      match('punc', ';');
+      return { type: 'Throw', arg };
+    }
+    if (match('kw', 'break')) {
+      match('punc', ';');
+      return { type: 'Break' };
+    }
+    if (match('kw', 'continue')) {
+      match('punc', ';');
+      return { type: 'Continue' };
+    }
+    if (match('kw', 'if')) {
+      expect('punc', '(');
+      const test = parseExpr();
+      expect('punc', ')');
+      const cons = parseStatement();
+      const alt = match('kw', 'else') ? parseStatement() : null;
+      return { type: 'If', test, cons, alt };
+    }
+    if (match('kw', 'while')) {
+      expect('punc', '(');
+      const test = parseExpr();
+      expect('punc', ')');
+      const body = parseStatement();
+      return { type: 'While', test, body };
+    }
+    if (match('kw', 'do')) {
+      const body = parseStatement();
+      expect('kw', 'while');
+      expect('punc', '(');
+      const test = parseExpr();
+      expect('punc', ')');
+      match('punc', ';');
+      return { type: 'DoWhile', test, body };
+    }
+    if (match('kw', 'for')) {
+      expect('punc', '(');
+      if ((peek().type === 'kw' && (peek().value === 'let' || peek().value === 'const' || peek().value === 'var')) && toks[pos + 2]?.type === 'kw' && (toks[pos + 2]?.value === 'of' || toks[pos + 2]?.value === 'in')) {
+        const kind = next().value;
+        const name = expect('id').value;
+        const loopKind = next().value;
+        const rightExpr = parseExpr();
+        expect('punc', ')');
+        const body = parseStatement();
+        return { type: loopKind === 'of' ? 'ForOf' : 'ForIn', kind, name, iter: rightExpr, body };
+      }
+      let init = null;
+      if (!match('punc', ';')) {
+        if (peek().type === 'kw' && (peek().value === 'let' || peek().value === 'const' || peek().value === 'var')) {
+          init = parseVarDecl(true);
+        } else {
+          init = parseExpr();
+          expect('punc', ';');
+        }
+      }
+      const test = match('punc', ';') ? null : (() => { const e = parseExpr(); expect('punc', ';'); return e; })();
+      const update = match('punc', ')') ? null : (() => { const e = parseExpr(); expect('punc', ')'); return e; })();
+      const body = parseStatement();
+      return { type: 'For', init, test, update, body };
+    }
+    if (match('kw', 'try')) {
+      const tryBlock = parseBlock();
+      let catchName = null;
+      let catchBlock = null;
+      if (match('kw', 'catch')) {
+        if (match('punc', '(')) {
+          catchName = expect('id').value;
+          expect('punc', ')');
+        }
+        catchBlock = parseBlock();
+      }
+      const finalBlock = match('kw', 'finally') ? parseBlock() : null;
+      return { type: 'Try', tryBlock, catchName, catchBlock, finalBlock };
+    }
+    const expr = parseExpr();
+    match('punc', ';');
+    return { type: 'ExprStmt', expr };
+  };
+
+  const parseExpr = () => {
+    let leftNode = parseAssign();
+    if (peek().type === 'punc' && peek().value === ',') {
+      const items = [leftNode];
+      while (match('punc', ',')) items.push(parseAssign());
+      return { type: 'Seq', items };
+    }
+    return leftNode;
+  };
+
+  const isArrowAhead = () => {
+    if (peek().type === 'id' && toks[pos + 1]?.type === 'op' && toks[pos + 1]?.value === '=>') return true;
+    if (peek().type === 'punc' && peek().value === '(') {
+      let depth = 0;
+      let scan = pos;
+      while (scan < toks.length) {
+        const cur = toks[scan];
+        if (cur.type === 'punc' && cur.value === '(') depth += 1;
+        else if (cur.type === 'punc' && cur.value === ')') {
+          depth -= 1;
+          if (depth === 0) return toks[scan + 1]?.type === 'op' && toks[scan + 1]?.value === '=>';
+        }
+        scan += 1;
+      }
+    }
+    return false;
+  };
+
+  const parseAssign = () => {
+    if (isArrowAhead()) {
+      const params = peek().type === 'id' ? [next().value] : parseParamList();
+      expect('op', '=>');
+      const body = (peek().type === 'punc' && peek().value === '\x7b') ? parseBlock() : parseAssign();
+      return { type: 'Arrow', params, body };
+    }
+    const node = parseConditional();
+    const t = peek();
+    if ((t.type === 'punc' && t.value === '=') || (t.type === 'op' && ['+=', '-=', '*=', '/=', '%=', '??=', '||=', '&&='].includes(t.value))) {
+      const op = next().value;
+      const rhsNode = parseAssign();
+      return { type: 'Assign', op, target: node, value: rhsNode };
+    }
+    return node;
+  };
+
+  const parseConditional = () => {
+    const test = parseBinOp(0);
+    if (match('punc', '?')) {
+      const cons = parseAssign();
+      expect('punc', ':');
+      const alt = parseAssign();
+      return { type: 'Ternary', test, cons, alt };
+    }
+    return test;
+  };
+
+  const PRECEDENCE = [
+    ['||', '??'],
+    ['&&'],
+    ['|'],
+    ['^'],
+    ['&'],
+    ['==', '!=', '===', '!=='],
+    ['<', '<=', '>', '>='],
+    ['<<', '>>', '>>>'],
+    ['+', '-'],
+    ['*', '/', '%'],
+  ];
+
+  const matchPrecOp = (ops) => {
+    const t = peek();
+    if ((t.type === 'op' || t.type === 'punc') && ops.includes(t.value)) {
+      pos += 1;
+      return t.value;
+    }
+    return null;
+  };
+
+  const parseBinOp = (level) => {
+    if (level >= PRECEDENCE.length) return parseUnary();
+    let cur = parseBinOp(level + 1);
+    let op;
+    while ((op = matchPrecOp(PRECEDENCE[level])) !== null) {
+      const rhsNode = parseBinOp(level + 1);
+      cur = { type: 'BinOp', op, lhs: cur, rhs: rhsNode };
+    }
+    return cur;
+  };
+
+  const parseUnary = () => {
+    const t = peek();
+    if ((t.type === 'punc' && (t.value === '!' || t.value === '-' || t.value === '+'))
+      || (t.type === 'op' && (t.value === '++' || t.value === '--'))
+      || (t.type === 'kw' && (t.value === 'typeof' || t.value === 'void'))) {
+      const op = next().value;
+      return { type: 'Unary', op, arg: parseUnary() };
+    }
+    if (match('kw', 'new')) {
+      const callee = parseMember(false);
+      let args = [];
+      if (peek().type === 'punc' && peek().value === '(') {
+        args = parseArgList();
+      }
+      return parsePostfixTail({ type: 'New', callee, args }, true);
+    }
+    return parseMember(true);
+  };
+
+  const parseArgList = () => {
+    expect('punc', '(');
+    const args = [];
+    while (peek().type !== 'eof' && !(peek().type === 'punc' && peek().value === ')')) {
+      args.push(parseAssign());
+      if (!match('punc', ',')) break;
+    }
+    expect('punc', ')');
+    return args;
+  };
+
+  const parsePostfixTail = (base, allowCall) => {
+    let cur = base;
+    while (true) {
+      if (match('punc', '.') || match('op', '?.')) {
+        const propTok = next();
+        cur = { type: 'Member', obj: cur, prop: { type: 'Literal', value: propTok.value }, computed: false };
+      } else if (match('punc', '[')) {
+        const propExpr = parseExpr();
+        expect('punc', ']');
+        cur = { type: 'Member', obj: cur, prop: propExpr, computed: true };
+      } else if (allowCall && peek().type === 'punc' && peek().value === '(') {
+        cur = { type: 'Call', callee: cur, args: parseArgList() };
+      } else if (peek().type === 'op' && (peek().value === '++' || peek().value === '--')) {
+        cur = { type: 'Update', op: next().value, arg: cur, prefix: false };
+      } else {
+        break;
+      }
+    }
+    return cur;
+  };
+
+  const parseMember = (allowCall) => parsePostfixTail(parsePrimary(), allowCall);
+
+  const parsePrimary = () => {
+    const t = peek();
+    if (t.type === 'number' || t.type === 'string') {
+      next();
+      return { type: 'Literal', value: t.value };
+    }
+    if (match('kw', 'true')) return { type: 'Literal', value: true };
+    if (match('kw', 'false')) return { type: 'Literal', value: false };
+    if (match('kw', 'null')) return { type: 'Literal', value: null };
+    if (match('kw', 'undefined')) return { type: 'Literal', value: undefined };
+    if (match('kw', 'function')) {
+      const name = peek().type === 'id' ? next().value : null;
+      const params = parseParamList();
+      const body = parseBlock();
+      return { type: 'FnExpr', name, params, body };
+    }
+    if (t.type === 'id') {
+      next();
+      return { type: 'Ident', name: t.value };
+    }
+    if (match('punc', '(')) {
+      const expr = parseExpr();
+      expect('punc', ')');
+      return expr;
+    }
+    if (match('punc', '[')) {
+      const elements = [];
+      while (peek().type !== 'eof' && !(peek().type === 'punc' && peek().value === ']')) {
+        elements.push(parseAssign());
+        if (!match('punc', ',')) break;
+      }
+      expect('punc', ']');
+      return { type: 'Array', elements };
+    }
+    if (match('punc', '\x7b')) {
+      const props = [];
+      while (peek().type !== 'eof' && !(peek().type === 'punc' && peek().value === '\x7d')) {
+        let key;
+        if (match('punc', '[')) {
+          key = parseAssign();
+          expect('punc', ']');
+        } else {
+          const kt = next();
+          key = { type: 'Literal', value: String(kt.value) };
+        }
+        if (match('punc', ':')) {
+          props.push({ key, value: parseAssign() });
+        } else {
+          props.push({ key, value: { type: 'Ident', name: key.value } });
+        }
+        if (!match('punc', ',')) break;
+      }
+      expect('punc', '\x7d');
+      return { type: 'Object', props };
+    }
+    throw new SyntaxError(`Unexpected primary token ${t.type}:${t.value}`);
+  };
+
+  const ast = parseProgram();
+  let steps = 0;
+  const tickFuel = () => {
+    steps += 1;
+    if (steps > fuelBudget) {
+      throw new PreviewScriptFuelExhausted(fuelBudget, steps);
+    }
+  };
+
+  const rootScope = { parent: null, vars: new Map() };
+  const builtIns = {
+    Math,
+    Number,
+    String,
+    Boolean,
+    Array,
+    Object,
+    JSON,
+    Map,
+    Set,
+    Uint8Array,
+    Int32Array,
+    Float32Array,
+    isFinite: Number.isFinite,
+    isNaN: Number.isNaN,
+    WebAssembly: (typeof WebAssembly !== 'undefined') ? WebAssembly : undefined,
+    console: env.console || { log: () => {}, warn: () => {}, error: () => {}, info: () => {} },
+    document: env.document,
+    window: env.window,
+    undefined,
+  };
+  for (const [k, v] of Object.entries(builtIns)) {
+    rootScope.vars.set(k, v);
+  }
+  for (const [k, v] of Object.entries(env || {})) {
+    rootScope.vars.set(k, v);
+  }
+
+  const resolveScope = (scope, name) => {
+    let cur = scope;
+    while (cur) {
+      if (cur.vars.has(name)) return cur;
+      cur = cur.parent;
+    }
+    return null;
+  };
+
+  const SIGNAL_RETURN = Symbol('return');
+  const SIGNAL_BREAK = Symbol('break');
+  const SIGNAL_CONTINUE = Symbol('continue');
+
+  const makeCallable = (fnNode, closureScope) => {
+    const fn = function (...args) {
+      tickFuel();
+      const fnScope = { parent: closureScope, vars: new Map() };
+      for (let pi = 0; pi < fnNode.params.length; pi += 1) {
+        fnScope.vars.set(fnNode.params[pi], args[pi]);
+      }
+      if (fnNode.name) {
+        fnScope.vars.set(fnNode.name, fn);
+      }
+      if (fnNode.body.type === 'Block') {
+        const res = evalStmt(fnNode.body, fnScope);
+        if (res && res.signal === SIGNAL_RETURN) return res.value;
+        return undefined;
+      }
+      return evalExpr(fnNode.body, fnScope);
+    };
+    return fn;
+  };
+
+  const evalLValueRef = (node, scope) => {
+    if (node.type === 'Ident') {
+      const found = resolveScope(scope, node.name) || rootScope;
+      return {
+        get: () => found.vars.get(node.name),
+        set: (v) => { found.vars.set(node.name, v); return v; },
+      };
+    }
+    if (node.type === 'Member') {
+      const targetObj = evalExpr(node.obj, scope);
+      const propKey = node.computed ? evalExpr(node.prop, scope) : node.prop.value;
+      if (propKey === '__proto__' || propKey === 'constructor' || propKey === 'prototype') {
+        throw new Error('Blocked prototype property write inside preview sandbox');
+      }
+      return {
+        get: () => targetObj[propKey],
+        set: (v) => { targetObj[propKey] = v; return v; },
+      };
+    }
+    throw new ReferenceError('Invalid assignment target');
+  };
+
+  const evalExpr = (node, scope) => {
+    tickFuel();
+    if (!node) return undefined;
+    switch (node.type) {
+      case 'Literal': return node.value;
+      case 'Ident': {
+        const s = resolveScope(scope, node.name);
+        if (!s) throw new ReferenceError(`${node.name} is not defined`);
+        return s.vars.get(node.name);
+      }
+      case 'Array': return node.elements.map((el) => evalExpr(el, scope));
+      case 'Object': {
+        const obj = {};
+        for (const p of node.props) {
+          const k = evalExpr(p.key, scope);
+          if (k !== '__proto__' && k !== 'constructor') {
+            obj[k] = evalExpr(p.value, scope);
+          }
+        }
+        return obj;
+      }
+      case 'Arrow':
+      case 'FnExpr': return makeCallable(node, scope);
+      case 'Seq': {
+        let out;
+        for (const it of node.items) out = evalExpr(it, scope);
+        return out;
+      }
+      case 'Ternary': return evalExpr(node.test, scope) ? evalExpr(node.cons, scope) : evalExpr(node.alt, scope);
+      case 'Unary': {
+        if (node.op === 'typeof') {
+          if (node.arg.type === 'Ident' && !resolveScope(scope, node.arg.name)) return 'undefined';
+          return typeof evalExpr(node.arg, scope);
+        }
+        if (node.op === '++' || node.op === '--') {
+          const ref = evalLValueRef(node.arg, scope);
+          const nextV = Number(ref.get()) + (node.op === '++' ? 1 : -1);
+          ref.set(nextV);
+          return nextV;
+        }
+        const v = evalExpr(node.arg, scope);
+        if (node.op === '!') return !v;
+        if (node.op === '-') return -Number(v);
+        if (node.op === '+') return +Number(v);
+        return undefined;
+      }
+      case 'Update': {
+        const ref = evalLValueRef(node.arg, scope);
+        const curV = Number(ref.get());
+        const nextV = curV + (node.op === '++' ? 1 : -1);
+        ref.set(nextV);
+        return node.prefix ? nextV : curV;
+      }
+      case 'Assign': {
+        const ref = evalLValueRef(node.target, scope);
+        if (node.op === '=') return ref.set(evalExpr(node.value, scope));
+        const prevV = ref.get();
+        if (node.op === '&&=') return prevV ? ref.set(evalExpr(node.value, scope)) : prevV;
+        if (node.op === '||=') return prevV ? prevV : ref.set(evalExpr(node.value, scope));
+        if (node.op === '??=') return (prevV !== null && prevV !== undefined) ? prevV : ref.set(evalExpr(node.value, scope));
+        const rhsVal = evalExpr(node.value, scope);
+        if (node.op === '+=') return ref.set(prevV + rhsVal);
+        if (node.op === '-=') return ref.set(Number(prevV) - Number(rhsVal));
+        if (node.op === '*=') return ref.set(Number(prevV) * Number(rhsVal));
+        if (node.op === '/=') return ref.set(Number(prevV) / Number(rhsVal));
+        if (node.op === '%=') return ref.set(Number(prevV) % Number(rhsVal));
+        return prevV;
+      }
+      case 'BinOp': {
+        if (node.op === '&&') return evalExpr(node.lhs, scope) ? evalExpr(node.rhs, scope) : false;
+        if (node.op === '||') {
+          const lv = evalExpr(node.lhs, scope);
+          return lv ? lv : evalExpr(node.rhs, scope);
+        }
+        if (node.op === '??') {
+          const lv = evalExpr(node.lhs, scope);
+          return (lv !== null && lv !== undefined) ? lv : evalExpr(node.rhs, scope);
+        }
+        const lhsVal = evalExpr(node.lhs, scope);
+        const rhsVal = evalExpr(node.rhs, scope);
+        switch (node.op) {
+          case '+': return lhsVal + rhsVal;
+          case '-': return Number(lhsVal) - Number(rhsVal);
+          case '*': return Number(lhsVal) * Number(rhsVal);
+          case '/': return Number(lhsVal) / Number(rhsVal);
+          case '%': return Number(lhsVal) % Number(rhsVal);
+          case '===': return lhsVal === rhsVal;
+          case '!==': return lhsVal !== rhsVal;
+          case '==': return lhsVal == rhsVal;
+          case '!=': return lhsVal != rhsVal;
+          case '<': return lhsVal < rhsVal;
+          case '<=': return lhsVal <= rhsVal;
+          case '>': return lhsVal > rhsVal;
+          case '>=': return lhsVal >= rhsVal;
+          case '&': return (Number(lhsVal) | 0) & (Number(rhsVal) | 0);
+          case '|': return (Number(lhsVal) | 0) | (Number(rhsVal) | 0);
+          case '^': return (Number(lhsVal) | 0) ^ (Number(rhsVal) | 0);
+          case '<<': return (Number(lhsVal) | 0) << (Number(rhsVal) | 0);
+          case '>>': return (Number(lhsVal) | 0) >> (Number(rhsVal) | 0);
+          case '>>>': return (Number(lhsVal) | 0) >>> (Number(rhsVal) | 0);
+          default: return undefined;
+        }
+      }
+      case 'Member': {
+        const obj = evalExpr(node.obj, scope);
+        if (obj === null || obj === undefined) return undefined;
+        const k = node.computed ? evalExpr(node.prop, scope) : node.prop.value;
+        if (k === '__proto__' || k === 'constructor') return undefined;
+        return obj[k];
+      }
+      case 'Call': {
+        let thisArg = undefined;
+        let fnVal;
+        if (node.callee.type === 'Member') {
+          thisArg = evalExpr(node.callee.obj, scope);
+          const k = node.callee.computed ? evalExpr(node.callee.prop, scope) : node.callee.prop.value;
+          if (k === '__proto__' || k === 'constructor') throw new Error('Blocked constructor invocation');
+          fnVal = thisArg ? thisArg[k] : undefined;
+        } else {
+          fnVal = evalExpr(node.callee, scope);
+        }
+        if (typeof fnVal !== 'function') {
+          throw new TypeError('Callee is not a function inside preview sandbox');
+        }
+        const argVals = node.args.map((argNode) => evalExpr(argNode, scope));
+        return fnVal.apply(thisArg, argVals);
+      }
+      case 'New': {
+        const Ctor = evalExpr(node.callee, scope);
+        if (typeof Ctor !== 'function') throw new TypeError('Target is not a constructor');
+        const argVals = node.args.map((argNode) => evalExpr(argNode, scope));
+        return new Ctor(...argVals);
+      }
+      default:
+        return undefined;
+    }
+  };
+
+  const evalStmt = (stmt, scope) => {
+    tickFuel();
+    if (!stmt) return { signal: null, value: undefined };
+    switch (stmt.type) {
+      case 'Block': {
+        const blkScope = { parent: scope, vars: new Map() };
+        let lastVal;
+        for (const s of stmt.body) {
+          const r = evalStmt(s, blkScope);
+          if (r.signal) return r;
+          lastVal = r.value;
+        }
+        return { signal: null, value: lastVal };
+      }
+      case 'VarDecl': {
+        for (const d of stmt.decls) {
+          scope.vars.set(d.name, d.init ? evalExpr(d.init, scope) : undefined);
+        }
+        return { signal: null, value: undefined };
+      }
+      case 'FnDecl': {
+        scope.vars.set(stmt.name, makeCallable(stmt, scope));
+        return { signal: null, value: undefined };
+      }
+      case 'ExprStmt': return { signal: null, value: evalExpr(stmt.expr, scope) };
+      case 'Return': return { signal: SIGNAL_RETURN, value: stmt.arg ? evalExpr(stmt.arg, scope) : undefined };
+      case 'Throw': throw evalExpr(stmt.arg, scope);
+      case 'Break': return { signal: SIGNAL_BREAK, value: undefined };
+      case 'Continue': return { signal: SIGNAL_CONTINUE, value: undefined };
+      case 'If': {
+        if (evalExpr(stmt.test, scope)) return evalStmt(stmt.cons, scope);
+        if (stmt.alt) return evalStmt(stmt.alt, scope);
+        return { signal: null, value: undefined };
+      }
+      case 'While': {
+        let lastVal;
+        while (evalExpr(stmt.test, scope)) {
+          tickFuel();
+          const r = evalStmt(stmt.body, scope);
+          if (r.signal === SIGNAL_BREAK) break;
+          if (r.signal === SIGNAL_RETURN) return r;
+          lastVal = r.value;
+        }
+        return { signal: null, value: lastVal };
+      }
+      case 'DoWhile': {
+        let lastVal;
+        do {
+          tickFuel();
+          const r = evalStmt(stmt.body, scope);
+          if (r.signal === SIGNAL_BREAK) break;
+          if (r.signal === SIGNAL_RETURN) return r;
+          lastVal = r.value;
+        } while (evalExpr(stmt.test, scope));
+        return { signal: null, value: lastVal };
+      }
+      case 'For': {
+        const loopScope = { parent: scope, vars: new Map() };
+        if (stmt.init) {
+          if (stmt.init.type === 'VarDecl') evalStmt(stmt.init, loopScope);
+          else evalExpr(stmt.init, loopScope);
+        }
+        let lastVal;
+        while (!stmt.test || evalExpr(stmt.test, loopScope)) {
+          tickFuel();
+          const r = evalStmt(stmt.body, loopScope);
+          if (r.signal === SIGNAL_BREAK) break;
+          if (r.signal === SIGNAL_RETURN) return r;
+          lastVal = r.value;
+          if (stmt.update) evalExpr(stmt.update, loopScope);
+        }
+        return { signal: null, value: lastVal };
+      }
+      case 'ForOf':
+      case 'ForIn': {
+        const container = evalExpr(stmt.iter, scope);
+        const items = stmt.type === 'ForOf' ? Array.from(container || []) : Object.keys(container || {});
+        let lastVal;
+        for (const item of items) {
+          tickFuel();
+          const iterScope = { parent: scope, vars: new Map([[stmt.name, item]]) };
+          const r = evalStmt(stmt.body, iterScope);
+          if (r.signal === SIGNAL_BREAK) break;
+          if (r.signal === SIGNAL_RETURN) return r;
+          lastVal = r.value;
+        }
+        return { signal: null, value: lastVal };
+      }
+      case 'Try': {
+        let out = { signal: null, value: undefined };
+        try {
+          out = evalStmt(stmt.tryBlock, scope);
+        } catch (err) {
+          if (err instanceof PreviewScriptFuelExhausted) throw err;
+          if (stmt.catchBlock) {
+            const catchScope = { parent: scope, vars: new Map() };
+            if (stmt.catchName) catchScope.vars.set(stmt.catchName, err);
+            out = evalStmt(stmt.catchBlock, catchScope);
+          } else {
+            throw err;
+          }
+        } finally {
+          if (stmt.finalBlock) evalStmt(stmt.finalBlock, scope);
+        }
+        return out;
+      }
+      default:
+        return { signal: null, value: undefined };
+    }
+  };
+
+  let completionVal;
+  for (const s of ast.body) {
+    if (s.type === 'FnDecl') {
+      rootScope.vars.set(s.name, makeCallable(s, rootScope));
+    }
+  }
+  for (const s of ast.body) {
+    if (s.type === 'FnDecl') continue;
+    const res = evalStmt(s, rootScope);
+    completionVal = res.value;
+    if (res.signal === SIGNAL_RETURN) break;
+  }
+  return { value: completionVal, steps };
+};
+
+const renderPreviewWorkspace = (files, rootEl, postDiag = null) => {
+  if (!rootEl) return { fileCount: 0, scriptSteps: 0, errors: [] };
+  if (typeof rootEl.replaceChildren === 'function') rootEl.replaceChildren();
+
+  const fileMap = new Map();
+  if (Array.isArray(files)) {
+    for (const entry of files) {
+      if (entry && typeof entry.path === 'string') {
+        fileMap.set(entry.path.replace(/^\/workspace\/?/, ''), String(entry.content ?? ''));
+      }
+    }
+  } else if (files && typeof files === 'object') {
+    for (const [p, content] of Object.entries(files)) {
+      fileMap.set(String(p).replace(/^\/workspace\/?/, ''), String(content ?? ''));
+    }
+  }
+
+  let htmlPath = fileMap.has('index.html') ? 'index.html' : null;
+  if (!htmlPath) {
+    for (const k of fileMap.keys()) {
+      if (k.endsWith('.html') || k.endsWith('.htm')) {
+        htmlPath = k;
+        break;
+      }
+    }
+  }
+  const rawHtml = htmlPath ? (fileMap.get(htmlPath) || '') : '<div id=\x22app\x22></div>';
+  const collectedScripts = [];
+  const collectedCss = [];
+  const errors = [];
+  const consoleLogs = [];
+
+  for (const [k, cssText] of fileMap.entries()) {
+    if (k.endsWith('.css')) collectedCss.push(cssText);
+  }
+
+  const sanitizeCssText = (cssStr) =>
+    String(cssStr ?? '')
+      .replace(/@import\b[^;]*;?/gi, '')
+      .replace(/expression\s*\(/gi, 'blocked(')
+      .replace(/url\s*\(\s*([\x27\x22]?)\s*(?:javascript:|data:text\/html|http:|\/\/)/gi, 'url($1blocked:');
+
+  if (typeof DOMParser === 'function') {
+    const parser = new DOMParser();
+    const parsedDoc = parser.parseFromString(rawHtml, 'text/html');
+    const cloneSafeNode = (srcNode) => {
+      if (!srcNode) return null;
+      if (srcNode.nodeType === 3) {
+        return document.createTextNode(srcNode.textContent || '');
+      }
+      if (srcNode.nodeType !== 1) return null;
+      const tag = String(srcNode.tagName || '').toLowerCase();
+      if (tag === 'script') {
+        const srcAttr = srcNode.getAttribute('src');
+        if (srcAttr) {
+          const cleanPath = srcAttr.replace(/^\.?\//, '').replace(/^\/workspace\/?/, '');
+          if (fileMap.has(cleanPath)) collectedScripts.push(fileMap.get(cleanPath) || '');
+        } else if (srcNode.textContent) {
+          collectedScripts.push(srcNode.textContent);
+        }
+        return null;
+      }
+      if (tag === 'style') {
+        collectedCss.push(srcNode.textContent || '');
+        return null;
+      }
+      if (tag === 'link') {
+        const rel = String(srcNode.getAttribute('rel') || '').toLowerCase();
+        const href = srcNode.getAttribute('href') || '';
+        if (rel === 'stylesheet' && href) {
+          const cleanPath = href.replace(/^\.?\//, '').replace(/^\/workspace\/?/, '');
+          if (fileMap.has(cleanPath)) collectedCss.push(fileMap.get(cleanPath) || '');
+        }
+        return null;
+      }
+      if (tag === 'iframe' || tag === 'object' || tag === 'embed' || tag === 'meta' || tag === 'base') {
+        return null;
+      }
+      const el = document.createElement(tag);
+      for (const attr of Array.from(srcNode.attributes || [])) {
+        const aName = String(attr.name || '').toLowerCase();
+        const aVal = String(attr.value || '');
+        if (aName.startsWith('on') || aName === 'srcdoc') continue;
+        if ((aName === 'href' || aName === 'src' || aName === 'action') && /^\s*(?:javascript:|vbscript:|data:text\/html)/i.test(aVal)) {
+          continue;
+        }
+        el.setAttribute(attr.name, aVal);
+      }
+      for (const ch of Array.from(srcNode.childNodes || [])) {
+        const cloned = cloneSafeNode(ch);
+        if (cloned) el.appendChild(cloned);
+      }
+      return el;
+    };
+
+    for (const hdCh of Array.from((parsedDoc.head && parsedDoc.head.childNodes) || [])) {
+      cloneSafeNode(hdCh);
+    }
+    for (const bdCh of Array.from((parsedDoc.body && parsedDoc.body.childNodes) || [])) {
+      const cloned = cloneSafeNode(bdCh);
+      if (cloned) rootEl.appendChild(cloned);
+    }
+  } else {
+    const pre = document.createElement('div');
+    pre.className = 'preview-fallback-body';
+    pre.textContent = rawHtml;
+    rootEl.appendChild(pre);
+  }
+
+  if (!htmlPath) {
+    for (const [k, jsText] of fileMap.entries()) {
+      if (k.endsWith('.js') || k.endsWith('.mjs')) collectedScripts.push(jsText);
+    }
+  }
+
+  if (collectedCss.length > 0) {
+    const safeCss = sanitizeCssText(collectedCss.join('\n'));
+    const styleEl = document.createElement('style');
+    styleEl.setAttribute('data-preview-cssom', 'true');
+    if (typeof CSSStyleSheet === 'function' && styleEl) {
+      try {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(safeCss);
+        const serialized = Array.from(sheet.cssRules || []).map((r) => r.cssText).join('\n');
+        styleEl.textContent = serialized || safeCss;
+      } catch {
+        styleEl.textContent = safeCss;
+      }
+    } else {
+      styleEl.textContent = safeCss;
+    }
+    rootEl.appendChild(styleEl);
+  }
+
+  const pushLog = (level, args) => {
+    const line = `[${level}] ${args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ')}`;
+    consoleLogs.push(line);
+    if (typeof postDiag === 'function') postDiag({ kind: 'console', level, line });
+  };
+
+  const blockedTagSet = new Set(['script', 'iframe', 'object', 'embed', 'link', 'meta', 'base']);
+  const wrapPreviewEl = (el) => el;
+  const scopedDoc = {
+    body: rootEl,
+    getElementById: (id) => (typeof rootEl.querySelector === 'function' ? rootEl.querySelector(`#${String(id).replace(/[^a-zA-Z0-9_-]/g, '')}`) : null),
+    querySelector: (sel) => (typeof rootEl.querySelector === 'function' ? rootEl.querySelector(sel) : null),
+    querySelectorAll: (sel) => (typeof rootEl.querySelectorAll === 'function' ? rootEl.querySelectorAll(sel) : []),
+    createTextNode: (txt) => document.createTextNode(String(txt ?? '')),
+    createElement: (tag) => {
+      const cleanTag = String(tag || 'div').toLowerCase();
+      if (blockedTagSet.has(cleanTag)) {
+        throw new Error(`Blocked unsafe element <${cleanTag}> inside preview sandbox`);
+      }
+      return wrapPreviewEl(document.createElement(cleanTag));
+    },
+  };
+  const scopedConsole = {
+    log: (...args) => pushLog('log', args),
+    info: (...args) => pushLog('info', args),
+    warn: (...args) => pushLog('warn', args),
+    error: (...args) => pushLog('error', args),
+  };
+  const scopedWin = {
+    innerWidth: typeof window !== 'undefined' ? window.innerWidth : 640,
+    innerHeight: typeof window !== 'undefined' ? window.innerHeight : 480,
+    devicePixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio : 1,
+    document: scopedDoc,
+    console: scopedConsole,
+    WebAssembly: (typeof WebAssembly !== 'undefined') ? WebAssembly : undefined,
+  };
+
+  let totalSteps = 0;
+  for (const scriptSrc of collectedScripts) {
+    try {
+      const execOut = evaluatePreviewScriptWithFuel(
+        scriptSrc,
+        { document: scopedDoc, console: scopedConsole, window: scopedWin },
+        100000
+      );
+      totalSteps += Number(execOut.steps || 0);
+    } catch (err) {
+      const msg = err && err.message ? err.message : String(err);
+      const code = (err && (err.code || err.error_code)) || 'PreviewScriptError';
+      errors.push({ code, message: msg });
+      pushLog('error', [`${code}: ${msg}`]);
+    }
+  }
+
+  _r460LatestPreviewDiag = {
+    renderedAtMs: Date.now(),
+    fileCount: fileMap.size,
+    scriptSteps: totalSteps,
+    errors,
+    console: consoleLogs,
+    rootHtmlPreview: String(rootEl.textContent || '').slice(0, 512),
+  };
+  if (typeof postDiag === 'function') {
+    postDiag({ kind: 'rendered', diag: _r460LatestPreviewDiag });
+  }
+  return _r460LatestPreviewDiag;
+};
+
+const handlePreviewInspectRequest = (msg) => {
+  const rpcId = msg && (msg.rpc_id || msg.requestId || msg.id || null);
+  const replyPayload = {
+    ok: _r460LatestPreviewDiag.errors.length === 0,
+    ..._r460LatestPreviewDiag,
+    surface: (document.body && document.body.dataset && document.body.dataset.surface) || 'studio',
+  };
+  if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+    engineWorkerClient.rpc('preview_inspect_reply', { rpc_id: rpcId, report: replyPayload }).catch(() => {});
+  }
+  return replyPayload;
+};
+
+const initPreviewSurfaceHost = () => {
+  const body = document.body;
+  if (body) {
+    body.classList.add('surface-preview');
+    if (body.dataset) body.dataset.surface = 'preview';
+    if (typeof body.setAttribute === 'function') body.setAttribute('data-surface', 'preview');
+  }
+  const frameEl = document.getElementById('prism-frame');
+  if (frameEl) {
+    frameEl.setAttribute('hidden', '');
+    frameEl.hidden = true;
+  }
+  let rootEl = document.getElementById('preview-sandbox-root');
+  if (!rootEl && body) {
+    rootEl = document.createElement('div');
+    rootEl.id = 'preview-sandbox-root';
+    body.appendChild(rootEl);
+  }
+  if (rootEl) {
+    if (typeof rootEl.removeAttribute === 'function') rootEl.removeAttribute('hidden');
+    rootEl.hidden = false;
+  }
+
+  const postToParent = (payload) => {
+    const dest = typeof window !== 'undefined' && window.parent ? window.parent : null;
+    if (dest && dest !== window && typeof dest.postMessage === 'function') {
+      dest.postMessage({ protocol: 'uor-preview/1', ...payload }, '*');
+    }
+  };
+
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('message', (ev) => {
+      if (window.parent && ev && ev.source && ev.source !== window.parent) return;
+      const msg = ev && ev.data ? ev.data : null;
+      if (!msg || typeof msg !== 'object' || msg.protocol !== 'uor-preview/1') return;
+      if (msg.op === 'render_files') {
+        const diag = renderPreviewWorkspace(msg.files || {}, rootEl, (evDiag) => {
+          postToParent({ op: evDiag.kind === 'console' ? 'console' : 'rendered', ...evDiag });
+        });
+        postToParent({ op: 'inspect_reply', requestId: msg.requestId || null, report: diag });
+      } else if (msg.op === 'inspect') {
+        postToParent({ op: 'inspect_reply', requestId: msg.requestId || null, report: _r460LatestPreviewDiag });
+      }
+    });
+  }
+
+  postToParent({ op: 'ready', surface: 'preview' });
+};
+
+// ============================================================================
+// END R4-60 STUDIO RUNTIME
+// ============================================================================
 
 function renderLiteratureFeed() {
   renderVerdantSynthesisPanel();
@@ -8908,6 +10882,10 @@ class LexLeanTerminal {
           this.setExitCode(1);
           return;
         }
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
+          break;
+        }
         const rel = this.resolveWorkspacePath(dirName).replace(/\/+$/, '');
         const fullDir = rel ? `/workspace/${rel}` : '/workspace';
         this.dirs.add(fullDir);
@@ -8924,6 +10902,10 @@ class LexLeanTerminal {
           this.printAnsi('Usage: rm [-rf] <workspace-path>');
           this.setExitCode(1);
           return;
+        }
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
+          break;
         }
         try {
           let delRes = dispatchStudioEnvelope('workspace_delete', target);
@@ -8955,6 +10937,10 @@ class LexLeanTerminal {
           this.printAnsi(`Usage: ${cmd} <source> <dest>`);
           this.setExitCode(1);
           return;
+        }
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
+          break;
         }
         try {
           const readRes = dispatchStudioEnvelope('workspace_read', src);
@@ -9668,6 +11654,10 @@ class LexLeanTerminal {
           this.setExitCode(1);
           return;
         }
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
+          break;
+        }
         try {
           const res = dispatchStudioEnvelope('workspace_read', filePath);
           if (res && res.status === 'ok') {
@@ -9688,6 +11678,10 @@ class LexLeanTerminal {
         break;
       }
       case 'ls': {
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
+          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
+          break;
+        }
         try {
           const ws = dispatchStudioEnvelope('workspace_list', '');
           const filterDir = args.filter((a) => !a.startsWith('-'))[0]
@@ -9915,6 +11909,9 @@ class LexLeanTerminal {
         }
         break;
       }
+      case 'python':
+      case 'python3':
+      case 'node':
       case 'cc':
       case 'gcc':
       case 'sha256sum':
@@ -10710,7 +12707,13 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     setModalOpen(workspaceModal, false);
     setModalOpen(diagnosticsModal, false);
-    closeCanvasDrawer();
+    if (typeof closeInspectorsModal === 'function') closeInspectorsModal();
+    for (const mid of ['settings-modal', 'new-path-modal', 'github-connect-modal', 'prism-holo-modal']) {
+      const mel = document.getElementById(mid);
+      if (mel && !mel.hasAttribute('hidden')) {
+        mel.setAttribute('hidden', '');
+      }
+    }
   }
 });
 
@@ -11903,6 +13906,55 @@ function runCursorCmdKEdit() {
   const eLine = Math.min(lines.length, Math.max(sLine, cursorCmdKState.endLine || lines.length));
   const selectedSnippet = lines.slice(sLine - 1, eLine).join('\n');
 
+  const applyCmdKResult = (proposedFullCode, sourceTag = 'local Holo v13') => {
+    const diffText = computeUnifiedDiffJs(originalCode, proposedFullCode, targetPath);
+    cursorCmdKState.originalFullCode = originalCode;
+    cursorCmdKState.proposedFullCode = proposedFullCode;
+    cursorCmdKState.diffText = diffText;
+
+    if (diffHunk) {
+      renderColoredUnifiedDiff(diffHunk, diffText);
+      diffHunk.removeAttribute('hidden');
+    }
+    if (acceptBtn) {
+      acceptBtn.removeAttribute('hidden');
+      acceptBtn.removeAttribute('disabled');
+      acceptBtn.disabled = false;
+    }
+    if (rejectBtn) {
+      rejectBtn.removeAttribute('hidden');
+      rejectBtn.removeAttribute('disabled');
+      rejectBtn.disabled = false;
+    }
+    if (workspaceStatus) {
+      workspaceStatus.textContent = `Cmd+K synthesized inline diff for ${targetPath} (Lines ${sLine}–${eLine}) via ${sourceTag}.`;
+    }
+  };
+
+  if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+    if (workspaceStatus) {
+      workspaceStatus.textContent = `Synthesizing Cmd+K inline edit for ${targetPath} on Worker...`;
+    }
+    engineWorkerClient
+      .rpc('studio_cmdk_edit', {
+        path: targetPath,
+        code: originalCode,
+        selection: selectedSnippet,
+        instruction,
+        selected_model: (AppState && AppState.config && AppState.config.selectedModel) || undefined,
+      })
+      .then((res) => {
+        const nextCode = (res && res.proposed_code) ? String(res.proposed_code) : originalCode;
+        applyCmdKResult(nextCode, (res && res.model_id) || 'Worker Holo v13');
+      })
+      .catch((err) => {
+        const msg = err && err.message ? err.message : String(err);
+        if (workspaceStatus) workspaceStatus.textContent = `Cmd+K error: ${msg}`;
+        if (typeof showStudioToast === 'function') showStudioToast(`Cmd+K edit failed: ${msg}`, 'error', 4500);
+      });
+    return;
+  }
+
   const prompt = `[Cmd+K Inline Edit on ${targetPath} Lines ${sLine}-${eLine}] ${instruction}\n\`\`\`rust\n${selectedSnippet}\n\`\`\``;
   let chatRes = null;
   try {
@@ -11933,28 +13985,7 @@ function runCursorCmdKEdit() {
     proposedFullCode = updatedLines.join('\n');
   }
 
-  const diffText = computeUnifiedDiffJs(originalCode, proposedFullCode, targetPath);
-  cursorCmdKState.originalFullCode = originalCode;
-  cursorCmdKState.proposedFullCode = proposedFullCode;
-  cursorCmdKState.diffText = diffText;
-
-  if (diffHunk) {
-    renderColoredUnifiedDiff(diffHunk, diffText);
-    diffHunk.removeAttribute('hidden');
-  }
-  if (acceptBtn) {
-    acceptBtn.removeAttribute('hidden');
-    acceptBtn.removeAttribute('disabled');
-    acceptBtn.disabled = false;
-  }
-  if (rejectBtn) {
-    rejectBtn.removeAttribute('hidden');
-    rejectBtn.removeAttribute('disabled');
-    rejectBtn.disabled = false;
-  }
-  if (workspaceStatus) {
-    workspaceStatus.textContent = `Cmd+K synthesized inline diff for ${targetPath} (Lines ${sLine}–${eLine}) via local Holo v13.`;
-  }
+  applyCmdKResult(proposedFullCode, 'local Holo v13');
 }
 
 function acceptCursorCmdKEdit() {
@@ -12163,6 +14194,39 @@ function updateCursorGhostText() {
   }
   if (statusQ12El) {
     statusQ12El.textContent = `256D Q12 L1=${cursorGhostState.q12L1} · d_H=${cursorGhostState.hammingDist}`;
+  }
+
+  if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+    const ghostReqSeq = (updateCursorGhostText._seq = (updateCursorGhostText._seq || 0) + 1);
+    const suffixWindow = code.slice(cursorPos, Math.min(code.length, cursorPos + 160));
+    const activePath = (typeof activeWorkspacePath === 'string' && activeWorkspacePath) || 'src/lib.rs';
+    engineWorkerClient
+      .rpc('studio_ghost_complete', {
+        path: activePath,
+        prefix: prefixWindow,
+        suffix: suffixWindow,
+        max_new_tokens: 48,
+      })
+      .then((res) => {
+        if (ghostReqSeq !== updateCursorGhostText._seq) return;
+        const workerSug = res && (res.completion || res.text || res.reply) ? String(res.completion || res.text || res.reply).trim() : '';
+        if (!workerSug) return;
+        cursorGhostState.suggestion = workerSug;
+        cursorGhostState.sourceTag = (res && res.model_id) || 'Worker Holo Ghost';
+        if (overlayEl) {
+          overlayEl.replaceChildren();
+          const pSpan = document.createElement('span');
+          pSpan.className = 'cursor-ghost-prefix';
+          pSpan.textContent = code.slice(0, cursorPos);
+          const iSpan = document.createElement('span');
+          iSpan.className = 'cursor-ghost-inline';
+          iSpan.textContent = workerSug;
+          overlayEl.appendChild(pSpan);
+          overlayEl.appendChild(iSpan);
+        }
+        if (previewEl) previewEl.textContent = workerSug.replace(/\n/g, ' ↵ ');
+      })
+      .catch(() => {});
   }
 }
 
@@ -12948,7 +15012,7 @@ function runCursorR432Check(subcommand = 'check') {
   }
   try {
     let report = null;
-    if (mainThreadWasmReady && typeof studio_wasm_eval === 'function') {
+    if ((typeof mainThreadWasmReady === 'undefined' || mainThreadWasmReady) && typeof studio_wasm_eval === 'function') {
       report = JSON.parse(studio_wasm_eval(subcommand, ''));
     }
     applyR432ReportToDom(subcommand, report);
@@ -12960,17 +15024,34 @@ globalThis.__uorRunWasmEvalAsync = runCursorR432Check;
 
 function toggleCursorBottomPanel(preferredTabId = 'terminal') {
   if (!dockableCanvasPane) return;
+  const termDrawer = document.getElementById('terminal-split-drawer');
   if (dockableCanvasPane.classList.contains('cursor-bottom-panel-collapsed')) {
     dockableCanvasPane.classList.remove('cursor-bottom-panel-collapsed');
+    if (termDrawer) {
+      termDrawer.removeAttribute('hidden');
+      termDrawer.hidden = false;
+    }
     activateCanvasTab(preferredTabId);
   } else if (activeCanvasTabId === preferredTabId) {
     dockableCanvasPane.classList.add('cursor-bottom-panel-collapsed');
+    if (termDrawer) {
+      termDrawer.setAttribute('hidden', '');
+      termDrawer.hidden = true;
+    }
   } else {
+    if (termDrawer) {
+      termDrawer.removeAttribute('hidden');
+      termDrawer.hidden = false;
+    }
     activateCanvasTab(preferredTabId);
   }
 }
 
 function initCursorIdeWorkbench() {
+  const bootSearch = (typeof window !== 'undefined' && window.location && window.location.search) || '';
+  if (bootSearch.includes('surface=observatory') || bootSearch.includes('surface=preview')) {
+    return;
+  }
   // 1. Left Activity Bar & Sidebar View Switching
   const activityBtnConfigs = [
     { id: 'cursor-act-explorer', alt: 'activity-btn-explorer', mode: 'explorer', viewId: 'sidebar-view-explorer' },
@@ -12987,10 +15068,21 @@ function initCursorIdeWorkbench() {
     const sidebar = document.getElementById('threads-sidebar');
     const mainEl = document.querySelector('main');
     if (!sidebar) return;
-    const isCurrentlyCollapsed = sidebar.classList.contains('sidebar-collapsed');
+    const winClass = (document.body && ((document.body.dataset && document.body.dataset.windowClass) || (typeof document.body.getAttribute === 'function' && document.body.getAttribute('data-window-class')))) || 'expanded';
+    const isCurrentlyCollapsed = sidebar.classList.contains('sidebar-collapsed') || (mainEl && mainEl.classList.contains('sidebar-collapsed'));
     const shouldCollapse = typeof forceState === 'boolean' ? forceState : !isCurrentlyCollapsed;
     sidebar.classList.toggle('sidebar-collapsed', shouldCollapse);
-    if (mainEl) mainEl.classList.toggle('sidebar-collapsed', shouldCollapse);
+    sidebar.classList.toggle('sidebar-open', !shouldCollapse);
+    if (mainEl) {
+      mainEl.classList.toggle('sidebar-collapsed', shouldCollapse);
+      if (winClass === 'compact' || winClass === 'medium') {
+        mainEl.classList.toggle('sidebar-expanded', !shouldCollapse);
+      } else {
+        mainEl.classList.remove('sidebar-expanded');
+      }
+    }
+    const toggleBtn = document.getElementById('toggle-sidebar-btn');
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', shouldCollapse ? 'false' : 'true');
   }
 
   function setActivityMode(mode) {
@@ -13103,18 +15195,130 @@ function initCursorIdeWorkbench() {
     mountInput._cursorChangeWired = true;
     mountInput.addEventListener('change', () => handleWorkspaceMountInputChange(mountInput));
   }
+  const wbClosePaneBtn = document.getElementById('close-canvas-pane-btn');
+  if (wbClosePaneBtn && !wbClosePaneBtn._drawerToggleWired) {
+    wbClosePaneBtn._drawerToggleWired = true;
+    wbClosePaneBtn.addEventListener('click', () => {
+      const termDrawer = document.getElementById('terminal-split-drawer');
+      if (termDrawer) {
+        const willHide = !termDrawer.hasAttribute('hidden');
+        if (willHide) {
+          termDrawer.setAttribute('hidden', '');
+          termDrawer.hidden = true;
+          if (dockableCanvasPane) dockableCanvasPane.classList.add('cursor-bottom-panel-collapsed');
+        } else {
+          termDrawer.removeAttribute('hidden');
+          termDrawer.hidden = false;
+          if (dockableCanvasPane) dockableCanvasPane.classList.remove('cursor-bottom-panel-collapsed');
+        }
+        return;
+      }
+      if (dockableCanvasPane) {
+        dockableCanvasPane.classList.toggle('cursor-bottom-panel-collapsed');
+      }
+    });
+  }
+
+  const newPathModal = document.getElementById('new-path-modal');
+  const newPathForm = document.getElementById('new-path-form');
+  const newPathInput = document.getElementById('new-path-input');
+  const newPathKindInput = document.getElementById('new-path-kind-input');
+  const newPathTitleEl = document.getElementById('new-path-modal-title');
+  const newPathErrorEl = document.getElementById('new-path-error');
+  const newPathSubmitBtn = document.getElementById('new-path-submit-btn');
+  const newPathCancelBtn = document.getElementById('new-path-cancel-btn');
+  const closeNewPathModalBtn = document.getElementById('close-new-path-modal-btn');
+  const newPathBackdrop = document.getElementById('new-path-modal-backdrop');
+
+  const closeNewPathModal = () => {
+    if (newPathModal) {
+      newPathModal.setAttribute('hidden', '');
+      newPathModal.hidden = true;
+    }
+    if (newPathErrorEl) newPathErrorEl.textContent = '';
+  };
+
+  const openNewPathModal = (kind = 'file') => {
+    const normalizedKind = kind === 'dir' ? 'dir' : 'file';
+    if (newPathKindInput) newPathKindInput.value = normalizedKind;
+    if (newPathTitleEl) {
+      newPathTitleEl.textContent = normalizedKind === 'dir' ? 'New Workspace Directory' : 'New Workspace File';
+    }
+    if (newPathSubmitBtn) {
+      newPathSubmitBtn.textContent = normalizedKind === 'dir' ? 'Create Directory' : 'Create File';
+    }
+    if (newPathErrorEl) newPathErrorEl.textContent = '';
+    if (newPathInput) {
+      newPathInput.placeholder = normalizedKind === 'dir' ? '/workspace/src/new_dir' : '/workspace/src/module.rs';
+    }
+    if (newPathModal) {
+      newPathModal.removeAttribute('hidden');
+      newPathModal.hidden = false;
+    }
+    if (newPathInput && typeof newPathInput.focus === 'function') {
+      newPathInput.focus();
+    }
+  };
+
+  if (newPathCancelBtn) newPathCancelBtn.addEventListener('click', closeNewPathModal);
+  if (closeNewPathModalBtn) closeNewPathModalBtn.addEventListener('click', closeNewPathModal);
+  if (newPathBackdrop) newPathBackdrop.addEventListener('click', closeNewPathModal);
+  if (newPathForm) {
+    newPathForm.addEventListener('submit', (ev) => {
+      if (ev && typeof ev.preventDefault === 'function') ev.preventDefault();
+      const rawInput = (newPathInput && newPathInput.value ? newPathInput.value : '').trim();
+      const kindVal = (newPathKindInput && newPathKindInput.value === 'dir') ? 'dir' : 'file';
+      const normalized = rawInput.replace(/^\/workspace\/?/, '').replace(/^\/+/, '').replace(/\/+$/, '');
+      if (!normalized || rawInput.includes('\0') || normalized.split('/').some((seg) => seg === '..' || seg === '.')) {
+        const errMsg = 'Invalid path: path traversal (..) and empty names are rejected.';
+        if (newPathErrorEl) newPathErrorEl.textContent = errMsg;
+        if (workspaceStatus) workspaceStatus.textContent = errMsg;
+        if (typeof showStudioToast === 'function') showStudioToast(errMsg, 'error', 4000);
+        return;
+      }
+      if (kindVal === 'dir') {
+        const ws = dispatchStudioEnvelope('workspace_write', `${normalized}/.gitkeep\n`);
+        renderWorkspaceList(ws);
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+          engineWorkerClient.rpc('studio_dispatch', `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: `mkdir -p /workspace/${normalized}`, cwd: '/workspace' })}`).catch(() => {});
+        }
+        closeNewPathModal();
+        if (workspaceStatus) workspaceStatus.textContent = `Created /workspace/${normalized}`;
+      } else {
+        const ws = dispatchStudioEnvelope('workspace_write', `${normalized}\n// Created in UOR-R4 Studio\n`);
+        renderWorkspaceList(ws);
+        selectWorkspaceFile(normalized);
+        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+          engineWorkerClient.rpc('studio_dispatch', `1\tstudio\tworkspace_write\t${normalized}\n// Created in UOR-R4 Studio\n`).catch(() => {});
+        }
+        closeNewPathModal();
+        if (workspaceStatus) workspaceStatus.textContent = `Created /workspace/${normalized}`;
+      }
+      if (newPathInput) newPathInput.value = '';
+    });
+  }
+
   const newFileQuickBtn = document.getElementById('cursor-new-file-quick-btn');
   if (newFileQuickBtn) {
     newFileQuickBtn.addEventListener('click', () => {
-      if (workspaceNewPath) {
+      if (newPathModal && newPathForm && newPathInput) {
+        openNewPathModal('file');
+      } else if (workspaceNewPath) {
         if (!workspaceNewPath.value.trim()) {
           workspaceNewPath.value = `src/module_${cursorOpenTabs.length + 1}.rs`;
         }
         workspaceNewPath.focus();
+        if (workspaceNewForm) {
+          workspaceNewForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
       }
-      if (workspaceNewForm) {
-        workspaceNewForm.dispatchEvent(new Event('submit', { cancelable: true }));
-      }
+    });
+  }
+
+  const newFolderBtn = document.getElementById('cursor-new-folder-btn');
+  if (newFolderBtn) {
+    newFolderBtn.addEventListener('click', () => {
+      openNewPathModal('dir');
     });
   }
 
@@ -13296,7 +15500,11 @@ function initCursorIdeWorkbench() {
 
   if (runCheckBtn) runCheckBtn.addEventListener('click', () => runCursorR432Check('check'));
   if (statusProblemsBtn) statusProblemsBtn.addEventListener('click', () => runCursorR432Check('check'));
-  if (statusR432Btn && (!statusProblemsBtn || !statusProblemsBtn.contains(statusR432Btn))) {
+  const isContainedInProblems = statusProblemsBtn && statusR432Btn
+    && (typeof statusProblemsBtn.contains === 'function'
+      ? statusProblemsBtn.contains(statusR432Btn)
+      : (Array.isArray(statusProblemsBtn.children) && statusProblemsBtn.children.includes(statusR432Btn)));
+  if (statusR432Btn && !isContainedInProblems) {
     statusR432Btn.addEventListener('click', () => runCursorR432Check('check'));
   }
   if (problemsOpenTermBtn) {
@@ -13336,14 +15544,36 @@ function initCursorIdeWorkbench() {
     const compAgent = document.getElementById('composer-mode-agent');
     const compPlan = document.getElementById('composer-mode-plan');
     const compFast = document.getElementById('composer-mode-fast');
+    const isPlan = mode === 'ask' || mode === 'plan';
+    if (compAgent) {
+      compAgent.classList.toggle('active', !isPlan);
+      compAgent.setAttribute('aria-pressed', !isPlan ? 'true' : 'false');
+    }
+    if (compPlan) {
+      compPlan.classList.toggle('active', isPlan);
+      compPlan.setAttribute('aria-pressed', isPlan ? 'true' : 'false');
+    }
+    if (typeof AppState !== 'undefined' && AppState.config) {
+      AppState.config.composerMode = isPlan ? 'plan' : 'agentic';
+    }
     if (mode === 'agent' && compAgent) compAgent.click();
-    if (mode === 'ask' && compPlan) compPlan.click();
+    if (isPlan && compPlan) compPlan.click();
     if (mode === 'edit' && compFast) compFast.click();
   }
 
   if (modeAgentBtn) modeAgentBtn.addEventListener('click', () => setCursorAiMode('agent'));
   if (modeAskBtn) modeAskBtn.addEventListener('click', () => setCursorAiMode('ask'));
   if (modeEditBtn) modeEditBtn.addEventListener('click', () => setCursorAiMode('edit'));
+
+  const wbMentionBtn = document.getElementById('composer-mention-btn');
+  if (wbMentionBtn && !wbMentionBtn._mentionWired && claudeChatInput) {
+    wbMentionBtn._mentionWired = true;
+    wbMentionBtn.addEventListener('click', () => {
+      const prefix = claudeChatInput.value && !claudeChatInput.value.endsWith(' ') ? `${claudeChatInput.value} @` : `${claudeChatInput.value}@`;
+      claudeChatInput.value = prefix;
+      claudeChatInput.focus();
+    });
+  }
 
   function insertContextTagIntoComposer(tag) {
     if (!claudeChatInput) return;
@@ -13386,18 +15616,31 @@ function initCursorIdeWorkbench() {
     if (activeWorkspacePath) selectWorkspaceFile(activeWorkspacePath);
   }
 
-  function discardAllPendingPatches() {
+  function rejectPatchBatch() {
     if (AppState.workspace && AppState.workspace.pendingPatches) {
       AppState.workspace.pendingPatches = {};
     }
     renderPendingPatchPills();
+    const cmdkDiff = document.getElementById('cursor-cmdk-diff-hunk');
+    if (cmdkDiff) {
+      cmdkDiff.replaceChildren();
+      cmdkDiff.setAttribute('hidden', '');
+    }
+    if (typeof cursorCmdKState !== 'undefined' && cursorCmdKState) {
+      cursorCmdKState.proposedFullCode = '';
+      cursorCmdKState.diffText = '';
+    }
     const ws = dispatchStudioEnvelope('workspace_list', '');
     if (typeof renderCursorScmSection === 'function') renderCursorScmSection(ws);
-    if (chatRejectPatchBtn) chatRejectPatchBtn.click();
+    if (typeof syncCursorComposerPatchBar === 'function') syncCursorComposerPatchBar();
+    if (workspaceStatus) {
+      workspaceStatus.textContent = 'Rejected staged patch batch.';
+    }
   }
+  initCursorIdeWorkbench.rejectPatchBatch = rejectPatchBatch;
 
   if (acceptAllBtn) acceptAllBtn.addEventListener('click', applyAllPendingPatches);
-  if (rejectAllBtn) rejectAllBtn.addEventListener('click', discardAllPendingPatches);
+  if (rejectAllBtn) rejectAllBtn.addEventListener('click', rejectPatchBatch);
 
   // 9b. Activity Search, Palette Trigger, SCM Batch Buttons, E8 Shard Hydrate & Quick Train LUT
   const actPaletteBtn = document.getElementById('cursor-act-palette');
@@ -13412,7 +15655,7 @@ function initCursorIdeWorkbench() {
     actPaletteBtn.addEventListener('click', () => openCursorCommandPalette('commands'));
   }
   if (scmAcceptAllBtn) scmAcceptAllBtn.addEventListener('click', applyAllPendingPatches);
-  if (scmDiscardAllBtn) scmDiscardAllBtn.addEventListener('click', discardAllPendingPatches);
+  if (scmDiscardAllBtn) scmDiscardAllBtn.addEventListener('click', rejectPatchBatch);
 
   function runCursorWorkspaceSearch(rawQuery) {
     if (!cursorSearchResults) return [];
@@ -13589,6 +15832,17 @@ function initCursorIdeWorkbench() {
       return;
     }
     if (ev.key === 'Escape') {
+      if (newPathModal && !newPathModal.hasAttribute('hidden')) {
+        ev.preventDefault();
+        closeNewPathModal();
+        return;
+      }
+      const settingsEl = document.getElementById('settings-modal');
+      if (settingsEl && !settingsEl.hasAttribute('hidden')) {
+        ev.preventDefault();
+        settingsEl.setAttribute('hidden', '');
+        return;
+      }
       if (typeof cursorPaletteOpen !== 'undefined' && cursorPaletteOpen) {
         ev.preventDefault();
         closeCursorCommandPalette();
@@ -13682,6 +15936,15 @@ function setLayoutMode(mode) {
   if (studioToggleBtn) {
     studioToggleBtn.textContent = normalized === 'studio' ? 'Chat View' : 'Studio IDE';
     studioToggleBtn.setAttribute('aria-pressed', normalized === 'studio' ? 'true' : 'false');
+    studioToggleBtn.classList.toggle('active', normalized === 'studio');
+  }
+  const topbarChatBtn = document.getElementById('topbar-mode-chat-btn');
+  if (topbarChatBtn) {
+    topbarChatBtn.setAttribute('aria-pressed', normalized === 'chat' ? 'true' : 'false');
+    topbarChatBtn.classList.toggle('active', normalized === 'chat');
+  }
+  if (typeof syncObservatoryHost === 'function') {
+    syncObservatoryHost();
   }
   const headingEl = document.getElementById('heading-claude-desktop');
   if (headingEl) {
@@ -13757,6 +16020,31 @@ function registerBrowserTerminalBridgeHooks() {
       });
   };
 
+  globalThis.__uorRefreshWorkspaceAfterFsChange = async (_msg) => {
+    let ws = null;
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+      ws = await engineWorkerClient.rpc('studio_dispatch', '1\tstudio\tworkspace_list\t').catch(() => null);
+      if (ws && Array.isArray(ws.files)) {
+        engineWorkerClient.applyWorkspaceSnapshot(ws);
+      }
+    }
+    if (!ws || !Array.isArray(ws.files)) {
+      ws = dispatchStudioEnvelope('workspace_list', '');
+    }
+    if (ws && Array.isArray(ws.files)) {
+      renderWorkspaceList(ws);
+      if (typeof renderCursorFileTree === 'function') renderCursorFileTree(ws);
+      if (typeof renderCursorScmSection === 'function') renderCursorScmSection(ws);
+      if (typeof activeWorkspacePath === 'string' && activeWorkspacePath && typeof selectWorkspaceFile === 'function') {
+        selectWorkspaceFile(activeWorkspacePath);
+      }
+      if (typeof globalThis.__uorRefreshPreviewIfActive === 'function') {
+        globalThis.__uorRefreshPreviewIfActive();
+      }
+    }
+    return ws;
+  };
+
   globalThis.__uorRunMvmExecInTerm = (cmd, _args, fullCmd, term) => {
     if (!engineWorkerClient.enabled) return;
     engineWorkerClient
@@ -13776,6 +16064,9 @@ function registerBrowserTerminalBridgeHooks() {
           );
         }
         term.setExitCode(res?.exit_code ?? 0);
+        if (typeof globalThis.__uorRefreshWorkspaceAfterFsChange === 'function') {
+          globalThis.__uorRefreshWorkspaceAfterFsChange({ source: cmd }).catch(() => {});
+        }
       })
       .catch((err) => {
         term.setExitCode(1);
@@ -14727,6 +17018,28 @@ function initLayoutAndConnectedControls() {
   }
   setLayoutMode(initialMode);
 
+  if (typeof applyWindowWidthClass === 'function') {
+    applyWindowWidthClass();
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      window.addEventListener('resize', () => applyWindowWidthClass(window.innerWidth));
+    }
+    if (typeof ResizeObserver === 'function' && document.body) {
+      const ro = new ResizeObserver((entries) => {
+        const w = entries && entries[0] && entries[0].contentRect ? entries[0].contentRect.width : window.innerWidth;
+        applyWindowWidthClass(w);
+      });
+      ro.observe(document.body);
+    }
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      for (const mqStr of ['(max-width: 599px)', '(min-width: 600px) and (max-width: 839px)', '(min-width: 840px)']) {
+        const mql = window.matchMedia(mqStr);
+        if (mql && typeof mql.addEventListener === 'function') {
+          mql.addEventListener('change', () => applyWindowWidthClass(window.innerWidth));
+        }
+      }
+    }
+  }
+
   const toggleStudioIdeBtn = document.getElementById('toggle-studio-ide-btn');
   if (toggleStudioIdeBtn) {
     toggleStudioIdeBtn.addEventListener('click', () => {
@@ -14734,16 +17047,182 @@ function initLayoutAndConnectedControls() {
       setLayoutMode(cur === 'studio' ? 'chat' : 'studio');
     });
   }
+  const topbarModeChatBtn = document.getElementById('topbar-mode-chat-btn');
+  if (topbarModeChatBtn) {
+    topbarModeChatBtn.addEventListener('click', () => {
+      setLayoutMode('chat');
+    });
+  }
 
+  const syncWebAccessBtnUI = () => {
+    const btn = document.getElementById('toggle-web-access-btn');
+    if (!btn) return;
+    const on = Boolean(engineWorkerClient.webAccessEnabled);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.classList.toggle('topbar-pill-web-on', on);
+    btn.classList.toggle('topbar-pill-web-off', !on);
+    btn.replaceChildren();
+    const dot = document.createElement('span');
+    dot.className = on ? 'pill-dot pill-dot-live' : 'pill-dot';
+    btn.appendChild(dot);
+    btn.appendChild(document.createTextNode(on ? ' Web: ON' : ' Web: OFF'));
+  };
   const toggleWebAccessBtn = document.getElementById('toggle-web-access-btn');
   if (toggleWebAccessBtn) {
+    syncWebAccessBtnUI();
     toggleWebAccessBtn.addEventListener('click', () => {
       engineWorkerClient.webAccessEnabled = !engineWorkerClient.webAccessEnabled;
-      const on = engineWorkerClient.webAccessEnabled;
-      toggleWebAccessBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      toggleWebAccessBtn.innerHTML = `<span class="pill-dot ${on ? 'pill-dot-live' : ''}"></span> Web: ${on ? 'ON' : 'OFF'}`;
+      syncWebAccessBtnUI();
       if (engineWorkerClient.enabled) {
-        engineWorkerClient.rpc('set_bridge_policy', { webAccessEnabled: on }).catch(() => {});
+        engineWorkerClient.rpc('set_bridge_policy', { webAccessEnabled: engineWorkerClient.webAccessEnabled }).catch(() => {});
+      }
+      if (typeof showStudioToast === 'function') {
+        showStudioToast(`Web access ${engineWorkerClient.webAccessEnabled ? 'enabled' : 'disabled'} (SpiralCore policy)`, 'info', 2800);
+      }
+    });
+  }
+
+  const wbTabCodeBtn = document.getElementById('workbench-tab-code');
+  const wbTabPreviewBtn = document.getElementById('workbench-tab-preview');
+  const wbTabDiffBtn = document.getElementById('workbench-tab-diff');
+  const previewRefreshBtn = document.getElementById('preview-refresh-btn');
+  const livePreviewIframe = document.getElementById('live-preview-iframe');
+  const previewConsoleOutput = document.getElementById('preview-console-output');
+
+  const sendFilesToPreviewIframe = () => {
+    const ws = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled)
+      ? engineWorkerClient.getWorkspaceListObject()
+      : dispatchStudioEnvelope('workspace_list', '');
+    const filesObj = {};
+    if (ws && Array.isArray(ws.files)) {
+      for (const f of ws.files) {
+        filesObj[f.path] = f.content || '';
+      }
+    }
+    if (livePreviewIframe && livePreviewIframe.contentWindow && typeof livePreviewIframe.contentWindow.postMessage === 'function') {
+      livePreviewIframe.contentWindow.postMessage({ protocol: 'uor-preview/1', op: 'render_files', files: filesObj }, '*');
+    }
+  };
+
+  let activeWorkbenchMode = 'code';
+  const setWorkbenchMode = (mode) => {
+    activeWorkbenchMode = (mode === 'preview' || mode === 'diff') ? mode : 'code';
+    if (typeof setLayoutMode === 'function' && document.body && document.body.dataset.layoutMode === 'chat') {
+      setLayoutMode('studio');
+    }
+    for (const [btn, m] of [
+      [wbTabCodeBtn, 'code'],
+      [wbTabPreviewBtn, 'preview'],
+      [wbTabDiffBtn, 'diff'],
+    ]) {
+      if (btn) {
+        btn.classList.toggle('active', m === activeWorkbenchMode);
+        btn.setAttribute('aria-pressed', m === activeWorkbenchMode ? 'true' : 'false');
+      }
+    }
+    const wsPanel = document.getElementById('canvas-panel-workspace');
+    const pvPanel = document.getElementById('canvas-panel-preview');
+    const dfPanel = document.getElementById('canvas-panel-diff');
+    if (wsPanel) {
+      wsPanel.classList.toggle('active', activeWorkbenchMode === 'code');
+      if (activeWorkbenchMode === 'code') wsPanel.removeAttribute('hidden');
+      else wsPanel.setAttribute('hidden', '');
+    }
+    if (pvPanel) {
+      pvPanel.classList.toggle('active', activeWorkbenchMode === 'preview');
+      if (activeWorkbenchMode === 'preview') {
+        pvPanel.removeAttribute('hidden');
+        sendFilesToPreviewIframe();
+      } else {
+        pvPanel.setAttribute('hidden', '');
+      }
+    }
+    if (dfPanel) {
+      dfPanel.classList.toggle('active', activeWorkbenchMode === 'diff');
+      if (activeWorkbenchMode === 'diff') {
+        dfPanel.removeAttribute('hidden');
+        if (typeof renderPendingPatchPills === 'function') renderPendingPatchPills();
+      } else {
+        dfPanel.setAttribute('hidden', '');
+      }
+    }
+  };
+  globalThis.__uorSetWorkbenchMode = setWorkbenchMode;
+  globalThis.__uorRefreshPreviewIfActive = () => {
+    if (activeWorkbenchMode === 'preview') sendFilesToPreviewIframe();
+  };
+
+  if (wbTabCodeBtn) wbTabCodeBtn.addEventListener('click', () => setWorkbenchMode('code'));
+  if (wbTabPreviewBtn) wbTabPreviewBtn.addEventListener('click', () => setWorkbenchMode('preview'));
+  if (wbTabDiffBtn) wbTabDiffBtn.addEventListener('click', () => setWorkbenchMode('diff'));
+  if (previewRefreshBtn) {
+    previewRefreshBtn.addEventListener('click', () => {
+      setWorkbenchMode('preview');
+      sendFilesToPreviewIframe();
+    });
+  }
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('message', (ev) => {
+      const msg = ev && ev.data ? ev.data : null;
+      if (!msg || typeof msg !== 'object' || msg.protocol !== 'uor-preview/1') return;
+      if (msg.op === 'ready' && activeWorkbenchMode === 'preview') {
+        sendFilesToPreviewIframe();
+      } else if (msg.op === 'console' && previewConsoleOutput && msg.line) {
+        previewConsoleOutput.textContent += `\n${msg.line}`;
+      } else if ((msg.op === 'rendered' || msg.op === 'inspect_reply') && msg.diag) {
+        if (previewConsoleOutput && Array.isArray(msg.diag.console) && msg.diag.console.length > 0) {
+          previewConsoleOutput.textContent = msg.diag.console.join('\n');
+        }
+      }
+    });
+  }
+
+  const studioToastCloseBtn = document.getElementById('studio-toast-close-btn');
+  if (studioToastCloseBtn) {
+    studioToastCloseBtn.addEventListener('click', () => {
+      const banner = document.getElementById('studio-toast-banner');
+      if (banner) {
+        banner.setAttribute('hidden', '');
+        banner.hidden = true;
+      }
+    });
+  }
+
+  const settingsModal = document.getElementById('settings-modal');
+  const openSettingsModalBtn = document.getElementById('open-settings-modal-btn');
+  const closeSettingsModalBtn = document.getElementById('close-settings-modal-btn');
+  const settingsBackdrop = document.getElementById('settings-modal-backdrop');
+  const allowOffOriginChk = document.getElementById('settings-allow-off-origin-weights');
+  const settingsStatusEl = document.getElementById('settings-modal-status');
+  const closeSettingsModal = () => {
+    if (settingsModal) settingsModal.setAttribute('hidden', '');
+  };
+  if (openSettingsModalBtn && settingsModal) {
+    openSettingsModalBtn.addEventListener('click', () => {
+      if (allowOffOriginChk && typeof safeStorageGet === 'function') {
+        allowOffOriginChk.checked = safeStorageGet('uor_allow_off_origin_hydration') === 'granted';
+      }
+      settingsModal.removeAttribute('hidden');
+    });
+  }
+  if (closeSettingsModalBtn) closeSettingsModalBtn.addEventListener('click', closeSettingsModal);
+  if (settingsBackdrop) settingsBackdrop.addEventListener('click', closeSettingsModal);
+  if (allowOffOriginChk) {
+    if (typeof safeStorageGet === 'function') {
+      allowOffOriginChk.checked = safeStorageGet('uor_allow_off_origin_hydration') === 'granted';
+    }
+    allowOffOriginChk.addEventListener('change', () => {
+      const granted = Boolean(allowOffOriginChk.checked);
+      if (typeof safeStorageSet === 'function') {
+        safeStorageSet('uor_allow_off_origin_hydration', granted ? 'granted' : 'declined');
+      }
+      if (engineWorkerClient.enabled) {
+        engineWorkerClient.rpc('set_bridge_policy', { allowOffOriginHydration: granted }).catch(() => {});
+      }
+      if (settingsStatusEl) {
+        settingsStatusEl.textContent = granted
+          ? 'Verified off-origin HuggingFace mirror downloads approved.'
+          : 'Strict zero-network default active (use Offline Native Q31 without consent).';
       }
     });
   }
@@ -14882,12 +17361,21 @@ function initLayoutAndConnectedControls() {
     }
   }
 
-  const scmCloneBtn = document.getElementById('scm-connect-clone-btn');
-  if (scmCloneBtn) {
+  const scmCloneBtns = [
+    document.getElementById('scm-connect-clone-btn'),
+    document.getElementById('scm-clone-btn'),
+  ].filter(Boolean);
+  for (const scmCloneBtn of scmCloneBtns) {
     scmCloneBtn.addEventListener('click', async () => {
-      const repoInput = document.getElementById('scm-repo-input');
+      const repoInput = document.getElementById('scm-repo-input') || document.getElementById('github-repo-input');
       const repoVal = repoInput ? repoInput.value.trim() : '';
-      if (!repoVal) return;
+      if (!repoVal) {
+        if (typeof showStudioToast === 'function') {
+          showStudioToast('Enter an owner/repo to clone into /workspace.', 'warn', 3500);
+        }
+        if (openGithubBtn) openGithubBtn.click();
+        return;
+      }
       await runGitHubLoopAction('connect', { repo: repoVal });
       await runGitHubLoopAction('clone', { repo: repoVal, branch: AppState.config.connectedGitBranch || 'main' });
     });
@@ -15039,7 +17527,15 @@ function initLayoutAndConnectedControls() {
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') {
       const prismHoloEl = document.getElementById('prism-holo-modal');
-      if (inspectorsModalEl && !inspectorsModalEl.hasAttribute('hidden')) {
+      const settingsEl = document.getElementById('settings-modal');
+      const newPathEl = document.getElementById('new-path-modal');
+      if (newPathEl && !newPathEl.hasAttribute('hidden')) {
+        ev.preventDefault();
+        newPathEl.setAttribute('hidden', '');
+      } else if (settingsEl && !settingsEl.hasAttribute('hidden')) {
+        ev.preventDefault();
+        settingsEl.setAttribute('hidden', '');
+      } else if (inspectorsModalEl && !inspectorsModalEl.hasAttribute('hidden')) {
         ev.preventDefault();
         closeInspectorsModal();
       } else if (githubModal && !githubModal.hasAttribute('hidden')) {
@@ -15223,10 +17719,14 @@ function initPrismHoloIdentityControls() {
   renderPrismHoloIdentityUI();
 }
 
+const isPreviewSurface = typeof window !== 'undefined' && window.location && String(window.location.search || '').includes('surface=preview');
+const isObservatorySurface = initObservatorySurface();
+initCursorIdeWorkbench();
+
 try {
-  const isObservatorySurface = initObservatorySurface();
-  if (!isObservatorySurface) {
-    initCursorIdeWorkbench();
+  if (isPreviewSurface) {
+    initPreviewSurfaceHost();
+  } else if (!isObservatorySurface) {
     if (typeof navigator !== 'undefined' && navigator.storage && typeof navigator.storage.persist === 'function') {
       navigator.storage.persist().catch(() => false);
     }

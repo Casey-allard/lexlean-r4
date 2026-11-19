@@ -3,15 +3,16 @@
  *
  * Provides the strongly-typed state machine backing the Claude Cowork / Cursor-style
  * rich chatbox (`#claude-chat-form` / `#claude-chat-input`):
- * - `/slash` command autocomplete palette (`/think`, `/teach`, `/patch`, `/arxiv`, `/consolidate`, `/otel`, `/math`, `/clear`)
+ * - `/slash` command autocomplete palette (`/think`, `/plan`, `/teach`, `/patch`, `/arxiv`, `/consolidate`, `/otel`, `/math`, `/clear`)
  * - `@context` mention chips (`@file`, `@arxiv`, `@claim`) attached to the prompt envelope
- * - Execution mode selector (`agentic`, `thinking`, `teach`, `math`)
+ * - Execution mode selector (`agentic`, `plan`, `thinking`, `teach`, `math`)
+ * - Streaming turn & cancellation state (`isStreaming`, `activeTurnId`, `activeRequestId`)
  * - Terminal-style Up/Down prompt history stack and live BPE token estimation
  *
  * Compiled into `public/app.js` to preserve the strict 6-file `prismpm/browser-provenance/1` closure.
  */
 
-export type ComposerMode = 'agentic' | 'thinking' | 'teach' | 'math';
+export type ComposerMode = 'agentic' | 'plan' | 'thinking' | 'teach' | 'math';
 
 export interface ComposerAttachmentChip {
   readonly id: string;
@@ -84,9 +85,20 @@ export interface ComposerState {
   autocompleteTrigger: 'slash' | 'mention' | null;
   autocompleteQuery: string;
   autocompleteSelectedIndex: number;
+  isStreaming: boolean;
+  activeTurnId: number | null;
+  activeRequestId: number | null;
 }
 
 export const AGENTIC_SLASH_COMMANDS: readonly SlashCommandSpec[] = [
+  {
+    command: '/plan',
+    title: 'Read-Only Plan & Audit Mode',
+    badge: 'PlanReadOnly',
+    description: 'Inspect workspace, preview, and git status without mutating files',
+    template: 'Inspect /workspace and draft a plan for: ',
+    mode: 'plan',
+  },
   {
     command: '/think',
     title: 'Deep Geometric <thinking> Trace',
@@ -169,6 +181,9 @@ export class AgenticTypeScriptComposer {
       autocompleteTrigger: null,
       autocompleteQuery: '',
       autocompleteSelectedIndex: 0,
+      isStreaming: false,
+      activeTurnId: null,
+      activeRequestId: null,
     };
   }
 
@@ -176,8 +191,45 @@ export class AgenticTypeScriptComposer {
     return this.state;
   }
 
-  public setMode(mode: ComposerMode): void {
-    this.state.mode = mode;
+  public setMode(mode: ComposerMode | string): void {
+    const normalized = String(mode || '').trim().toLowerCase();
+    if (normalized === 'agent' || normalized === 'agentic' || normalized === 'edit' || normalized === 'coding') {
+      this.state.mode = 'agentic';
+    } else if (normalized === 'plan' || normalized === 'ask') {
+      this.state.mode = 'plan';
+    } else if (normalized === 'thinking') {
+      this.state.mode = 'thinking';
+    } else if (normalized === 'teach') {
+      this.state.mode = 'teach';
+    } else if (normalized === 'math') {
+      this.state.mode = 'math';
+    } else {
+      this.state.mode = 'agentic';
+    }
+  }
+
+  public isPlanReadOnly(): boolean {
+    return this.state.mode === 'plan';
+  }
+
+  public beginTurn(requestId?: number | null): void {
+    this.state.isStreaming = true;
+    this.state.activeRequestId = requestId ?? null;
+    this.state.activeTurnId = null;
+  }
+
+  public setActiveTurnId(turnId: number | null): void {
+    this.state.activeTurnId = turnId;
+  }
+
+  public endTurn(): void {
+    this.state.isStreaming = false;
+    this.state.activeTurnId = null;
+    this.state.activeRequestId = null;
+  }
+
+  public isTurnActive(): boolean {
+    return this.state.isStreaming;
   }
 
   public getSelectedModel(): string {
