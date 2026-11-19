@@ -1507,6 +1507,58 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
   const postPushStatus = await gitBridge.execute({ op: 'git', subcommand: 'status' });
   assert.equal(postPushStatus.clean, true, 'tree_index.json must reflect committed deletions and writes');
 
+  // full_workspace commit_push when nothing changed must preserve GitNothingToPush
+  const noChangePush = await gitBridge.execute({
+    op: 'git',
+    subcommand: 'commit_push',
+    repo: 'uor-test/studio-del',
+    branch: 'main',
+    files: gitBridge.listWorkspaceFiles(),
+    full_workspace: true,
+    message: 'No-op push',
+  });
+  assert.equal(noChangePush.ok, false);
+  assert.equal(noChangePush.error_code, 'GitNothingToPush');
+
+  // Local git status via req.args works when webAccessEnabled is false
+  gitBridge.webAccessEnabled = false;
+  const offlineArgsStatus = await gitBridge.execute({ op: 'git', args: 'status' });
+  assert.equal(offlineArgsStatus.ok, true, `webAccessEnabled=false git args status failed: ${JSON.stringify(offlineArgsStatus)}`);
+  assert.equal(offlineArgsStatus.clean, true);
+  gitBridge.webAccessEnabled = true;
+
+  // git pull removes unmodified file deleted on remote and reports deleted_paths
+  const pullMockFetch = async (url, init = {}) => {
+    const u = new URL(String(url));
+    if (u.pathname === '/repos/uor-test/studio-del' && (!init.method || init.method === 'GET')) {
+      return new Response(JSON.stringify({ default_branch: 'main' }), { status: 200 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/branches') {
+      return new Response(JSON.stringify([{ name: 'main' }]), { status: 200 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/trees/main') {
+      return new Response(JSON.stringify({
+        sha: 'tree_after_remote_del',
+        tree: [
+          { path: 'src/keep.rs', type: 'blob', sha: 'blob_keep', size: 22 },
+          { path: 'src/new.rs', type: 'blob', sha: 'blob_new', size: 28 },
+        ],
+      }), { status: 200 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/blobs/blob_keep') {
+      return new Response(JSON.stringify({ encoding: 'base64', content: Buffer.from('pub fn keep() {}\n').toString('base64') }), { status: 200 });
+    }
+    if (u.pathname === '/repos/uor-test/studio-del/git/blobs/blob_new') {
+      return new Response(JSON.stringify({ encoding: 'base64', content: Buffer.from('pub fn added() -> i32 { 7 }\n').toString('base64') }), { status: 200 });
+    }
+    throw new Error(`Unexpected pull mock URL: ${init.method || 'GET'} ${u.pathname}`);
+  };
+  gitBridge.fetchImpl = pullMockFetch;
+  const pullRes = await gitBridge.execute({ op: 'git', subcommand: 'pull', repo: 'uor-test/studio-del', branch: 'main' });
+  assert.equal(pullRes.ok, true, `git pull failed: ${JSON.stringify(pullRes)}`);
+  assert.ok(Array.isArray(pullRes.deleted_paths) && pullRes.deleted_paths.includes('README.md'), 'git pull must report deleted_paths for remote removals');
+  assert.equal(gitBridge.readWorkspaceFile('README.md'), null, 'git pull must delete unmodified remotely removed file');
+
   // 5c. execute_inprism_foundry_turn in surface_mode:"studio" routes preview_inspect, emits token_step per step,
   //     commits only closed <prism-write>, and discards unclosed <prism-write> on holo_cancel_foundry_turn
   const studioWs = new Map([['index.html', '<div id="app">hi</div>']]);
@@ -1668,6 +1720,133 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
   assert.equal(cancelRes.ok, false);
   assert.equal(cancelRes.cancelled, true);
   assert.equal(studioWs.has('src/aborted.rs'), false, 'unclosed <prism-write> must NEVER be written when cancelled');
+
+  // Fix Round 1 checks: live_hud:false suppresses token_step, github_git op/repo preservation, plan-mode refusal without is_mutating, git pull deleted_paths without redundant writes
+  const seenBridgeReqs = [];
+  const writtenPathsInTurn = [];
+  const edgeTurnEvents = [];
+  let edgeMode = 'github_op_preserve';
+  let edgeStep = 0;
+  let edgeHop = 0;
+  const edgeHooks = {
+    ...studioStepperHooks,
+    postEvent: (event, data) => edgeTurnEvents.push({ event, data }),
+    dispatchBridge: async (env) => {
+      if (env.includes('\tworkspace_write\t')) {
+        const body = env.split('\t').slice(3).join('\t');
+        const p = body.slice(0, body.indexOf('\n')).trim();
+        writtenPathsInTurn.push(p);
+      }
+      return studioStepperHooks.dispatchBridge(env);
+    },
+    executeHostBridge: async (bridgeReq) => {
+      seenBridgeReqs.push(bridgeReq);
+      if (bridgeReq.subcommand === 'pull') {
+        studioWs.delete('src/closed.rs');
+        return {
+          ok: true,
+          op: 'git',
+          subcommand: 'pull',
+          files: [{ path: 'src/closed.rs_ignored_unchanged', content: '' }].slice(0, 0).concat([
+            { path: 'index.html', content: studioWs.get('index.html') },
+          ]),
+          deleted_paths: ['src/closed.rs'],
+          body_text: 'Pulled 1 unchanged, 1 deleted',
+        };
+      }
+      return { ok: true, op: 'git', subcommand: bridgeReq.subcommand || 'status', clean: true, body_text: 'clean' };
+    },
+    holoBeginTurn: (payloadJson) => {
+      const req = JSON.parse(payloadJson);
+      edgeHop = Array.isArray(req.tool_results) ? req.tool_results.length : 0;
+      edgeStep = 0;
+      return JSON.stringify({ status: 'ready', turn_id: 900 + beginCounter++, model_id: 'uor-r4.qwen3-0.6b-holo' });
+    },
+    holoStepTurn: (tidBig) => {
+      const tid = Number(tidBig);
+      edgeStep += 1;
+      if (edgeMode === 'github_op_preserve') {
+        if (edgeHop === 0) {
+          return JSON.stringify({
+            status: 'needs_tool',
+            turn_id: tid,
+            delta: '',
+            tool_call: { name: 'github_git', arguments: { op: 'rogue_op', action: 'status', repo: '' } },
+          });
+        }
+        return JSON.stringify({ status: 'done', turn_id: tid, delta: 'Git status clean' });
+      }
+      if (edgeMode === 'plan_write') {
+        return JSON.stringify({
+          status: 'needs_tool',
+          turn_id: tid,
+          delta: '',
+          tool_call: { name: 'workspace_write', arguments: { path: 'src/blocked.rs', content: 'bad' } },
+        });
+      }
+      if (edgeMode === 'plan_git_push') {
+        return JSON.stringify({
+          status: 'needs_tool',
+          turn_id: tid,
+          delta: '',
+          tool_call: { name: 'github_git', arguments: { action: 'commit_push', message: 'nope' } },
+        });
+      }
+      if (edgeMode === 'plan_mvm_rm') {
+        return JSON.stringify({
+          status: 'needs_tool',
+          turn_id: tid,
+          delta: '',
+          tool_call: { name: 'mvm_exec', cmd: 'rm -f index.html', arguments: { cmd: 'rm -f index.html' } },
+        });
+      }
+      if (edgeMode === 'pull_sync') {
+        if (edgeHop === 0) {
+          return JSON.stringify({
+            status: 'needs_tool',
+            turn_id: tid,
+            delta: '',
+            tool_call: { name: 'github_git', arguments: { subcommand: 'pull', repo: 'uor-test/active-repo', branch: 'main' } },
+          });
+        }
+        return JSON.stringify({ status: 'done', turn_id: tid, delta: 'Pulled clean' });
+      }
+      return JSON.stringify({ status: 'done', turn_id: tid, delta: 'ok' });
+    },
+  };
+
+  edgeMode = 'github_op_preserve';
+  const ghPreserveRes = await execute_inprism_foundry_turn(
+    { id: 'edge-gh-preserve', payload: { prompt: 'Check git status', surface_mode: 'studio', composer_mode: 'agent', live_hud: false, repo: 'uor-test/active-repo', branch: 'dev' } },
+    edgeHooks,
+  );
+  assert.equal(ghPreserveRes.ok, true);
+  assert.equal(seenBridgeReqs[0].op, 'git', 'github_git must not allow toolArgs.op to clobber op: "git"');
+  assert.equal(seenBridgeReqs[0].repo, 'uor-test/active-repo', 'github_git must preserve active repo when toolArgs.repo is empty');
+  assert.equal(seenBridgeReqs[0].branch, 'dev');
+  assert.equal(edgeTurnEvents.filter((e) => e.event === 'token_step').length, 0, 'live_hud: false in studio turn must suppress token_step events');
+
+  for (const [modeName, label] of [['plan_write', 'workspace_write'], ['plan_git_push', 'github_git commit_push'], ['plan_mvm_rm', 'mvm_exec rm']]) {
+    edgeMode = modeName;
+    const planRefusal = await execute_inprism_foundry_turn(
+      { id: `edge-${modeName}`, payload: { prompt: 'Inspect only', surface_mode: 'studio', composer_mode: 'plan' } },
+      edgeHooks,
+    );
+    assert.equal(planRefusal.ok, false, `plan mode must refuse ${label}`);
+    assert.equal(planRefusal.error_code, 'RefusedPlanModeMutation', `expected RefusedPlanModeMutation for ${label}, got ${JSON.stringify(planRefusal)}`);
+  }
+
+  edgeMode = 'pull_sync';
+  edgeTurnEvents.length = 0;
+  writtenPathsInTurn.length = 0;
+  const pullTurnRes = await execute_inprism_foundry_turn(
+    { id: 'edge-pull-sync', payload: { prompt: 'Pull latest', surface_mode: 'studio', composer_mode: 'agent', live_hud: false } },
+    edgeHooks,
+  );
+  assert.equal(pullTurnRes.ok, true);
+  assert.equal(writtenPathsInTurn.length, 0, 'github_git pull must not redundantly rewrite unchanged/already-written files');
+  const pullFsEvt = edgeTurnEvents.find((e) => e.event === 'workspace_fs_changed');
+  assert.ok(pullFsEvt && Array.isArray(pullFsEvt.data.deleted_paths) && pullFsEvt.data.deleted_paths.includes('src/closed.rs'), 'github_git pull must propagate deleted_paths into workspace_fs_changed');
 
   // 5d. Full Worker RPC test: studio_stream_turn + studio_cancel_turn + preview_inspect_reply + studio_cmdk_edit + studio_ghost_complete + boot Q31 fallback
   const prevWgs = globalThis.WorkerGlobalScope;
@@ -1934,6 +2113,115 @@ async function testStudioBridgeConsentAndGitDeletions_R4_60() {
     assert.ok(ghostRes.result.suggestion.includes('-> i32'));
     assert.equal(ghostRes.result.receipt_sha256, 'f'.repeat(64));
     assert.ok(workerBeginPayloads.some((r) => r.prompt.includes('[Ghost Complete') && r.max_new_tokens <= 48));
+
+    // Fix Round 1 Worker checks:
+    // 1) studio_stream_turn WITHOUT offlineFallback honors bootNativeQ31Fallback -> native-q31-d85
+    const tokenStepsBeforeInline = workerEvents.filter((e) => e && e.event === 'token_step').length;
+    const autoQ31P = waitForRpc('rpc-studio-auto-q31');
+    mockSelf.onmessage({
+      data: {
+        id: 'rpc-studio-auto-q31',
+        op: 'studio_stream_turn',
+        payload: { prompt: 'Check preview auto Q31 fallback', liveHud: true },
+      },
+    });
+    const autoQ31Res = await autoQ31P;
+    assert.equal(autoQ31Res.ok, true, `auto Q31 studio_stream_turn failed: ${JSON.stringify(autoQ31Res)}`);
+    assert.equal(autoQ31Res.result.model_id, 'uor-r4.native-q31-d85', 'studio_stream_turn must use bootNativeQ31Fallback without offlineFallback:true');
+    assert.ok(workerEvents.filter((e) => e && e.event === 'token_step').length > tokenStepsBeforeInline, 'liveHud:true studio_stream_turn must emit token_step');
+
+    // 2) ghost & cmdk suppress token_step (live_hud: false) and strip unclosed ```lang code fences
+    const stepsPreSilent = workerEvents.filter((e) => e && e.event === 'token_step').length;
+    const prevStepOrig = globalThis.holo_step_foundry_turn;
+    globalThis.holo_step_foundry_turn = (tidBig) => {
+      const tid = Number(tidBig);
+      if (wActive && wActive.req.prompt.includes('[Cmd+K Inline Edit')) {
+        return JSON.stringify({
+          status: 'done',
+          turn_id: tid,
+          delta: '```rust\nfn main() { println!("unfenced_open"); }\n',
+          tokens_emitted: 6,
+          tok_per_sec: 30,
+          receipt_sha256: 'e'.repeat(64),
+        });
+      }
+      return prevStepOrig(tidBig);
+    };
+    const silentCmdkP = waitForRpc('rpc-cmdk-silent');
+    mockSelf.onmessage({
+      data: {
+        id: 'rpc-cmdk-silent',
+        op: 'studio_cmdk_edit',
+        payload: { path: 'src/main.rs', code: 'fn main() {}\n', instruction: 'Unfenced' },
+      },
+    });
+    const silentCmdkRes = await silentCmdkP;
+    globalThis.holo_step_foundry_turn = prevStepOrig;
+    assert.equal(silentCmdkRes.ok, true);
+    assert.equal(silentCmdkRes.result.proposed_code, 'fn main() { println!("unfenced_open"); }');
+    assert.equal(workerEvents.filter((e) => e && e.event === 'token_step').length, stepsPreSilent, 'studio_cmdk_edit must suppress token_step events');
+
+    // 3) .git/* MVM persistence fallback across Worker reload (gitMetaFiles empty, MVM has .git/uor_state.json + .git/tree_index.json)
+    workerWs.set('.git/uor_state.json', JSON.stringify({
+      branch: 'main',
+      remote_url: 'https://github.com/uor-test/persisted.git',
+      head_oid: 'abc123',
+      staged: {},
+      head_tree: { 'src/main.rs': 'fn main() {}\n' },
+      commits: [],
+    }));
+    workerWs.set('.git/tree_index.json', JSON.stringify({
+      repo: 'uor-test/persisted',
+      remote_url: 'https://github.com/uor-test/persisted.git',
+      branch: 'main',
+      head_sha: 'abc123',
+      entries: {
+        'src/main.rs': { sha: 'blob_main', size: 13, hydrated: true, content: 'fn main() {}\n' },
+      },
+    }));
+    const persistedGitStatusP = waitForRpc('rpc-persisted-git-status');
+    mockSelf.onmessage({
+      data: { id: 'rpc-persisted-git-status', op: 'host_bridge_exec', payload: { op: 'git', subcommand: 'status' } },
+    });
+    const persistedGitStatus = await persistedGitStatusP;
+    assert.equal(persistedGitStatus.ok, true);
+    assert.equal(persistedGitStatus.result.repo, 'uor-test/persisted', 'workerWorkspaceFs.read must fall back to MVM workspace_read for .git/*');
+    assert.equal(persistedGitStatus.result.clean, true);
+
+    // 4) Persisted 'declined' consent skips download & skips re-emitting hydration_consent_required
+    const declinedStore = new Map([['uor_allow_off_origin_hydration', 'declined']]);
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: {
+        getItem: (k) => (declinedStore.has(k) ? declinedStore.get(k) : null),
+        setItem: (k, v) => declinedStore.set(k, String(v)),
+      },
+    });
+    const declinedEvents = [];
+    const declinedFetchUrls = [];
+    globalThis.fetch = async (url) => {
+      declinedFetchUrls.push(String(url));
+      return new Response('Should not fetch', { status: 404 });
+    };
+    let declinedReadyResolve;
+    const declinedReadyP = new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error('Timeout waiting for declined Q31 holo_ready')), 3000);
+      declinedReadyResolve = (m) => { clearTimeout(t); resolve(m); };
+    });
+    const declinedScope = new MockStudioWorkerScope();
+    declinedScope.postMessage = (m) => {
+      declinedEvents.push(m);
+      if (m && m.event === 'holo_ready' && m.recommendedModel === 'uor-r4.native-q31-d85') {
+        declinedReadyResolve(m);
+      }
+    };
+    globalThis.self = declinedScope;
+    await import('../../crates/wasm/js/worker_host_bridge.js?studio_r4_60_declined=1');
+    const declinedHoloReady = await declinedReadyP;
+    assert.equal(declinedHoloReady.fallbackReason, 'consent_declined');
+    const declinedWeightFetches = declinedFetchUrls.filter((u) => !u.includes('provenance.json'));
+    assert.equal(declinedWeightFetches.length, 0, `persisted declined consent must skip weight fetches at boot, saw: ${JSON.stringify(declinedFetchUrls)}`);
+    assert.equal(declinedEvents.filter((e) => e && e.event === 'hydration_consent_required').length, 0, 'declined boot must not re-emit hydration_consent_required');
   } finally {
     globalThis.WorkerGlobalScope = prevWgs;
     globalThis.self = prevSelf;

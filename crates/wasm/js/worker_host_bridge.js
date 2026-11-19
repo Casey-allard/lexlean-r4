@@ -2625,6 +2625,73 @@ function buildUnifiedDiffHunk(oldText, newText, filePath, isDeleted = false) {
   return `diff --git a/${cleanPath} b/${cleanPath}\n--- a/${cleanPath}\n+++ b/${cleanPath}\n@@ -1,${oldLines.length} +1,${newLines.length} @@\n${bodyLines.join('\n')}`;
 }
 
+function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
+  /* Formal R4.StudioFrame */
+  if (hopToolCall && hopToolCall.is_mutating === true) return true;
+  const name = String(toolName || '').trim().toLowerCase();
+  const args = toolArgs && typeof toolArgs === 'object' ? toolArgs : {};
+  if (
+    name === 'workspace_write' ||
+    name === 'workspace_patch' ||
+    name === 'workspace_apply_patch' ||
+    name === 'workspace_delete' ||
+    name === 'workspace_rename' ||
+    name === 'file_write' ||
+    name === 'file_delete' ||
+    name === 'github_clone' ||
+    name === 'github_push' ||
+    name === 'github_pr'
+  ) {
+    return true;
+  }
+  if (
+    name === 'workspace_read' ||
+    name === 'workspace_search' ||
+    name === 'workspace_list' ||
+    name === 'preview_inspect' ||
+    name === 'github_status'
+  ) {
+    return false;
+  }
+  if (name === 'github_git' || name === 'git') {
+    const sub = String(args.subcommand || args.action || args.op || 'status').trim().toLowerCase();
+    return !new Set([
+      'status', 'log', 'diff', 'branches', 'branch_list', 'list_prs', 'get_pr',
+      'repo_info', 'inspect', 'check', 'connect', 'pr_status', 'ci_status',
+      'read_blob', 'cat_blob', 'blob', 'detect_repo', 'auto_detect',
+    ]).has(sub);
+  }
+  if (name === 'spiralcore_fetch') {
+    const method = String(args.method || 'GET').trim().toUpperCase();
+    return method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
+  }
+  if (name === 'mvm_exec') {
+    const rawCmd = typeof (hopToolCall && hopToolCall.cmd) === 'string'
+      ? hopToolCall.cmd
+      : String(args.cmd || args.command || '');
+    const trimmed = rawCmd.trim();
+    if (!trimmed) return false;
+    if (/[><`]|(\$\()/.test(trimmed)) return true;
+    const segments = trimmed.split(/&&|\|\||[;|]/).map((s) => s.trim()).filter(Boolean);
+    for (const seg of segments) {
+      const parts = seg.split(/\s+/);
+      const bin = (parts[0] || '').toLowerCase();
+      if (['cat', 'ls', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd'].includes(bin)) {
+        continue;
+      }
+      if (bin === 'git') {
+        const gsub = parts.slice(1).find((a) => !a.startsWith('-')) || '';
+        if (['status', 'log', 'diff', 'show', 'rev-parse', 'ls-files', 'describe'].includes(gsub)) {
+          continue;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+  return false;
+}
+
 export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   /* Formal R4.HoloGeometricRuntime */
   msg = msg && typeof msg === 'object' ? msg : {};
@@ -2648,13 +2715,16 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   const hasLiveHud =
     payload.live_hud !== undefined ||
     payload.liveHud !== undefined ||
-    runtimeHooks.defaultLiveHud !== undefined;
+    runtimeHooks.defaultLiveHud !== undefined ||
+    isStudioSurface;
   const liveHud =
     payload.live_hud !== undefined
       ? Boolean(payload.live_hud)
       : payload.liveHud !== undefined
         ? Boolean(payload.liveHud)
-        : Boolean(runtimeHooks.defaultLiveHud);
+        : runtimeHooks.defaultLiveHud !== undefined
+          ? Boolean(runtimeHooks.defaultLiveHud)
+          : isStudioSurface;
   const rawSliceTokens = payload.slice_tokens ?? payload.sliceTokens;
   const sliceTokens =
     Number.isFinite(Number(rawSliceTokens)) && Number(rawSliceTokens) > 0
@@ -3258,7 +3328,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         hopAccumText += delta;
       }
 
-      if (isStudioSurface || liveHud) {
+      if (liveHud) {
         const curTps = Number(stepRes.tok_per_sec ?? latestTokPerSec ?? 0);
         if (stepFrames.length > 0) {
           for (let fi = 0; fi < stepFrames.length; fi += 1) {
@@ -3339,8 +3409,14 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         hopToolCall.arguments && typeof hopToolCall.arguments === 'object'
           ? hopToolCall.arguments
           : {};
-      if (composerMode === 'plan' && hopToolCall.is_mutating === true) {
+      if (composerMode === 'plan' && isStudioToolCallMutating(toolName, toolArgs, hopToolCall)) {
         const tid = activeTurnNum;
+        if (typeof fnCancel === 'function' && tid != null) {
+          try {
+            const arg = typeof BigInt === 'function' ? BigInt(Math.trunc(tid)) : Math.trunc(tid);
+            fnCancel(arg);
+          } catch {}
+        }
         setActiveTurnId(null, ownerKey);
         clearCancelled(ownerKey, tid);
         return {
@@ -3504,11 +3580,11 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
                       ? 'create_pr'
                       : String(toolArgs.subcommand || toolArgs.action || toolArgs.op || 'status').toLowerCase();
             const gitReq = {
+              ...toolArgs,
               op: 'git',
               subcommand: sub,
               repo: toolArgs.repo || repoParam || '',
               branch: toolArgs.branch || branchParam || '',
-              ...toolArgs,
             };
             if ((sub === 'push' || sub === 'commit_push') && !Array.isArray(gitReq.files)) {
               const liveSnap = collectSnapshot();
@@ -3520,15 +3596,46 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
             }
             const gRes = await executeHostBridge(gitReq);
             execRes = gRes || { ok: false, message: 'Empty git bridge response' };
-            if (execRes.ok && Array.isArray(execRes.files) && execRes.files.length > 0) {
+            if (execRes.ok) {
+              const liveSnapNow = collectSnapshot();
+              const liveMapNow = new Map();
+              const beforeMapSnap = new Map();
+              for (const lf of (liveSnapNow && Array.isArray(liveSnapNow.files) ? liveSnapNow.files : [])) {
+                if (lf && typeof lf.path === 'string' && typeof lf.content === 'string') {
+                  liveMapNow.set(lf.path, lf.content);
+                }
+              }
+              for (const bf of (beforeSnap && Array.isArray(beforeSnap.files) ? beforeSnap.files : [])) {
+                if (bf && typeof bf.path === 'string' && typeof bf.content === 'string') {
+                  beforeMapSnap.set(bf.path, bf.content);
+                }
+              }
               const applied = [];
-              for (const gf of execRes.files) {
-                if (gf && typeof gf.path === 'string' && typeof gf.content === 'string') {
-                  await dispatchBridge(`1\tstudio\tworkspace_write\t${gf.path}\n${gf.content}`);
-                  applied.push(gf.path);
+              if (Array.isArray(execRes.files)) {
+                for (const gf of execRes.files) {
+                  if (gf && typeof gf.path === 'string' && typeof gf.content === 'string') {
+                    if (liveMapNow.get(gf.path) !== gf.content) {
+                      await dispatchBridge(`1\tstudio\tworkspace_write\t${gf.path}\n${gf.content}`);
+                    }
+                    if (beforeMapSnap.get(gf.path) !== gf.content) {
+                      applied.push(gf.path);
+                    }
+                  }
+                }
+              }
+              const removed = [];
+              if (Array.isArray(execRes.deleted_paths)) {
+                for (const dp of execRes.deleted_paths) {
+                  if (typeof dp === 'string' && dp) {
+                    if (liveMapNow.has(dp)) {
+                      await dispatchBridge(`1\tstudio\tworkspace_delete\t${dp}`);
+                    }
+                    removed.push(dp);
+                  }
                 }
               }
               explicitChanged = applied;
+              explicitDeleted = removed;
             } else {
               explicitChanged = [];
             }
@@ -6193,11 +6300,13 @@ export class SpiralCoreHostBridge {
         message: 'All external bridge operations are denied by active MCP security policy',
       };
     }
+    const rawArgsPre = String(req.args || (req.arguments && req.arguments.args) || '').trim();
+    const argSubPre = rawArgsPre ? rawArgsPre.split(/\s+/)[0].toLowerCase() : '';
     const gitSubPre =
       rawOp === 'git_smart_http' || rawOp === 'git'
-        ? String(req.subcommand || req.action || (req.arguments && (req.arguments.action || req.arguments.subcommand)) || '').toLowerCase()
+        ? String(req.subcommand || req.action || (req.arguments && (req.arguments.action || req.arguments.subcommand)) || argSubPre || '').toLowerCase()
         : '';
-    const isLocalGitRead = (rawOp === 'git_smart_http' || rawOp === 'git') && (gitSubPre === 'status' || gitSubPre === 'diff');
+    const isLocalGitRead = (rawOp === 'git_smart_http' || rawOp === 'git') && (gitSubPre === 'status' || gitSubPre === 'diff' || gitSubPre === 'log');
     if (!this.webAccessEnabled && rawOp !== 'pkg_fetch' && rawOp !== 'pkg' && !isLocalGitRead) {
       return {
         ok: false,
@@ -7242,12 +7351,33 @@ export class SpiralCoreHostBridge {
       }
     }
 
-    if (subcommand === 'status' || subcommand === 'diff') {
+    if (subcommand === 'status' || subcommand === 'diff' || subcommand === 'log') {
       const diff = this.#computeGitDiffState();
       const storedState = diff.state || {};
       const storedIndex = diff.index || {};
       const repoLabel = String(rawRepo || storedIndex.repo || storedState.repo || storedState.remote_url || '').trim();
       const branchLabel = String(req.branch || argsObj.branch || storedIndex.branch || storedState.branch || 'main').trim();
+      if (subcommand === 'log') {
+        const commits = Array.isArray(storedState.commits) ? storedState.commits.slice().reverse() : [];
+        const logText = commits.length > 0
+          ? commits.map((c) => `${String(c.oid || '').slice(0, 12)} ${c.message || ''}`.trim()).join('\n')
+          : `${String(storedIndex.head_sha || storedState.head_oid || 'HEAD').slice(0, 12)} (cloned head)`;
+        const logData = {
+          repo: repoLabel,
+          branch: branchLabel,
+          head_sha: String(storedIndex.head_sha || storedState.head_oid || ''),
+          commits,
+        };
+        return {
+          ok: true,
+          status: 200,
+          op: 'git',
+          subcommand: 'log',
+          ...logData,
+          data: logData,
+          body_text: logText,
+        };
+      }
       if (subcommand === 'status') {
         const lines = [`On branch ${branchLabel}`];
         if (diff.clean) {
@@ -7521,6 +7651,8 @@ export class SpiralCoreHostBridge {
 
         const { state: prevPullState, index: prevPullIndex } = this.#readGitIndexAndState();
         const remoteBlobPaths = new Set(blobs.map((b) => this.#normalizeWsPath(b.path)).filter(Boolean));
+        const deletedPaths = [];
+        const changedPaths = [];
         if (subcommand === 'pull' && prevPullIndex && prevPullIndex.entries) {
           for (const [oldPath, oldEntry] of Object.entries(prevPullIndex.entries)) {
             if (!oldPath || remoteBlobPaths.has(oldPath)) continue;
@@ -7532,7 +7664,9 @@ export class SpiralCoreHostBridge {
                   ? prevPullState.head_tree[oldPath]
                   : null);
               if (curText !== null && trackedText !== null && curText === trackedText) {
-                this.#wsDelete(oldPath);
+                if (this.#wsDelete(oldPath)) {
+                  deletedPaths.push(oldPath);
+                }
               }
             }
           }
@@ -7541,6 +7675,10 @@ export class SpiralCoreHostBridge {
         for (const f of fetchedFiles) {
           const normPath = this.#normalizeWsPath(f.path);
           if (!normPath) continue;
+          const prevText = this.#wsRead(normPath);
+          if (prevText !== f.content) {
+            changedPaths.push(normPath);
+          }
           this.#wsWrite(normPath, f.content);
           trackedEntries[normPath] = {
             sha: f.sha || '',
@@ -7581,6 +7719,9 @@ export class SpiralCoreHostBridge {
           branches,
           head_sha: treeJson.sha || '',
           files: allFiles,
+          changed_paths: changedPaths,
+          deleted_paths: deletedPaths,
+          deleted_files: deletedPaths.length,
           hydrated_count: fetchedFiles.length,
           file_count: allFiles.length,
           lazy_paths: lazyPaths,
@@ -7593,6 +7734,9 @@ export class SpiralCoreHostBridge {
             branches,
             head_sha: treeJson.sha || '',
             files: fetchedFiles,
+            changed_paths: changedPaths,
+            deleted_paths: deletedPaths,
+            deleted_files: deletedPaths.length,
             lazy_paths: lazyPaths,
             total_blobs: blobs.length,
             file_count: fetchedFiles.length,
@@ -7737,7 +7881,33 @@ export class SpiralCoreHostBridge {
       const diffState = this.#computeGitDiffState(workingMap);
 
       let filesToPush = [];
-      if (explicitFiles) {
+      if (explicitFiles && req.full_workspace && prevIndex && prevIndex.entries) {
+        const snapshotMap = new Map();
+        const modeMap = new Map();
+        const explicitDeletePaths = new Set();
+        for (const f of explicitFiles) {
+          if (!f || typeof f.path !== 'string') continue;
+          const clean = this.#normalizeWsPath(f.path);
+          if (!clean || clean === '.git' || clean.startsWith('.git/')) continue;
+          if (f.delete === true) {
+            explicitDeletePaths.add(clean);
+          } else {
+            snapshotMap.set(clean, String(f.content ?? ''));
+            if (f.mode) modeMap.set(clean, String(f.mode));
+          }
+        }
+        const snapDiff = this.#computeGitDiffState(snapshotMap);
+        for (const p of snapDiff.added) {
+          filesToPush.push({ path: p, mode: modeMap.get(p) || '100644', content: snapshotMap.get(p) ?? '' });
+        }
+        for (const p of snapDiff.modified) {
+          filesToPush.push({ path: p, mode: modeMap.get(p) || '100644', content: snapshotMap.get(p) ?? '' });
+        }
+        const allDelPaths = new Set([...snapDiff.deleted, ...explicitDeletePaths]);
+        for (const p of allDelPaths) {
+          filesToPush.push({ path: p, delete: true });
+        }
+      } else if (explicitFiles) {
         const suppliedPaths = new Set();
         const explicitDeletePaths = new Set();
         for (const f of explicitFiles) {
@@ -7760,9 +7930,7 @@ export class SpiralCoreHostBridge {
         for (const [trackedPath, trackedMeta] of Object.entries(prevEntries)) {
           if (!trackedMeta || trackedMeta.hydrated === false) continue;
           if (explicitDeletePaths.has(trackedPath)) continue;
-          if (req.full_workspace && !suppliedPaths.has(trackedPath)) {
-            filesToPush.push({ path: trackedPath, delete: true });
-          } else if (!suppliedPaths.has(trackedPath) && !workingMap.has(trackedPath)) {
+          if (!suppliedPaths.has(trackedPath) && !workingMap.has(trackedPath)) {
             filesToPush.push({ path: trackedPath, delete: true });
           }
         }
@@ -10527,13 +10695,15 @@ function __uorStartDedicatedEngineWorker() {
   const pendingPreviewInspectRpc = new Map();
   const workerWorkspaceFs = {
     read: (normPath) => {
-      if (normPath === '.git' || normPath.startsWith('.git/')) {
-        return gitMetaFiles.has(normPath) ? gitMetaFiles.get(normPath) : null;
+      const isGitMeta = normPath === '.git' || normPath.startsWith('.git/');
+      if (isGitMeta && gitMetaFiles.has(normPath)) {
+        return gitMetaFiles.get(normPath);
       }
       try {
         if (typeof studio_dispatch === 'function') {
           const parsed = JSON.parse(studio_dispatch(`1\tstudio\tworkspace_read\t${normPath}`));
           if (parsed && parsed.status === 'ok' && typeof parsed.content === 'string') {
+            if (isGitMeta) gitMetaFiles.set(normPath, parsed.content);
             return parsed.content;
           }
         }
@@ -10551,16 +10721,15 @@ function __uorStartDedicatedEngineWorker() {
       } catch {}
     },
     delete: (normPath) => {
-      if (normPath === '.git' || normPath.startsWith('.git/')) {
-        return gitMetaFiles.delete(normPath);
-      }
+      const isGitMeta = normPath === '.git' || normPath.startsWith('.git/');
+      const hadGit = isGitMeta ? gitMetaFiles.delete(normPath) : false;
       try {
         if (typeof studio_dispatch === 'function') {
           const parsed = JSON.parse(studio_dispatch(`1\tstudio\tworkspace_delete\t${normPath}`));
-          return Boolean(parsed && parsed.status === 'ok');
+          return Boolean(parsed && parsed.status === 'ok') || hadGit;
         }
       } catch {}
-      return false;
+      return hadGit;
     },
     list: () => {
       try {
@@ -10821,22 +10990,22 @@ function __uorStartDedicatedEngineWorker() {
 
   const notifyGitWorkspaceSync = (gitRes) => {
     if (!gitRes || gitRes.op !== 'git' || !gitRes.ok) return;
-    if (Array.isArray(gitRes.files) && gitRes.files.length > 0) {
-      const changed = [];
-      for (const f of gitRes.files) {
-        if (f && typeof f.path === 'string' && typeof f.content === 'string') {
-          changed.push(f.path);
-        }
-      }
-      if (changed.length > 0) {
-        flushMvmCowToOpfs().catch(() => false);
-        postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
-        postEvent('workspace_fs_changed', {
-          source: 'git_sync',
-          changed_paths: changed,
-          deleted_paths: [],
-        });
-      }
+    const changed = Array.isArray(gitRes.changed_paths)
+      ? gitRes.changed_paths.slice()
+      : Array.isArray(gitRes.files)
+        ? gitRes.files
+            .filter((f) => f && typeof f.path === 'string' && typeof f.content === 'string')
+            .map((f) => f.path)
+        : [];
+    const deleted = Array.isArray(gitRes.deleted_paths) ? gitRes.deleted_paths.slice() : [];
+    if (changed.length > 0 || deleted.length > 0) {
+      flushMvmCowToOpfs().catch(() => false);
+      postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
+      postEvent('workspace_fs_changed', {
+        source: 'git_sync',
+        changed_paths: changed,
+        deleted_paths: deleted,
+      });
     }
   };
 
@@ -10974,17 +11143,34 @@ function __uorStartDedicatedEngineWorker() {
     }
   };
 
-  const isQ31Ready = () => {
+  const readNativeQ31Info = () => {
     try {
       const fnQ31 = typeof studio_native_q31_status === 'function'
         ? studio_native_q31_status
         : globalThis.studio_native_q31_status;
-      if (typeof fnQ31 !== 'function') return false;
+      if (typeof fnQ31 !== 'function') return { ready: false, meta: null };
       const st = JSON.parse(fnQ31());
-      return Boolean(st && (st.ready || st.status === 'ok'));
+      const ready = Boolean(st && (st.ready || st.status === 'ok'));
+      return { ready, meta: st || null };
     } catch {
-      return false;
+      return { ready: false, meta: null };
     }
+  };
+
+  const isQ31Ready = () => readNativeQ31Info().ready;
+
+  const emitNativeQ31ReadyFallback = (fallbackReason) => {
+    const info = readNativeQ31Info();
+    if (!info.ready) return null;
+    const holoMeta = info.meta || { model_id: 'uor-r4.native-q31-d85', ready: true };
+    postEvent('holo_ready', {
+      holo: holoMeta,
+      recommendedModel: 'uor-r4.native-q31-d85',
+      promoted: false,
+      fallbackReason,
+      kappaStore: globalThis.__uorHoloKappaStatus || null,
+    });
+    return holoMeta;
   };
 
   const shouldUseOfflineQ31Fallback = (reqPayload, inlineLowLatency = false) => {
@@ -10992,17 +11178,24 @@ function __uorStartDedicatedEngineWorker() {
     if (p.offlineFallback || p.fallbackOfflineQ31 || p.consentDeclined) return true;
     const rawPref = String(p.preferredModel || p.selected_model || p.model || '').trim();
     if (rawPref) return false;
-    if (offOriginHydrationDeclined) return true;
-    if (inlineLowLatency && !p.allowOffOriginHydration && !isQwenMounted() && (bootNativeQ31Fallback || isQ31Ready())) {
+    const storedConsent = safeStorageGet('uor_allow_off_origin_hydration');
+    if (offOriginHydrationDeclined || storedConsent === 'declined') return true;
+    if (p.allowOffOriginHydration === true || storedConsent === '1' || storedConsent === 'true') {
+      return false;
+    }
+    if ((bootNativeQ31Fallback || inlineLowLatency) && !isQwenMounted() && isQ31Ready()) {
       return true;
     }
     return false;
   };
 
   const stripCodeFences = (rawText) => {
-    const s = String(rawText || '');
-    const m = /^```[a-zA-Z0-9_-]*\r?\n([\s\S]*?)\r?\n?```$/.exec(s.trim());
-    return m ? m[1] : s;
+    const raw = String(rawText || '');
+    const trimmed = raw.trim();
+    if (!trimmed.startsWith('```')) return raw;
+    const firstNl = trimmed.indexOf('\n');
+    const body = firstNl >= 0 ? trimmed.slice(firstNl + 1) : '';
+    return body.replace(/\r?\n?```$/, '');
   };
 
   const createWorkerTurnHooks = () => ({
@@ -11290,14 +11483,10 @@ function __uorStartDedicatedEngineWorker() {
           offOriginHydrationDeclined = true;
           bootNativeQ31Fallback = true;
           safeStorageSet('uor_allow_off_origin_hydration', 'declined');
-          const q31Holo = { model_id: 'uor-r4.native-q31-d85', ready: isQ31Ready() };
-          postEvent('holo_ready', {
-            holo: q31Holo,
-            recommendedModel: 'uor-r4.native-q31-d85',
-            promoted: false,
-            fallbackReason: 'consent_declined',
-            kappaStore: globalThis.__uorHoloKappaStatus || null,
-          });
+          const q31Holo = emitNativeQ31ReadyFallback('consent_declined') || {
+            model_id: 'uor-r4.native-q31-d85',
+            ready: false,
+          };
           self.postMessage({
             id,
             ok: true,
@@ -11322,9 +11511,10 @@ function __uorStartDedicatedEngineWorker() {
             postEvent('boot_progress', { stage: 'holo_v13', ...prog });
             postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
           }, force, { allowOffOriginHydration, rememberConsent });
-          if (allowOffOriginHydration) {
-            offOriginHydrationDeclined = false;
-            if (rememberConsent) safeStorageSet('uor_allow_off_origin_hydration', '1');
+          bootNativeQ31Fallback = false;
+          offOriginHydrationDeclined = false;
+          if (allowOffOriginHydration && rememberConsent) {
+            safeStorageSet('uor_allow_off_origin_hydration', '1');
           }
           postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
           self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
@@ -11884,67 +12074,57 @@ function __uorStartDedicatedEngineWorker() {
       }
 
       // Boot on optimal Qwen3 lane (`1.7b-holo` if already warm in OPFS, else fast `0.6b-holo` + background `1.7b-holo` promotion).
-      selectOptimalInitialHoloModel().then((plan) => {
-        const emitProg = (prog) => {
-          postEvent('boot_progress', { stage: 'holo_v13', ...prog });
-          postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-        };
-        return hydrate_holo_model(plan.initialModel, emitProg, false).then((holo) => {
-          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-          postEvent('holo_ready', {
-            holo,
-            recommendedModel: plan.initialModel,
-            promoted: false,
-            kappaStore: globalThis.__uorHoloKappaStatus || null,
-          });
-          if (plan.promoteTarget) {
-            hydrate_holo_model(plan.promoteTarget, emitProg, false).then((holo17) => {
-              postEvent('holo_ready', {
-                holo: holo17,
-                recommendedModel: plan.promoteTarget,
-                promoted: true,
-                kappaStore: globalThis.__uorHoloKappaStatus || null,
-              });
-            }).catch(() => {});
-          }
-        });
-      }).catch((err) => {
+      const storedBootConsent = safeStorageGet('uor_allow_off_origin_hydration');
+      if (storedBootConsent === 'declined') {
+        offOriginHydrationDeclined = true;
         bootNativeQ31Fallback = true;
-        const errCode = (err && (err.error_code || err.code)) || '';
-        const isConsentErr = errCode === 'ConsentRequiredForWeightDownload' ||
-          String((err && err.message) || err || '').includes('ConsentRequiredForWeightDownload');
-        if (isConsentErr) {
-          const modelId = (err && err.model_id) || 'uor-r4.qwen3-0.6b-holo';
-          const cat = (HOLO_MODEL_CATALOG && HOLO_MODEL_CATALOG[modelId]) || null;
-          postEvent('hydration_consent_required', {
-            model_id: modelId,
-            approx_bytes: Number(err && err.approx_bytes) || (cat && cat.approx_bytes) || 429916160,
-            mirrors: (err && Array.isArray(err.mirrors)) ? err.mirrors : ((cat && cat.mirrors) || []),
-            fallback_model: 'uor-r4.native-q31-d85',
-            message: (err && err.message) || String(err),
+        emitNativeQ31ReadyFallback('consent_declined');
+      } else {
+        selectOptimalInitialHoloModel().then((plan) => {
+          const emitProg = (prog) => {
+            postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+            postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+          };
+          return hydrate_holo_model(plan.initialModel, emitProg, false).then((holo) => {
+            bootNativeQ31Fallback = false;
+            offOriginHydrationDeclined = false;
+            postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+            postEvent('holo_ready', {
+              holo,
+              recommendedModel: plan.initialModel,
+              promoted: false,
+              kappaStore: globalThis.__uorHoloKappaStatus || null,
+            });
+            if (plan.promoteTarget) {
+              hydrate_holo_model(plan.promoteTarget, emitProg, false).then((holo17) => {
+                postEvent('holo_ready', {
+                  holo: holo17,
+                  recommendedModel: plan.promoteTarget,
+                  promoted: true,
+                  kappaStore: globalThis.__uorHoloKappaStatus || null,
+                });
+              }).catch(() => {});
+            }
           });
-        }
-        let q31Meta = null;
-        let q31Ready = false;
-        try {
-          const fnQ31 = typeof studio_native_q31_status === 'function'
-            ? studio_native_q31_status
-            : globalThis.studio_native_q31_status;
-          if (typeof fnQ31 === 'function') {
-            q31Meta = JSON.parse(fnQ31());
-            q31Ready = Boolean(q31Meta && (q31Meta.ready || q31Meta.status === 'ok'));
+        }).catch((err) => {
+          bootNativeQ31Fallback = true;
+          const errCode = (err && (err.error_code || err.code)) || '';
+          const isConsentErr = errCode === 'ConsentRequiredForWeightDownload' ||
+            String((err && err.message) || err || '').includes('ConsentRequiredForWeightDownload');
+          if (isConsentErr) {
+            const modelId = (err && err.model_id) || 'uor-r4.qwen3-0.6b-holo';
+            const cat = (HOLO_MODEL_CATALOG && HOLO_MODEL_CATALOG[modelId]) || null;
+            postEvent('hydration_consent_required', {
+              model_id: modelId,
+              approx_bytes: Number(err && err.approx_bytes) || (cat && cat.approx_bytes) || 429916160,
+              mirrors: (err && Array.isArray(err.mirrors)) ? err.mirrors : ((cat && cat.mirrors) || []),
+              fallback_model: 'uor-r4.native-q31-d85',
+              message: (err && err.message) || String(err),
+            });
           }
-        } catch {}
-        if (q31Ready) {
-          postEvent('holo_ready', {
-            holo: q31Meta || { model_id: 'uor-r4.native-q31-d85', ready: true },
-            recommendedModel: 'uor-r4.native-q31-d85',
-            promoted: false,
-            fallbackReason: isConsentErr ? 'consent_required' : 'hydration_unavailable',
-            kappaStore: globalThis.__uorHoloKappaStatus || null,
-          });
-        }
-      });
+          emitNativeQ31ReadyFallback(isConsentErr ? 'consent_required' : 'hydration_unavailable');
+        });
+      }
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {
         hostBridge.checkProvenanceUpdate('').catch(() => null);
