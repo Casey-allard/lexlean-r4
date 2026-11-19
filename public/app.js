@@ -871,6 +871,7 @@ const engineWorkerClient = {
   workerPoolInfo: null,
   stitchHealth: null,
   studioUpdate: null,
+  pendingConsentDetails: null,
 
   spawn() {
     if (typeof Worker !== 'function') return false;
@@ -996,7 +997,7 @@ const engineWorkerClient = {
   },
 
   handleMessage(msg) {
-    if (msg && typeof msg.id === 'number' && this.pending.has(msg.id)) {
+    if (msg && !msg.event && typeof msg.id === 'number' && this.pending.has(msg.id)) {
       const waiter = this.pending.get(msg.id);
       this.pending.delete(msg.id);
       if (msg.ok) waiter.resolve(msg.result);
@@ -1191,13 +1192,22 @@ const engineWorkerClient = {
       return;
     }
     if (evType === 'hydration_consent_required') {
+      const curConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
+      const consentGranted = typeof isConsentGrantedVal === 'function'
+        ? isConsentGrantedVal(curConsent)
+        : (curConsent === '1' || curConsent === 'true' || curConsent === 'granted');
+      if (curConsent !== 'declined' && !consentGranted) {
+        this.pendingConsentDetails = msg;
+      }
       if (typeof this.activeChatStreamHook === 'function') {
         this.activeChatStreamHook({
           stage: 'hydration_consent_required',
           ...msg,
         });
       } else if (typeof renderHydrationConsentCard === 'function') {
-        const container = document.getElementById('chat-messages');
+        const container = document.getElementById('chat-messages')
+          || (typeof chatTranscript !== 'undefined' ? chatTranscript : null)
+          || document.getElementById('chat-transcript');
         renderHydrationConsentCard(container, msg, '');
       }
       if (typeof showStudioToast === 'function') {
@@ -2488,6 +2498,24 @@ function renderActiveThreadMessages() {
   const thread = getActiveThread();
   for (const msg of thread.messages) {
     appendChatTurnDom(msg.role, msg.title, msg.body, msg.patchPath, msg.patchCode, false, msg.chatMeta || null);
+  }
+  const chatMessagesDiv = document.createElement('div');
+  chatMessagesDiv.id = 'chat-messages';
+  chatMessagesDiv.className = 'chat-messages';
+  chatTranscript.appendChild(chatMessagesDiv);
+  const curConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
+  const consentGranted = typeof isConsentGrantedVal === 'function'
+    ? isConsentGrantedVal(curConsent)
+    : (curConsent === '1' || curConsent === 'true' || curConsent === 'granted');
+  if (
+    curConsent !== 'declined'
+    && !consentGranted
+    && typeof engineWorkerClient !== 'undefined'
+    && engineWorkerClient
+    && engineWorkerClient.pendingConsentDetails
+    && typeof renderHydrationConsentCard === 'function'
+  ) {
+    renderHydrationConsentCard(chatMessagesDiv, engineWorkerClient.pendingConsentDetails, '');
   }
 }
 
@@ -4376,7 +4404,25 @@ if (composerModelSelect) {
     if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
       holoObservatoryState.manualModelPinned = true;
     }
-    syncComposerModel(e.target.value);
+    const nextModel = e.target.value;
+    syncComposerModel(nextModel);
+    if (nextModel === 'uor-r4.qwen3-0.6b-holo' || nextModel === 'uor-r4.qwen3-1.7b-holo') {
+      const storedConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
+      const consentGranted = typeof isConsentGrantedVal === 'function'
+        ? isConsentGrantedVal(storedConsent)
+        : (storedConsent === '1' || storedConsent === 'true' || storedConsent === 'granted');
+      const hs = typeof engineWorkerClient !== 'undefined' && engineWorkerClient ? engineWorkerClient.holoStatus : null;
+      const isMounted = Boolean(hs && (nextModel === 'uor-r4.qwen3-1.7b-holo' ? hs.qwen3_17b_mounted : hs.qwen3_06b_mounted));
+      if (!consentGranted && !isMounted && typeof renderHydrationConsentCard === 'function' && typeof document !== 'undefined') {
+        const container = document.getElementById('chat-messages')
+          || (typeof chatTranscript !== 'undefined' ? chatTranscript : null)
+          || document.getElementById('chat-transcript');
+        renderHydrationConsentCard(container, {
+          model_id: nextModel,
+          approx_bytes: nextModel === 'uor-r4.qwen3-1.7b-holo' ? 1170210816 : 429916160,
+        }, '');
+      }
+    }
   });
 }
 
@@ -4388,7 +4434,25 @@ if (globalModelSelect) {
     if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
       holoObservatoryState.manualModelPinned = true;
     }
-    syncComposerModel(e.target.value);
+    const nextModel = e.target.value;
+    syncComposerModel(nextModel);
+    if (nextModel === 'uor-r4.qwen3-0.6b-holo' || nextModel === 'uor-r4.qwen3-1.7b-holo') {
+      const storedConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
+      const consentGranted = typeof isConsentGrantedVal === 'function'
+        ? isConsentGrantedVal(storedConsent)
+        : (storedConsent === '1' || storedConsent === 'true' || storedConsent === 'granted');
+      const hs = typeof engineWorkerClient !== 'undefined' && engineWorkerClient ? engineWorkerClient.holoStatus : null;
+      const isMounted = Boolean(hs && (nextModel === 'uor-r4.qwen3-1.7b-holo' ? hs.qwen3_17b_mounted : hs.qwen3_06b_mounted));
+      if (!consentGranted && !isMounted && typeof renderHydrationConsentCard === 'function' && typeof document !== 'undefined') {
+        const container = document.getElementById('chat-messages')
+          || (typeof chatTranscript !== 'undefined' ? chatTranscript : null)
+          || document.getElementById('chat-transcript');
+        renderHydrationConsentCard(container, {
+          model_id: nextModel,
+          approx_bytes: nextModel === 'uor-r4.qwen3-1.7b-holo' ? 1170210816 : 429916160,
+        }, '');
+      }
+    }
   });
 }
 
@@ -6302,6 +6366,16 @@ const lockObservatoryToFrame = (frame, framesPrefix = null, lockedIdx = null) =>
   if (typeof renderHoloObservatoryDeck === 'function') {
     renderHoloObservatoryDeck();
   }
+  if (
+    lockedIdx !== null
+    && typeof document !== 'undefined'
+    && document.body
+    && document.body.dataset
+    && document.body.dataset.observatoryHost === 'modal'
+    && typeof openInspectorsModal === 'function'
+  ) {
+    openInspectorsModal('traces');
+  }
 };
 
 const renderHoloMiniHud = (hudEl, frame, opts = {}) => {
@@ -6595,6 +6669,17 @@ const createLiveTokenHudController = (chatMessagesEl, assistantBubbleEl = null) 
 
 const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingPrompt = '') => {
   if (!chatMessagesEl) return null;
+  const transcriptHost = (typeof chatTranscript !== 'undefined' && chatTranscript)
+    || (typeof document !== 'undefined' && typeof document.getElementById === 'function'
+      ? document.getElementById('chat-transcript')
+      : null);
+  for (const host of [chatMessagesEl, transcriptHost]) {
+    if (host && typeof host.querySelectorAll === 'function') {
+      for (const existing of Array.from(host.querySelectorAll('.holo-consent-card') || [])) {
+        _detachChildSafely(existing.parentNode || host, existing);
+      }
+    }
+  }
   const card = document.createElement('div');
   card.className = 'holo-consent-card';
 
@@ -6639,6 +6724,9 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
   approveBtn.addEventListener('click', async () => {
     approveBtn.disabled = true;
     offlineBtn.disabled = true;
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient) {
+      engineWorkerClient.pendingConsentDetails = null;
+    }
     safeStorageSet('uor_allow_off_origin_hydration', '1');
     const chk = document.getElementById('settings-allow-off-origin-weights');
     if (chk) chk.checked = true;
@@ -6688,6 +6776,9 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
   offlineBtn.addEventListener('click', async () => {
     approveBtn.disabled = true;
     offlineBtn.disabled = true;
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient) {
+      engineWorkerClient.pendingConsentDetails = null;
+    }
     safeStorageSet('uor_allow_off_origin_hydration', 'declined');
     const chk = document.getElementById('settings-allow-off-origin-weights');
     if (chk) chk.checked = false;
@@ -6721,6 +6812,14 @@ const renderHydrationConsentCard = async (chatMessagesEl, details = {}, pendingP
   actions.appendChild(statusNote);
   card.appendChild(actions);
   chatMessagesEl.appendChild(card);
+  if (transcriptHost) {
+    transcriptHost.scrollTop = transcriptHost.scrollHeight;
+  } else if (typeof chatMessagesEl.scrollTop === 'number' && typeof chatMessagesEl.scrollHeight === 'number') {
+    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+  }
+  if (typeof card.scrollIntoView === 'function') {
+    card.scrollIntoView({ block: 'nearest' });
+  }
   return card;
 };
 
@@ -7776,6 +7875,76 @@ const renderPreviewWorkspace = (files, rootEl, postDiag = null, selector = '') =
     }
   }
 
+  if (!htmlPath && collectedScripts.length === 0 && collectedCss.length === 0) {
+    if (typeof rootEl.replaceChildren === 'function') rootEl.replaceChildren();
+    const summaryEl = document.createElement('div');
+    summaryEl.className = 'preview-workspace-summary';
+    if (summaryEl.style) {
+      summaryEl.style.fontFamily = 'var(--font-sans, system-ui, sans-serif)';
+      summaryEl.style.color = '#0f172a';
+      summaryEl.style.background = '#f8fafc';
+      summaryEl.style.border = '1px solid #cbd5e1';
+      summaryEl.style.borderRadius = '8px';
+      summaryEl.style.padding = '16px';
+      summaryEl.style.lineHeight = '1.5';
+    }
+    const titleEl = document.createElement('strong');
+    titleEl.textContent = 'UOR-R4 Isolated Workspace Preview';
+    summaryEl.appendChild(titleEl);
+
+    const subEl = document.createElement('div');
+    subEl.textContent = `${fileMap.size} file(s) mounted in /workspace · sandbox="allow-scripts" · pure-integer runtime`;
+    if (subEl.style) {
+      subEl.style.fontSize = '0.85rem';
+      subEl.style.color = '#475569';
+      subEl.style.marginTop = '4px';
+    }
+    summaryEl.appendChild(subEl);
+
+    if (fileMap.size > 0) {
+      const fileListEl = document.createElement('ul');
+      if (fileListEl.style) {
+        fileListEl.style.margin = '12px 0';
+        fileListEl.style.paddingLeft = '18px';
+        fileListEl.style.fontFamily = 'ui-monospace, Menlo, monospace';
+        fileListEl.style.fontSize = '0.82rem';
+      }
+      const sortedEntries = Array.from(fileMap.entries()).sort((a, b) => a[0].localeCompare(b[0])).slice(0, 12);
+      for (const [fPath, fContent] of sortedEntries) {
+        const li = document.createElement('li');
+        const lineCnt = fContent ? fContent.split('\n').length : 0;
+        li.textContent = `${fPath} (${lineCnt}L)`;
+        fileListEl.appendChild(li);
+      }
+      summaryEl.appendChild(fileListEl);
+    }
+
+    if (fileMap.has('README.md')) {
+      const readmePre = document.createElement('pre');
+      readmePre.className = 'preview-readme-excerpt';
+      if (readmePre.style) {
+        readmePre.style.background = '#e2e8f0';
+        readmePre.style.color = '#0f172a';
+        readmePre.style.padding = '10px';
+        readmePre.style.borderRadius = '6px';
+        readmePre.style.whiteSpace = 'pre-wrap';
+        readmePre.style.fontSize = '0.8rem';
+      }
+      readmePre.textContent = String(fileMap.get('README.md') || '').slice(0, 400);
+      summaryEl.appendChild(readmePre);
+    }
+
+    const hintEl = document.createElement('p');
+    hintEl.textContent = 'Add index.html or app.js in /workspace to render a live web application preview.';
+    if (hintEl.style) {
+      hintEl.style.fontSize = '0.82rem';
+      hintEl.style.color = '#334155';
+      hintEl.style.margin = '10px 0 0 0';
+    }
+    summaryEl.appendChild(hintEl);
+    rootEl.appendChild(summaryEl);
+  }
+
   if (collectedCss.length > 0) {
     const safeCss = sanitizeCssText(collectedCss.join('\n'));
     let appliedAdopted = false;
@@ -7968,6 +8137,21 @@ const initPreviewSurfaceHost = () => {
   if (rootEl) {
     if (typeof rootEl.removeAttribute === 'function') rootEl.removeAttribute('hidden');
     rootEl.hidden = false;
+    if ((!rootEl.childNodes || rootEl.childNodes.length === 0) && (!rootEl.children || rootEl.children.length === 0) && !rootEl.textContent) {
+      const standbyCard = document.createElement('div');
+      standbyCard.className = 'preview-standby-card';
+      if (standbyCard.style) {
+        standbyCard.style.fontFamily = 'var(--font-sans, system-ui, sans-serif)';
+        standbyCard.style.color = '#334155';
+        standbyCard.style.background = '#f8fafc';
+        standbyCard.style.border = '1px solid #cbd5e1';
+        standbyCard.style.borderRadius = '8px';
+        standbyCard.style.padding = '14px';
+        standbyCard.style.fontSize = '0.85rem';
+      }
+      standbyCard.textContent = 'UOR-R4 Isolated Preview Surface Ready (uor-preview/1) — awaiting /workspace files.';
+      rootEl.appendChild(standbyCard);
+    }
   }
 
   const postToParent = (payload) => {
@@ -16553,16 +16737,16 @@ function setLayoutMode(mode) {
   } catch {
     // Ignore sessionStorage restrictions
   }
-  const studioToggleBtn = document.getElementById('toggle-studio-ide-btn');
-  if (studioToggleBtn) {
-    studioToggleBtn.textContent = normalized === 'studio' ? 'Chat View' : 'Studio IDE';
-    studioToggleBtn.setAttribute('aria-pressed', normalized === 'studio' ? 'true' : 'false');
-    studioToggleBtn.classList.toggle('active', normalized === 'studio');
-  }
   const topbarChatBtn = document.getElementById('topbar-mode-chat-btn');
   if (topbarChatBtn) {
     topbarChatBtn.setAttribute('aria-pressed', normalized === 'chat' ? 'true' : 'false');
     topbarChatBtn.classList.toggle('active', normalized === 'chat');
+  }
+  const studioToggleBtn = document.getElementById('toggle-studio-ide-btn');
+  if (studioToggleBtn) {
+    studioToggleBtn.textContent = topbarChatBtn ? 'Studio' : (normalized === 'studio' ? 'Chat View' : 'Studio IDE');
+    studioToggleBtn.setAttribute('aria-pressed', normalized === 'studio' ? 'true' : 'false');
+    studioToggleBtn.classList.toggle('active', normalized === 'studio');
   }
   if (typeof syncObservatoryHost === 'function') {
     syncObservatoryHost();

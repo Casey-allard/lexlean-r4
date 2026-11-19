@@ -17683,7 +17683,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "98838e6a3532a5477170abfa98aa7ed22e56a88a49f649d98a4055431b17568f",
+      "kappa": "91a5ec6da89675ed1dbfe2f05ad2c42dddf9d2fcf1845096248a2b54f17897b0",
       "function": "public/app.js::renderActiveThreadMessages",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18011,7 +18011,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a2e358b26217f724e7c04ea911632b872c8d29142547e1ce372397f21c066167",
+      "kappa": "13a2cbfca14d4cb4b2488963676b9ffc8b208169a68eaabbf35cf71168203321",
       "function": "public/app.js::setLayoutMode",
       "status": "effect",
       "effect": "dom-browser-environment-io",

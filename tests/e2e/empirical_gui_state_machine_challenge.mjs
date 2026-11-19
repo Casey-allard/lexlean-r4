@@ -1222,6 +1222,34 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     assert.equal(streamedEvents.length, 1);
     assert.equal(streamedEvents[0].stage, 'token_step');
 
+    // Streaming events carrying numeric `id: streamRpc.id` must NOT reject/delete pending RPC
+    realWorkerClient.worker = { postMessage() {} };
+    const streamRpc = realWorkerClient.rpcWithId('studio_stream_turn', { prompt: 'hello' });
+    const streamFrame = {
+      step_idx: 0,
+      phase: 'decode',
+      seq_pos: 1,
+      token_id: 1,
+      token_text: 'Hi',
+      has_geometric_shortlist: false,
+      min_hamming: 0,
+      shortlist_count: 0,
+      q_manifold_xyz: [1, 2, 3],
+      layer_max_bits: [10, 11, 12, 13],
+      top_candidates: [{ token_id: 1, token_text: 'Hi', logit_q16: 3200, prob_permille: 800, hamming_d: null, selected: true }],
+      backend: 'native-q31-d85',
+    };
+    realWorkerClient.handleMessage({ event: 'holo_trace_frame', id: streamRpc.id, turn_id: 92, frame: streamFrame });
+    realWorkerClient.handleMessage({ event: 'token_step', id: streamRpc.id, turn_id: 92, delta: 'Hi', frame: streamFrame });
+    assert.equal(realWorkerClient.pending.has(streamRpc.id), true, 'Streaming event with numeric id must not delete/reject pending RPC');
+    realWorkerClient.handleMessage({
+      id: streamRpc.id,
+      ok: true,
+      result: { status: 'ok', reply: 'Hi', tokens_emitted: 1, backend: 'uor-r4.native-q31-d85' },
+    });
+    const streamRpcOut = await streamRpc.promise;
+    assert.equal(streamRpcOut.reply, 'Hi', 'Pending studio_stream_turn RPC must resolve cleanly after streaming events');
+
     // Q31 honesty when !has_geometric_shortlist
     const q31Hud = r460.createLiveTokenHudController(chatMessagesEl);
     q31Hud.pushTokenStep({
@@ -1360,6 +1388,30 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     assert.equal(rootTargetEl.textContent, 'sum=42', 'Preview script must update preview-root via template literal');
     assert.equal(pvDiag.errors.length, 0);
     assert.ok(pvDiag.console.includes('[log] val=42'), 'Template literal inside console.log must evaluate cleanly');
+
+    // Non-web Rust/Markdown /workspace renders visible workspace summary card in preview
+    const collectMockText = (node) => {
+      if (!node) return '';
+      let out = node.textContent ? String(node.textContent) : '';
+      for (const ch of node.children || []) out += `\n${collectMockText(ch)}`;
+      return out;
+    };
+    const rustPreviewRoot = document.getElementById('rust-preview-root');
+    body.appendChild(rustPreviewRoot);
+    const rustPreviewDiag = r460.renderPreviewWorkspace(
+      {
+        'README.md': '# LexLean Rust Crate\nZero float ops.',
+        'src/attention.rs': 'pub fn attn() {}\n',
+      },
+      rustPreviewRoot
+    );
+    assert.equal(rustPreviewDiag.fileCount, 2);
+    const rustSummaryEl = rustPreviewRoot.querySelector('.preview-workspace-summary');
+    assert.ok(rustSummaryEl, 'Rust-only /workspace preview must render .preview-workspace-summary card');
+    const rustSummaryText = collectMockText(rustSummaryEl);
+    assert.ok(rustSummaryText.includes('UOR-R4 Isolated Workspace Preview'));
+    assert.ok(rustSummaryText.includes('README.md'));
+    assert.ok(rustSummaryText.includes('src/attention.rs'));
 
     // 7.4b Real two-window message flow: handlePreviewInspectRequest -> initPreviewSurfaceHost -> parent 'message' listener -> preview_inspect_reply
     const childEnv = createDOMEnvironment();
@@ -1845,7 +1897,82 @@ console.log('\n--- Challenge 7 (R4-60): M3 Layout, Live Mini-HUD Scrubber, Conse
     pinGlobalSelect.dispatchEvent({ type: 'change', target: pinGlobalSelect });
     assert.equal(pinObsState.manualModelPinned, true, 'Global #model-select change must set holoObservatoryState.manualModelPinned = true');
     assert.ok(appJsContent.includes('isChildSurfaceEarly'), 'public/app.js must guard top-level chat/3D/terminal init on ?surface=preview and ?surface=observatory');
-    console.log('  ✓ 7.5 Real runClaudeChat (repo/branch), submitComposerPrompt, #model-select pin, lockedFrameIdx & cancel persistence verified.');
+
+    // 7.5e Boot renderActiveThreadMessages preserves #chat-messages & hydration_consent_required falls back to #chat-transcript
+    const bootTranscript = new MockDOMElement('div', 'chat-transcript');
+    const renderActiveStart = appJsContent.indexOf('function renderActiveThreadMessages() {');
+    const renderActiveEnd = appJsContent.indexOf('\nfunction extractThinkingAndTools(', renderActiveStart);
+    assert.ok(renderActiveStart !== -1 && renderActiveEnd > renderActiveStart);
+    const renderActiveApi = new Function(
+      'document',
+      'chatTranscript',
+      'getActiveThread',
+      'appendChatTurnDom',
+      'safeStorageGet',
+      'isConsentGrantedVal',
+      'engineWorkerClient',
+      'renderHydrationConsentCard',
+      `"use strict";\n${appJsContent.slice(renderActiveStart, renderActiveEnd)}\nreturn renderActiveThreadMessages;`
+    )(
+      document,
+      bootTranscript,
+      () => ({ messages: [] }),
+      () => {},
+      () => null,
+      () => false,
+      null,
+      r460.renderHydrationConsentCard
+    );
+    renderActiveApi();
+    assert.ok(bootTranscript.querySelector('#chat-messages'), 'renderActiveThreadMessages() must recreate and preserve #chat-messages inside #chat-transcript');
+
+    const consentDocFallback = {
+      ...document,
+      getElementById(id) {
+        if (id === 'chat-messages') return null;
+        if (id === 'chat-transcript') return bootTranscript;
+        return document.getElementById(id);
+      },
+    };
+    const workerConsentClient = new Function(
+      'document',
+      'window',
+      'AppState',
+      'holoObservatoryState',
+      'ingestHoloObservatoryFrame',
+      'tsComposer',
+      'DEFAULT_STARTER_WORKSPACE_FILES',
+      'renderHydrationConsentCard',
+      'chatTranscript',
+      'safeStorageGet',
+      'isConsentGrantedVal',
+      'showStudioToast',
+      `${workerCode}\nreturn engineWorkerClient;`
+    )(
+      consentDocFallback,
+      mockWin,
+      chatAppState,
+      obsStateMock,
+      () => {},
+      null,
+      [],
+      r460.renderHydrationConsentCard,
+      bootTranscript,
+      () => null,
+      () => false,
+      () => {}
+    );
+    workerConsentClient.activeChatStreamHook = null;
+    workerConsentClient.handleMessage({
+      event: 'hydration_consent_required',
+      model_id: 'uor-r4.qwen3-0.6b-holo',
+      approx_bytes: 429916160,
+    });
+    const fallbackConsentCard = bootTranscript.querySelector('.holo-consent-card');
+    assert.ok(fallbackConsentCard, 'hydration_consent_required with absent #chat-messages must mount .holo-consent-card inside #chat-transcript');
+    assert.ok(fallbackConsentCard.querySelector('.holo-consent-offline-btn'), 'Boot Consent Card must render Use Offline Native Q31 button');
+
+    console.log('  ✓ 7.5 Real runClaudeChat (repo/branch), submitComposerPrompt, #model-select pin, lockedFrameIdx, cancel & boot consent fallback verified.');
   } finally {
     globalThis.CSSStyleSheet = origCSSStyleSheet;
   }
