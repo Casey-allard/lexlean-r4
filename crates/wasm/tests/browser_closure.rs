@@ -343,19 +343,29 @@ fn test_browser_html_accessibility_and_csp() {
 
     // WCAG 1.3.1 Info and Relationships: landmark
     assert!(index_html.contains("<main>") && index_html.contains("</main>"));
+    assert!(index_html.contains("<prism-frame"));
+    assert!(index_html.contains("id=\"prism-global-topbar\""));
+    assert!(index_html.contains("data-window-class="));
 
-    // Explicit label associations
-    assert!(index_html.contains("<label for=\"left\">"));
-    assert!(index_html.contains("<input id=\"left\""));
-    assert!(index_html.contains("<label for=\"right\">"));
-    assert!(index_html.contains("<input id=\"right\""));
-    assert!(index_html.contains("<label for=\"operation\">"));
-    assert!(index_html.contains("<select id=\"operation\""));
+    // Explicit label associations and <prism-frame> (R4-60) controls
+    assert!(index_html.contains("<label for=\"model-select\""));
+    assert!(index_html.contains("<select id=\"model-select\""));
+    assert!(index_html.contains("<label for=\"claude-chat-input\""));
+    assert!(index_html.contains("<textarea id=\"claude-chat-input\""));
+    assert!(index_html.contains("id=\"composer-stop-btn\""));
+    assert!(index_html.contains(
+        "<iframe id=\"live-preview-iframe\" sandbox=\"allow-scripts\" src=\"./index.html?surface=preview\""
+    ));
+    assert!(
+        !index_html.contains("id=\"left\"")
+            && !index_html.contains("id=\"right\"")
+            && !index_html.contains("id=\"operation\""),
+        "stale v2 calculator IDs (#left/#right/#operation) must be removed"
+    );
 
     // WCAG 4.1.3 Status Messages: ARIA live region
-    assert!(index_html.contains(
-        "<output id=\"result\" role=\"status\" aria-live=\"polite\" aria-atomic=\"true\"></output>"
-    ));
+    assert!(index_html.contains("id=\"studio-toast-banner\""));
+    assert!(index_html.contains("role=\"status\" aria-live=\"polite\""));
 
     // Strict R4-39 Content Security Policy (TLS + loopback SpiralCore relay only)
     assert!(index_html.contains("<meta http-equiv=\"Content-Security-Policy\""));
@@ -388,10 +398,19 @@ fn test_browser_css_wcag_contrast_and_focus() {
     // WCAG 1.4.3 Contrast (text #111827 on white is 17.59:1)
     assert!(app_css.contains("color: #111827;"));
 
-    // System font stack only - no web fonts loaded
+    // System font stack only - no web fonts or external URLs loaded
     assert!(!app_css.contains("@import"));
     assert!(!app_css.contains("url("));
+    assert!(!app_css.contains("http://") && !app_css.contains("https://"));
     assert!(app_css.contains("system-ui"));
+
+    // Material 3 Window Size Classes & zero-overflow invariants (R4-60)
+    assert!(app_css.contains("min-width: 0;"));
+    assert!(app_css.contains("@media (max-width: 599px)"));
+    assert!(app_css.contains("@media (min-width: 600px) and (max-width: 839px)"));
+    assert!(app_css.contains("@media (min-width: 840px)"));
+    assert!(app_css.contains("[data-surface=\"observatory\"]"));
+    assert!(!app_css.contains("grid-template-columns: 16rem"));
 }
 
 #[test]
@@ -403,34 +422,69 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
     let binding_js =
         std::fs::read_to_string(root.join("public/lexlean_r4.js")).expect("read lexlean_r4.js");
 
-    // Studio v2 & Claude-Code-Desktop HTML sections and interactive controls
+    // Standardized <prism-frame> (R4-60) HTML sections and interactive controls
     assert!(index_html.contains("uor-r4.lut-stack/8"));
     assert!(index_html.contains("memory.point.points"));
-    assert!(index_html.contains("id=\"claude-code-desktop\""));
-    assert!(index_html.contains("id=\"workspace-file-list\""));
-    assert!(index_html.contains("id=\"workspace-mount-input\""));
-    assert!(index_html.contains("id=\"workspace-download-btn\""));
-    assert!(index_html.contains("id=\"claude-chat-form\""));
-    assert!(index_html.contains("id=\"chat-apply-patch-btn\""));
-    assert!(index_html.contains("id=\"studio-train-form\""));
-    assert!(index_html.contains("id=\"train-stat-transitions\""));
-    assert!(index_html.contains("id=\"train-stat-ws-tokens\""));
-    assert!(index_html.contains("id=\"snapshot-download-btn\""));
-    assert!(index_html.contains("id=\"snapshot-upload-input\""));
-    assert!(index_html.contains("id=\"studio-prompt-form\""));
-    assert!(index_html.contains("id=\"studio-prompt\""));
-    assert!(index_html.contains("id=\"studio-prose-output\""));
-    assert!(index_html.contains("id=\"predictions-table\""));
-    assert!(index_html.contains("id=\"trajectory-table\""));
-    assert!(index_html.contains("id=\"studio-admit-form\""));
-    assert!(index_html.contains("id=\"corpus-table\""));
-    assert!(index_html.contains("id=\"studio-subsystems-form\""));
-    assert!(index_html.contains("id=\"sub-r4-24\""));
-    assert!(index_html.contains("id=\"sub-r4-25\""));
-    assert!(index_html.contains("id=\"sub-r4-26\""));
-    assert!(index_html.contains("id=\"sub-r4-27\""));
+    for required_id in [
+        "prism-global-topbar",
+        "topbar-mode-chat-btn",
+        "toggle-studio-ide-btn",
+        "model-select",
+        "weight-cache-badge",
+        "toggle-web-access-btn",
+        "open-github-connect-btn",
+        "toggle-inspectors-btn",
+        "open-settings-modal-btn",
+        "threads-sidebar",
+        "cursor-act-explorer",
+        "cursor-act-scm",
+        "cursor-new-folder-btn",
+        "scm-clone-btn",
+        "dockable-canvas-pane",
+        "cursor-editor-tabs",
+        "workbench-tab-code",
+        "workbench-tab-preview",
+        "workbench-tab-diff",
+        "live-preview-iframe",
+        "terminal-split-drawer",
+        "claude-code-desktop",
+        "observatory-dock-split",
+        "studio-toast-banner",
+        "chat-messages",
+        "claude-chat-form",
+        "composer-mode-agent",
+        "composer-mode-plan",
+        "composer-send-btn",
+        "composer-stop-btn",
+        "holo-observatory-deck",
+        "inspectors-modal",
+        "github-connect-modal",
+        "settings-modal",
+        "new-path-modal",
+        "workspace-file-list",
+        "workspace-mount-input",
+        "chat-apply-patch-btn",
+    ] {
+        assert!(
+            index_html.contains(&format!("id=\"{required_id}\"")),
+            "index.html must contain <prism-frame> id=\"{required_id}\""
+        );
+    }
+    for retired_id in [
+        "cursor-act-shards",
+        "sidebar-view-settings",
+        "sidebar-view-btn-projects",
+        "left",
+        "right",
+        "operation",
+    ] {
+        assert!(
+            !index_html.contains(&format!("id=\"{retired_id}\"")),
+            "index.html must not contain retired v2/v8 id=\"{retired_id}\""
+        );
+    }
 
-    // Studio v2 & Claude-Code-Desktop JS bindings and envelope dispatch
+    // Studio & Claude-Code-Desktop JS bindings and envelope dispatch
     assert!(app_js.contains("studio_dispatch"));
     assert!(app_js.contains("runStudioSubsystems"));
     assert!(app_js.contains("runClaudeChat"));
@@ -447,8 +501,6 @@ fn test_browser_studio_v2_geometric_llm_surface_and_wasm_engine() {
         app_js.contains("function renderFormattedMarkdownInto(container, markdownText) {\n  container.replaceChildren();"),
         "renderFormattedMarkdownInto must clear container.replaceChildren() before rendering streaming frames"
     );
-    assert!(index_html.contains("id=\"weight-cache-badge\""));
-    assert!(index_html.contains("id=\"sync-weights-btn\""));
     assert!(binding_js.contains("export function studio_dispatch("));
     assert!(binding_js.contains("export function studio_load_uorlut_bytes("));
     assert!(binding_js.contains("export function studio_weight_pack_status("));

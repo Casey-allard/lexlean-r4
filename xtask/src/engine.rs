@@ -1701,29 +1701,55 @@ pub fn audit_codebase_and_inference(
         for required_id in [
             "engine-frontier-ledger",
             "literature-feed-list",
-            "sidebar-feed-badge",
-            "live-engine-frontier-badge",
             "mcp-audit-export-btn",
             "otel-trace-badge",
             "dockable-canvas-pane",
             "claude-chat-form",
+            "claude-chat-input",
+            "threads-sidebar",
+            "toggle-studio-ide-btn",
+            "toggle-web-access-btn",
+            "open-github-connect-btn",
+            "toggle-inspectors-btn",
+            "holo-observatory-deck",
+            "inspectors-modal",
         ] {
             if !html.contains(required_id) || !js.contains(required_id) {
                 dead_ui_bindings.push(required_id.to_string());
             }
         }
-        for delegated_id in [
-            "canvas-tab-feed",
+        for prism_frame_id in [
+            "prism-global-topbar",
+            "studio-toast-banner",
+            "live-preview-iframe",
+            "composer-stop-btn",
+            "observatory-dock-split",
+            "terminal-split-drawer",
+            "settings-modal",
+            "new-path-modal",
+            "canvas-panel-preview",
+            "canvas-panel-diff",
+            "canvas-panel-terminal",
             "canvas-panel-feed",
-            "topbar-feed-btn",
-            "sidebar-feed-btn",
-            "quick-open-feed-btn",
+            "canvas-tab-feed",
         ] {
-            if !html.contains(delegated_id)
+            if !html.contains(prism_frame_id)
                 || !js.contains("data-canvas-tab")
                 || !js.contains("canvas-panel-")
             {
-                dead_ui_bindings.push(delegated_id.to_string());
+                dead_ui_bindings.push(prism_frame_id.to_string());
+            }
+        }
+        for retired_id in [
+            "id=\"cursor-act-shards\"",
+            "id=\"sidebar-view-settings\"",
+            "id=\"sidebar-view-btn-projects\"",
+            "id=\"left\"",
+            "id=\"right\"",
+            "id=\"operation\"",
+        ] {
+            if html.contains(retired_id) {
+                dead_ui_bindings.push(format!("retired:{retired_id}"));
             }
         }
     }
@@ -5006,10 +5032,13 @@ pub fn run_prism_factory_pipeline(root: &Path) -> Result<PrismFactoryPipelineRep
 
     let index_html = std::fs::read_to_string(root.join("public/index.html")).unwrap_or_default();
     let app_css = std::fs::read_to_string(root.join("public/app.css")).unwrap_or_default();
-    let browser_design_tokens_valid =
-        app_css.contains("--bg-canvas") && app_css.contains("--text-primary");
-    let browser_semantic_presentation_valid =
-        index_html.contains("claude-chat-form") && index_html.contains("dockable-canvas-pane");
+    let browser_design_tokens_valid = app_css.contains("--bg-canvas")
+        && app_css.contains("--text-primary")
+        && app_css.contains("min-width: 0");
+    let browser_semantic_presentation_valid = index_html.contains("claude-chat-form")
+        && index_html.contains("dockable-canvas-pane")
+        && index_html.contains("prism-global-topbar")
+        && index_html.contains("data-window-class");
 
     let computed_r4_summary = ProductFulfillmentSummary {
         delivery_kind: DeliveryKind::BrowserApplication,

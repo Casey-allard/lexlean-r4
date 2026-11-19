@@ -273,21 +273,65 @@ fn test_empirical_dom_ids_uniqueness_hierarchy_and_accessibility() {
         "index.html must not contain duplicate DOM IDs: {duplicates:?}"
     );
 
-    // Verify retention of all Milestone 1, 2, and 3 contractual DOM IDs (at least 27, here 65+ key IDs)
+    // Verify retention of canonical <prism-frame> (R4-60) contractual DOM IDs
     let mandatory_contract_ids = [
+        "prism-global-topbar",
+        "topbar-mode-chat-btn",
+        "toggle-studio-ide-btn",
+        "model-select",
+        "weight-cache-badge",
+        "toggle-web-access-btn",
+        "open-github-connect-btn",
+        "toggle-inspectors-btn",
+        "open-settings-modal-btn",
         "heading-claude-desktop",
         "claude-code-desktop",
+        "observatory-dock-split",
+        "studio-toast-banner",
+        "chat-messages",
         "workspace-file-list",
         "workspace-mount-input",
-        "workspace-download-btn",
         "claude-chat-form",
         "claude-chat-input",
         "claude-chat-submit",
+        "composer-mode-agent",
+        "composer-mode-plan",
+        "composer-send-btn",
+        "composer-stop-btn",
         "chat-apply-patch-btn",
         "chat-clear-btn",
         "chat-transcript",
         "threads-sidebar",
+        "cursor-act-explorer",
+        "cursor-act-scm",
+        "cursor-open-folder-btn",
+        "cursor-new-file-quick-btn",
+        "cursor-new-folder-btn",
+        "cursor-tree-filter",
+        "cursor-file-tree",
+        "scm-repo-input",
+        "scm-new-branch-input",
+        "scm-clone-btn",
+        "scm-commit-push-btn",
+        "cursor-scm-accept-all-btn",
+        "cursor-scm-discard-all-btn",
+        "sidebar-view-history",
+        "thread-list",
+        "new-thread-btn",
         "dockable-canvas-pane",
+        "cursor-editor-tabs",
+        "workbench-tab-code",
+        "workbench-tab-preview",
+        "workbench-tab-diff",
+        "topbar-terminal-btn",
+        "close-canvas-pane-btn",
+        "cursor-code-editor",
+        "cursor-crumb-path",
+        "cursor-cmdk-bar",
+        "canvas-panel-preview",
+        "live-preview-iframe",
+        "preview-console-output",
+        "preview-refresh-btn",
         "canvas-tab-workspace",
         "canvas-tab-diff",
         "canvas-tab-feed",
@@ -300,46 +344,24 @@ fn test_empirical_dom_ids_uniqueness_hierarchy_and_accessibility() {
         "canvas-panel-diagnostics",
         "canvas-panel-consolidation",
         "canvas-panel-traces",
-        "run-consolidation-btn",
-        "consolidation-epochs",
-        "consolidation-progress-bar",
-        "consolidation-status-text",
-        "consolidation-stat-init-loss",
-        "consolidation-stat-final-loss",
-        "consolidation-stat-reduction",
-        "consolidation-stat-size",
-        "consolidation-log-stream",
-        "studio-train-form",
-        "train-stat-transitions",
-        "train-stat-ws-tokens",
-        "snapshot-download-btn",
-        "snapshot-upload-input",
-        "studio-prompt-form",
-        "studio-prompt",
-        "studio-prose-output",
-        "predictions-table",
-        "trajectory-table",
-        "studio-admit-form",
-        "corpus-table",
-        "studio-subsystems-form",
-        "sub-r4-24",
-        "sub-r4-25",
-        "sub-r4-26",
-        "sub-r4-27",
-        "left",
-        "right",
-        "operation",
-        "submit",
-        "result",
-        "weight-cache-badge",
-        "sync-weights-btn",
+        "cursor-accept-all-btn",
+        "cursor-reject-all-btn",
+        "terminal-split-drawer",
+        "canvas-panel-terminal",
+        "terminal-container",
+        "terminal-topbar",
+        "terminal-output",
+        "terminal-form",
+        "terminal-prompt-label",
+        "terminal-input",
+        "terminal-clear-btn",
+        "terminal-reset-btn",
+        "holo-observatory-deck",
+        "inspectors-modal",
+        "github-connect-modal",
+        "settings-modal",
+        "new-path-modal",
         "stat-schema",
-        "stat-vocab",
-        "stat-turn-rows",
-        "stat-point-rows",
-        "stat-cells",
-        "stat-train-epochs",
-        "stat-state-receipt",
     ];
 
     let all_id_set: BTreeSet<&str> = all_ids.iter().map(String::as_str).collect();
@@ -351,7 +373,7 @@ fn test_empirical_dom_ids_uniqueness_hierarchy_and_accessibility() {
     }
     assert!(
         missing_ids.is_empty(),
-        "index.html is missing mandatory contract DOM IDs: {missing_ids:?}"
+        "index.html is missing mandatory <prism-frame> DOM IDs: {missing_ids:?}"
     );
 
     // Accessibility attributes:
@@ -368,17 +390,11 @@ fn test_empirical_dom_ids_uniqueness_hierarchy_and_accessibility() {
         "index.html must have accessible title"
     );
 
-    // Polite live regions on output elements
-    assert!(index_html.contains("id=\"result\" role=\"status\" aria-live=\"polite\""));
-    assert!(index_html.contains(
-        "id=\"studio-prose-output\" class=\"prose-output\" role=\"status\" aria-live=\"polite\""
-    ));
-    assert!(index_html.contains(
-        "id=\"admit-status\" class=\"admit-output\" role=\"status\" aria-live=\"polite\""
-    ));
-    assert!(index_html.contains(
-        "id=\"workspace-status\" class=\"admit-output\" role=\"status\" aria-live=\"polite\""
-    ));
+    // Polite live regions on status elements
+    assert!(index_html.contains("id=\"studio-toast-banner\""));
+    assert!(index_html.contains("role=\"status\" aria-live=\"polite\""));
+    assert!(index_html.contains("id=\"workspace-status\""));
+    assert!(index_html.contains("id=\"github-connect-status\""));
 
     // Tablist & tabs accessible roles
     assert!(index_html.contains("role=\"tablist\""));
@@ -774,10 +790,50 @@ fn test_empirical_cowork_css_spec_and_wcag_conformance() {
     let root = repo_root();
     let app_css = std::fs::read_to_string(root.join("public/app.css")).expect("read app.css");
 
-    // 3-Column Split Pane Cowork grid
+    // Material 3 Window Size Classes & zero-overflow <prism-frame> layout (R4-60)
     assert!(
-        app_css.contains("grid-template-columns: 16rem minmax(360px, 1fr) minmax(440px, 1.25fr);"),
-        "app.css must specify 3-column split-pane grid layout"
+        !app_css.contains("grid-template-columns: 16rem"),
+        "app.css must replace fixed 16rem layout with responsive M3 window size classes"
+    );
+    assert!(
+        app_css.contains("#prism-global-topbar"),
+        "app.css must style single global topbar #prism-global-topbar"
+    );
+    assert!(
+        app_css.contains("[data-window-class="),
+        "app.css must declare [data-window-class] responsive layout selectors"
+    );
+    assert!(
+        app_css.contains("min-width: 0;"),
+        "app.css must enforce min-width: 0; to prevent flex/grid overflow"
+    );
+    assert!(
+        app_css.contains("@media (max-width: 599px)"),
+        "app.css must define Material 3 Compact breakpoint (@media (max-width: 599px))"
+    );
+    assert!(
+        app_css.contains("@media (min-width: 600px) and (max-width: 839px)"),
+        "app.css must define Material 3 Medium breakpoint (@media (min-width: 600px) and (max-width: 839px))"
+    );
+    assert!(
+        app_css.contains("@media (min-width: 840px)"),
+        "app.css must define Material 3 Expanded breakpoint (@media (min-width: 840px))"
+    );
+    assert!(
+        app_css.contains("max-height: min(88dvh, 720px)"),
+        "app.css modals must enforce max-height: min(88dvh, 720px)"
+    );
+    assert!(
+        app_css.contains("flex-wrap: wrap"),
+        "app.css SCM/toolbar groups must allow flex-wrap: wrap"
+    );
+    assert!(
+        app_css.contains("--bg-canvas") && app_css.contains("--text-primary"),
+        "app.css must preserve design tokens --bg-canvas and --text-primary"
+    );
+    assert!(
+        app_css.contains("[data-surface=\"observatory\"]"),
+        "app.css must preserve ?surface=observatory chromeless cascade"
     );
 
     // WCAG 2.1 AA focus appearance (high contrast outline)

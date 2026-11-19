@@ -9,553 +9,255 @@
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="app.css?v=v12r4">
 </head>
-<body data-layout-mode="chat">
+<body class="prism-frame" data-layout-mode="chat" data-window-class="expanded" data-observatory-host="dock">
+  <prism-frame id="prism-frame" class="prism-frame-chrome" data-window-class="expanded">
+    <header id="prism-global-topbar" class="prism-global-topbar" role="banner" aria-label="Prism Studio Global Header">
+      <div class="prism-topbar-left">
+        <button id="toggle-sidebar-btn" type="button" class="prism-icon-btn" title="Toggle Navigation Drawer (Cmd+B)" aria-label="Toggle Left Sidebar">&#9776;</button>
+        <div class="prism-brand">
+          <span class="brand-badge">R4</span>
+          <strong class="prism-brand-name">LexLean-R4</strong>
+        </div>
+        <div class="prism-mode-switch" role="group" aria-label="Workspace Surface Mode">
+          <button id="topbar-mode-chat-btn" type="button" class="prism-seg-btn active" aria-pressed="true" title="Switch to Chat Mode">Chat</button>
+          <button id="toggle-studio-ide-btn" type="button" class="prism-seg-btn topbar-btn-studio-toggle" aria-pressed="false" title="Switch to 3-Pane Studio IDE Mode">Studio</button>
+        </div>
+      </div>
+
+      <div class="prism-topbar-center">
+        <label for="model-select" class="sr-only">Model Picker</label>
+        <select id="model-select" class="prism-model-select" aria-label="Select Local UOR-R4 Model">
+          <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)</option>
+          <option value="uor-r4.qwen3-1.7b-holo">Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)</option>
+          <option value="uor-r4.native-q31-d85">UOR-R4 Native Q31 D85 (0-Download 4L 256D)</option>
+          <option value="uor-r4.hf-repo-holo">HuggingFace Safetensors Stream (Range 206 -&gt; Holo v13)</option>
+        </select>
+        <span id="weight-cache-badge" class="prism-status-pill" title="Active Shard and Execution Backend">Native Q31 &middot; Ready</span>
+        <span id="topbar-model-tag" class="sr-only">SpiralCore Pure-Integer</span>
+        <canvas id="header-brain-pulse-canvas" class="header-brain-pulse-canvas" width="72" height="22" title="Live Neural Pulse" aria-label="Live Neural Activity Indicator"></canvas>
+      </div>
+
+      <div class="prism-topbar-actions topbar-actions">
+        <button id="toggle-web-access-btn" type="button" class="prism-pill-btn topbar-pill-web-on" aria-pressed="true" title="Toggle SpiralCore Net Mode">Net: SpiralCore</button>
+        <button id="open-github-connect-btn" type="button" class="prism-pill-btn" title="Connect GitHub Vault and Sync Repository">GitHub</button>
+        <button id="toggle-inspectors-btn" type="button" class="prism-pill-btn" title="Open Observatory and Engine Inspectors">Observatory</button>
+        <button id="open-settings-modal-btn" type="button" class="prism-icon-btn" title="Open Studio Settings" aria-label="Settings">&#9881;</button>
+      </div>
+    </header>
+
+    <div id="studio-toast-banner" class="studio-toast-banner" role="status" aria-live="polite" hidden>
+      <span id="studio-toast-message" class="studio-toast-message">Ready</span>
+      <button id="studio-toast-close-btn" type="button" class="prism-toast-close" aria-label="Dismiss notification">&times;</button>
+    </div>
+
+    <div id="studio-update-banner" class="studio-update-banner" role="status" aria-live="polite" hidden>
+      <span id="studio-update-banner-text">New Studio Version Live &mdash; Provenance updated on origin.</span>
+      <button id="studio-refresh-reload-btn" type="button" class="studio-update-reload-btn">Refresh &amp; Reload</button>
+    </div>
+  </prism-frame>
+
   <main>
-    <!-- Column 1: Threads Sidebar -->
-    <aside class="gpt-sidebar cursor-left-workbench workbench-sidebar" id="threads-sidebar" aria-label="Cursor File Explorer, Source Control and Agentic Tools">
-      <!-- Far-Left Activity Bar (48px) -->
+    <!-- Column 1: Left Rail (History in Chat mode; [Explorer | Source Control] in Studio mode) -->
+    <aside class="prism-left-rail gpt-sidebar cursor-left-workbench workbench-sidebar" id="threads-sidebar" aria-label="Workspace Navigation, Explorer and Source Control">
       <nav class="activity-bar cursor-activity-bar" id="cursor-activity-bar" role="toolbar" aria-label="Cursor Activity Bar">
         <button id="cursor-act-explorer" type="button" class="activity-bar-btn cursor-act-btn active" data-view="explorer" title="Explorer (Cmd+Shift+E)" aria-label="Explorer">
-          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7v13a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7v13a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
           <span class="sr-only">Explorer</span>
           <span id="activity-btn-explorer" hidden></span>
         </button>
-        <button id="cursor-act-search" type="button" class="activity-bar-btn cursor-act-btn" data-view="search" title="Search (Cmd+Shift+F)" aria-label="Search">
-          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <span class="sr-only">Search</span>
-          <span id="activity-btn-search" hidden></span>
-        </button>
         <button id="cursor-act-scm" type="button" class="activity-bar-btn cursor-act-btn" data-view="scm" title="Source Control (Ctrl+Shift+G)" aria-label="Source Control">
-          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M18 15V9a9 9 0 00-9-9"/><circle cx="6" cy="18" r="3"/><line x1="6" y1="9" x2="6" y2="15"/></svg>
+          <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M18 15V9a9 9 0 00-9-9"/><circle cx="6" cy="18" r="3"/><line x1="6" y1="9" x2="6" y2="15"/></svg>
           <span id="cursor-scm-badge" class="activity-badge cursor-act-pill">0</span>
           <span class="sr-only">Source Control</span>
           <span id="activity-btn-scm" hidden></span>
         </button>
-        <button id="cursor-act-shards" type="button" class="activity-bar-btn cursor-act-btn" data-view="shards" title="Holo v13 OPFS Shards &amp; Weights" aria-label="UOR-R4 Shards">
-          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
-          <span class="sr-only">Shards</span>
-          <span id="activity-btn-shards" hidden></span>
-        </button>
-        <button id="cursor-act-history" type="button" class="activity-bar-btn cursor-act-btn" data-view="history" title="Chat Sessions &amp; History" aria-label="Chat Sessions">
-          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span class="sr-only">History</span>
-          <span id="activity-btn-history" hidden></span>
-        </button>
-        <div class="activity-bar-spacer"></div>
-        <button id="cursor-act-settings" type="button" class="activity-bar-btn cursor-act-btn" data-view="settings" title="Settings" aria-label="Settings">
-          <svg class="activity-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-          <span class="sr-only">Settings</span>
-          <span id="activity-btn-settings" hidden></span>
-        </button>
-        <button id="cursor-act-palette" type="button" class="activity-bar-btn cursor-act-btn" data-view="palette" title="Command Palette" aria-label="Command Palette" hidden></button>
       </nav>
 
-      <!-- 260px Collapsible Left Sidebar Body -->
       <div class="workbench-sidebar-content" id="workbench-sidebar-content">
         <div class="sidebar-top">
           <div class="brand-row">
-            <div class="brand-badge">R4</div>
             <div class="brand-text">
-              <strong>UOR-R4 Connected</strong>
-              <span>Recompiled v12 &middot; Zero-Float Stack</span>
+              <strong>Workspace</strong>
+              <span>MVM /workspace &middot; Pure Integer</span>
             </div>
             <button id="close-sidebar-btn" type="button" class="sidebar-action-icon-btn" title="Hide sidebar" aria-label="Hide sidebar">&times;</button>
           </div>
         </div>
 
-        <!-- Sidebar View: Explorer -->
+        <!-- Studio View 1: Explorer -->
         <div id="sidebar-view-explorer" class="sidebar-view-content active" role="region" aria-label="Workspace File Explorer">
           <div id="cursor-explorer-section" class="cursor-explorer-section">
             <div class="cursor-explorer-header">
               <span id="sidebar-heading-explorer" class="sidebar-heading">EXPLORER</span>
               <div class="cursor-explorer-actions">
-                <button id="cursor-open-folder-btn" type="button" class="cursor-mini-btn" title="Open Local Disk Folder (File System Access API)">Open</button>
-                <button id="cursor-new-file-quick-btn" type="button" class="cursor-mini-btn" title="Create New File in Workspace">+ File</button>
+                <button id="cursor-open-folder-btn" type="button" class="cursor-mini-btn" title="Open Local Folder">Open</button>
+                <button id="cursor-new-file-quick-btn" type="button" class="cursor-mini-btn" title="New File">+ File</button>
+                <button id="cursor-new-folder-btn" type="button" class="cursor-mini-btn" title="New Directory">+ Dir</button>
               </div>
             </div>
             <div class="cursor-tree-filter-wrap">
               <label for="cursor-tree-filter" class="sr-only">Filter Workspace Files</label>
-              <input id="cursor-tree-filter" type="text" class="cursor-tree-filter" placeholder="Filter files or Cmd+P Quick Open..." autocomplete="off" spellcheck="false">
+              <input id="cursor-tree-filter" type="text" class="cursor-tree-filter" placeholder="Filter files (Cmd+P)..." autocomplete="off" spellcheck="false">
             </div>
-            <div id="cursor-file-tree" class="cursor-file-tree" role="tree" aria-label="Collapsible Repository File Tree"></div>
+            <div id="cursor-file-tree" class="cursor-file-tree" role="tree" aria-label="Workspace File Tree"></div>
           </div>
         </div>
 
-        <!-- Sidebar View: Search -->
-        <div id="sidebar-view-search" class="sidebar-view-content" role="region" aria-label="Search Workspace" hidden>
-          <div class="sidebar-section-header">
-            <span class="sidebar-heading">SEARCH &middot; WORKSPACE</span>
-          </div>
-          <div class="cursor-tree-filter-wrap">
-            <label for="cursor-search-input" class="sr-only">Search Codebase</label>
-            <input id="cursor-search-input" type="text" class="cursor-tree-filter" placeholder="Search across all files (Enter)..." autocomplete="off" spellcheck="false">
-          </div>
-          <div id="cursor-search-results" class="cursor-search-results">
-            <div class="cursor-scm-empty">Type query to search workspace files</div>
-          </div>
-        </div>
-
-        <!-- Sidebar View: Source Control (SCM) -->
-        <div id="sidebar-view-scm" class="sidebar-view-content" role="region" aria-label="Source Control &amp; Staged Diffs" hidden>
-          <div id="cursor-scm-section" class="sidebar-collapsible cursor-scm-section">
-            <div class="sidebar-heading sidebar-summary">SOURCE CONTROL &middot; GITHUB LOOP &amp; DIFFS</div>
+        <!-- Studio View 2: Source Control (SCM) -->
+        <div id="sidebar-view-scm" class="sidebar-view-content" role="region" aria-label="Source Control and Diffs" hidden>
+          <div id="cursor-scm-section" class="cursor-scm-section">
+            <div class="sidebar-heading sidebar-summary">SOURCE CONTROL &middot; GITHUB</div>
             <div class="scm-workflow-card" id="scm-github-workflow-card">
               <div class="scm-row">
+                <label for="scm-repo-input" class="sr-only">GitHub Repository</label>
                 <input id="scm-repo-input" type="text" class="cursor-tree-filter" value="UOR-Foundation/Prism" placeholder="owner/repo" autocomplete="off" spellcheck="false" aria-label="GitHub owner/repo">
-                <button id="scm-detect-repo-btn" type="button" class="cursor-mini-btn" title="Auto-detect hosted GitHub repo">Auto-Detect</button>
-                <button id="scm-connect-clone-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept">Clone</button>
+                <button id="scm-detect-repo-btn" type="button" class="cursor-mini-btn" title="Auto-detect hosted GitHub repo">Detect</button>
+                <button id="scm-clone-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept">Clone</button>
               </div>
               <div class="scm-row">
+                <label for="scm-branch-select" class="sr-only">Active Branch</label>
                 <select id="scm-branch-select" class="sidebar-select scm-branch-select" aria-label="Active GitHub Branch">
                   <option value="main" selected>main</option>
                 </select>
-                <input id="scm-new-branch-input" type="text" class="cursor-tree-filter" placeholder="feat/new-branch" autocomplete="off" spellcheck="false" aria-label="New branch name">
+                <label for="scm-new-branch-input" class="sr-only">New Branch Name</label>
+                <input id="scm-new-branch-input" type="text" class="cursor-tree-filter" placeholder="feat/branch" autocomplete="off" spellcheck="false" aria-label="New branch name">
                 <button id="scm-create-branch-btn" type="button" class="cursor-mini-btn">Branch</button>
               </div>
-              <div id="scm-lazy-status" class="scm-lazy-status">Workspace local (connect any owner/repo; &gt;40 files lazy-loaded on demand)</div>
+              <div id="scm-lazy-status" class="scm-lazy-status">Workspace local (connect owner/repo; &gt;40 files lazy-loaded)</div>
             </div>
+
             <div id="cursor-scm-summary" class="cursor-scm-summary">Working tree clean on <code>main</code></div>
             <div id="cursor-scm-list" class="cursor-scm-list" aria-label="Modified and Staged Files">
               <div class="cursor-scm-empty">Working tree clean on <code>main</code></div>
             </div>
-            <pre id="scm-live-diff-preview" class="scm-diff-preview" aria-label="Live Workspace Diff Preview">Working tree clean — select or modify a file to inspect unified diff.</pre>
+            <pre id="scm-live-diff-preview" class="scm-diff-preview" aria-label="Live Workspace Diff Preview">Working tree clean &mdash; modify a file to inspect unified diff.</pre>
+
             <div class="cursor-scm-actions">
               <button id="cursor-scm-accept-all-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept">Accept All</button>
               <button id="cursor-scm-discard-all-btn" type="button" class="cursor-mini-btn cursor-mini-btn-reject">Reject All</button>
             </div>
+
             <div class="scm-workflow-card" id="scm-commit-pr-card">
               <div class="scm-row">
+                <label for="scm-commit-message-input" class="sr-only">Commit Message</label>
                 <input id="scm-commit-message-input" type="text" class="cursor-tree-filter" placeholder="Commit message..." autocomplete="off" spellcheck="false" aria-label="Commit message">
                 <button id="scm-commit-push-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept">Commit &amp; Push</button>
               </div>
               <div class="scm-row">
+                <label for="scm-pr-title-input" class="sr-only">Pull Request Title</label>
                 <input id="scm-pr-title-input" type="text" class="cursor-tree-filter" placeholder="Pull request title..." autocomplete="off" spellcheck="false" aria-label="Pull request title">
                 <button id="scm-create-pr-btn" type="button" class="cursor-mini-btn">Open PR</button>
                 <button id="scm-merge-pr-btn" type="button" class="cursor-mini-btn cursor-mini-btn-accept" disabled>Merge PR</button>
               </div>
               <div class="scm-row">
                 <span id="scm-ci-pages-chip" class="scm-ci-chip" role="status" aria-live="polite">CI &amp; Pages: Standby</span>
-                <button id="scm-refresh-ci-btn" type="button" class="cursor-mini-btn">Check CI &amp; Deploy</button>
+                <button id="scm-refresh-ci-btn" type="button" class="cursor-mini-btn">Check CI</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Sidebar View: UOR-R4 Shards -->
-        <div id="sidebar-view-shards" class="sidebar-view-content" role="region" aria-label="UOR-R4 Shards &amp; Weights" hidden>
-          <div id="cursor-shards-section" class="sidebar-collapsible cursor-shards-section">
-            <div class="sidebar-heading sidebar-summary">UOR-R4 SHARDS &middot; 16 E8 OPFS</div>
-            <div id="cursor-shards-summary" class="cursor-shards-summary">
-              <div><strong>Model:</strong> <code>uor-r4.qwen3-0.6b-holo</code></div>
-              <div><strong>Coprocessor:</strong> <code>Wasm simd128 + Q31 D85</code></div>
-              <div><strong>Storage:</strong> <code>OPFS SyncAccessHandle (1 MiB)</code></div>
-            </div>
-            <div id="stitch-custody-health-card" class="stitch-health-card" role="status" aria-live="polite">
-              <div><strong>Stitch Custody:</strong> <code>stitch/xor-2-of-3/1</code></div>
-              <div><strong>Parity State:</strong> Bootstrapping multi-source verification...</div>
-            </div>
-            <div id="prism-holo-sidebar-card" class="stitch-health-card" role="status" aria-live="polite">
-              <div><strong>Prism ID (Stitch):</strong> <code id="prism-sidebar-id-code">initializing&hellip;</code></div>
-              <div><strong>Holo v4 Package:</strong> <code id="prism-sidebar-holo-code">holo://lexlean-r4</code></div>
-            </div>
-            <div class="cursor-scm-actions">
-              <button id="cursor-hydrate-shards-btn" type="button" class="cursor-mini-btn">Hydrate Holo v13 Shards</button>
-              <button id="native-q31-train-btn" type="button" class="cursor-mini-btn">Train Q31 Step</button>
-              <button id="cursor-train-quick-btn" type="button" class="cursor-mini-btn">Train LUT</button>
-              <button id="sidebar-compile-holo-btn" type="button" class="cursor-mini-btn">Compile .holo</button>
-            </div>
-            <div class="cursor-scm-actions">
-              <label for="hf-repo-id-input" class="sr-only">HuggingFace Repository ID</label>
-              <input id="hf-repo-id-input" type="text" class="cursor-mini-input" value="Qwen/Qwen3-0.6B" aria-label="HuggingFace Repository ID" placeholder="owner/repo (e.g. Qwen/Qwen3-0.6B)" autocomplete="off" spellcheck="false">
-              <button id="hf-repo-load-btn" type="button" class="cursor-mini-btn">Stream HF Repo</button>
-            </div>
+        <!-- Search View (Triggered by Cmd+Shift+F) -->
+        <div id="sidebar-view-search" class="sidebar-view-content" role="region" aria-label="Search Workspace" hidden>
+          <div class="sidebar-section-header">
+            <span class="sidebar-heading">SEARCH &middot; WORKSPACE</span>
+          </div>
+          <div class="cursor-tree-filter-wrap">
+            <label for="cursor-search-input" class="sr-only">Search Codebase</label>
+            <input id="cursor-search-input" type="text" class="cursor-tree-filter" placeholder="Search across workspace files (Enter)..." autocomplete="off" spellcheck="false">
+          </div>
+          <div id="cursor-search-results" class="cursor-search-results">
+            <div class="cursor-scm-empty">Type query to search workspace files</div>
           </div>
         </div>
 
-        <!-- Sidebar View: History & Chat Sessions -->
-        <div id="sidebar-view-history" class="sidebar-view-content" role="region" aria-label="Chat Sessions &amp; History">
+        <!-- Chat Mode History View -->
+        <div id="sidebar-view-history" class="sidebar-view-content" role="region" aria-label="Chat Sessions and History">
           <div class="sidebar-section-header">
-            <button id="chat-clear-btn" type="button" class="new-chat-btn">+ New Agentic Session</button>
+            <button id="new-thread-btn" type="button" class="new-chat-btn">+ New Thread</button>
+            <span id="chat-clear-btn" hidden></span>
+          </div>
+          <div id="sidebar-panel-history" class="sidebar-view-panel active">
+            <div class="sidebar-section">
+              <div class="sidebar-section-header">
+                <span class="sidebar-heading">Conversations</span>
+                <button id="clear-all-threads-btn" type="button" class="sidebar-action-icon-btn" title="Clear all threads" aria-label="Clear all threads">&times;</button>
+              </div>
+              <div id="chat-thread-list" class="thread-list-wrap">
+                <ul id="thread-list" class="thread-list" aria-label="Chat Threads"></ul>
+              </div>
+            </div>
+            <details class="sidebar-collapsible" open>
+              <summary class="sidebar-heading sidebar-summary">Starter Prompts</summary>
+              <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
+                <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Lorentz geodesic attention and integer E8 quantization avoid floating-point drift over long context.">
+                  Geometric Reasoning
+                </button>
+                <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Review and fix any edge-case panic in this Rust snippet:\nfn median_pair(xs: &[i32]) -> i32 { xs[xs.len() / 2] + xs[xs.len() / 2 - 1] }">
+                  Debug Rust Snippet
+                </button>
+                <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Inspect /workspace files, check git status, and draft a verification plan.">
+                  Workspace &amp; Git Audit
+                </button>
+              </div>
+            </details>
           </div>
         </div>
 
-      <!-- Collapsible Navigation Views: Planning, Pool & Review, History, Projects -->
-      <nav class="sidebar-views-nav" role="tablist" aria-label="Sidebar Navigation Modes">
-        <button id="sidebar-view-btn-history" type="button" class="sidebar-view-btn active" role="tab" aria-selected="true" data-view="history" title="Chat History &amp; Sessions">Chat</button>
-        <button id="sidebar-view-btn-planning" type="button" class="sidebar-view-btn" role="tab" aria-selected="false" data-view="planning" title="Task Planning DAG">Plan</button>
-        <button id="sidebar-view-btn-pool" type="button" class="sidebar-view-btn" role="tab" aria-selected="false" data-view="pool" title="Agentic Pool Status &amp; Review">Pool</button>
-        <button id="sidebar-view-btn-projects" type="button" class="sidebar-view-btn" role="tab" aria-selected="false" data-view="projects" title="Virtual Workspace &amp; Projects">Projects</button>
-      </nav>
-
-      <!-- View 1: History Panel (Active by default) -->
-      <div id="sidebar-panel-history" class="sidebar-view-panel active">
-        <div class="sidebar-section">
-          <div class="sidebar-section-header">
-            <span class="sidebar-heading">Conversations</span>
-            <button id="clear-all-threads-btn" type="button" class="sidebar-action-icon-btn" title="Clear all threads" aria-label="Clear all threads">&times;</button>
-          </div>
-          <ul id="chat-thread-list" class="thread-list" aria-label="Chat Threads"></ul>
-        </div>
-
-        <details class="sidebar-collapsible" open>
-          <summary class="sidebar-heading sidebar-summary">Cowork Canvas Drawers</summary>
-          <div class="sidebar-surfaces-grid" id="sidebar-agent-surfaces">
-            <button id="sidebar-feed-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="feed">
-              <span>Self-Improvement</span>
-              <span id="sidebar-feed-badge" class="sidebar-pill">R4-F32</span>
-            </button>
-            <button id="sidebar-consolidation-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="consolidation">
-              <span>Consolidate</span>
-              <span id="sidebar-consolidation-badge" class="sidebar-pill">Worker</span>
-            </button>
-            <button id="sidebar-traces-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="traces">
-              <span>OTel Traces</span>
-              <span id="sidebar-traces-badge" class="sidebar-pill">u16</span>
-            </button>
-            <button id="open-workspace-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="workspace">
-              <span>Code Editor</span>
-              <span id="workspace-pinned-badge" class="sidebar-pill">2 files</span>
-            </button>
-            <button id="sidebar-diff-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diff">
-              <span>Diff Stage</span>
-              <span id="sidebar-diff-badge" class="sidebar-pill">Patch</span>
-            </button>
-            <button id="open-diagnostics-modal-btn" type="button" class="sidebar-tool-btn" data-canvas-tab="diagnostics">
-              <span>API &amp; 30/30</span>
-              <span class="sidebar-pill">/v1</span>
-            </button>
-          </div>
-        </details>
-
-        <details class="sidebar-collapsible" open>
-          <summary class="sidebar-heading sidebar-summary">Workflow Prompts (4)</summary>
-          <div class="sidebar-presets" role="group" aria-label="Quick Starter Prompts">
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Explain how Lorentz geodesic attention and integer E8 quantization avoid floating-point drift over long context.">
-              Free-Form: Geometric Reasoning
-            </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Review and fix any edge-case panic in this Rust snippet:\nfn median_pair(xs: &[i32]) -> i32 { xs[xs.len() / 2] + xs[xs.len() / 2 - 1] }">
-              Debug Pasted Rust Code
-            </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Inspect workspace files, identify concrete improvements, and draft a GitHub PR checklist.">
-              GitHub PR &amp; Workspace Review
-            </button>
-            <button type="button" class="chat-preset-btn sidebar-preset-item" data-chat-prompt="Evaluate the 4-facet Verdant Synthesis KPIs and report active .uorc generation watchdog status.">
-              Verdant Synthesis &amp; .uorc Audit
-            </button>
-          </div>
-        </details>
-      </div>
-
-      <!-- View 2: Planning Panel -->
-      <div id="sidebar-panel-planning" class="sidebar-view-panel" hidden>
-        <div class="sidebar-section">
-          <div class="sidebar-section-header">
-            <span class="sidebar-heading">Agentic Planning DAG</span>
-          </div>
-          <div id="plan-dag-diagram" class="plan-dag-container" aria-label="Agentic Task DAG Flow">
-            <div class="dag-node dag-done"><span class="dag-badge">&#10003;</span> Ingest Prompt &amp; Context</div>
-            <div class="dag-arrow">&#8595;</div>
-            <div class="dag-node dag-active"><span class="dag-badge">&#9654;</span> Coordinate Descent &amp; Routing</div>
-            <div class="dag-arrow">&#8595;</div>
-            <div class="dag-node dag-pending"><span class="dag-badge">&#9711;</span> Synthesize Diff &amp; Tool Calls</div>
-            <div class="dag-arrow">&#8595;</div>
-            <div class="dag-node dag-pending"><span class="dag-badge">&#9711;</span> Verify Invariants &amp; Closure</div>
-          </div>
-        </div>
-        <div class="sidebar-section">
-          <div class="sidebar-section-header">
-            <span class="sidebar-heading">Task Checklist</span>
-          </div>
-          <ul id="plan-checklist" class="plan-task-list" aria-label="Active Plan Checklist">
-            <li class="plan-task-item done"><span class="check-icon">&#9745;</span> 3D Dual-Hemisphere &amp; Corpus Callosum</li>
-            <li class="plan-task-item done"><span class="check-icon">&#9745;</span> Pure In-Browser LaTeX Math AST</li>
-            <li class="plan-task-item active"><span class="check-icon">&#9654;</span> In-Browser Stateful Terminal (lexlean-sh)</li>
-            <li class="plan-task-item"><span class="check-icon">&#9744;</span> Subagent Pool Diff Review Queue</li>
-            <li class="plan-task-item"><span class="check-icon">&#9744;</span> Zero-Network Browser Closure Audit</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- View 3: Pool & Review Panel -->
-      <div id="sidebar-panel-pool" class="sidebar-view-panel" hidden>
-        <div class="sidebar-section">
-          <div class="sidebar-section-header">
-            <span class="sidebar-heading">Subagent Pool Status</span>
-          </div>
-          <div id="pool-status-grid" class="pool-grid" aria-label="Subagent Allocation Grid">
-            <div class="pool-card">
-              <div class="pool-card-role">Planner</div>
-              <div class="pool-card-status">Standby &middot; Ready</div>
-              <div class="pool-card-detail">Awaiting Task Goal</div>
-            </div>
-            <div class="pool-card">
-              <div class="pool-card-role">Coder</div>
-              <div class="pool-card-status">Standby &middot; Ready</div>
-              <div class="pool-card-detail">Pure Wasm Code Synthesizer</div>
-            </div>
-            <div class="pool-card">
-              <div class="pool-card-role">Reviewer</div>
-              <div class="pool-card-status">Standby &middot; Ready</div>
-              <div class="pool-card-detail">Awaiting Code Staging</div>
-            </div>
-            <div class="pool-card">
-              <div class="pool-card-role">Verifier</div>
-              <div class="pool-card-status">Standby &middot; Ready</div>
-              <div class="pool-card-detail">Zero-Float Verification</div>
-            </div>
-          </div>
-        </div>
-        <div class="sidebar-section">
-          <div class="sidebar-section-header">
-            <span class="sidebar-heading">Review Diff Queue</span>
-          </div>
-          <div id="pool-review-queue" class="pool-review-card" aria-label="Pending Diff Review Queue">
-            <div class="pool-review-file">File: <code>None</code></div>
-            <div class="pool-review-stats">Queue idle &middot; No patch pending</div>
-            <div class="pool-review-actions">
-              <button id="pool-review-approve-btn" type="button" class="btn-primary btn-sm" disabled>Approve Patch</button>
-              <button id="pool-review-reject-btn" type="button" class="btn-secondary btn-sm" disabled>Reject</button>
-            </div>
+        <div class="sidebar-footer">
+          <div class="sidebar-model-status">
+            <span class="status-dot"></span>
+            <span>Stack: <code id="stat-schema">uor-r4.lut-stack/8</code> &middot; <code>memory.point.points</code></span>
           </div>
         </div>
       </div>
-
-      <!-- View 4: Projects Panel -->
-      <div id="sidebar-panel-projects" class="sidebar-view-panel" hidden>
-        <div class="sidebar-section">
-          <div class="sidebar-section-header">
-            <span class="sidebar-heading">Project Selector</span>
-          </div>
-          <select id="sidebar-project-select" class="sidebar-select" aria-label="Select Active Project">
-            <option value="lexlean-r4" selected>lexlean-r4 (Primary Local)</option>
-            <option value="scratchpad">scratchpad (Virtual Memory)</option>
-          </select>
-          <div id="sidebar-workspace-summary" class="workspace-summary-box">
-            <div><strong>Repository:</strong> lexlean-r4</div>
-            <div><strong>Branch:</strong> <code class="git-branch-pill">main</code> (0 uncommitted)</div>
-            <div><strong>Engine:</strong> <code class="git-branch-pill">wasm32-unknown-unknown</code></div>
-            <div><strong>Engine Stack:</strong> <code>UOR-R4 Holo v13 + Q31 D85</code></div>
-            <div class="summary-hint">Files are stored in browser memory with SHA-256 state receipts.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="sidebar-footer">
-        <div class="sidebar-model-status">
-          <span class="status-dot"></span>
-          <span>Stack: <code id="stat-schema">uor-r4.lut-stack/8</code> &middot; <code>memory.point.points</code></span>
-        </div>
-      </div>
-      </div> <!-- /workbench-sidebar-content -->
     </aside>
 
-    <!-- Right Pane (Cursor AI Chat & Multi-File Composer: Cmd+L / Cmd+I) -->
-    <section class="gpt-main-pane cowork-chat-pane cursor-ai-right-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
-      <header class="gpt-topbar">
-        <div class="model-selector">
-          <button id="toggle-sidebar-btn" type="button" class="topbar-btn" title="Toggle Conversations &amp; Explorer Sidebar" aria-label="Toggle Left Sidebar">&#9776;</button>
-          <h1 id="heading-claude-desktop">UOR-R4 Connected Chat</h1>
-          <canvas id="header-brain-pulse-canvas" class="header-brain-pulse-canvas" width="88" height="24" title="Live 3D Brain Activity (Click to open 3D Holographic Brain)" aria-label="Live Neural Activity Indicator"></canvas>
-          <span id="topbar-model-tag" class="model-tag">UOR-R4 Holo v13 &middot; Qwen3-0.6B Pure-Integer</span>
-          <span id="weight-cache-badge" class="topbar-context-pill">Worker Ready</span>
-          <span id="chat-target-badge" class="topbar-context-pill">src/attention.rs</span>
-        </div>
-        <div class="topbar-actions">
-          <button id="toggle-web-access-btn" type="button" class="topbar-btn topbar-pill-web-on" aria-pressed="true" title="Toggle Connected Web Search, HTTPS Reader &amp; DoH">Web: ON</button>
-          <button id="open-github-connect-btn" type="button" class="topbar-btn" title="Connect GitHub Personal Access Token Vault &amp; Sync Repository">GitHub</button>
-          <button id="topbar-prism-holo-btn" type="button" class="topbar-btn" title="Stitch Prism Identity, .holo v4 Compiler &amp; UOR Foundry Packaging">Prism ID &amp; .holo</button>
-          <button id="toggle-inspectors-btn" type="button" class="topbar-btn" title="Open Full-Height 3D Holographic Brain &amp; Engine Inspectors">Inspectors</button>
-          <button id="toggle-studio-ide-btn" type="button" class="topbar-btn topbar-btn-studio-toggle" title="Switch instantaneously between Chat View and Cursor 3-Pane Studio IDE">Studio IDE</button>
-          <button id="topbar-terminal-btn" type="button" class="topbar-btn topbar-btn-accent" data-canvas-tab="terminal">Terminal</button>
-          <button id="load-weights-topbar-btn" type="button" class="topbar-btn">Load .uorlut</button>
-          <button id="sync-weights-btn" type="button" class="topbar-btn">Sync</button>
-          <button id="toggle-right-drawer-btn" type="button" class="topbar-btn" title="Toggle Center Workbench" aria-label="Toggle Right Drawer">&#9881; Workbench</button>
-          <button id="topbar-feed-btn" type="button" class="topbar-btn" data-canvas-tab="feed">Self-Improvement</button>
-          <button id="topbar-consolidation-btn" type="button" class="topbar-btn" data-canvas-tab="consolidation">Consolidate Weights</button>
-          <button id="topbar-traces-btn" type="button" class="topbar-btn" data-canvas-tab="traces" hidden>OTel Traces</button>
-          <button id="topbar-workspace-btn" type="button" class="topbar-btn" data-canvas-tab="workspace" hidden>Workspace IDE</button>
-          <button id="topbar-diagnostics-btn" type="button" class="topbar-btn" data-canvas-tab="diagnostics" hidden>API &amp; 30/30</button>
-        </div>
-      </header>
-
-      <div id="studio-update-banner" class="studio-update-banner" role="status" aria-live="polite" hidden>
-        <span id="studio-update-banner-text">New Studio Version Live &mdash; Provenance updated on origin.</span>
-        <button id="studio-refresh-reload-btn" type="button" class="studio-update-reload-btn">New Studio Version Live — Refresh &amp; Reload Now</button>
-      </div>
-
-      <!-- Cursor AI Mode & Context Pills Bar (Cmd+I Composer / Cmd+L Chat) -->
-      <div id="cursor-ai-context-bar" class="cursor-ai-context-bar" role="toolbar" aria-label="Cursor AI Mode and Context Pills">
-        <div class="cursor-ai-modes" role="group" aria-label="Cursor AI Mode Selector">
-          <button id="cursor-mode-agent-btn" type="button" class="cursor-ai-mode-pill active" data-cursor-ai-mode="agent" title="Agent Mode (ReAct R4-35 + R4-32 Verifier)">Agent</button>
-          <button id="cursor-mode-ask-btn" type="button" class="cursor-ai-mode-pill" data-cursor-ai-mode="ask" title="Ask Mode (6-Layer SpiralCore + /8 Q12)">Ask</button>
-          <button id="cursor-mode-edit-btn" type="button" class="cursor-ai-mode-pill" data-cursor-ai-mode="edit" title="Multi-File Composer Surgical Patch">Edit</button>
-        </div>
-        <div class="cursor-ai-ctx-pills" role="group" aria-label="Quick Context Mentions">
-          <button id="cursor-ctx-file-btn" type="button" class="cursor-ctx-pill" title="Attach Active Editor File">@file</button>
-          <button id="cursor-ctx-codebase-btn" type="button" class="cursor-ctx-pill" title="Attach Full VFS Codebase">@codebase</button>
-          <button id="cursor-ctx-terminal-btn" type="button" class="cursor-ctx-pill" title="Attach lexlean-sh Terminal Scrollback">@terminal</button>
-        </div>
-        <div id="cursor-composer-patch-bar" class="cursor-composer-patch-bar">
-          <button id="cursor-accept-all-btn" type="button" class="cursor-patch-action-btn cursor-patch-accept" title="Accept Staged Patch (Cmd+Enter)">Accept All</button>
-          <button id="cursor-reject-all-btn" type="button" class="cursor-patch-action-btn cursor-patch-reject" title="Reject Staged Patch (Cmd+Backspace)">Reject</button>
-        </div>
-      </div>
-
-      <!-- Slim Single-Line Rolling 256D Q12 Context & Agentic Status Strip (Dismissible) -->
-      <div id="cowork-agent-status-bar" class="cowork-agent-status-bar" role="region" aria-label="Live Agentic Harness Status">
-        <div class="status-strip-items">
-          <span class="status-strip-item">
-            <strong>256D Q12 Context:</strong>
-            <code id="live-context-turn-digest" class="agent-status-code">Turn #1</code>
-            <span id="live-context-summary" class="status-strip-summary">Carry-forward latent summary active</span>
-          </span>
-          <span class="status-strip-item">
-            <button id="agent-mode-toggle-btn" type="button" class="agent-mini-btn agent-mini-btn-active">Agentic Loop: ON</button>
-            <span id="live-agent-tools-badge" class="sr-only">Tools active</span>
-          </span>
-          <span class="status-strip-item">
-            <span id="live-engine-frontier-badge">Tick #12 &middot; <code>R4-F32</code></span>
-            <button id="quick-open-feed-btn" type="button" class="agent-mini-btn" data-canvas-tab="feed">Self-Improve</button>
-          </span>
-          <span class="status-strip-item">
-            <span id="live-otel-trace-badge"><code>uor.gllm.trace/1</code></span>
-            <button id="quick-consolidate-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Consolidate</button>
-            <button id="quick-open-traces-btn" type="button" class="agent-mini-btn" data-canvas-tab="traces">Waterfall</button>
-          </span>
-        </div>
-        <button id="close-status-bar-btn" type="button" class="status-strip-close-btn" title="Dismiss status bar" aria-label="Dismiss status bar">&times;</button>
-      </div>
-
-      <div id="chat-transcript" class="chat-transcript" role="log" aria-live="polite" aria-label="Assistant Conversation History"></div>
-
-      <div class="gpt-composer-dock">
-        <div class="starter-chips" role="group" aria-label="Suggested Prompts" hidden>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Explain how Lorentz geodesic attention and integer E8 quantization avoid floating-point drift over long context.">
-            Free-Form: Geometric Reasoning
-          </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Debug and fix the integer overflow or bounds bug in this Rust function:\nfn pair_sum(xs: &[i32]) -> i32 { xs[0] + xs[xs.len()] }">
-            Debug Pasted Rust Code
-          </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Inspect workspace diffs, stage clean edits, and draft a GitHub PR verification plan.">
-            GitHub PR &amp; Workspace Workflow
-          </button>
-          <button type="button" class="chat-preset-btn chip-btn" data-chat-prompt="Evaluate the 4-facet Verdant Synthesis KPIs and report active .uorc generation watchdog state.">
-            Verdant Synthesis &amp; .uorc Audit
-          </button>
-        </div>
-
-        <div class="composer-shell">
-          <div id="composer-autocomplete-menu" class="composer-autocomplete-menu" role="listbox" aria-label="Slash Commands and Context Mentions" hidden></div>
-
-          <form id="claude-chat-form" class="gpt-composer-form ts-rich-composer" novalidate>
-            <div id="composer-attachments-bar" class="composer-attachments-bar" aria-label="Attached Context Chips" hidden></div>
-
-            <div class="composer-field">
-              <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
-              <textarea id="claude-chat-input" name="claude-chat-input" rows="1" placeholder="Plan, search, build with Holo v13 pure-integer models... (/hf <repo>, /q31-train <text>, Cmd+K inline)" autocomplete="off" spellcheck="false"></textarea>
-            </div>
-
-            <div id="composer-send-bar" class="composer-send-bar">
-              <div class="composer-send-bar-left">
-                <button id="composer-attach-btn" type="button" class="composer-action-btn" title="Attach File (+)" aria-label="Attach File">+</button>
-                <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
-                <label for="composer-model-select" class="sr-only">Select Local UOR-R4 Execution Mode</label>
-                <select id="composer-model-select" class="composer-model-select" aria-label="Select Model">
-                  <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)</option>
-                  <option value="uor-r4.qwen3-1.7b-holo">Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)</option>
-                  <option value="uor-r4.native-q31-d85">UOR-R4 Native Q31 D85 (0-Download 4L 256D)</option>
-                  <option value="uor-r4.hf-repo-holo">HuggingFace Safetensors Stream (Range 206 -&gt; Holo v13)</option>
-                </select>
-                <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands (/think, /teach, /patch, /arxiv, /math)" aria-label="Slash Commands">/</button>
-                <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
-              </div>
-
-              <div class="composer-send-bar-right">
-                <div class="composer-mode-group" role="group" aria-label="Composer Execution Mode">
-                  <button type="button" class="composer-mode-btn active" data-composer-mode="agentic" title="Agentic Mode">Agent</button>
-                  <button type="button" class="composer-mode-btn" data-composer-mode="thinking" title="Deep <thinking> Trace">Think</button>
-                  <button type="button" class="composer-mode-btn" data-composer-mode="teach" title="Teach Online LUT">Teach</button>
-                  <button type="button" class="composer-mode-btn" data-composer-mode="math" title="Exact M6 Math">Math</button>
-                </div>
-                <span id="composer-token-badge" class="composer-token-badge" title="Live Token Estimate">0t</span>
-                <button id="claude-chat-submit" type="submit" class="composer-send-btn" title="Send (Enter)" aria-label="Send Message">&crarr;</button>
-              </div>
-            </div>
-          </form>
-        </div>
-        <p class="composer-footnote" hidden>
-          TypeScript Agentic Composer &middot; Rolling 256D Q12 Context &middot; OTel <code>uor.gllm.trace/1</code>.
-        </p>
-      </div>
-    </section>
-
-    <!-- Center Pane: Cursor Multi-Tab Code Editor + Integrated Bottom Terminal & Workbench -->
-    <section class="dockable-canvas-pane cursor-center-workbench workbench-center-pane" id="dockable-canvas-pane" aria-label="Cursor Center Code Editor and Integrated Workbench">
-      <!-- Cursor Open File Tabs Bar & Workbench Actions -->
-      <div id="editor-tabs-bar" class="cursor-editor-tabs-bar editor-tabs-bar" role="region" aria-label="Open Editor File Tabs">
+    <!-- Column 2: Center Workbench (Code Editor / Opaque Preview / Unified Diff + Bottom Terminal Split) -->
+    <section class="prism-center-workbench dockable-canvas-pane cursor-center-workbench workbench-center-pane" id="dockable-canvas-pane" aria-label="Center Code Workbench, Preview and Terminal">
+      <div id="editor-tabs-bar" class="cursor-editor-tabs-bar editor-tabs-bar" role="region" aria-label="Open Editor Tabs and Mode Toolbar">
         <div id="cursor-editor-tabs" class="cursor-editor-tabs editor-tabs" role="tablist" aria-label="Open Files"></div>
-        <button id="editor-new-tab-btn" type="button" class="cursor-mini-btn" title="New Untitled Tab">+</button>
-        <div class="cursor-workbench-toolbar">
-          <button id="cursor-cmdk-trigger-btn" type="button" class="cursor-wb-btn cursor-wb-btn-accent" title="Inline Edit Selection with Local UOR-R4 (Cmd+K)">Cmd+K Edit</button>
-          <button id="cursor-quickopen-btn" type="button" class="cursor-wb-btn" title="Quick Open File (Cmd+P)">Cmd+P</button>
-          <button id="cursor-palette-btn" type="button" class="cursor-wb-btn" title="Command Palette (Cmd+Shift+P)">Cmd+Shift+P</button>
-          <button id="cursor-run-check-btn" type="button" class="cursor-wb-btn" title="Run In-Wasm Rust R4-32 Cargo Check &amp; Tests">&#9654; R4-32 Check</button>
-          <button id="workbench-inspectors-btn" type="button" class="cursor-wb-btn" title="Open Full-Height 3D Brain &amp; Engine Inspectors">Inspectors</button>
-          <button id="cursor-toggle-bottom-panel-btn" type="button" class="cursor-wb-btn" title="Toggle Integrated Bottom Terminal (Ctrl+`)">Ctrl+` Term</button>
-        </div>
+        <button id="editor-new-tab-btn" type="button" class="cursor-mini-btn" title="New File Tab" aria-label="New File Tab">+</button>
         <span id="cursor-editor-tabs-bar" hidden></span>
+        <div class="cursor-workbench-toolbar" role="toolbar" aria-label="Workbench Surface Switcher">
+          <button id="workbench-tab-code" type="button" class="cursor-wb-btn active" data-workbench-mode="code" aria-pressed="true">Code</button>
+          <button id="workbench-tab-preview" type="button" class="cursor-wb-btn" data-workbench-mode="preview" aria-pressed="false">Preview</button>
+          <button id="workbench-tab-diff" type="button" class="cursor-wb-btn" data-workbench-mode="diff" aria-pressed="false">Diff</button>
+          <button id="cursor-cmdk-trigger-btn" type="button" class="cursor-wb-btn cursor-wb-btn-accent" title="Inline Edit Selection (Cmd+K)">Cmd+K</button>
+          <button id="cursor-run-check-btn" type="button" class="cursor-wb-btn" title="Run In-Wasm R4-32 Check">Check</button>
+          <button id="topbar-terminal-btn" type="button" class="cursor-wb-btn" data-canvas-tab="terminal" aria-pressed="true" title="Toggle Integrated Terminal Drawer (Ctrl+`)">Terminal</button>
+        </div>
       </div>
 
-      <!-- Cursor Breadcrumb Bar -->
       <div id="cursor-breadcrumbs-bar" class="cursor-breadcrumbs-bar" aria-label="Editor Breadcrumbs">
         <div id="cursor-breadcrumbs" class="cursor-breadcrumbs">
-          <span class="crumb-repo">lexlean-r4</span>
+          <span id="cursor-crumb-path" class="cursor-crumb-path">src/attention.rs</span>
+          <span class="crumb-sep">&middot;</span>
+          <span id="cursor-crumb-folder" class="crumb-dir">src</span>
           <span class="crumb-sep">&rsaquo;</span>
-          <span class="crumb-dir">src</span>
-          <span class="crumb-sep">&rsaquo;</span>
-          <strong class="crumb-file">attention.rs</strong>
+          <strong id="cursor-crumb-file" class="crumb-file">attention.rs</strong>
           <span class="crumb-sep">&rsaquo;</span>
           <code id="cursor-crumb-symbol" class="crumb-symbol">fn flock_attention_step</code>
         </div>
         <div class="cursor-breadcrumb-meta">
           <span id="cursor-file-git-badge" class="cursor-git-pill">HEAD &middot; clean</span>
-          <span class="cursor-local-engine-pill">Holo v13 &middot; Local Wasm</span>
         </div>
       </div>
 
       <div class="canvas-body">
-        <!-- Tab 1: Workspace & Editor Panel -->
-        <div id="canvas-panel-workspace" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-workspace" tabindex="0" hidden>
-          <div class="workspace-panel-grid cursor-editor-grid">
-            <div class="ide-pane" id="workspace-pane" aria-label="Project Workspace Explorer">
-              <div class="pane-subheader">
-                <strong>Workspace Files</strong>
-              </div>
-              <ul id="workspace-file-list" class="workspace-list" aria-label="Virtual Workspace Files"></ul>
-              <form id="workspace-new-form" class="workspace-new-form" novalidate>
-                <div class="field">
-                  <label for="workspace-new-path">Create or Select Workspace File</label>
-                  <input id="workspace-new-path" name="workspace-new-path" type="text" value="src/custom_module.rs" autocomplete="off" spellcheck="false">
-                </div>
-                <button id="workspace-create-btn" type="submit" class="btn-secondary">Create File in Workspace</button>
-              </form>
-              <div class="field">
-                <label for="workspace-mount-input">Mount Local Repository Files (Batch Ingest)</label>
-                <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple webkitdirectory>
-              </div>
-            </div>
-
+        <!-- Workbench Panel 1: Code Editor -->
+        <div id="canvas-panel-workspace" class="canvas-panel active" role="tabpanel" aria-labelledby="workbench-tab-code" tabindex="0">
+          <div id="cursor-code-editor" class="cursor-code-editor">
             <div class="ide-pane cursor-code-editor-pane" id="editor-trainer-pane" aria-label="Workspace Code Editor">
               <div class="pane-subheader cursor-editor-subheader">
-                <strong>Active Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
+                <strong>Editor (<code id="editor-file-path">src/attention.rs</code>)</strong>
                 <div class="cursor-editor-header-right">
-                  <span class="cursor-shortcut-hint"><code>Cmd+K</code> Inline Edit &middot; <code>Tab</code> Ghost Complete &middot; <code>Cmd+S</code> Save</span>
+                  <span class="cursor-shortcut-hint"><code>Cmd+K</code> Edit &middot; <code>Tab</code> Complete &middot; <code>Cmd+S</code> Save</span>
                   <code id="editor-file-receipt" class="metric-code">&mdash;</code>
                 </div>
               </div>
 
-              <!-- Cmd+K Inline Floating Edit Bar & Inline Red/Green Diff Hunks -->
-              <div id="cursor-cmdk-bar" class="cursor-cmdk-bar" data-testid="cursor-cmdk-floating-bar" role="region" aria-label="Cursor Cmd+K Inline Edit Bar" hidden>
+              <div id="cursor-cmdk-bar" class="cursor-cmdk-bar" data-testid="cursor-cmdk-floating-bar" role="region" aria-label="Cmd+K Inline Edit Bar" hidden>
                 <div class="cursor-cmdk-header">
                   <div class="cursor-cmdk-title-group">
                     <span class="cursor-cmdk-badge">Cmd+K &middot; Holo v13</span>
@@ -565,996 +267,684 @@
                 </div>
                 <div class="cursor-cmdk-form" role="group" aria-label="Inline Edit Controls">
                   <label for="cursor-cmdk-input" class="sr-only">Inline Edit Instruction</label>
-                  <input id="cursor-cmdk-input" type="text" class="cursor-cmdk-input" placeholder="Edit selection or synthesize code in workspace... (Enter to generate)" autocomplete="off" spellcheck="false">
-                  <button id="cursor-cmdk-submit-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-generate">Generate Diff &crarr;</button>
-                  <button id="cursor-cmdk-accept-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-accept" disabled>Accept (Cmd+Enter)</button>
-                  <button id="cursor-cmdk-reject-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-reject" disabled>Reject (Cmd+Backspace)</button>
+                  <input id="cursor-cmdk-input" type="text" class="cursor-cmdk-input" placeholder="Edit selection or synthesize code in /workspace..." autocomplete="off" spellcheck="false">
+                  <button id="cursor-cmdk-submit-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-generate">Generate</button>
+                  <button id="cursor-cmdk-accept-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-accept" disabled>Accept</button>
+                  <button id="cursor-cmdk-reject-btn" type="button" class="cursor-cmdk-btn cursor-cmdk-btn-reject" disabled>Reject</button>
                 </div>
                 <pre id="cursor-cmdk-diff-hunk" class="code-block diff-colored-block cursor-cmdk-diff-hunk" aria-label="Inline Edit Unified Diff Hunk" hidden></pre>
               </div>
 
-              <!-- Line-Numbered Code Editor Surface -->
               <div class="field cursor-editor-field">
-                <label for="workspace-editor-textarea" class="sr-only">Active Workspace Source Code (Editable)</label>
+                <label for="workspace-editor-textarea" class="sr-only">Active Workspace Source Code</label>
                 <div id="cursor-editor-surface" class="cursor-editor-surface">
-                  <div id="editor-line-numbers" class="cursor-line-gutter editor-line-numbers" aria-hidden="true"><span id="cursor-line-gutter" hidden></span>1</div>
+                  <div id="editor-line-numbers" class="cursor-line-gutter editor-line-numbers" aria-hidden="true">
+                    <div id="cursor-line-gutter">1</div>
+                  </div>
                   <div id="cursor-ghost-overlay" class="cursor-ghost-overlay" aria-hidden="true"></div>
                   <textarea id="workspace-editor-textarea" class="code-textarea cursor-code-textarea" rows="14" spellcheck="false"></textarea>
                 </div>
               </div>
 
-              <!-- Cursor Tab Ghost-Text Autocomplete Bar (Powered by Local uor-r4.lut-stack/8 predict_next) -->
-              <div id="cursor-ghost-text-bar" class="cursor-ghost-text-bar" role="status" aria-live="polite" aria-label="Cursor Tab Ghost-Text Autocomplete">
-                <span class="cursor-ghost-pill">Cursor Tab &middot; /7+/8</span>
+              <div id="cursor-ghost-text-bar" class="cursor-ghost-text-bar" role="status" aria-live="polite" aria-label="Ghost-Text Autocomplete">
+                <span class="cursor-ghost-pill">Tab &middot; /7+/8</span>
                 <code id="cursor-ghost-text-preview" class="cursor-ghost-preview">pub fn flock_consensus_step(q12: &amp;[i16; 8]) -&gt; u8</code>
-                <span id="cursor-ghost-meta" class="cursor-ghost-meta">Basin #18 &middot; Q12 L1=0</span>
-                <button id="cursor-ghost-accept-btn" type="button" class="cursor-ghost-accept-btn" title="Accept Ghost-Text Completion (Tab)">Tab &#8677; Accept</button>
+                <span id="cursor-ghost-meta" class="cursor-ghost-meta">Basin #18</span>
+                <button id="cursor-ghost-accept-btn" type="button" class="cursor-ghost-accept-btn" title="Accept Completion (Tab)">Accept</button>
               </div>
 
-              <!-- R4-32 Compiler & Verifier Diagnostics Strip -->
-              <div id="cursor-problems-strip" class="cursor-problems-strip" role="region" aria-label="R4-32 In-Wasm Rust Compiler Diagnostics">
-                <span class="cursor-problems-title">Problems (<code>R4-32</code> Verifier):</span>
-                <span id="cursor-problems-summary" class="cursor-problems-ok">&#10003; 0 errors, 0 warnings &middot; cargo check + test ready</span>
+              <div id="cursor-problems-strip" class="cursor-problems-strip" role="region" aria-label="Compiler Diagnostics">
+                <span class="cursor-problems-title">Diagnostics (<code>R4-32</code>):</span>
+                <span id="cursor-problems-summary" class="cursor-problems-ok">&#10003; 0 errors, 0 warnings</span>
               </div>
 
               <div class="button-row cursor-editor-actions">
-                <button id="workspace-save-btn" type="button">Save &amp; Admit File to Geometric Memory (Cmd+S)</button>
-                <button id="workspace-download-btn" type="button" class="btn-secondary">Download Active File</button>
+                <button id="workspace-save-btn" type="button" class="cursor-mini-btn">Save File (Cmd+S)</button>
               </div>
               <output id="workspace-status" class="admit-output" role="status" aria-live="polite"></output>
+              <ul id="workspace-file-list" class="workspace-list" hidden aria-label="Virtual Workspace Files"></ul>
+              <input id="workspace-mount-input" name="workspace-mount-input" type="file" multiple webkitdirectory hidden aria-label="Mount Local Repository Files">
             </div>
           </div>
         </div>
 
-        <div class="canvas-header">
-          <nav class="canvas-tabs" role="tablist" aria-label="Integrated Linux Terminal Header">
-            <button id="canvas-tab-terminal" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-terminal" data-tab-id="terminal">
-              <span>TERMINAL</span>
-              <span class="canvas-tab-pill">mvm-rv64 &middot; bash</span>
-            </button>
-            <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-workspace" data-tab-id="workspace" hidden>
-              <span>Editor</span>
-            </button>
-          </nav>
-          <div class="terminal-drawer-actions">
-            <button id="terminal-open-inspectors-btn" type="button" class="btn-terminal-action" title="Open Full-Height 3D Brain &amp; Engine Inspectors">Inspectors &nearr;</button>
-            <button id="close-canvas-pane-btn" type="button" class="canvas-close-btn" title="Hide Terminal Panel (Ctrl+`)" aria-label="Hide Terminal Panel">&times;</button>
+        <!-- Workbench Panel 2: Opaque Sandbox Preview -->
+        <div id="canvas-panel-preview" class="canvas-panel" role="tabpanel" aria-labelledby="workbench-tab-preview" tabindex="0" hidden>
+          <div class="preview-toolbar">
+            <code class="preview-origin-pill">sandbox="allow-scripts" &middot; ./index.html?surface=preview</code>
+            <button id="preview-refresh-btn" type="button" class="cursor-mini-btn">Refresh Preview</button>
+          </div>
+          <iframe id="live-preview-iframe" sandbox="allow-scripts" src="./index.html?surface=preview" title="Isolated Workspace Preview"></iframe>
+          <pre id="preview-console-output" class="preview-console-output" role="log" aria-live="polite" aria-label="Preview Console Output">Preview sandbox standby.</pre>
+        </div>
+
+        <!-- Workbench Panel 3: Unified Diff & Artifact Preview -->
+        <div id="canvas-panel-diff" class="canvas-panel" role="tabpanel" aria-labelledby="workbench-tab-diff" tabindex="0" hidden>
+          <div class="patch-card">
+            <div class="reply-card-header">
+              <span class="reply-title">Unified Diff (<code id="chat-diff-file">src/attention.rs</code>)</span>
+              <div class="diff-toolbar-group" role="group" aria-label="Diff Actions">
+                <button id="chat-diff-view-btn" type="button" class="table-action-btn active" aria-pressed="true">Diff</button>
+                <button id="chat-artifact-view-btn" type="button" class="table-action-btn" aria-pressed="false">Artifact</button>
+                <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch</button>
+                <button id="cursor-accept-all-btn" type="button" class="cursor-patch-action-btn cursor-patch-accept">Accept All</button>
+                <button id="cursor-reject-all-btn" type="button" class="cursor-patch-action-btn cursor-patch-reject">Reject All</button>
+              </div>
+            </div>
+            <div id="chat-diff-file-pills" class="diff-file-pills" role="tablist" aria-label="Staged Multi-File Patches"></div>
+            <pre id="chat-diff-preview" class="code-block diff-colored-block" aria-label="Proposed Unified Diff"></pre>
+            <div id="chat-artifact-preview" class="artifact-preview-container" aria-label="Interactive Artifact Preview" hidden></div>
           </div>
         </div>
 
-        <!-- Terminal Panel -->
-        <div id="canvas-panel-terminal" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-terminal" tabindex="0">
-          <div id="terminal-container" class="terminal-container">
-            <div id="terminal-topbar" class="terminal-topbar">
-              <div class="terminal-title">
-                <span class="terminal-dot term-red"></span>
-                <span class="terminal-dot term-yellow"></span>
-                <span class="terminal-dot term-green"></span>
-                <span class="terminal-name">MVM Linux RV64IMAC &mdash; /workspace (SpiralCore Connected)</span>
-              </div>
-              <div class="terminal-actions">
-                <button id="terminal-clear-btn" type="button" class="btn-terminal-action">Clear</button>
-                <button id="terminal-reset-btn" type="button" class="btn-terminal-action">Reset Engine</button>
-              </div>
+        <!-- Bottom Split Drawer: Integrated Linux Terminal -->
+        <div id="terminal-split-drawer" class="terminal-split-drawer" role="region" aria-label="Integrated Linux Terminal Drawer">
+          <div class="canvas-header">
+            <nav class="canvas-tabs" role="tablist" aria-label="Bottom Split Tabs">
+              <button id="canvas-tab-terminal" type="button" class="canvas-tab-btn active" role="tab" aria-selected="true" aria-controls="canvas-panel-terminal" data-tab-id="terminal">
+                <span>TERMINAL</span>
+                <span class="canvas-tab-pill">lexlean-sh</span>
+              </button>
+              <button id="canvas-tab-workspace" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-workspace" data-tab-id="workspace" hidden>
+                <span>Editor</span>
+              </button>
+            </nav>
+            <div class="terminal-drawer-actions">
+              <button id="terminal-open-inspectors-btn" type="button" class="btn-terminal-action" title="Open Observatory">Observatory</button>
+              <button id="close-canvas-pane-btn" type="button" class="canvas-close-btn" title="Toggle Terminal Drawer (Ctrl+`)" aria-label="Hide Terminal Drawer">&times;</button>
             </div>
-            <div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-label="Terminal scrollback output"></div>
-            <form id="terminal-form" class="terminal-form" novalidate>
-              <label id="terminal-prompt-label" for="terminal-input" class="terminal-prompt">lexlean-sh $</label>
-              <input id="terminal-input" type="text" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Terminal Command Input">
-            </form>
+          </div>
+
+          <div id="canvas-panel-terminal" class="canvas-panel active" role="tabpanel" aria-labelledby="canvas-tab-terminal" tabindex="0">
+            <div id="terminal-container" class="terminal-container">
+              <div id="terminal-topbar" class="terminal-topbar">
+                <div class="terminal-title">
+                  <span class="terminal-dot term-red"></span>
+                  <span class="terminal-dot term-yellow"></span>
+                  <span class="terminal-dot term-green"></span>
+                  <span class="terminal-name">MVM Linux RV64IMAC &mdash; /workspace</span>
+                </div>
+                <div class="terminal-actions">
+                  <button id="terminal-clear-btn" type="button" class="btn-terminal-action">Clear</button>
+                  <button id="terminal-reset-btn" type="button" class="btn-terminal-action">Reset Engine</button>
+                </div>
+              </div>
+              <div id="terminal-output" class="terminal-output" role="log" aria-live="polite" aria-label="Terminal scrollback output"></div>
+              <form id="terminal-form" class="terminal-form" novalidate>
+                <label id="terminal-prompt-label" for="terminal-input" class="terminal-prompt">lexlean-sh $</label>
+                <input id="terminal-input" type="text" class="terminal-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Terminal Command Input">
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- GitHub Host Vault & Repository Sync Modal (R4-39) -->
-    <div id="github-connect-modal" class="github-connect-modal" hidden role="dialog" aria-modal="true" aria-label="Connect GitHub Vault and Sync Repository">
-      <div id="github-connect-backdrop" class="inspectors-modal-backdrop"></div>
-      <div class="github-connect-dialog">
-        <div class="github-connect-header">
-          <div>
-            <strong>GitHub Host Vault &amp; Connected Repository Sync</strong>
-            <div class="github-connect-subtitle">R4-39 Zero-NIC Host Vault &mdash; Tokens stay in Dedicated Worker memory, never guest RAM or storage</div>
-          </div>
-          <button id="close-github-connect-btn" type="button" class="btn-secondary btn-xs" aria-label="Close GitHub Vault">&times; Close</button>
+    <!-- Column 3: Right Pane (Chat Stream + Composer + Docked Studio Observatory) -->
+    <div id="prism-right-column" class="prism-right-column">
+      <section class="prism-right-pane gpt-main-pane cowork-chat-pane cursor-ai-right-pane" id="claude-code-desktop" aria-labelledby="heading-claude-desktop">
+        <h1 id="heading-claude-desktop" class="sr-only">LexLean-R4 Studio Chat</h1>
+
+        <div id="chat-transcript" class="chat-transcript" role="log" aria-live="polite" aria-label="Assistant Conversation History">
+          <div id="chat-messages" class="chat-messages"></div>
         </div>
-        <div class="github-connect-body">
-          <div class="field">
-            <label for="github-token-input">GitHub Personal Access Token (Allowlisted strictly to <code>github.com</code> &amp; <code>api.github.com</code>)</label>
-            <div class="github-input-row">
-              <input id="github-token-input" type="password" placeholder="Fine-grained PAT for private clone or git push..." autocomplete="off" spellcheck="false">
-              <button id="save-github-token-btn" type="button" class="btn-primary">Save in Host Vault</button>
-              <button id="clear-github-token-btn" type="button" class="btn-secondary">Clear</button>
-            </div>
+
+        <div class="gpt-composer-dock">
+          <div class="composer-shell">
+            <div id="composer-autocomplete-menu" class="composer-autocomplete-menu" role="listbox" aria-label="Slash Commands and Context Mentions" hidden></div>
+
+            <form id="claude-chat-form" class="gpt-composer-form ts-rich-composer" novalidate>
+              <div id="composer-attachments-bar" class="composer-attachments-bar" aria-label="Attached Context Chips" hidden></div>
+
+              <div class="composer-field">
+                <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
+                <textarea id="claude-chat-input" name="claude-chat-input" rows="2" placeholder="Ask, build, inspect /workspace with pure-integer UOR-R4... (/think, /patch, Cmd+K)" autocomplete="off" spellcheck="false"></textarea>
+              </div>
+
+              <div id="composer-send-bar" class="composer-send-bar">
+                <div class="composer-send-bar-left">
+                  <button id="composer-attach-btn" type="button" class="composer-action-btn" title="Attach File (+)" aria-label="Attach File">+</button>
+                  <input type="file" id="composer-file-input" multiple hidden aria-label="Attach file">
+                  <select id="composer-model-select" class="composer-model-select" hidden aria-hidden="true" tabindex="-1">
+                    <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3-0.6B Holo v13 (28L 1024D OPFS Int4)</option>
+                    <option value="uor-r4.qwen3-1.7b-holo">Qwen3-1.7B Holo v13 (28L 2048D OPFS Int4)</option>
+                    <option value="uor-r4.native-q31-d85">UOR-R4 Native Q31 D85 (0-Download 4L 256D)</option>
+                    <option value="uor-r4.hf-repo-holo">HuggingFace Safetensors Stream (Range 206 -&gt; Holo v13)</option>
+                  </select>
+                  <button id="composer-slash-btn" type="button" class="composer-trigger-pill" title="Slash Commands" aria-label="Slash Commands">/</button>
+                  <button id="composer-mention-btn" type="button" class="composer-trigger-pill" title="Attach @ Context Chip" aria-label="Attach Context Mention">@</button>
+                </div>
+
+                <div class="composer-send-bar-right">
+                  <div class="composer-mode-group" role="group" aria-label="Composer Tool Policy">
+                    <button id="composer-mode-agent" type="button" class="composer-mode-btn active" data-composer-mode="agentic" aria-pressed="true" title="Agent mode (read and write tools)">Agent</button>
+                    <button id="composer-mode-plan" type="button" class="composer-mode-btn" data-composer-mode="plan" aria-pressed="false" title="Plan mode (read-only analysis)">Plan</button>
+                  </div>
+                  <span id="composer-token-badge" class="composer-token-badge" title="Live Token Estimate">0t</span>
+                  <button id="composer-stop-btn" type="button" class="composer-stop-btn" hidden title="Stop Streaming">Stop</button>
+                  <button id="composer-send-btn" type="submit" class="composer-send-btn" title="Send (Enter)" aria-label="Send Message">&crarr;</button>
+                  <button id="claude-chat-submit" type="submit" hidden tabindex="-1" aria-hidden="true">Send</button>
+                </div>
+              </div>
+            </form>
           </div>
-          <div class="field">
-            <label for="github-repo-input">Clone or Connect Any GitHub Repository into <code>/workspace</code></label>
-            <div class="github-input-row">
-              <input id="github-repo-input" type="text" value="UOR-Foundation/Prism" placeholder="owner/repo" autocomplete="off" spellcheck="false">
-              <button id="github-detect-repo-btn" type="button" class="btn-secondary">Auto-Detect</button>
-              <button id="github-connect-branches-btn" type="button" class="btn-secondary">Branches</button>
-              <button id="clone-github-repo-btn" type="button" class="btn-primary">Clone into Studio</button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="github-branch-select">Branch Selector &amp; New Branch Creation</label>
-            <div class="github-input-row">
-              <select id="github-branch-select" aria-label="Select GitHub Branch">
-                <option value="main" selected>main</option>
-              </select>
-              <input id="github-new-branch-input" type="text" placeholder="feat/my-branch" autocomplete="off" spellcheck="false">
-              <button id="github-create-branch-btn" type="button" class="btn-secondary">Create Branch</button>
-            </div>
-          </div>
-          <div class="field">
-            <label for="spiralcore-relay-input">SpiralCore Edge Relay Endpoint (Optional override, automatic Direct-HTTPS fallback active)</label>
-            <div class="github-input-row">
-              <input id="spiralcore-relay-input" type="text" placeholder="Custom Secure WSS Relay Endpoint" autocomplete="off" spellcheck="false">
-              <button id="save-relay-url-btn" type="button" class="btn-secondary">Apply Relay</button>
-            </div>
-          </div>
-          <output id="github-connect-status" class="admit-output" role="status" aria-live="polite">Host Vault standby &middot; Direct-HTTPS DoH, Search &amp; GitHub REST active.</output>
         </div>
-      </div>
+      </section>
+
+      <!-- Docked Observatory Host in Studio Mode (data-observatory-host="dock") -->
+      <aside id="observatory-dock-split" class="observatory-dock-split" data-observatory-host="dock" aria-label="Studio Live Observatory Dock"></aside>
     </div>
 
-    <!-- Stitch Prism Identity & Hologram v4 .holo App Compiler Modal (R4-54) -->
-    <div id="prism-holo-modal" class="github-connect-modal" hidden role="dialog" aria-modal="true" aria-label="Stitch Prism Identity and Hologram v4 Compiler">
-      <div id="prism-holo-backdrop" class="inspectors-modal-backdrop"></div>
-      <div class="github-connect-dialog">
-        <div class="github-connect-header">
-          <div>
-            <strong>Stitch Prism Identity &amp; Hologram v4 <code>.holo</code> Compiler (<code>R4-54</code>)</strong>
-            <div class="github-connect-subtitle">Login-free <code>uor-addr/sha256</code> identity (non-extractable P-256) + verifiable <code>holo://lexlean-r4</code> app archive for UOR Foundry (<code>inprism</code>)</div>
-          </div>
-          <button id="prism-holo-close-btn" type="button" class="btn-secondary btn-xs" aria-label="Close Prism Holo Modal">&times; Close</button>
-        </div>
-        <div class="github-connect-body">
-          <div id="prism-identity-summary" class="stitch-health-card">
-            <div><strong>Prism ID:</strong> <code id="prism-modal-prism-id">initializing&hellip;</code></div>
-            <div><strong>Device ID:</strong> <code id="prism-modal-device-id">&mdash;</code></div>
-            <div><strong>Persona (Foundry / Me):</strong> <code id="prism-modal-persona">unbound</code></div>
-            <div><strong>Latest <code>.holo</code> Fingerprint:</strong> <code id="prism-modal-holo-fp">not compiled yet</code></div>
-          </div>
-          <div class="field">
-            <label for="prism-persona-handle-input">Bind Foundry Persona Handle (<code>prism/persona/1</code> on <code>uor-foundation.github.io</code>)</label>
-            <div class="github-input-row">
-              <input id="prism-persona-handle-input" type="text" value="lexlean-r4-studio" placeholder="persona handle" autocomplete="off" spellcheck="false">
-              <button id="prism-bind-persona-btn" type="button" class="btn-secondary">Bind Foundry Persona</button>
-              <button id="prism-identity-init-btn" type="button" class="btn-secondary">Refresh Prism ID</button>
-            </div>
-          </div>
-          <div class="field">
-            <span class="diag-label">Hologram v4 Archive &amp; Selectable UOR Foundry Bundle (<code>hologram:guest/core-wasm@1</code> + <code>HOLOVIEW</code> v1)</span>
-            <div class="github-input-row">
-              <button id="prism-compile-holo-btn" type="button" class="btn-primary">Compile &amp; Verify .holo v4</button>
-              <button id="prism-download-holo-btn" type="button" class="btn-secondary">Download lexlean-r4.holo</button>
-              <button id="prism-copy-me-manifest-btn" type="button" class="btn-secondary">Inspect Foundry Descriptor</button>
-            </div>
-          </div>
-          <output id="prism-holo-status" class="admit-output" role="status" aria-live="polite">Stitch Prism Identity ready &middot; Click Compile &amp; Verify .holo v4 to build and replay vectors.</output>
-        </div>
-      </div>
-    </div>
-
-    <!-- Cursor Cmd+P Quick Open & Cmd+Shift+P Command Palette Modal -->
-    <div id="cursor-command-palette" class="cursor-command-palette cursor-quick-open-modal" data-testid="cursor-quick-open-modal" hidden role="dialog" aria-modal="true" aria-label="Cursor Quick Open and Command Palette">
-      <div class="cursor-palette-backdrop" id="cursor-palette-backdrop"></div>
-      <div class="cursor-palette-dialog">
-        <div class="cursor-palette-header">
-          <span id="cursor-palette-mode-badge" class="cursor-palette-mode-badge">Quick Open (Cmd+P)</span>
-          <input id="cursor-palette-input" class="cursor-palette-input" type="text" placeholder="Type a file name to open, or prefix with &gt; for UOR-R4 commands..." autocomplete="off" />
-          <button id="cursor-palette-close-btn" type="button" class="btn-secondary btn-xs" title="Close (Esc)">Esc</button>
-        </div>
-        <div id="cursor-palette-list" class="cursor-palette-list" role="listbox" aria-label="Quick Open and Command Results">
-          <!-- Populated dynamically with VFS files and UOR-R4 IDE commands -->
-        </div>
-        <div class="cursor-palette-footer">
-          <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
-          <span><kbd>Enter</kbd> Execute / Open</span>
-          <span><kbd>&gt;</kbd> Commands</span>
-          <span><kbd>Esc</kbd> Dismiss</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Cursor IDE Bottom Status Bar (#ide-status-bar) -->
-    <footer id="ide-status-bar" class="ide-status-bar cursor-status-bar" aria-label="Cursor IDE Status Bar">
+    <!-- Bottom IDE Status Bar -->
+    <footer id="ide-status-bar" class="ide-status-bar cursor-status-bar" aria-label="Studio IDE Status Bar">
       <div class="cursor-status-left status-bar-left">
-        <span id="status-remote-indicator" class="cursor-status-item status-remote" title="100% In-Browser WASM + WebGPU Execution">
+        <span id="status-remote-indicator" class="cursor-status-item status-remote" title="In-Browser WASM Execution">
           <span class="status-dot status-dot-live"></span>
-          &#x2B21; LexLean WASM
+          LexLean WASM
         </span>
-        <span id="status-git-branch" class="cursor-status-item" title="Active Workspace Branch">&#9095; <span id="cursor-status-branch">main*</span></span>
-        <span id="status-git-dirty" class="cursor-status-item" title="Uncommitted Changes">0 uncommitted</span>
-        <button id="status-problems" type="button" class="cursor-status-item cursor-status-btn" title="Click to run R4-32 cargo check in WASM">
+        <span id="status-git-branch" class="cursor-status-item">&#9095; <span id="cursor-status-branch">main</span></span>
+        <span id="status-git-dirty" class="cursor-status-item">0 uncommitted</span>
+        <button id="status-problems" type="button" class="cursor-status-item cursor-status-btn" title="Run R4-32 Verification">
           <span id="cursor-status-r432">0 &otimes; 0 &warn;</span>
         </button>
-        <span id="status-model-badge" class="cursor-status-item" title="Active Local Model">
-          <span id="active-model-badge" class="active-model-badge"><span id="cursor-status-model">&#9889; UOR-R4 [Local LUT-8]</span></span>
+        <span id="status-model-badge" class="cursor-status-item">
+          <span id="active-model-badge" class="active-model-badge"><span id="cursor-status-model">UOR-R4 [Local LUT-8]</span></span>
         </span>
-        <span id="cursor-status-local-badge" class="cursor-status-item cursor-status-local" hidden>
-          <span class="status-dot status-dot-live"></span>
-          LOCAL WASM &middot; 0 Cloud Calls
-        </span>
+        <span id="cursor-status-local-badge" class="cursor-status-item cursor-status-local" hidden>LOCAL WASM &middot; 0 Cloud Calls</span>
       </div>
       <div class="cursor-status-center status-bar-center">
-        <span id="status-active-file" class="cursor-status-item" title="Active File in Editor">src/attention.rs</span>
-        <span id="status-cursor-pos" class="cursor-status-item" title="Editor Cursor Position">
-          <span id="cursor-status-lncol">Ln 1, Col 1</span>
-        </span>
-        <span id="status-encoding" class="cursor-status-item" title="File Encoding">
-          <span id="cursor-status-encoding">UTF-8</span>
-        </span>
-        <span id="status-language" class="cursor-status-item" title="Detected Language">Rust</span>
+        <span id="status-active-file" class="cursor-status-item">src/attention.rs</span>
+        <span id="status-cursor-pos" class="cursor-status-item"><span id="cursor-status-lncol">Ln 1, Col 1</span></span>
+        <span id="status-encoding" class="cursor-status-item"><span id="cursor-status-encoding">UTF-8</span></span>
+        <span id="status-language" class="cursor-status-item">Rust</span>
       </div>
       <div class="cursor-status-right status-bar-right">
-        <span id="cursor-status-ghost" class="cursor-status-item" title="Cursor Tab Local Autocomplete Engine">Tab: /8 + 4-Gram Ready</span>
-        <span id="cursor-status-q12" class="cursor-status-item" title="Live 256D Q12 &amp; Cl(0,6) Geometric State">256D Q12 &middot; Cl(0,6) 8-Head</span>
-        <button id="status-terminal-btn" type="button" class="cursor-status-item cursor-status-btn" title="Toggle Integrated Bottom Terminal (Ctrl+`)">Terminal (Ctrl+`)</button>
+        <span id="cursor-status-ghost" class="cursor-status-item">Tab: /8 Ready</span>
+        <span id="cursor-status-q12" class="cursor-status-item">256D Q12 &middot; Cl(0,6)</span>
+        <button id="status-terminal-btn" type="button" class="cursor-status-item cursor-status-btn" title="Toggle Terminal (Ctrl+`)">Terminal</button>
         <span id="cursor-status-bar" hidden></span>
       </div>
     </footer>
-
-    <!-- Legacy Modal Compatibility Wrappers (ensure no querySelector null pointer errors) -->
-    <div id="workspace-modal" hidden>
-      <button id="close-workspace-modal-btn" type="button" class="sr-only">Close</button>
-    </div>
-    <div id="diagnostics-modal" hidden>
-      <button id="close-diagnostics-modal-btn" type="button" class="sr-only">Close</button>
-    </div>
   </main>
 
-  <!-- Full-Height Spacious Inspectors Modal (85vh, 8 Diagnostic & 3D Brain Views) -->
+  <!-- GitHub Host Vault Modal (R4-39) -->
+  <div id="github-connect-modal" class="prism-modal github-connect-modal" hidden role="dialog" aria-modal="true" aria-label="Connect GitHub Vault and Sync Repository">
+    <div id="github-connect-backdrop" class="inspectors-modal-backdrop"></div>
+    <div class="prism-modal-dialog github-connect-dialog">
+      <div class="github-connect-header">
+        <div>
+          <strong>GitHub Host Vault &amp; Repository Sync</strong>
+          <div class="github-connect-subtitle">Zero-NIC Host Vault &mdash; Credentials stay in Dedicated Worker memory</div>
+        </div>
+        <button id="close-github-connect-btn" type="button" class="btn-secondary btn-xs" aria-label="Close GitHub Vault">&times; Close</button>
+      </div>
+      <div class="github-connect-body">
+        <div class="field">
+          <label for="github-token-input">GitHub Personal Access Token</label>
+          <div class="github-input-row">
+            <input id="github-token-input" type="password" placeholder="Fine-grained PAT for private clone or push..." autocomplete="off" spellcheck="false">
+            <button id="save-github-token-btn" type="button" class="btn-primary">Save Token</button>
+            <button id="clear-github-token-btn" type="button" class="btn-secondary">Clear</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="github-repo-input">Clone or Connect Repository into <code>/workspace</code></label>
+          <div class="github-input-row">
+            <input id="github-repo-input" type="text" value="UOR-Foundation/Prism" placeholder="owner/repo" autocomplete="off" spellcheck="false">
+            <button id="github-detect-repo-btn" type="button" class="btn-secondary">Detect</button>
+            <button id="github-connect-branches-btn" type="button" class="btn-secondary">Branches</button>
+            <button id="clone-github-repo-btn" type="button" class="btn-primary">Clone</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="github-branch-select">Branch Selector &amp; New Branch</label>
+          <div class="github-input-row">
+            <select id="github-branch-select" aria-label="Select GitHub Branch">
+              <option value="main" selected>main</option>
+            </select>
+            <input id="github-new-branch-input" type="text" placeholder="feat/my-branch" autocomplete="off" spellcheck="false">
+            <button id="github-create-branch-btn" type="button" class="btn-secondary">Create Branch</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="spiralcore-relay-input">SpiralCore Edge Relay Endpoint (Optional)</label>
+          <div class="github-input-row">
+            <input id="spiralcore-relay-input" type="text" placeholder="Custom Secure WSS Relay Endpoint" autocomplete="off" spellcheck="false">
+            <button id="save-relay-url-btn" type="button" class="btn-secondary">Apply Relay</button>
+          </div>
+        </div>
+        <output id="github-connect-status" class="admit-output" role="status" aria-live="polite">Host Vault standby &middot; Direct-HTTPS DoH and GitHub REST ready.</output>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="prism-modal settings-modal" hidden role="dialog" aria-modal="true" aria-label="Studio Settings and Engine Preferences">
+    <div id="settings-modal-backdrop" class="inspectors-modal-backdrop"></div>
+    <div class="prism-modal-dialog settings-modal-dialog">
+      <div class="github-connect-header">
+        <div>
+          <strong>Studio Settings &amp; Engine Preferences</strong>
+          <div class="github-connect-subtitle">Appearance, Pure-Integer Inference &amp; Off-Origin Hydration Policy</div>
+        </div>
+        <button id="close-settings-modal-btn" type="button" class="btn-secondary btn-xs" aria-label="Close Settings">&times; Close</button>
+      </div>
+      <div class="github-connect-body">
+        <div class="field">
+          <label for="custom-theme-toggle">
+            <input type="checkbox" id="custom-theme-toggle">
+            <span>Enable Warm Light Theme (Default: Obsidian Dark)</span>
+          </label>
+        </div>
+        <div class="field">
+          <label for="custom-density-select">UI Density</label>
+          <select id="custom-density-select" class="sidebar-select">
+            <option value="comfortable">Comfortable</option>
+            <option value="compact" selected>Compact</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="custom-mode-select">Agentic Operating Mode</label>
+          <select id="custom-mode-select" class="sidebar-select">
+            <option value="coding" selected>Agentic Coding Harness</option>
+            <option value="math">Mathematical Verification</option>
+            <option value="fast">Fast Latent Inference</option>
+          </select>
+        </div>
+        <div class="field">
+          <div class="field-label-row">
+            <label for="custom-retain-lambda">Memory Retain Factor (&lambda;)</label>
+            <span id="custom-retain-lambda-val" class="metric-code">0.85</span>
+          </div>
+          <input type="range" id="custom-retain-lambda" min="0" max="1" step="0.05" value="0.85">
+        </div>
+        <div class="field">
+          <label for="custom-plurality-votes">Plurality Voting Ensemble Heads (<em>K</em>)</label>
+          <input type="number" id="custom-plurality-votes" min="1" max="16" value="8">
+        </div>
+        <div class="field">
+          <label for="mcp-policy-select">Tool Execution Security Policy</label>
+          <select id="mcp-policy-select" class="sidebar-select">
+            <option value="safe" selected>Safe Local Execution (In-Browser)</option>
+            <option value="confirm">Ask Before Execution</option>
+            <option value="deny">Deny All Tool Calls</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="settings-allow-off-origin-weights">
+            <input type="checkbox" id="settings-allow-off-origin-weights">
+            <span>Allow Verified Off-Origin Weight Downloads (HuggingFace Mirrors)</span>
+          </label>
+        </div>
+        <div class="github-input-row">
+          <button id="topbar-prism-holo-btn" type="button" class="btn-secondary">Prism ID &amp; .holo Compiler</button>
+        </div>
+        <output id="settings-modal-status" class="admit-output" role="status" aria-live="polite"></output>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Workspace File / Directory Modal -->
+  <div id="new-path-modal" class="prism-modal new-path-modal" hidden role="dialog" aria-modal="true" aria-label="Create New Workspace File or Directory">
+    <div id="new-path-modal-backdrop" class="inspectors-modal-backdrop"></div>
+    <div class="prism-modal-dialog new-path-modal-dialog">
+      <div class="github-connect-header">
+        <div>
+          <strong id="new-path-modal-title">New Workspace Path</strong>
+          <div class="github-connect-subtitle">Create file or directory inside MVM <code>/workspace</code></div>
+        </div>
+        <button id="close-new-path-modal-btn" type="button" class="btn-secondary btn-xs" aria-label="Close New Path Dialog">&times; Close</button>
+      </div>
+      <form id="new-path-form" class="github-connect-body" novalidate>
+        <input id="new-path-kind-input" type="hidden" value="file">
+        <div class="field">
+          <label for="new-path-input">Relative Path under <code>/workspace</code></label>
+          <input id="new-path-input" type="text" placeholder="src/new_module.rs" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="github-input-row">
+          <button id="new-path-submit-btn" type="submit" class="btn-primary">Create</button>
+          <button id="new-path-cancel-btn" type="button" class="btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Stitch Prism Identity & Hologram v4 .holo Compiler Modal -->
+  <div id="prism-holo-modal" class="prism-modal github-connect-modal" hidden role="dialog" aria-modal="true" aria-label="Stitch Prism Identity and Hologram v4 Compiler">
+    <div id="prism-holo-backdrop" class="inspectors-modal-backdrop"></div>
+    <div class="prism-modal-dialog github-connect-dialog">
+      <div class="github-connect-header">
+        <div>
+          <strong>Stitch Prism Identity &amp; Hologram v4 <code>.holo</code> Compiler</strong>
+          <div class="github-connect-subtitle">Login-free <code>uor-addr/sha256</code> identity + verifiable <code>holo://lexlean-r4</code> archive</div>
+        </div>
+        <button id="prism-holo-close-btn" type="button" class="btn-secondary btn-xs" aria-label="Close Prism Holo Modal">&times; Close</button>
+      </div>
+      <div class="github-connect-body">
+        <div id="prism-identity-summary" class="stitch-health-card">
+          <div><strong>Prism ID:</strong> <code id="prism-modal-prism-id">initializing&hellip;</code></div>
+          <div><strong>Device ID:</strong> <code id="prism-modal-device-id">&mdash;</code></div>
+          <div><strong>Persona:</strong> <code id="prism-modal-persona">unbound</code></div>
+          <div><strong>Latest <code>.holo</code> Fingerprint:</strong> <code id="prism-modal-holo-fp">not compiled yet</code></div>
+        </div>
+        <div class="field">
+          <label for="prism-persona-handle-input">Bind Foundry Persona Handle</label>
+          <div class="github-input-row">
+            <input id="prism-persona-handle-input" type="text" value="lexlean-r4-studio" placeholder="persona handle" autocomplete="off" spellcheck="false">
+            <button id="prism-bind-persona-btn" type="button" class="btn-secondary">Bind Persona</button>
+            <button id="prism-identity-init-btn" type="button" class="btn-secondary">Refresh ID</button>
+          </div>
+        </div>
+        <div class="github-input-row">
+          <button id="prism-compile-holo-btn" type="button" class="btn-primary">Compile &amp; Verify .holo v4</button>
+          <button id="prism-download-holo-btn" type="button" class="btn-secondary">Download .holo</button>
+          <button id="prism-copy-me-manifest-btn" type="button" class="btn-secondary">Inspect Descriptor</button>
+        </div>
+        <output id="prism-holo-status" class="admit-output" role="status" aria-live="polite">Stitch Prism Identity ready.</output>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Open & Command Palette Modal (Cmd+P / Cmd+Shift+P) -->
+  <div id="cursor-command-palette" class="cursor-command-palette cursor-quick-open-modal" data-testid="cursor-quick-open-modal" hidden role="dialog" aria-modal="true" aria-label="Quick Open and Command Palette">
+    <div class="cursor-palette-backdrop" id="cursor-palette-backdrop"></div>
+    <div class="cursor-palette-dialog">
+      <div class="cursor-palette-header">
+        <span id="cursor-palette-mode-badge" class="cursor-palette-mode-badge">Quick Open (Cmd+P)</span>
+        <input id="cursor-palette-input" class="cursor-palette-input" type="text" placeholder="Type a file name or &gt; for commands..." autocomplete="off">
+        <button id="cursor-palette-close-btn" type="button" class="btn-secondary btn-xs" title="Close (Esc)">Esc</button>
+      </div>
+      <div id="cursor-palette-list" class="cursor-palette-list" role="listbox" aria-label="Quick Open Results"></div>
+      <div class="cursor-palette-footer">
+        <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
+        <span><kbd>Enter</kbd> Open</span>
+        <span><kbd>Esc</kbd> Dismiss</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Observatory & Engine Inspectors Modal (also ?surface=observatory host) -->
   <div id="inspectors-modal" class="inspectors-modal" hidden role="dialog" aria-modal="true" aria-label="3D Holographic Brain and Engine Inspectors">
     <div id="inspectors-modal-backdrop" class="inspectors-modal-backdrop"></div>
     <div class="inspectors-modal-dialog">
       <div class="inspectors-modal-header">
         <div class="inspectors-modal-brand">
-          <strong>Engine Inspectors &amp; 3D Brain</strong>
+          <strong>Observatory &amp; Engine Inspectors</strong>
           <span id="inspectors-live-pulse-pill" class="panel-badge">Live Worker Stream</span>
         </div>
         <nav class="canvas-tabs inspectors-tabs-nav" role="tablist" aria-label="Engine Inspector Tabs">
           <button id="canvas-tab-traces" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-traces" data-tab-id="traces">
-            <span>3D Brain &amp; OTel</span>
-            <span class="canvas-tab-pill">WebGL2 &middot; Live</span>
+            <span>Observatory &amp; 3D</span>
           </button>
           <button id="canvas-tab-inspector" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-inspector" data-tab-id="inspector">
             <span>ML Inspector</span>
-            <span class="canvas-tab-pill">256D Q12</span>
           </button>
           <button id="canvas-tab-diff" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diff" data-tab-id="diff">
-            <span>Diff Preview</span>
+            <span>Diff</span>
           </button>
           <button id="canvas-tab-diagnostics" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-diagnostics" data-tab-id="diagnostics">
-            <span>API &amp; 30/30</span>
-            <span class="canvas-tab-pill">30/30</span>
+            <span>Diagnostics</span>
           </button>
           <button id="canvas-tab-mcp" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-mcp" data-tab-id="mcp">
-            <span>MCP Tools</span>
-            <span class="canvas-tab-pill">R4-39</span>
+            <span>MCP Audit</span>
           </button>
           <button id="canvas-tab-feed" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-feed" data-tab-id="feed">
-            <span>Self-Improvement</span>
-            <span class="canvas-tab-pill">R4-F32</span>
+            <span>Self-Improve</span>
           </button>
           <button id="canvas-tab-consolidation" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-consolidation" data-tab-id="consolidation">
             <span>Consolidation</span>
-            <span class="canvas-tab-pill">Worker Q12</span>
           </button>
           <button id="canvas-tab-customizations" type="button" class="canvas-tab-btn" role="tab" aria-selected="false" aria-controls="canvas-panel-customizations" data-tab-id="customizations">
-            <span>Customizations</span>
+            <span>Preferences</span>
           </button>
         </nav>
         <button id="close-inspectors-modal-btn" type="button" class="btn-secondary btn-xs" title="Close Inspectors (Esc)" aria-label="Close Inspectors">&times; Close</button>
       </div>
-      <div class="inspectors-modal-body">
 
-      <!-- ML Inspector Panel -->
-      <div id="canvas-panel-inspector" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-inspector" tabindex="0" hidden>
-        <div class="inspector-panel-container">
-          <div class="pane-subheader">
-            <strong>ML &amp; Geometric Coordinate Inspector</strong>
-            <span class="metric-code">256D Q12 Latent Space</span>
-          </div>
-          <div class="inspector-section">
-            <h4>256D Latent Projection Activation Sparkline</h4>
-            <div id="inspector-sparkline" class="inspector-sparkline-grid" aria-label="Latent Vector Activation Sparkline"></div>
-          </div>
-          <div class="inspector-section">
-            <h4>Clifford <span class="latex-mathcal">C</span>&#8467;(0,6) Graded Subspaces (2<sup>6</sup> = 64 Basis Elements)</h4>
-            <div id="inspector-clifford-grades" class="inspector-clifford-grid">
-              <div class="grade-cell"><span class="grade-title">Gr 0 (Scalar)</span><span class="grade-dim">1 dim</span></div>
-              <div class="grade-cell"><span class="grade-title">Gr 1 (Vector)</span><span class="grade-dim">6 dim</span></div>
-              <div class="grade-cell"><span class="grade-title">Gr 2 (Bivector)</span><span class="grade-dim">15 dim</span></div>
-              <div class="grade-cell"><span class="grade-title">Gr 3 (Trivector)</span><span class="grade-dim">20 dim</span></div>
-              <div class="grade-cell"><span class="grade-title">Gr 4 (4-Vector)</span><span class="grade-dim">15 dim</span></div>
-              <div class="grade-cell"><span class="grade-title">Gr 5 (5-Vector)</span><span class="grade-dim">6 dim</span></div>
-              <div class="grade-cell"><span class="grade-title">Gr 6 (Pseudoscalar)</span><span class="grade-dim">1 dim</span></div>
+      <div class="inspectors-modal-body">
+        <!-- Traces & 4-Canvas Live Holo Observatory -->
+        <div id="canvas-panel-traces" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0">
+          <div class="traces-header">
+            <h3>Holo Observatory &amp; OTel Waterfall (<code>uor.gllm.trace/1</code>)</h3>
+            <div class="agent-mini-btn-group">
+              <button id="export-otlp-json-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Toggle OTLP/JSON</button>
+              <span id="live-otel-trace-badge" class="panel-badge">uor.gllm.trace/1</span>
             </div>
           </div>
-          <div class="inspector-section">
-            <h4>Icosian Golden Quaternion Roots (<span class="latex-mathbb">&#8484;</span>[&phi;], 17 Roots)</h4>
-            <div id="inspector-icosian-roots" class="inspector-icosian-list"></div>
+          <div class="traces-metrics-grid">
+            <div class="diag-item"><span class="diag-label">Root Trace ID</span><code id="trace-stat-trace-id">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Interned UOR Hashes</span><code id="trace-stat-interned-count">0</code></div>
+            <div class="diag-item"><span class="diag-label">Dedup Hits</span><code id="trace-stat-dedup-hits">0</code></div>
+            <div class="diag-item"><span class="diag-label">Payload Savings</span><code id="trace-stat-savings">0%</code></div>
           </div>
-          <div class="inspector-section">
-            <h4>E8 Lattice Root Occupancy (16 &times; 64 &times; 17 = 17,408 Basins)</h4>
-            <div id="inspector-e8-grid" class="inspector-e8-grid"></div>
+
+          <section id="holo-observatory-deck" class="holo-observatory-deck" aria-label="Holo v13 Live Neural and Storage Geometry Observatory">
+            <div class="holo-obs-toolbar">
+              <div class="holo-obs-title-group">
+                <strong class="holo-obs-title">Holo v13 Live Neural &amp; Storage Geometry Observatory</strong>
+                <span id="holo-obs-status-badge" class="neural-3d-status">Awaiting Live Token Frame</span>
+              </div>
+              <div class="holo-obs-actions">
+                <button id="holo-obs-refresh-storage-btn" type="button" class="neural-btn">Refresh Storage Map</button>
+                <button id="holo-obs-pause-toggle" type="button" class="neural-btn">Live Stream: ON</button>
+              </div>
+            </div>
+            <div class="holo-obs-stats-strip">
+              <div class="diag-item"><span class="diag-label">TTFT / Speed</span><code id="holo-obs-speed-stat">&mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Prefix KV Reused</span><code id="holo-obs-prefix-stat">0 tok</code></div>
+              <div class="diag-item"><span class="diag-label">Shortlist K / Min Hamming</span><code id="holo-obs-shortlist-stat">4096 / &mdash;</code></div>
+              <div class="diag-item"><span class="diag-label">Execution Backend</span><code id="holo-obs-backend-stat">wasm-simd128</code></div>
+            </div>
+            <div class="holo-obs-grid">
+              <div class="holo-obs-card">
+                <div class="holo-obs-card-head">
+                  <span>1. 28-Layer Residual &amp; Bit-Width Waterfall</span>
+                  <code id="holo-obs-layer-caption">Q18..NORM</code>
+                </div>
+                <canvas id="holo-layer-waterfall-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="28-Layer Residual Magnitude and Bit-Width Waterfall"></canvas>
+              </div>
+              <div class="holo-obs-card">
+                <div class="holo-obs-card-head">
+                  <span>2. 151,936-Vocab RHT-512 Hamming &amp; Logit Race</span>
+                  <code id="holo-obs-vocab-caption">Top-6 Q16 Logits</code>
+                </div>
+                <canvas id="holo-shortlist-race-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="RHT-512 Hamming Bell Curve and Top-6 Logit Race"></canvas>
+              </div>
+              <div class="holo-obs-card">
+                <div class="holo-obs-card-head">
+                  <span>3. Causal Starling-Flock Sparse Attention Matrix</span>
+                  <code id="holo-obs-flock-caption">KV Peaks + Prefix Reuse</code>
+                </div>
+                <canvas id="holo-causal-flock-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="Causal Starling-Flock Sparse Attention Matrix"></canvas>
+              </div>
+              <div class="holo-obs-card">
+                <div class="holo-obs-card-head">
+                  <span>4. Stationary OPFS + MVM CoW + 3D RHT Hypercube</span>
+                  <code id="holo-obs-storage-caption">1 MiB Pieces &middot; 4 KiB Sectors</code>
+                </div>
+                <canvas id="holo-storage-geometry-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="Stationary OPFS Layout MVM CoW Sectors and 3D RHT Vocab Clusters"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <div id="neural-3d-viewport" class="neural-3d-viewport" role="region" aria-label="3D Holographic Neural Process Viewport">
+            <div class="neural-3d-toolbar">
+              <div class="neural-3d-title-group">
+                <span class="neural-3d-title">Riemannian Manifold &middot; Least-Action Geodesics (<em>k</em> = 7)</span>
+                <span id="neural-3d-status" class="neural-3d-status" role="status" aria-live="polite">Initializing &middot; WebGL2</span>
+              </div>
+              <div class="neural-3d-controls">
+                <button id="neural-3d-pulse-btn" type="button" class="neural-btn">Fire Cascade</button>
+                <button id="neural-3d-labels-toggle" type="button" class="neural-btn">Labels: ON</button>
+                <button id="neural-3d-reset-btn" type="button" class="neural-btn">Reset Camera</button>
+                <button id="neural-3d-anim-toggle" type="button" class="neural-btn">Pause Orbit</button>
+              </div>
+            </div>
+            <div class="neural-cognitive-stages" aria-label="Geometric Stages">
+              <div class="cognitive-stage-pill active" id="neural-stage-context"><span class="stage-step">1. Cl(0,6)</span><code id="neural-stage-context-val">256D Q12</code></div>
+              <div class="cognitive-stage-pill active" id="neural-stage-attention"><span class="stage-step">2. Flock</span><code id="neural-stage-attention-val">8-Head Swarm</code></div>
+              <div class="cognitive-stage-pill active" id="neural-stage-radix"><span class="stage-step">3. Basins</span><code id="neural-stage-radix-val">17,408 Basins</code></div>
+              <div class="cognitive-stage-pill active" id="neural-stage-horizon"><span class="stage-step">4. Geodesic</span><code id="neural-stage-horizon-val">Least-Action</code></div>
+              <div class="cognitive-stage-pill active" id="neural-stage-backprop"><span class="stage-step">5. Icosian</span><code id="neural-stage-backprop-val">17 Roots</code></div>
+            </div>
+            <div class="neural-3d-canvas-wrap">
+              <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="440" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
+              <div id="neural-3d-labels" class="neural-3d-labels" aria-hidden="true"></div>
+            </div>
+            <div id="neural-ospf-ticker" class="neural-ospf-ticker">
+              <span class="ospf-ticker-badge">GEODESIC ACTION ROUTE</span>
+              <span id="neural-ospf-route-text" class="ospf-ticker-route">Token Ingress &rarr; Clifford Holonomy &rarr; Radix /8 Basins &rarr; Least Action</span>
+            </div>
+          </div>
+
+          <pre id="trace-raw-otlp-output" class="code-block" hidden aria-label="Hydrated OTLP JSON Payload"></pre>
+          <div id="trace-waterfall-tree" class="trace-waterfall-tree"></div>
+        </div>
+
+        <!-- ML Coordinate Inspector -->
+        <div id="canvas-panel-inspector" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-inspector" tabindex="0" hidden>
+          <div class="inspector-panel-container">
+            <div class="pane-subheader">
+              <strong>ML &amp; Geometric Coordinate Inspector</strong>
+              <span class="metric-code">256D Q12 Latent Space</span>
+            </div>
+            <div class="inspector-section">
+              <h4>256D Latent Projection Activation Sparkline</h4>
+              <div id="inspector-sparkline" class="inspector-sparkline-grid"></div>
+            </div>
+            <div class="inspector-section">
+              <h4>Clifford <span class="latex-mathcal">C</span>&#8467;(0,6) Graded Subspaces (2<sup>6</sup> = 64 Basis Elements)</h4>
+              <div id="inspector-clifford-grades" class="inspector-clifford-grid">
+                <div class="grade-cell"><span class="grade-title">Gr 0</span><span class="grade-dim">1</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 1</span><span class="grade-dim">6</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 2</span><span class="grade-dim">15</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 3</span><span class="grade-dim">20</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 4</span><span class="grade-dim">15</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 5</span><span class="grade-dim">6</span></div>
+                <div class="grade-cell"><span class="grade-title">Gr 6</span><span class="grade-dim">1</span></div>
+              </div>
+            </div>
+            <div class="inspector-section">
+              <h4>Icosian Golden Quaternion Roots (<span class="latex-mathbb">&#8484;</span>[&phi;], 17 Roots)</h4>
+              <div id="inspector-icosian-roots" class="inspector-icosian-list"></div>
+            </div>
+            <div class="inspector-section">
+              <h4>E8 Lattice Root Occupancy (16 &times; 64 &times; 17)</h4>
+              <div id="inspector-e8-grid" class="inspector-e8-grid"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- MCP Tool Management Panel -->
-      <div id="canvas-panel-mcp" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-mcp" tabindex="0" hidden>
-        <div class="mcp-panel-container">
-          <div class="pane-subheader">
-            <strong>Model Context Protocol (MCP) Tool Registry</strong>
-            <span class="metric-code">In-Browser Sandbox</span>
-          </div>
-          <div class="field">
-            <label for="mcp-policy-select">Execution Security Policy</label>
-            <select id="mcp-policy-select" class="sidebar-select">
-              <option value="safe" selected>Safe Local Execution (Pure In-Browser)</option>
-              <option value="confirm">Ask Before Execution</option>
-              <option value="deny">Deny All Tool Calls</option>
-            </select>
-          </div>
-          <div class="inspector-section">
-            <h4>Available Pure Local Tools (6)</h4>
-            <div id="mcp-tools-list" class="mcp-tools-list">
-              <div class="mcp-tool-card">
-                <div class="mcp-tool-header">
-                  <strong>workspace_read</strong>
-                  <span class="mcp-badge">Local Read</span>
-                </div>
-                <div class="mcp-tool-desc">Reads text content from the virtual in-memory workspace file system.</div>
-                <div class="mcp-tool-actions">
-                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="workspace_read">Run / Test</button>
-                </div>
-              </div>
-              <div class="mcp-tool-card">
-                <div class="mcp-tool-header">
-                  <strong>workspace_write</strong>
-                  <span class="mcp-badge">Local Write</span>
-                </div>
-                <div class="mcp-tool-desc">Writes or updates a virtual file with cryptographic SHA-256 receipt generation.</div>
-                <div class="mcp-tool-actions">
-                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="workspace_write">Run / Test</button>
-                </div>
-              </div>
-              <div class="mcp-tool-card">
-                <div class="mcp-tool-header">
-                  <strong>geometric_dijkstra_route</strong>
-                  <span class="mcp-badge">Wasm Math</span>
-                </div>
-                <div class="mcp-tool-desc">Computes minimum L1 distance routing across cortical cluster waypoints.</div>
-                <div class="mcp-tool-actions">
-                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="geometric_dijkstra_route">Run / Test</button>
-                </div>
-              </div>
-              <div class="mcp-tool-card">
-                <div class="mcp-tool-header">
-                  <strong>clifford_bivector_wedge</strong>
-                  <span class="mcp-badge">Wasm Math</span>
-                </div>
-                <div class="mcp-tool-desc">Evaluates outer wedge products <strong>u</strong> &and; <strong>v</strong> over <span class="latex-mathcal">C</span>&#8467;(0,6) graded blades.</div>
-                <div class="mcp-tool-actions">
-                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="clifford_bivector_wedge">Run / Test</button>
-                </div>
-              </div>
-              <div class="mcp-tool-card">
-                <div class="mcp-tool-header">
-                  <strong>subsystem_prime_gcd</strong>
-                  <span class="mcp-badge">Wasm Math</span>
-                </div>
-                <div class="mcp-tool-desc">Evaluates exact Euclidean GCD across 128-bit integer coordinates.</div>
-                <div class="mcp-tool-actions">
-                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="subsystem_prime_gcd">Run / Test</button>
-                </div>
-              </div>
-              <div class="mcp-tool-card">
-                <div class="mcp-tool-header">
-                  <strong>coordinate_descent_sweep</strong>
-                  <span class="mcp-badge">Local Optimizer</span>
-                </div>
-                <div class="mcp-tool-desc">Executes discrete integer coordinate descent over `.uorlut` lookup tables.</div>
-                <div class="mcp-tool-actions">
-                  <button type="button" class="table-action-btn mcp-tool-run-btn" data-tool="coordinate_descent_sweep">Run / Test</button>
-                </div>
-              </div>
+        <!-- MCP Tool Audit Panel -->
+        <div id="canvas-panel-mcp" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-mcp" tabindex="0" hidden>
+          <div class="mcp-panel-container">
+            <div class="pane-subheader">
+              <strong>Model Context Protocol (MCP) Audit Log</strong>
+              <span class="metric-code">In-Browser Sandbox</span>
             </div>
-          </div>
-          <div class="inspector-section">
-            <h4>Tool Execution Audit Log</h4>
+            <div id="mcp-tools-list" class="mcp-tools-list"></div>
             <div id="mcp-audit-log" class="mcp-audit-log" role="log" aria-live="polite">
-              <div class="mcp-log-item">[Bootstrap] MCP in-browser sandbox active with pure local safety policies.</div>
+              <div class="mcp-log-item">[Bootstrap] MCP in-browser sandbox active.</div>
             </div>
             <div class="mcp-audit-actions">
-              <button id="mcp-audit-export-btn" type="button" class="btn-secondary btn-sm">Export Secops Audit Journal (NDJSON)</button>
+              <button id="mcp-audit-export-btn" type="button" class="btn-secondary btn-sm">Export Audit Journal (NDJSON)</button>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Customizations Panel -->
-      <div id="canvas-panel-customizations" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-customizations" tabindex="0" hidden>
-        <div class="customizations-panel-container">
-          <div class="pane-subheader">
-            <strong>Interface &amp; Engine Customizations</strong>
-            <span class="metric-code">Client Config</span>
+        <!-- Verdant Synthesis & .uorc Watchdog Feed Panel -->
+        <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
+          <div class="feed-header">
+            <h3>Verdant Synthesis KPIs &amp; <code>.uorc</code> Watchdog</h3>
+            <span id="verdant-synthesis-panel-badge" class="panel-badge">4-Facet Holon &middot; 0 Float Ops</span>
           </div>
-          <div class="field">
-            <label for="custom-theme-toggle">
-              <input type="checkbox" id="custom-theme-toggle">
-              <span>Enable Warm Light Theme (Default: Obsidian Dark)</span>
-            </label>
-          </div>
-          <div class="field">
-            <label for="custom-mode-select">Agentic Operating Mode</label>
-            <select id="custom-mode-select" class="sidebar-select">
-              <option value="coding" selected>Agentic Coding Harness (with diffs and virtual workspace)</option>
-              <option value="math">Mathematical Research &amp; Formal Verification</option>
-              <option value="fast">Fast Latent Inference (Low Latency)</option>
-            </select>
-          </div>
-          <div class="field">
-            <div class="field-label-row">
-              <label for="custom-retain-lambda">Memory Retain Factor (&lambda;)</label>
-              <span id="custom-retain-lambda-val" class="metric-code">0.85</span>
+          <div id="uorc-watchdog-banner" class="frontier-summary-banner">
+            <div class="frontier-banner-top">
+              <strong>OPFS <code>/generations/</code> <code>.uorc</code> Capsule &amp; 3-Strike Watchdog</strong>
+              <span id="uorc-worker-pool-badge" class="paper-badge">Worker Pool: Probing</span>
             </div>
-            <input type="range" id="custom-retain-lambda" min="0" max="1" step="0.05" value="0.85">
-            <span class="field-hint">Controls decay rate of prior conversation turns in 256D latent carry-forward buffer.</span>
-          </div>
-          <div class="field">
-            <label for="custom-plurality-votes">Plurality Voting Ensemble Heads (<em>K</em>)</label>
-            <input type="number" id="custom-plurality-votes" min="1" max="16" value="8">
-            <span class="field-hint">Number of independent cyclic flock attention heads participating in consensus.</span>
-          </div>
-          <div class="field">
-            <label for="custom-density-select">UI Density</label>
-            <select id="custom-density-select" class="sidebar-select">
-              <option value="comfortable">Comfortable</option>
-              <option value="compact" selected>Compact (Claude-Code Obsidian)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <!-- Tab 2: Unified Diff & Interactive Artifact Preview Panel -->
-      <div id="canvas-panel-diff" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diff" tabindex="0" hidden>
-        <div class="patch-card">
-          <div class="reply-card-header">
-            <span class="reply-title">Synthesized Unified Diff Preview (<code id="chat-diff-file">src/attention.rs</code>)</span>
-            <div class="diff-toolbar-group" role="group" aria-label="Diff and Artifact View Mode">
-              <button id="chat-diff-view-btn" type="button" class="table-action-btn active" aria-pressed="true">Diff View</button>
-              <button id="chat-artifact-view-btn" type="button" class="table-action-btn" aria-pressed="false">Artifact Preview</button>
-              <button id="chat-apply-patch-btn" type="button" class="table-action-btn">Apply Patch to Workspace File</button>
+            <p id="uorc-watchdog-status" class="frontier-banner-desc">Active Head: <code>gen-0</code> &middot; Strikes: <code>0/3</code></p>
+            <div class="paper-actions">
+              <button id="uorc-admit-capsule-btn" type="button" class="paper-test-btn">Admit Verified .uorc Capsule</button>
+              <button id="uorc-rollback-btn" type="button" class="paper-test-btn">Simulate Watchdog Rollback</button>
             </div>
           </div>
-          <div id="chat-diff-file-pills" class="diff-file-pills" role="tablist" aria-label="Staged Multi-File Patches"></div>
-          <pre id="chat-diff-preview" class="code-block diff-colored-block" aria-label="Proposed Unified Diff"></pre>
-          <div id="chat-artifact-preview" class="artifact-preview-container" aria-label="Interactive Artifact Preview" hidden></div>
+          <div id="telos-self-improve-card" class="frontier-summary-banner">
+            <div class="frontier-banner-top">
+              <strong>Verdant Ontological Telos (<code>R4-55</code>)</strong>
+              <span id="telos-verdict-badge" class="paper-badge">TelosAdmitted</span>
+            </div>
+            <p id="telos-summary-text" class="frontier-banner-desc">Parametric loss minimization over Opacity, Legibility &amp; Dissonance.</p>
+            <div class="paper-actions">
+              <button id="telos-run-tick-btn" type="button" class="paper-test-btn">Run Verdant Telos Tick</button>
+            </div>
+          </div>
+          <div id="verdant-synthesis-kpi-grid" class="frontier-claims-grid"></div>
+          <div id="engine-frontier-ledger" class="frontier-ledger-section"></div>
+          <div class="feed-grid" id="literature-feed-list"></div>
         </div>
-      </div>
 
-      <!-- Tab 3: Live Verdant Synthesis 4-Facet KPIs & .uorc Watchdog Panel -->
-      <div id="canvas-panel-feed" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-feed" tabindex="0" hidden>
-        <div class="feed-header">
-          <h3>Verdant Synthesis 4-Facet KPIs &amp; <code>.uorc</code> Watchdog</h3>
-          <span id="verdant-synthesis-panel-badge" class="panel-badge">4-Facet Holon &middot; 0 Residue &middot; 0 Float Ops</span>
-        </div>
-        <div id="uorc-watchdog-banner" class="frontier-summary-banner">
-          <div class="frontier-banner-top">
-            <strong>OPFS <code>/generations/</code> <code>.uorc</code> Capsule &amp; 3-Strike Watchdog</strong>
-            <span id="uorc-worker-pool-badge" class="paper-badge">Worker Pool: Probing</span>
+        <!-- Diagnostics Panel -->
+        <div id="canvas-panel-diagnostics" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diagnostics" tabindex="0" hidden>
+          <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
+            <div class="metric-card"><span class="metric-label">Vocabulary Atoms</span><strong id="stat-vocab" class="metric-value">0</strong></div>
+            <div class="metric-card"><span class="metric-label">/7 Opening Rows</span><strong id="stat-turn-rows" class="metric-value">0 / 0</strong></div>
+            <div class="metric-card"><span class="metric-label">/8 Point-Key Rows</span><strong id="stat-point-rows" class="metric-value">0</strong></div>
+            <div class="metric-card"><span class="metric-label">Occupied Cells</span><strong id="stat-cells" class="metric-value">0 / 256</strong></div>
+            <div class="metric-card"><span class="metric-label">Trained Epochs</span><strong id="stat-train-epochs" class="metric-value">0 ep</strong></div>
+            <div class="metric-card metric-card-wide"><span class="metric-label">State Receipt (SHA-256)</span><code id="stat-state-receipt" class="metric-code">initializing&hellip;</code></div>
           </div>
-          <p id="uorc-watchdog-status" class="frontier-banner-desc">
-            Active Head: <code>gen-0</code> &middot; Fault Strikes: <code>0/3</code> &middot; Zero-Float Serving Ratchet Armed
-          </p>
-          <div class="paper-actions">
-            <button id="uorc-admit-capsule-btn" type="button" class="paper-test-btn">Admit Verified .uorc Capsule</button>
-            <button id="uorc-rollback-btn" type="button" class="paper-test-btn">Simulate 3-Strike Watchdog Rollback</button>
+          <div class="diag-grid" id="chat-flock-grid">
+            <div class="diag-item"><span class="diag-label">Consensus</span><code id="chat-diag-consensus">Cl(0)</code></div>
+            <div class="diag-item"><span class="diag-label">Resonance</span><code id="chat-diag-resonance">0</code></div>
+            <div class="diag-item"><span class="diag-label">Icosian Root</span><code id="chat-diag-root">root #0</code></div>
+            <div class="diag-item"><span class="diag-label">Turn Receipt</span><code id="chat-diag-receipt">&mdash;</code></div>
           </div>
         </div>
-        <div id="telos-self-improve-card" class="frontier-summary-banner">
-          <div class="frontier-banner-top">
-            <strong>Verdant Ontological Telos (<code>R4-55</code> &middot; 5W+H Coordinate Descent)</strong>
-            <span id="telos-verdict-badge" class="paper-badge">TelosAdmitted &middot; k=4096 &middot; w=256</span>
-          </div>
-          <p id="telos-summary-text" class="frontier-banner-desc">
-            Continuous parametric loss minimization over Opacity, Legibility, Observer Dissonance &amp; Host Ceiling without coercion.
-          </p>
-          <div class="paper-actions">
-            <button id="telos-run-tick-btn" type="button" class="paper-test-btn">Run Verdant Telos Tick</button>
-          </div>
-        </div>
-        <div id="verdant-synthesis-kpi-grid" class="frontier-claims-grid">
-          <!-- Rendered dynamically with ModelAndTraining, ServingRuntime, UiAndPlumbing, EcosystemStandards KPIs -->
-        </div>
-        <div id="engine-frontier-ledger" class="frontier-ledger-section">
-          <!-- Rendered dynamically with codebase audit, runtime inference benchmarks & proved frontier ledger -->
-        </div>
-        <div class="feed-grid" id="literature-feed-list">
-          <!-- Rendered dynamically with compact bottleneck-filtered arXiv relevance checks -->
-        </div>
-      </div>
 
-      <!-- Tab 4: Standalone R4 API Harness & 27/27 Studio Tables Panel -->
-      <div id="canvas-panel-diagnostics" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-diagnostics" tabindex="0" hidden>
-        <section class="studio-panel api-harness-box" id="api-harness-panel" aria-labelledby="heading-api-harness">
-          <div class="panel-header">
-            <h2 id="heading-api-harness">Standalone R4 API Harness (<code>/v1/messages</code> &amp; <code>/v1/chat/completions</code>)</h2>
-            <span class="panel-badge">Anthropic &amp; OpenAI Compatible Wasm Endpoints</span>
+        <!-- Weight Consolidation Panel -->
+        <div id="canvas-panel-consolidation" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-consolidation" tabindex="0" hidden>
+          <div class="consolidation-header">
+            <h3>Self-Organizing Weight Consolidation</h3>
+            <span class="panel-badge">Web Worker &middot; Discrete Coordinate Descent</span>
           </div>
-          <p class="panel-description">
-            Decoupled R4 inference &amp; tool engine. Compatible with external Claude Code / OpenAI harnesses via JSON payloads with <code>tools[]</code>, <code>&lt;thinking&gt;</code> blocks, and rolling <code>256D Q12</code> state.
-          </p>
           <div class="consolidation-controls">
             <div class="field">
-              <label for="api-endpoint-select">Protocol Endpoint</label>
-              <select id="api-endpoint-select">
-                <option value="messages" selected>POST /v1/messages (Anthropic Claude Cowork Format)</option>
-                <option value="chat_completions">POST /v1/chat/completions (OpenAI Tool-Call Format)</option>
-                <option value="traces">GET /v1/traces (OTel uor.gllm.trace/1 Ring Buffer)</option>
-              </select>
+              <label for="consolidation-epochs">Optimization Sweeps (1..12)</label>
+              <input id="consolidation-epochs" type="number" min="1" max="12" value="3">
             </div>
-            <button id="run-api-request-btn" type="button" class="btn-primary">Execute API Request in Wasm</button>
+            <button id="run-consolidation-btn" type="button" class="btn-primary">Run Consolidation</button>
           </div>
-          <div class="field">
-            <label for="api-request-textarea">Request JSON Body</label>
-            <textarea id="api-request-textarea" class="code-textarea" rows="5" spellcheck="false">{
-  "model": "uor-r4-glm",
-  "messages": [
-  {"role": "user", "content": "<thinking>Route query through 6-layer SpiralCore/FBS and inspect src/attention.rs</thinking>How does Direct Preference Optimization align language models without reinforcement learning?"}
-  ],
-  "tools": [
-  {"name": "workspace_patch", "description": "Synthesize unified diff against active workspace file"}
-  ]
-}</textarea>
-          </div>
-          <pre id="api-response-output" class="code-block" aria-label="Standalone API JSON Response"></pre>
-        </section>
-
-        <div class="metrics-grid" role="region" aria-label="Geometric Engine Metrics">
-          <div class="metric-card">
-            <span class="metric-label">Vocabulary Atoms</span>
-            <strong id="stat-vocab" class="metric-value">0</strong>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">/7 Opening &amp; Reply Rows</span>
-            <strong id="stat-turn-rows" class="metric-value">0 / 0</strong>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">/8 Point-Key Q12 Rows</span>
-            <strong id="stat-point-rows" class="metric-value">0</strong>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">Occupied E8 Product Cells</span>
-            <strong id="stat-cells" class="metric-value">0 / 256</strong>
-          </div>
-          <div class="metric-card">
-            <span class="metric-label">Trained Epochs &amp; Active Gates</span>
-            <strong id="stat-train-epochs" class="metric-value">0 ep / 0 gates</strong>
-          </div>
-          <div class="metric-card metric-card-wide">
-            <span class="metric-label">State Cryptographic Receipt (SHA-256)</span>
-            <code id="stat-state-receipt" class="metric-code">initializing&hellip;</code>
-          </div>
-        </div>
-
-        <div class="diag-grid" id="chat-flock-grid">
-          <div class="diag-item">
-            <span class="diag-label">8-Head Cyclic Consensus</span>
-            <code id="chat-diag-consensus">Cl(0)</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">Weighted Resonance</span>
-            <code id="chat-diag-resonance">0</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">Icosian Z[phi] Root</span>
-            <code id="chat-diag-root">root #0</code>
-          </div>
-          <div class="diag-item">
-            <span class="diag-label">Turn Receipt (SHA-256)</span>
-            <code id="chat-diag-receipt">&mdash;</code>
-          </div>
-        </div>
-
-        <!-- Section 1: Trainer -->
-        <section class="studio-panel" aria-labelledby="heading-trainer">
-          <div class="panel-header">
-            <h2 id="heading-trainer">On-Device Coordinate-Sweep Trainer (R4.Learning.evaluateCoupledGateVector)</h2>
-            <span class="panel-badge">Zero Backprop &middot; Discrete Coordinate Sweeps</span>
-          </div>
-          <form id="studio-train-form" class="prompt-form" novalidate>
-            <div class="field">
-              <label for="train-epochs-input">Discrete Sweep Epochs (1..12)</label>
-              <input id="train-epochs-input" name="train-epochs-input" type="text" value="3" inputmode="numeric" autocomplete="off">
-            </div>
-            <button id="studio-train-btn" type="submit">Train Weights On-Device</button>
-          </form>
-          <div class="diag-grid">
-            <div class="diag-item">
-              <span class="diag-label">Corpus Transition Loss</span>
-              <code id="train-stat-loss">&mdash;</code>
-            </div>
-            <div class="diag-item">
-              <span class="diag-label">Coupled Gate Escapes</span>
-              <code id="train-stat-escapes">0</code>
-            </div>
-            <div class="diag-item">
-              <span class="diag-label">Active Non-Zero Gates</span>
-              <code id="train-stat-gates">0 / 40</code>
-            </div>
-            <div class="diag-item">
-              <span class="diag-label">Sequence Transitions Trained</span>
-              <code id="train-stat-transitions">0</code>
-            </div>
-            <div class="diag-item">
-              <span class="diag-label">Workspace Code Tokens Indexed</span>
-              <code id="train-stat-ws-tokens">0</code>
-            </div>
-            <div class="diag-item">
-              <span class="diag-label">Training Receipt</span>
-              <code id="train-stat-receipt">&mdash;</code>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table class="studio-table" id="train-history-table">
-              <thead>
-                <tr>
-                  <th scope="col">Ep</th>
-                  <th scope="col">Loss (Before &rarr; After)</th>
-                  <th scope="col">Improved</th>
-                  <th scope="col">Gate Escapes</th>
-                </tr>
-              </thead>
-              <tbody id="train-history-tbody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Section 2: Prompt Recall & Prose Generation -->
-        <section class="studio-panel" aria-labelledby="heading-prose">
-          <div class="panel-header">
-            <h2 id="heading-prose">1. Prompt Recall &amp; Autoregressive Prose Generation (/6 + /7 + /8)</h2>
-            <span class="panel-badge">Exact /7 Opening Key + /8 Q12 L1 Plurality Fallback</span>
-          </div>
-          <form id="studio-prompt-form" class="prompt-form" novalidate>
-            <div class="field">
-              <label for="studio-prompt">Prompt or Question</label>
-              <input id="studio-prompt" name="studio-prompt" type="text" value="Can you explain how memory lookup recovers a rephrased question?" autocomplete="off" spellcheck="false">
-            </div>
-            <button id="studio-generate-btn" type="submit">Generate Prose &amp; Inspect Trajectory</button>
-          </form>
-          <div class="reply-card">
-            <output id="studio-prose-output" class="prose-output" role="status" aria-live="polite" aria-atomic="true"></output>
+          <div class="progress-bar-container">
+            <progress id="consolidation-progress-bar" value="0" max="100" class="progress-bar-fill"></progress>
           </div>
           <div class="diag-grid">
-            <div class="diag-item"><span class="diag-label">Recall Mode</span><code id="diag-recall-mode">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Matched Anchor</span><code id="diag-matched-anchor">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Opening Token</span><code id="diag-opening-token">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">L1 Point Dist</span><code id="diag-l1-distance">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Hamming Dist</span><code id="diag-hamming-distance">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Plurality Votes</span><code id="diag-plurality-votes">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Retain Lambda</span><code id="diag-retain-lambda">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Prompt Q12</span><code id="diag-prompt-q12">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Prompt Sign</span><code id="diag-prompt-sign">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Icosian Root</span><code id="diag-icosian-root">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Packed 4-Block</span><code id="diag-packed-4block">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Sketch Gate</span><code id="diag-sketch-gate">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">PRLL Mass</span><code id="diag-prll-mass">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Inference Receipt</span><code id="diag-inference-receipt">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Status</span><code id="consolidation-status-text">Ready</code></div>
+            <div class="diag-item"><span class="diag-label">Initial Loss</span><code id="consolidation-stat-init-loss">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Final Loss</span><code id="consolidation-stat-final-loss">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Reduction</span><code id="consolidation-stat-reduction">&mdash;</code></div>
+            <div class="diag-item"><span class="diag-label">Weight Size</span><code id="consolidation-stat-size">&mdash;</code></div>
           </div>
-        </section>
-
-        <!-- Section 3: Predictions Table -->
-        <section class="studio-panel" aria-labelledby="heading-predictions">
-          <div class="panel-header">
-            <h2 id="heading-predictions">2. Top-8 Next-Token Predictions &amp; Occupied-Cell Ranking (R4.Prediction)</h2>
-          </div>
-          <div class="table-wrap">
-            <table class="studio-table" id="predictions-table">
-              <thead>
-                <tr>
-                  <th scope="col">Rank</th>
-                  <th scope="col">Token ID</th>
-                  <th scope="col">Decoded Piece</th>
-                  <th scope="col">E8 Product Cell</th>
-                  <th scope="col">Cl(0,6) Action</th>
-                  <th scope="col">Ternary Node</th>
-                  <th scope="col">Q12 L1 Dist</th>
-                  <th scope="col">/6 Hamming Weight</th>
-                  <th scope="col">Rank Score</th>
-                  <th scope="col">Resolution Source</th>
-                </tr>
-              </thead>
-              <tbody id="predictions-tbody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Section 4: Trajectory Table -->
-        <section class="studio-panel" aria-labelledby="heading-trajectory">
-          <div class="panel-header">
-            <h2 id="heading-trajectory">3. Token-by-Token Geometric Trajectory</h2>
-          </div>
-          <div class="table-wrap">
-            <table class="studio-table" id="trajectory-table">
-              <thead>
-                <tr>
-                  <th scope="col">Step</th>
-                  <th scope="col">Phase</th>
-                  <th scope="col">Token Piece</th>
-                  <th scope="col">ID</th>
-                  <th scope="col">E8 Root</th>
-                  <th scope="col">Cl(0,6) Action</th>
-                  <th scope="col">Forest Node &amp; Trit Path</th>
-                  <th scope="col">/6 Sign Code (64-bit)</th>
-                  <th scope="col">/8 Q12 Readout Vector (8D)</th>
-                </tr>
-              </thead>
-              <tbody id="trajectory-tbody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Section 5: Admission & Weight Pack I/O -->
-        <section class="studio-panel" aria-labelledby="heading-admission">
-          <div class="panel-header">
-            <h2 id="heading-admission">4. Live Corpus &amp; Turn-Memory Admission + .uorlut Weight Pack I/O</h2>
-          </div>
-          <form id="studio-admit-form" class="admit-form" novalidate>
-            <div class="field">
-              <label for="admit-prompt">New Prompt / Question Anchor</label>
-              <input id="admit-prompt" name="admit-prompt" type="text" value="How does ternary routing work?" autocomplete="off" spellcheck="false">
-            </div>
-            <div class="field">
-              <label for="admit-reply">Prose Reply / Continuation to Admit</label>
-              <input id="admit-reply" name="admit-reply" type="text" value="Ternary routing descends the 40-node binder forest using balanced trits." autocomplete="off" spellcheck="false">
-            </div>
-            <div class="button-row">
-              <button id="admit-submit-btn" type="submit">Admit Turn into Geometric Memory</button>
-              <button id="snapshot-download-btn" type="button" class="btn-secondary">Download .uorlut Weight Pack</button>
-              <button id="admit-reset-btn" type="button" class="btn-secondary">Reset Admitted Turns</button>
-              <button id="snapshot-export-btn" type="button" class="btn-secondary">Export Hex Snapshot</button>
-              <button id="snapshot-import-btn" type="button" class="btn-secondary">Import Hex Snapshot</button>
-            </div>
-            <input id="snapshot-hex-input" type="hidden">
-            <output id="admit-status" class="admit-output" role="status" aria-live="polite"></output>
-          </form>
-          <div class="field">
-            <label for="snapshot-upload-input">Load Pre-Trained .uorlut Weight Pack</label>
-            <input id="snapshot-upload-input" name="snapshot-upload-input" type="file" multiple accept=".uorlut,.bin,.hex,*">
-          </div>
-          <div class="table-wrap">
-            <table class="studio-table" id="corpus-table">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Prompt Anchor</th>
-                  <th scope="col">Opening Token</th>
-                  <th scope="col">E8 Cell</th>
-                  <th scope="col">64-Bit Sign Code</th>
-                  <th scope="col">Prose Reply Continuation</th>
-                  <th scope="col">Inspect</th>
-                </tr>
-              </thead>
-              <tbody id="corpus-tbody"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- Section 6: Subsystems Lab -->
-        <section class="studio-panel" aria-labelledby="heading-subsystems">
-          <div class="panel-header">
-            <h2 id="heading-subsystems">5. Pure-Integer Subsystems Lab (R4-24..R4-27)</h2>
-          </div>
-          <form id="studio-subsystems-form" class="prompt-form" novalidate>
-            <div class="field">
-              <label for="subsystems-payload">Probe Parameters</label>
-              <input id="subsystems-payload" name="subsystems-payload" type="text" value="7,6,1,10,2180" autocomplete="off" spellcheck="false">
-            </div>
-            <button id="subsystems-run-btn" type="submit">Run Subsystems Probe</button>
-          </form>
-          <div class="diag-grid">
-            <div class="diag-item"><span class="diag-label">R4-24 Icosian Root</span><code id="sub-r4-24">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">R4-25 19-Table Trunk</span><code id="sub-r4-25">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">R4-26 GCD Sieve</span><code id="sub-r4-26">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">R4-27 M6 5-Arm Place Add</span><code id="sub-r4-27">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Subsystems Receipt</span><code id="sub-receipt">&mdash;</code></div>
-          </div>
-        </section>
-
-        <!-- Section 7: PrismPM Envelope Inspector -->
-        <section class="studio-panel" aria-labelledby="heading-envelope">
-          <div class="panel-header">
-            <h2 id="heading-envelope">6. PrismPM Coordinate Envelope Inspector</h2>
-          </div>
-          <form id="application-form" novalidate>
-            <div class="field">
-              <label for="left">Left operand / Occurrence Coordinate</label>
-              <input id="left" name="left" value="10" inputmode="numeric" autocomplete="off" spellcheck="false">
-            </div>
-            <div class="field">
-              <label for="operation">Operation</label>
-              <select id="operation" name="operation">
-                <option value="0" selected>Forward Transition</option>
-                <option value="1">Route Descent</option>
-                <option value="2">Flock Consensus</option>
-                <option value="3">Verify Receipt</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="right">Right operand / Parameter</label>
-              <input id="right" name="right" value="20" inputmode="numeric" autocomplete="off" spellcheck="false">
-            </div>
-            <button id="submit" type="submit">Execute</button>
-          </form>
-          <output id="result" role="status" aria-live="polite" aria-atomic="true"></output>
-        </section>
-      </div>
-
-      <!-- Tab 5: Weight Consolidation Runner Panel -->
-      <div id="canvas-panel-consolidation" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-consolidation" tabindex="0" hidden>
-        <div class="consolidation-header">
-          <h3>Self-Organizing Weight Consolidation</h3>
-          <span class="panel-badge">Web Worker &middot; Discrete Coordinate Descent</span>
-        </div>
-        <p class="panel-description">
-          Consolidates integer LUT weights against dialogue and literature samples without floating-point backpropagation.
-        </p>
-        <div class="consolidation-controls">
-          <div class="field">
-            <label for="consolidation-epochs">Optimization Sweeps (1..12)</label>
-            <input id="consolidation-epochs" type="number" min="1" max="12" value="3">
-          </div>
-          <button id="run-consolidation-btn" type="button" class="btn-primary">Run Weight Consolidation in Web Worker</button>
-        </div>
-        <div class="progress-bar-container">
-          <progress id="consolidation-progress-bar" value="0" max="100" class="progress-bar-fill"></progress>
-        </div>
-        <div class="diag-grid">
-          <div class="diag-item"><span class="diag-label">Status</span><code id="consolidation-status-text">Ready</code></div>
-          <div class="diag-item"><span class="diag-label">Initial Loss</span><code id="consolidation-stat-init-loss">&mdash;</code></div>
-          <div class="diag-item"><span class="diag-label">Final Loss</span><code id="consolidation-stat-final-loss">&mdash;</code></div>
-          <div class="diag-item"><span class="diag-label">Reduction</span><code id="consolidation-stat-reduction">&mdash;</code></div>
-          <div class="diag-item"><span class="diag-label">Weight Size</span><code id="consolidation-stat-size">&mdash;</code></div>
-        </div>
-        <div class="console-box">
-          <span class="console-title">Live Worker Log Stream</span>
-          <pre id="consolidation-log-stream" class="console-log-stream" aria-label="Consolidation Worker Log"></pre>
-        </div>
-      </div>
-
-      <!-- Tab 6: OTel Trace Inspector & 3D Holographic Brain Panel (uor.gllm.trace/1) -->
-      <div id="canvas-panel-traces" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-traces" tabindex="0" hidden>
-        <div class="traces-header">
-          <h3>3D Holographic Brain &amp; OTel Waterfall (<code>uor.gllm.trace/1</code>)</h3>
-          <div class="agent-mini-btn-group">
-            <button id="export-otlp-json-btn" type="button" class="agent-mini-btn agent-mini-btn-primary">Toggle Hydrated OTLP/JSON</button>
-            <span class="panel-badge">W3C Trace + u16 Hash Dedup</span>
-          </div>
-        </div>
-        <div class="traces-metrics-grid">
-          <div class="diag-item"><span class="diag-label">Root Trace ID</span><code id="trace-stat-trace-id">&mdash;</code></div>
-          <div class="diag-item"><span class="diag-label">Interned UOR Hashes</span><code id="trace-stat-interned-count">0</code></div>
-          <div class="diag-item"><span class="diag-label">Sub-Span Deduplication Hits</span><code id="trace-stat-dedup-hits">0</code></div>
-          <div class="diag-item"><span class="diag-label">Payload Savings</span><code id="trace-stat-savings">0%</code></div>
-        </div>
-
-        <!-- Live 4-Canvas Holo Neural & Storage Geometry Observatory (R4-51, R4-55) -->
-        <section id="holo-observatory-deck" class="holo-observatory-deck" aria-label="Holo v13 Live Neural and Storage Geometry Observatory">
-          <div class="holo-obs-toolbar">
-            <div class="holo-obs-title-group">
-              <strong class="holo-obs-title">Holo v13 Live Neural &amp; Storage Geometry Observatory</strong>
-              <span id="holo-obs-status-badge" class="neural-3d-status">Awaiting Live Token Frame</span>
-            </div>
-            <div class="holo-obs-actions">
-              <button id="holo-obs-refresh-storage-btn" type="button" class="neural-btn">Refresh Storage Map</button>
-              <button id="holo-obs-pause-toggle" type="button" class="neural-btn">Live Stream: ON</button>
-            </div>
-          </div>
-          <div class="holo-obs-stats-strip">
-            <div class="diag-item"><span class="diag-label">TTFT / Speed</span><code id="holo-obs-speed-stat">&mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Prefix KV Reused</span><code id="holo-obs-prefix-stat">0 tok</code></div>
-            <div class="diag-item"><span class="diag-label">Shortlist K / Min Hamming</span><code id="holo-obs-shortlist-stat">4096 / &mdash;</code></div>
-            <div class="diag-item"><span class="diag-label">Execution Backend</span><code id="holo-obs-backend-stat">wasm-simd128</code></div>
-          </div>
-          <div class="holo-obs-grid">
-            <div class="holo-obs-card">
-              <div class="holo-obs-card-head">
-                <span>1. 28-Layer Residual &amp; Bit-Width Waterfall</span>
-                <code id="holo-obs-layer-caption">Q18..NORM</code>
-              </div>
-              <canvas id="holo-layer-waterfall-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="28-Layer Residual Magnitude and Bit-Width Waterfall"></canvas>
-            </div>
-            <div class="holo-obs-card">
-              <div class="holo-obs-card-head">
-                <span>2. 151,936-Vocab RHT-512 Hamming &amp; Logit Race</span>
-                <code id="holo-obs-vocab-caption">Top-6 Q16 Logits</code>
-              </div>
-              <canvas id="holo-shortlist-race-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="RHT-512 Hamming Bell Curve and Top-6 Logit Race"></canvas>
-            </div>
-            <div class="holo-obs-card">
-              <div class="holo-obs-card-head">
-                <span>3. Causal Starling-Flock Sparse Attention Matrix</span>
-                <code id="holo-obs-flock-caption">KV Peaks + Prefix Reuse</code>
-              </div>
-              <canvas id="holo-causal-flock-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="Causal Starling-Flock Sparse Attention Matrix"></canvas>
-            </div>
-            <div class="holo-obs-card">
-              <div class="holo-obs-card-head">
-                <span>4. Stationary OPFS + MVM CoW + 3D RHT Hypercube</span>
-                <code id="holo-obs-storage-caption">1 MiB Pieces &middot; 4 KiB Sectors</code>
-              </div>
-              <canvas id="holo-storage-geometry-canvas" class="holo-obs-canvas" width="460" height="220" aria-label="Stationary OPFS Layout MVM CoW Sectors and 3D RHT Vocab Clusters"></canvas>
-            </div>
-          </div>
-        </section>
-
-        <!-- 3D Holographic Neural Process Viewport -->
-        <div id="neural-3d-viewport" class="neural-3d-viewport" role="region" aria-label="3D Holographic Neural Process Viewport">
-          <div class="neural-3d-toolbar">
-            <div class="neural-3d-title-group">
-              <span class="neural-3d-title">Riemannian Manifold &middot; Least-Action Geodesics &amp; Starling Flock Attention (<em>k</em> = 7)</span>
-              <span id="neural-3d-status" class="neural-3d-status" role="status" aria-live="polite">Initializing &middot; WebGL2</span>
-            </div>
-            <div class="neural-3d-controls">
-              <button id="neural-3d-pulse-btn" type="button" class="neural-btn" title="Fire New Lagrangian Action Cascade">Fire Geodesic Cascade</button>
-              <button id="neural-3d-labels-toggle" type="button" class="neural-btn" title="Toggle 3D Mathematical &amp; Route Labels">Labels: ON</button>
-              <button id="neural-3d-reset-btn" type="button" class="neural-btn" title="Reset Camera (Center View)">Reset Camera</button>
-              <button id="neural-3d-anim-toggle" type="button" class="neural-btn" title="Toggle Auto-Orbit Animation">Pause Orbit</button>
-            </div>
-          </div>
-          <div class="neural-cognitive-stages" aria-label="Live Geometric &amp; Next-Token Prediction Stages">
-            <div class="cognitive-stage-pill active" id="neural-stage-context">
-              <span class="stage-step">1. Cl(0,6)</span>
-              <code id="neural-stage-context-val">256D Q12</code>
-            </div>
-            <div class="cognitive-stage-pill active" id="neural-stage-attention">
-              <span class="stage-step">2. Flock (k=7)</span>
-              <code id="neural-stage-attention-val">8-Head Swarm</code>
-            </div>
-            <div class="cognitive-stage-pill active" id="neural-stage-radix">
-              <span class="stage-step">3. Basins (/8)</span>
-              <code id="neural-stage-radix-val">17,408 Basins</code>
-            </div>
-            <div class="cognitive-stage-pill active" id="neural-stage-horizon">
-              <span class="stage-step">4. Geodesic</span>
-              <code id="neural-stage-horizon-val">Least-Action</code>
-            </div>
-            <div class="cognitive-stage-pill active" id="neural-stage-backprop">
-              <span class="stage-step">5. Icosian</span>
-              <code id="neural-stage-backprop-val">17 Roots</code>
-            </div>
-          </div>
-          <div class="neural-3d-canvas-wrap">
-            <canvas id="neural-3d-canvas" class="neural-3d-canvas" width="800" height="440" aria-label="Interactive 3D Holographic Neural WebGL Canvas"></canvas>
-            <div id="neural-3d-labels" class="neural-3d-labels" aria-hidden="true"></div>
-          </div>
-          <div id="neural-ospf-ticker" class="neural-ospf-ticker" aria-label="Live Geodesic Token Route &amp; Least Action Dynamics">
-            <span class="ospf-ticker-badge">GEODESIC ACTION ROUTE</span>
-            <span id="neural-ospf-route-text" class="ospf-ticker-route">Token Ingress &rarr; Clifford Holonomy &rarr; Radix /8 Basins &rarr; Lagrangian Minimization &rarr; Memory Admission</span>
-          </div>
-          <div class="neural-3d-legend" aria-label="3D Mathematical Process Legend">
-            <div class="legend-item"><span class="legend-swatch legend-clifford"></span><span>Clifford Cl(0,6) Graded Subspaces (0..6)</span></div>
-            <div class="legend-item"><span class="legend-swatch legend-trajectory"></span><span>Lagrangian Geodesic Path &amp; Action Wavefronts (&delta;S=0)</span></div>
-            <div class="legend-item"><span class="legend-swatch legend-icosian"></span><span>Starling Flock Attention Swarm (k=7 Murmuration, 8 Heads)</span></div>
-            <div class="legend-item"><span class="legend-swatch legend-synapse"></span><span>Riemannian Equipotential Basin Energy Mesh (-V_basin)</span></div>
-            <div class="legend-item"><span class="legend-swatch legend-layers"></span><span>17 Icosian Golden Quaternions (Z[&phi;] in H)</span></div>
-            <div class="legend-item"><span class="legend-swatch legend-starfield"></span><span>Radix /8 PointKey Basins (17,408 Attractors)</span></div>
+          <div class="console-box">
+            <span class="console-title">Worker Log</span>
+            <pre id="consolidation-log-stream" class="console-log-stream" aria-label="Consolidation Worker Log"></pre>
           </div>
         </div>
 
-        <pre id="trace-raw-otlp-output" class="code-block" hidden aria-label="Hydrated OTLP JSON Payload"></pre>
-        <div id="trace-waterfall-tree" class="trace-waterfall-tree">
-          <!-- Rendered dynamically from OTLP trace data -->
+        <!-- Customizations Summary Panel -->
+        <div id="canvas-panel-customizations" class="canvas-panel" role="tabpanel" aria-labelledby="canvas-tab-customizations" tabindex="0" hidden>
+          <div class="pane-subheader">
+            <strong>Preferences &amp; Runtime Policies</strong>
+            <span class="metric-code">Use Topbar Settings (&equiv;) to Edit</span>
+          </div>
+          <p class="panel-description">Theme, UI density, retain factor (&lambda;), plurality heads (<em>K</em>), MCP tool policy, and off-origin weight download consent live in the unified Settings dialog.</p>
         </div>
-      </div>
       </div>
     </div>
   </div>
+
+  <!-- Isolated ?surface=preview mount -->
+  <div id="preview-sandbox-root" class="preview-sandbox-root" hidden></div>
 
   <script type="module" src="app.js?v=v12r4"></script>
 </body>

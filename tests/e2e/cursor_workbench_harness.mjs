@@ -975,16 +975,26 @@ console.log('================================================================');
 // ----------------------------------------------------------------------------
 suite('Feature 1: 3-Pane Workbench DOM Layout');
 
-test('F1.1: 3-Pane top-level grid containers exist in index.html', () => {
+test('F1.1: <prism-frame> top-level grid containers and M3 controls exist in index.html', () => {
   const { doc } = setupCursorWorkbenchSandbox();
+  const topbar = doc.getElementById('prism-global-topbar');
   const leftSidebar = doc.getElementById('threads-sidebar');
   const centerWorkbench = doc.getElementById('dockable-canvas-pane');
   const rightAiPane = doc.getElementById('claude-code-desktop');
+  const obsDock = doc.getElementById('observatory-dock-split');
+  const toastBanner = doc.getElementById('studio-toast-banner');
+  const previewIframe = doc.getElementById('live-preview-iframe');
+  const stopBtn = doc.getElementById('composer-stop-btn');
   const statusBar = doc.getElementById('cursor-status-bar');
 
+  assert.ok(topbar, '#prism-global-topbar must exist as single global header');
   assert.ok(leftSidebar, '#threads-sidebar must exist as left pane');
   assert.ok(centerWorkbench, '#dockable-canvas-pane must exist as center pane');
   assert.ok(rightAiPane, '#claude-code-desktop must exist as right pane');
+  assert.ok(obsDock, '#observatory-dock-split must exist as Studio observatory host');
+  assert.ok(toastBanner, '#studio-toast-banner must exist');
+  assert.ok(previewIframe, '#live-preview-iframe must exist');
+  assert.ok(stopBtn, '#composer-stop-btn must exist');
   assert.ok(statusBar, '#cursor-status-bar must exist as bottom status bar');
 });
 
@@ -1034,8 +1044,13 @@ test('F1.5: Right AI pane has composer send bar and execution mode controls', ()
   assert.ok(chatInput, '#claude-chat-input must exist');
 });
 
-test('F1.6: CSS rules verify 3-column layout grid and dark theme styling', () => {
-  assert.ok(rawCss.includes('main.cursor-ide-workbench') || rawCss.includes('main.cowork-layout'), 'CSS must define workbench grid');
+test('F1.6: CSS rules verify <prism-frame> M3 window size classes, zero overflow, and dark theme styling', () => {
+  assert.ok(rawCss.includes('#prism-global-topbar'), 'CSS must style #prism-global-topbar');
+  assert.ok(rawCss.includes('[data-window-class='), 'CSS must style [data-window-class] Material 3 layout');
+  assert.ok(rawCss.includes('min-width: 0;'), 'CSS must enforce min-width: 0 to prevent horizontal overflow');
+  assert.ok(rawCss.includes('@media (max-width: 599px)'), 'CSS must define M3 Compact breakpoint');
+  assert.ok(rawCss.includes('@media (min-width: 600px) and (max-width: 839px)'), 'CSS must define M3 Medium breakpoint');
+  assert.ok(rawCss.includes('@media (min-width: 840px)'), 'CSS must define M3 Expanded breakpoint');
   assert.ok(rawCss.includes('#threads-sidebar'), 'CSS must style #threads-sidebar');
   assert.ok(rawCss.includes('#dockable-canvas-pane'), 'CSS must style #dockable-canvas-pane');
   assert.ok(rawCss.includes('#claude-code-desktop'), 'CSS must style #claude-code-desktop');
@@ -1047,30 +1062,29 @@ test('F1.6: CSS rules verify 3-column layout grid and dark theme styling', () =>
 // ----------------------------------------------------------------------------
 suite('Feature 2: Activity Bar & View Switching');
 
-test('F2.1: Activity bar contains buttons for Explorer, Search, SCM, Shards and Palette', () => {
+test('F2.1: Left rail contains clean [Explorer | Source Control] tabs without retired v8 shards bloat', () => {
   const { doc } = setupCursorWorkbenchSandbox();
   const actExplorer = doc.getElementById('cursor-act-explorer');
-  const actSearch = doc.getElementById('cursor-act-search');
   const actScm = doc.getElementById('cursor-act-scm');
-  const actShards = doc.getElementById('cursor-act-shards');
-  const actPalette = doc.getElementById('cursor-act-palette');
+  const newFolderBtn = doc.getElementById('cursor-new-folder-btn');
+  const scmCloneBtn = doc.getElementById('scm-clone-btn');
 
   assert.ok(actExplorer, 'Files / Explorer activity button must exist');
-  assert.ok(actSearch, 'Search activity button must exist');
   assert.ok(actScm, 'SCM activity button must exist');
-  assert.ok(actShards, 'UOR-R4 Shards activity button must exist');
-  assert.ok(actPalette, 'Palette activity button must exist');
+  assert.ok(newFolderBtn, '#cursor-new-folder-btn must exist');
+  assert.ok(scmCloneBtn, '#scm-clone-btn must exist');
+  assert.equal(doc.getElementById('cursor-act-shards'), null, 'Retired v8 #cursor-act-shards must not exist');
+  assert.equal(doc.getElementById('sidebar-view-settings'), null, 'Retired v8 #sidebar-view-settings must not exist');
+  assert.equal(doc.getElementById('sidebar-view-btn-projects'), null, 'Retired v8 #sidebar-view-btn-projects must not exist');
 });
 
-test('F2.2: Activity bar toggling reveals explorer section and hides SCM/shards', () => {
+test('F2.2: Activity bar toggling reveals explorer section and SCM section', () => {
   const { doc } = setupCursorWorkbenchSandbox();
   const explorerSec = doc.getElementById('cursor-explorer-section');
   const scmSec = doc.getElementById('cursor-scm-section');
-  const shardsSec = doc.getElementById('cursor-shards-section');
 
   assert.ok(explorerSec, '#cursor-explorer-section must exist');
   assert.ok(scmSec, '#cursor-scm-section must exist');
-  assert.ok(shardsSec, '#cursor-shards-section must exist');
 });
 
 test('F2.3: Rendering file tree creates treeitem nodes for workspace files', () => {
@@ -2347,10 +2361,11 @@ test('F17.7: Fallback #workspace-mount-input has webkitdirectory attribute', () 
   assert.equal(input.hasAttribute('webkitdirectory'), true, 'Must have webkitdirectory attribute');
 });
 
-test('F17.8: public/app.css contains .cursor-mini-btn styling rules', () => {
+test('F17.8: public/app.css contains .cursor-mini-btn M3 tap-target styling rules', () => {
   assert.ok(rawCss.includes('.cursor-mini-btn'), 'app.css must define .cursor-mini-btn class');
-  assert.ok(rawCss.includes('height: 1.35rem') || rawCss.includes('1.35rem'), 'Must define compact height');
-  assert.ok(rawCss.includes('#18181b') || rawCss.includes('var(--'), 'Must define dark background');
+  assert.ok(rawCss.includes('min-height: 36px') || rawCss.includes('min-height: 2.25rem'), 'Must define >= 36px Material 3 button height');
+  assert.ok(rawCss.includes('min-height: 44px') || rawCss.includes('min-height: 2.75rem'), 'Must define >= 44px Compact/touch tap targets');
+  assert.ok(rawCss.includes('#18181b') || rawCss.includes('var(--'), 'Must define theme surface background');
 });
 
 test('F17.9: Directory walker recursively traverses nested subdirectories', async () => {
