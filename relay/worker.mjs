@@ -533,6 +533,13 @@ async function handleHttpRequest(params, fetchImpl) {
       `Host '${hostLower}' is not allowlisted for secret injection`,
     );
   }
+  if (isAllowlistedGitHub && Boolean(params?.auth_bearer)) {
+    throw new RelayError(
+      "RelayForbiddenForCredentialedHost",
+      403,
+      `Credentialed host '${hostLower}' is forbidden from SpiralCore CORS relay failback`,
+    );
+  }
 
   const reqHeaders = new Headers();
   reqHeaders.set("User-Agent", RELAY_USER_AGENT);
@@ -554,6 +561,13 @@ async function handleHttpRequest(params, fetchImpl) {
         );
       }
       const keyLower = k.toLowerCase();
+      if (keyLower === "authorization" || keyLower === "cookie" || keyLower === "x-github-token") {
+        throw new RelayError(
+          "RelayForbiddenForCredentialedHost",
+          403,
+          `Credentialed header '${keyLower}' is forbidden from stateless SpiralCore CORS preemption`,
+        );
+      }
       if (keyLower === "host" || keyLower === "connection" || keyLower === "content-length") {
         continue;
       }

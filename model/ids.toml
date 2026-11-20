@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-63"
+level = "build"
+suite = "r4_63_mvm_linux_container"
+statement = "Pure LexLean models the R4-63 single-source MVM /workspace CoW VFS authority, SpiralCore AF_INET SPVS encapsulation, unauthenticated public CORS preemption, fail-closed interactive command staging/auto-run precedence, and <= 120-token KV-pinned state header cap (R4.MvmLinuxContainer): admitWorkspaceAuthority admitting SingleSourceMvmCow with consistent CoW state while refusing SplitBrainDuplicateStore (RefusedSplitBrainWorkspace) and inconsistent state (RefusedInconsistentCowState); admitMvmSocket preserving RefusedZeroNicIsolated when ZeroNicIsolated and admitting AdmittedSpiralCoreInetEncapsulation under SpiralCoreEncapsulated; admitPublicCorsPreemption preempting CORS blocks via StatelessRelayCorsPreempted when SpiralCore Net is enabled while strictly refusing SSRF private/loopback targets (RefusedPrivateAddressSsrf) and credentialed relay failback (RefusedCredentialedCorsProxy); admitInteractiveCommand enforcing Deny > PlanReadOnly > Agent [Auto-run] precedence (RefusedByDenyPolicy, RefusedInPlanMode, StagedPendingUserGo, AutoRunAdmitted); and admitLiveStateHeader enforcing tokenCount <= 120. Formal controls establish modeled admission verdicts only, not remote origin uptime, external C compilers outside MVM, or physical NIC hardware."
+
+[[id]]
 id = "R4-62"
 level = "build"
 suite = "r4_62_compact_studio_auto_hydration"

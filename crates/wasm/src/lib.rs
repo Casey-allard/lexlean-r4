@@ -483,6 +483,34 @@ pub struct TrainingEpochRecord {
     pub receipt_sha256: String,
 }
 
+/// Formal R4.MvmLinuxContainer map a workspace file path extension to its canonical language tag (`R4-63`).
+pub fn workspace_lang_for_path(path: &str) -> &'static str {
+    let lower = path.trim().to_ascii_lowercase();
+    if lower.ends_with(".rs") {
+        "rust"
+    } else if lower.ends_with(".py") {
+        "python"
+    } else if lower.ends_with(".c") || lower.ends_with(".h") {
+        "c"
+    } else if lower.ends_with(".ts") {
+        "typescript"
+    } else if lower.ends_with(".js") || lower.ends_with(".mjs") {
+        "javascript"
+    } else if lower.ends_with(".sql") {
+        "sql"
+    } else if lower.ends_with(".lean") || lower.ends_with(".tex") {
+        "lean"
+    } else if lower.ends_with(".css") {
+        "css"
+    } else if lower.ends_with(".json") {
+        "json"
+    } else if lower.ends_with(".md") {
+        "markdown"
+    } else {
+        "text"
+    }
+}
+
 /// Stateful UOR-R4 Geometric Language Model engine backing the Studio v2 & Claude-Code-Desktop console.
 pub struct StudioEngine {
     vocab: Vec<TokenAtom>,
@@ -491,7 +519,8 @@ pub struct StudioEngine {
     reply_table: Vec<ReplyTableRow>,
     point_table: Vec<PointKeyRow>,
     occupied_cells: [[bool; E8_ROOT_COUNT]; E8_ROOT_COUNT],
-    workspace_files: Vec<WorkspaceFile>,
+    pinned_workspace_paths: std::collections::BTreeSet<String>,
+    workspace_receipts: std::collections::BTreeMap<String, String>,
     gate_trits: Vec<i8>,
     training_epoch: u32,
     training_history: Vec<TrainingEpochRecord>,
@@ -1364,7 +1393,8 @@ struct StudioBaselineSnapshot {
     reply_table: Vec<ReplyTableRow>,
     point_table: Vec<PointKeyRow>,
     occupied_cells: [[bool; E8_ROOT_COUNT]; E8_ROOT_COUNT],
-    workspace_files: Vec<WorkspaceFile>,
+    pinned_workspace_paths: std::collections::BTreeSet<String>,
+    workspace_receipts: std::collections::BTreeMap<String, String>,
     lut_stack: Arc<lut_stack_exec::LutStackModel>,
     mvm: mvm::MvmSandbox,
 }
@@ -1392,7 +1422,8 @@ impl StudioEngine {
                 reply_table: Vec::new(),
                 point_table: Vec::new(),
                 occupied_cells: [[false; E8_ROOT_COUNT]; E8_ROOT_COUNT],
-                workspace_files: Vec::new(),
+                pinned_workspace_paths: std::collections::BTreeSet::new(),
+                workspace_receipts: std::collections::BTreeMap::new(),
                 gate_trits: vec![0i8; TERNARY_FOREST_NODES],
                 training_epoch: 0,
                 training_history: Vec::new(),
@@ -1441,13 +1472,6 @@ impl StudioEngine {
                 seed.admit_turn(prompt, reply);
             }
             seed.init_default_workspace();
-            seed.sync_workspace_into_mvm();
-            let baseline_map: std::collections::BTreeMap<String, String> = seed
-                .workspace_files
-                .iter()
-                .map(|wf| (wf.path.clone(), wf.content.clone()))
-                .collect();
-            seed.mvm.record_workspace_baseline_from_map(&baseline_map);
             StudioBaselineSnapshot {
                 vocab: seed.vocab,
                 turns: seed.turns,
@@ -1455,7 +1479,8 @@ impl StudioEngine {
                 reply_table: seed.reply_table,
                 point_table: seed.point_table,
                 occupied_cells: seed.occupied_cells,
-                workspace_files: seed.workspace_files,
+                pinned_workspace_paths: seed.pinned_workspace_paths,
+                workspace_receipts: seed.workspace_receipts,
                 lut_stack: seed.lut_stack,
                 mvm: seed.mvm,
             }
@@ -1467,7 +1492,8 @@ impl StudioEngine {
             reply_table: baseline.reply_table.clone(),
             point_table: baseline.point_table.clone(),
             occupied_cells: baseline.occupied_cells,
-            workspace_files: baseline.workspace_files.clone(),
+            pinned_workspace_paths: baseline.pinned_workspace_paths.clone(),
+            workspace_receipts: baseline.workspace_receipts.clone(),
             gate_trits: vec![0i8; TERNARY_FOREST_NODES],
             training_epoch: 0,
             training_history: Vec::new(),
@@ -1518,13 +1544,33 @@ impl StudioEngine {
         STUDIO_BASELINE_CELL.get().is_some()
     }
 
-    /// Synchronize active Studio `/workspace` files into the `MVM-Wasm` CoW filesystem.
+    /// Formal R4.MvmLinuxContainer project active `/workspace` entries directly from `MvmSandbox` CoW VFS (`R4-63`).
+    pub fn workspace_entries_from_mvm(&self) -> Vec<WorkspaceFile> {
+        self.mvm
+            .snapshot_workspace_text_files()
+            .into_iter()
+            .map(|(path, content)| {
+                let language = workspace_lang_for_path(&path).to_string();
+                let updated_receipt = self
+                    .workspace_receipts
+                    .get(&path)
+                    .cloned()
+                    .unwrap_or_else(|| sha256_hex(content.as_bytes()));
+                let pinned = self.pinned_workspace_paths.contains(&path);
+                WorkspaceFile {
+                    path,
+                    language,
+                    content,
+                    pinned,
+                    updated_receipt,
+                }
+            })
+            .collect()
+    }
+
+    /// Snapshot active `/workspace` baseline SHA-256 digests in the single-source `MVM-Wasm` CoW VFS (`R4-63`).
     pub fn sync_workspace_into_mvm(&mut self) {
-        let mut map = std::collections::BTreeMap::new();
-        for wf in &self.workspace_files {
-            map.insert(wf.path.clone(), wf.content.clone());
-        }
-        self.mvm.sync_from_workspace_map(&map);
+        self.mvm.record_workspace_baseline_current();
     }
 
     /// Apply a host/Worker base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
@@ -1547,59 +1593,28 @@ impl StudioEngine {
         out
     }
 
-    /// Synchronize text files mutated or deleted inside `MVM-Wasm` `/workspace` back into Studio's workspace list.
+    /// Prune pin/receipt metadata after guest `/workspace` mutations and repair `active_workspace_path` (`R4-63`).
     pub fn sync_workspace_from_mvm(&mut self) {
         let exported = self.mvm.export_workspace_text_files();
-        self.workspace_files
-            .retain(|f| exported.contains_key(&f.path));
-        for (rel, content) in exported {
-            let receipt = sha256_hex(content.as_bytes());
-            if let Some(existing) = self.workspace_files.iter_mut().find(|f| f.path == rel) {
-                if existing.content != content {
-                    existing.content = content;
-                    existing.updated_receipt = receipt;
-                }
-            } else {
-                let lang = if rel.ends_with(".rs") {
-                    "rust"
-                } else if rel.ends_with(".c") || rel.ends_with(".h") {
-                    "c"
-                } else if rel.ends_with(".py") {
-                    "python"
-                } else if rel.ends_with(".ts") || rel.ends_with(".js") {
-                    "typescript"
-                } else if rel.ends_with(".md") {
-                    "markdown"
-                } else {
-                    "text"
-                };
-                self.workspace_files.push(WorkspaceFile {
-                    path: rel,
-                    language: lang.to_string(),
-                    content,
-                    pinned: false,
-                    updated_receipt: receipt,
-                });
-            }
+        self.pinned_workspace_paths
+            .retain(|p| exported.contains_key(p));
+        self.workspace_receipts
+            .retain(|p, _| exported.contains_key(p));
+        for (rel, content) in &exported {
+            self.workspace_receipts
+                .entry(rel.clone())
+                .or_insert_with(|| sha256_hex(content.as_bytes()));
         }
-        if !self
-            .workspace_files
-            .iter()
-            .any(|f| f.path == self.active_workspace_path)
-        {
-            self.active_workspace_path = self
-                .workspace_files
-                .first()
-                .map(|f| f.path.clone())
-                .unwrap_or_default();
+        if !exported.contains_key(&self.active_workspace_path) {
+            self.active_workspace_path = exported.keys().next().cloned().unwrap_or_default();
         }
     }
 
-    /// Formal R4.StudioFrame list workspace relative file paths currently tracked by `StudioEngine` (`R4-60`).
+    /// Formal R4.StudioFrame list workspace relative file paths currently tracked by `StudioEngine` (`R4-60`, `R4-63`).
     pub fn list_workspace(&self) -> Vec<String> {
-        self.workspace_files
-            .iter()
-            .map(|f| f.path.clone())
+        self.mvm
+            .snapshot_workspace_text_files()
+            .into_keys()
             .collect()
     }
 
@@ -1685,12 +1700,7 @@ impl StudioEngine {
         }
 
         self.sync_workspace_from_mvm();
-        let baseline_map: std::collections::BTreeMap<String, String> = self
-            .workspace_files
-            .iter()
-            .map(|wf| (wf.path.clone(), wf.content.clone()))
-            .collect();
-        self.mvm.record_workspace_baseline_from_map(&baseline_map);
+        self.mvm.record_workspace_baseline_current();
 
         serde_json::json!({
             "status": "ok",
@@ -1701,7 +1711,7 @@ impl StudioEngine {
         .to_string()
     }
 
-    /// Formal R4.StudioFrame apply `workspace_write`, `workspace_delete`, or `workspace_rename` cleanly with `sync_workspace_into_mvm` (`R4-60`).
+    /// Formal R4.StudioFrame apply `workspace_write`, `workspace_delete`, or `workspace_rename` directly in single-source MVM CoW VFS (`R4-60`, `R4-63`).
     pub(crate) fn apply_workspace_mutation(
         &mut self,
         tool_name: &str,
@@ -1777,28 +1787,32 @@ impl StudioEngine {
                             .into(),
                     );
                 }
-                let Some(content) = self
-                    .workspace_files
-                    .iter()
-                    .find(|f| f.path == from)
-                    .map(|f| f.content.clone())
-                else {
+                let from_clean = from.trim_start_matches('/').trim_start_matches("./");
+                let to_clean = to.trim_start_matches('/').trim_start_matches("./");
+                let renamed = self
+                    .mvm
+                    .rename_workspace_file(from_clean, to_clean)
+                    .map_err(|e| format!("{e}"))?;
+                if !renamed {
                     return Err(format!("FileNotFound: Workspace file `{from}` not found"));
-                };
-                if from == to {
+                }
+                if from_clean == to_clean {
                     return Ok((
                         format!("{from} -> {to}"),
                         format!("Kept `{from}` unchanged"),
                     ));
                 }
-                let write_raw = self.workspace_write_json(&format!("{to}\n{content}"));
-                if let Some(msg) = parse_err(&write_raw) {
-                    return Err(msg);
+                if self.pinned_workspace_paths.remove(from_clean) {
+                    self.pinned_workspace_paths.insert(to_clean.to_string());
                 }
-                let del_raw = self.workspace_delete_json(from);
-                if let Some(msg) = parse_err(&del_raw) {
-                    return Err(msg);
+                if let Some(receipt) = self.workspace_receipts.remove(from_clean) {
+                    self.workspace_receipts
+                        .insert(to_clean.to_string(), receipt);
                 }
+                if self.active_workspace_path == from_clean {
+                    self.active_workspace_path = to_clean.to_string();
+                }
+                self.mvm.record_workspace_baseline_current();
                 Ok((
                     format!("{from} -> {to}"),
                     format!("Renamed `{from}` to `{to}`"),
@@ -1882,11 +1896,7 @@ impl StudioEngine {
             "mvm_exec" => {
                 let cmd = inv.cmd.as_deref().unwrap_or("").trim();
                 self.sync_workspace_into_mvm();
-                let before_ws: std::collections::BTreeMap<String, String> = self
-                    .workspace_files
-                    .iter()
-                    .map(|f| (f.path.clone(), f.content.clone()))
-                    .collect();
+                let before_ws = self.mvm.snapshot_workspace_text_files();
                 let cwd = inv
                     .arguments
                     .get("cwd")
@@ -1896,22 +1906,15 @@ impl StudioEngine {
                     Ok(mvm::MvmInteractiveOutcome::Completed(done)) => {
                         self.pending_mvm_bridge = None;
                         self.sync_workspace_from_mvm();
+                        let after_ws = self.mvm.snapshot_workspace_text_files();
                         let mut changed_set = std::collections::BTreeSet::new();
-                        for wf in &self.workspace_files {
-                            if before_ws
-                                .get(&wf.path)
-                                .is_none_or(|prev| prev != &wf.content)
-                            {
-                                changed_set.insert(wf.path.clone());
+                        for (path, content) in &after_ws {
+                            if before_ws.get(path).is_none_or(|prev| prev != content) {
+                                changed_set.insert(path.clone());
                             }
                         }
-                        let after_paths: std::collections::BTreeSet<&str> = self
-                            .workspace_files
-                            .iter()
-                            .map(|f| f.path.as_str())
-                            .collect();
                         for prev_path in before_ws.keys() {
-                            if !after_paths.contains(prev_path.as_str()) {
+                            if !after_ws.contains_key(prev_path) {
                                 changed_set.insert(prev_path.clone());
                             }
                         }
@@ -2304,10 +2307,13 @@ impl StudioEngine {
                             | "full"
                             | "mode_b"
                             | "spiralcore"
+                            | "spiralcore_net"
+                            | "net_spiralcore"
                     )
                 );
             if has_gate_fields {
                 let net_mode = match mode_str.as_deref() {
+                    Some("spiralcore_net" | "net_spiralcore") => NetworkGateMode::SpiralCoreNet,
                     Some("full_spiralcore" | "full" | "mode_b" | "spiralcore") => {
                         NetworkGateMode::FullSpiralcore
                     }
@@ -2350,6 +2356,7 @@ impl StudioEngine {
         let net_label = match self.mvm.network_mode {
             NetworkGateMode::Sandboxed => "sandboxed",
             NetworkGateMode::FullSpiralcore => "full_spiralcore",
+            NetworkGateMode::SpiralCoreNet => "spiralcore_net",
         };
         serde_json::json!({
             "status": "ok",
@@ -2372,6 +2379,7 @@ impl StudioEngine {
         let net_label = match self.mvm.network_mode {
             NetworkGateMode::Sandboxed => "sandboxed",
             NetworkGateMode::FullSpiralcore => "full_spiralcore",
+            NetworkGateMode::SpiralCoreNet => "spiralcore_net",
         };
         serde_json::json!({
             "status": "ok",
@@ -2623,15 +2631,16 @@ impl StudioEngine {
         };
         let dirty = self.mvm.export_dirty_cow_sectors();
         let dirty_indices: Vec<u32> = dirty.iter().take(64).map(|(idx, _)| *idx).collect();
-        let ws_bytes: usize = self.workspace_files.iter().map(|f| f.content.len()).sum();
+        let entries = self.workspace_entries_from_mvm();
+        let ws_bytes: usize = entries.iter().map(|f| f.content.len()).sum();
         let mvm_geom = serde_json::json!({
             "cow_sector_bytes": mvm::MVM_COW_SECTOR_BYTES,
             "dirty_sector_count": dirty.len(),
             "dirty_sector_indices": dirty_indices,
             "cow_state_sha256": self.mvm.cow_state_sha256(),
-            "workspace_file_count": self.workspace_files.len(),
+            "workspace_file_count": entries.len(),
             "workspace_bytes": ws_bytes,
-            "workspace_files": self.workspace_files.iter().take(24).map(|f| serde_json::json!({
+            "workspace_files": entries.iter().take(24).map(|f| serde_json::json!({
                 "path": f.path,
                 "bytes": f.content.len(),
                 "pinned": f.pinned,
@@ -2755,7 +2764,7 @@ impl StudioEngine {
         let cand_loss = base_loss.min(self.telos_incumbent_loss);
         let w5h_complete = verify_w5h_certificate_complete(
             self.telos_step_index + 1,
-            self.workspace_files.len().max(1) as u64,
+            self.mvm.snapshot_workspace_text_files().len().max(1) as u64,
             self.rolling_context.turn_index.max(1) as u64,
             self.mvm.guest_cid() as u64,
             1,
@@ -2849,8 +2858,8 @@ impl StudioEngine {
     /// Formal R4.HoloGeometricRuntime read a workspace file excerpt with line numbers for local ReAct observations.
     fn workspace_read_excerpt(&self, path: &str, max_chars: usize) -> String {
         let clean = path.trim().trim_start_matches('/');
-        if let Some(f) = self
-            .workspace_files
+        let entries = self.workspace_entries_from_mvm();
+        if let Some(f) = entries
             .iter()
             .find(|wf| wf.path == clean || wf.path.ends_with(clean))
         {
@@ -2880,7 +2889,7 @@ impl StudioEngine {
             return "Empty search query.".to_string();
         }
         let mut hits = Vec::new();
-        for wf in &self.workspace_files {
+        for wf in self.workspace_entries_from_mvm() {
             for (idx, line) in wf.content.lines().enumerate() {
                 if line.to_ascii_lowercase().contains(&needle) {
                     hits.push(format!("{}:{}: {}", wf.path, idx + 1, line.trim()));
@@ -4237,20 +4246,23 @@ impl StudioEngine {
         ]
     }
 
-    /// Formal R4.StudioFrame initialize the canonical seeded starter workspace entries (`R4-60`).
+    /// Formal R4.StudioFrame initialize the canonical seeded starter workspace entries directly in single-source MVM CoW VFS (`R4-60`, `R4-63`).
     fn init_default_workspace(&mut self) {
         let defaults = Self::default_starter_workspace_entries();
-        self.workspace_files.clear();
-        for (path, lang, pinned, content) in defaults {
+        self.pinned_workspace_paths.clear();
+        self.workspace_receipts.clear();
+        for (path, _lang, pinned, content) in defaults {
             let receipt = sha256_hex(format!("file|{path}|{content}").as_bytes());
-            self.workspace_files.push(WorkspaceFile {
-                path: path.to_string(),
-                language: lang.to_string(),
-                content: content.to_string(),
-                pinned,
-                updated_receipt: receipt,
-            });
+            let _ = self
+                .mvm
+                .write_guest_file(&format!("/workspace/{path}"), content.as_bytes());
+            self.workspace_receipts.insert(path.to_string(), receipt);
+            if pinned {
+                self.pinned_workspace_paths.insert(path.to_string());
+            }
         }
+        self.mvm.record_workspace_baseline_current();
+        self.sync_workspace_from_mvm();
     }
 
     fn register_special_tokens(&mut self) {
@@ -4620,7 +4632,7 @@ impl StudioEngine {
             TERNARY_FOREST_NODES,
             self.training_epoch,
             active_nonzero_gates,
-            self.workspace_files.len(),
+            self.mvm.snapshot_workspace_text_files().len(),
             retain_str,
             state_receipt,
             extra_fields,
@@ -5575,7 +5587,7 @@ impl StudioEngine {
             lexlean_generated::r4_secops_audit::admit_sandbox_write(
                 16,
                 false,
-                self.workspace_files.len() as u64,
+                self.mvm.snapshot_workspace_text_files().len() as u64,
                 64,
                 512,
                 65536,
@@ -5808,8 +5820,9 @@ impl StudioEngine {
             let trit = self.gate_trits.get(i).copied().unwrap_or(0);
             buf.push(trit as u8);
         }
-        buf.extend_from_slice(&(self.workspace_files.len() as u16).to_le_bytes());
-        for wf in &self.workspace_files {
+        let snapshot_entries = self.workspace_entries_from_mvm();
+        buf.extend_from_slice(&(snapshot_entries.len() as u16).to_le_bytes());
+        for wf in &snapshot_entries {
             buf.push(u8::from(wf.pinned));
             let path_b = wf.path.as_bytes();
             let lang_b = wf.language.as_bytes();
@@ -6136,7 +6149,27 @@ impl StudioEngine {
                 }
             }
             if valid_tail && !restored_files.is_empty() {
-                self.workspace_files = restored_files;
+                for existing_rel in self.mvm.workspace_rel_paths() {
+                    self.mvm.delete_workspace_file(&existing_rel);
+                }
+                self.pinned_workspace_paths.clear();
+                self.workspace_receipts.clear();
+                for wf in restored_files {
+                    let clean = wf.path.trim_start_matches('/').to_string();
+                    if self
+                        .mvm
+                        .write_guest_file(&format!("/workspace/{clean}"), wf.content.as_bytes())
+                        .is_ok()
+                    {
+                        self.workspace_receipts
+                            .insert(clean.clone(), wf.updated_receipt);
+                        if wf.pinned {
+                            self.pinned_workspace_paths.insert(clean);
+                        }
+                    }
+                }
+                self.sync_workspace_from_mvm();
+                self.mvm.record_workspace_baseline_current();
             }
             if valid_tail && bytes.len() >= cursor + 2 {
                 let w_count = u16::from_le_bytes([bytes[cursor], bytes[cursor + 1]]) as usize;
@@ -6182,7 +6215,7 @@ impl StudioEngine {
             }
         }
 
-        if self.workspace_files.is_empty() {
+        if self.mvm.workspace_rel_paths().is_empty() {
             self.init_default_workspace();
         }
 
@@ -6348,10 +6381,10 @@ impl StudioEngine {
 
         // Index all pinned workspace source files into token sequence transitions
         let pinned_contents: Vec<String> = self
-            .workspace_files
-            .iter()
+            .workspace_entries_from_mvm()
+            .into_iter()
             .filter(|f| f.pinned)
-            .map(|f| f.content.clone())
+            .map(|f| f.content)
             .collect();
         let mut workspace_pairs: Vec<(u32, u32, [i16; POINT_KEY_DIM], u64)> = Vec::new();
         for content in &pinned_contents {
@@ -6557,10 +6590,15 @@ impl StudioEngine {
         )
     }
 
-    /// List all files in the virtual Claude-Code-Desktop project workspace.
+    /// List all files directly from the single-source MVM `/workspace` CoW VFS (`R4-63`).
     pub fn workspace_list_json(&self) -> String {
+        let entries = self.workspace_entries_from_mvm();
+        let authority = crate::lexlean_generated::r4_mvm_linux_container::admit_workspace_authority(
+            crate::lexlean_generated::r4_mvm_linux_container::WorkspaceAuthorityMode::SingleSourceMvmCow,
+            self.mvm.is_cow_vfs_consistent(),
+        );
         let mut files_json = String::from("[");
-        for (idx, file) in self.workspace_files.iter().enumerate() {
+        for (idx, file) in entries.iter().enumerate() {
             if idx > 0 {
                 files_json.push(',');
             }
@@ -6587,23 +6625,28 @@ impl StudioEngine {
             ));
         }
         files_json.push(']');
-        let pinned_count = self.workspace_files.iter().filter(|f| f.pinned).count();
+        let pinned_count = entries.iter().filter(|f| f.pinned).count();
         format!(
-            "{{\"status\":\"ok\",\"file_count\":{},\"pinned_count\":{},\"files\":{}}}",
-            self.workspace_files.len(),
+            "{{\"status\":\"ok\",\"authority\":\"{:?}\",\"cow_state_sha256\":\"{}\",\"file_count\":{},\"pinned_count\":{},\"files\":{}}}",
+            authority,
+            escape_json(&self.mvm.cow_state_sha256()),
+            entries.len(),
             pinned_count,
             files_json
         )
     }
 
-    /// Read a single file from the virtual project workspace.
+    /// Read a single file directly from the single-source MVM `/workspace` CoW VFS (`R4-63`).
     pub fn workspace_read_json(&mut self, path: &str) -> String {
-        let target = path.trim();
+        let target = path
+            .trim()
+            .trim_start_matches("./")
+            .strip_prefix("/workspace/")
+            .unwrap_or_else(|| path.trim().trim_start_matches('/'));
         if let Some(file) = self
-            .workspace_files
-            .iter()
+            .workspace_entries_from_mvm()
+            .into_iter()
             .find(|f| f.path == target)
-            .cloned()
         {
             self.active_workspace_path = file.path.clone();
             let line_count = file.content.lines().count().max(1);
@@ -6636,7 +6679,7 @@ impl StudioEngine {
         }
     }
 
-    /// Write or create a file in the virtual project workspace and admit its signature into geometric memory.
+    /// Write or create a file directly inside single-source MVM `/workspace` and admit its signature (`R4-63`).
     pub fn workspace_write_json(&mut self, payload: &str) -> String {
         let (raw_path, content) = if let Some((p, c)) = payload.split_once('\n') {
             (p.trim(), c)
@@ -6645,19 +6688,25 @@ impl StudioEngine {
         } else {
             return "{\"status\":\"error\",\"reason\":\"MalformedWrite\",\"message\":\"Expected path followed by newline and content.\"}".to_string();
         };
-        if raw_path.is_empty() {
+        let clean_path = raw_path
+            .trim_start_matches("./")
+            .strip_prefix("/workspace/")
+            .unwrap_or_else(|| raw_path.trim_start_matches('/'));
+        if clean_path.is_empty() {
             return "{\"status\":\"error\",\"reason\":\"EmptyPath\",\"message\":\"Workspace file path must not be empty.\"}".to_string();
         }
-        let receipt = sha256_hex(format!("file|{raw_path}|{content}").as_bytes());
+        let receipt = sha256_hex(format!("file|{clean_path}|{content}").as_bytes());
         let receipt_hi = u64::from_str_radix(&receipt[..16], 16).unwrap_or(1).max(1);
-        let is_existing = self.workspace_files.iter().any(|f| f.path == raw_path);
+        let guest_path = format!("/workspace/{clean_path}");
+        let is_existing = self.mvm.read_guest_file(&guest_path).is_some();
+        let current_count = self.mvm.snapshot_workspace_text_files().len();
         let effective_file_count = if is_existing {
-            self.workspace_files.len().saturating_sub(1) as u64
+            current_count.saturating_sub(1) as u64
         } else {
-            self.workspace_files.len() as u64
+            current_count as u64
         };
         match lexlean_generated::r4_secops_audit::admit_sandbox_write(
-            raw_path.len() as u64,
+            clean_path.len() as u64,
             raw_path.contains(".."),
             effective_file_count,
             1024,
@@ -6679,63 +6728,53 @@ impl StudioEngine {
                 );
             }
         }
-        let lang = if raw_path.ends_with(".rs") {
-            "rust"
-        } else if raw_path.ends_with(".py") {
-            "python"
-        } else if raw_path.ends_with(".ts") {
-            "typescript"
-        } else if raw_path.ends_with(".sql") {
-            "sql"
-        } else if raw_path.ends_with(".lean") || raw_path.ends_with(".tex") {
-            "lean"
-        } else if raw_path.ends_with(".js") {
-            "javascript"
-        } else if raw_path.ends_with(".css") {
-            "css"
-        } else {
-            "markdown"
-        };
-        self.active_workspace_path = raw_path.to_string();
-        if let Some(existing) = self.workspace_files.iter_mut().find(|f| f.path == raw_path) {
-            existing.content = content.to_string();
-            existing.language = lang.to_string();
-            existing.updated_receipt = receipt.clone();
-        } else {
-            self.workspace_files.push(WorkspaceFile {
-                path: raw_path.to_string(),
-                language: lang.to_string(),
-                content: content.to_string(),
-                pinned: true,
-                updated_receipt: receipt.clone(),
-            });
+        if let Err(err) = self.mvm.write_guest_file(&guest_path, content.as_bytes()) {
+            return format!(
+                "{{\"status\":\"error\",\"reason\":\"CanonicalPathProtected\",\"message\":\"{}\"}}",
+                escape_json(&err.to_string())
+            );
         }
+        let lang = workspace_lang_for_path(clean_path);
+        self.active_workspace_path = clean_path.to_string();
+        if !is_existing {
+            self.pinned_workspace_paths.insert(clean_path.to_string());
+        }
+        self.workspace_receipts
+            .insert(clean_path.to_string(), receipt.clone());
         let first_line = content
             .lines()
             .find(|l| !l.trim().is_empty())
             .unwrap_or("workspace module updated")
             .trim();
-        let anchor_prompt = format!("What is in workspace file {raw_path}?");
+        let anchor_prompt = format!("What is in workspace file {clean_path}?");
         let anchor_reply = format!(
-            "Workspace file {raw_path} ({lang}) defines: {first_line} [receipt {}].",
+            "Workspace file {clean_path} ({lang}) defines: {first_line} [receipt {}].",
             &receipt[..12]
         );
         self.admit_turn(&anchor_prompt, &anchor_reply);
         self.sync_workspace_into_mvm();
-        let baseline_map: std::collections::BTreeMap<String, String> = self
-            .workspace_files
-            .iter()
-            .map(|wf| (wf.path.clone(), wf.content.clone()))
-            .collect();
-        self.mvm.record_workspace_baseline_from_map(&baseline_map);
         self.workspace_list_json()
     }
 
-    /// Toggle or set the context-pin state of a workspace file.
+    /// Toggle or set the context-pin state of a workspace file (`R4-63`).
     pub fn workspace_pin_json(&mut self, payload: &str) -> String {
-        let target = payload.trim();
-        if let Some(file) = self.workspace_files.iter_mut().find(|f| f.path == target) {
-            file.pinned = !file.pinned;
+        let target = payload
+            .trim()
+            .trim_start_matches("./")
+            .strip_prefix("/workspace/")
+            .unwrap_or_else(|| payload.trim().trim_start_matches('/'));
+        if !target.is_empty()
+            && !target.contains("..")
+            && self
+                .mvm
+                .read_guest_file(&format!("/workspace/{target}"))
+                .is_some()
+        {
+            if self.pinned_workspace_paths.contains(target) {
+                self.pinned_workspace_paths.remove(target);
+            } else {
+                self.pinned_workspace_paths.insert(target.to_string());
+            }
             self.workspace_list_json()
         } else {
             format!(
@@ -6745,45 +6784,27 @@ impl StudioEngine {
         }
     }
 
-    /// Delete a file (or directory prefix ending with `/`) from the virtual project workspace.
+    /// Delete a file (or directory prefix ending with `/`) directly from MVM `/workspace` CoW VFS (`R4-63`).
     pub fn workspace_delete_json(&mut self, path: &str) -> String {
-        let target = path.trim().trim_start_matches("./");
+        let target = path
+            .trim()
+            .trim_start_matches("./")
+            .strip_prefix("/workspace/")
+            .unwrap_or_else(|| path.trim().trim_start_matches('/'));
         if target.is_empty() {
             return "{\"status\":\"error\",\"reason\":\"EmptyPath\",\"message\":\"Workspace delete path must not be empty.\"}".to_string();
         }
         if target.contains("..") {
             return "{\"status\":\"error\",\"reason\":\"RefusedParentTraversal\",\"message\":\"R4.SecopsAudit refused parent path traversal in workspace_delete.\"}".to_string();
         }
-        let before_len = self.workspace_files.len();
-        if target.ends_with('/') {
-            self.workspace_files.retain(|f| !f.path.starts_with(target));
-        } else {
-            self.workspace_files.retain(|f| f.path != target);
-        }
-        if self.workspace_files.len() == before_len {
+        if !self.mvm.delete_workspace_file(target) {
             return format!(
                 "{{\"status\":\"error\",\"reason\":\"FileNotFound\",\"message\":\"Workspace file '{}' not found.\"}}",
                 escape_json(target)
             );
         }
-        if !self
-            .workspace_files
-            .iter()
-            .any(|f| f.path == self.active_workspace_path)
-        {
-            self.active_workspace_path = self
-                .workspace_files
-                .first()
-                .map(|f| f.path.clone())
-                .unwrap_or_default();
-        }
-        self.sync_workspace_into_mvm();
-        let baseline_map: std::collections::BTreeMap<String, String> = self
-            .workspace_files
-            .iter()
-            .map(|wf| (wf.path.clone(), wf.content.clone()))
-            .collect();
-        self.mvm.record_workspace_baseline_from_map(&baseline_map);
+        self.sync_workspace_from_mvm();
+        self.mvm.record_workspace_baseline_current();
         self.workspace_list_json()
     }
 
@@ -7359,10 +7380,12 @@ impl StudioEngine {
                                             .to_string();
                                         if !new_code.is_empty() {
                                             let old_code = self
-                                                .workspace_files
-                                                .iter()
-                                                .find(|f| f.path == p)
-                                                .map(|f| f.content.clone())
+                                                .mvm
+                                                .read_guest_file(&format!(
+                                                    "/workspace/{}",
+                                                    p.trim().trim_start_matches('/')
+                                                ))
+                                                .and_then(|b| String::from_utf8(b).ok())
                                                 .unwrap_or_default();
                                             let udiff =
                                                 compute_unified_diff(&old_code, &new_code, &p, 3);
@@ -7777,33 +7800,28 @@ impl StudioEngine {
             || lower_prompt.contains("repair")
             || lower_prompt.contains("self-correct")
             || lower_prompt.contains("cargo test");
-        let target_file_idx = self
-            .workspace_files
+        let ws_snapshot = self.workspace_entries_from_mvm();
+        let target_file_idx = ws_snapshot
             .iter()
             .position(|f| lower_prompt.contains(&f.path.to_ascii_lowercase()))
-            .or_else(|| {
-                self.workspace_files
-                    .iter()
-                    .position(|f| f.path == synth_path)
-            });
+            .or_else(|| ws_snapshot.iter().position(|f| f.path == synth_path));
 
         let (mut target_path, mut current_content) = if let Some(idx) = target_file_idx {
-            let f = &self.workspace_files[idx];
+            let f = &ws_snapshot[idx];
             (f.path.clone(), f.content.clone())
         } else if is_coding {
             (synth_path.clone(), String::new())
         } else {
-            self.workspace_files
+            ws_snapshot
                 .iter()
                 .find(|f| f.path == active_ws_path)
-                .or_else(|| self.workspace_files.iter().find(|f| f.pinned))
-                .or_else(|| self.workspace_files.first())
+                .or_else(|| ws_snapshot.iter().find(|f| f.pinned))
+                .or_else(|| ws_snapshot.first())
                 .map(|f| (f.path.clone(), f.content.clone()))
                 .unwrap_or_else(|| ("src/attention.rs".to_string(), String::new()))
         };
 
-        let pinned_paths: Vec<String> = self
-            .workspace_files
+        let pinned_paths: Vec<String> = ws_snapshot
             .iter()
             .filter(|f| f.pinned)
             .map(|f| f.path.clone())
@@ -7890,11 +7908,10 @@ impl StudioEngine {
                 ));
             }
 
-            let is_rust_target = target_path.ends_with(".rs")
-                || self.workspace_files.iter().any(|f| f.path.ends_with(".rs"));
+            let is_rust_target =
+                target_path.ends_with(".rs") || ws_snapshot.iter().any(|f| f.path.ends_with(".rs"));
             if is_rust_target {
-                let mut staged_pairs: Vec<(String, String)> = self
-                    .workspace_files
+                let mut staged_pairs: Vec<(String, String)> = ws_snapshot
                     .iter()
                     .filter(|f| f.path.ends_with(".rs"))
                     .map(|f| {
@@ -7978,11 +7995,7 @@ impl StudioEngine {
                     if let Some((repaired_path, repair_desc)) =
                         repair_rust_files_from_cargo_report(&mut staged_pairs, &cargo_rep)
                     {
-                        if let Some(orig_f) = self
-                            .workspace_files
-                            .iter()
-                            .find(|f| f.path == repaired_path)
-                        {
+                        if let Some(orig_f) = ws_snapshot.iter().find(|f| f.path == repaired_path) {
                             if target_path != repaired_path && synthesized_block.trim().is_empty() {
                                 target_path = repaired_path.clone();
                                 current_content = orig_f.content.clone();
@@ -8278,10 +8291,10 @@ impl StudioEngine {
         };
 
         let rust_files: Vec<(String, String)> = self
-            .workspace_files
-            .iter()
+            .workspace_entries_from_mvm()
+            .into_iter()
             .filter(|f| f.path.ends_with(".rs") || f.language == "rust")
-            .map(|f| (f.path.clone(), f.content.clone()))
+            .map(|f| (f.path, f.content))
             .collect();
 
         let report = wasm_ast_eval::execute_workspace_cargo(subcommand, filter, &rust_files);
@@ -10096,6 +10109,94 @@ pub fn studio_admit_catalog_hydration_json(
         "hydration_verdict": format!("{hydration_verdict:?}"),
         "hud_verdict": format!("{hud_verdict:?}"),
         "max_catalog_hydration_concurrency": max_catalog_hydration_concurrency(),
+    })
+    .to_string()
+}
+
+/// Formal R4.MvmLinuxContainer evaluate single-source MVM workspace, SpiralCore CORS preemption, and interactive command policy (`R4-63`).
+#[wasm_bindgen]
+#[allow(clippy::too_many_arguments)]
+pub fn studio_admit_mvm_container_policy_json(
+    split_brain: bool,
+    cow_consistent: bool,
+    spiral_core_net: bool,
+    is_private_or_loopback: bool,
+    has_credentials: bool,
+    direct_fetch_cors_blocked: bool,
+    mcp_mode: &str,
+    plan_mode: bool,
+    auto_run: bool,
+    mutating_cmd: bool,
+    header_tokens: u64,
+) -> String {
+    use crate::lexlean_generated::r4_mvm_linux_container::{
+        admit_interactive_command, admit_live_state_header, admit_mvm_socket,
+        admit_public_cors_preemption, admit_workspace_authority, max_live_state_header_tokens,
+        AgentPlanMode, CorsPreemptionVerdict, InteractiveCommandVerdict, McpGateMode,
+        MvmNetworkMode, MvmSocketVerdict, ShellCommandKind, WorkspaceAuthorityMode,
+        WorkspaceAuthorityVerdict,
+    };
+    let ws_mode = if split_brain {
+        WorkspaceAuthorityMode::SplitBrainDuplicateStore
+    } else {
+        WorkspaceAuthorityMode::SingleSourceMvmCow
+    };
+    let net_mode = if spiral_core_net {
+        MvmNetworkMode::SpiralCoreEncapsulated
+    } else {
+        MvmNetworkMode::ZeroNicIsolated
+    };
+    let gate = match mcp_mode.trim().to_ascii_lowercase().as_str() {
+        "deny" => McpGateMode::Deny,
+        "safe" => McpGateMode::Safe,
+        _ => McpGateMode::Confirm,
+    };
+    let agent_mode = if plan_mode {
+        AgentPlanMode::PlanReadOnly
+    } else {
+        AgentPlanMode::AgentFull
+    };
+    let cmd_kind = if mutating_cmd {
+        ShellCommandKind::MutatingOrNetwork
+    } else {
+        ShellCommandKind::ReadOnlyInspection
+    };
+    let ws_verdict = admit_workspace_authority(ws_mode, cow_consistent);
+    let sock_verdict = admit_mvm_socket(net_mode, true, false);
+    let cors_verdict = admit_public_cors_preemption(
+        spiral_core_net,
+        is_private_or_loopback,
+        has_credentials,
+        direct_fetch_cors_blocked,
+    );
+    let cmd_verdict = admit_interactive_command(gate, agent_mode, auto_run, cmd_kind);
+    let header_admitted = admit_live_state_header(header_tokens);
+    let admitted = ws_verdict == WorkspaceAuthorityVerdict::SingleSourceAdmitted
+        && matches!(
+            sock_verdict,
+            MvmSocketVerdict::AdmittedSpiralCoreInetEncapsulation
+                | MvmSocketVerdict::AdmittedDirectVsock
+        )
+        && matches!(
+            cors_verdict,
+            CorsPreemptionVerdict::DirectBrowserFetchAdmitted
+                | CorsPreemptionVerdict::StatelessRelayCorsPreempted
+        )
+        && matches!(
+            cmd_verdict,
+            InteractiveCommandVerdict::AutoRunAdmitted
+                | InteractiveCommandVerdict::StagedPendingUserGo
+        )
+        && header_admitted;
+    serde_json::json!({
+        "status": if admitted { "ok" } else { "error" },
+        "admitted": admitted,
+        "workspace_verdict": format!("{ws_verdict:?}"),
+        "socket_verdict": format!("{sock_verdict:?}"),
+        "cors_verdict": format!("{cors_verdict:?}"),
+        "command_verdict": format!("{cmd_verdict:?}"),
+        "header_admitted": header_admitted,
+        "max_live_state_header_tokens": max_live_state_header_tokens(),
     })
     .to_string()
 }
@@ -13036,9 +13137,9 @@ mod tests {
         assert_eq!(init_res["status"], "ok");
         assert!(
             !engine
-                .workspace_files
+                .list_workspace()
                 .iter()
-                .any(|f| f.path.starts_with(".git")),
+                .any(|p| p.starts_with(".git")),
             ".git metadata must not leak into Studio editor tabs"
         );
 
@@ -13063,7 +13164,7 @@ mod tests {
             .unwrap_or("")
             .contains("feat: add nebula v1"));
 
-        // 3. Mutate in MVM -> git diff + immediate Studio VFS sync
+        // 3. Mutate in MVM -> git diff + immediate single-source Studio VFS visibility
         let _ = engine.mvm_exec_json("echo \"pub fn version() -> i64 { 2 }\" > src/nebula.rs");
         let diff_res: serde_json::Value =
             serde_json::from_str(&engine.mvm_exec_json("git diff")).expect("json");
@@ -13071,19 +13172,19 @@ mod tests {
         assert!(diff_out.contains("-pub fn version() -> i64 { 1 }"));
         assert!(diff_out.contains("+pub fn version() -> i64 { 2 }"));
 
-        let studio_nebula = engine
-            .workspace_files
+        let studio_nebula_entries = engine.workspace_entries_from_mvm();
+        let studio_nebula = studio_nebula_entries
             .iter()
             .find(|f| f.path == "src/nebula.rs")
-            .expect("synced to StudioEngine");
+            .expect("visible immediately from single-source MVM VFS");
         assert!(studio_nebula
             .content
             .contains("pub fn version() -> i64 { 2 }"));
 
-        // 4. Bidirectional deletion sync (MVM rm -> Studio, Studio delete -> MVM)
+        // 4. Bidirectional deletion visibility (MVM rm -> Studio, Studio delete -> MVM)
         let _ = engine.mvm_exec_json("rm README.md");
         assert!(
-            !engine.workspace_files.iter().any(|f| f.path == "README.md"),
+            !engine.list_workspace().iter().any(|p| p == "README.md"),
             "rm README.md inside MVM must remove README.md from Studio VFS"
         );
         let _ = engine.workspace_delete_json("src/nebula.rs");
@@ -13096,7 +13197,7 @@ mod tests {
             "deleting file in Studio must remove it from MVM /workspace"
         );
 
-        // 5. git clone over SpiralCore two-phase bridge syncs cloned files into Studio VFS
+        // 5. git clone over SpiralCore two-phase bridge surfaces cloned files into Studio VFS
         let clone_req: serde_json::Value = serde_json::from_str(
             &engine.mvm_exec_json("git clone https://github.com/Casey-allard/demo-repo.git"),
         )
@@ -13124,10 +13225,10 @@ mod tests {
         assert_eq!(clone_done["status"], "ok");
         assert!(
             engine
-                .workspace_files
+                .list_workspace()
                 .iter()
-                .any(|f| f.path.ends_with("src/cloned.rs")),
-            "cloned repository files must sync into Studio workspace VFS"
+                .any(|p| p.ends_with("src/cloned.rs")),
+            "cloned repository files must surface in Studio workspace VFS"
         );
     }
 
@@ -14415,18 +14516,60 @@ mod tests {
         let e2 = StudioEngine::new_default();
         assert_eq!(e1.turns.len(), 20);
         assert_eq!(e1.turns.len(), e2.turns.len());
-        assert_eq!(e1.workspace_files, e2.workspace_files);
+        assert_eq!(
+            e1.workspace_entries_from_mvm(),
+            e2.workspace_entries_from_mvm()
+        );
         assert_eq!(e1.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
 
-        e1.workspace_files[0].content.push_str("\n// mutated\n");
         e1.mvm
             .write_guest_file("/workspace/mutated.txt", b"mutated\n")
             .expect("write mutated file");
-        assert_ne!(e1.workspace_files, e2.workspace_files);
+        assert_ne!(
+            e1.workspace_entries_from_mvm(),
+            e2.workspace_entries_from_mvm()
+        );
         assert_ne!(e1.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
 
         let e3 = StudioEngine::new_default();
-        assert_eq!(e3.workspace_files, e2.workspace_files);
+        assert_eq!(
+            e3.workspace_entries_from_mvm(),
+            e2.workspace_entries_from_mvm()
+        );
         assert_eq!(e3.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
+    }
+
+    #[test]
+    fn test_single_source_mvm_workspace_zero_sync_r4_63() {
+        let mut engine = StudioEngine::new_default();
+
+        // Direct MVM write (bypassing Studio wrappers) must appear immediately in Studio APIs.
+        engine
+            .mvm
+            .write_guest_file("/workspace/sh_out.txt", b"hello_from_mvm\n")
+            .expect("write /workspace/sh_out.txt");
+        let list_val: serde_json::Value =
+            serde_json::from_str(&engine.workspace_list_json()).expect("list json");
+        assert_eq!(list_val["authority"], "SingleSourceAdmitted");
+        assert!(
+            list_val["files"]
+                .as_array()
+                .expect("files")
+                .iter()
+                .any(|f| f["path"] == "sh_out.txt" && f["content"] == "hello_from_mvm\n"),
+            "workspace_list_json must read directly from MVM CoW VFS: {list_val}"
+        );
+        let read_val: serde_json::Value =
+            serde_json::from_str(&engine.workspace_read_json("sh_out.txt")).expect("read json");
+        assert_eq!(read_val["status"], "ok");
+        assert_eq!(read_val["content"], "hello_from_mvm\n");
+
+        // Studio write must appear immediately inside MVM without any explicit sync call.
+        let _ = engine.workspace_write_json("ed_in.txt\nworld_from_editor\n");
+        let cat_res: serde_json::Value =
+            serde_json::from_str(&engine.mvm_exec_json("cat /workspace/ed_in.txt"))
+                .expect("cat ed_in.txt");
+        assert_eq!(cat_res["exit_code"], 0);
+        assert_eq!(cat_res["mvm_stdout"], "world_from_editor\n");
     }
 }

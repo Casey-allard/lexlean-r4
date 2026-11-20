@@ -99,6 +99,13 @@ prism_record = "Foundation.Design::CompactStudioAutoHydration"
 facet = "design"
 note = "Compact Cursor-grade Studio UI, 2-model Qwen3 catalog auto-hydration, CONCURRENCY=3 parity recovery, and non-blocking Dropdown Neural HUD."
 
+[[route]]
+id = "R4-UR14"
+rust_fact = "mvm-linux-spiralcore-container"
+prism_record = "Foundation.Arch::MvmLinuxSpiralCoreContainer"
+facet = "arch"
+note = "Single-source MVM /workspace CoW VFS, compressed POSIX/dev userland, multi-TU #include mvm_cc, unprompted CORS-preempting SpiralCore net, and interactive staged Run/Auto-run."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -163,6 +170,11 @@ response = "route R4-UR12\nfact webgpu-geodesic-slab\nrecord Foundation.Qual::We
 case = "route R4-UR13"
 request_hex = "636f6d706163742d73747564696f2d6175746f2d687964726174696f6e"
 response = "route R4-UR13\nfact compact-studio-auto-hydration\nrecord Foundation.Design::CompactStudioAutoHydration\nfacet design"
+
+[[vector]]
+case = "route R4-UR14"
+request_hex = "6d766d2d6c696e75782d73706972616c636f72652d636f6e7461696e6572"
+response = "route R4-UR14\nfact mvm-linux-spiralcore-container\nrecord Foundation.Arch::MvmLinuxSpiralCoreContainer\nfacet arch"
 
 [[vector]]
 case = "error empty"

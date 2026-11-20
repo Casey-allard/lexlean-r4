@@ -1805,9 +1805,58 @@ body.theme-warm-light .diff-line-hunk {
 }
 
 .chat-turn-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-secondary);
+}
+
+#chat-transcript .holo-live-hud,
+#chat-transcript .holo-token-scrubber,
+#chat-transcript .chat-otel-footer {
+  display: none !important;
+}
+
+.staged-mvm-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0.4rem 0;
+  padding: 0.55rem 0.7rem;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.staged-mvm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.staged-mvm-cmd-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  padding: 0.35rem 0.5rem;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: 4px;
+}
+
+.staged-mvm-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 /* Inline Live Token-Prediction Mini-HUD & Scrubber (Task 6) */
@@ -2337,7 +2386,7 @@ body:not(.surface-observatory):not([data-surface="observatory"]) #inspectors-mod
 
 .holo-obs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 0.6rem;
 }
 

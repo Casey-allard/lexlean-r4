@@ -6,8 +6,9 @@ use lexlean_r4_wasm::lexlean_generated::r4_spiralcore_vsock::{
     EgressVerdict, ElfAdmission, FrameVerdict, SocketAdmission,
 };
 use lexlean_r4_wasm::mvm::{
-    admit_elf64_riscv, admit_guest_socket_domain, admit_spiralcore_header, MvmSandbox,
-    SpiralCoreHeader, SPIRALCORE_MAGIC,
+    admit_elf64_riscv, admit_guest_socket_domain, admit_spiralcore_header,
+    pack_compressed_initramfs_uormvmz1, MvmError, MvmSandbox, NetworkGateMode, SpiralCoreHeader,
+    SPIRALCORE_MAGIC,
 };
 use lexlean_r4_wasm::{
     mvm_export_workspace_diff_json, mvm_sync_workspace_in_json, studio_dispatch,
@@ -1985,4 +1986,255 @@ fn test_opfs_cow_import_preserves_user_workspace_on_reboot_r4_60() {
     let bad_import: serde_json::Value =
         serde_json::from_str(&engine_b.import_cow_sectors(&bad_cow)).expect("error json");
     assert_eq!(bad_import["status"], "error");
+}
+
+#[test]
+fn test_r4_63_compressed_uormvmz1_initramfs_and_tamper_reject() {
+    let raw_initramfs = include_bytes!("../src/mvm_initramfs.bin");
+    assert_eq!(&raw_initramfs[0..8], b"UORMVM01");
+    let compressed =
+        pack_compressed_initramfs_uormvmz1(raw_initramfs).expect("pack UORMVMZ1 container");
+    assert_eq!(&compressed[0..8], b"UORMVMZ1");
+    assert!(
+        compressed.len() < raw_initramfs.len(),
+        "expected UORMVMZ1 ({} B) to shrink raw UORMVM01 ({} B)",
+        compressed.len(),
+        raw_initramfs.len()
+    );
+
+    let mut vm = MvmSandbox::boot_default().expect("MvmSandbox boots");
+    vm.mount_initramfs_image(&compressed)
+        .expect("compressed UORMVMZ1 initramfs mounts cleanly");
+    assert!(
+        vm.read_guest_file("/sbin/mvm-agent").is_some(),
+        "UORMVMZ1 must restore ELF userland"
+    );
+
+    let mut tampered = compressed.clone();
+    let flip_idx = tampered.len() - 12;
+    tampered[flip_idx] ^= 0xff;
+    let err = vm
+        .mount_initramfs_image(&tampered)
+        .expect_err("corrupt UORMVMZ1 payload must fail closed");
+    assert!(
+        matches!(err, MvmError::CorruptInitramfs(_)),
+        "expected CorruptInitramfs error on tampered archive, got {err:?}"
+    );
+}
+
+#[test]
+fn test_r4_63_self_host_multi_tu_cc_make_and_dev_userland() {
+    let mut vm = MvmSandbox::boot_default().expect("MvmSandbox boots");
+    assert_eq!(
+        vm.dirty_cow_sector_count(),
+        0,
+        "boot with /usr/include and /usr/src/mvm must leave zero dirty sectors"
+    );
+
+    let uname_out = vm
+        .exec_command("uname -a", "/workspace")
+        .expect("uname -a succeeds");
+    assert_eq!(uname_out.exit_code, 0);
+    assert!(
+        uname_out.stdout.contains("riscv64"),
+        "expected riscv64 kernel identity, got: {}",
+        uname_out.stdout
+    );
+
+    let build_out = vm
+        .exec_command(
+            "make -C /usr/src/mvm && /usr/src/mvm/mvm_hello",
+            "/workspace",
+        )
+        .expect("self-host make + mvm_hello runs");
+    assert_eq!(
+        build_out.exit_code, 0,
+        "make + mvm_hello failed: stderr={}",
+        build_out.stderr
+    );
+    assert!(
+        build_out.stdout.contains("MVM_SELF_HOST_OK dot=26"),
+        "unexpected mvm_hello stdout: {}",
+        build_out.stdout
+    );
+
+    let rg_out = vm
+        .exec_command("rg mvm_dot2 /usr/src/mvm", "/workspace")
+        .expect("rg searches directory");
+    assert_eq!(rg_out.exit_code, 0);
+    assert!(rg_out.stdout.contains("mvm_util.c"));
+    let rg_miss = vm
+        .exec_command("rg __never_present_symbol__ /usr/src/mvm", "/workspace")
+        .expect("rg miss completes");
+    assert_eq!(rg_miss.exit_code, 1);
+    assert!(
+        rg_miss.stderr.is_empty(),
+        "rg no-match must not emit stderr: {}",
+        rg_miss.stderr
+    );
+
+    vm.write_guest_file("/workspace/a.txt", b"alpha\nbeta\ngamma\n")
+        .expect("write a.txt");
+    vm.write_guest_file("/workspace/b.txt", b"alpha\nBETA_PATCHED\ngamma\n")
+        .expect("write b.txt");
+    let patch_out = vm
+        .exec_command(
+            "diff -u a.txt b.txt > change.patch; patch -p0 -i change.patch && cat a.txt",
+            "/workspace",
+        )
+        .expect("diff + patch pipeline");
+    assert_eq!(
+        patch_out.exit_code, 0,
+        "diff+patch stderr={}",
+        patch_out.stderr
+    );
+    assert!(patch_out.stdout.contains("BETA_PATCHED"));
+
+    let xargs_out = vm
+        .exec_command("printf 'one\\ntwo\\n' | xargs echo prefix", "/workspace")
+        .expect("xargs echo");
+    assert_eq!(xargs_out.exit_code, 0);
+    assert!(xargs_out.stdout.contains("prefix one two"));
+
+    let xxd_out = vm
+        .exec_command(
+            "printf 'R4!' | xxd -p && printf '523421' | xxd -r -p",
+            "/workspace",
+        )
+        .expect("xxd hex dump & revert");
+    assert_eq!(xxd_out.exit_code, 0);
+    assert!(xxd_out.stdout.contains("523421"));
+    assert!(xxd_out.stdout.contains("R4!"));
+
+    let sys_out = vm
+        .exec_command("df -h && free -m", "/workspace")
+        .expect("df -h && free -m");
+    assert_eq!(sys_out.exit_code, 0);
+    assert!(sys_out.stdout.contains("/workspace"));
+    assert!(sys_out.stdout.contains("Mem:"));
+
+    vm.write_guest_file(
+        "/workspace/hello.sh",
+        b"# sample shell script\necho arg0=$1 arg1=$2 count=$# all=$@\n",
+    )
+    .expect("write hello.sh");
+    let sh_out = vm
+        .exec_command("sh hello.sh alpha beta", "/workspace")
+        .expect("sh script execution");
+    assert_eq!(sh_out.exit_code, 0, "sh stderr={}", sh_out.stderr);
+    assert!(
+        sh_out
+            .stdout
+            .contains("arg0=alpha arg1=beta count=2 all=alpha beta"),
+        "unexpected sh output: {}",
+        sh_out.stdout
+    );
+}
+
+#[test]
+fn test_r4_63_af_inet_spvs_encapsulation_and_zero_nic_isolation() {
+    let inet_probe_c = r#"
+#include <stdio.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+int main(void) {
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
+        printf("SOCK_ERR=%d\n", fd);
+        return 1;
+    }
+    struct sockaddr_in lo;
+    lo.sin_family = AF_INET;
+    lo.sin_port = htons(80);
+    lo.sin_addr.s_addr = htonl(2130706433);
+    lo.sin_zero = 0;
+    int ssrf_lo = connect(fd, &lo, sizeof(lo));
+
+    struct sockaddr_in meta;
+    meta.sin_family = AF_INET;
+    meta.sin_port = htons(80);
+    meta.sin_addr.s_addr = htonl(2852039166);
+    meta.sin_zero = 0;
+    int ssrf_meta = connect(fd, &meta, sizeof(meta));
+
+    struct sockaddr_in pub;
+    pub.sin_family = AF_INET;
+    pub.sin_port = htons(80);
+    pub.sin_addr.s_addr = htonl(1572395042);
+    pub.sin_zero = 0;
+    int conn_rc = connect(fd, &pub, sizeof(pub));
+
+    char req[64];
+    strcpy(req, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+    int sent = send(fd, req, strlen(req), 0);
+    char resp[128];
+    int got = recv(fd, resp, 120, 0);
+    if (got >= 0 && got < 128) {
+        resp[got] = 0;
+    }
+    printf("SSRF_LO=%d SSRF_META=%d CONN=%d SENT=%d GOT=%d BODY=%s\n", ssrf_lo, ssrf_meta, conn_rc, sent, got, resp);
+    close(fd);
+    return 0;
+}
+"#;
+
+    // 1. Default Sandboxed MvmSandbox::boot_default() preserves Zero-NIC isolation (-97 = -EAFNOSUPPORT)
+    let mut sandboxed_vm = MvmSandbox::boot_default().expect("boot default MVM");
+    assert_eq!(sandboxed_vm.network_mode, NetworkGateMode::Sandboxed);
+    sandboxed_vm
+        .write_guest_file("/workspace/inet_probe.c", inet_probe_c.as_bytes())
+        .expect("write inet_probe.c");
+    let cc_isolated = sandboxed_vm
+        .exec_command(
+            "cc /workspace/inet_probe.c -o /workspace/inet_probe",
+            "/workspace",
+        )
+        .expect("compile inet_probe in sandboxed vm");
+    assert_eq!(cc_isolated.exit_code, 0, "cc stderr={}", cc_isolated.stderr);
+    let isolated_run = sandboxed_vm
+        .exec_command("/workspace/inet_probe", "/workspace")
+        .expect("run inet_probe in sandboxed vm");
+    assert_eq!(isolated_run.exit_code, 1);
+    assert!(
+        isolated_run.stdout.contains("SOCK_ERR=-97"),
+        "Zero-NIC default must refuse AF_INET with -97 (-EAFNOSUPPORT), got: {}",
+        isolated_run.stdout
+    );
+    assert!(
+        isolated_run.vsock_frames.is_empty(),
+        "Zero-NIC default must emit zero SPVS packets"
+    );
+
+    // 2. NetworkGateMode::SpiralCoreNet encapsulates public AF_INET via signed SPVS (CID 3 -> CID 2) and blocks private SSRF (-13)
+    let mut net_vm = MvmSandbox::boot_default().expect("boot net MVM");
+    net_vm.network_mode = NetworkGateMode::SpiralCoreNet;
+    net_vm
+        .write_guest_file("/workspace/inet_probe.c", inet_probe_c.as_bytes())
+        .expect("write inet_probe.c");
+    let net_run = net_vm
+        .exec_command(
+            "cc /workspace/inet_probe.c -o /workspace/inet_probe && /workspace/inet_probe",
+            "/workspace",
+        )
+        .expect("compile & run inet_probe in SpiralCoreNet");
+    assert_eq!(net_run.exit_code, 0, "stderr={}", net_run.stderr);
+    assert!(
+        net_run.stdout.contains("SSRF_LO=-13 SSRF_META=-13 CONN=0"),
+        "expected loopback/metadata SSRF=-13 (-EACCES) and public connect=0, got: {}",
+        net_run.stdout
+    );
+    assert!(
+        net_run.stdout.contains("SPIRALCORE_INET_ACK"),
+        "expected deterministic SPVS HTTP encap response, got: {}",
+        net_run.stdout
+    );
+    assert_eq!(net_run.vsock_frames.len(), 1);
+    let frame = &net_run.vsock_frames[0];
+    assert_eq!(frame.header.magic, SPIRALCORE_MAGIC);
+    assert_eq!(frame.header.src_cid, 3);
+    assert_eq!(frame.header.dst_cid, 2);
+    assert_eq!(frame.header.vsock_port, 5257);
 }
