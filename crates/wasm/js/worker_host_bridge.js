@@ -2030,9 +2030,30 @@ export async function computeHoloSlab2MerkleRootHex(pieces) {
  * pre-allocated 2 MiB ring buffer, `HOLD_TAIL_BYTES = 65536`, `< 5 ms` warm seal verification,
  * `RefusedInsufficientStorageQuota` preflight, and 2-of-3 Stitch XOR in-place slab repair.
  */
+export const HOLO_MAX_GIT_SAFE_PACK_BYTES = 50_331_648; // 48 MiB
+
+/** Formal R4.FastPackHydration admit <= 48 MiB streaming packs while refusing oversized packs, 404 retries, and silent Q31 downgrades. */
+export function admitPackHydrationPolicy(maxPackBytes, hasPacks, retried404Mirror, silentDowngradeToQ31) {
+  /* Formal R4.FastPackHydration */
+  if (silentDowngradeToQ31) return 'RefusedSilentEmergencyDowngrade';
+  if (retried404Mirror) return 'RefusedPiece404MirrorRetry';
+  if (Number(maxPackBytes) > HOLO_MAX_GIT_SAFE_PACK_BYTES) return 'RefusedPackExceeds50MiB';
+  return hasPacks ? 'StreamingPackAdmitted' : 'PieceFallbackAdmitted';
+}
+
+/** Formal R4.FastPackHydration verify single-truth consistency between model picker and hydration pill. */
+export function admitSingleTruthBadge(selectedIsEmergencyQ31, badgeShowsEmergencyQ31) {
+  /* Formal R4.FastPackHydration */
+  if (!selectedIsEmergencyQ31 && badgeShowsEmergencyQ31) {
+    return 'RefusedEmergencyBadgeOnQwenSession';
+  }
+  return 'SingleTruthBadgeAdmitted';
+}
+
 export class OpfsKappaStore {
   constructor() {
     this.liarMirrors = new Set();
+    this.missingBlobMirrors = new Set();
     this.stitchRecoveries = 0;
     this.ringBufferBytes = HOLOSLAB2_RING_BYTES;
     this.ringBuffer = new Uint8Array(HOLOSLAB2_RING_BYTES);
@@ -4401,6 +4422,34 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     await sharedKappaStore.preflightStorageQuota(manifestTotalBytes);
     const slabWriter = await sharedKappaStore.openSlabWriter(key, manifest, manifestTotalBytes);
 
+    const allCandidateUrls = Array.from(
+      new Set(
+        [
+          ...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []),
+          ...(hasCustomMirrors ? options.customMirrors : firstPartyOffOriginCandidates),
+          baseUrl,
+        ]
+          .filter((u) => typeof u === 'string' && u.startsWith('http'))
+          .map((u) => (u.endsWith('/') ? u : `${u}/`)),
+      ),
+    );
+    const isAdmittedPieceMirror = (u) => {
+      if (__uorIsSameOriginMirror(u, httpOrigin)) return true;
+      if (allowCustomExternal) return true;
+      if (hasCustomMirrors) {
+        return isCatalogModel && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors) && options.customMirrors.includes(u);
+      }
+      return allowFirstPartyCatalog && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors);
+    };
+    const admittedMirrorUrls = allCandidateUrls.filter(isAdmittedPieceMirror);
+    const offOriginMirrors = Array.from(
+      new Set([
+        ...consentMirrorsBase,
+        ...allCandidateUrls.filter((u) => !isAdmittedPieceMirror(u)),
+        ...(explicitAllowOffOrigin === false ? allCandidateUrls.filter((u) => !__uorIsSameOriginMirror(u, httpOrigin)) : []),
+      ]),
+    );
+
     const resolveOrRecoverPiece = async (pieceMeta) => {
       const sha = String(pieceMeta.sha256 || '').toLowerCase();
       const expectedLen = Number(pieceMeta.byte_length) || 0;
@@ -4408,36 +4457,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         const cached = await sharedKappaStore.getVerifiedPiece(sha, expectedLen);
         if (cached) return { bytes: cached, fromOpfs: true };
       }
-      const allUrls = Array.from(
-        new Set(
-          [
-            ...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []),
-            ...(hasCustomMirrors
-              ? options.customMirrors
-              : firstPartyOffOriginCandidates),
-            baseUrl,
-          ]
-            .filter((u) => typeof u === 'string' && u.startsWith('http'))
-            .map((u) => (u.endsWith('/') ? u : `${u}/`)),
-        ),
-      );
-      const isAdmittedPieceMirror = (u) => {
-        if (__uorIsSameOriginMirror(u, httpOrigin)) return true;
-        if (allowCustomExternal) return true;
-        if (hasCustomMirrors) {
-          return isCatalogModel && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors) && options.customMirrors.includes(u);
-        }
-        return allowFirstPartyCatalog && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors);
-      };
-      const urls = allUrls.filter(isAdmittedPieceMirror);
-      const offOriginMirrors = Array.from(
-        new Set([
-          ...consentMirrorsBase,
-          ...allUrls.filter((u) => !isAdmittedPieceMirror(u)),
-          ...(explicitAllowOffOrigin === false ? allUrls.filter((u) => !__uorIsSameOriginMirror(u, httpOrigin)) : []),
-        ]),
-      );
-      if (urls.length === 0 && offOriginMirrors.length > 0 && (explicitAllowOffOrigin === false || !allowCustomExternal)) {
+      if (admittedMirrorUrls.length === 0 && offOriginMirrors.length > 0 && (explicitAllowOffOrigin === false || !allowCustomExternal)) {
         throw __uorConsentError(undefined, {
           model_id: key,
           approx_bytes: manifestTotalBytes,
@@ -4446,16 +4466,20 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       }
       let sawMissingOnSameOrigin = false;
       let fetchedBuf = null;
-      for (const mBase of urls) {
-        if (sharedKappaStore.liarMirrors.has(mBase)) continue;
+      for (const mBase of admittedMirrorUrls) {
+        if (sharedKappaStore.liarMirrors.has(mBase) || sharedKappaStore.missingBlobMirrors.has(mBase)) continue;
         try {
           fetchedBuf = await holoFetchWithHoldTail(`${mBase}${pieceMeta.file}`, sha);
           break;
         } catch (err) {
           const errMsg = String(err && err.message);
+          const status = err && Number(err.status);
           if (errMsg.includes('RefusedPieceHashMismatch')) {
             sharedKappaStore.liarMirrors.add(mBase);
           } else {
+            if (status === 404 || status === 403) {
+              sharedKappaStore.missingBlobMirrors.add(mBase);
+            }
             sawMissingOnSameOrigin = true;
           }
         }
@@ -4465,7 +4489,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         return { bytes: fetchedBuf, fromOpfs: false };
       }
       // Attempt 2-of-3 Stitch XOR parity recovery cleanly
-      const pieceMirrorBase = urls[0] || '';
+      const pieceMirrorBase = admittedMirrorUrls.find((u) => !sharedKappaStore.liarMirrors.has(u) && !sharedKappaStore.missingBlobMirrors.has(u)) || admittedMirrorUrls[0] || '';
       if (stitchManifest && Array.isArray(stitchManifest.groups) && pieceMirrorBase.startsWith('http')) {
         const gIdx = Math.floor(pieceMeta.index / 2);
         const grp = stitchManifest.groups[gIdx];
@@ -4494,7 +4518,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       if (
         offOriginMirrors.length > 0 &&
         (explicitAllowOffOrigin === false || (!allowCustomExternal && untrustedExternalCandidates.length > 0)) &&
-        (urls.length === 0 || sawMissingOnSameOrigin)
+        (admittedMirrorUrls.length === 0 || sawMissingOnSameOrigin)
       ) {
         throw __uorConsentError(undefined, {
           model_id: key,
@@ -4518,43 +4542,146 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
 
     let cachedHits = 0;
     let downloadedBytes = 0;
+    let pushedPieces = 0;
     const totalBytes = manifestTotalBytes;
-    const CONCURRENCY = 3;
-    try {
-      for (let i = 0; i < pieceCount; i += CONCURRENCY) {
-        const batch = manifest.pieces.slice(i, Math.min(i + CONCURRENCY, pieceCount));
-        const results = await Promise.all(batch.map((pm) => resolveOrRecoverPiece(pm)));
-        ensureMountStarted();
-        for (let j = 0; j < results.length; j++) {
-          const res = results[j];
-          const pm = batch[j];
-          if (res.fromOpfs) cachedHits += 1;
-          const pieceByteLen = Number((pm && pm.byte_length) || (res.bytes && res.bytes.byteLength) || 0);
-          const pushOut = JSON.parse(studio_push_holo_v13_piece(res.bytes));
-          res.bytes = null;
-          results[j] = null;
-          if (!pushOut || pushOut.status !== 'ok') {
-            throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
+    const commitVerifiedPiece = (pm, res) => {
+      ensureMountStarted();
+      if (res.fromOpfs) cachedHits += 1;
+      const pieceByteLen = Number((pm && pm.byte_length) || (res.bytes && res.bytes.byteLength) || 0);
+      const pushOut = JSON.parse(studio_push_holo_v13_piece(res.bytes));
+      res.bytes = null;
+      if (!pushOut || pushOut.status !== 'ok') {
+        throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
+      }
+      downloadedBytes += pieceByteLen;
+      pushedPieces += 1;
+      const stepNum = pushedPieces;
+      const percent = totalBytes > 0
+        ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100))
+        : Math.min(100, Math.round((stepNum / Math.max(1, pieceCount)) * 100));
+      if (typeof onProgress === 'function' && (stepNum === 1 || stepNum === pieceCount || pieceCount <= 16 || stepNum % 4 === 0)) {
+        onProgress({
+          modelId: key,
+          index: stepNum,
+          total: pieceCount,
+          downloadedBytes,
+          totalBytes,
+          percent,
+          cachedHits,
+          stitchRecoveries: sharedKappaStore.stitchRecoveries,
+          label: cachedHits === stepNum
+            ? `OPFS verified ${key} (${stepNum}/${pieceCount})`
+            : `Streaming ${key} ${percent}% (${stepNum}/${pieceCount})...`,
+        });
+      }
+    };
+
+    const rawPacks = Array.isArray(manifest.packs) ? manifest.packs : [];
+    const maxPackBytes = rawPacks.reduce((acc, pk) => Math.max(acc, Number((pk && pk.byte_length) || 0)), 0);
+    const packVerdict = admitPackHydrationPolicy(maxPackBytes, rawPacks.length > 0, false, false);
+    const PIECE_CONCURRENCY = 12;
+    const PACK_CONCURRENCY = 3;
+    const sessionPackMissingMirrors = new Set();
+
+    const resolvePackPieces = async (pk) => {
+      const startIdx = Number(pk.piece_start) || 0;
+      const cnt = Number(pk.piece_count) || 0;
+      const subPieces = manifest.pieces.slice(startIdx, startIdx + cnt);
+      if (subPieces.length === 0) return [];
+      if (!forceReload) {
+        const cachedCheck = await Promise.all(
+          subPieces.map((pm) =>
+            sharedKappaStore.getVerifiedPiece(String(pm.sha256 || '').toLowerCase(), Number(pm.byte_length) || 0),
+          ),
+        );
+        if (cachedCheck.every(Boolean)) {
+          return cachedCheck.map((bytes) => ({ bytes, fromOpfs: true }));
+        }
+      }
+      if (admittedMirrorUrls.length === 0 && offOriginMirrors.length > 0 && (explicitAllowOffOrigin === false || !allowCustomExternal)) {
+        throw __uorConsentError(undefined, {
+          model_id: key,
+          approx_bytes: manifestTotalBytes,
+          mirrors: offOriginMirrors,
+        });
+      }
+      let packBytes = null;
+      const packSha = String(pk.sha256 || '').toLowerCase();
+      for (const mBase of admittedMirrorUrls) {
+        if (sharedKappaStore.liarMirrors.has(mBase) || sharedKappaStore.missingBlobMirrors.has(mBase) || sessionPackMissingMirrors.has(mBase)) {
+          continue;
+        }
+        try {
+          packBytes = await holoFetchWithHoldTail(`${mBase}${pk.file}`, packSha);
+          break;
+        } catch (err) {
+          const errMsg = String(err && err.message);
+          const status = err && Number(err.status);
+          if (errMsg.includes('RefusedPieceHashMismatch')) {
+            sharedKappaStore.liarMirrors.add(mBase);
+          } else if (status === 404 || status === 403) {
+            sessionPackMissingMirrors.add(mBase);
           }
-          downloadedBytes += pieceByteLen;
-          const stepNum = i + j + 1;
-          const percent = totalBytes > 0
-            ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100))
-            : Math.min(100, Math.round((stepNum / Math.max(1, pieceCount)) * 100));
-          if (typeof onProgress === 'function' && (stepNum === 1 || stepNum === pieceCount || pieceCount <= 16 || stepNum % 4 === 0)) {
-            onProgress({
-              modelId: key,
-              index: stepNum,
-              total: pieceCount,
-              downloadedBytes,
-              totalBytes,
-              percent,
-              cachedHits,
-              stitchRecoveries: sharedKappaStore.stitchRecoveries,
-              label: cachedHits === stepNum
-                ? `OPFS verified ${key} (${stepNum}/${pieceCount})`
-                : `Streaming ${key} ${percent}% (${stepNum}/${pieceCount})...`,
-            });
+        }
+      }
+      if (packBytes) {
+        const out = [];
+        let relOff = 0;
+        let allValid = true;
+        for (const pm of subPieces) {
+          const pLen = Number(pm.byte_length) || 0;
+          if (relOff + pLen > packBytes.byteLength) {
+            allValid = false;
+            break;
+          }
+          const slice = packBytes.subarray(relOff, relOff + pLen);
+          relOff += pLen;
+          const gotSha = (await sha256Hex(slice)).toLowerCase();
+          if (gotSha !== String(pm.sha256 || '').toLowerCase()) {
+            allValid = false;
+            break;
+          }
+          await slabWriter.writePieceAt(pm.index, slice);
+          out.push({ bytes: slice, fromOpfs: false });
+        }
+        if (allValid && out.length === subPieces.length) {
+          return out;
+        }
+      }
+      // Seamless piece-level + Stitch 2-of-3 fallback when pack file is unavailable or corrupt
+      const fallbackOut = [];
+      for (let k = 0; k < subPieces.length; k += PIECE_CONCURRENCY) {
+        const pBatch = subPieces.slice(k, Math.min(k + PIECE_CONCURRENCY, subPieces.length));
+        const pRes = await Promise.all(pBatch.map((pm) => resolveOrRecoverPiece(pm)));
+        for (const item of pRes) fallbackOut.push(item);
+      }
+      return fallbackOut;
+    };
+
+    try {
+      if (packVerdict === 'StreamingPackAdmitted') {
+        for (let p = 0; p < rawPacks.length; p += PACK_CONCURRENCY) {
+          const packBatch = rawPacks.slice(p, Math.min(p + PACK_CONCURRENCY, rawPacks.length));
+          const packResults = await Promise.all(packBatch.map((pk) => resolvePackPieces(pk)));
+          for (let b = 0; b < packBatch.length; b++) {
+            const pk = packBatch[b];
+            const startIdx = Number(pk.piece_start) || 0;
+            const subPieces = manifest.pieces.slice(startIdx, startIdx + (Number(pk.piece_count) || 0));
+            const resList = packResults[b];
+            for (let j = 0; j < resList.length; j++) {
+              commitVerifiedPiece(subPieces[j], resList[j]);
+              resList[j] = null;
+            }
+            packResults[b] = null;
+          }
+        }
+      } else {
+        for (let i = 0; i < pieceCount; i += PIECE_CONCURRENCY) {
+          const batch = manifest.pieces.slice(i, Math.min(i + PIECE_CONCURRENCY, pieceCount));
+          const results = await Promise.all(batch.map((pm) => resolveOrRecoverPiece(pm)));
+          for (let j = 0; j < results.length; j++) {
+            commitVerifiedPiece(batch[j], results[j]);
+            results[j] = null;
           }
         }
       }

@@ -1107,7 +1107,11 @@ const engineWorkerClient = {
         if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
         if (typeof renderCoworkStatusBar === 'function') renderCoworkStatusBar();
       }
-      if (msg.recommendedModel && msg.promoted !== true && !holoObservatoryState.manualModelPinned) {
+      const allowEmergencySwitch =
+        msg.recommendedModel !== 'uor-r4.native-q31-d85' ||
+        msg.fallbackReason === 'offline_emergency_mode' ||
+        (typeof readOfflineEmergencyStored === 'function' && readOfflineEmergencyStored());
+      if (allowEmergencySwitch && msg.recommendedModel && msg.promoted !== true && !holoObservatoryState.manualModelPinned) {
         const modelSel = document.getElementById('composer-model-select');
         if (modelSel && Array.from(modelSel.options).some((o) => o.value === msg.recommendedModel)) {
           modelSel.value = msg.recommendedModel;
@@ -13102,6 +13106,26 @@ function updateInlineHydrationBar(prog) {
   }
 }
 
+/** Formal R4.FastPackHydration canonical selector helper for `data-studio-id` aliases. */
+function selectStudioControl(studioId) {
+  /* Formal R4.FastPackHydration */
+  if (typeof document === 'undefined' || !document || typeof document.querySelector !== 'function') {
+    return null;
+  }
+  return document.querySelector(`[data-studio-id="${String(studioId || '')}"]`);
+}
+globalThis.__uorStudioSelect = selectStudioControl;
+
+/** Formal R4.FastPackHydration verify single-truth consistency between model picker and hydration pill. */
+function admitSingleTruthBadgeUi(selectedIsEmergencyQ31, badgeShowsEmergencyQ31) {
+  /* Formal R4.FastPackHydration */
+  if (!selectedIsEmergencyQ31 && badgeShowsEmergencyQ31) {
+    return 'RefusedEmergencyBadgeOnQwenSession';
+  }
+  return 'SingleTruthBadgeAdmitted';
+}
+globalThis.__uorAdmitSingleTruthBadge = admitSingleTruthBadgeUi;
+
 /** Formal R4.StudioFrame render honest clickable status pill on `#weight-cache-badge`. */
 function updateWeightCacheBadge() {
   const holoInfo = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.holoStatus) || null;
@@ -13116,13 +13140,25 @@ function updateWeightCacheBadge() {
       r4Info = null;
     }
   }
-  const selId = (typeof AppState !== 'undefined' && AppState.config && AppState.config.selectedModel === 'uor-r4.native-q31-d85')
+  const explicitEmergencyStored =
+    typeof safeStorageGet === 'function' && safeStorageGet('uor_offline_emergency_q31') === '1';
+  const topbarPicker =
+    (typeof modelSelect !== 'undefined' && modelSelect) ||
+    (typeof document !== 'undefined' && document && document.getElementById('model-select'));
+  const pickerVal = topbarPicker && topbarPicker.value ? String(topbarPicker.value) : '';
+  const selId = explicitEmergencyStored
     ? 'uor-r4.native-q31-d85'
-    : ((typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
+    : (pickerVal
+      || (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
       || (AppState && AppState.config && AppState.config.selectedModel)
       || 'uor-r4.qwen3-0.6b-holo');
-  const offlineEmergency = (typeof safeStorageGet === 'function' && safeStorageGet('uor_offline_emergency_q31') === '1')
-    || selId === 'uor-r4.native-q31-d85';
+  if (!explicitEmergencyStored && AppState && AppState.config && AppState.config.selectedModel === 'uor-r4.native-q31-d85' && pickerVal && pickerVal !== 'uor-r4.native-q31-d85') {
+    AppState.config.selectedModel = pickerVal;
+  }
+  const offlineEmergency = explicitEmergencyStored || selId === 'uor-r4.native-q31-d85';
+  if (topbarPicker && typeof topbarPicker.disabled === 'boolean') {
+    topbarPicker.disabled = Boolean(explicitEmergencyStored);
+  }
   const is17b = selId === 'uor-r4.qwen3-1.7b-holo';
   const targetMounted = Boolean(
     holoInfo && (
@@ -13135,7 +13171,7 @@ function updateWeightCacheBadge() {
     if (hydProg) {
       weightCacheBadge.textContent = formatHydrationProgressLabel(hydProg);
       weightCacheBadge.setAttribute('data-cache-state', 'downloading');
-    } else if (offlineEmergency) {
+    } else if (offlineEmergency && admitSingleTruthBadgeUi(offlineEmergency, true) === 'SingleTruthBadgeAdmitted') {
       weightCacheBadge.textContent = 'Offline Q31 · Emergency';
       weightCacheBadge.setAttribute('data-cache-state', 'offline-q31');
     } else if (targetMounted) {

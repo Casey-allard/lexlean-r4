@@ -408,6 +408,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-65` | `build` | Pure LexLean models the R4-65 live bound WebGPU turn shortlist/tile bridge, GitHub Pages COEP credentialless cross-origin isolation guard, and 2-tier adaptive speculative draft throttling policy (R4.LiveWebGpuTurnBridge): admitLiveGpuBoundStep admitting zero-float bound GPU compute passes with 0-LSB parity (LiveGpuBoundStepAdmitted) and headless CPU fallback (FallbackWasmSimdAdmitted) while refusing float ops (RefusedFloatOpInGpuBridge), unbound compute dispatches (RefusedUnboundComputePass), and GPU/CPU logit drift (RefusedGpuCpuLogitDrift); admitCoiCredentiallessMode admitting single-reload COEP credentialless Service Worker isolation (CrossOriginCredentiallessAdmitted) and unisolated single-worker fallback (SingleWorkerFallbackAdmitted) while refusing require-corp policies that break cross-origin weight mirrors (RefusedRequireCorpBreaksMirrors); and admitAdaptiveSpeculativeBudget admitting full K<=4 speculative tiles on GPU or high-hit turns (AdaptiveTileAdmitted) and <=1-draft throttling when CPU acceptance EMA < 250 permille (ThrottledCpuDraftsAdmitted) while refusing unthrottled CPU miss storms (RefusedUnthrottledCpuMissStorm). Formal controls establish modeled admission verdicts only, not physical browser GPU availability or remote CDN reachability. |
 
+## r4_66_fast_pack_hydration
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-66` | `build` | Pure LexLean models the R4-66 <= 48 MiB streaming pack hydration, immediate HTTP 404/403 mirror pruning, queue-not-downgrade Turn 1 hydration policy, and single-truth model/hydration badge admission (R4.FastPackHydration): admitPackHydrationPolicy admitting <= 50,331,648-byte (48 MiB) streaming packs (StreamingPackAdmitted) and ordered per-piece fallback (PieceFallbackAdmitted) while refusing packs exceeding 48 MiB (RefusedPackExceeds50MiB), repeated piece retries against a 404 mirror (RefusedPiece404MirrorRetry), and silent downgrades to emergency NativeQ31 during Qwen3 hydration (RefusedSilentEmergencyDowngrade); and admitSingleTruthBadge admitting consistent topbar model/hydration indicators (SingleTruthBadgeAdmitted) while refusing contradictory Offline Q31 Emergency badges when a Qwen3 Holo session is selected (RefusedEmergencyBadgeOnQwenSession). Formal controls establish modeled admission verdicts only, not physical CDN bandwidth or remote mirror uptime. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

@@ -125,7 +125,7 @@ jobs:
             "$image" ./target/debug/xtask build-holo --out public/app.holo --emit-fingerprint-dir public/holo --verify-site-manifest
           if [ -d gpu/weights ]; then
             cp -R gpu/weights public/weights
-            find public/weights -type f \( -name "*.bin" -o -name "*.part*" \) -delete
+            find public/weights -type f \( -name "*.bin" -o -name "*.pack" -o -name "*.part*" \) -delete
           fi
 
       - name: Configure Pages

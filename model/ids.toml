@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-66"
+level = "build"
+suite = "r4_66_fast_pack_hydration"
+statement = "Pure LexLean models the R4-66 <= 48 MiB streaming pack hydration, immediate HTTP 404/403 mirror pruning, queue-not-downgrade Turn 1 hydration policy, and single-truth model/hydration badge admission (R4.FastPackHydration): admitPackHydrationPolicy admitting <= 50,331,648-byte (48 MiB) streaming packs (StreamingPackAdmitted) and ordered per-piece fallback (PieceFallbackAdmitted) while refusing packs exceeding 48 MiB (RefusedPackExceeds50MiB), repeated piece retries against a 404 mirror (RefusedPiece404MirrorRetry), and silent downgrades to emergency NativeQ31 during Qwen3 hydration (RefusedSilentEmergencyDowngrade); and admitSingleTruthBadge admitting consistent topbar model/hydration indicators (SingleTruthBadgeAdmitted) while refusing contradictory Offline Q31 Emergency badges when a Qwen3 Holo session is selected (RefusedEmergencyBadgeOnQwenSession). Formal controls establish modeled admission verdicts only, not physical CDN bandwidth or remote mirror uptime."
+
+[[id]]
 id = "R4-65"
 level = "build"
 suite = "r4_65_live_webgpu_turn_bridge"

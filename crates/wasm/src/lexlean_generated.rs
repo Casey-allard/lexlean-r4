@@ -48760,3 +48760,78 @@ pub mod r4_live_webgpu_turn_bridge {
                 == AdaptiveDrafterVerdict::RefusedUnthrottledCpuMissStorm
     }
 }
+
+/// Generated from `R4.FastPackHydration` (`src/R4/FastPackHydration.lex.tex`, `R4-66`).
+pub mod r4_fast_pack_hydration {
+    /// Inductive `R4.FastPackHydration.PackHydrationVerdict` (`R4-66`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PackHydrationVerdict {
+        StreamingPackAdmitted,
+        PieceFallbackAdmitted,
+        RefusedPackExceeds50MiB,
+        RefusedPiece404MirrorRetry,
+        RefusedSilentEmergencyDowngrade,
+    }
+
+    /// Inductive `R4.FastPackHydration.SingleTruthBadgeVerdict` (`R4-66`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SingleTruthBadgeVerdict {
+        SingleTruthBadgeAdmitted,
+        RefusedEmergencyBadgeOnQwenSession,
+    }
+
+    /// Function `R4.FastPackHydration.maxGitSafePackBytes` (`R4-66`).
+    pub fn max_git_safe_pack_bytes() -> u64 {
+        50_331_648
+    }
+
+    /// Function `R4.FastPackHydration.admitPackHydrationPolicy` (`R4-66`).
+    pub fn admit_pack_hydration_policy(
+        max_pack_bytes: u64,
+        has_packs: bool,
+        retried_404_mirror: bool,
+        silent_downgrade_to_q31: bool,
+    ) -> PackHydrationVerdict {
+        if silent_downgrade_to_q31 {
+            PackHydrationVerdict::RefusedSilentEmergencyDowngrade
+        } else if retried_404_mirror {
+            PackHydrationVerdict::RefusedPiece404MirrorRetry
+        } else if max_git_safe_pack_bytes() < max_pack_bytes {
+            PackHydrationVerdict::RefusedPackExceeds50MiB
+        } else if has_packs {
+            PackHydrationVerdict::StreamingPackAdmitted
+        } else {
+            PackHydrationVerdict::PieceFallbackAdmitted
+        }
+    }
+
+    /// Function `R4.FastPackHydration.admitSingleTruthBadge` (`R4-66`).
+    pub fn admit_single_truth_badge(
+        selected_is_emergency_q31: bool,
+        badge_shows_emergency_q31: bool,
+    ) -> SingleTruthBadgeVerdict {
+        if !selected_is_emergency_q31 && badge_shows_emergency_q31 {
+            SingleTruthBadgeVerdict::RefusedEmergencyBadgeOnQwenSession
+        } else {
+            SingleTruthBadgeVerdict::SingleTruthBadgeAdmitted
+        }
+    }
+
+    /// Function `R4.FastPackHydration.verifyFastPackHydrationAdmitted` (`R4-66`).
+    pub fn verify_fast_pack_hydration_admitted() -> bool {
+        admit_pack_hydration_policy(50_331_648, true, false, false)
+            == PackHydrationVerdict::StreamingPackAdmitted
+            && admit_pack_hydration_policy(0, false, false, false)
+                == PackHydrationVerdict::PieceFallbackAdmitted
+            && admit_pack_hydration_policy(50_331_649, true, false, false)
+                == PackHydrationVerdict::RefusedPackExceeds50MiB
+            && admit_pack_hydration_policy(50_331_648, true, true, false)
+                == PackHydrationVerdict::RefusedPiece404MirrorRetry
+            && admit_pack_hydration_policy(50_331_648, true, false, true)
+                == PackHydrationVerdict::RefusedSilentEmergencyDowngrade
+            && admit_single_truth_badge(false, false)
+                == SingleTruthBadgeVerdict::SingleTruthBadgeAdmitted
+            && admit_single_truth_badge(false, true)
+                == SingleTruthBadgeVerdict::RefusedEmergencyBadgeOnQwenSession
+    }
+}

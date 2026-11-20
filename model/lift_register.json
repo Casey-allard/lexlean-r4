@@ -2,10 +2,10 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2859,
-    "lifted": 2081,
-    "effect": 279,
-    "foreign": 157,
+    "total_functions": 2867,
+    "lifted": 2088,
+    "effect": 281,
+    "foreign": 156,
     "residue": 342
   },
   "rows": [
@@ -234,10 +234,24 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "e4a40fc5f916cbc47edae7d86c9e8be33ea2e0daecdf68e20e7dd3fbff8e0a53",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitPackHydrationPolicy",
+      "status": "lifted",
+      "definition": "R4.FastPackHydration",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "5c4bb4dd87c0c7dc9ac4cea5d7bf8a1ed1ef3be828f20498de9f6d6760e43d7f",
       "function": "crates/wasm/js/worker_host_bridge.js::admitResidentLayerPartition",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "0027361dac35798ca5ec00d0beff5f247b45195ff925e005d1686077561ee382",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitSingleTruthBadge",
+      "status": "lifted",
+      "definition": "R4.FastPackHydration",
       "exact_divergence_free": true
     },
     {
@@ -435,7 +449,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "caf619d416e567b134ff54c7f8646a75045bde1d4d9de0c841e1e05ca7c8b9dc",
+      "kappa": "357ff86cd6cccbe4889f02c2499707cc7c119d289093472d62d5ed3fca88c3d2",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -3922,6 +3936,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "772ea0da91ba42657a1374df4f7c75d8642cf08bdcaaad1b216c531b5875683f",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_pack_hydration_policy",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_pack_hydration_policy",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "9b0ea54426c0f15224332d12f8ffb45d8f5a3a12848c6ab0459d26dbad9cbaf5",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_package_install",
       "status": "lifted",
@@ -4031,6 +4052,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_shrink_only_ratchet",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_shrink_only_ratchet",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "3d5b13328a7775532638a7bc8d16e91c587c3ae146f274e8ddc7902de2c46111",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_single_truth_badge",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_single_truth_badge",
       "exact_divergence_free": true
     },
     {
@@ -7580,6 +7608,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::max_compact_studio_prompt_tokens",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::max_compact_studio_prompt_tokens",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "25b7f81f89f77bf6d0e6337036dbda355fd1fec8d701490d7deaa5fc1ceaf50f",
+      "function": "crates/wasm/src/lexlean_generated.rs::max_git_safe_pack_bytes",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::max_git_safe_pack_bytes",
       "exact_divergence_free": true
     },
     {
@@ -12798,6 +12833,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "f30a4c95dab23a97bb17cb379602115d03c9402b6ffc5910dcbe1522b681b2f6",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_fast_pack_hydration_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_fast_pack_hydration_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "8af892109310006a4471a24a21d4bef194265fc7cb9087768f9aab4ff641f33b",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_holo_archive_admitted",
       "status": "lifted",
@@ -17819,6 +17861,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "8949e29a785639a34ee5fbc5ecde7ec0361b6ae16658e39079c68527bad5746c",
+      "function": "public/app.js::admitSingleTruthBadgeUi",
+      "status": "lifted",
+      "definition": "R4.FastPackHydration",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "1144b7cdba88693589fcf29d80f5dab75a128f401df710fd5c65120500109c44",
       "function": "public/app.js::appendChatTurn",
       "status": "effect",
@@ -18730,6 +18779,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "c1bdec08ddb296aed7116d02be46639de1774f80866eb9db2b49c43fe81d27fa",
+      "function": "public/app.js::selectStudioControl",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "634b685aa9ed16bb027bfefd037b6113123745dd5751c24805f16614a719e8ce",
       "function": "public/app.js::selectWorkspaceFile",
       "status": "effect",
@@ -18798,7 +18854,7 @@
       "kappa": "64b7aa03e40556b63151cfaf8b147bedd55cbd156eb888cf88cd0b0be848c098",
       "function": "public/app.js::syncComposerModel",
       "status": "effect",
-      "effect": "browser-opfs-worker-gpu-effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -18897,10 +18953,10 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "b85bd7b24d56567fa88fa101021b98e442e8848f2c156cee52e4b9071fd54fe6",
+      "kappa": "d4dc8285e0c09590e424d698c658d76a3929608da9d40af9c19f2fde6c97d444",
       "function": "public/app.js::updateWeightCacheBadge",
-      "status": "foreign",
-      "foreign_crate": "serde_json",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {

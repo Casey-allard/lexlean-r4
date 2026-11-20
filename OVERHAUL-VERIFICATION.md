@@ -182,3 +182,25 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `1`
   - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'LiveGpuBoundStepAdmitted' - 'RefusedUnboundComputePass'` at `tests/e2e/r4_65_live_webgpu_coi_drafter_e2e.mjs:46:10`
 - **Restored result**: Restored `if (Number(boundDispatches) < Number(totalDispatches)) return 'RefusedUnboundComputePass';` inside `admitLiveGpuBoundStep()`; `node tests/e2e/r4_65_live_webgpu_coi_drafter_e2e.mjs` exited `0` (`[PASS] R4-65 bound WebGPU turn bridge, COEP credentialless SW, and adaptive drafter verified.`).
+
+## Seamless Completion Wave (`R4-66`): `<= 48 MiB` Streaming Pack Hydration, Immediate `404` Mirror Pruning & Single-Truth UI (`v0.15.0`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `11,680,856` B < `15 MiB`, `provenance.json`), `wasm=bbd520a245e8`, `js=a07c1d7700a0`, `core=5fe28acbe2bb`.
+- **`build-holo --sync-site-manifest`**: verified Hologram v4 archive (`13,239,142` bytes <= `33,554,432` B / `32 MiB`, `blake3=9465af4a5a8d0e0e`, `wasmSha256=bbd520a245e820b1`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **Deployed `<= 48 MiB` (`50,331,648` B) Streaming Weight Packs**:
+  - `origin/weights-v13-qwen3-0.6b` (`081cb4f`): `9` packs (`pack_00.pack..pack_08.pack`, max `50,331,648` B) covering all `410` verified pieces with `container_sha256` preserved (`617ea77fd9c3...`).
+  - `origin/weights-v13-qwen3-1.7b` (`b35a6dc`): `23` packs (`pack_00.pack..pack_22.pack`, max `50,331,648` B) covering all `1,088` verified pieces with `container_sha256` preserved (`2c362d730468...`).
+- **Immediate `404`/`403` Mirror Pruning & Single-Truth Badge**: `OpfsKappaStore.missingBlobMirrors` + `sessionPackMissingMirrors` prune missing-blob mirrors on the first probe; `admitSingleTruthBadgeUi` prevents `Offline Q31 · Emergency` from rendering when a `Qwen3` model is active while preserving legacy IDs alongside `data-studio-id` aliases (`browser_closure` `10/10`, `empirical_suite` `99/99`).
+- **`check-model`**: `CONFORMANCE.md` matches `model/`, `66` conformance IDs (`R4-01..R4-66`, including `R4-66` / `R4.FastPackHydration`).
+- **`lift-register`**: `total=2867`, `lifted=2088`, `residue=342` (`< 343` baseline, `<= 355` threshold, `UE-16` monotone).
+- **`ratchet-check`**: `r30_gen=261`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=342`, `float=0`, `matmul=0`, `unwired_ui=0`.
+- **`check-routes`**: `17` routes (including `R4-UR17` / `fast-pack-single-truth-hydration`) and `20` test vectors verified under `uorust/routes/1`.
+- **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=342`, `routes=17`, `provenance_sources=24`).
+- **`synthesize`**: `score_milli=988`, `complexity=342`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
+
+### 13. Contradictory Emergency Q31 Badge Refusal Gate (`R4-66`)
+- **Planted defect**: Replaced `return 'RefusedEmergencyBadgeOnQwenSession';` with `return 'SingleTruthBadgeAdmitted';` inside `admitSingleTruthBadge()` in `crates/wasm/js/worker_host_bridge.js` / `public/lexlean_r4.js`.
+- **Failing command**: `node tests/e2e/r4_66_fast_pack_single_truth_ui_e2e.mjs`
+  - **Exit code**: `1`
+  - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'SingleTruthBadgeAdmitted' - 'RefusedEmergencyBadgeOnQwenSession'` at `tests/e2e/r4_66_fast_pack_single_truth_ui_e2e.mjs:40:8`
+- **Restored result**: Restored `return 'RefusedEmergencyBadgeOnQwenSession';` inside `admitSingleTruthBadge()`; `node tests/e2e/r4_66_fast_pack_single_truth_ui_e2e.mjs` exited `0` (`[PASS] R4-66 <=48 MiB streaming packs, 404 mirror pruning, and single-truth UI verified.`).
