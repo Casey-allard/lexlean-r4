@@ -5657,6 +5657,7 @@ pub fn run_api_serve_cmd(root: &Path, args: &[String]) -> Result<(), String> {
             i += 1;
         }
     }
+    let _ = api::default_model_backend();
     let listener = std::net::TcpListener::bind(format!("0.0.0.0:{port}"))
         .map_err(|e| format!("failed to bind port {port}: {e}"))?;
     println!("api serve: listening on http://127.0.0.1:{port}");
@@ -5699,7 +5700,7 @@ pub fn serve_listener_until_stopped(
                 });
             }
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
-                std::thread::sleep(std::time::Duration::from_millis(5));
+                std::thread::sleep(std::time::Duration::from_millis(1));
             }
             Err(e) => {
                 eprintln!("api serve: connection error: {e}");

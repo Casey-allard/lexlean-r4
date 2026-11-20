@@ -113,6 +113,13 @@ prism_record = "Foundation.Qual::WebGpuResidentSpeculativeLora"
 facet = "qual"
 note = "True resident <=128 MiB per-layer WebGPU integer serving, 0-LSB HoloTok13 speculative decoding, and fine-tuned UORR4V13 Studio LoRA <=40-token lockstep."
 
+[[route]]
+id = "R4-UR16"
+rust_fact = "live-webgpu-coi-adaptive-drafter"
+prism_record = "Foundation.Qual::LiveWebGpuTurnBridge"
+facet = "qual"
+note = "Bound GPUBindGroup live WebGPU turn shortlist stepping, COEP credentialless Service Worker multi-worker unlock, and 2-tier adaptive speculative draft throttling."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -187,6 +194,11 @@ response = "route R4-UR14\nfact mvm-linux-spiralcore-container\nrecord Foundatio
 case = "route R4-UR15"
 request_hex = "7765626770752d7265736964656e742d73706563756c61746976652d6c6f7261"
 response = "route R4-UR15\nfact webgpu-resident-speculative-lora\nrecord Foundation.Qual::WebGpuResidentSpeculativeLora\nfacet qual"
+
+[[vector]]
+case = "route R4-UR16"
+request_hex = "6c6976652d7765626770752d636f692d61646170746976652d64726166746572"
+response = "route R4-UR16\nfact live-webgpu-coi-adaptive-drafter\nrecord Foundation.Qual::LiveWebGpuTurnBridge\nfacet qual"
 
 [[vector]]
 case = "error empty"

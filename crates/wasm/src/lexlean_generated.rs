@@ -48650,3 +48650,113 @@ pub mod r4_webgpu_resident_runtime {
                 == StudioLoraDeployVerdict::RefusedPromptExceedsCompactBudget
     }
 }
+
+/// Generated from `R4.LiveWebGpuTurnBridge` (`src/R4/LiveWebGpuTurnBridge.lex.tex`, `R4-65`).
+pub mod r4_live_webgpu_turn_bridge {
+    /// Inductive `R4.LiveWebGpuTurnBridge.LiveGpuStepVerdict` (`R4-65`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum LiveGpuStepVerdict {
+        LiveGpuBoundStepAdmitted,
+        FallbackWasmSimdAdmitted,
+        RefusedFloatOpInGpuBridge,
+        RefusedUnboundComputePass,
+        RefusedGpuCpuLogitDrift,
+    }
+
+    /// Inductive `R4.LiveWebGpuTurnBridge.CoiIsolationVerdict` (`R4-65`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum CoiIsolationVerdict {
+        CrossOriginCredentiallessAdmitted,
+        SingleWorkerFallbackAdmitted,
+        RefusedRequireCorpBreaksMirrors,
+    }
+
+    /// Inductive `R4.LiveWebGpuTurnBridge.AdaptiveDrafterVerdict` (`R4-65`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum AdaptiveDrafterVerdict {
+        AdaptiveTileAdmitted,
+        ThrottledCpuDraftsAdmitted,
+        RefusedUnthrottledCpuMissStorm,
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.cpuMissThrottleEmaPermille` (`R4-65`).
+    pub fn cpu_miss_throttle_ema_permille() -> u64 {
+        250
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.admitLiveGpuBoundStep` (`R4-65`).
+    pub fn admit_live_gpu_bound_step(
+        float_ops: u64,
+        gpu_available: bool,
+        total_dispatches: u64,
+        bound_dispatches: u64,
+        max_abs_lsb_diff: u64,
+    ) -> LiveGpuStepVerdict {
+        if float_ops != 0 {
+            LiveGpuStepVerdict::RefusedFloatOpInGpuBridge
+        } else if !gpu_available {
+            LiveGpuStepVerdict::FallbackWasmSimdAdmitted
+        } else if total_dispatches == 0 || total_dispatches != bound_dispatches {
+            LiveGpuStepVerdict::RefusedUnboundComputePass
+        } else if max_abs_lsb_diff != 0 {
+            LiveGpuStepVerdict::RefusedGpuCpuLogitDrift
+        } else {
+            LiveGpuStepVerdict::LiveGpuBoundStepAdmitted
+        }
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.admitCoiCredentiallessMode` (`R4-65`).
+    pub fn admit_coi_credentialless_mode(
+        sw_active: bool,
+        uses_require_corp: bool,
+        reload_count: u64,
+    ) -> CoiIsolationVerdict {
+        if uses_require_corp {
+            CoiIsolationVerdict::RefusedRequireCorpBreaksMirrors
+        } else if !sw_active || 1 < reload_count {
+            CoiIsolationVerdict::SingleWorkerFallbackAdmitted
+        } else {
+            CoiIsolationVerdict::CrossOriginCredentiallessAdmitted
+        }
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.admitAdaptiveSpeculativeBudget` (`R4-65`).
+    pub fn admit_adaptive_speculative_budget(
+        gpu_active: bool,
+        accept_ema_permille: u64,
+        proposed_drafts: u64,
+        max_tile_drafts: u64,
+    ) -> AdaptiveDrafterVerdict {
+        if max_tile_drafts < proposed_drafts {
+            AdaptiveDrafterVerdict::RefusedUnthrottledCpuMissStorm
+        } else if !gpu_active && accept_ema_permille < cpu_miss_throttle_ema_permille() {
+            if 1 < proposed_drafts {
+                AdaptiveDrafterVerdict::RefusedUnthrottledCpuMissStorm
+            } else {
+                AdaptiveDrafterVerdict::ThrottledCpuDraftsAdmitted
+            }
+        } else {
+            AdaptiveDrafterVerdict::AdaptiveTileAdmitted
+        }
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.verifyLiveWebGpuTurnBridgeAdmitted` (`R4-65`).
+    pub fn verify_live_webgpu_turn_bridge_admitted() -> bool {
+        admit_live_gpu_bound_step(0, true, 197, 197, 0)
+            == LiveGpuStepVerdict::LiveGpuBoundStepAdmitted
+            && admit_live_gpu_bound_step(0, false, 0, 0, 0)
+                == LiveGpuStepVerdict::FallbackWasmSimdAdmitted
+            && admit_live_gpu_bound_step(0, true, 197, 0, 0)
+                == LiveGpuStepVerdict::RefusedUnboundComputePass
+            && admit_coi_credentialless_mode(true, false, 1)
+                == CoiIsolationVerdict::CrossOriginCredentiallessAdmitted
+            && admit_coi_credentialless_mode(true, true, 1)
+                == CoiIsolationVerdict::RefusedRequireCorpBreaksMirrors
+            && admit_adaptive_speculative_budget(true, 100, 4, 4)
+                == AdaptiveDrafterVerdict::AdaptiveTileAdmitted
+            && admit_adaptive_speculative_budget(false, 120, 1, 4)
+                == AdaptiveDrafterVerdict::ThrottledCpuDraftsAdmitted
+            && admit_adaptive_speculative_budget(false, 120, 3, 4)
+                == AdaptiveDrafterVerdict::RefusedUnthrottledCpuMissStorm
+    }
+}

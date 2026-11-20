@@ -62,11 +62,15 @@ impl TestServerDaemon {
             .unwrap_or_else(|e| panic!("failed to spawn xtask api serve on port {port}: {e}"));
 
         let mut ready = false;
-        for _ in 0..100 {
+        for _ in 0..150 {
             thread::sleep(Duration::from_millis(100));
-            if TcpStream::connect(&addr).is_ok() {
-                ready = true;
-                break;
+            if let Ok((status, _, _)) =
+                send_raw_http_request(&addr, "GET", "/v1/traces", None, Duration::from_secs(5))
+            {
+                if status == 200 {
+                    ready = true;
+                    break;
+                }
             }
         }
         assert!(

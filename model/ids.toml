@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-65"
+level = "build"
+suite = "r4_65_live_webgpu_turn_bridge"
+statement = "Pure LexLean models the R4-65 live bound WebGPU turn shortlist/tile bridge, GitHub Pages COEP credentialless cross-origin isolation guard, and 2-tier adaptive speculative draft throttling policy (R4.LiveWebGpuTurnBridge): admitLiveGpuBoundStep admitting zero-float bound GPU compute passes with 0-LSB parity (LiveGpuBoundStepAdmitted) and headless CPU fallback (FallbackWasmSimdAdmitted) while refusing float ops (RefusedFloatOpInGpuBridge), unbound compute dispatches (RefusedUnboundComputePass), and GPU/CPU logit drift (RefusedGpuCpuLogitDrift); admitCoiCredentiallessMode admitting single-reload COEP credentialless Service Worker isolation (CrossOriginCredentiallessAdmitted) and unisolated single-worker fallback (SingleWorkerFallbackAdmitted) while refusing require-corp policies that break cross-origin weight mirrors (RefusedRequireCorpBreaksMirrors); and admitAdaptiveSpeculativeBudget admitting full K<=4 speculative tiles on GPU or high-hit turns (AdaptiveTileAdmitted) and <=1-draft throttling when CPU acceptance EMA < 250 permille (ThrottledCpuDraftsAdmitted) while refusing unthrottled CPU miss storms (RefusedUnthrottledCpuMissStorm). Formal controls establish modeled admission verdicts only, not physical browser GPU availability or remote CDN reachability."
+
+[[id]]
 id = "R4-64"
 level = "build"
 suite = "r4_64_webgpu_resident_runtime"
