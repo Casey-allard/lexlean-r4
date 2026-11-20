@@ -32,6 +32,7 @@ fn main() -> ExitCode {
         "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
         "build-wasm" => wasm_bundle::run_build_wasm_cmd(&root, rest),
         "build-holo" => run_build_holo_cmd(&root, rest),
+        "generate-studio-sft-dataset" => run_generate_studio_sft_dataset_cmd(&root, rest),
         "check-wasm-sync" => wasm_bundle::run_check_wasm_sync_cmd(&root),
         "check-routes" => routes_and_measures::check_routes(&root),
         "check-measures" => routes_and_measures::check_measures(&root),
@@ -302,10 +303,10 @@ pub fn run_build_holo_cmd(root: &Path, args: &[String]) -> Result<(), Fail> {
             let mdoc: serde_json::Value = serde_json::from_str(&mraw)?;
             let csha = mdoc["container_sha256"]
                 .as_str()
-                .unwrap_or("1d0255929995725be144cb1787416880ffb073e0d153adf1a663abb636a0550a");
+                .unwrap_or("617ea77fd9c3d15285e351bd4f094cc0845cf5bc038e042a3fb5aadf0e406bda");
             format!("sha256:{csha}")
         } else {
-            "sha256:1d0255929995725be144cb1787416880ffb073e0d153adf1a663abb636a0550a".to_string()
+            "sha256:617ea77fd9c3d15285e351bd4f094cc0845cf5bc038e042a3fb5aadf0e406bda".to_string()
         }
     };
 
@@ -408,6 +409,33 @@ fn verify_site_manifest_pins(
         )
         .into());
     }
+    Ok(())
+}
+
+#[path = "../../gpu/build_studio_sft_dataset.rs"]
+mod studio_sft_dataset;
+
+/// Formal R4.WebGpuResidentRuntime generate deterministic Studio SFT multi-turn episodes (`R4-64`).
+fn run_generate_studio_sft_dataset_cmd(
+    root: &std::path::Path,
+    args: &[String],
+) -> Result<(), Fail> {
+    let default_out = root.join("target/studio_sft_dataset");
+    let out_dir = args
+        .windows(2)
+        .find(|w| w[0] == "--out-dir")
+        .map(|w| std::path::PathBuf::from(&w[1]))
+        .unwrap_or(default_out);
+    let episodes: usize = args
+        .windows(2)
+        .find(|w| w[0] == "--episodes")
+        .and_then(|w| w[1].parse().ok())
+        .unwrap_or(1536);
+    let (tr, ev) = studio_sft_dataset::write_studio_sft_dataset(&out_dir, episodes)?;
+    println!(
+        "generate-studio-sft-dataset: wrote train={tr} eval={ev} to {}",
+        out_dir.display()
+    );
     Ok(())
 }
 

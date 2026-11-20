@@ -140,3 +140,25 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `1`
   - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'StatelessRelayCorsPreempted' - 'RefusedCredentialedCorsProxy'` at `tests/e2e/r4_63_mvm_container_cors_e2e.mjs:44:10`
 - **Restored result**: Restored `return 'RefusedCredentialedCorsProxy';` inside `admit_public_cors_preemption()`; `node tests/e2e/r4_63_mvm_container_cors_e2e.mjs` exited `0` (`[PASS] R4-63 single-source /workspace, self-hosted make+cc, and chat UI cleanliness verified`).
+
+## Wave 3 Redesign (`R4-64`): True Resident WebGPU `<= 128 MiB` Per-Layer Serving, `0-LSB` `HoloTok13` Speculative Decoding & Studio LoRA Lockstep (`v0.14.0`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` `<= 12 MiB` < `15 MiB`, `provenance.json`), `wasm=d915ce8df957`, `js=1795af22d885`, `core=02afed6732f6`.
+- **`build-holo --sync-site-manifest`**: verified Hologram v4 archive (`13,210,921` bytes <= `33,554,432` B / `32 MiB`, `blake3=02133f9a4f8cdef4`, `wasmSha256=d915ce8df957e4b6`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json` (`qwen3WeightsKappa = sha256:617ea77fd9c3d15285e351bd4f094cc0845cf5bc038e042a3fb5aadf0e406bda`).
+- **Remote RTX 4090 Studio LoRA SFT + `UORR4V13` Deployment (`wick`)**:
+  - `Qwen3-0.6B` (`origin/weights-v13-qwen3-0.6b` @ `5c003a3`): `container_sha256=617ea77fd9c3d15285e351bd4f094cc0845cf5bc038e042a3fb5aadf0e406bda`, `429,484,190` B (`410` pieces, `205` Stitch parity groups), `top1_parity_pct=100.00%`, `top5_parity_pct=100.00%`, `mean_kl_nats=0.027825` (`<= 0.05`).
+  - `Qwen3-1.7B` (`origin/weights-v13-qwen3-1.7b` @ `9dc6d9e`): `container_sha256=2c362d73046851ff69dfa7e1de197d4f0fee14031e9e53e29bf278c41b6bc8bf`, `1,140,250,782` B (`1,088` pieces, `544` Stitch parity groups), `top1_parity_pct=91.67%`, `top5_parity_pct=100.00%`, `mean_kl_nats=0.033533` (`<= 0.05`).
+  - Lockstep `STUDIO_SELF_KNOWLEDGE_PREFIX` shrunk to `34` Qwen3 BPE tokens (`< 40` tokens).
+- **`check-model`**: `CONFORMANCE.md` matches `model/`, `64` conformance IDs (`R4-01..R4-64`, including `R4-64` / `R4.WebGpuResidentRuntime`).
+- **`lift-register`**: `total=2845`, `lifted=2068`, `effect=278`, `foreign=157`, `residue=342` (`< 343` baseline, `<= 355` threshold, `UE-16` monotone).
+- **`ratchet-check`**: `r30_gen=261`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=342`, `float=0`, `matmul=0`, `unwired_ui=0`.
+- **`check-routes`**: `15` routes (including `R4-UR15` / `webgpu-resident-speculative-lora`) and `18` test vectors verified under `uorust/routes/1`.
+- **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=342`, `routes=15`, `provenance_sources=24`).
+- **`synthesize`**: `score_milli=987`, `complexity=342`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
+
+### 11. Unpinned Studio LoRA Prompt-Shrink Refusal Gate (`R4-64`)
+- **Planted defect**: Replaced `if (!fineTunedManifestPinned) return 'RefusedPromptShrinkWithoutFineTunedManifest';` with `if (!fineTunedManifestPinned) return 'StudioLoraUorV13Admitted';` inside `admitStudioLoraPromptShrink()` in `crates/wasm/js/worker_host_bridge.js`.
+- **Failing command**: `node tests/e2e/r4_64_webgpu_speculative_lora_e2e.mjs`
+  - **Exit code**: `1`
+  - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'StudioLoraUorV13Admitted' - 'RefusedPromptShrinkWithoutFineTunedManifest'` at `tests/e2e/r4_64_webgpu_speculative_lora_e2e.mjs:186:10`
+- **Restored result**: Restored `if (!fineTunedManifestPinned) return 'RefusedPromptShrinkWithoutFineTunedManifest';` inside `admitStudioLoraPromptShrink()`; `node tests/e2e/r4_64_webgpu_speculative_lora_e2e.mjs` exited `0` (`[PASS] R4-64 resident WebGPU <=128 MiB slabs, 28-layer 0-LSB speculative tiles, and Studio LoRA lockstep verified.`).

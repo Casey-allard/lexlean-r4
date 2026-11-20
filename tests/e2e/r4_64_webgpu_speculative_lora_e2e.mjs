@@ -220,8 +220,15 @@ async function testWasmResidentBridgeAndStudioLoraLockstep() {
   }
 
   const m06 = JSON.parse(fs.readFileSync(path.join(ROOT, 'gpu', 'weights', 'v13_qwen3_0_6b', 'manifest.json'), 'utf8'));
+  const m17 = JSON.parse(fs.readFileSync(path.join(ROOT, 'gpu', 'weights', 'v13_qwen3_1_7b', 'manifest.json'), 'utf8'));
+  assert.equal(m06.container_sha256, '617ea77fd9c3d15285e351bd4f094cc0845cf5bc038e042a3fb5aadf0e406bda');
+  assert.equal(m17.container_sha256, '2c362d73046851ff69dfa7e1de197d4f0fee14031e9e53e29bf278c41b6bc8bf');
   const siteApp = JSON.parse(fs.readFileSync(path.join(ROOT, 'site', 'app.json'), 'utf8'));
   assert.equal(siteApp.qwen3WeightsKappa, `sha256:${m06.container_sha256}`);
+
+  const libRs = fs.readFileSync(path.join(ROOT, 'crates', 'wasm', 'src', 'lib.rs'), 'utf8');
+  const prefixMatch = libRs.match(/pub const STUDIO_SELF_KNOWLEDGE_PREFIX:\s*&str\s*=\s*"([^"]+)";/);
+  assert.ok(prefixMatch && prefixMatch[1].length <= 120, 'STUDIO_SELF_KNOWLEDGE_PREFIX must be shrunk to <40 BPE tokens');
 }
 
 await testResidentWebGpuSlabsAndSingleEncoderSubmit();

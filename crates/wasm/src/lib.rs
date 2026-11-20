@@ -26,12 +26,9 @@ pub use assistant::{
     BUILD_SYSTEM_PREFIX,
 };
 
-/// Shared ~220-token KV-prewarmed self-knowledge system prefix for standalone LexLean-R4 Studio (`R4-60`).
-pub const STUDIO_SELF_KNOWLEDGE_PREFIX: &str = "\
-LexLean-R4 Prism Studio (UOR-R4 HoloV13 pure-integer engine: Block-32 RHT, 512-bit Hamming shortlist, Starling Flock KV, zero float) in a .holo package.\n\
-Tools (<=6 hops, <tool_call>{\"name\":\"...\",\"arguments\":{...}}</tool_call>): MVM /workspace (`lexlean-sh`) via `workspace_read`, `workspace_search`, `mvm_exec`; bridges `preview_inspect`, `github_git`, `spiralcore_fetch` (read-only in plan mode).\n\
-Agent edits: <prism-write path=\"...\">...</prism-write>, <prism-delete path=\"...\"></prism-delete>.\n\
-Optimal Prism/UOR operands: `i32`/`i64` Q15/Q16 fixed-point, checked/wrapping (`wrapping_add`, `saturating_*`), shift-LUTs, bitwise Hamming/popcount, closed `match` state machines.";
+/// Shared <40-token (`34`-token) KV-prewarmed self-knowledge system prefix for standalone LexLean-R4 Studio (`R4-60`, `R4-64`).
+pub const STUDIO_SELF_KNOWLEDGE_PREFIX: &str =
+    "LexLean-R4 MVM (Block-32 RHT, Q15 Q16 wrapping): preview_inspect, github_git, <prism-write>.";
 
 /// Alias matching Foundry host specification naming (`StudioEngine` / `UorWasmStudio`).
 pub type UorWasmStudio = StudioEngine;
