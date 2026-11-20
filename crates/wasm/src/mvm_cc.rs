@@ -685,6 +685,7 @@ struct StructField {
 #[derive(Debug, Clone)]
 struct StructDef {
     size: usize,
+    align: usize,
     fields: Vec<StructField>,
 }
 
@@ -695,10 +696,9 @@ fn ctype_size_align(ty: &CType, structs: &HashMap<String, StructDef>) -> (usize,
         CType::U16 => (2, 2),
         CType::U32 => (4, 4),
         CType::Word64 | CType::Ptr(_) => (8, 8),
-        CType::Struct(name) => {
-            let sz = structs.get(name).map_or(8, |s| s.size.max(8));
-            (sz, 8)
-        }
+        CType::Struct(name) => structs
+            .get(name)
+            .map_or((8, 8), |s| (s.size.max(1), s.align.clamp(1, 8))),
     }
 }
 
@@ -908,6 +908,7 @@ impl Parser {
         self.expect(&TokKind::LBrace)?;
         let mut fields = Vec::new();
         let mut offset = 0usize;
+        let mut max_align = 1usize;
         while !self.eat(&TokKind::RBrace) {
             if self.peek().kind == TokKind::Eof {
                 return Err(CCompileError {
@@ -939,6 +940,7 @@ impl Parser {
                     self.expect(&TokKind::RBracket)?;
                 }
                 let a = align.clamp(1, 8);
+                max_align = max_align.max(a);
                 offset = (offset + a - 1) & !(a - 1);
                 fields.push(StructField {
                     name: fname,
@@ -954,8 +956,12 @@ impl Parser {
             }
             self.expect(&TokKind::Semi)?;
         }
-        let total = ((offset.max(1)) + 7) & !7;
-        let def = StructDef { size: total, fields };
+        let total = (offset.max(1) + max_align - 1) & !(max_align - 1);
+        let def = StructDef {
+            size: total,
+            align: max_align,
+            fields,
+        };
         self.structs.insert(struct_name, def.clone());
         Ok(def)
     }

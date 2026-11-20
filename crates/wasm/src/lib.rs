@@ -2305,10 +2305,13 @@ impl StudioEngine {
                             | "full"
                             | "mode_b"
                             | "spiralcore"
+                            | "spiralcore_net"
+                            | "net_spiralcore"
                     )
                 );
             if has_gate_fields {
                 let net_mode = match mode_str.as_deref() {
+                    Some("spiralcore_net" | "net_spiralcore") => NetworkGateMode::SpiralCoreNet,
                     Some("full_spiralcore" | "full" | "mode_b" | "spiralcore") => {
                         NetworkGateMode::FullSpiralcore
                     }
@@ -2351,6 +2354,7 @@ impl StudioEngine {
         let net_label = match self.mvm.network_mode {
             NetworkGateMode::Sandboxed => "sandboxed",
             NetworkGateMode::FullSpiralcore => "full_spiralcore",
+            NetworkGateMode::SpiralCoreNet => "spiralcore_net",
         };
         serde_json::json!({
             "status": "ok",
@@ -2373,6 +2377,7 @@ impl StudioEngine {
         let net_label = match self.mvm.network_mode {
             NetworkGateMode::Sandboxed => "sandboxed",
             NetworkGateMode::FullSpiralcore => "full_spiralcore",
+            NetworkGateMode::SpiralCoreNet => "spiralcore_net",
         };
         serde_json::json!({
             "status": "ok",

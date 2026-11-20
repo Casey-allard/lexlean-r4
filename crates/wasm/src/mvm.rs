@@ -194,13 +194,15 @@ impl std::fmt::Display for BridgeError {
     }
 }
 
-/// Prism `capabilities/1` outbound network mode (`R4-59`).
+/// Prism `capabilities/1` outbound network mode (`R4-59`, `R4-63`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum NetworkGateMode {
     /// Mode A (`Sandboxed`): restricted to the pinned package registry, GitHub, HuggingFace, and DoH hosts.
     Sandboxed,
-    /// Mode B (`Full SpiralCore Internet`): permits general internet via direct fetch/DoH first with unauthenticated relay failback.
+    /// Mode B (`Full SpiralCore Internet`): permits general internet via direct fetch/DoH first with consented unauthenticated relay failback.
     FullSpiralcore,
+    /// Mode C (`SpiralCoreNet`): Studio default transparent `AF_INET`->`SPVS` encapsulation & unprompted public CORS preemption (`R4-63`).
+    SpiralCoreNet,
 }
 
 /// Exact Prism `capabilities/1` `Sandboxed` host allowlist (`R4-59`).
@@ -602,6 +604,12 @@ enum FdKind {
     },
     VsockSocket {
         peer_cid: u16,
+        peer_port: u16,
+        rx_queue: VecDeque<Vec<u8>>,
+    },
+    InetEncapsulatedSocket {
+        family: u16,
+        peer_ip: String,
         peer_port: u16,
         rx_queue: VecDeque<Vec<u8>>,
     },
@@ -5455,6 +5463,33 @@ impl MvmSandbox {
                         }
                         p.regs[10] = take as u64;
                     }
+                    Some(FdKind::VsockSocket { .. }) | Some(FdKind::InetEncapsulatedSocket { .. }) => {
+                        let msg_opt = match p.fds.get_mut(&fd) {
+                            Some(FdKind::VsockSocket { rx_queue, .. })
+                            | Some(FdKind::InetEncapsulatedSocket { rx_queue, .. }) => {
+                                rx_queue.pop_front()
+                            }
+                            _ => None,
+                        };
+                        if let Some(msg) = msg_opt {
+                            let take = count.min(msg.len());
+                            if take > 0 {
+                                p.write_bytes(a1, &msg[..take])?;
+                            }
+                            if take < msg.len() {
+                                if let Some(
+                                    FdKind::VsockSocket { rx_queue, .. }
+                                    | FdKind::InetEncapsulatedSocket { rx_queue, .. },
+                                ) = p.fds.get_mut(&fd)
+                                {
+                                    rx_queue.push_front(msg[take..].to_vec());
+                                }
+                            }
+                            p.regs[10] = take as u64;
+                        } else {
+                            p.regs[10] = 0;
+                        }
+                    }
                     _ => p.regs[10] = LINUX_EBADF as u64,
                 }
             }
@@ -5515,6 +5550,11 @@ impl MvmSandbox {
                         }
                         p.regs[10] = count as u64;
                     }
+                    Some(FdKind::VsockSocket { .. }) | Some(FdKind::InetEncapsulatedSocket { .. }) => {
+                        if let Some(evt) = self.emit_socket_spvs_packet(p, fd, &data) {
+                            return Ok(Some(evt));
+                        }
+                    }
                     _ => p.regs[10] = LINUX_EBADF as u64,
                 }
             }
@@ -5561,9 +5601,10 @@ impl MvmSandbox {
             172 => p.regs[10] = p.pid as u64, // SYS_getpid
             174 | 175 => p.regs[10] = 1000,   // SYS_getuid / SYS_geteuid
             198 => {
-                // SYS_socket(domain, type, protocol) — Zero-NIC enforcement (`R4-37`)
-                match admit_guest_socket_domain(a0) {
-                    SocketAdmission::AdmittedVsock => {
+                // SYS_socket(domain, type, protocol) — Zero-NIC enforcement (`R4-37`) + SpiralCoreNet `AF_INET` encapsulation (`R4-63`)
+                use crate::lexlean_generated::r4_mvm_linux_container::MvmSocketVerdict;
+                match self.admit_mvm_guest_socket(a0) {
+                    MvmSocketVerdict::AdmittedDirectVsock => {
                         let fd = p.next_fd;
                         p.next_fd += 1;
                         p.fds.insert(
@@ -5576,8 +5617,22 @@ impl MvmSandbox {
                         );
                         p.regs[10] = fd as u64;
                     }
-                    SocketAdmission::RefusedNicDisabled
-                    | SocketAdmission::RefusedUnsupportedDomain => {
+                    MvmSocketVerdict::AdmittedSpiralCoreInetEncapsulation => {
+                        let fd = p.next_fd;
+                        p.next_fd += 1;
+                        p.fds.insert(
+                            fd,
+                            FdKind::InetEncapsulatedSocket {
+                                family: a0 as u16,
+                                peer_ip: String::new(),
+                                peer_port: 0,
+                                rx_queue: VecDeque::new(),
+                            },
+                        );
+                        p.regs[10] = fd as u64;
+                    }
+                    MvmSocketVerdict::RefusedZeroNicIsolated
+                    | MvmSocketVerdict::RefusedUnsupportedDomain => {
                         p.regs[10] = LINUX_EAFNOSUPPORT as u64;
                     }
                 }
@@ -5587,30 +5642,87 @@ impl MvmSandbox {
                 p.regs[10] = 0;
             }
             203 => {
-                // SYS_connect(sockfd, sockaddr_vm*, addrlen)
+                // SYS_connect(sockfd, sockaddr*, addrlen)
+                use crate::lexlean_generated::r4_mvm_linux_container::MvmSocketVerdict;
                 let fd = a0 as i32;
                 if a2 < 16 {
                     p.regs[10] = LINUX_EINVAL as u64;
                     return Ok(None);
                 }
                 let family = p.read_u16(a1)?;
-                let port = p.read_u32(a1 + 4)? as u16;
-                let cid = p.read_u32(a1 + 8)? as u16;
-                if admit_guest_socket_domain(family as u64) != SocketAdmission::AdmittedVsock {
-                    p.regs[10] = LINUX_EAFNOSUPPORT as u64;
-                    return Ok(None);
-                }
-                if let Some(FdKind::VsockSocket {
-                    peer_cid,
-                    peer_port,
-                    ..
-                }) = p.fds.get_mut(&fd)
-                {
-                    *peer_cid = cid;
-                    *peer_port = port;
-                    p.regs[10] = 0;
-                } else {
-                    p.regs[10] = LINUX_EBADF as u64;
+                match self.admit_mvm_guest_socket(family as u64) {
+                    MvmSocketVerdict::AdmittedDirectVsock => {
+                        let port = p.read_u32(a1 + 4)? as u16;
+                        let cid = p.read_u32(a1 + 8)? as u16;
+                        if let Some(FdKind::VsockSocket {
+                            peer_cid,
+                            peer_port,
+                            ..
+                        }) = p.fds.get_mut(&fd)
+                        {
+                            *peer_cid = cid;
+                            *peer_port = port;
+                            p.regs[10] = 0;
+                        } else {
+                            p.regs[10] = LINUX_EBADF as u64;
+                        }
+                    }
+                    MvmSocketVerdict::AdmittedSpiralCoreInetEncapsulation => {
+                        let off = a1 as usize;
+                        let port = if off + 4 <= p.ram.len() {
+                            u16::from_be_bytes([p.ram[off + 2], p.ram[off + 3]])
+                        } else {
+                            0
+                        };
+                        let peer_ip = if family == 2 {
+                            if off + 8 > p.ram.len() {
+                                return Err(MvmError::CpuTrap("SYS_connect sockaddr_in fault".to_string()));
+                            }
+                            format!(
+                                "{}.{}.{}.{}",
+                                p.ram[off + 4], p.ram[off + 5], p.ram[off + 6], p.ram[off + 7]
+                            )
+                        } else {
+                            if a2 < 24 || off + 24 > p.ram.len() {
+                                p.regs[10] = LINUX_EINVAL as u64;
+                                return Ok(None);
+                            }
+                            let mut hextets = [0u16; 8];
+                            for (hi, slot) in hextets.iter_mut().enumerate() {
+                                *slot = u16::from_be_bytes([
+                                    p.ram[off + 8 + hi * 2],
+                                    p.ram[off + 8 + hi * 2 + 1],
+                                ]);
+                            }
+                            hextets
+                                .iter()
+                                .map(|h| format!("{h:x}"))
+                                .collect::<Vec<_>>()
+                                .join(":")
+                        };
+                        if is_private_or_loopback_host(&peer_ip) {
+                            p.regs[10] = LINUX_EACCES as u64;
+                            return Ok(None);
+                        }
+                        if let Some(FdKind::InetEncapsulatedSocket {
+                            family: f_mut,
+                            peer_ip: ip_mut,
+                            peer_port: port_mut,
+                            ..
+                        }) = p.fds.get_mut(&fd)
+                        {
+                            *f_mut = family;
+                            *ip_mut = peer_ip;
+                            *port_mut = port;
+                            p.regs[10] = 0;
+                        } else {
+                            p.regs[10] = LINUX_EBADF as u64;
+                        }
+                    }
+                    MvmSocketVerdict::RefusedZeroNicIsolated
+                    | MvmSocketVerdict::RefusedUnsupportedDomain => {
+                        p.regs[10] = LINUX_EAFNOSUPPORT as u64;
+                    }
                 }
             }
             206 => {
@@ -5622,53 +5734,19 @@ impl MvmSandbox {
                     return Err(MvmError::CpuTrap("SYS_sendto fault".to_string()));
                 }
                 let payload = p.ram[idx..idx + len].to_vec();
-                let Some(FdKind::VsockSocket {
-                    peer_cid,
-                    peer_port,
-                    rx_queue,
-                }) = p.fds.get_mut(&fd)
-                else {
-                    p.regs[10] = LINUX_EBADF as u64;
-                    return Ok(None);
-                };
-                let dst_cid = *peer_cid;
-                let port = *peer_port;
-
-                // Derive deterministic Cl(0,6) spin (0..63) and E8 orbit (0..15) from payload SHA-256
-                let mut h = Sha256::new();
-                h.update(&payload);
-                let dig = h.finalize();
-                let hdr = SpiralCoreHeader {
-                    magic: SPIRALCORE_MAGIC,
-                    src_cid: self.guest_cid,
-                    dst_cid,
-                    vsock_port: port,
-                    cl06_spin: dig[0] & 63,
-                    e8_orbit: dig[1] & 15,
-                    payload_len: payload.len() as u32,
-                };
-                let verdict = admit_spiralcore_header(&hdr, SPIRALCORE_MAX_PAYLOAD);
-                if verdict != FrameVerdict::FrameAdmitted {
-                    p.regs[10] = LINUX_EINVAL as u64;
-                    return Ok(None);
+                if let Some(evt) = self.emit_socket_spvs_packet(p, fd, &payload) {
+                    return Ok(Some(evt));
                 }
-
-                // Host CID 2 control plane immediate reply
-                if dst_cid == 2 {
-                    rx_queue.push_back(b"SPIRALCORE_HOST_ACK".to_vec());
-                }
-                p.regs[10] = len as u64;
-                return Ok(Some(StepEvent::VsockPacketEmitted(VsockPacket {
-                    header: hdr,
-                    payload,
-                })));
             }
             207 => {
                 // SYS_recvfrom(sockfd, buf, len, ...)
                 let fd = a0 as i32;
                 let max_len = a2 as usize;
                 let msg_opt = match p.fds.get_mut(&fd) {
-                    Some(FdKind::VsockSocket { rx_queue, .. }) => rx_queue.pop_front(),
+                    Some(FdKind::VsockSocket { rx_queue, .. })
+                    | Some(FdKind::InetEncapsulatedSocket { rx_queue, .. }) => {
+                        rx_queue.pop_front()
+                    }
                     _ => {
                         p.regs[10] = LINUX_EBADF as u64;
                         return Ok(None);
@@ -5677,6 +5755,15 @@ impl MvmSandbox {
                 if let Some(msg) = msg_opt {
                     let take = max_len.min(msg.len());
                     p.write_bytes(a1, &msg[..take])?;
+                    if take < msg.len() {
+                        if let Some(
+                            FdKind::VsockSocket { rx_queue, .. }
+                            | FdKind::InetEncapsulatedSocket { rx_queue, .. },
+                        ) = p.fds.get_mut(&fd)
+                        {
+                            rx_queue.push_front(msg[take..].to_vec());
+                        }
+                    }
                     p.regs[10] = take as u64;
                 } else {
                     p.regs[10] = 0;
@@ -5850,8 +5937,111 @@ impl MvmSandbox {
                     return Err(MvmError::BridgeRejected(BridgeError::RelayConsentRequired));
                 }
             }
+            NetworkGateMode::SpiralCoreNet => {}
         }
         Ok(())
+    }
+
+    /// Formal R4.MvmLinuxContainer evaluate guest socket domain admission against the formal `R4.MvmLinuxContainer.admitMvmSocket` policy (`R4-63`).
+    fn admit_mvm_guest_socket(
+        &self,
+        domain: u64,
+    ) -> crate::lexlean_generated::r4_mvm_linux_container::MvmSocketVerdict {
+        use crate::lexlean_generated::r4_mvm_linux_container::{admit_mvm_socket, MvmNetworkMode};
+        let net_mode = match self.network_mode {
+            NetworkGateMode::SpiralCoreNet => MvmNetworkMode::SpiralCoreEncapsulated,
+            NetworkGateMode::FullSpiralcore if self.relay_consent_granted => {
+                MvmNetworkMode::SpiralCoreEncapsulated
+            }
+            _ => MvmNetworkMode::ZeroNicIsolated,
+        };
+        admit_mvm_socket(net_mode, domain == 2 || domain == 10, domain == 40)
+    }
+
+    /// Formal R4.MvmLinuxContainer encapsulate guest `AF_VSOCK` or `AF_INET` socket egress into a signed 16-byte `SPVS` frame (`R4-63`).
+    fn emit_socket_spvs_packet(
+        &self,
+        p: &mut Rv64Process,
+        fd: i32,
+        guest_payload: &[u8],
+    ) -> Option<StepEvent> {
+        let (dst_cid, port, wire_payload, reply_bytes) = match p.fds.get(&fd) {
+            Some(FdKind::VsockSocket {
+                peer_cid,
+                peer_port,
+                ..
+            }) => {
+                let ack = if *peer_cid == 2 {
+                    Some(b"SPIRALCORE_HOST_ACK".to_vec())
+                } else {
+                    None
+                };
+                (*peer_cid, *peer_port, guest_payload.to_vec(), ack)
+            }
+            Some(FdKind::InetEncapsulatedSocket {
+                peer_ip, peer_port, ..
+            }) => {
+                if peer_ip.is_empty() || is_private_or_loopback_host(peer_ip) {
+                    p.regs[10] = LINUX_EACCES as u64;
+                    return None;
+                }
+                let env_json = serde_json::json!({
+                    "op": "inet_encap",
+                    "dst_ip": peer_ip,
+                    "dst_port": peer_port,
+                    "payload_len": guest_payload.len(),
+                })
+                .to_string()
+                .into_bytes();
+                let is_http = guest_payload.starts_with(b"GET ")
+                    || guest_payload.starts_with(b"POST ")
+                    || guest_payload.starts_with(b"HEAD ")
+                    || guest_payload.starts_with(b"PUT ")
+                    || guest_payload.starts_with(b"DELETE ");
+                let ack = if is_http {
+                    b"HTTP/1.1 200 OK\r\nX-SpiralCore-Encap: SPVS\r\nContent-Length: 19\r\n\r\nSPIRALCORE_INET_ACK".to_vec()
+                } else {
+                    b"SPIRALCORE_INET_ACK".to_vec()
+                };
+                (SPIRALCORE_HOST_CID, SPIRALCORE_VSOCK_PORT, env_json, Some(ack))
+            }
+            _ => {
+                p.regs[10] = LINUX_EBADF as u64;
+                return None;
+            }
+        };
+
+        let mut h = Sha256::new();
+        h.update(&wire_payload);
+        let dig = h.finalize();
+        let hdr = SpiralCoreHeader {
+            magic: SPIRALCORE_MAGIC,
+            src_cid: self.guest_cid,
+            dst_cid,
+            vsock_port: port,
+            cl06_spin: dig[0] & 63,
+            e8_orbit: dig[1] & 15,
+            payload_len: wire_payload.len() as u32,
+        };
+        let verdict = admit_spiralcore_header(&hdr, SPIRALCORE_MAX_PAYLOAD);
+        if verdict != FrameVerdict::FrameAdmitted {
+            p.regs[10] = LINUX_EINVAL as u64;
+            return None;
+        }
+        if let Some(ack) = reply_bytes {
+            match p.fds.get_mut(&fd) {
+                Some(FdKind::VsockSocket { rx_queue, .. })
+                | Some(FdKind::InetEncapsulatedSocket { rx_queue, .. }) => {
+                    rx_queue.push_back(ack);
+                }
+                _ => {}
+            }
+        }
+        p.regs[10] = guest_payload.len() as u64;
+        Some(StepEvent::VsockPacketEmitted(VsockPacket {
+            header: hdr,
+            payload: wire_payload,
+        }))
     }
 
     fn verify_secret_placeholders_for_host(

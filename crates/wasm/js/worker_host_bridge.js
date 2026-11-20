@@ -6977,6 +6977,29 @@ function __uorVerifyRiscv64ElfHeader(u8) {
   return { ok: true, e_machine: eMachine };
 }
 
+/* Formal R4.MvmLinuxContainer */
+export function admit_public_cors_preemption(
+  spiralCoreNetEnabled,
+  isPrivateOrLoopback,
+  hasCredentials,
+  directFetchCorsBlocked,
+) {
+  /* Formal R4.MvmLinuxContainer */
+  if (isPrivateOrLoopback) {
+    return 'RefusedPrivateAddressSsrf';
+  }
+  if (!spiralCoreNetEnabled) {
+    return 'RefusedSpiralCoreNetDisabled';
+  }
+  if (!directFetchCorsBlocked) {
+    return 'DirectBrowserFetchAdmitted';
+  }
+  if (hasCredentials) {
+    return 'RefusedCredentialedCorsProxy';
+  }
+  return 'StatelessRelayCorsPreempted';
+}
+
 export class SpiralCoreHostBridge {
   #secretVault = new Map();
   #ws = null;
@@ -7137,6 +7160,9 @@ export class SpiralCoreHostBridge {
 
   static normalizeNetworkMode(raw) {
     const lower = String(raw || 'sandboxed').trim().toLowerCase();
+    if (lower === 'spiralcore_net' || lower === 'net_spiralcore') {
+      return 'spiralcore_net';
+    }
     if (lower === 'full_spiralcore' || lower === 'full' || lower === 'mode_b' || lower === 'spiralcore') {
       return 'full_spiralcore';
     }
@@ -7223,7 +7249,7 @@ export class SpiralCoreHostBridge {
     for (const [k, v] of Object.entries(hdrObj)) {
       const kl = String(k || '').toLowerCase();
       const vs = String(v || '');
-      if (kl === 'authorization' || kl === 'x-github-token' || vs.includes('{{MVM_SECRET:')) {
+      if (kl === 'authorization' || kl === 'cookie' || kl === 'x-github-token' || vs.includes('{{MVM_SECRET:')) {
         return true;
       }
     }
@@ -7302,6 +7328,14 @@ export class SpiralCoreHostBridge {
         error_code: 'RelayConsentRequired',
         host: cleanHost,
         message: 'Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)',
+      };
+    } else if (this.mode === 'spiralcore_net' && this.webAccessEnabled === false) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RefusedSpiralCoreNetDisabled',
+        host: cleanHost,
+        message: 'SpiralCore Internet access is disabled via webAccessEnabled=false',
       };
     }
     return { ok: true, host: cleanHost };
@@ -7532,7 +7566,7 @@ export class SpiralCoreHostBridge {
   }
 
   async tryRelayRpc(op, params) {
-    if (this.mode !== 'full_spiralcore') {
+    if (this.mode === 'sandboxed') {
       return {
         ok: false,
         status: 403,
@@ -7540,7 +7574,15 @@ export class SpiralCoreHostBridge {
         message: 'SpiralCore AF_VSOCK relay is disabled in Prism capabilities/1 Sandboxed mode',
       };
     }
-    if (!this.consentGranted) {
+    if (this.mode === 'spiralcore_net' && this.webAccessEnabled === false) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RefusedSpiralCoreNetDisabled',
+        message: 'SpiralCore Internet relay is disabled when webAccessEnabled=false',
+      };
+    }
+    if (this.mode === 'full_spiralcore' && !this.consentGranted) {
       return {
         ok: false,
         status: 403,
@@ -7549,7 +7591,9 @@ export class SpiralCoreHostBridge {
       };
     }
     const pObj = params && typeof params === 'object' ? params : {};
-    const targetCandidate = String(pObj.url || pObj.repo_url || '');
+    const { _corsPreempt, ...wireParams } = pObj;
+    const isCorsPreempt = Boolean(_corsPreempt) || (this.mode === 'spiralcore_net' && op === 'http_request');
+    const targetCandidate = String(wireParams.url || wireParams.repo_url || '');
     let targetHost = '';
     if (targetCandidate) {
       try {
@@ -7558,16 +7602,16 @@ export class SpiralCoreHostBridge {
         targetHost = '';
       }
     }
-    if (this.#isCredentialedRequest(targetHost, pObj.headers, Boolean(pObj.auth_bearer) || JSON.stringify(pObj).includes('{{MVM_SECRET:'))) {
+    if (this.#isCredentialedRequest(targetHost, wireParams.headers, Boolean(wireParams.auth_bearer) || JSON.stringify(wireParams).includes('{{MVM_SECRET:'))) {
       return {
         ok: false,
         status: 403,
         error_code: 'RelayForbiddenForCredentialedHost',
         host: targetHost,
-        message: 'Credentialed hosts and requests carrying Authorization/tokens are strictly forbidden from SpiralCore relay failback',
+        message: 'Credentialed hosts and requests carrying Authorization/Cookie/tokens are strictly forbidden from SpiralCore relay failback',
       };
     }
-    if (!this.relayUrl && !this.relayHttpUrl) {
+    if (!this.relayUrl && !this.relayHttpUrl && this.mode !== 'spiralcore_net') {
       return {
         ok: false,
         status: 502,
@@ -7582,10 +7626,10 @@ export class SpiralCoreHostBridge {
       vsock_port: 5257,
       policy: this.mcpPolicy,
       op,
-      params: pObj,
+      params: wireParams,
     };
 
-    if (typeof WebSocket === 'function' && this.relayUrl) {
+    if (!isCorsPreempt && typeof WebSocket === 'function' && this.relayUrl) {
       const valid = this.validateTransportUrl(this.relayUrl, true);
       if (valid.ok) {
         try {
@@ -7602,13 +7646,19 @@ export class SpiralCoreHostBridge {
 
     if (typeof this.#fetchImpl === 'function' || typeof fetch === 'function') {
       const candidateHttpUrls = [];
-      if (this.relayHttpUrl) candidateHttpUrls.push(this.relayHttpUrl);
+      const pushHttpUrl = (u) => {
+        if (u && !candidateHttpUrls.includes(u)) candidateHttpUrls.push(u);
+      };
+      pushHttpUrl(this.relayHttpUrl);
       if (this.relayUrl) {
         if (this.relayUrl.startsWith('wss://')) {
-          candidateHttpUrls.push('https://' + this.relayUrl.slice(6));
+          pushHttpUrl('https://' + this.relayUrl.slice(6));
         } else if (this.relayUrl.startsWith('ws://127.0.0.1')) {
-          candidateHttpUrls.push('http://127.0.0.1' + this.relayUrl.slice(14));
+          pushHttpUrl('http://127.0.0.1' + this.relayUrl.slice(14));
         }
+      }
+      if (this.mode === 'spiralcore_net') {
+        pushHttpUrl(DEFAULT_SPIRALCORE_RELAY_HTTP_URL);
       }
 
       for (const httpUrl of candidateHttpUrls) {
@@ -7626,7 +7676,9 @@ export class SpiralCoreHostBridge {
           });
           const parsed = await resp.json();
           if (parsed && typeof parsed.ok === 'boolean') {
-            this.lastTransportMode = httpUrl.includes('127.0.0.1') ? 'spvs-local-http' : 'spvs-cloud-https';
+            this.lastTransportMode = isCorsPreempt
+              ? 'spiralcore-cors-preempt'
+              : (httpUrl.includes('127.0.0.1') ? 'spvs-local-http' : 'spvs-cloud-https');
             return parsed;
           }
         } catch {
@@ -7931,7 +7983,7 @@ export class SpiralCoreHostBridge {
       }
     }
 
-    if (this.mode === 'full_spiralcore' && this.consentGranted) {
+    if ((this.mode === 'full_spiralcore' && this.consentGranted) || (this.mode === 'spiralcore_net' && this.webAccessEnabled !== false)) {
       const relayRes = await this.tryRelayRpc('dns_query', { name: domain, type: rrType });
       if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.answers)) {
         const records = relayRes.data.answers.map((a) => ({
@@ -8069,12 +8121,29 @@ export class SpiralCoreHostBridge {
           message: `Credentialed host/request ${hostname} failed direct fetch and is forbidden from SpiralCore relay failback: ${err && err.message ? err.message : String(err)}`,
         };
       }
-      if (this.mode === 'full_spiralcore' && this.consentGranted) {
+      const corsPreemptVerdict = admit_public_cors_preemption(
+        this.mode === 'spiralcore_net' && this.webAccessEnabled !== false,
+        false,
+        isCredentialed,
+        true,
+      );
+      if (corsPreemptVerdict === 'RefusedCredentialedCorsProxy') {
+        this.#emitAuditEvent('http_request', finalValid.url.href, 'direct-failed-credentialed', 403, 0);
+        return {
+          ok: false,
+          status: 403,
+          error_code: 'RelayForbiddenForCredentialedHost',
+          host: hostname,
+          message: `Credentialed host/request ${hostname} is forbidden from SpiralCore CORS preemption`,
+        };
+      }
+      if ((this.mode === 'full_spiralcore' && this.consentGranted) || corsPreemptVerdict === 'StatelessRelayCorsPreempted') {
         const relayRes = await this.tryRelayRpc('http_request', {
           method: String(req.method || 'GET').toUpperCase(),
           url: finalValid.url.href,
           headers: headerSub.headers,
           body_b64: req.body_base64 || req.body_b64 || undefined,
+          _corsPreempt: this.mode === 'spiralcore_net',
         });
         if (relayRes && !relayRes.ok && (relayRes.error_code === 'SsrfBlocked' || relayRes.error_code === 'PrivateAddressBlocked')) {
           this.#emitAuditEvent('http_request', finalValid.url.href, 'relay-ssrf-blocked', 403, 0);
@@ -8307,8 +8376,8 @@ export class SpiralCoreHostBridge {
     if (
       results.length === 0 &&
       failedCount === providers.length &&
-      this.mode === 'full_spiralcore' &&
-      this.consentGranted
+      ((this.mode === 'full_spiralcore' && this.consentGranted) ||
+        (this.mode === 'spiralcore_net' && this.webAccessEnabled !== false))
     ) {
       const relayRes = await this.tryRelayRpc('web_search', { query, limit });
       if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.results)) {
@@ -12202,6 +12271,7 @@ function __uorStartDedicatedEngineWorker() {
     },
   };
   const hostBridge = new SpiralCoreHostBridge({
+    mode: 'spiralcore_net',
     onAuditEvent: (ev) => postEvent('audit_event', ev),
     workspaceFs: workerWorkspaceFs,
   });
@@ -12853,6 +12923,20 @@ function __uorStartDedicatedEngineWorker() {
             result: res || { ok: false },
           });
           return;
+        }
+        if (wasmReady && typeof studio_dispatch === 'function') {
+          try {
+            const effNetMode =
+              hostBridge.webAccessEnabled === false ? 'sandboxed' : hostBridge.mode;
+            studio_dispatch(
+              `1\tstudio\tmvm_set_network_gate\t${JSON.stringify({
+                network_mode: effNetMode,
+                consentGranted: hostBridge.consentGranted,
+              })}`,
+            );
+          } catch {
+            // Ignore policy sync error before MVM gate initialization
+          }
         }
         const hasEmergencyField = Boolean(
           payload &&
@@ -13625,6 +13709,15 @@ function __uorStartDedicatedEngineWorker() {
       await restore_cached_uorlut_from_indexeddb().catch(() => null);
       await restore_mvm_cow_sectors_from_opfs().catch(() => null);
       wasmReady = true;
+      try {
+        const effNetMode =
+          hostBridge.webAccessEnabled === false ? 'sandboxed' : hostBridge.mode;
+        studio_dispatch(
+          `1\tstudio\tmvm_set_network_gate\t${JSON.stringify({ network_mode: effNetMode })}`,
+        );
+      } catch {
+        // Ignore if studio dispatch gate sync is unavailable
+      }
 
       const state = JSON.parse(studio_dispatch('1\tstudio\tstate\t'));
       const workspace = __uorCollectWorkspaceSnapshot();

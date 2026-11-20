@@ -7391,6 +7391,7 @@ impl StudioEngine {
             match self.mvm.network_mode {
                 crate::mvm::NetworkGateMode::Sandboxed => "sandboxed",
                 crate::mvm::NetworkGateMode::FullSpiralcore => "full_spiralcore",
+                crate::mvm::NetworkGateMode::SpiralCoreNet => "spiralcore_net",
             }
         });
         let mvm_hdr = format_mvm_live_state_header(

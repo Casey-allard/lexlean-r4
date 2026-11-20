@@ -7,7 +7,8 @@ use lexlean_r4_wasm::lexlean_generated::r4_spiralcore_vsock::{
 };
 use lexlean_r4_wasm::mvm::{
     admit_elf64_riscv, admit_guest_socket_domain, admit_spiralcore_header,
-    pack_compressed_initramfs_uormvmz1, MvmError, MvmSandbox, SpiralCoreHeader, SPIRALCORE_MAGIC,
+    pack_compressed_initramfs_uormvmz1, MvmError, MvmSandbox, NetworkGateMode, SpiralCoreHeader,
+    SPIRALCORE_MAGIC,
 };
 use lexlean_r4_wasm::{
     mvm_export_workspace_diff_json, mvm_sync_workspace_in_json, studio_dispatch,
@@ -2123,4 +2124,111 @@ fn test_r4_63_self_host_multi_tu_cc_make_and_dev_userland() {
         "unexpected sh output: {}",
         sh_out.stdout
     );
+}
+
+#[test]
+fn test_r4_63_af_inet_spvs_encapsulation_and_zero_nic_isolation() {
+    let inet_probe_c = r#"
+#include <stdio.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+int main(void) {
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) {
+        printf("SOCK_ERR=%d\n", fd);
+        return 1;
+    }
+    struct sockaddr_in lo;
+    lo.sin_family = AF_INET;
+    lo.sin_port = htons(80);
+    lo.sin_addr.s_addr = htonl(2130706433);
+    lo.sin_zero = 0;
+    int ssrf_lo = connect(fd, &lo, sizeof(lo));
+
+    struct sockaddr_in meta;
+    meta.sin_family = AF_INET;
+    meta.sin_port = htons(80);
+    meta.sin_addr.s_addr = htonl(2852039166);
+    meta.sin_zero = 0;
+    int ssrf_meta = connect(fd, &meta, sizeof(meta));
+
+    struct sockaddr_in pub;
+    pub.sin_family = AF_INET;
+    pub.sin_port = htons(80);
+    pub.sin_addr.s_addr = htonl(1572395042);
+    pub.sin_zero = 0;
+    int conn_rc = connect(fd, &pub, sizeof(pub));
+
+    char req[64];
+    strcpy(req, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+    int sent = send(fd, req, strlen(req), 0);
+    char resp[128];
+    int got = recv(fd, resp, 120, 0);
+    if (got >= 0 && got < 128) {
+        resp[got] = 0;
+    }
+    printf("SSRF_LO=%d SSRF_META=%d CONN=%d SENT=%d GOT=%d BODY=%s\n", ssrf_lo, ssrf_meta, conn_rc, sent, got, resp);
+    close(fd);
+    return 0;
+}
+"#;
+
+    // 1. Default Sandboxed MvmSandbox::boot_default() preserves Zero-NIC isolation (-97 = -EAFNOSUPPORT)
+    let mut sandboxed_vm = MvmSandbox::boot_default().expect("boot default MVM");
+    assert_eq!(sandboxed_vm.network_mode, NetworkGateMode::Sandboxed);
+    sandboxed_vm
+        .write_guest_file("/workspace/inet_probe.c", inet_probe_c.as_bytes())
+        .expect("write inet_probe.c");
+    let cc_isolated = sandboxed_vm
+        .exec_command("cc /workspace/inet_probe.c -o /workspace/inet_probe", "/workspace")
+        .expect("compile inet_probe in sandboxed vm");
+    assert_eq!(cc_isolated.exit_code, 0, "cc stderr={}", cc_isolated.stderr);
+    let isolated_run = sandboxed_vm
+        .exec_command("/workspace/inet_probe", "/workspace")
+        .expect("run inet_probe in sandboxed vm");
+    assert_eq!(isolated_run.exit_code, 1);
+    assert!(
+        isolated_run.stdout.contains("SOCK_ERR=-97"),
+        "Zero-NIC default must refuse AF_INET with -97 (-EAFNOSUPPORT), got: {}",
+        isolated_run.stdout
+    );
+    assert!(
+        isolated_run.vsock_frames.is_empty(),
+        "Zero-NIC default must emit zero SPVS packets"
+    );
+
+    // 2. NetworkGateMode::SpiralCoreNet encapsulates public AF_INET via signed SPVS (CID 3 -> CID 2) and blocks private SSRF (-13)
+    let mut net_vm = MvmSandbox::boot_default().expect("boot net MVM");
+    net_vm.network_mode = NetworkGateMode::SpiralCoreNet;
+    net_vm
+        .write_guest_file("/workspace/inet_probe.c", inet_probe_c.as_bytes())
+        .expect("write inet_probe.c");
+    let net_run = net_vm
+        .exec_command(
+            "cc /workspace/inet_probe.c -o /workspace/inet_probe && /workspace/inet_probe",
+            "/workspace",
+        )
+        .expect("compile & run inet_probe in SpiralCoreNet");
+    assert_eq!(net_run.exit_code, 0, "stderr={}", net_run.stderr);
+    assert!(
+        net_run
+            .stdout
+            .contains("SSRF_LO=-13 SSRF_META=-13 CONN=0"),
+        "expected loopback/metadata SSRF=-13 (-EACCES) and public connect=0, got: {}",
+        net_run.stdout
+    );
+    assert!(
+        net_run.stdout.contains("SPIRALCORE_INET_ACK"),
+        "expected deterministic SPVS HTTP encap response, got: {}",
+        net_run.stdout
+    );
+    assert_eq!(net_run.vsock_frames.len(), 1);
+    let frame = &net_run.vsock_frames[0];
+    assert_eq!(frame.header.magic, SPIRALCORE_MAGIC);
+    assert_eq!(frame.header.src_cid, 3);
+    assert_eq!(frame.header.dst_cid, 2);
+    assert_eq!(frame.header.vsock_port, 5257);
 }
