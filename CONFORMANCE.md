@@ -390,6 +390,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-62` | `build` | Pure LexLean models the R4-62 compact Cursor-grade Studio UI, 2-model Qwen3 catalog hydration policy, non-blocking Dropdown Neural HUD overlay admission, and bounded download retry concurrency (R4.StudioFrame): HydrationOriginPolicy admitting SameOrigin and FirstPartyCatalog Qwen3-0.6B/1.7B weights automatically at maxCatalogHydrationConcurrency = 3 (HydrationAdmitted) while requiring explicit confirmation for ExternalUntrustedOrigin (RefusedExternalOriginConsentRequired), routing to Native Q31 only on explicit EmergencyOfflineQ31Admitted toggles, and refusing sticky background declined flags with RefusedSilentModelDowngrade; and HudPresentationMode admitting non-blocking DropdownCompactStrip, DropdownExpandedDeck, and ChromelessEmbed (HudNonBlockingAdmitted) while refusing any blocking backdrop over live telemetry (RefusedBlockingBackdropOnLiveHud). Formal controls establish modeled admission verdicts only, not external network availability, GPU driver limits, or browser layout engines. |
 
+## r4_63_mvm_linux_container
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-63` | `build` | Pure LexLean models the R4-63 single-source MVM /workspace CoW VFS authority, SpiralCore AF_INET SPVS encapsulation, unauthenticated public CORS preemption, fail-closed interactive command staging/auto-run precedence, and <= 120-token KV-pinned state header cap (R4.MvmLinuxContainer): admitWorkspaceAuthority admitting SingleSourceMvmCow with consistent CoW state while refusing SplitBrainDuplicateStore (RefusedSplitBrainWorkspace) and inconsistent state (RefusedInconsistentCowState); admitMvmSocket preserving RefusedZeroNicIsolated when ZeroNicIsolated and admitting AdmittedSpiralCoreInetEncapsulation under SpiralCoreEncapsulated; admitPublicCorsPreemption preempting CORS blocks via StatelessRelayCorsPreempted when SpiralCore Net is enabled while strictly refusing SSRF private/loopback targets (RefusedPrivateAddressSsrf) and credentialed relay failback (RefusedCredentialedCorsProxy); admitInteractiveCommand enforcing Deny > PlanReadOnly > Agent [Auto-run] precedence (RefusedByDenyPolicy, RefusedInPlanMode, StagedPendingUserGo, AutoRunAdmitted); and admitLiveStateHeader enforcing tokenCount <= 120. Formal controls establish modeled admission verdicts only, not remote origin uptime, external C compilers outside MVM, or physical NIC hardware. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

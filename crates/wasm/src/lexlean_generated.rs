@@ -48283,3 +48283,249 @@ pub mod r4_webgpu_geodesic_runtime {
             && classify_prefill_tile_width(64, 32) == 32
     }
 }
+
+/// Generated from `R4.MvmLinuxContainer` (`src/R4/MvmLinuxContainer.lex.tex`, `R4-63`).
+pub mod r4_mvm_linux_container {
+    /// Inductive `R4.MvmLinuxContainer.WorkspaceAuthorityMode` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum WorkspaceAuthorityMode {
+        SingleSourceMvmCow,
+        SplitBrainDuplicateStore,
+    }
+
+    /// Inductive `R4.MvmLinuxContainer.WorkspaceAuthorityVerdict` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum WorkspaceAuthorityVerdict {
+        SingleSourceAdmitted,
+        RefusedSplitBrainWorkspace,
+        RefusedInconsistentCowState,
+    }
+
+    /// Inductive `R4.MvmLinuxContainer.MvmNetworkMode` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum MvmNetworkMode {
+        ZeroNicIsolated,
+        SpiralCoreEncapsulated,
+    }
+
+    /// Inductive `R4.MvmLinuxContainer.MvmSocketVerdict` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum MvmSocketVerdict {
+        AdmittedDirectVsock,
+        AdmittedSpiralCoreInetEncapsulation,
+        RefusedZeroNicIsolated,
+        RefusedUnsupportedDomain,
+    }
+
+    /// Inductive `R4.MvmLinuxContainer.CorsPreemptionVerdict` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum CorsPreemptionVerdict {
+        DirectBrowserFetchAdmitted,
+        StatelessRelayCorsPreempted,
+        RefusedPrivateAddressSsrf,
+        RefusedCredentialedCorsProxy,
+        RefusedSpiralCoreNetDisabled,
+    }
+
+    /// Inductive `R4.MvmLinuxContainer.McpGateMode` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum McpGateMode {
+        Deny,
+        Confirm,
+        Safe,
+    }
+
+    /// Inductive `R4.MvmLinuxContainer.AgentPlanMode` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum AgentPlanMode {
+        PlanReadOnly,
+        AgentFull,
+    }
+
+    /// Inductive `R4.MvmLinuxContainer.ShellCommandKind` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ShellCommandKind {
+        ReadOnlyInspection,
+        MutatingOrNetwork,
+    }
+
+    /// Inductive `R4.MvmLinuxContainer.InteractiveCommandVerdict` (`R4-63`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum InteractiveCommandVerdict {
+        AutoRunAdmitted,
+        StagedPendingUserGo,
+        RefusedByDenyPolicy,
+        RefusedInPlanMode,
+    }
+
+    /// Function `R4.MvmLinuxContainer.maxLiveStateHeaderTokens` (`R4-63`).
+    pub fn max_live_state_header_tokens() -> u64 {
+        120
+    }
+
+    /// Function `R4.MvmLinuxContainer.admitLiveStateHeader` (`R4-63`).
+    pub fn admit_live_state_header(token_count: u64) -> bool {
+        !(max_live_state_header_tokens() < token_count)
+    }
+
+    /// Function `R4.MvmLinuxContainer.admitWorkspaceAuthority` (`R4-63`).
+    pub fn admit_workspace_authority(
+        mode: WorkspaceAuthorityMode,
+        cow_consistent: bool,
+    ) -> WorkspaceAuthorityVerdict {
+        match mode {
+            WorkspaceAuthorityMode::SingleSourceMvmCow => {
+                if cow_consistent {
+                    WorkspaceAuthorityVerdict::SingleSourceAdmitted
+                } else {
+                    WorkspaceAuthorityVerdict::RefusedInconsistentCowState
+                }
+            }
+            WorkspaceAuthorityMode::SplitBrainDuplicateStore => {
+                WorkspaceAuthorityVerdict::RefusedSplitBrainWorkspace
+            }
+        }
+    }
+
+    /// Function `R4.MvmLinuxContainer.admitMvmSocket` (`R4-63`).
+    pub fn admit_mvm_socket(
+        net_mode: MvmNetworkMode,
+        is_inet_domain: bool,
+        is_vsock_domain: bool,
+    ) -> MvmSocketVerdict {
+        if is_vsock_domain {
+            MvmSocketVerdict::AdmittedDirectVsock
+        } else if is_inet_domain {
+            match net_mode {
+                MvmNetworkMode::ZeroNicIsolated => MvmSocketVerdict::RefusedZeroNicIsolated,
+                MvmNetworkMode::SpiralCoreEncapsulated => {
+                    MvmSocketVerdict::AdmittedSpiralCoreInetEncapsulation
+                }
+            }
+        } else {
+            MvmSocketVerdict::RefusedUnsupportedDomain
+        }
+    }
+
+    /// Function `R4.MvmLinuxContainer.admitPublicCorsPreemption` (`R4-63`).
+    pub fn admit_public_cors_preemption(
+        spiral_core_net_enabled: bool,
+        is_private_or_loopback: bool,
+        has_credentials: bool,
+        direct_fetch_cors_blocked: bool,
+    ) -> CorsPreemptionVerdict {
+        if is_private_or_loopback {
+            CorsPreemptionVerdict::RefusedPrivateAddressSsrf
+        } else if !spiral_core_net_enabled {
+            CorsPreemptionVerdict::RefusedSpiralCoreNetDisabled
+        } else if !direct_fetch_cors_blocked {
+            CorsPreemptionVerdict::DirectBrowserFetchAdmitted
+        } else if has_credentials {
+            CorsPreemptionVerdict::RefusedCredentialedCorsProxy
+        } else {
+            CorsPreemptionVerdict::StatelessRelayCorsPreempted
+        }
+    }
+
+    /// Function `R4.MvmLinuxContainer.admitInteractiveCommand` (`R4-63`).
+    pub fn admit_interactive_command(
+        mcp_mode: McpGateMode,
+        plan_mode: AgentPlanMode,
+        auto_run: bool,
+        cmd_kind: ShellCommandKind,
+    ) -> InteractiveCommandVerdict {
+        match mcp_mode {
+            McpGateMode::Deny => InteractiveCommandVerdict::RefusedByDenyPolicy,
+            McpGateMode::Confirm => match plan_mode {
+                AgentPlanMode::PlanReadOnly => match cmd_kind {
+                    ShellCommandKind::ReadOnlyInspection => {
+                        InteractiveCommandVerdict::AutoRunAdmitted
+                    }
+                    ShellCommandKind::MutatingOrNetwork => {
+                        InteractiveCommandVerdict::RefusedInPlanMode
+                    }
+                },
+                AgentPlanMode::AgentFull => match cmd_kind {
+                    ShellCommandKind::ReadOnlyInspection => {
+                        InteractiveCommandVerdict::AutoRunAdmitted
+                    }
+                    ShellCommandKind::MutatingOrNetwork => {
+                        InteractiveCommandVerdict::StagedPendingUserGo
+                    }
+                },
+            },
+            McpGateMode::Safe => match plan_mode {
+                AgentPlanMode::PlanReadOnly => match cmd_kind {
+                    ShellCommandKind::ReadOnlyInspection => {
+                        InteractiveCommandVerdict::AutoRunAdmitted
+                    }
+                    ShellCommandKind::MutatingOrNetwork => {
+                        InteractiveCommandVerdict::RefusedInPlanMode
+                    }
+                },
+                AgentPlanMode::AgentFull => match cmd_kind {
+                    ShellCommandKind::ReadOnlyInspection => {
+                        InteractiveCommandVerdict::AutoRunAdmitted
+                    }
+                    ShellCommandKind::MutatingOrNetwork => {
+                        if auto_run {
+                            InteractiveCommandVerdict::AutoRunAdmitted
+                        } else {
+                            InteractiveCommandVerdict::StagedPendingUserGo
+                        }
+                    }
+                },
+            },
+        }
+    }
+
+    /// Function `R4.MvmLinuxContainer.verifyMvmLinuxContainerAdmitted` (`R4-63`).
+    pub fn verify_mvm_linux_container_admitted() -> bool {
+        admit_workspace_authority(WorkspaceAuthorityMode::SingleSourceMvmCow, true)
+            == WorkspaceAuthorityVerdict::SingleSourceAdmitted
+            && admit_workspace_authority(WorkspaceAuthorityMode::SplitBrainDuplicateStore, true)
+                == WorkspaceAuthorityVerdict::RefusedSplitBrainWorkspace
+            && admit_workspace_authority(WorkspaceAuthorityMode::SingleSourceMvmCow, false)
+                == WorkspaceAuthorityVerdict::RefusedInconsistentCowState
+            && admit_mvm_socket(MvmNetworkMode::ZeroNicIsolated, false, true)
+                == MvmSocketVerdict::AdmittedDirectVsock
+            && admit_mvm_socket(MvmNetworkMode::ZeroNicIsolated, true, false)
+                == MvmSocketVerdict::RefusedZeroNicIsolated
+            && admit_mvm_socket(MvmNetworkMode::SpiralCoreEncapsulated, true, false)
+                == MvmSocketVerdict::AdmittedSpiralCoreInetEncapsulation
+            && admit_public_cors_preemption(true, false, false, true)
+                == CorsPreemptionVerdict::StatelessRelayCorsPreempted
+            && admit_public_cors_preemption(true, false, true, true)
+                == CorsPreemptionVerdict::RefusedCredentialedCorsProxy
+            && admit_public_cors_preemption(true, true, false, true)
+                == CorsPreemptionVerdict::RefusedPrivateAddressSsrf
+            && admit_public_cors_preemption(false, false, false, true)
+                == CorsPreemptionVerdict::RefusedSpiralCoreNetDisabled
+            && admit_interactive_command(
+                McpGateMode::Safe,
+                AgentPlanMode::AgentFull,
+                true,
+                ShellCommandKind::MutatingOrNetwork,
+            ) == InteractiveCommandVerdict::AutoRunAdmitted
+            && admit_interactive_command(
+                McpGateMode::Safe,
+                AgentPlanMode::AgentFull,
+                false,
+                ShellCommandKind::MutatingOrNetwork,
+            ) == InteractiveCommandVerdict::StagedPendingUserGo
+            && admit_interactive_command(
+                McpGateMode::Safe,
+                AgentPlanMode::PlanReadOnly,
+                true,
+                ShellCommandKind::MutatingOrNetwork,
+            ) == InteractiveCommandVerdict::RefusedInPlanMode
+            && admit_interactive_command(
+                McpGateMode::Deny,
+                AgentPlanMode::AgentFull,
+                true,
+                ShellCommandKind::ReadOnlyInspection,
+            ) == InteractiveCommandVerdict::RefusedByDenyPolicy
+            && admit_live_state_header(120)
+            && !admit_live_state_header(121)
+    }
+}

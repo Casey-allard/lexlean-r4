@@ -10100,6 +10100,94 @@ pub fn studio_admit_catalog_hydration_json(
     .to_string()
 }
 
+/// Formal R4.MvmLinuxContainer evaluate single-source MVM workspace, SpiralCore CORS preemption, and interactive command policy (`R4-63`).
+#[wasm_bindgen]
+#[allow(clippy::too_many_arguments)]
+pub fn studio_admit_mvm_container_policy_json(
+    split_brain: bool,
+    cow_consistent: bool,
+    spiral_core_net: bool,
+    is_private_or_loopback: bool,
+    has_credentials: bool,
+    direct_fetch_cors_blocked: bool,
+    mcp_mode: &str,
+    plan_mode: bool,
+    auto_run: bool,
+    mutating_cmd: bool,
+    header_tokens: u64,
+) -> String {
+    use crate::lexlean_generated::r4_mvm_linux_container::{
+        admit_interactive_command, admit_live_state_header, admit_mvm_socket,
+        admit_public_cors_preemption, admit_workspace_authority, max_live_state_header_tokens,
+        AgentPlanMode, CorsPreemptionVerdict, InteractiveCommandVerdict, McpGateMode,
+        MvmNetworkMode, MvmSocketVerdict, ShellCommandKind, WorkspaceAuthorityMode,
+        WorkspaceAuthorityVerdict,
+    };
+    let ws_mode = if split_brain {
+        WorkspaceAuthorityMode::SplitBrainDuplicateStore
+    } else {
+        WorkspaceAuthorityMode::SingleSourceMvmCow
+    };
+    let net_mode = if spiral_core_net {
+        MvmNetworkMode::SpiralCoreEncapsulated
+    } else {
+        MvmNetworkMode::ZeroNicIsolated
+    };
+    let gate = match mcp_mode.trim().to_ascii_lowercase().as_str() {
+        "deny" => McpGateMode::Deny,
+        "safe" => McpGateMode::Safe,
+        _ => McpGateMode::Confirm,
+    };
+    let agent_mode = if plan_mode {
+        AgentPlanMode::PlanReadOnly
+    } else {
+        AgentPlanMode::AgentFull
+    };
+    let cmd_kind = if mutating_cmd {
+        ShellCommandKind::MutatingOrNetwork
+    } else {
+        ShellCommandKind::ReadOnlyInspection
+    };
+    let ws_verdict = admit_workspace_authority(ws_mode, cow_consistent);
+    let sock_verdict = admit_mvm_socket(net_mode, true, false);
+    let cors_verdict = admit_public_cors_preemption(
+        spiral_core_net,
+        is_private_or_loopback,
+        has_credentials,
+        direct_fetch_cors_blocked,
+    );
+    let cmd_verdict = admit_interactive_command(gate, agent_mode, auto_run, cmd_kind);
+    let header_admitted = admit_live_state_header(header_tokens);
+    let admitted = ws_verdict == WorkspaceAuthorityVerdict::SingleSourceAdmitted
+        && matches!(
+            sock_verdict,
+            MvmSocketVerdict::AdmittedSpiralCoreInetEncapsulation
+                | MvmSocketVerdict::AdmittedDirectVsock
+        )
+        && matches!(
+            cors_verdict,
+            CorsPreemptionVerdict::DirectBrowserFetchAdmitted
+                | CorsPreemptionVerdict::StatelessRelayCorsPreempted
+        )
+        && matches!(
+            cmd_verdict,
+            InteractiveCommandVerdict::AutoRunAdmitted
+                | InteractiveCommandVerdict::StagedPendingUserGo
+        )
+        && header_admitted;
+    serde_json::json!({
+        "status": if admitted { "ok" } else { "error" },
+        "admitted": admitted,
+        "workspace_verdict": format!("{ws_verdict:?}"),
+        "socket_verdict": format!("{sock_verdict:?}"),
+        "cors_verdict": format!("{cors_verdict:?}"),
+        "command_verdict": format!("{cmd_verdict:?}"),
+        "header_admitted": header_admitted,
+        "max_live_state_header_tokens": max_live_state_header_tokens(),
+    })
+    .to_string()
+}
+
 pub(crate) fn format_mvm_agent_prompt(raw: &str) -> String {
     let trimmed = raw.trim();
     if trimmed.contains("<tool_response>") {
