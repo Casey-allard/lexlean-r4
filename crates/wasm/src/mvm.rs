@@ -1123,7 +1123,7 @@ impl MvmSandbox {
             ),
             (
                 "/usr/include/stdlib.h",
-                "#pragma once\n#include <stddef.h>\nvoid exit(int status);\n",
+                "#pragma once\n#include <stddef.h>\nvoid exit(int status);\nvoid *malloc(size_t size);\nvoid *calloc(size_t nmemb, size_t size);\nvoid free(void *ptr);\nint abs(int x);\nint atoi(const char *s);\n",
             ),
             (
                 "/usr/include/string.h",
@@ -1187,7 +1187,9 @@ impl MvmSandbox {
             self.write_inode_with_mode(path, content.as_bytes(), 0o100644)?;
         }
 
-        for tool in ["rg", "xargs", "patch", "make", "df", "free", "xxd"] {
+        for tool in [
+            "rg", "xargs", "patch", "make", "df", "free", "xxd", "cargo", "rustc",
+        ] {
             let link_path = format!("/bin/{tool}");
             self.inodes.entry(link_path).or_insert_with(|| GuestInode {
                 mode: 0o120777,
@@ -3784,6 +3786,12 @@ impl MvmSandbox {
         if matches!(prog, "make" | "/bin/make" | "/usr/bin/make") {
             return self.exec_make_command(&words[1..], working_cwd);
         }
+        if matches!(
+            prog,
+            "cargo" | "/bin/cargo" | "/usr/bin/cargo" | "rustc" | "/bin/rustc" | "/usr/bin/rustc"
+        ) {
+            return self.exec_cargo_or_rustc_command(prog, &words[1..], working_cwd);
+        }
 
         // Local synchronous `pkg` / `git` invocations
         if prog == "pkg" || prog == "git" {
@@ -4508,6 +4516,207 @@ impl MvmSandbox {
             vsock_frames,
             compiled_elf_machine,
         })
+    }
+
+    /// Formal R4.MvmPolyglotToolchain execute in-guest `cargo` / `rustc` against `/workspace` Rust sources (`R4-67`).
+    fn exec_cargo_or_rustc_command(
+        &self,
+        prog: &str,
+        args: &[String],
+        working_cwd: &str,
+    ) -> Result<StageExecBytesOutcome, MvmError> {
+        use crate::lexlean_generated::r4_mvm_polyglot_toolchain::{
+            admit_cargo_terminal_subcommand, PolyglotToolchainVerdict,
+        };
+
+        let is_rustc = prog == "rustc" || prog.ends_with("/rustc");
+        if args.is_empty()
+            || args
+                .iter()
+                .any(|a| a == "--version" || a == "-V" || a == "version")
+        {
+            let banner = if is_rustc {
+                "rustc 1.97.1-mvm-uor (riscv64gc-unknown-linux-gnu)\n"
+            } else if args.is_empty() {
+                "Rust's package manager (in-MVM AST engine: check, test, clippy, build, run, --version)\n"
+            } else {
+                "cargo 1.97.1-mvm-uor (wasm-ast-eval)\n"
+            };
+            return Ok(StageExecBytesOutcome::ok_text(banner.to_string()));
+        }
+
+        let touches_protected = args.iter().any(|arg| {
+            if arg.starts_with('-') {
+                return false;
+            }
+            let norm = Self::normalize_guest_path(working_cwd, arg);
+            Self::is_protected_canonical_guest_path(&norm)
+        });
+
+        if is_rustc {
+            let verdict = admit_cargo_terminal_subcommand(true, touches_protected);
+            if verdict == PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation {
+                return Ok(StageExecBytesOutcome::err(
+                    1,
+                    "rustc: RefusedProtectedPathToolchainMutation\n".to_string(),
+                ));
+            }
+            let mut target_rs: Option<String> = None;
+            let mut idx = 0usize;
+            while idx < args.len() {
+                let a = args[idx].as_str();
+                if matches!(a, "-o" | "--crate-type" | "--edition" | "-C" | "-L") {
+                    idx += 2;
+                    continue;
+                }
+                if !a.starts_with('-') && a.ends_with(".rs") {
+                    target_rs = Some(Self::normalize_guest_path(working_cwd, a));
+                    break;
+                }
+                idx += 1;
+            }
+            let Some(rs_norm) = target_rs else {
+                return Ok(StageExecBytesOutcome::err(
+                    1,
+                    "rustc: expected a `.rs` input file\n".to_string(),
+                ));
+            };
+            let Some(bytes) = self.read_guest_file(&rs_norm) else {
+                return Ok(StageExecBytesOutcome::err(
+                    1,
+                    format!("rustc: couldn't read `{rs_norm}`: No such file\n"),
+                ));
+            };
+            let rel = rs_norm
+                .strip_prefix("/workspace/")
+                .unwrap_or(rs_norm.as_str())
+                .to_string();
+            let rep = crate::wasm_ast_eval::execute_workspace_cargo(
+                "check",
+                "",
+                &[(rel, String::from_utf8_lossy(&bytes).into_owned())],
+            );
+            let mut out = rep.terminal_output;
+            if !out.ends_with('\n') {
+                out.push('\n');
+            }
+            return if rep.status == "ok" {
+                Ok(StageExecBytesOutcome::ok_text(out))
+            } else {
+                Ok(StageExecBytesOutcome::err(1, out))
+            };
+        }
+
+        let raw_sub = args[0].as_str();
+        let mapped_sub = match raw_sub {
+            "check" | "c" => Some("check"),
+            "test" | "t" => Some("test"),
+            "clippy" => Some("clippy"),
+            "build" | "b" => Some("check"),
+            "run" | "r" => Some("run"),
+            _ => None,
+        };
+        let verdict = admit_cargo_terminal_subcommand(mapped_sub.is_some(), touches_protected);
+        match verdict {
+            PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation => {
+                return Ok(StageExecBytesOutcome::err(
+                    1,
+                    "cargo: RefusedProtectedPathToolchainMutation\n".to_string(),
+                ));
+            }
+            PolyglotToolchainVerdict::RefusedUnsupportedToolchainSubcommand => {
+                return Ok(StageExecBytesOutcome::err(
+                    101,
+                    format!(
+                        "cargo: RefusedUnsupportedToolchainSubcommand: `{raw_sub}` (supported: check, test, clippy, build, run, --version)\n"
+                    ),
+                ));
+            }
+            _ => {}
+        }
+
+        let eval_sub = mapped_sub.unwrap_or("check");
+        let mut filter = String::new();
+        let mut idx = 1usize;
+        while idx < args.len() {
+            let a = args[idx].as_str();
+            if a == "--" {
+                idx += 1;
+                continue;
+            }
+            if matches!(
+                a,
+                "-p" | "--package" | "--bin" | "--test" | "--manifest-path" | "-j" | "--jobs"
+            ) {
+                idx += 2;
+                continue;
+            }
+            if !a.starts_with('-') && filter.is_empty() {
+                filter = a.to_string();
+            }
+            idx += 1;
+        }
+
+        let mut rs_paths: Vec<String> = self
+            .inodes
+            .keys()
+            .filter(|k| {
+                k.starts_with("/workspace/")
+                    && k.ends_with(".rs")
+                    && !Self::is_protected_canonical_guest_path(k)
+            })
+            .cloned()
+            .collect();
+        rs_paths.sort();
+
+        let mut rs_files: Vec<(String, String)> = Vec::with_capacity(rs_paths.len());
+        for p in rs_paths {
+            if let Some(bytes) = self.read_guest_file(&p) {
+                let rel = p
+                    .strip_prefix("/workspace/")
+                    .unwrap_or(p.as_str())
+                    .to_string();
+                rs_files.push((rel, String::from_utf8_lossy(&bytes).into_owned()));
+            }
+        }
+        if rs_files.is_empty() {
+            return Ok(StageExecBytesOutcome::err(
+                101,
+                "cargo: no `.rs` source files found under `/workspace`\n".to_string(),
+            ));
+        }
+
+        let rep = crate::wasm_ast_eval::execute_workspace_cargo(eval_sub, &filter, &rs_files);
+        let mut term = rep.terminal_output;
+        if !term.is_empty() && !term.ends_with('\n') {
+            term.push('\n');
+        }
+        if rep.status == "ok" {
+            let mut combined = term;
+            if !rep.stdout.is_empty() && !combined.contains(&rep.stdout) {
+                combined.push_str(&rep.stdout);
+                if !combined.ends_with('\n') {
+                    combined.push('\n');
+                }
+            }
+            Ok(StageExecBytesOutcome {
+                exit_code: 0,
+                stdout: combined.into_bytes(),
+                stderr: String::new(),
+                instructions_retired: rep.total_fuel_consumed,
+                vsock_frames: Vec::new(),
+                compiled_elf_machine: None,
+            })
+        } else {
+            Ok(StageExecBytesOutcome {
+                exit_code: 101,
+                stdout: rep.stdout.into_bytes(),
+                stderr: term,
+                instructions_retired: rep.total_fuel_consumed,
+                vsock_frames: Vec::new(),
+                compiled_elf_machine: None,
+            })
+        }
     }
 
     fn resolve_guest_exec_path(&self, working_cwd: &str, prog: &str) -> Option<String> {

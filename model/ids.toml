@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-67"
+level = "build"
+suite = "r4_67_mvm_polyglot_toolchain"
+statement = "Pure LexLean models the R4-67 MVM polyglot toolchain completion across in-guest Rust cargo/rustc AST execution, extended npm script/dependency lifecycle subcommands, and C99 <stdlib.h>/<stdbool.h> 8-byte aligned SYS_brk heap allocation (R4.MvmPolyglotToolchain): admitCargoTerminalSubcommand admitting check/test/clippy/build/run/version subcommands on mutable /workspace sources (CargoAstToolchainAdmitted), admitNpmTerminalSubcommand admitting init/install/run/test/start/build/ls/uninstall/version subcommands (NpmSubcommandAdmitted), and admitC99StdlibBrkAlign admitting 8-byte aligned SYS_brk dynamic heap allocations (C99StdlibHeapAdmitted) while refusing unsupported toolchain subcommands (RefusedUnsupportedToolchainSubcommand), mutations touching protected canonical paths (RefusedProtectedPathToolchainMutation), and unaligned heap breaks (RefusedUnalignedHeapBreak). Formal controls establish modeled admission verdicts only, not external crates.io network compilation."
+
+[[id]]
 id = "R4-66"
 level = "build"
 suite = "r4_66_fast_pack_hydration"

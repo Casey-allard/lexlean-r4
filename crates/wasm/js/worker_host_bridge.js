@@ -2050,6 +2050,30 @@ export function admitSingleTruthBadge(selectedIsEmergencyQ31, badgeShowsEmergenc
   return 'SingleTruthBadgeAdmitted';
 }
 
+/** Formal R4.MvmPolyglotToolchain admit MVM cargo/rustc terminal subcommands while refusing protected paths and unknown subcommands. */
+export function admitCargoTerminalSubcommand(knownSubcommand, touchesProtectedCanonical) {
+  /* Formal R4.MvmPolyglotToolchain */
+  if (touchesProtectedCanonical) return 'RefusedProtectedPathToolchainMutation';
+  if (!knownSubcommand) return 'RefusedUnsupportedToolchainSubcommand';
+  return 'CargoAstToolchainAdmitted';
+}
+
+/** Formal R4.MvmPolyglotToolchain admit MVM npm lifecycle subcommands while refusing protected paths and unknown subcommands. */
+export function admitNpmTerminalSubcommand(knownSubcommand, touchesProtectedCanonical) {
+  /* Formal R4.MvmPolyglotToolchain */
+  if (touchesProtectedCanonical) return 'RefusedProtectedPathToolchainMutation';
+  if (!knownSubcommand) return 'RefusedUnsupportedToolchainSubcommand';
+  return 'NpmSubcommandAdmitted';
+}
+
+/** Formal R4.MvmPolyglotToolchain admit 8-byte aligned SYS_brk C99 stdlib heap allocations. */
+export function admitC99StdlibBrkAlign(alignedMod8, touchesProtectedCanonical) {
+  /* Formal R4.MvmPolyglotToolchain */
+  if (touchesProtectedCanonical) return 'RefusedProtectedPathToolchainMutation';
+  if (Number(alignedMod8) !== 0) return 'RefusedUnalignedHeapBreak';
+  return 'C99StdlibHeapAdmitted';
+}
+
 export class OpfsKappaStore {
   constructor() {
     this.liarMirrors = new Set();
@@ -11953,10 +11977,59 @@ export class SpiralCoreHostBridge {
   }
 
   async handleNpmBridge(req) {
+    /* Formal R4.MvmPolyglotToolchain */
     const info = this.#extractBridgePayload(req);
     const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
     const args = info.args.map((a) => String(a));
     const sub = (args[0] || 'install').toLowerCase();
+
+    const touchesProtected = args.some((a) => {
+      if (a.startsWith('-')) return false;
+      const abs = MvmPolyglotVfs.normalizePath(vfs.cwd, a);
+      if (!abs.startsWith('/workspace/')) return false;
+      return MvmPolyglotVfs.isCanonicalProtectedRel(abs.slice('/workspace/'.length));
+    });
+    const knownSubs = new Set([
+      'init',
+      'install',
+      'i',
+      'add',
+      'run',
+      'test',
+      't',
+      'start',
+      'build',
+      'ls',
+      'list',
+      'uninstall',
+      'rm',
+      'remove',
+      '--version',
+      '-v',
+      'version',
+    ]);
+    const verdict = admitNpmTerminalSubcommand(knownSubs.has(sub), touchesProtected);
+    if (verdict === 'RefusedProtectedPathToolchainMutation') {
+      return {
+        ok: false,
+        error_code: 'CanonicalPathProtected',
+        message: 'npm: RefusedProtectedPathToolchainMutation',
+      };
+    }
+    if (verdict === 'RefusedUnsupportedToolchainSubcommand') {
+      return {
+        ok: true,
+        exit_code: 1,
+        stdout: '',
+        stderr: `npm: unsupported subcommand '${sub}' (RefusedUnsupportedToolchainSubcommand)\n`,
+        writes: [],
+        deletes: [],
+      };
+    }
+
+    if (sub === '--version' || sub === '-v' || sub === 'version') {
+      return { ok: true, exit_code: 0, stdout: '10.9.0-mvm\n', stderr: '', writes: [], deletes: [] };
+    }
 
     if (sub === 'init') {
       if (!vfs.exists('/workspace/package.json')) {
@@ -11969,19 +12042,104 @@ export class SpiralCoreHostBridge {
       return { ok: true, exit_code: 0, stdout: 'Wrote /workspace/package.json\n', stderr: '', ...muts };
     }
 
-    if (sub === 'run' && args[1]) {
+    const scriptTarget =
+      sub === 'test' || sub === 't'
+        ? 'test'
+        : sub === 'start'
+          ? 'start'
+          : sub === 'build'
+            ? 'build'
+            : sub === 'run' && args[1]
+              ? args[1]
+              : '';
+    if (scriptTarget) {
       const pjRaw = vfs.readText('/workspace/package.json');
       if (!pjRaw) {
         return { ok: true, exit_code: 1, stdout: '', stderr: 'npm ERR! missing package.json\n', writes: [], deletes: [] };
       }
       const pj = JSON.parse(pjRaw);
-      const scriptCmd = pj.scripts && pj.scripts[args[1]];
+      const scriptCmd = pj.scripts && pj.scripts[scriptTarget];
       if (!scriptCmd) {
-        return { ok: true, exit_code: 1, stdout: '', stderr: `npm ERR! Missing script: "${args[1]}"\n`, writes: [], deletes: [] };
+        return { ok: true, exit_code: 1, stdout: '', stderr: `npm ERR! Missing script: "${scriptTarget}"\n`, writes: [], deletes: [] };
       }
-      const parts = scriptCmd.trim().split(/\s+/);
+      const trimmedScript = scriptCmd.trim();
+      const nodeEvalMatch = trimmedScript.match(/^node\s+(-e|-p)\s+(['"])([\s\S]*)\2$/);
+      if (nodeEvalMatch) {
+        return this.handleNodeExec({ ...req, tool: 'node', args: [nodeEvalMatch[1], nodeEvalMatch[3]] });
+      }
+      const parts = trimmedScript.split(/\s+/);
       const binName = parts[0] === 'node' ? parts : ['node', `/workspace/node_modules/.bin/${parts[0]}`, ...parts.slice(1)];
       return this.handleNodeExec({ ...req, tool: 'node', args: binName.slice(1) });
+    }
+
+    if (sub === 'ls' || sub === 'list') {
+      const pjRaw = vfs.readText('/workspace/package.json');
+      let pj = { name: 'workspace-app', version: '1.0.0', dependencies: {} };
+      if (pjRaw) {
+        try {
+          pj = JSON.parse(pjRaw);
+        } catch {}
+      }
+      const deps = pj.dependencies && typeof pj.dependencies === 'object' ? Object.entries(pj.dependencies) : [];
+      const lines = [`${pj.name || 'workspace-app'}@${pj.version || '1.0.0'} /workspace`];
+      if (deps.length === 0) {
+        lines.push('└── (empty)');
+      } else {
+        deps.forEach(([depName, depRange], idx) => {
+          const instRaw = vfs.readText(`/workspace/node_modules/${depName}/package.json`);
+          let instVer = String(depRange || '');
+          if (instRaw) {
+            try {
+              const parsedDep = JSON.parse(instRaw);
+              if (parsedDep && parsedDep.version) instVer = parsedDep.version;
+            } catch {}
+          }
+          const branch = idx + 1 === deps.length ? '└──' : '├──';
+          lines.push(`${branch} ${depName}@${instVer}`);
+        });
+      }
+      return { ok: true, exit_code: 0, stdout: lines.join('\n') + '\n', stderr: '', writes: [], deletes: [] };
+    }
+
+    if (sub === 'uninstall' || sub === 'rm' || sub === 'remove') {
+      const pkgs = args.slice(1).filter((a) => !a.startsWith('-'));
+      if (pkgs.length === 0) {
+        return { ok: true, exit_code: 1, stdout: '', stderr: 'npm ERR! Must provide a package name to remove\n', writes: [], deletes: [] };
+      }
+      const pjRaw = vfs.readText('/workspace/package.json');
+      let pj = { name: 'workspace-app', version: '1.0.0', dependencies: {} };
+      if (pjRaw) {
+        try {
+          pj = JSON.parse(pjRaw);
+        } catch {}
+      }
+      let removedCount = 0;
+      for (const pkgName of pkgs) {
+        const prefix = `node_modules/${pkgName}/`;
+        let hit = false;
+        for (const key of Array.from(vfs.files.keys())) {
+          if (key.startsWith(prefix)) {
+            vfs.deletePath(`/workspace/${key}`);
+            hit = true;
+          }
+        }
+        for (const key of Array.from(vfs.symlinks.keys())) {
+          if (key.startsWith(prefix) || key === `node_modules/.bin/${pkgName.split('/').pop()}`) {
+            vfs.deletePath(`/workspace/${key}`);
+            hit = true;
+          }
+        }
+        if (pj.dependencies && Object.prototype.hasOwnProperty.call(pj.dependencies, pkgName)) {
+          delete pj.dependencies[pkgName];
+          hit = true;
+        }
+        if (hit) removedCount += 1;
+      }
+      if (pjRaw) {
+        vfs.writeBytes('/workspace/package.json', JSON.stringify(pj, null, 2) + '\n');
+      }
+      const muts = vfs.exportMutations();
+      return { ok: true, exit_code: 0, stdout: `removed ${removedCount} package(s)\n`, stderr: '', ...muts };
     }
 
     if (sub !== 'install' && sub !== 'i' && sub !== 'add') {

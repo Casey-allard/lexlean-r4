@@ -204,3 +204,25 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `1`
   - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'SingleTruthBadgeAdmitted' - 'RefusedEmergencyBadgeOnQwenSession'` at `tests/e2e/r4_66_fast_pack_single_truth_ui_e2e.mjs:40:8`
 - **Restored result**: Restored `return 'RefusedEmergencyBadgeOnQwenSession';` inside `admitSingleTruthBadge()`; `node tests/e2e/r4_66_fast_pack_single_truth_ui_e2e.mjs` exited `0` (`[PASS] R4-66 <=48 MiB streaming packs, 404 mirror pruning, and single-truth UI verified.`).
+
+## Seamless Completion Wave (`R4-67`): MVM Polyglot Toolchain Completion (`cargo`/`rustc`, `npm` Lifecycle & C99 `<stdlib.h>`/`<stdbool.h>`, `v0.15.0`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` < `15 MiB`, `provenance.json`), `wasm=69b5bc0b4ce7`, `js=90e621d303c8`, `core=9d7962390730`.
+- **`build-holo --sync-site-manifest`**: verified Hologram v4 archive (`13,257,917` bytes <= `33,554,432` B / `32 MiB`, `blake3=8bc967bdf4759e08`, `wasmSha256=69b5bc0b4ce7f6e3`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **Polyglot MVM Toolchain**:
+  - In-guest `cargo` (`check`, `test`, `clippy`, `build`, `run`, `--version`) & `rustc` wired directly to `wasm_ast_eval::execute_workspace_cargo` over `/workspace/**/*.rs` with canonical-path protection.
+  - `npm` (`init`, `install`, `run`, `test`, `start`, `build`, `ls`, `uninstall`, `--version`) in `SpiralCoreHostBridge.handleNpmBridge`.
+  - Extended C99 `<stdlib.h>` (`malloc`, `calloc`, `free` via 8-byte aligned `SYS_brk = 214`, `atoi`, `abs`) & `<stdbool.h>` (`bool`, `true`, `false`) compiled natively to RV64 ELF64 (`EM_RISCV = 243`).
+- **`check-model`**: `CONFORMANCE.md` matches `model/`, `67` conformance IDs (`R4-01..R4-67`, including `R4-67` / `R4.MvmPolyglotToolchain`).
+- **`lift-register`**: `total=2874`, `lifted=2095`, `residue=341` (`< 342` prior wave, `<= 355` threshold, `UE-16` monotone).
+- **`ratchet-check`**: `r30_gen=261`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=341`, `float=0`, `matmul=0`, `unwired_ui=0`.
+- **`check-routes`**: `18` routes (including `R4-UR18` / `mvm-polyglot-cargo-npm-c99`) and `21` test vectors verified under `uorust/routes/1`.
+- **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=341`, `routes=18`, `provenance_sources=24`).
+- **`synthesize`**: `score_milli=988`, `complexity=341`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
+
+### 14. Unsupported Polyglot Toolchain Subcommand Refusal Gate (`R4-67`)
+- **Planted defect**: Replaced `return 'RefusedUnsupportedToolchainSubcommand';` with `return 'NpmSubcommandAdmitted';` inside `admitCargoTerminalSubcommand()` / `admitNpmTerminalSubcommand()` in `crates/wasm/js/worker_host_bridge.js` / `public/lexlean_r4.js`.
+- **Failing command**: `node tests/e2e/r4_67_mvm_polyglot_toolchain_e2e.mjs`
+  - **Exit code**: `1`
+  - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'NpmSubcommandAdmitted' - 'RefusedUnsupportedToolchainSubcommand'` at `tests/e2e/r4_67_mvm_polyglot_toolchain_e2e.mjs:24:8`
+- **Restored result**: Restored `return 'RefusedUnsupportedToolchainSubcommand';` inside `admitCargoTerminalSubcommand()` / `admitNpmTerminalSubcommand()`; `node tests/e2e/r4_67_mvm_polyglot_toolchain_e2e.mjs` exited `0` (`[PASS] R4-67 MVM cargo/rustc, npm lifecycle subcommands, and C99 <stdlib.h>/<stdbool.h> verified.`).

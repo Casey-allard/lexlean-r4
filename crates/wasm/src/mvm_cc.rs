@@ -2170,6 +2170,112 @@ impl Codegen {
         let ms_exit = self.insts.len();
         self.patch_b(ms_done, ms_exit, X0, A2, 0);
         self.emit(enc_i(0, RA, 0, X0, 0x67));
+
+        // __rt_malloc(a0 = size) -> a0 (8-byte aligned SYS_brk = 214, R4-67)
+        self.func_inst_idx
+            .insert("__rt_malloc".to_string(), self.insts.len());
+        self.emit(enc_i(7, A0, 0, T2, 0x13)); // addi t2, a0, 7
+        self.emit(enc_i(-8, T2, 7, T2, 0x13)); // andi t2, t2, -8
+        let ml_nz = self.emit(0); // bne t2, x0, ml_do_brk
+        self.emit(enc_i(8, X0, 0, T2, 0x13)); // min 8 bytes
+        let ml_do_brk = self.insts.len();
+        self.patch_b(ml_nz, ml_do_brk, X0, T2, 1);
+        self.emit(enc_i(0, X0, 0, A0, 0x13)); // a0 = 0 (query current brk)
+        self.emit(enc_i(214, X0, 0, A7, 0x13)); // SYS_brk
+        self.emit(0x0000_0073);
+        self.emit(enc_i(0, A0, 0, T0, 0x13)); // t0 = old_brk
+        self.emit(enc_r(0, T2, T0, 0, A0, 0x33)); // a0 = old_brk + aligned_size
+        self.emit(enc_i(214, X0, 0, A7, 0x13)); // SYS_brk
+        self.emit(0x0000_0073);
+        let ml_ok = self.emit(0); // bne a0, t0, ml_ret_ptr
+        self.emit(enc_i(0, X0, 0, A0, 0x13)); // NULL on failure
+        self.emit(enc_i(0, RA, 0, X0, 0x67));
+        let ml_ret_ptr = self.insts.len();
+        self.patch_b(ml_ok, ml_ret_ptr, T0, A0, 1);
+        self.emit(enc_i(0, T0, 0, A0, 0x13)); // return old_brk
+        self.emit(enc_i(0, RA, 0, X0, 0x67));
+
+        // __rt_calloc(a0 = nmemb, a1 = size) -> a0 (zero-initialized SYS_brk allocation, R4-67)
+        self.func_inst_idx
+            .insert("__rt_calloc".to_string(), self.insts.len());
+        self.emit(enc_i(-32, SP, 0, SP, 0x13));
+        self.emit(enc_s(24, RA, SP, 3, 0x23));
+        self.emit(enc_s(16, S0, SP, 3, 0x23));
+        self.emit(enc_r(0x01, A1, A0, 0, S0, 0x33)); // mul s0, a0, a1
+        self.emit(enc_i(0, S0, 0, A0, 0x13));
+        self.emit_call("__rt_malloc");
+        let cl_null = self.emit(0); // beq a0, x0, cl_done
+        self.emit(enc_i(0, X0, 0, A1, 0x13)); // byte = 0
+        self.emit(enc_i(0, S0, 0, A2, 0x13)); // n = s0
+        self.emit_call("__rt_memset");
+        let cl_done = self.insts.len();
+        self.patch_b(cl_null, cl_done, X0, A0, 0);
+        self.emit(enc_i(24, SP, 3, RA, 0x03));
+        self.emit(enc_i(16, SP, 3, S0, 0x03));
+        self.emit(enc_i(32, SP, 0, SP, 0x13));
+        self.emit(enc_i(0, RA, 0, X0, 0x67));
+
+        // __rt_free(a0 = ptr) -> a0 = 0 (no-op arena free, R4-67)
+        self.func_inst_idx
+            .insert("__rt_free".to_string(), self.insts.len());
+        self.emit(enc_i(0, X0, 0, A0, 0x13));
+        self.emit(enc_i(0, RA, 0, X0, 0x67));
+
+        // __rt_abs(a0 = x) -> a0 (R4-67)
+        self.func_inst_idx
+            .insert("__rt_abs".to_string(), self.insts.len());
+        let abs_pos = self.emit(0); // bge a0, x0, abs_ret
+        self.emit(enc_r(0x20, A0, X0, 0, A0, 0x33)); // sub a0, x0, a0
+        let abs_ret = self.insts.len();
+        self.patch_b(abs_pos, abs_ret, X0, A0, 5);
+        self.emit(enc_i(0, RA, 0, X0, 0x67));
+
+        // __rt_atoi(a0 = s) -> a0 (signed base-10 ASCII integer parser, R4-67)
+        self.func_inst_idx
+            .insert("__rt_atoi".to_string(), self.insts.len());
+        self.emit(enc_i(0, X0, 0, T0, 0x13)); // t0 = acc = 0
+        self.emit(enc_i(1, X0, 0, T1, 0x13)); // t1 = sign = 1
+        self.emit(enc_i(32, X0, 0, A2, 0x13)); // a2 = ' ' (32)
+        let atoi_ws = self.insts.len();
+        self.emit(enc_i(0, A0, 4, T2, 0x03)); // lbu t2, 0(a0)
+        let atoi_ws_nul = self.emit(0); // beq t2, x0, atoi_done
+        let atoi_ws_end = self.emit(0); // blt a2, t2, atoi_sign (32 < t2)
+        self.emit(enc_i(1, A0, 0, A0, 0x13));
+        let atoi_ws_back = self.emit(0);
+        self.patch_j(atoi_ws_back, atoi_ws, X0);
+        let atoi_sign = self.insts.len();
+        self.patch_b(atoi_ws_end, atoi_sign, T2, A2, 4);
+        self.emit(enc_i(b'-' as i32, X0, 0, A1, 0x13));
+        let atoi_not_minus = self.emit(0); // bne t2, '-', atoi_chk_plus
+        self.emit(enc_i(-1, X0, 0, T1, 0x13));
+        self.emit(enc_i(1, A0, 0, A0, 0x13));
+        let atoi_to_dig = self.emit(0);
+        let atoi_chk_plus = self.insts.len();
+        self.patch_b(atoi_not_minus, atoi_chk_plus, A1, T2, 1);
+        self.emit(enc_i(b'+' as i32, X0, 0, A1, 0x13));
+        let atoi_not_plus = self.emit(0); // bne t2, '+', atoi_dig
+        self.emit(enc_i(1, A0, 0, A0, 0x13));
+        let atoi_dig = self.insts.len();
+        self.patch_j(atoi_to_dig, atoi_dig, X0);
+        self.patch_b(atoi_not_plus, atoi_dig, A1, T2, 1);
+        self.emit(enc_i(0, A0, 4, T2, 0x03)); // lbu t2, 0(a0)
+        self.emit(enc_i(b'0' as i32, X0, 0, A1, 0x13));
+        let atoi_lt0 = self.emit(0); // blt t2, '0', atoi_done
+        self.emit(enc_i((b'9' + 1) as i32, X0, 0, A1, 0x13));
+        let atoi_gt9 = self.emit(0); // bge t2, '9'+1, atoi_done
+        self.emit(enc_i(-(b'0' as i32), T2, 0, T2, 0x13));
+        self.emit(enc_i(10, X0, 0, A1, 0x13));
+        self.emit(enc_r(0x01, A1, T0, 0, T0, 0x33)); // t0 *= 10
+        self.emit(enc_r(0, T2, T0, 0, T0, 0x33)); // t0 += digit
+        self.emit(enc_i(1, A0, 0, A0, 0x13));
+        let atoi_dig_back = self.emit(0);
+        self.patch_j(atoi_dig_back, atoi_dig, X0);
+        let atoi_done = self.insts.len();
+        self.patch_b(atoi_ws_nul, atoi_done, X0, T2, 0);
+        self.patch_b(atoi_lt0, atoi_done, A1, T2, 4);
+        self.patch_b(atoi_gt9, atoi_done, A1, T2, 5);
+        self.emit(enc_r(0x01, T1, T0, 0, A0, 0x33)); // a0 = acc * sign
+        self.emit(enc_i(0, RA, 0, X0, 0x67));
     }
 
     fn count_stmt_slots(&self, stmt: &Stmt) -> usize {
@@ -3021,6 +3127,11 @@ impl Codegen {
                     ("strcpy", 2) => "__rt_strcpy",
                     ("memcpy", 3) => "__rt_memcpy",
                     ("memset", 3) => "__rt_memset",
+                    ("malloc", 1) => "__rt_malloc",
+                    ("calloc", 2) => "__rt_calloc",
+                    ("free", 1) => "__rt_free",
+                    ("abs", 1) => "__rt_abs",
+                    ("atoi", 1) => "__rt_atoi",
                     _ => name.as_str(),
                 };
                 self.emit_call(callee);

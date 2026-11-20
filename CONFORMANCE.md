@@ -414,6 +414,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-66` | `build` | Pure LexLean models the R4-66 <= 48 MiB streaming pack hydration, immediate HTTP 404/403 mirror pruning, queue-not-downgrade Turn 1 hydration policy, and single-truth model/hydration badge admission (R4.FastPackHydration): admitPackHydrationPolicy admitting <= 50,331,648-byte (48 MiB) streaming packs (StreamingPackAdmitted) and ordered per-piece fallback (PieceFallbackAdmitted) while refusing packs exceeding 48 MiB (RefusedPackExceeds50MiB), repeated piece retries against a 404 mirror (RefusedPiece404MirrorRetry), and silent downgrades to emergency NativeQ31 during Qwen3 hydration (RefusedSilentEmergencyDowngrade); and admitSingleTruthBadge admitting consistent topbar model/hydration indicators (SingleTruthBadgeAdmitted) while refusing contradictory Offline Q31 Emergency badges when a Qwen3 Holo session is selected (RefusedEmergencyBadgeOnQwenSession). Formal controls establish modeled admission verdicts only, not physical CDN bandwidth or remote mirror uptime. |
 
+## r4_67_mvm_polyglot_toolchain
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-67` | `build` | Pure LexLean models the R4-67 MVM polyglot toolchain completion across in-guest Rust cargo/rustc AST execution, extended npm script/dependency lifecycle subcommands, and C99 <stdlib.h>/<stdbool.h> 8-byte aligned SYS_brk heap allocation (R4.MvmPolyglotToolchain): admitCargoTerminalSubcommand admitting check/test/clippy/build/run/version subcommands on mutable /workspace sources (CargoAstToolchainAdmitted), admitNpmTerminalSubcommand admitting init/install/run/test/start/build/ls/uninstall/version subcommands (NpmSubcommandAdmitted), and admitC99StdlibBrkAlign admitting 8-byte aligned SYS_brk dynamic heap allocations (C99StdlibHeapAdmitted) while refusing unsupported toolchain subcommands (RefusedUnsupportedToolchainSubcommand), mutations touching protected canonical paths (RefusedProtectedPathToolchainMutation), and unaligned heap breaks (RefusedUnalignedHeapBreak). Formal controls establish modeled admission verdicts only, not external crates.io network compilation. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

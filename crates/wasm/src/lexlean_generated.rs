@@ -48835,3 +48835,75 @@ pub mod r4_fast_pack_hydration {
                 == SingleTruthBadgeVerdict::RefusedEmergencyBadgeOnQwenSession
     }
 }
+
+/// Generated from `R4.MvmPolyglotToolchain` (`src/R4/MvmPolyglotToolchain.lex.tex`, `R4-67`).
+pub mod r4_mvm_polyglot_toolchain {
+    /// Inductive `R4.MvmPolyglotToolchain.PolyglotToolchainVerdict` (`R4-67`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PolyglotToolchainVerdict {
+        CargoAstToolchainAdmitted,
+        NpmSubcommandAdmitted,
+        C99StdlibHeapAdmitted,
+        RefusedUnsupportedToolchainSubcommand,
+        RefusedProtectedPathToolchainMutation,
+        RefusedUnalignedHeapBreak,
+    }
+
+    /// Function `R4.MvmPolyglotToolchain.admitCargoTerminalSubcommand` (`R4-67`).
+    pub fn admit_cargo_terminal_subcommand(
+        known_subcommand: bool,
+        touches_protected_canonical: bool,
+    ) -> PolyglotToolchainVerdict {
+        if touches_protected_canonical {
+            PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation
+        } else if !known_subcommand {
+            PolyglotToolchainVerdict::RefusedUnsupportedToolchainSubcommand
+        } else {
+            PolyglotToolchainVerdict::CargoAstToolchainAdmitted
+        }
+    }
+
+    /// Function `R4.MvmPolyglotToolchain.admitNpmTerminalSubcommand` (`R4-67`).
+    pub fn admit_npm_terminal_subcommand(
+        known_subcommand: bool,
+        touches_protected_canonical: bool,
+    ) -> PolyglotToolchainVerdict {
+        if touches_protected_canonical {
+            PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation
+        } else if !known_subcommand {
+            PolyglotToolchainVerdict::RefusedUnsupportedToolchainSubcommand
+        } else {
+            PolyglotToolchainVerdict::NpmSubcommandAdmitted
+        }
+    }
+
+    /// Function `R4.MvmPolyglotToolchain.admitC99StdlibBrkAlign` (`R4-67`).
+    pub fn admit_c99_stdlib_brk_align(
+        aligned_mod8: u64,
+        touches_protected_canonical: bool,
+    ) -> PolyglotToolchainVerdict {
+        if touches_protected_canonical {
+            PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation
+        } else if aligned_mod8 != 0 {
+            PolyglotToolchainVerdict::RefusedUnalignedHeapBreak
+        } else {
+            PolyglotToolchainVerdict::C99StdlibHeapAdmitted
+        }
+    }
+
+    /// Function `R4.MvmPolyglotToolchain.verifyMvmPolyglotToolchainAdmitted` (`R4-67`).
+    pub fn verify_mvm_polyglot_toolchain_admitted() -> bool {
+        admit_cargo_terminal_subcommand(true, false)
+            == PolyglotToolchainVerdict::CargoAstToolchainAdmitted
+            && admit_npm_terminal_subcommand(true, false)
+                == PolyglotToolchainVerdict::NpmSubcommandAdmitted
+            && admit_c99_stdlib_brk_align(0, false)
+                == PolyglotToolchainVerdict::C99StdlibHeapAdmitted
+            && admit_cargo_terminal_subcommand(false, false)
+                == PolyglotToolchainVerdict::RefusedUnsupportedToolchainSubcommand
+            && admit_npm_terminal_subcommand(true, true)
+                == PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation
+            && admit_c99_stdlib_brk_align(4, false)
+                == PolyglotToolchainVerdict::RefusedUnalignedHeapBreak
+    }
+}
