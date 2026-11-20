@@ -1385,7 +1385,7 @@ impl HoloTok13SpeculativeDrafter {
             }
         }
 
-        // 2. Deterministic Studio `<tool_call>` / `<prism-write>` grammar trie continuation.
+        // 2. Deterministic Studio `<tool_call>` / `<prism-write>` / polyglot code grammar trie continuation.
         let tip_bytes = tokenizer
             .id_to_raw
             .get(accepted_tip as usize)
@@ -1407,8 +1407,22 @@ impl HoloTok13SpeculativeDrafter {
                 Some(",\"arguments\":{\"query\":\"")
             } else if tail_str.ends_with("{\"name\":\"spiralcore_fetch\"") {
                 Some(",\"arguments\":{\"url\":\"https://")
+            } else if tail_str.ends_with("{\"name\":\"preview_inspect\"") {
+                Some(",\"arguments\":{\"selector\":\"")
+            } else if tail_str.ends_with("{\"name\":\"github_git\"") {
+                Some(",\"arguments\":{\"subcommand\":\"")
             } else if tail_str.ends_with("<prism-write") {
                 Some(" path=\"")
+            } else if tail_str.ends_with("</prism") {
+                Some("-write>")
+            } else if tail_str.ends_with("pub fn") || tail_str.ends_with("let mut") {
+                Some(" ")
+            } else if tail_str.ends_with("export async") {
+                Some(" function ")
+            } else if tail_str.ends_with("#include") {
+                Some(" <")
+            } else if tail_str.ends_with("```rust") || tail_str.ends_with("```javascript") {
+                Some("\n")
             } else {
                 None
             };
@@ -1416,10 +1430,92 @@ impl HoloTok13SpeculativeDrafter {
                 let mut ids = tokenizer.encode(suffix);
                 ids.retain(|&t| !is_stop(t) && (t as usize) < tokenizer.vocab_size);
                 ids.truncate(cap);
-                return ids;
+                if !ids.is_empty() {
+                    return ids;
+                }
+            }
+        }
+
+        // 3. Single-token identifier continuation over `/workspace` symbols (`len >= 4` ASCII ident).
+        if tip_bytes.len() >= 4
+            && tip_bytes
+                .iter()
+                .all(|b| b.is_ascii_alphanumeric() || *b == b'_')
+            && win.len() >= 2
+        {
+            for idx in (0..win.len() - 1).rev() {
+                if win[idx] == accepted_tip {
+                    let mut out = Vec::with_capacity(cap);
+                    for &cand in win[idx + 1..].iter().take(cap) {
+                        if is_stop(cand) || (cand as usize) >= tokenizer.vocab_size {
+                            break;
+                        }
+                        out.push(cand);
+                    }
+                    if !out.is_empty() {
+                        return out;
+                    }
+                }
             }
         }
         Vec::new()
+    }
+
+    /// Formal R4.LiveWebGpuTurnBridge propose adaptive speculative draft tokens enforcing CPU miss throttling (`R4-65`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn propose_adaptive_draft_tokens(
+        tokenizer: &HoloTok13,
+        recent_before_tip: &[u32],
+        raw_stream_before_tip: &[u8],
+        accepted_tip: u32,
+        max_drafts: usize,
+        gpu_active: bool,
+        accept_ema_permille: u16,
+        eos_id: u32,
+        eot_id: u32,
+        think_end_id: u32,
+    ) -> Vec<u32> {
+        use crate::lexlean_generated::r4_live_webgpu_turn_bridge::{
+            admit_adaptive_speculative_budget, cpu_miss_throttle_ema_permille,
+            AdaptiveDrafterVerdict,
+        };
+        let tile_cap = max_drafts.min(6);
+        if tile_cap == 0 {
+            return Vec::new();
+        }
+        let effective_cap =
+            if !gpu_active && u64::from(accept_ema_permille) < cpu_miss_throttle_ema_permille() {
+                if accept_ema_permille < 100 {
+                    0
+                } else {
+                    1usize.min(tile_cap)
+                }
+            } else {
+                tile_cap
+            };
+        if effective_cap == 0 {
+            return Vec::new();
+        }
+        let mut drafts = Self::propose_draft_tokens(
+            tokenizer,
+            recent_before_tip,
+            raw_stream_before_tip,
+            accepted_tip,
+            effective_cap,
+            eos_id,
+            eot_id,
+            think_end_id,
+        );
+        let verdict = admit_adaptive_speculative_budget(
+            gpu_active,
+            u64::from(accept_ema_permille),
+            drafts.len() as u64,
+            tile_cap as u64,
+        );
+        if verdict == AdaptiveDrafterVerdict::RefusedUnthrottledCpuMissStorm {
+            drafts.truncate(1);
+        }
+        drafts
     }
 }
 
@@ -5385,6 +5481,26 @@ impl HoloV13Model {
         })
     }
 
+    /// Formal R4.LiveWebGpuTurnBridge export latest 512-bit query RHT signature packed as 16 `u32` words (`R4-65`).
+    pub fn last_q_sig512_u32(&self) -> [u32; 16] {
+        let mut out = [0u32; 16];
+        for (i, &w64) in self.scratch.last_q_sig512.iter().enumerate() {
+            out[i * 2] = w64 as u32;
+            out[i * 2 + 1] = (w64 >> 32) as u32;
+        }
+        out
+    }
+
+    /// Formal R4.LiveWebGpuTurnBridge export vocabulary 512-bit RHT signatures as `vocab_size * 16` `u32` words (`R4-65`).
+    pub fn export_vocab_sigs512_u32(&self) -> Vec<u32> {
+        let mut out = Vec::with_capacity(self.vocab_sigs.len() * 2);
+        for &w64 in &self.vocab_sigs {
+            out.push(w64 as u32);
+            out.push((w64 >> 32) as u32);
+        }
+        out
+    }
+
     /// Formal R4.WebGpuResidentRuntime verify `[accepted_tip, drafts..]` in one batched `(K + 1)` tile pass,
     /// accepting the longest `0-LSB` prefix matching `pick_next_holo_token` and rewinding KV cleanly (`R4-64`).
     pub fn step_speculative_tile(
@@ -8473,5 +8589,46 @@ pub(crate) mod tests {
             model.think_end_id,
         );
         assert_eq!(drafts, vec![50, 60, 10, 20]);
+
+        // R4-65: Adaptive CPU miss throttle caps drafts to <= 1 when !gpu_active && accept_ema < 250.
+        let throttled = HoloTok13SpeculativeDrafter::propose_adaptive_draft_tokens(
+            &model.tokenizer,
+            &recent,
+            b"",
+            40,
+            4,
+            false,
+            150,
+            model.eos_token_id,
+            model.eot_token_id,
+            model.think_end_id,
+        );
+        assert_eq!(throttled, vec![50]);
+        let muted = HoloTok13SpeculativeDrafter::propose_adaptive_draft_tokens(
+            &model.tokenizer,
+            &recent,
+            b"",
+            40,
+            4,
+            false,
+            80,
+            model.eos_token_id,
+            model.eot_token_id,
+            model.think_end_id,
+        );
+        assert!(muted.is_empty());
+        let gpu_full = HoloTok13SpeculativeDrafter::propose_adaptive_draft_tokens(
+            &model.tokenizer,
+            &recent,
+            b"",
+            40,
+            4,
+            true,
+            80,
+            model.eos_token_id,
+            model.eot_token_id,
+            model.think_end_id,
+        );
+        assert_eq!(gpu_full, vec![50, 60, 10, 20]);
     }
 }

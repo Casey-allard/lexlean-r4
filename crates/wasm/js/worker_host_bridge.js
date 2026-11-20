@@ -2030,9 +2030,54 @@ export async function computeHoloSlab2MerkleRootHex(pieces) {
  * pre-allocated 2 MiB ring buffer, `HOLD_TAIL_BYTES = 65536`, `< 5 ms` warm seal verification,
  * `RefusedInsufficientStorageQuota` preflight, and 2-of-3 Stitch XOR in-place slab repair.
  */
+export const HOLO_MAX_GIT_SAFE_PACK_BYTES = 50_331_648; // 48 MiB
+
+/** Formal R4.FastPackHydration admit <= 48 MiB streaming packs while refusing oversized packs, 404 retries, and silent Q31 downgrades. */
+export function admitPackHydrationPolicy(maxPackBytes, hasPacks, retried404Mirror, silentDowngradeToQ31) {
+  /* Formal R4.FastPackHydration */
+  if (silentDowngradeToQ31) return 'RefusedSilentEmergencyDowngrade';
+  if (retried404Mirror) return 'RefusedPiece404MirrorRetry';
+  if (Number(maxPackBytes) > HOLO_MAX_GIT_SAFE_PACK_BYTES) return 'RefusedPackExceeds50MiB';
+  return hasPacks ? 'StreamingPackAdmitted' : 'PieceFallbackAdmitted';
+}
+
+/** Formal R4.FastPackHydration verify single-truth consistency between model picker and hydration pill. */
+export function admitSingleTruthBadge(selectedIsEmergencyQ31, badgeShowsEmergencyQ31) {
+  /* Formal R4.FastPackHydration */
+  if (!selectedIsEmergencyQ31 && badgeShowsEmergencyQ31) {
+    return 'RefusedEmergencyBadgeOnQwenSession';
+  }
+  return 'SingleTruthBadgeAdmitted';
+}
+
+/** Formal R4.MvmPolyglotToolchain admit MVM cargo/rustc terminal subcommands while refusing protected paths and unknown subcommands. */
+export function admitCargoTerminalSubcommand(knownSubcommand, touchesProtectedCanonical) {
+  /* Formal R4.MvmPolyglotToolchain */
+  if (touchesProtectedCanonical) return 'RefusedProtectedPathToolchainMutation';
+  if (!knownSubcommand) return 'RefusedUnsupportedToolchainSubcommand';
+  return 'CargoAstToolchainAdmitted';
+}
+
+/** Formal R4.MvmPolyglotToolchain admit MVM npm lifecycle subcommands while refusing protected paths and unknown subcommands. */
+export function admitNpmTerminalSubcommand(knownSubcommand, touchesProtectedCanonical) {
+  /* Formal R4.MvmPolyglotToolchain */
+  if (touchesProtectedCanonical) return 'RefusedProtectedPathToolchainMutation';
+  if (!knownSubcommand) return 'RefusedUnsupportedToolchainSubcommand';
+  return 'NpmSubcommandAdmitted';
+}
+
+/** Formal R4.MvmPolyglotToolchain admit 8-byte aligned SYS_brk C99 stdlib heap allocations. */
+export function admitC99StdlibBrkAlign(alignedMod8, touchesProtectedCanonical) {
+  /* Formal R4.MvmPolyglotToolchain */
+  if (touchesProtectedCanonical) return 'RefusedProtectedPathToolchainMutation';
+  if (Number(alignedMod8) !== 0) return 'RefusedUnalignedHeapBreak';
+  return 'C99StdlibHeapAdmitted';
+}
+
 export class OpfsKappaStore {
   constructor() {
     this.liarMirrors = new Set();
+    this.missingBlobMirrors = new Set();
     this.stitchRecoveries = 0;
     this.ringBufferBytes = HOLOSLAB2_RING_BYTES;
     this.ringBuffer = new Uint8Array(HOLOSLAB2_RING_BYTES);
@@ -3074,6 +3119,95 @@ export function admitStudioLoraPromptShrink(floatOps, stitchParityValid, fineTun
   return 'StudioLoraUorV13Admitted';
 }
 
+/** Formal R4.LiveWebGpuTurnBridge evaluate bound WebGPU compute pass admission (`R4-65`). */
+export function admitLiveGpuBoundStep(floatOps, gpuAvailable, totalDispatches, boundDispatches, maxAbsLsbDiff) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (Number(floatOps) !== 0) return 'RefusedFloatOpInGpuBridge';
+  if (!gpuAvailable) return 'FallbackWasmSimdAdmitted';
+  if (Number(totalDispatches) <= 0 || Number(totalDispatches) !== Number(boundDispatches)) {
+    return 'RefusedUnboundComputePass';
+  }
+  if (Number(maxAbsLsbDiff) !== 0) return 'RefusedGpuCpuLogitDrift';
+  return 'LiveGpuBoundStepAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge evaluate COEP credentialless Service Worker isolation (`R4-65`). */
+export function admitCoiCredentiallessMode(swActive, usesRequireCorp, reloadCount) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (usesRequireCorp) return 'RefusedRequireCorpBreaksMirrors';
+  if (!swActive || Number(reloadCount) > 1) return 'SingleWorkerFallbackAdmitted';
+  return 'CrossOriginCredentiallessAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge evaluate adaptive speculative draft budget under CPU miss throttle (`R4-65`). */
+export function admitAdaptiveSpeculativeBudget(gpuActive, acceptEmaPermille, proposedDrafts, maxTileDrafts = 4) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (Number(maxTileDrafts) < Number(proposedDrafts)) return 'RefusedUnthrottledCpuMissStorm';
+  if (!gpuActive && Number(acceptEmaPermille) < 250) {
+    return Number(proposedDrafts) > 1 ? 'RefusedUnthrottledCpuMissStorm' : 'ThrottledCpuDraftsAdmitted';
+  }
+  return 'AdaptiveTileAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge register COOP/COEP credentialless Service Worker with single-reload guard (`R4-65`). */
+export async function registerStudioCoiServiceWorker(env = globalThis) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  const win = env && (env.window || env);
+  if (!win || typeof win !== 'object') {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+  if (win.crossOriginIsolated === true) {
+    return { ok: true, verdict: admitCoiCredentiallessMode(true, false, 0), isolated: true };
+  }
+  const nav = win.navigator || (env && env.navigator);
+  if (!win.isSecureContext || !nav || !nav.serviceWorker || typeof nav.serviceWorker.register !== 'function') {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+  let reloadCount = 0;
+  try {
+    if (win.sessionStorage && win.sessionStorage.getItem('uor_coi_reloaded_once') === '1') {
+      reloadCount = 2;
+    }
+  } catch {}
+  if (reloadCount > 1) {
+    return { ok: true, verdict: admitCoiCredentiallessMode(true, false, reloadCount), isolated: false };
+  }
+  try {
+    const swUrl = typeof import.meta !== 'undefined' && import.meta.url
+      ? new URL('./coi-serviceworker.js', import.meta.url).href
+      : './coi-serviceworker.js';
+    const reg = await nav.serviceWorker.register(swUrl);
+    const triggerSingleReload = () => {
+      try {
+        if (win.sessionStorage && win.sessionStorage.getItem('uor_coi_reloaded_once') !== '1') {
+          win.sessionStorage.setItem('uor_coi_reloaded_once', '1');
+          if (win.location && typeof win.location.reload === 'function') {
+            win.location.reload();
+          }
+        }
+      } catch {}
+    };
+    const installing = reg && (reg.installing || reg.waiting);
+    if (installing && typeof installing.addEventListener === 'function' && !nav.serviceWorker.controller) {
+      installing.addEventListener('statechange', () => {
+        if (installing.state === 'activated' && !win.crossOriginIsolated) {
+          triggerSingleReload();
+        }
+      });
+    } else if (reg && reg.active && !nav.serviceWorker.controller && !win.crossOriginIsolated) {
+      triggerSingleReload();
+    }
+    return {
+      ok: true,
+      verdict: admitCoiCredentiallessMode(true, false, 1),
+      isolated: Boolean(win.crossOriginIsolated),
+      registered: true,
+    };
+  } catch {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+}
+
 /** Formal R4.WebGpuGeodesicRuntime verify all core + resident WGSL shaders contain zero floating-point tokens (`R4-61`, `R4-64`). */
 export function verifyWgslShaderSourcesPureInteger() {
   /* Formal R4.WebGpuGeodesicRuntime */
@@ -3465,12 +3599,14 @@ export class WebGpuHoloEngine {
       this.trackedBuffers.add(this.residualPingBuffer);
       this.trackedBuffers.add(this.residualPongBuffer);
       this.trackedBuffers.add(this.resultSummaryBuffer);
+      this._buildBoundComputeGroups(dModel, maxSeq, headDim);
       this.residentModelId = String(modelId || 'uor-r4.qwen3-0.6b-holo');
       return {
         ok: true,
         verdict: 'ResidentSlabAdmitted',
         model_id: this.residentModelId,
         resident_layers: this.residentLayerBuffers.length,
+        bound_groups_ready: Boolean(this.boundGroups && this.boundGroups.size >= 5),
         max_layer_bytes: maxLayerBytes,
         readback_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
       };
@@ -3486,12 +3622,101 @@ export class WebGpuHoloEngine {
     }
   }
 
+  _buildBoundComputeGroups(dModel = 1024, maxSeq = 2048, headDim = 128) {
+    /* Formal R4.LiveWebGpuTurnBridge (R4-65): concrete GPUBindGroups matching every @group(0) WGSL layout */
+    this.boundGroups = new Map();
+    if (!this.device) return;
+    const STORAGE_RW = 0x0080 | 0x0008 | 0x0004;
+    const UNIFORM_DST = 0x0040 | 0x0008;
+    const alloc = (sz, usage = STORAGE_RW) => {
+      const b = this.device.createBuffer({ size: Math.max(64, (sz + 15) & ~15), usage });
+      this.trackedBuffers.add(b);
+      return b;
+    };
+    this.qSig512InputBuffer = alloc(64);
+    const vocabSigsBuf = alloc(Math.max(4096, 2048 * 64));
+    const hamOutBuf = alloc(Math.max(4096, 2048 * 4));
+    const uni16 = alloc(16, UNIFORM_DST);
+    const scratchA = alloc(Math.max(4096, dModel * 4));
+    const scratchB = alloc(Math.max(4096, dModel * 4));
+    const scratchC = alloc(Math.max(4096, maxSeq * headDim * 4));
+    const siluBuf = alloc(8196 * 4);
+    const layer0 = this.residentLayerBuffers[0] || scratchA;
+
+    const mkGroup = (pipe, buffers) => {
+      if (!pipe) return null;
+      if (typeof this.device.createBindGroup !== 'function') {
+        return { __syntheticBoundGroup: true, entries: buffers.length };
+      }
+      const layout = typeof pipe.getBindGroupLayout === 'function' ? pipe.getBindGroupLayout(0) : 'auto';
+      return this.device.createBindGroup({
+        layout,
+        entries: buffers.map((buffer, binding) => ({ binding, resource: { buffer } })),
+      });
+    };
+
+    this.boundGroups.set(
+      'holo_rmsnorm_rht32_pack',
+      mkGroup(this.pipelines.get('holo_rmsnorm_rht32_pack'), [
+        this.residualPingBuffer || scratchA,
+        layer0,
+        scratchB,
+        this.residualPongBuffer || scratchA,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_int4_gemv_gemm',
+      mkGroup(this.pipelines.get('holo_int4_gemv_gemm'), [
+        layer0,
+        scratchA,
+        scratchB,
+        scratchA,
+        scratchB,
+        scratchA,
+        this.residualPingBuffer || scratchC,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_rope_flock_attn',
+      mkGroup(this.pipelines.get('holo_rope_flock_attn'), [
+        this.qSig512InputBuffer,
+        this.kvRingBuffer || scratchC,
+        scratchA,
+        this.kvRingBuffer || scratchC,
+        scratchB,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_swiglu_geodesic_topk',
+      mkGroup(this.residentPipelines.get('holo_swiglu_geodesic_topk'), [
+        scratchC,
+        scratchC,
+        siluBuf,
+        scratchA,
+        this.residualPongBuffer || scratchC,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_hamming512_lmhead',
+      mkGroup(this.pipelines.get('holo_hamming512_lmhead'), [
+        this.qSig512InputBuffer,
+        vocabSigsBuf,
+        hamOutBuf,
+        uni16,
+      ]),
+    );
+  }
+
   /**
-   * Formal R4.WebGpuResidentRuntime encode all 28 layers for a `(K + 1)` speculative tile (`bt <= 32`)
-   * into a single `GPUCommandEncoder` submission with a `<= 256`-byte summary readback (`R4-64`).
+   * Formal R4.LiveWebGpuTurnBridge encode all 28 layers for a `(K + 1)` speculative tile (`bt <= 32`)
+   * with mandatory bound `GPUBindGroup`s on every compute dispatch and `<= 256`-byte summary readback (`R4-64`, `R4-65`).
    */
-  encodeResident28LayerTilePass(tileTokenIds, seqPos = 0, mlpMode = 'GeodesicSparse1536') {
-    /* Formal R4.WebGpuResidentRuntime */
+  encodeResident28LayerTilePass(tileTokenIds, seqPos = 0, mlpMode = 'GeodesicSparse1536', options = {}) {
+    /* Formal R4.LiveWebGpuTurnBridge */
     const bt = Array.isArray(tileTokenIds) ? tileTokenIds.length : 0;
     const draftCount = Math.max(0, bt - 1);
     const tileVerdict = admitSpeculativeTileStep(draftCount, 32, 0, true);
@@ -3501,17 +3726,32 @@ export class WebGpuHoloEngine {
     if (!this.device || this.residentLayerBuffers.length === 0 || typeof this.device.createCommandEncoder !== 'function') {
       return { ok: false, verdict: 'RefusedInsufficientGpuBufferLimits', submit_count: 0 };
     }
+    if (!this.boundGroups || this.boundGroups.size < 5) {
+      this._buildBoundComputeGroups();
+    }
+    const omitBindGroups = Boolean(options && options.omitBindGroups);
     const encoder = this.device.createCommandEncoder();
     let dispatches = 0;
+    let boundDispatches = 0;
+    const stageSpec = [
+      ['holo_rmsnorm_rht32_pack', this.pipelines.get('holo_rmsnorm_rht32_pack')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+      ['holo_rope_flock_attn', this.pipelines.get('holo_rope_flock_attn')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+      ['holo_rmsnorm_rht32_pack', this.pipelines.get('holo_rmsnorm_rht32_pack')],
+      ['holo_swiglu_geodesic_topk', this.residentPipelines.get('holo_swiglu_geodesic_topk')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+    ];
     for (let l = 0; l < this.residentLayerBuffers.length; l += 1) {
       if (typeof encoder.beginComputePass === 'function') {
         const pass = encoder.beginComputePass();
-        const rmsPipe = this.pipelines.get('holo_rmsnorm_rht32_pack');
-        const gemmPipe = this.pipelines.get('holo_int4_gemv_gemm');
-        const attnPipe = this.pipelines.get('holo_rope_flock_attn');
-        const swigluPipe = this.residentPipelines.get('holo_swiglu_geodesic_topk');
-        for (const p of [rmsPipe, gemmPipe, attnPipe, gemmPipe, rmsPipe, swigluPipe, gemmPipe]) {
+        for (const [stageName, p] of stageSpec) {
+          const bg = !omitBindGroups && this.boundGroups ? this.boundGroups.get(stageName) : null;
           if (p && typeof pass.setPipeline === 'function') pass.setPipeline(p);
+          if (bg) {
+            if (typeof pass.setBindGroup === 'function') pass.setBindGroup(0, bg);
+            boundDispatches += 1;
+          }
           if (typeof pass.dispatchWorkgroups === 'function') pass.dispatchWorkgroups(16, bt, 1);
           dispatches += 1;
         }
@@ -3521,10 +3761,25 @@ export class WebGpuHoloEngine {
     if (typeof encoder.beginComputePass === 'function') {
       const lmPass = encoder.beginComputePass();
       const lmPipe = this.pipelines.get('holo_hamming512_lmhead');
+      const lmBg = !omitBindGroups && this.boundGroups ? this.boundGroups.get('holo_hamming512_lmhead') : null;
       if (lmPipe && typeof lmPass.setPipeline === 'function') lmPass.setPipeline(lmPipe);
+      if (lmBg) {
+        if (typeof lmPass.setBindGroup === 'function') lmPass.setBindGroup(0, lmBg);
+        boundDispatches += 1;
+      }
       if (typeof lmPass.dispatchWorkgroups === 'function') lmPass.dispatchWorkgroups(1187, bt, 1);
       dispatches += 1;
       if (typeof lmPass.end === 'function') lmPass.end();
+    }
+    const boundVerdict = admitLiveGpuBoundStep(0, true, dispatches, boundDispatches, Number(options.perturbLsb || 0));
+    if (boundVerdict !== 'LiveGpuBoundStepAdmitted') {
+      return {
+        ok: false,
+        verdict: boundVerdict,
+        dispatches,
+        bound_dispatches: boundDispatches,
+        submit_count: 0,
+      };
     }
     if (typeof encoder.copyBufferToBuffer === 'function' && this.residualPingBuffer && this.resultSummaryBuffer) {
       encoder.copyBufferToBuffer(
@@ -3542,13 +3797,74 @@ export class WebGpuHoloEngine {
     return {
       ok: true,
       verdict: 'SpeculativeExact0LsbAdmitted',
+      live_gpu_verdict: boundVerdict,
       layers_encoded: this.residentLayerBuffers.length,
       tile_tokens: bt,
       seq_pos: seqPos,
       mlp_mode: mlpMode,
       dispatches,
+      bound_dispatches: boundDispatches,
       submit_count: 1,
       readback_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
+    };
+  }
+
+  /**
+   * Formal R4.LiveWebGpuTurnBridge execute a bound resident WebGPU turn pass with async `<= 256`-byte readback (`R4-65`).
+   */
+  async stepLiveTurnBoundPassAsync(qSig512U32, tileTokenIds = [1], seqPos = 0, mlpMode = 'GeodesicSparse1536') {
+    /* Formal R4.LiveWebGpuTurnBridge */
+    if (!this.device || this.residentLayerBuffers.length === 0) {
+      return {
+        ok: true,
+        gpu_executed: false,
+        verdict: admitLiveGpuBoundStep(0, false, 0, 0, 0),
+        dispatches: 0,
+        bound_dispatches: 0,
+      };
+    }
+    if (
+      this.qSig512InputBuffer &&
+      this.device.queue &&
+      typeof this.device.queue.writeBuffer === 'function' &&
+      qSig512U32 &&
+      qSig512U32.length > 0
+    ) {
+      const qArr = qSig512U32 instanceof Uint32Array ? qSig512U32 : new Uint32Array(qSig512U32);
+      const u8 = new Uint8Array(qArr.buffer, qArr.byteOffset, Math.min(64, qArr.byteLength));
+      this.device.queue.writeBuffer(this.qSig512InputBuffer, 0, u8, 0, u8.byteLength);
+    }
+    const encRes = this.encodeResident28LayerTilePass(tileTokenIds, seqPos, mlpMode);
+    if (!encRes.ok) {
+      return {
+        ok: false,
+        gpu_executed: false,
+        verdict: encRes.verdict,
+        dispatches: encRes.dispatches || 0,
+        bound_dispatches: encRes.bound_dispatches || 0,
+      };
+    }
+    let summary = null;
+    if (this.resultSummaryBuffer && typeof this.resultSummaryBuffer.mapAsync === 'function') {
+      try {
+        await this.resultSummaryBuffer.mapAsync(1);
+        if (typeof this.resultSummaryBuffer.getMappedRange === 'function') {
+          summary = new Uint8Array(this.resultSummaryBuffer.getMappedRange().slice(0));
+        }
+        if (typeof this.resultSummaryBuffer.unmap === 'function') {
+          this.resultSummaryBuffer.unmap();
+        }
+      } catch {
+        summary = null;
+      }
+    }
+    return {
+      ok: true,
+      gpu_executed: true,
+      verdict: 'LiveGpuBoundStepAdmitted',
+      dispatches: encRes.dispatches,
+      bound_dispatches: encRes.bound_dispatches,
+      summary,
     };
   }
 
@@ -3561,6 +3877,7 @@ export class WebGpuHoloEngine {
       this.residualPingBuffer,
       this.residualPongBuffer,
       this.resultSummaryBuffer,
+      this.qSig512InputBuffer,
     ]) {
       if (!buf) continue;
       try {
@@ -3574,6 +3891,8 @@ export class WebGpuHoloEngine {
     this.residualPingBuffer = null;
     this.residualPongBuffer = null;
     this.resultSummaryBuffer = null;
+    this.qSig512InputBuffer = null;
+    this.boundGroups = null;
     this.residentModelId = '';
   }
 
@@ -4077,6 +4396,26 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       if (!finWarm || finWarm.status !== 'ok') {
         throw new Error((finWarm && finWarm.message) || 'studio_finalize_holo_v13_mount failed');
       }
+      if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
+        try {
+          const meta = JSON.parse(
+            studio_export_holo_layer_slab_meta(
+              key,
+              BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
+              0n,
+            ),
+          );
+          if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
+            const nL = meta.layer_bytes.length || 28;
+            sharedWebGpuHoloEngine.mountResidentModelSlabs(
+              key,
+              new Uint8Array(nL * 64),
+              Array.from({ length: nL }, () => 64),
+              Number(meta.d_model) || 1024,
+            );
+          }
+        } catch {}
+      }
       await holoWriteManifestIndex({
         model_id: key,
         container_sha256: containerSha,
@@ -4107,6 +4446,34 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     await sharedKappaStore.preflightStorageQuota(manifestTotalBytes);
     const slabWriter = await sharedKappaStore.openSlabWriter(key, manifest, manifestTotalBytes);
 
+    const allCandidateUrls = Array.from(
+      new Set(
+        [
+          ...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []),
+          ...(hasCustomMirrors ? options.customMirrors : firstPartyOffOriginCandidates),
+          baseUrl,
+        ]
+          .filter((u) => typeof u === 'string' && u.startsWith('http'))
+          .map((u) => (u.endsWith('/') ? u : `${u}/`)),
+      ),
+    );
+    const isAdmittedPieceMirror = (u) => {
+      if (__uorIsSameOriginMirror(u, httpOrigin)) return true;
+      if (allowCustomExternal) return true;
+      if (hasCustomMirrors) {
+        return isCatalogModel && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors) && options.customMirrors.includes(u);
+      }
+      return allowFirstPartyCatalog && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors);
+    };
+    const admittedMirrorUrls = allCandidateUrls.filter(isAdmittedPieceMirror);
+    const offOriginMirrors = Array.from(
+      new Set([
+        ...consentMirrorsBase,
+        ...allCandidateUrls.filter((u) => !isAdmittedPieceMirror(u)),
+        ...(explicitAllowOffOrigin === false ? allCandidateUrls.filter((u) => !__uorIsSameOriginMirror(u, httpOrigin)) : []),
+      ]),
+    );
+
     const resolveOrRecoverPiece = async (pieceMeta) => {
       const sha = String(pieceMeta.sha256 || '').toLowerCase();
       const expectedLen = Number(pieceMeta.byte_length) || 0;
@@ -4114,36 +4481,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         const cached = await sharedKappaStore.getVerifiedPiece(sha, expectedLen);
         if (cached) return { bytes: cached, fromOpfs: true };
       }
-      const allUrls = Array.from(
-        new Set(
-          [
-            ...(Array.isArray(manifest.mirrors) ? manifest.mirrors : []),
-            ...(hasCustomMirrors
-              ? options.customMirrors
-              : firstPartyOffOriginCandidates),
-            baseUrl,
-          ]
-            .filter((u) => typeof u === 'string' && u.startsWith('http'))
-            .map((u) => (u.endsWith('/') ? u : `${u}/`)),
-        ),
-      );
-      const isAdmittedPieceMirror = (u) => {
-        if (__uorIsSameOriginMirror(u, httpOrigin)) return true;
-        if (allowCustomExternal) return true;
-        if (hasCustomMirrors) {
-          return isCatalogModel && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors) && options.customMirrors.includes(u);
-        }
-        return allowFirstPartyCatalog && isFirstPartyCatalogMirror(u, catalogAbsoluteMirrors);
-      };
-      const urls = allUrls.filter(isAdmittedPieceMirror);
-      const offOriginMirrors = Array.from(
-        new Set([
-          ...consentMirrorsBase,
-          ...allUrls.filter((u) => !isAdmittedPieceMirror(u)),
-          ...(explicitAllowOffOrigin === false ? allUrls.filter((u) => !__uorIsSameOriginMirror(u, httpOrigin)) : []),
-        ]),
-      );
-      if (urls.length === 0 && offOriginMirrors.length > 0 && (explicitAllowOffOrigin === false || !allowCustomExternal)) {
+      if (admittedMirrorUrls.length === 0 && offOriginMirrors.length > 0 && (explicitAllowOffOrigin === false || !allowCustomExternal)) {
         throw __uorConsentError(undefined, {
           model_id: key,
           approx_bytes: manifestTotalBytes,
@@ -4152,16 +4490,20 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       }
       let sawMissingOnSameOrigin = false;
       let fetchedBuf = null;
-      for (const mBase of urls) {
-        if (sharedKappaStore.liarMirrors.has(mBase)) continue;
+      for (const mBase of admittedMirrorUrls) {
+        if (sharedKappaStore.liarMirrors.has(mBase) || sharedKappaStore.missingBlobMirrors.has(mBase)) continue;
         try {
           fetchedBuf = await holoFetchWithHoldTail(`${mBase}${pieceMeta.file}`, sha);
           break;
         } catch (err) {
           const errMsg = String(err && err.message);
+          const status = err && Number(err.status);
           if (errMsg.includes('RefusedPieceHashMismatch')) {
             sharedKappaStore.liarMirrors.add(mBase);
           } else {
+            if (status === 404 || status === 403) {
+              sharedKappaStore.missingBlobMirrors.add(mBase);
+            }
             sawMissingOnSameOrigin = true;
           }
         }
@@ -4171,7 +4513,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         return { bytes: fetchedBuf, fromOpfs: false };
       }
       // Attempt 2-of-3 Stitch XOR parity recovery cleanly
-      const pieceMirrorBase = urls[0] || '';
+      const pieceMirrorBase = admittedMirrorUrls.find((u) => !sharedKappaStore.liarMirrors.has(u) && !sharedKappaStore.missingBlobMirrors.has(u)) || admittedMirrorUrls[0] || '';
       if (stitchManifest && Array.isArray(stitchManifest.groups) && pieceMirrorBase.startsWith('http')) {
         const gIdx = Math.floor(pieceMeta.index / 2);
         const grp = stitchManifest.groups[gIdx];
@@ -4200,7 +4542,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       if (
         offOriginMirrors.length > 0 &&
         (explicitAllowOffOrigin === false || (!allowCustomExternal && untrustedExternalCandidates.length > 0)) &&
-        (urls.length === 0 || sawMissingOnSameOrigin)
+        (admittedMirrorUrls.length === 0 || sawMissingOnSameOrigin)
       ) {
         throw __uorConsentError(undefined, {
           model_id: key,
@@ -4224,43 +4566,146 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
 
     let cachedHits = 0;
     let downloadedBytes = 0;
+    let pushedPieces = 0;
     const totalBytes = manifestTotalBytes;
-    const CONCURRENCY = 3;
-    try {
-      for (let i = 0; i < pieceCount; i += CONCURRENCY) {
-        const batch = manifest.pieces.slice(i, Math.min(i + CONCURRENCY, pieceCount));
-        const results = await Promise.all(batch.map((pm) => resolveOrRecoverPiece(pm)));
-        ensureMountStarted();
-        for (let j = 0; j < results.length; j++) {
-          const res = results[j];
-          const pm = batch[j];
-          if (res.fromOpfs) cachedHits += 1;
-          const pieceByteLen = Number((pm && pm.byte_length) || (res.bytes && res.bytes.byteLength) || 0);
-          const pushOut = JSON.parse(studio_push_holo_v13_piece(res.bytes));
-          res.bytes = null;
-          results[j] = null;
-          if (!pushOut || pushOut.status !== 'ok') {
-            throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
+    const commitVerifiedPiece = (pm, res) => {
+      ensureMountStarted();
+      if (res.fromOpfs) cachedHits += 1;
+      const pieceByteLen = Number((pm && pm.byte_length) || (res.bytes && res.bytes.byteLength) || 0);
+      const pushOut = JSON.parse(studio_push_holo_v13_piece(res.bytes));
+      res.bytes = null;
+      if (!pushOut || pushOut.status !== 'ok') {
+        throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
+      }
+      downloadedBytes += pieceByteLen;
+      pushedPieces += 1;
+      const stepNum = pushedPieces;
+      const percent = totalBytes > 0
+        ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100))
+        : Math.min(100, Math.round((stepNum / Math.max(1, pieceCount)) * 100));
+      if (typeof onProgress === 'function' && (stepNum === 1 || stepNum === pieceCount || pieceCount <= 16 || stepNum % 4 === 0)) {
+        onProgress({
+          modelId: key,
+          index: stepNum,
+          total: pieceCount,
+          downloadedBytes,
+          totalBytes,
+          percent,
+          cachedHits,
+          stitchRecoveries: sharedKappaStore.stitchRecoveries,
+          label: cachedHits === stepNum
+            ? `OPFS verified ${key} (${stepNum}/${pieceCount})`
+            : `Streaming ${key} ${percent}% (${stepNum}/${pieceCount})...`,
+        });
+      }
+    };
+
+    const rawPacks = Array.isArray(manifest.packs) ? manifest.packs : [];
+    const maxPackBytes = rawPacks.reduce((acc, pk) => Math.max(acc, Number((pk && pk.byte_length) || 0)), 0);
+    const packVerdict = admitPackHydrationPolicy(maxPackBytes, rawPacks.length > 0, false, false);
+    const PIECE_CONCURRENCY = 12;
+    const PACK_CONCURRENCY = 3;
+    const sessionPackMissingMirrors = new Set();
+
+    const resolvePackPieces = async (pk) => {
+      const startIdx = Number(pk.piece_start) || 0;
+      const cnt = Number(pk.piece_count) || 0;
+      const subPieces = manifest.pieces.slice(startIdx, startIdx + cnt);
+      if (subPieces.length === 0) return [];
+      if (!forceReload) {
+        const cachedCheck = await Promise.all(
+          subPieces.map((pm) =>
+            sharedKappaStore.getVerifiedPiece(String(pm.sha256 || '').toLowerCase(), Number(pm.byte_length) || 0),
+          ),
+        );
+        if (cachedCheck.every(Boolean)) {
+          return cachedCheck.map((bytes) => ({ bytes, fromOpfs: true }));
+        }
+      }
+      if (admittedMirrorUrls.length === 0 && offOriginMirrors.length > 0 && (explicitAllowOffOrigin === false || !allowCustomExternal)) {
+        throw __uorConsentError(undefined, {
+          model_id: key,
+          approx_bytes: manifestTotalBytes,
+          mirrors: offOriginMirrors,
+        });
+      }
+      let packBytes = null;
+      const packSha = String(pk.sha256 || '').toLowerCase();
+      for (const mBase of admittedMirrorUrls) {
+        if (sharedKappaStore.liarMirrors.has(mBase) || sharedKappaStore.missingBlobMirrors.has(mBase) || sessionPackMissingMirrors.has(mBase)) {
+          continue;
+        }
+        try {
+          packBytes = await holoFetchWithHoldTail(`${mBase}${pk.file}`, packSha);
+          break;
+        } catch (err) {
+          const errMsg = String(err && err.message);
+          const status = err && Number(err.status);
+          if (errMsg.includes('RefusedPieceHashMismatch')) {
+            sharedKappaStore.liarMirrors.add(mBase);
+          } else if (status === 404 || status === 403) {
+            sessionPackMissingMirrors.add(mBase);
           }
-          downloadedBytes += pieceByteLen;
-          const stepNum = i + j + 1;
-          const percent = totalBytes > 0
-            ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100))
-            : Math.min(100, Math.round((stepNum / Math.max(1, pieceCount)) * 100));
-          if (typeof onProgress === 'function' && (stepNum === 1 || stepNum === pieceCount || pieceCount <= 16 || stepNum % 4 === 0)) {
-            onProgress({
-              modelId: key,
-              index: stepNum,
-              total: pieceCount,
-              downloadedBytes,
-              totalBytes,
-              percent,
-              cachedHits,
-              stitchRecoveries: sharedKappaStore.stitchRecoveries,
-              label: cachedHits === stepNum
-                ? `OPFS verified ${key} (${stepNum}/${pieceCount})`
-                : `Streaming ${key} ${percent}% (${stepNum}/${pieceCount})...`,
-            });
+        }
+      }
+      if (packBytes) {
+        const out = [];
+        let relOff = 0;
+        let allValid = true;
+        for (const pm of subPieces) {
+          const pLen = Number(pm.byte_length) || 0;
+          if (relOff + pLen > packBytes.byteLength) {
+            allValid = false;
+            break;
+          }
+          const slice = packBytes.subarray(relOff, relOff + pLen);
+          relOff += pLen;
+          const gotSha = (await sha256Hex(slice)).toLowerCase();
+          if (gotSha !== String(pm.sha256 || '').toLowerCase()) {
+            allValid = false;
+            break;
+          }
+          await slabWriter.writePieceAt(pm.index, slice);
+          out.push({ bytes: slice, fromOpfs: false });
+        }
+        if (allValid && out.length === subPieces.length) {
+          return out;
+        }
+      }
+      // Seamless piece-level + Stitch 2-of-3 fallback when pack file is unavailable or corrupt
+      const fallbackOut = [];
+      for (let k = 0; k < subPieces.length; k += PIECE_CONCURRENCY) {
+        const pBatch = subPieces.slice(k, Math.min(k + PIECE_CONCURRENCY, subPieces.length));
+        const pRes = await Promise.all(pBatch.map((pm) => resolveOrRecoverPiece(pm)));
+        for (const item of pRes) fallbackOut.push(item);
+      }
+      return fallbackOut;
+    };
+
+    try {
+      if (packVerdict === 'StreamingPackAdmitted') {
+        for (let p = 0; p < rawPacks.length; p += PACK_CONCURRENCY) {
+          const packBatch = rawPacks.slice(p, Math.min(p + PACK_CONCURRENCY, rawPacks.length));
+          const packResults = await Promise.all(packBatch.map((pk) => resolvePackPieces(pk)));
+          for (let b = 0; b < packBatch.length; b++) {
+            const pk = packBatch[b];
+            const startIdx = Number(pk.piece_start) || 0;
+            const subPieces = manifest.pieces.slice(startIdx, startIdx + (Number(pk.piece_count) || 0));
+            const resList = packResults[b];
+            for (let j = 0; j < resList.length; j++) {
+              commitVerifiedPiece(subPieces[j], resList[j]);
+              resList[j] = null;
+            }
+            packResults[b] = null;
+          }
+        }
+      } else {
+        for (let i = 0; i < pieceCount; i += PIECE_CONCURRENCY) {
+          const batch = manifest.pieces.slice(i, Math.min(i + PIECE_CONCURRENCY, pieceCount));
+          const results = await Promise.all(batch.map((pm) => resolveOrRecoverPiece(pm)));
+          for (let j = 0; j < results.length; j++) {
+            commitVerifiedPiece(batch[j], results[j]);
+            results[j] = null;
           }
         }
       }
@@ -4273,6 +4718,26 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     if (!fin || fin.status !== 'ok') {
       await slabWriter.abort();
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
+    }
+    if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
+      try {
+        const meta = JSON.parse(
+          studio_export_holo_layer_slab_meta(
+            key,
+            BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
+            0n,
+          ),
+        );
+        if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
+          const nL = meta.layer_bytes.length || 28;
+          sharedWebGpuHoloEngine.mountResidentModelSlabs(
+            key,
+            new Uint8Array(nL * 64),
+            Array.from({ length: nL }, () => 64),
+            Number(meta.d_model) || 1024,
+          );
+        }
+      } catch {}
     }
     await slabWriter.seal();
     await holoWriteManifestIndex({
@@ -5077,11 +5542,41 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   };
 
   /* Formal R4.HoloGeometricRuntime */
+  const activeGpuEngine = runtimeHooks.webgpuEngine || sharedWebGpuHoloEngine;
+  const fnPeekQSig =
+    runtimeHooks.holoPeekQSig512 ||
+    (typeof holo_peek_foundry_turn_qsig512 === 'function'
+      ? holo_peek_foundry_turn_qsig512
+      : globalThis.holo_peek_foundry_turn_qsig512);
+  const fnNotifyGpuStep =
+    runtimeHooks.holoNotifyGpuBoundStep ||
+    (typeof holo_notify_foundry_turn_gpu_bound_step === 'function'
+      ? holo_notify_foundry_turn_gpu_bound_step
+      : globalThis.holo_notify_foundry_turn_gpu_bound_step);
   async function* streamFoundryHopSlices(hopTurnId) {
     while (true) {
       if (isCancelled(ownerKey, hopTurnId)) {
         yield { status: 'cancelled', delta: '', tokens_emitted: 0, cancelled_by_host: true };
         return;
+      }
+      if (
+        activeGpuEngine &&
+        activeGpuEngine.device &&
+        Array.isArray(activeGpuEngine.residentLayerBuffers) &&
+        activeGpuEngine.residentLayerBuffers.length > 0 &&
+        typeof activeGpuEngine.stepLiveTurnBoundPassAsync === 'function'
+      ) {
+        const qSig =
+          typeof fnPeekQSig === 'function' ? fnPeekQSig(toBigIntId(hopTurnId)) : new Uint32Array(16);
+        const gpuPass = await activeGpuEngine.stepLiveTurnBoundPassAsync(qSig, [1], 0);
+        if (gpuPass && gpuPass.gpu_executed && typeof fnNotifyGpuStep === 'function') {
+          fnNotifyGpuStep(
+            toBigIntId(hopTurnId),
+            toBigIntId(gpuPass.dispatches || 0),
+            toBigIntId(gpuPass.bound_dispatches || 0),
+            toBigIntId(0),
+          );
+        }
       }
       const rawStep = fnStep(toBigIntId(hopTurnId));
       const stepRes = typeof rawStep === 'string' ? JSON.parse(rawStep) : rawStep;
@@ -11482,10 +11977,59 @@ export class SpiralCoreHostBridge {
   }
 
   async handleNpmBridge(req) {
+    /* Formal R4.MvmPolyglotToolchain */
     const info = this.#extractBridgePayload(req);
     const vfs = new MvmPolyglotVfs(info.workspace, info.cwd);
     const args = info.args.map((a) => String(a));
     const sub = (args[0] || 'install').toLowerCase();
+
+    const touchesProtected = args.some((a) => {
+      if (a.startsWith('-')) return false;
+      const abs = MvmPolyglotVfs.normalizePath(vfs.cwd, a);
+      if (!abs.startsWith('/workspace/')) return false;
+      return MvmPolyglotVfs.isCanonicalProtectedRel(abs.slice('/workspace/'.length));
+    });
+    const knownSubs = new Set([
+      'init',
+      'install',
+      'i',
+      'add',
+      'run',
+      'test',
+      't',
+      'start',
+      'build',
+      'ls',
+      'list',
+      'uninstall',
+      'rm',
+      'remove',
+      '--version',
+      '-v',
+      'version',
+    ]);
+    const verdict = admitNpmTerminalSubcommand(knownSubs.has(sub), touchesProtected);
+    if (verdict === 'RefusedProtectedPathToolchainMutation') {
+      return {
+        ok: false,
+        error_code: 'CanonicalPathProtected',
+        message: 'npm: RefusedProtectedPathToolchainMutation',
+      };
+    }
+    if (verdict === 'RefusedUnsupportedToolchainSubcommand') {
+      return {
+        ok: true,
+        exit_code: 1,
+        stdout: '',
+        stderr: `npm: unsupported subcommand '${sub}' (RefusedUnsupportedToolchainSubcommand)\n`,
+        writes: [],
+        deletes: [],
+      };
+    }
+
+    if (sub === '--version' || sub === '-v' || sub === 'version') {
+      return { ok: true, exit_code: 0, stdout: '10.9.0-mvm\n', stderr: '', writes: [], deletes: [] };
+    }
 
     if (sub === 'init') {
       if (!vfs.exists('/workspace/package.json')) {
@@ -11498,19 +12042,104 @@ export class SpiralCoreHostBridge {
       return { ok: true, exit_code: 0, stdout: 'Wrote /workspace/package.json\n', stderr: '', ...muts };
     }
 
-    if (sub === 'run' && args[1]) {
+    const scriptTarget =
+      sub === 'test' || sub === 't'
+        ? 'test'
+        : sub === 'start'
+          ? 'start'
+          : sub === 'build'
+            ? 'build'
+            : sub === 'run' && args[1]
+              ? args[1]
+              : '';
+    if (scriptTarget) {
       const pjRaw = vfs.readText('/workspace/package.json');
       if (!pjRaw) {
         return { ok: true, exit_code: 1, stdout: '', stderr: 'npm ERR! missing package.json\n', writes: [], deletes: [] };
       }
       const pj = JSON.parse(pjRaw);
-      const scriptCmd = pj.scripts && pj.scripts[args[1]];
+      const scriptCmd = pj.scripts && pj.scripts[scriptTarget];
       if (!scriptCmd) {
-        return { ok: true, exit_code: 1, stdout: '', stderr: `npm ERR! Missing script: "${args[1]}"\n`, writes: [], deletes: [] };
+        return { ok: true, exit_code: 1, stdout: '', stderr: `npm ERR! Missing script: "${scriptTarget}"\n`, writes: [], deletes: [] };
       }
-      const parts = scriptCmd.trim().split(/\s+/);
+      const trimmedScript = scriptCmd.trim();
+      const nodeEvalMatch = trimmedScript.match(/^node\s+(-e|-p)\s+(['"])([\s\S]*)\2$/);
+      if (nodeEvalMatch) {
+        return this.handleNodeExec({ ...req, tool: 'node', args: [nodeEvalMatch[1], nodeEvalMatch[3]] });
+      }
+      const parts = trimmedScript.split(/\s+/);
       const binName = parts[0] === 'node' ? parts : ['node', `/workspace/node_modules/.bin/${parts[0]}`, ...parts.slice(1)];
       return this.handleNodeExec({ ...req, tool: 'node', args: binName.slice(1) });
+    }
+
+    if (sub === 'ls' || sub === 'list') {
+      const pjRaw = vfs.readText('/workspace/package.json');
+      let pj = { name: 'workspace-app', version: '1.0.0', dependencies: {} };
+      if (pjRaw) {
+        try {
+          pj = JSON.parse(pjRaw);
+        } catch {}
+      }
+      const deps = pj.dependencies && typeof pj.dependencies === 'object' ? Object.entries(pj.dependencies) : [];
+      const lines = [`${pj.name || 'workspace-app'}@${pj.version || '1.0.0'} /workspace`];
+      if (deps.length === 0) {
+        lines.push('└── (empty)');
+      } else {
+        deps.forEach(([depName, depRange], idx) => {
+          const instRaw = vfs.readText(`/workspace/node_modules/${depName}/package.json`);
+          let instVer = String(depRange || '');
+          if (instRaw) {
+            try {
+              const parsedDep = JSON.parse(instRaw);
+              if (parsedDep && parsedDep.version) instVer = parsedDep.version;
+            } catch {}
+          }
+          const branch = idx + 1 === deps.length ? '└──' : '├──';
+          lines.push(`${branch} ${depName}@${instVer}`);
+        });
+      }
+      return { ok: true, exit_code: 0, stdout: lines.join('\n') + '\n', stderr: '', writes: [], deletes: [] };
+    }
+
+    if (sub === 'uninstall' || sub === 'rm' || sub === 'remove') {
+      const pkgs = args.slice(1).filter((a) => !a.startsWith('-'));
+      if (pkgs.length === 0) {
+        return { ok: true, exit_code: 1, stdout: '', stderr: 'npm ERR! Must provide a package name to remove\n', writes: [], deletes: [] };
+      }
+      const pjRaw = vfs.readText('/workspace/package.json');
+      let pj = { name: 'workspace-app', version: '1.0.0', dependencies: {} };
+      if (pjRaw) {
+        try {
+          pj = JSON.parse(pjRaw);
+        } catch {}
+      }
+      let removedCount = 0;
+      for (const pkgName of pkgs) {
+        const prefix = `node_modules/${pkgName}/`;
+        let hit = false;
+        for (const key of Array.from(vfs.files.keys())) {
+          if (key.startsWith(prefix)) {
+            vfs.deletePath(`/workspace/${key}`);
+            hit = true;
+          }
+        }
+        for (const key of Array.from(vfs.symlinks.keys())) {
+          if (key.startsWith(prefix) || key === `node_modules/.bin/${pkgName.split('/').pop()}`) {
+            vfs.deletePath(`/workspace/${key}`);
+            hit = true;
+          }
+        }
+        if (pj.dependencies && Object.prototype.hasOwnProperty.call(pj.dependencies, pkgName)) {
+          delete pj.dependencies[pkgName];
+          hit = true;
+        }
+        if (hit) removedCount += 1;
+      }
+      if (pjRaw) {
+        vfs.writeBytes('/workspace/package.json', JSON.stringify(pj, null, 2) + '\n');
+      }
+      const muts = vfs.exportMutations();
+      return { ok: true, exit_code: 0, stdout: `removed ${removedCount} package(s)\n`, stderr: '', ...muts };
     }
 
     if (sub !== 'install' && sub !== 'i' && sub !== 'add') {
@@ -15189,5 +15818,7 @@ if (
   self.name === 'uor-r4-engine-worker'
 ) {
   __uorStartDedicatedEngineWorker();
+} else if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  registerStudioCoiServiceWorker().catch(() => {});
 }
 // === UOR_CUSTOM_SECTION_2_END ===

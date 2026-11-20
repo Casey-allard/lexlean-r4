@@ -3,8 +3,8 @@
   "model_id": "8a0e88c03975a5c7f8f6dd468080f5ec89a19c59502283a0058b88d8b9f4be67",
   "view_manifest_sha256": "6b245cf2a02b6be350dc10915ffce6ff039a896d88f62f85b62b694a50d24f0c",
   "view_model_id": "c1387d7bbf11b6973e4a905a4ecb819f61b0c0cf94e9f90647c40d65b058a9df",
-  "generated_core_sha256": "02afed6732f6ec58d3532a0f6341c6aa8b7fe2fc6c449391ddb2a66f54d73525",
-  "adapter_wasm_sha256": "d915ce8df957e4b6fb71b23c9aafbc6dd7e6e7033691c1f855b04d92fff548f9",
-  "binding_javascript_sha256": "1795af22d885aa6a0cc4190924f8b8f936e286bca3acd835f404730ca19a6956",
+  "generated_core_sha256": "9d79623907301a17413726e7f95cb94918f916e60d9cb17ec87edb6899642c0d",
+  "adapter_wasm_sha256": "69b5bc0b4ce7f6e3c2a8af2a839dde9d6e8f399597e3b0d28f7eecaae3eafe68",
+  "binding_javascript_sha256": "90e621d303c87357615cd00dc7f1db32be0e5c514478935210396fa94d3952a2",
   "adapter_lock_sha256": "016e32a44c2841c12edd38a4e491740da4e97bec05a728e31a79bcbc51a9bfc8"
 }

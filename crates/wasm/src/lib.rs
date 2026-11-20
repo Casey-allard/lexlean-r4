@@ -10280,6 +10280,58 @@ pub fn studio_verify_resident_webgpu_step(
     .to_string()
 }
 
+/// Formal R4.LiveWebGpuTurnBridge export vocabulary 512-bit RHT signatures as `u32` words (`R4-65`).
+#[wasm_bindgen]
+pub fn studio_export_holo_vocab_sigs_u32(model_id: &str) -> Vec<u32> {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let target = if model_id.trim().is_empty() {
+        "uor-r4.qwen3-0.6b-holo"
+    } else {
+        model_id.trim()
+    };
+    engine
+        .holo_models
+        .get(target)
+        .map(crate::holo_geometric_runtime::HoloV13Model::export_vocab_sigs512_u32)
+        .unwrap_or_default()
+}
+
+/// Formal R4.LiveWebGpuTurnBridge peek active turn's 512-bit query signature (`R4-65`).
+#[wasm_bindgen]
+pub fn holo_peek_foundry_turn_qsig512(turn_id: u64) -> Vec<u32> {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_peek_foundry_turn_qsig512(turn_id)
+}
+
+/// Formal R4.LiveWebGpuTurnBridge verify and commit a bound WebGPU compute pass for an active turn (`R4-65`).
+#[wasm_bindgen]
+pub fn holo_notify_foundry_turn_gpu_bound_step(
+    turn_id: u64,
+    total_dispatches: u64,
+    bound_dispatches: u64,
+    max_abs_lsb_diff: u64,
+) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.holo_notify_foundry_turn_gpu_bound_step(
+        turn_id,
+        total_dispatches,
+        bound_dispatches,
+        max_abs_lsb_diff,
+    )
+}
+
 pub(crate) fn format_mvm_agent_prompt(raw: &str) -> String {
     let trimmed = raw.trim();
     if trimmed.contains("<tool_response>") {

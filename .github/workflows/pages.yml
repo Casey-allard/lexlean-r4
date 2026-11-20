@@ -112,6 +112,7 @@ jobs:
 
           touch public/.nojekyll
           if [ -f site/app.json ]; then cp site/app.json public/app.json; fi
+          if [ -f site/coi-serviceworker.js ]; then cp site/coi-serviceworker.js public/coi-serviceworker.js; fi
           if [ -f site/icons/icon-192.png ]; then
             mkdir -p public/icons
             cp site/icons/icon-192.png public/icons/icon-192.png
@@ -124,7 +125,7 @@ jobs:
             "$image" ./target/debug/xtask build-holo --out public/app.holo --emit-fingerprint-dir public/holo --verify-site-manifest
           if [ -d gpu/weights ]; then
             cp -R gpu/weights public/weights
-            find public/weights -type f \( -name "*.bin" -o -name "*.part*" \) -delete
+            find public/weights -type f \( -name "*.bin" -o -name "*.pack" -o -name "*.part*" \) -delete
           fi
 
       - name: Configure Pages

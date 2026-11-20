@@ -2,11 +2,11 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2845,
-    "lifted": 2068,
-    "effect": 278,
-    "foreign": 157,
-    "residue": 342
+    "total_functions": 2874,
+    "lifted": 2095,
+    "effect": 282,
+    "foreign": 156,
+    "residue": 341
   },
   "rows": [
     {
@@ -140,6 +140,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "04061b9488947af133859012aa6a9a834e973d8d7ec6fa36ecd84da71b7b7471",
+      "function": "crates/wasm/js/worker_host_bridge.js::__uorStripHtmlToReadableText",
+      "status": "effect",
+      "effect": "stdio-console-effect",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "2a5158b845ac2de45254131241c880c4bd86d166bdd9656f546adc061c9bdee4",
       "function": "crates/wasm/js/worker_host_bridge.js::__uorSynthesizeBrainPulsesFromReply",
       "status": "residue",
@@ -153,14 +160,6 @@
       "status": "lifted",
       "definition": "R4.PrismHoloIdentity",
       "exact_divergence_free": true
-    },
-    {
-      "kappa": "29cf343bd7c22c9f6323c9869b39d027e1d4c0d54ec91eb8dc98ae2d1bbd7cab",
-      "function": "crates/wasm/js/worker_host_bridge.js::__uorVerifyRiscv64ElfHeader",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/js/worker_host_bridge.js::__uorVerifyRiscv64ElfHeader` pending formal .lex.tex lift",
-      "exact_divergence_free": false
     },
     {
       "kappa": "59239cf85388e7ae1e2ef323e78d082dfbb42fccb6a873e8d242688a0d92052b",
@@ -213,10 +212,66 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "9a18d9aba19b02640f2cfbcbf16009fcf6732908107b8fbd601541f120a2aaaf",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitAdaptiveSpeculativeBudget",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "bcad5a8c63cedebbf43ee41e1b7d68d8181b267dd46abda964d05e9408e40dcc",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitC99StdlibBrkAlign",
+      "status": "lifted",
+      "definition": "R4.MvmPolyglotToolchain",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "84e1c013996364d665a157e90ed833f6a9895ae2d7df9c368295a6750a76ff90",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitCargoTerminalSubcommand",
+      "status": "lifted",
+      "definition": "R4.MvmPolyglotToolchain",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "467b86632fa1b12d20bd599690d59014bf1e402eefdf07dbfe1b88d9ff75d8b7",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitCoiCredentiallessMode",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "332da23c8a7912b0438abd5f4a3460b14a3294ee0e6a767a152a2755b48dcea3",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitLiveGpuBoundStep",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "c9c3b96372167d9c69a9f23aecfea5a738ca3a3b40bca33686899c0a5a6ac129",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitNpmTerminalSubcommand",
+      "status": "lifted",
+      "definition": "R4.MvmPolyglotToolchain",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e4a40fc5f916cbc47edae7d86c9e8be33ea2e0daecdf68e20e7dd3fbff8e0a53",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitPackHydrationPolicy",
+      "status": "lifted",
+      "definition": "R4.FastPackHydration",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "5c4bb4dd87c0c7dc9ac4cea5d7bf8a1ed1ef3be828f20498de9f6d6760e43d7f",
       "function": "crates/wasm/js/worker_host_bridge.js::admitResidentLayerPartition",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "0027361dac35798ca5ec00d0beff5f247b45195ff925e005d1686077561ee382",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitSingleTruthBadge",
+      "status": "lifted",
+      "definition": "R4.FastPackHydration",
       "exact_divergence_free": true
     },
     {
@@ -231,13 +286,6 @@
       "function": "crates/wasm/js/worker_host_bridge.js::admitStudioLoraPromptShrink",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
-      "exact_divergence_free": true
-    },
-    {
-      "kappa": "10a29d0826cd8834541e10ae30162014d02e15cc19eb6f2467297e5f34375383",
-      "function": "crates/wasm/js/worker_host_bridge.js::admit_public_cors_preemption",
-      "status": "lifted",
-      "definition": "R4.MvmLinuxContainer",
       "exact_divergence_free": true
     },
     {
@@ -414,7 +462,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "5dee3757e5542a0d806a9930971e96dd3a81fdf87a060975fb6eff597a1e0ed7",
+      "kappa": "357ff86cd6cccbe4889f02c2499707cc7c119d289093472d62d5ed3fca88c3d2",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -498,7 +546,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "1d9ea93642cad21dead0202d62eb094f7e9c499f9898372398de95fada16a5c3",
+      "kappa": "a9c1a8ef6b1de46bcced9497a1f83317ed702d9fea4d4084204f120b0a28a6a0",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -538,6 +586,13 @@
       "function": "crates/wasm/js/worker_host_bridge.js::record_uorc_generation_fault",
       "status": "foreign",
       "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "57f44c4a3f950c390b559266e7eafc11b72404267913828286fdbaf6f59945df",
+      "function": "crates/wasm/js/worker_host_bridge.js::registerStudioCoiServiceWorker",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -945,7 +1000,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2990037212de595d69ddb4bb84c26c051ec477793dfa2e226f5401794326d8bf",
+      "kappa": "5c273afaf3470094b5ba4e93f4837a611a90ddfa6bfaa404ad8b025e5c2a7d0c",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_begin_foundry_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -966,7 +1021,21 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "5c498e9f1b9cc4f2aea29ee9ceb14c5ad1e2d6eb00ce94829b18e22121fce640",
+      "kappa": "405d684f0bec9f15278bf1b3b92925d144e83ec1a8ef08fdc4fbe924c0a1b106",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_notify_foundry_turn_gpu_bound_step",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "1b82204411e8a6438c3d856c06f71fb6b2ad4b20175d5f7dc38aa403c331671f",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_peek_foundry_turn_qsig512",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e35a08a3199feadd520575739ff33a17a38f3ff4eecc86965fabaa87a5e5f360",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_step_foundry_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -2543,7 +2612,14 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "d1beacb6060405f576397a55a4c28fc722ad5630b203e7a807e782f90745de43",
+      "kappa": "7ee112106aeafa948ec41e93fa45bec6ef096d67ab9df537d08c7a2ecd11fa52",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloTok13SpeculativeDrafter::propose_adaptive_draft_tokens",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b50f40004cf6a1cfa040b544c42de5e6a2bdb2eef17e29b1f11dd9f66bb96264",
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloTok13SpeculativeDrafter::propose_draft_tokens",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
@@ -2561,6 +2637,13 @@
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::export_resident_layer_slabs_meta",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "90efac66b6133aa3118c5f7371d07721f5728e8c88ec0093b38e3566deb49489",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::export_vocab_sigs512_u32",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
       "exact_divergence_free": true
     },
     {
@@ -2589,6 +2672,13 @@
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::generate_chat_turn_with_history",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "11928cbf514af958a37f5a94856c579239a0dd5ff5163ada039142ec7a249197",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::last_q_sig512_u32",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
       "exact_divergence_free": true
     },
     {
@@ -3614,6 +3704,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "7542d1f26b568543aa4adb13845ad7d3d3c6e88e360ab70c0d86e23493970899",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_adaptive_speculative_budget",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_adaptive_speculative_budget",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "56537ff9f1e07867e3d533a17db68669be69cdaf0a49a031fed54acfacee12e8",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_agentic_git_loop",
       "status": "lifted",
@@ -3642,6 +3739,20 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "31b9edc660ed81b28ec01c9bc2cb5c0af2a5606930c0cf0d9ad397592f4b5cff",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_c99_stdlib_brk_align",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_c99_stdlib_brk_align",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e74244442c3fedb0565230d2c303e66df4fdeb85a56f3dea1d96e18af2ee7bcc",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_cargo_terminal_subcommand",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_cargo_terminal_subcommand",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "38fd76670d2a64694f401331ccfb3e15205c03678dbdd3c059597b89fabee387",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_catalog_hydration",
       "status": "lifted",
@@ -3653,6 +3764,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_causal_kv_step",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_causal_kv_step",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "c07b64b64ab58d0eabb6bdc9e269532765501f66806b93049f3be00b80aca4cd",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_coi_credentialless_mode",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_coi_credentialless_mode",
       "exact_divergence_free": true
     },
     {
@@ -3761,6 +3879,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "18fec8e818828770dba24702408f789a5e72e0c2776b709eb918b9833e54cfd6",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_live_gpu_bound_step",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_live_gpu_bound_step",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "548b6f5cd6834cb6d5b30b6e22b98833450302629d560710fb86a9747aee0ec9",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_live_state_header",
       "status": "lifted",
@@ -3824,6 +3949,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "80fa81a7053e4de161bb32006aa30c548b5c5da232b54024f2087ee570db1e9a",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_npm_terminal_subcommand",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_npm_terminal_subcommand",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "6d9f41bbd03bafaa7a21d2ef0b8a75b96ff3d49da785d286f090288a08aea72e",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_off_origin_hydration",
       "status": "lifted",
@@ -3835,6 +3967,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_ontological_telos",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_ontological_telos",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "772ea0da91ba42657a1374df4f7c75d8642cf08bdcaaad1b216c531b5875683f",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_pack_hydration_policy",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_pack_hydration_policy",
       "exact_divergence_free": true
     },
     {
@@ -3947,6 +4086,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_shrink_only_ratchet",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_shrink_only_ratchet",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "3d5b13328a7775532638a7bc8d16e91c587c3ae146f274e8ddc7902de2c46111",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_single_truth_badge",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_single_truth_badge",
       "exact_divergence_free": true
     },
     {
@@ -5053,6 +5199,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::count_target_at_distance",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::count_target_at_distance",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "5336d4b76041e2d465cc2f96f43687a6990caa357522d1bd28aafbf740001f4f",
+      "function": "crates/wasm/src/lexlean_generated.rs::cpu_miss_throttle_ema_permille",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::cpu_miss_throttle_ema_permille",
       "exact_divergence_free": true
     },
     {
@@ -7489,6 +7642,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::max_compact_studio_prompt_tokens",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::max_compact_studio_prompt_tokens",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "25b7f81f89f77bf6d0e6337036dbda355fd1fec8d701490d7deaa5fc1ceaf50f",
+      "function": "crates/wasm/src/lexlean_generated.rs::max_git_safe_pack_bytes",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::max_git_safe_pack_bytes",
       "exact_divergence_free": true
     },
     {
@@ -12707,6 +12867,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "f30a4c95dab23a97bb17cb379602115d03c9402b6ffc5910dcbe1522b681b2f6",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_fast_pack_hydration_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_fast_pack_hydration_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "8af892109310006a4471a24a21d4bef194265fc7cb9087768f9aab4ff641f33b",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_holo_archive_admitted",
       "status": "lifted",
@@ -12714,10 +12881,24 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "28f299f56084d0a8c6dbf17aaf91331f42cc93425f2caadc305b4d32627255da",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_live_webgpu_turn_bridge_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_live_webgpu_turn_bridge_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "e9a95a7e140124a811eeac43023ae5557b9d92935de5edeeb46b489c05465ce7",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_mvm_linux_container_admitted",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::verify_mvm_linux_container_admitted",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "34a57d1ffd1de0c7a410f4251db76628dd6d85c9fab6e400bd7682c1d4497ae6",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_mvm_polyglot_toolchain_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_mvm_polyglot_toolchain_admitted",
       "exact_divergence_free": true
     },
     {
@@ -13894,7 +14075,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "b6fc573c96a44ec9809b29e737af7b31c52e3b796a022a3a5e489a10cce18cf1",
+      "kappa": "fbed8781cb1789a8eefb2e8dee7a46883bcaceb5a728917b866164ff9346f9ef",
       "function": "crates/wasm/src/lib.rs::studio_dispatch",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -14920,6 +15101,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "7535ac2c5f810e013786593a7b666bfbb69ae74319259bbf746f32d7aab558ce",
+      "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_cargo_or_rustc_command",
+      "status": "lifted",
+      "definition": "R4.MvmPolyglotToolchain",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "b1d658bd1b920bde724aac088a9dcccce0a68db9bedabe2de9a70f2d10bf2342",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_command",
       "status": "foreign",
@@ -14990,7 +15178,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "104dfd2ac0ebd2f763f12f081bbbe24b95ed6448cc7b9f0713dc5d562008d056",
+      "kappa": "aec540842998f21097dfcb7eb86176a5ad2b5fe516f5c7e77cb3b60568ac5936",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::exec_single_command_words",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -15457,7 +15645,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0b31d5a6873fafedf932de6cb0981532d7256be89264b2452e075e406817506a",
+      "kappa": "8798d9ef94f27451cf3ae9d1a6033af03af36176365384931bab8afe35eafcaa",
       "function": "crates/wasm/src/mvm.rs::MvmSandbox::seed_r4_63_headers_and_self_host",
       "status": "lifted",
       "definition": "R4.MvmLinuxContainer",
@@ -15791,7 +15979,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "31c87b70c4c2b0497c9dcf690a4eb1adc56841079fc57387e9ff6e9b945f41c4",
+      "kappa": "cdeec9ba08b845e9d888f93402c4b96c1ab67fa3077c42e5999cf25450cb9b20",
       "function": "crates/wasm/src/mvm_cc.rs::Codegen::compile_expr",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -15884,7 +16072,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "ce549bc4a391c28575239cbe639b2e705549a3554d18a19801f9a8f65f9f8bf6",
+      "kappa": "31ccb871945a0ebdef9759707c808997f43bb405abdf8d94c97b95732de0d1ce",
       "function": "crates/wasm/src/mvm_cc.rs::Codegen::emit_runtime_helpers",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -17721,6 +17909,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "8949e29a785639a34ee5fbc5ecde7ec0361b6ae16658e39079c68527bad5746c",
+      "function": "public/app.js::admitSingleTruthBadgeUi",
+      "status": "lifted",
+      "definition": "R4.FastPackHydration",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "1144b7cdba88693589fcf29d80f5dab75a128f401df710fd5c65120500109c44",
       "function": "public/app.js::appendChatTurn",
       "status": "effect",
@@ -18632,6 +18827,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "c1bdec08ddb296aed7116d02be46639de1774f80866eb9db2b49c43fe81d27fa",
+      "function": "public/app.js::selectStudioControl",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "634b685aa9ed16bb027bfefd037b6113123745dd5751c24805f16614a719e8ce",
       "function": "public/app.js::selectWorkspaceFile",
       "status": "effect",
@@ -18700,7 +18902,7 @@
       "kappa": "64b7aa03e40556b63151cfaf8b147bedd55cbd156eb888cf88cd0b0be848c098",
       "function": "public/app.js::syncComposerModel",
       "status": "effect",
-      "effect": "browser-opfs-worker-gpu-effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -18799,10 +19001,10 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "b85bd7b24d56567fa88fa101021b98e442e8848f2c156cee52e4b9071fd54fe6",
+      "kappa": "d4dc8285e0c09590e424d698c658d76a3929608da9d40af9c19f2fde6c97d444",
       "function": "public/app.js::updateWeightCacheBadge",
-      "status": "foreign",
-      "foreign_crate": "serde_json",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -19362,7 +19564,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "14c97612624c374a2ae427ebc293b2390a3c9b37f8204df6294ae6f3969b989c",
+      "kappa": "2a2be1ec81bf164b015238a04cc8f53814481dd17f3ff81103cb588b9138f593",
       "function": "xtask/src/engine.rs::run_api_serve_cmd",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -19509,7 +19711,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "4aaeb79e02ee80333d8f61b7aacb5a7420488e0592978655c2be0a5660e1d0e4",
+      "kappa": "59cc47fbfdc29be3932e4c8a0d96e3376e958bbde6f6757b37611ee750161287",
       "function": "xtask/src/engine.rs::serve_listener_until_stopped",
       "status": "effect",
       "effect": "stdio-console-effect",

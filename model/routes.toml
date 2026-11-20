@@ -113,6 +113,27 @@ prism_record = "Foundation.Qual::WebGpuResidentSpeculativeLora"
 facet = "qual"
 note = "True resident <=128 MiB per-layer WebGPU integer serving, 0-LSB HoloTok13 speculative decoding, and fine-tuned UORR4V13 Studio LoRA <=40-token lockstep."
 
+[[route]]
+id = "R4-UR16"
+rust_fact = "live-webgpu-coi-adaptive-drafter"
+prism_record = "Foundation.Qual::LiveWebGpuTurnBridge"
+facet = "qual"
+note = "Bound GPUBindGroup live WebGPU turn shortlist stepping, COEP credentialless Service Worker multi-worker unlock, and 2-tier adaptive speculative draft throttling."
+
+[[route]]
+id = "R4-UR17"
+rust_fact = "fast-pack-single-truth-hydration"
+prism_record = "Foundation.Qual::FastPackHydration"
+facet = "qual"
+note = "<= 48 MiB streaming pack hydration, immediate HTTP 404/403 mirror pruning, queue-not-downgrade Turn 1 hydration, and single-truth model/hydration badge."
+
+[[route]]
+id = "R4-UR18"
+rust_fact = "mvm-polyglot-cargo-npm-c99"
+prism_record = "Foundation.Feature::MvmPolyglotToolchain"
+facet = "features"
+note = "In-MVM cargo/rustc AST execution, npm test/start/build/ls/uninstall subcommands, and C99 <stdlib.h>/<stdbool.h> RV64 ELF64 toolchain."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -187,6 +208,21 @@ response = "route R4-UR14\nfact mvm-linux-spiralcore-container\nrecord Foundatio
 case = "route R4-UR15"
 request_hex = "7765626770752d7265736964656e742d73706563756c61746976652d6c6f7261"
 response = "route R4-UR15\nfact webgpu-resident-speculative-lora\nrecord Foundation.Qual::WebGpuResidentSpeculativeLora\nfacet qual"
+
+[[vector]]
+case = "route R4-UR16"
+request_hex = "6c6976652d7765626770752d636f692d61646170746976652d64726166746572"
+response = "route R4-UR16\nfact live-webgpu-coi-adaptive-drafter\nrecord Foundation.Qual::LiveWebGpuTurnBridge\nfacet qual"
+
+[[vector]]
+case = "route R4-UR17"
+request_hex = "666173742d7061636b2d73696e676c652d74727574682d687964726174696f6e"
+response = "route R4-UR17\nfact fast-pack-single-truth-hydration\nrecord Foundation.Qual::FastPackHydration\nfacet qual"
+
+[[vector]]
+case = "route R4-UR18"
+request_hex = "6d766d2d706f6c79676c6f742d636172676f2d6e706d2d633939"
+response = "route R4-UR18\nfact mvm-polyglot-cargo-npm-c99\nrecord Foundation.Feature::MvmPolyglotToolchain\nfacet features"
 
 [[vector]]
 case = "error empty"

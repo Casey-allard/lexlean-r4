@@ -48650,3 +48650,260 @@ pub mod r4_webgpu_resident_runtime {
                 == StudioLoraDeployVerdict::RefusedPromptExceedsCompactBudget
     }
 }
+
+/// Generated from `R4.LiveWebGpuTurnBridge` (`src/R4/LiveWebGpuTurnBridge.lex.tex`, `R4-65`).
+pub mod r4_live_webgpu_turn_bridge {
+    /// Inductive `R4.LiveWebGpuTurnBridge.LiveGpuStepVerdict` (`R4-65`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum LiveGpuStepVerdict {
+        LiveGpuBoundStepAdmitted,
+        FallbackWasmSimdAdmitted,
+        RefusedFloatOpInGpuBridge,
+        RefusedUnboundComputePass,
+        RefusedGpuCpuLogitDrift,
+    }
+
+    /// Inductive `R4.LiveWebGpuTurnBridge.CoiIsolationVerdict` (`R4-65`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum CoiIsolationVerdict {
+        CrossOriginCredentiallessAdmitted,
+        SingleWorkerFallbackAdmitted,
+        RefusedRequireCorpBreaksMirrors,
+    }
+
+    /// Inductive `R4.LiveWebGpuTurnBridge.AdaptiveDrafterVerdict` (`R4-65`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum AdaptiveDrafterVerdict {
+        AdaptiveTileAdmitted,
+        ThrottledCpuDraftsAdmitted,
+        RefusedUnthrottledCpuMissStorm,
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.cpuMissThrottleEmaPermille` (`R4-65`).
+    pub fn cpu_miss_throttle_ema_permille() -> u64 {
+        250
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.admitLiveGpuBoundStep` (`R4-65`).
+    pub fn admit_live_gpu_bound_step(
+        float_ops: u64,
+        gpu_available: bool,
+        total_dispatches: u64,
+        bound_dispatches: u64,
+        max_abs_lsb_diff: u64,
+    ) -> LiveGpuStepVerdict {
+        if float_ops != 0 {
+            LiveGpuStepVerdict::RefusedFloatOpInGpuBridge
+        } else if !gpu_available {
+            LiveGpuStepVerdict::FallbackWasmSimdAdmitted
+        } else if total_dispatches == 0 || total_dispatches != bound_dispatches {
+            LiveGpuStepVerdict::RefusedUnboundComputePass
+        } else if max_abs_lsb_diff != 0 {
+            LiveGpuStepVerdict::RefusedGpuCpuLogitDrift
+        } else {
+            LiveGpuStepVerdict::LiveGpuBoundStepAdmitted
+        }
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.admitCoiCredentiallessMode` (`R4-65`).
+    pub fn admit_coi_credentialless_mode(
+        sw_active: bool,
+        uses_require_corp: bool,
+        reload_count: u64,
+    ) -> CoiIsolationVerdict {
+        if uses_require_corp {
+            CoiIsolationVerdict::RefusedRequireCorpBreaksMirrors
+        } else if !sw_active || 1 < reload_count {
+            CoiIsolationVerdict::SingleWorkerFallbackAdmitted
+        } else {
+            CoiIsolationVerdict::CrossOriginCredentiallessAdmitted
+        }
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.admitAdaptiveSpeculativeBudget` (`R4-65`).
+    pub fn admit_adaptive_speculative_budget(
+        gpu_active: bool,
+        accept_ema_permille: u64,
+        proposed_drafts: u64,
+        max_tile_drafts: u64,
+    ) -> AdaptiveDrafterVerdict {
+        if max_tile_drafts < proposed_drafts {
+            AdaptiveDrafterVerdict::RefusedUnthrottledCpuMissStorm
+        } else if !gpu_active && accept_ema_permille < cpu_miss_throttle_ema_permille() {
+            if 1 < proposed_drafts {
+                AdaptiveDrafterVerdict::RefusedUnthrottledCpuMissStorm
+            } else {
+                AdaptiveDrafterVerdict::ThrottledCpuDraftsAdmitted
+            }
+        } else {
+            AdaptiveDrafterVerdict::AdaptiveTileAdmitted
+        }
+    }
+
+    /// Function `R4.LiveWebGpuTurnBridge.verifyLiveWebGpuTurnBridgeAdmitted` (`R4-65`).
+    pub fn verify_live_webgpu_turn_bridge_admitted() -> bool {
+        admit_live_gpu_bound_step(0, true, 197, 197, 0)
+            == LiveGpuStepVerdict::LiveGpuBoundStepAdmitted
+            && admit_live_gpu_bound_step(0, false, 0, 0, 0)
+                == LiveGpuStepVerdict::FallbackWasmSimdAdmitted
+            && admit_live_gpu_bound_step(0, true, 197, 0, 0)
+                == LiveGpuStepVerdict::RefusedUnboundComputePass
+            && admit_coi_credentialless_mode(true, false, 1)
+                == CoiIsolationVerdict::CrossOriginCredentiallessAdmitted
+            && admit_coi_credentialless_mode(true, true, 1)
+                == CoiIsolationVerdict::RefusedRequireCorpBreaksMirrors
+            && admit_adaptive_speculative_budget(true, 100, 4, 4)
+                == AdaptiveDrafterVerdict::AdaptiveTileAdmitted
+            && admit_adaptive_speculative_budget(false, 120, 1, 4)
+                == AdaptiveDrafterVerdict::ThrottledCpuDraftsAdmitted
+            && admit_adaptive_speculative_budget(false, 120, 3, 4)
+                == AdaptiveDrafterVerdict::RefusedUnthrottledCpuMissStorm
+    }
+}
+
+/// Generated from `R4.FastPackHydration` (`src/R4/FastPackHydration.lex.tex`, `R4-66`).
+pub mod r4_fast_pack_hydration {
+    /// Inductive `R4.FastPackHydration.PackHydrationVerdict` (`R4-66`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PackHydrationVerdict {
+        StreamingPackAdmitted,
+        PieceFallbackAdmitted,
+        RefusedPackExceeds50MiB,
+        RefusedPiece404MirrorRetry,
+        RefusedSilentEmergencyDowngrade,
+    }
+
+    /// Inductive `R4.FastPackHydration.SingleTruthBadgeVerdict` (`R4-66`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SingleTruthBadgeVerdict {
+        SingleTruthBadgeAdmitted,
+        RefusedEmergencyBadgeOnQwenSession,
+    }
+
+    /// Function `R4.FastPackHydration.maxGitSafePackBytes` (`R4-66`).
+    pub fn max_git_safe_pack_bytes() -> u64 {
+        50_331_648
+    }
+
+    /// Function `R4.FastPackHydration.admitPackHydrationPolicy` (`R4-66`).
+    pub fn admit_pack_hydration_policy(
+        max_pack_bytes: u64,
+        has_packs: bool,
+        retried_404_mirror: bool,
+        silent_downgrade_to_q31: bool,
+    ) -> PackHydrationVerdict {
+        if silent_downgrade_to_q31 {
+            PackHydrationVerdict::RefusedSilentEmergencyDowngrade
+        } else if retried_404_mirror {
+            PackHydrationVerdict::RefusedPiece404MirrorRetry
+        } else if max_git_safe_pack_bytes() < max_pack_bytes {
+            PackHydrationVerdict::RefusedPackExceeds50MiB
+        } else if has_packs {
+            PackHydrationVerdict::StreamingPackAdmitted
+        } else {
+            PackHydrationVerdict::PieceFallbackAdmitted
+        }
+    }
+
+    /// Function `R4.FastPackHydration.admitSingleTruthBadge` (`R4-66`).
+    pub fn admit_single_truth_badge(
+        selected_is_emergency_q31: bool,
+        badge_shows_emergency_q31: bool,
+    ) -> SingleTruthBadgeVerdict {
+        if !selected_is_emergency_q31 && badge_shows_emergency_q31 {
+            SingleTruthBadgeVerdict::RefusedEmergencyBadgeOnQwenSession
+        } else {
+            SingleTruthBadgeVerdict::SingleTruthBadgeAdmitted
+        }
+    }
+
+    /// Function `R4.FastPackHydration.verifyFastPackHydrationAdmitted` (`R4-66`).
+    pub fn verify_fast_pack_hydration_admitted() -> bool {
+        admit_pack_hydration_policy(50_331_648, true, false, false)
+            == PackHydrationVerdict::StreamingPackAdmitted
+            && admit_pack_hydration_policy(0, false, false, false)
+                == PackHydrationVerdict::PieceFallbackAdmitted
+            && admit_pack_hydration_policy(50_331_649, true, false, false)
+                == PackHydrationVerdict::RefusedPackExceeds50MiB
+            && admit_pack_hydration_policy(50_331_648, true, true, false)
+                == PackHydrationVerdict::RefusedPiece404MirrorRetry
+            && admit_pack_hydration_policy(50_331_648, true, false, true)
+                == PackHydrationVerdict::RefusedSilentEmergencyDowngrade
+            && admit_single_truth_badge(false, false)
+                == SingleTruthBadgeVerdict::SingleTruthBadgeAdmitted
+            && admit_single_truth_badge(false, true)
+                == SingleTruthBadgeVerdict::RefusedEmergencyBadgeOnQwenSession
+    }
+}
+
+/// Generated from `R4.MvmPolyglotToolchain` (`src/R4/MvmPolyglotToolchain.lex.tex`, `R4-67`).
+pub mod r4_mvm_polyglot_toolchain {
+    /// Inductive `R4.MvmPolyglotToolchain.PolyglotToolchainVerdict` (`R4-67`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PolyglotToolchainVerdict {
+        CargoAstToolchainAdmitted,
+        NpmSubcommandAdmitted,
+        C99StdlibHeapAdmitted,
+        RefusedUnsupportedToolchainSubcommand,
+        RefusedProtectedPathToolchainMutation,
+        RefusedUnalignedHeapBreak,
+    }
+
+    /// Function `R4.MvmPolyglotToolchain.admitCargoTerminalSubcommand` (`R4-67`).
+    pub fn admit_cargo_terminal_subcommand(
+        known_subcommand: bool,
+        touches_protected_canonical: bool,
+    ) -> PolyglotToolchainVerdict {
+        if touches_protected_canonical {
+            PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation
+        } else if !known_subcommand {
+            PolyglotToolchainVerdict::RefusedUnsupportedToolchainSubcommand
+        } else {
+            PolyglotToolchainVerdict::CargoAstToolchainAdmitted
+        }
+    }
+
+    /// Function `R4.MvmPolyglotToolchain.admitNpmTerminalSubcommand` (`R4-67`).
+    pub fn admit_npm_terminal_subcommand(
+        known_subcommand: bool,
+        touches_protected_canonical: bool,
+    ) -> PolyglotToolchainVerdict {
+        if touches_protected_canonical {
+            PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation
+        } else if !known_subcommand {
+            PolyglotToolchainVerdict::RefusedUnsupportedToolchainSubcommand
+        } else {
+            PolyglotToolchainVerdict::NpmSubcommandAdmitted
+        }
+    }
+
+    /// Function `R4.MvmPolyglotToolchain.admitC99StdlibBrkAlign` (`R4-67`).
+    pub fn admit_c99_stdlib_brk_align(
+        aligned_mod8: u64,
+        touches_protected_canonical: bool,
+    ) -> PolyglotToolchainVerdict {
+        if touches_protected_canonical {
+            PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation
+        } else if aligned_mod8 != 0 {
+            PolyglotToolchainVerdict::RefusedUnalignedHeapBreak
+        } else {
+            PolyglotToolchainVerdict::C99StdlibHeapAdmitted
+        }
+    }
+
+    /// Function `R4.MvmPolyglotToolchain.verifyMvmPolyglotToolchainAdmitted` (`R4-67`).
+    pub fn verify_mvm_polyglot_toolchain_admitted() -> bool {
+        admit_cargo_terminal_subcommand(true, false)
+            == PolyglotToolchainVerdict::CargoAstToolchainAdmitted
+            && admit_npm_terminal_subcommand(true, false)
+                == PolyglotToolchainVerdict::NpmSubcommandAdmitted
+            && admit_c99_stdlib_brk_align(0, false)
+                == PolyglotToolchainVerdict::C99StdlibHeapAdmitted
+            && admit_cargo_terminal_subcommand(false, false)
+                == PolyglotToolchainVerdict::RefusedUnsupportedToolchainSubcommand
+            && admit_npm_terminal_subcommand(true, true)
+                == PolyglotToolchainVerdict::RefusedProtectedPathToolchainMutation
+            && admit_c99_stdlib_brk_align(4, false)
+                == PolyglotToolchainVerdict::RefusedUnalignedHeapBreak
+    }
+}

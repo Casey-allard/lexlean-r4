@@ -26,11 +26,11 @@
 
       <div class="prism-topbar-center">
         <label for="model-select" class="sr-only">Model Picker</label>
-        <select id="model-select" class="prism-model-select" aria-label="Select Local UOR-R4 Model">
+        <select id="model-select" data-studio-id="model-picker" class="prism-model-select" aria-label="Select Local UOR-R4 Model">
           <option value="uor-r4.qwen3-0.6b-holo" selected>Qwen3 0.6B &middot; Fast (410 MB)</option>
           <option value="uor-r4.qwen3-1.7b-holo">Qwen3 1.7B &middot; Reasoning (1.1 GB)</option>
         </select>
-        <button id="weight-cache-badge" type="button" class="prism-status-pill" title="Click to download or verify active model weights">410 MB &middot; Auto-downloads on send</button>
+        <button id="weight-cache-badge" data-studio-id="weight-status-badge" type="button" class="prism-status-pill" title="Click to download or verify active model weights">410 MB &middot; Auto-downloads on send</button>
         <span id="topbar-model-tag" class="sr-only">SpiralCore Pure-Integer</span>
         <canvas id="header-brain-pulse-canvas" class="header-brain-pulse-canvas" width="72" height="22" title="Live Neural Pulse" aria-label="Live Neural Activity Indicator"></canvas>
       </div>
@@ -38,7 +38,7 @@
       <div class="prism-topbar-actions topbar-actions">
         <button id="toggle-web-access-btn" type="button" class="prism-pill-btn topbar-pill-web-on" aria-pressed="true" title="Toggle SpiralCore Net Mode">Net: SpiralCore</button>
         <button id="open-github-connect-btn" type="button" class="prism-pill-btn" title="Connect GitHub Vault and Sync Repository">GitHub</button>
-        <button id="toggle-inspectors-btn" type="button" class="prism-pill-btn" aria-expanded="false" aria-controls="inspectors-modal" title="Toggle Live Neural HUD &amp; Engine Inspectors">&#9889; HUD &#9662;</button>
+        <button id="toggle-inspectors-btn" data-studio-id="hud-dropdown-toggle" type="button" class="prism-pill-btn" aria-expanded="false" aria-controls="inspectors-modal" title="Toggle Live Neural HUD &amp; Engine Inspectors">&#9889; HUD &#9662;</button>
         <button id="open-settings-modal-btn" type="button" class="prism-icon-btn" title="Open Studio Settings" aria-label="Settings">&#9881;</button>
       </div>
     </header>
@@ -400,7 +400,7 @@
 
               <div class="composer-field">
                 <label for="claude-chat-input" class="sr-only">Message UOR-R4 GLM</label>
-                <textarea id="claude-chat-input" name="claude-chat-input" rows="2" placeholder="Ask, build, inspect /workspace with pure-integer UOR-R4... (/think, /patch, Cmd+K)" autocomplete="off" spellcheck="false"></textarea>
+                <textarea id="claude-chat-input" data-studio-id="chat-input" name="claude-chat-input" rows="2" placeholder="Ask, build, inspect /workspace with pure-integer UOR-R4... (/think, /patch, Cmd+K)" autocomplete="off" spellcheck="false"></textarea>
               </div>
 
               <div id="composer-send-bar" class="composer-send-bar">
@@ -680,7 +680,7 @@
   </div>
 
   <!-- Non-Blocking Dropdown Neural HUD & Engine Inspectors (also ?surface=observatory host) -->
-  <div id="inspectors-modal" class="inspectors-modal" hidden role="region" aria-label="Live Neural HUD and Engine Inspectors">
+  <div id="inspectors-modal" data-studio-id="neural-hud-dropdown" class="inspectors-modal" hidden role="region" aria-label="Live Neural HUD and Engine Inspectors">
     <div id="inspectors-modal-backdrop" class="inspectors-modal-backdrop" hidden></div>
     <div class="inspectors-modal-dialog">
       <div class="inspectors-modal-header">
