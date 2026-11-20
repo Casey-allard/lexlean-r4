@@ -21,16 +21,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   let sameOrigin = false;
+  let pathname = '';
   try {
-    sameOrigin = new URL(req.url).origin === self.location.origin;
+    const parsedUrl = new URL(req.url);
+    sameOrigin = parsedUrl.origin === self.location.origin;
+    pathname = parsedUrl.pathname || '';
   } catch {
     sameOrigin = false;
   }
   if (!sameOrigin) {
     return;
   }
+  const revalidateShell =
+    pathname.endsWith('/') ||
+    pathname.endsWith('.html') ||
+    pathname.endsWith('.js') ||
+    pathname.endsWith('.css') ||
+    pathname.endsWith('.json');
   event.respondWith(
-    fetch(req).then((resp) => {
+    (revalidateShell ? fetch(req, { cache: 'no-cache' }) : fetch(req)).then((resp) => {
       if (!resp || resp.status === 0 || resp.type === 'opaque' || resp.type === 'opaqueredirect') {
         return resp;
       }

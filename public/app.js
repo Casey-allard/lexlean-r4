@@ -1068,6 +1068,22 @@ const engineWorkerClient = {
     }
 
     const evType = msg && msg.event;
+    if (evType === 'chat_prefill_start') {
+      this.hydrationProgress = null;
+      if (typeof updateInlineHydrationBar === 'function') {
+        updateInlineHydrationBar(null);
+      }
+      if (typeof updateWeightCacheBadge === 'function') {
+        updateWeightCacheBadge();
+      }
+      if (typeof this.activeChatStreamHook === 'function') {
+        this.activeChatStreamHook({
+          stage: 'chat_prefill_start',
+          ...msg,
+        });
+      }
+      return;
+    }
     if (evType === 'boot_progress' || evType === 'hydration_progress' || evType === 'chat_hydration') {
       const stageTag = msg.stage || (msg.modelId ? 'holo_v13' : '');
       if (stageTag === 'holo_v13' || stageTag === 'hf_stream' || stageTag === 'r4_shards') {
@@ -3204,20 +3220,59 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       }
     };
 
+    const isStudioLayout =
+      typeof document !== 'undefined' &&
+      document &&
+      document.body &&
+      document.body.getAttribute('data-layout-mode') === 'studio';
+    const wantsWorkspaceTools =
+      isStudioLayout ||
+      /(?:^|\s)(?:\/patch\b|@[a-z0-9_./-]+|cargo\b|rustc\b|npm\b|cc\b|gcc\b|git\b)|\/workspace\b|\bsrc\/[a-z0-9_./-]+/i.test(
+        trimmed,
+      );
+    const activeSurfaceMode = wantsWorkspaceTools ? 'studio' : 'chat';
+    const chatHistoryPairs = [];
+    if (activeSurfaceMode === 'chat' && typeof getActiveThread === 'function') {
+      const curThread = getActiveThread();
+      const rawMsgs = curThread && Array.isArray(curThread.messages) ? curThread.messages : [];
+      const priorMsgs = recordUserBubble ? rawMsgs.slice(0, -1) : rawMsgs.slice();
+      for (let mi = 0; mi + 1 < priorMsgs.length; mi += 1) {
+        const uMsg = priorMsgs[mi];
+        const aMsg = priorMsgs[mi + 1];
+        if (
+          uMsg &&
+          aMsg &&
+          uMsg.role === 'user' &&
+          aMsg.role === 'assistant' &&
+          typeof uMsg.body === 'string' &&
+          typeof aMsg.body === 'string' &&
+          !String(aMsg.title || '').includes('native-q31') &&
+          !aMsg.body.startsWith('[Turn stopped') &&
+          !aMsg.body.includes('invalid magic header')
+        ) {
+          chatHistoryPairs.push([uMsg.body, aMsg.body]);
+          mi += 1;
+        }
+      }
+    }
+
     const reqHandle = engineWorkerClient.rpcWithId('studio_stream_turn', {
       prompt: trimmed,
       selected_model: selectedModel,
       composer_mode: activeComposerMode === 'plan' ? 'plan' : 'agent',
       mcp_policy: effectiveMcpPolicy,
       auto_run: effectiveAutoRun,
-      surface_mode: 'studio',
+      surface_mode: activeSurfaceMode,
       live_hud: true,
+      ...(activeSurfaceMode === 'chat'
+        ? { workspace_files: [], history: chatHistoryPairs.slice(-6) }
+        : {}),
       ...(allowOffOrigin ? { allowOffOriginHydration: true } : {}),
       ...(offlineEmergencyActive ? { offlineEmergencyQ31: true, offlineFallback: true } : {}),
       operating_mode: AppState.config.operatingMode || 'coding',
       retain_lambda: AppState.config.retainLambda ?? 0.85,
       plurality_votes: AppState.config.pluralityVotes ?? 8,
-      active_file: (typeof activeWorkspacePath === 'string' && activeWorkspacePath) || '',
+      active_file: activeSurfaceMode === 'chat' ? '' : ((typeof activeWorkspacePath === 'string' && activeWorkspacePath) || ''),
       repo: (AppState.config && AppState.config.connectedGitRepo) || '',
       branch: (AppState.config && AppState.config.connectedGitBranch) || 'main',
       web_access: engineWorkerClient.webAccessEnabled,
@@ -3380,6 +3435,12 @@ function runClaudeChat(promptText, recordUserBubble = true) {
         if (streamedReplyText) {
           statusLineEl.textContent = streamedReplyText;
           if (chatTranscript) chatTranscript.scrollTop = chatTranscript.scrollHeight;
+        }
+        return;
+      }
+      if (bridgeEvt.stage === 'chat_prefill_start') {
+        if (!streamedReplyText) {
+          statusLineEl.textContent = 'Generating response...';
         }
         return;
       }
@@ -13116,6 +13177,13 @@ function formatHydrationProgressLabel(prog) {
   const pct = typeof prog.percent === 'number'
     ? Math.min(100, Math.max(0, Math.round(prog.percent)))
     : Math.min(100, Math.max(0, Math.round((idx / totalPieces) * 100)));
+  const cachedHits = Number(prog.cachedHits) || 0;
+  const isCachedMount =
+    (cachedHits > 0 && cachedHits >= Math.max(1, idx)) ||
+    /HOLOSLAB2|OPFS/i.test(String(prog.label || ''));
+  if (isCachedMount) {
+    return `Loading cached weights ${pct}%`;
+  }
   if (totalBytes >= 1000 * 1024 * 1024) {
     const dlGb = (dlBytes / (1024 * 1024 * 1024)).toFixed(1);
     const totGb = (totalBytes / (1024 * 1024 * 1024)).toFixed(1);

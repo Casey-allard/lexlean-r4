@@ -5977,6 +5977,8 @@ struct FoundryTurnRequest {
     net_mode: Option<String>,
     #[serde(default, alias = "dirtyFiles")]
     dirty_files: Vec<String>,
+    #[serde(default)]
+    history: Vec<(String, String)>,
 }
 
 /// Active non-blocking chunked Studio/Foundry turn session stored on `StudioEngine` (`R4-56`, `R4-60`).
@@ -7530,19 +7532,80 @@ impl StudioEngine {
         let cur_u_chunk = format!(
             "<|im_start|>user\n{user_turn}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
         );
-        let reserve_gen = requested_max_new
-            .min(model.max_seq / 2)
-            .max(128)
-            .min(model.max_seq.saturating_sub(32));
+        let reserve_gen = if req.max_new_tokens.is_some() {
+            requested_max_new.min(model.max_seq / 2).max(16)
+        } else {
+            requested_max_new.min(model.max_seq / 2).max(128)
+        }
+        .min(model.max_seq.saturating_sub(32));
         let max_ctx = model.max_seq.saturating_sub(reserve_gen).max(32);
-        let (sys_prompt, prompt_ids) = fit_foundry_prompt_tokens(
-            model,
-            &core_sys,
-            &ws_header,
-            &ws_excerpts,
-            &cur_u_chunk,
-            max_ctx,
-        );
+        let (sys_prompt, prompt_ids) = if !req.history.is_empty() && req.tool_results.is_empty() {
+            let sys_chunk = format!("<|im_start|>system\n{core_sys}{ws_header}<|im_end|>\n");
+            let sys_ids = model.tokenizer.encode(&sys_chunk);
+            let cur_u_ids = model.tokenizer.encode(&cur_u_chunk);
+            let eot_nl_ids = model.tokenizer.encode("<|im_end|>\n");
+            let recent_hist = &req.history[req.history.len().saturating_sub(6)..];
+            let mut hist_turns: Vec<Vec<u32>> = Vec::with_capacity(recent_hist.len());
+            for (u, a) in recent_hist {
+                let u_trim = u.trim();
+                let a_trim = a.trim();
+                if u_trim.is_empty() || a_trim.is_empty() {
+                    continue;
+                }
+                let h_u_chunk = format!(
+                    "<|im_start|>user\n{u_trim}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+                );
+                let mut turn_ids = model.tokenizer.encode(&h_u_chunk);
+                if let Some((_, _, exact_ids)) = model
+                    .kv_cache
+                    .turn_token_spans
+                    .iter()
+                    .rev()
+                    .find(|(cu, ca, _)| cu == u_trim && ca == a_trim)
+                {
+                    turn_ids.extend_from_slice(exact_ids);
+                } else {
+                    turn_ids.extend_from_slice(&model.tokenizer.encode(a_trim));
+                }
+                turn_ids.extend_from_slice(&eot_nl_ids);
+                hist_turns.push(turn_ids);
+            }
+            let mut hist_len: usize = hist_turns.iter().map(Vec::len).sum();
+            let mut hist_start = 0usize;
+            while hist_start < hist_turns.len()
+                && sys_ids.len() + hist_len + cur_u_ids.len() > max_ctx
+            {
+                hist_len = hist_len.saturating_sub(hist_turns[hist_start].len());
+                hist_start += 1;
+            }
+            if sys_ids.len() + hist_len + cur_u_ids.len() <= max_ctx {
+                let mut combined = Vec::with_capacity(sys_ids.len() + hist_len + cur_u_ids.len());
+                combined.extend_from_slice(&sys_ids);
+                for t_ids in &hist_turns[hist_start..] {
+                    combined.extend_from_slice(t_ids);
+                }
+                combined.extend_from_slice(&cur_u_ids);
+                (format!("{core_sys}{ws_header}"), combined)
+            } else {
+                fit_foundry_prompt_tokens(
+                    model,
+                    &core_sys,
+                    &ws_header,
+                    &ws_excerpts,
+                    &cur_u_chunk,
+                    max_ctx,
+                )
+            }
+        } else {
+            fit_foundry_prompt_tokens(
+                model,
+                &core_sys,
+                &ws_header,
+                &ws_excerpts,
+                &cur_u_chunk,
+                max_ctx,
+            )
+        };
         let max_new_tokens = requested_max_new;
 
         let mut prefix_match = 0usize;

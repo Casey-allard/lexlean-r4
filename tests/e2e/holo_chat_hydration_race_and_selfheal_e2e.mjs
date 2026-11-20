@@ -19,7 +19,7 @@ function buildSyntheticHoloV13Container() {
   const nkv = 1;
   const hd = 128;
   const ffn = 192;
-  const maxSeq = 256;
+  const maxSeq = 512;
   const chunks = [];
   const pushU32 = (v) => {
     const b = Buffer.alloc(4);
@@ -332,6 +332,7 @@ Object.defineProperty(globalThis, 'navigator', {
   },
 });
 
+let manifestFetches = 0;
 let packFetches = 0;
 let networkOnline = true;
 globalThis.fetch = async (rawUrl) => {
@@ -341,6 +342,7 @@ globalThis.fetch = async (rawUrl) => {
   const url = String(rawUrl);
   await new Promise((r) => setTimeout(r, 15));
   if (url.endsWith('/manifest.json')) {
+    manifestFetches += 1;
     return new Response(JSON.stringify(manifest), { status: 200 });
   }
   if (url.endsWith('/manifest.stitch.json')) {
@@ -416,6 +418,7 @@ try {
 
   const mixedOut = await hydrate_holo_model('uor-r4.qwen3-0.6b-holo', null, false, {
     allowOffOriginHydration: true,
+    ignoreMountedInMemory: true,
   });
   assert.equal(mixedOut.status, 'ok');
   assert.equal(packFetches, 1, 'pack_00 came from OPFS piece cache; only pack_01 should fetch');
@@ -434,6 +437,7 @@ try {
   networkOnline = false;
   const warmOfflineOut = await hydrate_holo_model('uor-r4.qwen3-0.6b-holo', null, false, {
     allowOffOriginHydration: true,
+    ignoreMountedInMemory: true,
   });
   assert.equal(warmOfflineOut.status, 'ok');
 
@@ -447,6 +451,7 @@ try {
   // Force re-mount into a fresh model slot or re-hydration
   const healedOut = await hydrate_holo_model('uor-r4.qwen3-0.6b-holo', null, false, {
     allowOffOriginHydration: true,
+    ignoreMountedInMemory: true,
   });
   assert.equal(healedOut.status, 'ok', 'Poisoned warm model.holoslab must self-heal via pack re-hydration');
   assert.ok(packFetches >= 1 || slugDir._files.get('model.holoslab'), 'Corrupt slab must be replaced');
@@ -463,12 +468,63 @@ try {
     payload: {
       prompt: 'Test reply after self-heal',
       selected_model: 'uor-r4.qwen3-0.6b-holo',
+      surface_mode: 'chat',
       allowOffOriginHydration: true,
       max_new_tokens: 6,
     },
   });
   assert.equal(turnAfterHeal.ok, true, `Expected turnAfterHeal ok, got: ${turnAfterHeal.error}`);
   assert.ok((turnAfterHeal.result?.tokens_emitted || 0) >= 1);
+
+  // 5. Once mounted, repeated hydrate_holo_model calls and multi-turn chat turns perform ZERO network/OPFS re-downloads and reuse KV prefix
+  console.log('5. Verifying zero re-download on repeated hydrate_holo_model & multi-turn chat KV prefix reuse...');
+  manifestFetches = 0;
+  packFetches = 0;
+  const unexpectedProg = [];
+  const noopHydrate = await hydrate_holo_model(
+    'uor-r4.qwen3-0.6b-holo',
+    (e) => unexpectedProg.push(e),
+    false,
+    { allowOffOriginHydration: true },
+  );
+  assert.equal(noopHydrate.status, 'ok');
+  assert.equal(manifestFetches, 0, 'Already-mounted hydrate_holo_model must perform zero manifest fetches');
+  assert.equal(packFetches, 0, 'Already-mounted hydrate_holo_model must perform zero pack fetches');
+  assert.equal(unexpectedProg.length, 0, 'Already-mounted hydrate_holo_model must emit zero download progress events');
+
+  const chatT1 = await execute_inprism_foundry_turn({
+    id: 201,
+    payload: {
+      prompt: 'Remember alpha',
+      selected_model: 'uor-r4.qwen3-0.6b-holo',
+      surface_mode: 'chat',
+      live_hud: true,
+      allowOffOriginHydration: true,
+      max_new_tokens: 4,
+    },
+  });
+  assert.equal(chatT1.ok, true);
+  const reply1 = String(chatT1.result?.reply || '');
+
+  const chatT2 = await execute_inprism_foundry_turn({
+    id: 202,
+    payload: {
+      prompt: 'What did I say?',
+      history: [['Remember alpha', reply1]],
+      selected_model: 'uor-r4.qwen3-0.6b-holo',
+      surface_mode: 'chat',
+      live_hud: true,
+      allowOffOriginHydration: true,
+      max_new_tokens: 4,
+    },
+  });
+  assert.equal(chatT2.ok, true);
+  assert.equal(manifestFetches, 0, 'Turn 2 must perform zero manifest fetches');
+  assert.equal(packFetches, 0, 'Turn 2 must perform zero pack fetches');
+  assert.ok(
+    (chatT2.result?.prefix_reused_tokens || 0) > (chatT1.result?.prefix_reused_tokens || 0),
+    `Multi-turn chat history must grow KV prefix reuse (${chatT1.result?.prefix_reused_tokens} -> ${chatT2.result?.prefix_reused_tokens})`,
+  );
 
   console.log('[PASS] Holo chat hydration race, mixed cache slab sealing, and poisoned OPFS self-healing verified.');
 } finally {

@@ -2175,16 +2175,23 @@ export class OpfsKappaStore {
   async _readHandleSlice(fh, offset, length) {
     /* Formal R4.WebGpuGeodesicRuntime */
     if (typeof fh.createSyncAccessHandle === 'function') {
-      const access = await fh.createSyncAccessHandle();
+      let access = null;
       try {
-        const size = access.getSize();
-        const end = Math.min(size, offset + length);
-        const take = Math.max(0, end - offset);
-        const out = new Uint8Array(take);
-        if (take > 0) access.read(out, { at: offset });
-        return { bytes: out, totalSize: size };
-      } finally {
-        access.close();
+        access = await fh.createSyncAccessHandle();
+      } catch {
+        access = null;
+      }
+      if (access) {
+        try {
+          const size = access.getSize();
+          const end = Math.min(size, offset + length);
+          const take = Math.max(0, end - offset);
+          const out = new Uint8Array(take);
+          if (take > 0) access.read(out, { at: offset });
+          return { bytes: out, totalSize: size };
+        } finally {
+          access.close();
+        }
       }
     }
     const file = await fh.getFile();
@@ -2197,11 +2204,18 @@ export class OpfsKappaStore {
   async _getSlabSize(fh) {
     /* Formal R4.WebGpuGeodesicRuntime */
     if (typeof fh.createSyncAccessHandle === 'function') {
-      const access = await fh.createSyncAccessHandle();
+      let access = null;
       try {
-        return Number(access.getSize()) || 0;
-      } finally {
-        access.close();
+        access = await fh.createSyncAccessHandle();
+      } catch {
+        access = null;
+      }
+      if (access) {
+        try {
+          return Number(access.getSize()) || 0;
+        } finally {
+          access.close();
+        }
       }
     }
     const file = await fh.getFile();
@@ -2451,8 +2465,15 @@ export class OpfsKappaStore {
       const total = await this._getSlabSize(slabFh);
       let off = 0;
       let chunkIndex = 0;
+      let access = null;
       if (typeof slabFh.createSyncAccessHandle === 'function') {
-        const access = await slabFh.createSyncAccessHandle();
+        try {
+          access = await slabFh.createSyncAccessHandle();
+        } catch {
+          access = null;
+        }
+      }
+      if (access) {
         try {
           while (off < total) {
             const take = Math.min(this.ringBufferBytes, total - off);
@@ -4309,6 +4330,32 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
   if (allowCustomExternal && options && options.rememberConsent === true) {
     safeStorageSet('uor_allow_off_origin_hydration', '1');
   }
+  if (
+    !forceReload &&
+    !(options && options.ignoreMountedInMemory) &&
+    !hasCustomMirrors &&
+    explicitAllowOffOrigin !== false
+  ) {
+    try {
+      const fnStatus =
+        typeof studio_holo_runtime_status === 'function'
+          ? studio_holo_runtime_status
+          : globalThis.studio_holo_runtime_status;
+      if (typeof fnStatus === 'function') {
+        const rawSt = fnStatus();
+        const st = typeof rawSt === 'string' ? JSON.parse(rawSt) : rawSt;
+        const alreadyMounted = Boolean(
+          st &&
+            ((key === 'uor-r4.qwen3-0.6b-holo' && st.qwen3_06b_mounted) ||
+              (key === 'uor-r4.qwen3-1.7b-holo' && st.qwen3_17b_mounted) ||
+              (Array.isArray(st.models) && st.models.some((m) => m && m.model_id === key))),
+        );
+        if (alreadyMounted) {
+          return st;
+        }
+      }
+    } catch {}
+  }
   const policyBucket = hasCustomMirrors
     ? `custom:${explicitAllowOffOrigin === true ? 'ext' : 'same'}`
     : explicitAllowOffOrigin === false
@@ -4732,7 +4779,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     const rawPacks = Array.isArray(manifest.packs) ? manifest.packs : [];
     const maxPackBytes = rawPacks.reduce((acc, pk) => Math.max(acc, Number((pk && pk.byte_length) || 0)), 0);
     const packVerdict = admitPackHydrationPolicy(maxPackBytes, rawPacks.length > 0, false, false);
-    const PIECE_CONCURRENCY = 12;
+    const PIECE_CONCURRENCY = 3;
     const PACK_CONCURRENCY = 3;
     const sessionPackMissingMirrors = new Set();
 
@@ -5215,7 +5262,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   const sliceTokens =
     Number.isFinite(Number(rawSliceTokens)) && Number(rawSliceTokens) > 0
       ? Math.trunc(Number(rawSliceTokens))
-      : isStudioSurface && liveHud
+      : (isStudioSurface || surfaceMode === 'chat') && liveHud
         ? 2
         : undefined;
   const repoParam = String(payload.repo || '').trim();
@@ -5501,12 +5548,13 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     }
   }
 
-  const initialSnap = collectSnapshot();
+  const initialSnap = surfaceMode === 'chat' ? { files: [] } : collectSnapshot();
   let workspaceFiles = Array.isArray(payload.workspace_files)
     ? payload.workspace_files
     : initialSnap && Array.isArray(initialSnap.files)
       ? initialSnap.files
       : [];
+  const chatHistory = Array.isArray(payload.history) ? payload.history : [];
   const activeFile = typeof payload.active_file === 'string' ? payload.active_file : null;
   const maxNewTokens =
     Number.isFinite(Number(payload.max_new_tokens)) && Number(payload.max_new_tokens) > 0
@@ -5741,6 +5789,9 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       selected_model: selectedModel,
       tool_results: toolResults,
     };
+    if (hop === 0 && toolResults.length === 0 && chatHistory.length > 0) {
+      beginPayload.history = chatHistory;
+    }
     if (maxNewTokens !== undefined) {
       beginPayload.max_new_tokens = maxNewTokens;
     }
@@ -5751,6 +5802,9 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     if (repoParam) beginPayload.repo = repoParam;
     if (branchParam) beginPayload.branch = branchParam;
 
+    if (hop === 0) {
+      postEvent('chat_prefill_start', { id: reqId, modelId: selectedModel });
+    }
     const rawBegin = fnBegin(JSON.stringify(beginPayload));
     const beginRes = typeof rawBegin === 'string' ? JSON.parse(rawBegin) : rawBegin;
     if (!beginRes || beginRes.status !== 'ready') {
@@ -13526,10 +13580,19 @@ function __uorSynthesizeBrainPulsesFromReply(parsedRes, toolKind = 'none') {
 }
 
 function __uorStartDedicatedEngineWorker() {
-  const postEvent = (event, data = {}) => {
-    if (typeof self !== 'undefined' && self && typeof self.postMessage === 'function') {
-      self.postMessage({ event, ...data });
+  const boundSelf = typeof self !== 'undefined' ? self : null;
+  const postReply = (msg) => {
+    if (
+      boundSelf &&
+      typeof self !== 'undefined' &&
+      self === boundSelf &&
+      typeof boundSelf.postMessage === 'function'
+    ) {
+      boundSelf.postMessage(msg);
     }
+  };
+  const postEvent = (event, data = {}) => {
+    postReply({ event, ...data });
   };
   const gitMetaFiles = new Map();
   purgeLegacyDeclinedHydrationFlag();
@@ -14047,9 +14110,7 @@ function __uorStartDedicatedEngineWorker() {
     offlineEmergencyQ31,
     postEvent,
     postResponse: (resp) => {
-      if (typeof self !== 'undefined' && self && typeof self.postMessage === 'function') {
-        self.postMessage(resp);
-      }
+      postReply(resp);
     },
     dispatchBridge: dispatchWithConnectedBridge,
     executeHostBridge: async (bridgeReq) => hostBridge.execute(prepareGitBridgePayload(bridgeReq)),
@@ -14177,7 +14238,7 @@ function __uorStartDedicatedEngineWorker() {
           }
         }
         const res = await dispatchWithConnectedBridge(envelopeStr);
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'host_bridge_exec') {
@@ -14214,7 +14275,7 @@ function __uorStartDedicatedEngineWorker() {
           ok: Boolean(res && res.ok),
           transport: hostBridge.lastTransportMode,
         });
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'mvm_set_secret') {
@@ -14226,13 +14287,13 @@ function __uorStartDedicatedEngineWorker() {
         } catch {
           // Host JS vault remains primary when Wasm guest command is absent
         }
-        self.postMessage({ id, ok: vaultRes.ok, result: vaultRes });
+        postReply({ id, ok: vaultRes.ok, result: vaultRes });
         return;
       }
       if (op === 'set_bridge_policy' || op === 'set_host_config') {
         const res = hostBridge.setPolicy(payload || {});
         if (!res || !res.ok) {
-          self.postMessage({
+          postReply({
             id,
             ok: false,
             error_code: (res && res.error_code) || 'BridgePolicyError',
@@ -14325,21 +14386,21 @@ function __uorStartDedicatedEngineWorker() {
         } catch {
           // Host policy remains authoritative when Wasm MVM guest is not booted
         }
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'wasm_eval' || op === 'studio_wasm_eval') {
         const sub = String((payload && payload.subcommand) || 'check');
         const filter = String((payload && payload.filter) || '');
         const res = JSON.parse(studio_wasm_eval(sub, filter));
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'process_envelope') {
         const reqBytes = cachedTextEncoder.encode(String(payload || ''));
         const respBytes = process_envelope(reqBytes);
         const res = cachedTextDecoder.decode(respBytes);
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (
@@ -14371,7 +14432,7 @@ function __uorStartDedicatedEngineWorker() {
             outVal = raw;
           }
         }
-        self.postMessage({ id, ok: true, result: outVal });
+        postReply({ id, ok: true, result: outVal });
         return;
       }
       if (op === 'load_uorlut' || op === 'load_uorlut_bytes') {
@@ -14383,7 +14444,7 @@ function __uorStartDedicatedEngineWorker() {
         if (parsed && parsed.status === 'ok') {
           await cache_uorlut_in_indexeddb(u8, label);
         }
-        self.postMessage({
+        postReply({
           id,
           ok: true,
           result: {
@@ -14414,7 +14475,7 @@ function __uorStartDedicatedEngineWorker() {
               warm_reload_ms: sharedKappaStore.lastWarmReloadMs,
               worker_pool: get_browser_worker_pool_snapshot(),
             };
-        self.postMessage({ id, ok: true, result: merged });
+        postReply({ id, ok: true, result: merged });
         return;
       }
       if (op === 'set_holo_mlp_mode') {
@@ -14424,7 +14485,7 @@ function __uorStartDedicatedEngineWorker() {
         const raw = typeof studio_set_holo_mlp_mode === 'function'
           ? studio_set_holo_mlp_mode(mode, shortlistK)
           : studio_dispatch(`1\tstudio\tset_holo_mlp_mode\t${mode}`);
-        self.postMessage({ id, ok: true, result: JSON.parse(raw) });
+        postReply({ id, ok: true, result: JSON.parse(raw) });
         return;
       }
       if (op === 'verify_holo_slab' || op === 'repair_holo_slab') {
@@ -14432,7 +14493,7 @@ function __uorStartDedicatedEngineWorker() {
         const modelId = String((payload && payload.modelId) || 'uor-r4.qwen3-0.6b-holo');
         const repair = op === 'repair_holo_slab' || Boolean(payload && payload.repair);
         const res = await sharedKappaStore.verifyOrRepairSlab(modelId, { repair });
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'webgpu_holo_status') {
@@ -14440,7 +14501,7 @@ function __uorStartDedicatedEngineWorker() {
         if (sharedWebGpuHoloEngine.verdict === 'Uninitialized') {
           await sharedWebGpuHoloEngine.init().catch(() => null);
         }
-        self.postMessage({
+        postReply({
           id,
           ok: true,
           result: {
@@ -14462,7 +14523,7 @@ function __uorStartDedicatedEngineWorker() {
             model_id: 'uor-r4.native-q31-d85',
             ready: false,
           };
-          self.postMessage({
+          postReply({
             id,
             ok: true,
             result: {
@@ -14496,7 +14557,7 @@ function __uorStartDedicatedEngineWorker() {
             safeStorageSet('uor_allow_off_origin_hydration', '1');
           }
           postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-          self.postMessage({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
+          postReply({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
         } catch (err) {
           const code = (err && (err.error_code || err.code)) || '';
           if (code === 'ConsentRequiredForWeightDownload') {
@@ -14518,7 +14579,7 @@ function __uorStartDedicatedEngineWorker() {
         const raw = typeof studio_holo_storage_geometry_json === 'function'
           ? studio_holo_storage_geometry_json(reqId)
           : studio_dispatch(`1\tstudio\tholo_storage_geometry\t${reqId}`);
-        self.postMessage({ id, ok: true, result: JSON.parse(raw) });
+        postReply({ id, ok: true, result: JSON.parse(raw) });
         return;
       }
       if (op === 'telos_self_improvement_tick') {
@@ -14529,7 +14590,7 @@ function __uorStartDedicatedEngineWorker() {
           : studio_dispatch(`1\tstudio\ttelos_tick\t${body}`);
         const parsedTick = JSON.parse(raw);
         postEvent('telos_tick', parsedTick);
-        self.postMessage({ id, ok: true, result: parsedTick });
+        postReply({ id, ok: true, result: parsedTick });
         return;
       }
       if (op === 'load_hf_repo_holo') {
@@ -14538,34 +14599,34 @@ function __uorStartDedicatedEngineWorker() {
           postEvent('boot_progress', prog);
           postEvent('hydration_progress', prog);
         });
-        self.postMessage({ id, ok: true, result: { holo, repoId } });
+        postReply({ id, ok: true, result: { holo, repoId } });
         return;
       }
       if (op === 'native_q31_status') {
         const res = typeof studio_native_q31_status === 'function' ? JSON.parse(studio_native_q31_status()) : null;
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'native_q31_train_step') {
         const text = String((payload && payload.text) || '');
         const res = typeof studio_native_q31_train_step === 'function' ? JSON.parse(studio_native_q31_train_step(text)) : null;
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'weight_pack_status') {
         const pack = typeof studio_weight_pack_status === 'function' ? JSON.parse(studio_weight_pack_status()) : null;
-        self.postMessage({ id, ok: true, result: pack });
+        postReply({ id, ok: true, result: pack });
         return;
       }
       if (op === 'shard_catalog') {
         const cat = typeof studio_shard_catalog === 'function' ? JSON.parse(studio_shard_catalog()) : null;
-        self.postMessage({ id, ok: true, result: cat });
+        postReply({ id, ok: true, result: cat });
         return;
       }
       if (op === 'export_uorlut_shard') {
         const rootIdx = Number((payload && payload.e8Root) ?? 0);
         const bytes = typeof studio_export_uorlut_shard === 'function' ? studio_export_uorlut_shard(rootIdx) : new Uint8Array(0);
-        self.postMessage({ id, ok: true, result: Array.from(bytes) });
+        postReply({ id, ok: true, result: Array.from(bytes) });
         return;
       }
       if (op === 'merge_uorlut_shard') {
@@ -14573,12 +14634,12 @@ function __uorStartDedicatedEngineWorker() {
           ? payload.bytes
           : new Uint8Array((payload && payload.bytes) || (payload && payload.buffer) || 0);
         const raw = typeof studio_merge_uorlut_shard === 'function' ? studio_merge_uorlut_shard(u8) : '{"status":"error"}';
-        self.postMessage({ id, ok: true, result: JSON.parse(raw) });
+        postReply({ id, ok: true, result: JSON.parse(raw) });
         return;
       }
       if (op === 'gllm_v9_status') {
         const res = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'sync_weights' || op === 'hydrate_v12_360m' || op === 'hydrate_360m') {
@@ -14588,7 +14649,7 @@ function __uorStartDedicatedEngineWorker() {
           postEvent('boot_progress', { stage: 'uorlut_sync', ...prog });
         });
         const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
-        self.postMessage({ id, ok: true, result: { v10, lut, r4Stack, gllmMeta: globalThis.__uorGllmV9Meta || null } });
+        postReply({ id, ok: true, result: { v10, lut, r4Stack, gllmMeta: globalThis.__uorGllmV9Meta || null } });
         return;
       }
       if (op === 'snapshot') {
@@ -14598,7 +14659,7 @@ function __uorStartDedicatedEngineWorker() {
         const gllm = typeof studio_gllm_v9_status === 'function' ? JSON.parse(studio_gllm_v9_status()) : null;
         const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
         const verdantSynthesis = query_verdant_synthesis_status();
-        self.postMessage({
+        postReply({
           id,
           ok: true,
           result: {
@@ -14614,32 +14675,32 @@ function __uorStartDedicatedEngineWorker() {
         return;
       }
       if (op === 'stitch_health') {
-        self.postMessage({ id, ok: true, result: globalThis.__uorStitchHealth || null });
+        postReply({ id, ok: true, result: globalThis.__uorStitchHealth || null });
         return;
       }
       if (op === 'admit_generation_capsule') {
         const res = await admit_uorc_generation_capsule(payload && payload.capsule ? payload.capsule : payload);
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'record_generation_fault') {
         const reason = payload && typeof payload.reason === 'string' ? payload.reason : 'runtime_fault';
         const res = await record_uorc_generation_fault(reason);
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'verdant_synthesis_status') {
-        self.postMessage({ id, ok: true, result: query_verdant_synthesis_status() });
+        postReply({ id, ok: true, result: query_verdant_synthesis_status() });
         return;
       }
       if (op === 'r4_stack_status') {
         const r4Stack = typeof studio_r4_stack_status === 'function' ? JSON.parse(studio_r4_stack_status()) : null;
-        self.postMessage({ id, ok: true, result: r4Stack });
+        postReply({ id, ok: true, result: r4Stack });
         return;
       }
       if (op === 'init_worker_pool') {
         const pool = await init_shared_wasm_worker_pool();
-        self.postMessage({ id, ok: true, result: pool });
+        postReply({ id, ok: true, result: pool });
         return;
       }
       if (op === 'check_studio_update') {
@@ -14648,7 +14709,7 @@ function __uorStartDedicatedEngineWorker() {
         if (update && update.update_available) {
           postEvent('studio_update_available', update);
         }
-        self.postMessage({ id, ok: true, result: update });
+        postReply({ id, ok: true, result: update });
         return;
       }
       if (op === 'force_refresh_reload') {
@@ -14682,13 +14743,13 @@ function __uorStartDedicatedEngineWorker() {
           // Allow reload to fetch fresh artifacts cleanly
         }
         const provenance = await hostBridge.checkProvenanceUpdate().catch(() => null);
-        self.postMessage({ id, ok: true, result: { ok: true, reloadedWasm, provenance } });
+        postReply({ id, ok: true, result: { ok: true, reloadedWasm, provenance } });
         return;
       }
       if (op === 'prism_identity_ensure' || op === 'prism_identity_status') {
         const res = await stitch_prism_identity_ensure();
         postEvent('prism_identity', res);
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'prism_identity_bind_persona') {
@@ -14698,7 +14759,7 @@ function __uorStartDedicatedEngineWorker() {
           (payload && payload.holoKappa) || (globalThis.__uorLatestHoloSummary && globalThis.__uorLatestHoloSummary.fingerprint ? `blake3:${globalThis.__uorLatestHoloSummary.fingerprint}` : ''),
         );
         postEvent('prism_identity', res);
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'prism_identity_sign_action') {
@@ -14707,7 +14768,7 @@ function __uorStartDedicatedEngineWorker() {
           (payload && payload.targetKappa) || '',
         );
         postEvent('prism_identity', res);
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'compile_holo_archive' || op === 'verify_holo_archive' || op === 'download_holo_archive') {
@@ -14719,12 +14780,12 @@ function __uorStartDedicatedEngineWorker() {
           ? await verify_holo_v4_archive_in_worker(providedBytes, includeBytes)
           : await compile_and_verify_holo_v4_in_worker(payload && payload.files ? payload.files : null, includeBytes);
         postEvent('holo_compiled', res);
-        self.postMessage({ id, ok: true, result: res });
+        postReply({ id, ok: true, result: res });
         return;
       }
       if (op === 'get_me_app_descriptor' || op === 'get_foundry_app_descriptor') {
         const desc = await build_afflom_me_app_descriptor(payload && payload.origin ? String(payload.origin) : '');
-        self.postMessage({ id, ok: true, result: desc });
+        postReply({ id, ok: true, result: desc });
         return;
       }
       if (op === 'cancel_inprism_turn' || op === 'studio_cancel_turn') {
@@ -14794,12 +14855,12 @@ function __uorStartDedicatedEngineWorker() {
             pendingInprismCancelWaiters.delete(k);
           }
         }
-        self.postMessage({ id, ok: true, result: cancelRes });
+        postReply({ id, ok: true, result: cancelRes });
         return;
       }
       if (op === 'resolve_staged_mvm_command') {
         const res = resolve_staged_mvm_command(payload && typeof payload === 'object' ? payload : {});
-        self.postMessage({
+        postReply({
           id,
           ok: Boolean(res && res.ok !== false),
           result: res,
@@ -14809,7 +14870,7 @@ function __uorStartDedicatedEngineWorker() {
       }
       if (op === 'terminal:write' || op === 'terminal:open' || op === 'terminal:close' || op === 'terminal:kill' || op === 'terminal:resize' || op === 'terminal:serialize') {
         if (payload != null && typeof payload !== 'object') {
-          self.postMessage({
+          postReply({
             id,
             ok: false,
             error_code: 'InvalidPayload',
@@ -14822,7 +14883,7 @@ function __uorStartDedicatedEngineWorker() {
           const cwdStr = payload && typeof payload.cwd === 'string' && payload.cwd.trim() ? payload.cwd.trim() : undefined;
           const hasRawData = payload && typeof payload.data === 'string' && payload.data.length > 0;
           if (!cmdStr && !hasRawData) {
-            self.postMessage({
+            postReply({
               id,
               ok: false,
               error_code: 'InvalidPayload',
@@ -14833,10 +14894,10 @@ function __uorStartDedicatedEngineWorker() {
           if (cmdStr) {
             const mvmReq = cwdStr ? { cmd: cmdStr, cwd: cwdStr } : { cmd: cmdStr };
             const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify(mvmReq)}`);
-            self.postMessage({ id, ok: true, result: out });
+            postReply({ id, ok: true, result: out });
             return;
           }
-          self.postMessage({
+          postReply({
             id,
             ok: true,
             result: { ok: true, op, bytes: payload.data.length, interleaved: true },
@@ -14847,7 +14908,7 @@ function __uorStartDedicatedEngineWorker() {
           const cols = Number(payload && payload.cols);
           const rows = Number(payload && payload.rows);
           if (!Number.isFinite(cols) || cols <= 0 || !Number.isFinite(rows) || rows <= 0) {
-            self.postMessage({
+            postReply({
               id,
               ok: false,
               error_code: 'InvalidPayload',
@@ -14856,7 +14917,7 @@ function __uorStartDedicatedEngineWorker() {
             return;
           }
         }
-        self.postMessage({ id, ok: true, result: { ok: true, op, interleaved: true } });
+        postReply({ id, ok: true, result: { ok: true, op, interleaved: true } });
         return;
       }
       if (op === 'preview_inspect_reply') {
@@ -14868,7 +14929,7 @@ function __uorStartDedicatedEngineWorker() {
           waiter.resolve(payload || { ok: true, rpc_id: key });
         }
         if (id != null) {
-          self.postMessage({ id, ok: true, result: { ok: true, rpc_id: key } });
+          postReply({ id, ok: true, result: { ok: true, rpc_id: key } });
         }
         return;
       }
@@ -14888,7 +14949,7 @@ function __uorStartDedicatedEngineWorker() {
           { id, payload: reqPayload },
           createWorkerTurnHooks(),
         );
-        self.postMessage(resEnvelope);
+        postReply(resEnvelope);
         return;
       }
       if (op === 'studio_cmdk_edit') {
@@ -14918,13 +14979,13 @@ function __uorStartDedicatedEngineWorker() {
           createWorkerTurnHooks(),
         );
         if (!turnRes || !turnRes.ok) {
-          self.postMessage(turnRes);
+          postReply(turnRes);
           return;
         }
         const rawReply = (turnRes.result && (turnRes.result.reply || turnRes.result.assistant_reply)) || '';
         const proposedCode = stripCodeFences(rawReply);
         const diffHunk = buildUnifiedDiffHunk(origCode, proposedCode, editPath, false);
-        self.postMessage({
+        postReply({
           id,
           ok: true,
           result: {
@@ -14964,12 +15025,12 @@ function __uorStartDedicatedEngineWorker() {
           createWorkerTurnHooks(),
         );
         if (!turnRes || !turnRes.ok) {
-          self.postMessage(turnRes);
+          postReply(turnRes);
           return;
         }
         const rawReply = (turnRes.result && (turnRes.result.reply || turnRes.result.assistant_reply)) || '';
         const suggestion = stripCodeFences(rawReply);
-        self.postMessage({
+        postReply({
           id,
           ok: true,
           result: {
@@ -14989,7 +15050,7 @@ function __uorStartDedicatedEngineWorker() {
         if (parsedOut && parsedOut.status === 'ok') {
           postEvent('workspace_sync', { workspace: __uorCollectWorkspaceSnapshot() });
         }
-        self.postMessage({ id, ok: true, result: parsedOut });
+        postReply({ id, ok: true, result: parsedOut });
         return;
       }
       if (op === 'mvm_export_workspace_diff') {
@@ -15000,13 +15061,13 @@ function __uorStartDedicatedEngineWorker() {
             diff: parsedOut,
           });
         }
-        self.postMessage({ id, ok: true, result: parsedOut });
+        postReply({ id, ok: true, result: parsedOut });
         return;
       }
-      self.postMessage({ id, ok: false, error: `Unknown worker op: ${op}` });
+      postReply({ id, ok: false, error: `Unknown worker op: ${op}` });
     } catch (err) {
       const errCode = err && (err.error_code || err.code);
-      self.postMessage({
+      postReply({
         id,
         ok: false,
         ...(errCode ? { error_code: errCode } : {}),
@@ -15078,8 +15139,9 @@ function __uorStartDedicatedEngineWorker() {
       if (offlineEmergencyQ31 || safeStorageGet('uor_offline_emergency_q31') === '1') {
         bootNativeQ31Fallback = true;
         emitNativeQ31ReadyFallback('offline_emergency_mode');
-      } else {
+      } else if (!isQwenMounted()) {
         selectOptimalInitialHoloModel().then((plan) => {
+          if (isQwenMounted()) return;
           const emitProg = (prog) => {
             postEvent('boot_progress', { stage: 'holo_v13', ...prog });
             postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
