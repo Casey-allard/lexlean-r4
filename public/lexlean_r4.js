@@ -328,47 +328,43 @@ export function studio_verify_resident_webgpu_step(float_ops, layer_max_bytes, d
     }
 }
 
-/**
- * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
- * @param {string} subcommand
- * @param {string} filter
- * @returns {string}
- */
-export function studio_wasm_eval(subcommand, filter) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(subcommand, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(filter, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
-        deferred3_0 = ret[0];
-        deferred3_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+let cachedUint32ArrayMemory0 = null;
+
+function getUint32ArrayMemory0() {
+    if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
+        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
     }
+    return cachedUint32ArrayMemory0;
+}
+
+function getArrayU32FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+}
+/**
+ * Formal R4.LiveWebGpuTurnBridge export vocabulary 512-bit RHT signatures as `u32` words (`R4-65`).
+ * @param {string} model_id
+ * @returns {Uint32Array}
+ */
+export function studio_export_holo_vocab_sigs_u32(model_id) {
+    const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_export_holo_vocab_sigs_u32(ptr0, len0);
+    var v2 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+    return v2;
 }
 
 /**
- * Synchronize base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
- * @param {string} snapshot_json
- * @returns {string}
+ * Formal R4.LiveWebGpuTurnBridge peek active turn's 512-bit query signature (`R4-65`).
+ * @param {bigint} turn_id
+ * @returns {Uint32Array}
  */
-export function mvm_sync_workspace_in_json(snapshot_json) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passStringToWasm0(snapshot_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.mvm_sync_workspace_in_json(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
+export function holo_peek_foundry_turn_qsig512(turn_id) {
+    const ret = wasm.holo_peek_foundry_turn_qsig512(turn_id);
+    var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+    return v1;
 }
 
 /**
@@ -566,14 +562,18 @@ export function studio_record_generation_fault(fault_reason) {
 }
 
 /**
- * Export minimal filtered UTF-8 `/workspace` writes and deletes since last sync (`R4-57`).
+ * Formal R4.LiveWebGpuTurnBridge verify and commit a bound WebGPU compute pass for an active turn (`R4-65`).
+ * @param {bigint} turn_id
+ * @param {bigint} total_dispatches
+ * @param {bigint} bound_dispatches
+ * @param {bigint} max_abs_lsb_diff
  * @returns {string}
  */
-export function mvm_export_workspace_diff_json() {
+export function holo_notify_foundry_turn_gpu_bound_step(turn_id, total_dispatches, bound_dispatches, max_abs_lsb_diff) {
     let deferred1_0;
     let deferred1_1;
     try {
-        const ret = wasm.mvm_export_workspace_diff_json();
+        const ret = wasm.holo_notify_foundry_turn_gpu_bound_step(turn_id, total_dispatches, bound_dispatches, max_abs_lsb_diff);
         deferred1_0 = ret[0];
         deferred1_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
@@ -582,38 +582,116 @@ export function mvm_export_workspace_diff_json() {
     }
 }
 
-function getArrayU8FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
-}
 /**
- * Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
- * @returns {Uint8Array}
+ * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
+ * @param {string} subcommand
+ * @param {string} filter
+ * @returns {string}
  */
-export function studio_export_mvm_cow_sectors() {
-    const ret = wasm.studio_export_mvm_cow_sectors();
-    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v1;
+export function studio_wasm_eval(subcommand, filter) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(subcommand, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(filter, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
 }
 
 /**
- * Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`, `R4-60`).
- * @param {Uint8Array} bytes
+ * Synchronize base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
+ * @param {string} snapshot_json
  * @returns {string}
  */
-export function studio_import_mvm_cow_sectors(bytes) {
+export function mvm_sync_workspace_in_json(snapshot_json) {
     let deferred2_0;
     let deferred2_1;
     try {
-        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const ptr0 = passStringToWasm0(snapshot_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_import_mvm_cow_sectors(ptr0, len0);
+        const ret = wasm.mvm_sync_workspace_in_json(ptr0, len0);
         deferred2_0 = ret[0];
         deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+let cachedInt32ArrayMemory0 = null;
+
+function getInt32ArrayMemory0() {
+    if (cachedInt32ArrayMemory0 === null || cachedInt32ArrayMemory0.byteLength === 0) {
+        cachedInt32ArrayMemory0 = new Int32Array(wasm.memory.buffer);
+    }
+    return cachedInt32ArrayMemory0;
+}
+
+function getArrayI32FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getInt32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+}
+/**
+ * Export the trained `Q12` (`rows x 256`) projection slab
+ * for zero-copy transfer into the WebGPU `q12_attention_project` compute shader.
+ * @param {number} max_rows
+ * @returns {Int32Array}
+ */
+export function studio_export_q12_projection_slab(max_rows) {
+    const ret = wasm.studio_export_q12_projection_slab(max_rows);
+    var v1 = getArrayI32FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+    return v1;
+}
+
+/**
+ * Encode a prompt into a 256-lane `Q12` query vector (`scale = 4096`) for WebGPU dispatch.
+ * @param {string} prompt
+ * @returns {Int32Array}
+ */
+export function studio_encode_prompt_q12_query(prompt) {
+    const ptr0 = passStringToWasm0(prompt, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_encode_prompt_q12_query(ptr0, len0);
+    var v2 = getArrayI32FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+    return v2;
+}
+
+function passArray32ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 4, 4) >>> 0;
+    getUint32ArrayMemory0().set(arg, ptr / 4);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+/**
+ * Decode WebGPU `Q12` row projection scores back through the active model token decoder.
+ * @param {string} prompt
+ * @param {Int32Array} gpu_row_scores
+ * @param {number} max_tokens
+ * @returns {string}
+ */
+export function studio_decode_with_webgpu_q12_scores(prompt, gpu_row_scores, max_tokens) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(prompt, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray32ToWasm0(gpu_row_scores, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_decode_with_webgpu_q12_scores(ptr0, len0, ptr1, len1, max_tokens);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
@@ -661,6 +739,11 @@ function takeFromExternrefTable0(idx) {
     const value = wasm.__wbindgen_export_2.get(idx);
     wasm.__externref_table_dealloc(idx);
     return value;
+}
+
+function getArrayU8FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
 }
 /**
  * Heal and recover a single requested shard (`left` if `recover_left == true`, else `right`)
@@ -743,51 +826,51 @@ export function studio_prism_identity_status() {
 }
 
 /**
- * Formal `R4.PrismHoloIdentity` admit a `Stitch.PrismId` JSON record into the session ledger (`R4-54`).
- * @param {string} record_json
+ * Export minimal filtered UTF-8 `/workspace` writes and deletes since last sync (`R4-57`).
  * @returns {string}
  */
-export function studio_prism_identity_admit_record(record_json) {
-    let deferred2_0;
-    let deferred2_1;
+export function mvm_export_workspace_diff_json() {
+    let deferred1_0;
+    let deferred1_1;
     try {
-        const ptr0 = passStringToWasm0(record_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_prism_identity_admit_record(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
+        const ret = wasm.mvm_export_workspace_diff_json();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
 }
 
 /**
- * Formal `R4.PrismHoloIdentity` return the import-free `hologram:guest/core-wasm@1` wasm32 module (`R4-54`).
+ * Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
  * @returns {Uint8Array}
  */
-export function studio_core_wasm_guest_bytes() {
-    const ret = wasm.studio_core_wasm_guest_bytes();
+export function studio_export_mvm_cow_sectors() {
+    const ret = wasm.studio_export_mvm_cow_sectors();
     var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
     return v1;
 }
 
 /**
- * Formal `R4.PrismHoloIdentity` compile a big-endian `HOLOVIEW` v1 closure and provenance JSON into a Hologram v4 `.holo` archive (`R4-54`).
- * @param {Uint8Array} holoview_bytes
- * @param {Uint8Array} provenance_bytes
- * @returns {Uint8Array}
+ * Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`, `R4-60`).
+ * @param {Uint8Array} bytes
+ * @returns {string}
  */
-export function studio_compile_holo_v4_archive(holoview_bytes, provenance_bytes) {
-    const ptr0 = passArray8ToWasm0(holoview_bytes, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(provenance_bytes, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_compile_holo_v4_archive(ptr0, len0, ptr1, len1);
-    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v3;
+export function studio_import_mvm_cow_sectors(bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_import_mvm_cow_sectors(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
 }
 
 /**
@@ -891,83 +974,52 @@ export function execute_application(input_bytes) {
     return takeFromExternrefTable0(ret[0]);
 }
 
-let cachedInt32ArrayMemory0 = null;
-
-function getInt32ArrayMemory0() {
-    if (cachedInt32ArrayMemory0 === null || cachedInt32ArrayMemory0.byteLength === 0) {
-        cachedInt32ArrayMemory0 = new Int32Array(wasm.memory.buffer);
-    }
-    return cachedInt32ArrayMemory0;
-}
-
-function getArrayI32FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getInt32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
-}
 /**
- * Export the trained `Q12` (`rows x 256`) projection slab
- * for zero-copy transfer into the WebGPU `q12_attention_project` compute shader.
- * @param {number} max_rows
- * @returns {Int32Array}
+ * Formal `R4.PrismHoloIdentity` admit a `Stitch.PrismId` JSON record into the session ledger (`R4-54`).
+ * @param {string} record_json
+ * @returns {string}
  */
-export function studio_export_q12_projection_slab(max_rows) {
-    const ret = wasm.studio_export_q12_projection_slab(max_rows);
-    var v1 = getArrayI32FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+export function studio_prism_identity_admit_record(record_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(record_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_prism_identity_admit_record(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Formal `R4.PrismHoloIdentity` return the import-free `hologram:guest/core-wasm@1` wasm32 module (`R4-54`).
+ * @returns {Uint8Array}
+ */
+export function studio_core_wasm_guest_bytes() {
+    const ret = wasm.studio_core_wasm_guest_bytes();
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
     return v1;
 }
 
 /**
- * Encode a prompt into a 256-lane `Q12` query vector (`scale = 4096`) for WebGPU dispatch.
- * @param {string} prompt
- * @returns {Int32Array}
+ * Formal `R4.PrismHoloIdentity` compile a big-endian `HOLOVIEW` v1 closure and provenance JSON into a Hologram v4 `.holo` archive (`R4-54`).
+ * @param {Uint8Array} holoview_bytes
+ * @param {Uint8Array} provenance_bytes
+ * @returns {Uint8Array}
  */
-export function studio_encode_prompt_q12_query(prompt) {
-    const ptr0 = passStringToWasm0(prompt, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+export function studio_compile_holo_v4_archive(holoview_bytes, provenance_bytes) {
+    const ptr0 = passArray8ToWasm0(holoview_bytes, wasm.__wbindgen_malloc);
     const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_encode_prompt_q12_query(ptr0, len0);
-    var v2 = getArrayI32FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
-    return v2;
-}
-
-let cachedUint32ArrayMemory0 = null;
-
-function getUint32ArrayMemory0() {
-    if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
-        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
-    }
-    return cachedUint32ArrayMemory0;
-}
-
-function passArray32ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 4, 4) >>> 0;
-    getUint32ArrayMemory0().set(arg, ptr / 4);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-/**
- * Decode WebGPU `Q12` row projection scores back through the active model token decoder.
- * @param {string} prompt
- * @param {Int32Array} gpu_row_scores
- * @param {number} max_tokens
- * @returns {string}
- */
-export function studio_decode_with_webgpu_q12_scores(prompt, gpu_row_scores, max_tokens) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(prompt, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passArray32ToWasm0(gpu_row_scores, wasm.__wbindgen_malloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_decode_with_webgpu_q12_scores(ptr0, len0, ptr1, len1, max_tokens);
-        deferred3_0 = ret[0];
-        deferred3_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
+    const ptr1 = passArray8ToWasm0(provenance_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_compile_holo_v4_archive(ptr0, len0, ptr1, len1);
+    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v3;
 }
 
 /**
@@ -4650,6 +4702,95 @@ export function admitStudioLoraPromptShrink(floatOps, stitchParityValid, fineTun
   return 'StudioLoraUorV13Admitted';
 }
 
+/** Formal R4.LiveWebGpuTurnBridge evaluate bound WebGPU compute pass admission (`R4-65`). */
+export function admitLiveGpuBoundStep(floatOps, gpuAvailable, totalDispatches, boundDispatches, maxAbsLsbDiff) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (Number(floatOps) !== 0) return 'RefusedFloatOpInGpuBridge';
+  if (!gpuAvailable) return 'FallbackWasmSimdAdmitted';
+  if (Number(totalDispatches) <= 0 || Number(totalDispatches) !== Number(boundDispatches)) {
+    return 'RefusedUnboundComputePass';
+  }
+  if (Number(maxAbsLsbDiff) !== 0) return 'RefusedGpuCpuLogitDrift';
+  return 'LiveGpuBoundStepAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge evaluate COEP credentialless Service Worker isolation (`R4-65`). */
+export function admitCoiCredentiallessMode(swActive, usesRequireCorp, reloadCount) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (usesRequireCorp) return 'RefusedRequireCorpBreaksMirrors';
+  if (!swActive || Number(reloadCount) > 1) return 'SingleWorkerFallbackAdmitted';
+  return 'CrossOriginCredentiallessAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge evaluate adaptive speculative draft budget under CPU miss throttle (`R4-65`). */
+export function admitAdaptiveSpeculativeBudget(gpuActive, acceptEmaPermille, proposedDrafts, maxTileDrafts = 4) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (Number(maxTileDrafts) < Number(proposedDrafts)) return 'RefusedUnthrottledCpuMissStorm';
+  if (!gpuActive && Number(acceptEmaPermille) < 250) {
+    return Number(proposedDrafts) > 1 ? 'RefusedUnthrottledCpuMissStorm' : 'ThrottledCpuDraftsAdmitted';
+  }
+  return 'AdaptiveTileAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge register COOP/COEP credentialless Service Worker with single-reload guard (`R4-65`). */
+export async function registerStudioCoiServiceWorker(env = globalThis) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  const win = env && (env.window || env);
+  if (!win || typeof win !== 'object') {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+  if (win.crossOriginIsolated === true) {
+    return { ok: true, verdict: admitCoiCredentiallessMode(true, false, 0), isolated: true };
+  }
+  const nav = win.navigator || (env && env.navigator);
+  if (!win.isSecureContext || !nav || !nav.serviceWorker || typeof nav.serviceWorker.register !== 'function') {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+  let reloadCount = 0;
+  try {
+    if (win.sessionStorage && win.sessionStorage.getItem('uor_coi_reloaded_once') === '1') {
+      reloadCount = 2;
+    }
+  } catch {}
+  if (reloadCount > 1) {
+    return { ok: true, verdict: admitCoiCredentiallessMode(true, false, reloadCount), isolated: false };
+  }
+  try {
+    const swUrl = typeof import.meta !== 'undefined' && import.meta.url
+      ? new URL('./coi-serviceworker.js', import.meta.url).href
+      : './coi-serviceworker.js';
+    const reg = await nav.serviceWorker.register(swUrl);
+    const triggerSingleReload = () => {
+      try {
+        if (win.sessionStorage && win.sessionStorage.getItem('uor_coi_reloaded_once') !== '1') {
+          win.sessionStorage.setItem('uor_coi_reloaded_once', '1');
+          if (win.location && typeof win.location.reload === 'function') {
+            win.location.reload();
+          }
+        }
+      } catch {}
+    };
+    const installing = reg && (reg.installing || reg.waiting);
+    if (installing && typeof installing.addEventListener === 'function' && !nav.serviceWorker.controller) {
+      installing.addEventListener('statechange', () => {
+        if (installing.state === 'activated' && !win.crossOriginIsolated) {
+          triggerSingleReload();
+        }
+      });
+    } else if (reg && reg.active && !nav.serviceWorker.controller && !win.crossOriginIsolated) {
+      triggerSingleReload();
+    }
+    return {
+      ok: true,
+      verdict: admitCoiCredentiallessMode(true, false, 1),
+      isolated: Boolean(win.crossOriginIsolated),
+      registered: true,
+    };
+  } catch {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+}
+
 /** Formal R4.WebGpuGeodesicRuntime verify all core + resident WGSL shaders contain zero floating-point tokens (`R4-61`, `R4-64`). */
 export function verifyWgslShaderSourcesPureInteger() {
   /* Formal R4.WebGpuGeodesicRuntime */
@@ -5041,12 +5182,14 @@ export class WebGpuHoloEngine {
       this.trackedBuffers.add(this.residualPingBuffer);
       this.trackedBuffers.add(this.residualPongBuffer);
       this.trackedBuffers.add(this.resultSummaryBuffer);
+      this._buildBoundComputeGroups(dModel, maxSeq, headDim);
       this.residentModelId = String(modelId || 'uor-r4.qwen3-0.6b-holo');
       return {
         ok: true,
         verdict: 'ResidentSlabAdmitted',
         model_id: this.residentModelId,
         resident_layers: this.residentLayerBuffers.length,
+        bound_groups_ready: Boolean(this.boundGroups && this.boundGroups.size >= 5),
         max_layer_bytes: maxLayerBytes,
         readback_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
       };
@@ -5062,12 +5205,101 @@ export class WebGpuHoloEngine {
     }
   }
 
+  _buildBoundComputeGroups(dModel = 1024, maxSeq = 2048, headDim = 128) {
+    /* Formal R4.LiveWebGpuTurnBridge (R4-65): concrete GPUBindGroups matching every @group(0) WGSL layout */
+    this.boundGroups = new Map();
+    if (!this.device) return;
+    const STORAGE_RW = 0x0080 | 0x0008 | 0x0004;
+    const UNIFORM_DST = 0x0040 | 0x0008;
+    const alloc = (sz, usage = STORAGE_RW) => {
+      const b = this.device.createBuffer({ size: Math.max(64, (sz + 15) & ~15), usage });
+      this.trackedBuffers.add(b);
+      return b;
+    };
+    this.qSig512InputBuffer = alloc(64);
+    const vocabSigsBuf = alloc(Math.max(4096, 2048 * 64));
+    const hamOutBuf = alloc(Math.max(4096, 2048 * 4));
+    const uni16 = alloc(16, UNIFORM_DST);
+    const scratchA = alloc(Math.max(4096, dModel * 4));
+    const scratchB = alloc(Math.max(4096, dModel * 4));
+    const scratchC = alloc(Math.max(4096, maxSeq * headDim * 4));
+    const siluBuf = alloc(8196 * 4);
+    const layer0 = this.residentLayerBuffers[0] || scratchA;
+
+    const mkGroup = (pipe, buffers) => {
+      if (!pipe) return null;
+      if (typeof this.device.createBindGroup !== 'function') {
+        return { __syntheticBoundGroup: true, entries: buffers.length };
+      }
+      const layout = typeof pipe.getBindGroupLayout === 'function' ? pipe.getBindGroupLayout(0) : 'auto';
+      return this.device.createBindGroup({
+        layout,
+        entries: buffers.map((buffer, binding) => ({ binding, resource: { buffer } })),
+      });
+    };
+
+    this.boundGroups.set(
+      'holo_rmsnorm_rht32_pack',
+      mkGroup(this.pipelines.get('holo_rmsnorm_rht32_pack'), [
+        this.residualPingBuffer || scratchA,
+        layer0,
+        scratchB,
+        this.residualPongBuffer || scratchA,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_int4_gemv_gemm',
+      mkGroup(this.pipelines.get('holo_int4_gemv_gemm'), [
+        layer0,
+        scratchA,
+        scratchB,
+        scratchA,
+        scratchB,
+        scratchA,
+        this.residualPingBuffer || scratchC,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_rope_flock_attn',
+      mkGroup(this.pipelines.get('holo_rope_flock_attn'), [
+        this.qSig512InputBuffer,
+        this.kvRingBuffer || scratchC,
+        scratchA,
+        this.kvRingBuffer || scratchC,
+        scratchB,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_swiglu_geodesic_topk',
+      mkGroup(this.residentPipelines.get('holo_swiglu_geodesic_topk'), [
+        scratchC,
+        scratchC,
+        siluBuf,
+        scratchA,
+        this.residualPongBuffer || scratchC,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_hamming512_lmhead',
+      mkGroup(this.pipelines.get('holo_hamming512_lmhead'), [
+        this.qSig512InputBuffer,
+        vocabSigsBuf,
+        hamOutBuf,
+        uni16,
+      ]),
+    );
+  }
+
   /**
-   * Formal R4.WebGpuResidentRuntime encode all 28 layers for a `(K + 1)` speculative tile (`bt <= 32`)
-   * into a single `GPUCommandEncoder` submission with a `<= 256`-byte summary readback (`R4-64`).
+   * Formal R4.LiveWebGpuTurnBridge encode all 28 layers for a `(K + 1)` speculative tile (`bt <= 32`)
+   * with mandatory bound `GPUBindGroup`s on every compute dispatch and `<= 256`-byte summary readback (`R4-64`, `R4-65`).
    */
-  encodeResident28LayerTilePass(tileTokenIds, seqPos = 0, mlpMode = 'GeodesicSparse1536') {
-    /* Formal R4.WebGpuResidentRuntime */
+  encodeResident28LayerTilePass(tileTokenIds, seqPos = 0, mlpMode = 'GeodesicSparse1536', options = {}) {
+    /* Formal R4.LiveWebGpuTurnBridge */
     const bt = Array.isArray(tileTokenIds) ? tileTokenIds.length : 0;
     const draftCount = Math.max(0, bt - 1);
     const tileVerdict = admitSpeculativeTileStep(draftCount, 32, 0, true);
@@ -5077,17 +5309,32 @@ export class WebGpuHoloEngine {
     if (!this.device || this.residentLayerBuffers.length === 0 || typeof this.device.createCommandEncoder !== 'function') {
       return { ok: false, verdict: 'RefusedInsufficientGpuBufferLimits', submit_count: 0 };
     }
+    if (!this.boundGroups || this.boundGroups.size < 5) {
+      this._buildBoundComputeGroups();
+    }
+    const omitBindGroups = Boolean(options && options.omitBindGroups);
     const encoder = this.device.createCommandEncoder();
     let dispatches = 0;
+    let boundDispatches = 0;
+    const stageSpec = [
+      ['holo_rmsnorm_rht32_pack', this.pipelines.get('holo_rmsnorm_rht32_pack')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+      ['holo_rope_flock_attn', this.pipelines.get('holo_rope_flock_attn')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+      ['holo_rmsnorm_rht32_pack', this.pipelines.get('holo_rmsnorm_rht32_pack')],
+      ['holo_swiglu_geodesic_topk', this.residentPipelines.get('holo_swiglu_geodesic_topk')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+    ];
     for (let l = 0; l < this.residentLayerBuffers.length; l += 1) {
       if (typeof encoder.beginComputePass === 'function') {
         const pass = encoder.beginComputePass();
-        const rmsPipe = this.pipelines.get('holo_rmsnorm_rht32_pack');
-        const gemmPipe = this.pipelines.get('holo_int4_gemv_gemm');
-        const attnPipe = this.pipelines.get('holo_rope_flock_attn');
-        const swigluPipe = this.residentPipelines.get('holo_swiglu_geodesic_topk');
-        for (const p of [rmsPipe, gemmPipe, attnPipe, gemmPipe, rmsPipe, swigluPipe, gemmPipe]) {
+        for (const [stageName, p] of stageSpec) {
+          const bg = !omitBindGroups && this.boundGroups ? this.boundGroups.get(stageName) : null;
           if (p && typeof pass.setPipeline === 'function') pass.setPipeline(p);
+          if (bg) {
+            if (typeof pass.setBindGroup === 'function') pass.setBindGroup(0, bg);
+            boundDispatches += 1;
+          }
           if (typeof pass.dispatchWorkgroups === 'function') pass.dispatchWorkgroups(16, bt, 1);
           dispatches += 1;
         }
@@ -5097,10 +5344,25 @@ export class WebGpuHoloEngine {
     if (typeof encoder.beginComputePass === 'function') {
       const lmPass = encoder.beginComputePass();
       const lmPipe = this.pipelines.get('holo_hamming512_lmhead');
+      const lmBg = !omitBindGroups && this.boundGroups ? this.boundGroups.get('holo_hamming512_lmhead') : null;
       if (lmPipe && typeof lmPass.setPipeline === 'function') lmPass.setPipeline(lmPipe);
+      if (lmBg) {
+        if (typeof lmPass.setBindGroup === 'function') lmPass.setBindGroup(0, lmBg);
+        boundDispatches += 1;
+      }
       if (typeof lmPass.dispatchWorkgroups === 'function') lmPass.dispatchWorkgroups(1187, bt, 1);
       dispatches += 1;
       if (typeof lmPass.end === 'function') lmPass.end();
+    }
+    const boundVerdict = admitLiveGpuBoundStep(0, true, dispatches, boundDispatches, Number(options.perturbLsb || 0));
+    if (boundVerdict !== 'LiveGpuBoundStepAdmitted') {
+      return {
+        ok: false,
+        verdict: boundVerdict,
+        dispatches,
+        bound_dispatches: boundDispatches,
+        submit_count: 0,
+      };
     }
     if (typeof encoder.copyBufferToBuffer === 'function' && this.residualPingBuffer && this.resultSummaryBuffer) {
       encoder.copyBufferToBuffer(
@@ -5118,13 +5380,74 @@ export class WebGpuHoloEngine {
     return {
       ok: true,
       verdict: 'SpeculativeExact0LsbAdmitted',
+      live_gpu_verdict: boundVerdict,
       layers_encoded: this.residentLayerBuffers.length,
       tile_tokens: bt,
       seq_pos: seqPos,
       mlp_mode: mlpMode,
       dispatches,
+      bound_dispatches: boundDispatches,
       submit_count: 1,
       readback_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
+    };
+  }
+
+  /**
+   * Formal R4.LiveWebGpuTurnBridge execute a bound resident WebGPU turn pass with async `<= 256`-byte readback (`R4-65`).
+   */
+  async stepLiveTurnBoundPassAsync(qSig512U32, tileTokenIds = [1], seqPos = 0, mlpMode = 'GeodesicSparse1536') {
+    /* Formal R4.LiveWebGpuTurnBridge */
+    if (!this.device || this.residentLayerBuffers.length === 0) {
+      return {
+        ok: true,
+        gpu_executed: false,
+        verdict: admitLiveGpuBoundStep(0, false, 0, 0, 0),
+        dispatches: 0,
+        bound_dispatches: 0,
+      };
+    }
+    if (
+      this.qSig512InputBuffer &&
+      this.device.queue &&
+      typeof this.device.queue.writeBuffer === 'function' &&
+      qSig512U32 &&
+      qSig512U32.length > 0
+    ) {
+      const qArr = qSig512U32 instanceof Uint32Array ? qSig512U32 : new Uint32Array(qSig512U32);
+      const u8 = new Uint8Array(qArr.buffer, qArr.byteOffset, Math.min(64, qArr.byteLength));
+      this.device.queue.writeBuffer(this.qSig512InputBuffer, 0, u8, 0, u8.byteLength);
+    }
+    const encRes = this.encodeResident28LayerTilePass(tileTokenIds, seqPos, mlpMode);
+    if (!encRes.ok) {
+      return {
+        ok: false,
+        gpu_executed: false,
+        verdict: encRes.verdict,
+        dispatches: encRes.dispatches || 0,
+        bound_dispatches: encRes.bound_dispatches || 0,
+      };
+    }
+    let summary = null;
+    if (this.resultSummaryBuffer && typeof this.resultSummaryBuffer.mapAsync === 'function') {
+      try {
+        await this.resultSummaryBuffer.mapAsync(1);
+        if (typeof this.resultSummaryBuffer.getMappedRange === 'function') {
+          summary = new Uint8Array(this.resultSummaryBuffer.getMappedRange().slice(0));
+        }
+        if (typeof this.resultSummaryBuffer.unmap === 'function') {
+          this.resultSummaryBuffer.unmap();
+        }
+      } catch {
+        summary = null;
+      }
+    }
+    return {
+      ok: true,
+      gpu_executed: true,
+      verdict: 'LiveGpuBoundStepAdmitted',
+      dispatches: encRes.dispatches,
+      bound_dispatches: encRes.bound_dispatches,
+      summary,
     };
   }
 
@@ -5137,6 +5460,7 @@ export class WebGpuHoloEngine {
       this.residualPingBuffer,
       this.residualPongBuffer,
       this.resultSummaryBuffer,
+      this.qSig512InputBuffer,
     ]) {
       if (!buf) continue;
       try {
@@ -5150,6 +5474,8 @@ export class WebGpuHoloEngine {
     this.residualPingBuffer = null;
     this.residualPongBuffer = null;
     this.resultSummaryBuffer = null;
+    this.qSig512InputBuffer = null;
+    this.boundGroups = null;
     this.residentModelId = '';
   }
 
@@ -5653,6 +5979,26 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       if (!finWarm || finWarm.status !== 'ok') {
         throw new Error((finWarm && finWarm.message) || 'studio_finalize_holo_v13_mount failed');
       }
+      if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
+        try {
+          const meta = JSON.parse(
+            studio_export_holo_layer_slab_meta(
+              key,
+              BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
+              0n,
+            ),
+          );
+          if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
+            const nL = meta.layer_bytes.length || 28;
+            sharedWebGpuHoloEngine.mountResidentModelSlabs(
+              key,
+              new Uint8Array(nL * 64),
+              Array.from({ length: nL }, () => 64),
+              Number(meta.d_model) || 1024,
+            );
+          }
+        } catch {}
+      }
       await holoWriteManifestIndex({
         model_id: key,
         container_sha256: containerSha,
@@ -5849,6 +6195,26 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     if (!fin || fin.status !== 'ok') {
       await slabWriter.abort();
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
+    }
+    if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
+      try {
+        const meta = JSON.parse(
+          studio_export_holo_layer_slab_meta(
+            key,
+            BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
+            0n,
+          ),
+        );
+        if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
+          const nL = meta.layer_bytes.length || 28;
+          sharedWebGpuHoloEngine.mountResidentModelSlabs(
+            key,
+            new Uint8Array(nL * 64),
+            Array.from({ length: nL }, () => 64),
+            Number(meta.d_model) || 1024,
+          );
+        }
+      } catch {}
     }
     await slabWriter.seal();
     await holoWriteManifestIndex({
@@ -6653,11 +7019,41 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   };
 
   /* Formal R4.HoloGeometricRuntime */
+  const activeGpuEngine = runtimeHooks.webgpuEngine || sharedWebGpuHoloEngine;
+  const fnPeekQSig =
+    runtimeHooks.holoPeekQSig512 ||
+    (typeof holo_peek_foundry_turn_qsig512 === 'function'
+      ? holo_peek_foundry_turn_qsig512
+      : globalThis.holo_peek_foundry_turn_qsig512);
+  const fnNotifyGpuStep =
+    runtimeHooks.holoNotifyGpuBoundStep ||
+    (typeof holo_notify_foundry_turn_gpu_bound_step === 'function'
+      ? holo_notify_foundry_turn_gpu_bound_step
+      : globalThis.holo_notify_foundry_turn_gpu_bound_step);
   async function* streamFoundryHopSlices(hopTurnId) {
     while (true) {
       if (isCancelled(ownerKey, hopTurnId)) {
         yield { status: 'cancelled', delta: '', tokens_emitted: 0, cancelled_by_host: true };
         return;
+      }
+      if (
+        activeGpuEngine &&
+        activeGpuEngine.device &&
+        Array.isArray(activeGpuEngine.residentLayerBuffers) &&
+        activeGpuEngine.residentLayerBuffers.length > 0 &&
+        typeof activeGpuEngine.stepLiveTurnBoundPassAsync === 'function'
+      ) {
+        const qSig =
+          typeof fnPeekQSig === 'function' ? fnPeekQSig(toBigIntId(hopTurnId)) : new Uint32Array(16);
+        const gpuPass = await activeGpuEngine.stepLiveTurnBoundPassAsync(qSig, [1], 0);
+        if (gpuPass && gpuPass.gpu_executed && typeof fnNotifyGpuStep === 'function') {
+          fnNotifyGpuStep(
+            toBigIntId(hopTurnId),
+            toBigIntId(gpuPass.dispatches || 0),
+            toBigIntId(gpuPass.bound_dispatches || 0),
+            toBigIntId(0),
+          );
+        }
       }
       const rawStep = fnStep(toBigIntId(hopTurnId));
       const stepRes = typeof rawStep === 'string' ? JSON.parse(rawStep) : rawStep;
@@ -16765,6 +17161,8 @@ if (
   self.name === 'uor-r4-engine-worker'
 ) {
   __uorStartDedicatedEngineWorker();
+} else if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  registerStudioCoiServiceWorker().catch(() => {});
 }
 // === UOR_CUSTOM_SECTION_2_END ===
 

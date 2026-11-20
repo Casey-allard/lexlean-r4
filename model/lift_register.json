@@ -2,9 +2,9 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2845,
-    "lifted": 2068,
-    "effect": 278,
+    "total_functions": 2859,
+    "lifted": 2081,
+    "effect": 279,
     "foreign": 157,
     "residue": 342
   },
@@ -213,6 +213,27 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "9a18d9aba19b02640f2cfbcbf16009fcf6732908107b8fbd601541f120a2aaaf",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitAdaptiveSpeculativeBudget",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "467b86632fa1b12d20bd599690d59014bf1e402eefdf07dbfe1b88d9ff75d8b7",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitCoiCredentiallessMode",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "332da23c8a7912b0438abd5f4a3460b14a3294ee0e6a767a152a2755b48dcea3",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitLiveGpuBoundStep",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "5c4bb4dd87c0c7dc9ac4cea5d7bf8a1ed1ef3be828f20498de9f6d6760e43d7f",
       "function": "crates/wasm/js/worker_host_bridge.js::admitResidentLayerPartition",
       "status": "lifted",
@@ -414,7 +435,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "5dee3757e5542a0d806a9930971e96dd3a81fdf87a060975fb6eff597a1e0ed7",
+      "kappa": "caf619d416e567b134ff54c7f8646a75045bde1d4d9de0c841e1e05ca7c8b9dc",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -498,7 +519,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "1d9ea93642cad21dead0202d62eb094f7e9c499f9898372398de95fada16a5c3",
+      "kappa": "a9c1a8ef6b1de46bcced9497a1f83317ed702d9fea4d4084204f120b0a28a6a0",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -538,6 +559,13 @@
       "function": "crates/wasm/js/worker_host_bridge.js::record_uorc_generation_fault",
       "status": "foreign",
       "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "57f44c4a3f950c390b559266e7eafc11b72404267913828286fdbaf6f59945df",
+      "function": "crates/wasm/js/worker_host_bridge.js::registerStudioCoiServiceWorker",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -945,7 +973,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2990037212de595d69ddb4bb84c26c051ec477793dfa2e226f5401794326d8bf",
+      "kappa": "5c273afaf3470094b5ba4e93f4837a611a90ddfa6bfaa404ad8b025e5c2a7d0c",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_begin_foundry_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -966,7 +994,21 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "5c498e9f1b9cc4f2aea29ee9ceb14c5ad1e2d6eb00ce94829b18e22121fce640",
+      "kappa": "405d684f0bec9f15278bf1b3b92925d144e83ec1a8ef08fdc4fbe924c0a1b106",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_notify_foundry_turn_gpu_bound_step",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "1b82204411e8a6438c3d856c06f71fb6b2ad4b20175d5f7dc38aa403c331671f",
+      "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_peek_foundry_turn_qsig512",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e35a08a3199feadd520575739ff33a17a38f3ff4eecc86965fabaa87a5e5f360",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_step_foundry_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -2543,7 +2585,14 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "d1beacb6060405f576397a55a4c28fc722ad5630b203e7a807e782f90745de43",
+      "kappa": "7ee112106aeafa948ec41e93fa45bec6ef096d67ab9df537d08c7a2ecd11fa52",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloTok13SpeculativeDrafter::propose_adaptive_draft_tokens",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b50f40004cf6a1cfa040b544c42de5e6a2bdb2eef17e29b1f11dd9f66bb96264",
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloTok13SpeculativeDrafter::propose_draft_tokens",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
@@ -2561,6 +2610,13 @@
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::export_resident_layer_slabs_meta",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "90efac66b6133aa3118c5f7371d07721f5728e8c88ec0093b38e3566deb49489",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::export_vocab_sigs512_u32",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
       "exact_divergence_free": true
     },
     {
@@ -2589,6 +2645,13 @@
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::generate_chat_turn_with_history",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "11928cbf514af958a37f5a94856c579239a0dd5ff5163ada039142ec7a249197",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::last_q_sig512_u32",
+      "status": "lifted",
+      "definition": "R4.LiveWebGpuTurnBridge",
       "exact_divergence_free": true
     },
     {
@@ -3614,6 +3677,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "7542d1f26b568543aa4adb13845ad7d3d3c6e88e360ab70c0d86e23493970899",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_adaptive_speculative_budget",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_adaptive_speculative_budget",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "56537ff9f1e07867e3d533a17db68669be69cdaf0a49a031fed54acfacee12e8",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_agentic_git_loop",
       "status": "lifted",
@@ -3653,6 +3723,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_causal_kv_step",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_causal_kv_step",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "c07b64b64ab58d0eabb6bdc9e269532765501f66806b93049f3be00b80aca4cd",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_coi_credentialless_mode",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_coi_credentialless_mode",
       "exact_divergence_free": true
     },
     {
@@ -3758,6 +3835,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_lift_transition",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_lift_transition",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "18fec8e818828770dba24702408f789a5e72e0c2776b709eb918b9833e54cfd6",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_live_gpu_bound_step",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_live_gpu_bound_step",
       "exact_divergence_free": true
     },
     {
@@ -5053,6 +5137,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::count_target_at_distance",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::count_target_at_distance",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "5336d4b76041e2d465cc2f96f43687a6990caa357522d1bd28aafbf740001f4f",
+      "function": "crates/wasm/src/lexlean_generated.rs::cpu_miss_throttle_ema_permille",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::cpu_miss_throttle_ema_permille",
       "exact_divergence_free": true
     },
     {
@@ -12714,6 +12805,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "28f299f56084d0a8c6dbf17aaf91331f42cc93425f2caadc305b4d32627255da",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_live_webgpu_turn_bridge_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_live_webgpu_turn_bridge_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "e9a95a7e140124a811eeac43023ae5557b9d92935de5edeeb46b489c05465ce7",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_mvm_linux_container_admitted",
       "status": "lifted",
@@ -13894,7 +13992,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "b6fc573c96a44ec9809b29e737af7b31c52e3b796a022a3a5e489a10cce18cf1",
+      "kappa": "fbed8781cb1789a8eefb2e8dee7a46883bcaceb5a728917b866164ff9346f9ef",
       "function": "crates/wasm/src/lib.rs::studio_dispatch",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -19362,7 +19460,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "14c97612624c374a2ae427ebc293b2390a3c9b37f8204df6294ae6f3969b989c",
+      "kappa": "2a2be1ec81bf164b015238a04cc8f53814481dd17f3ff81103cb588b9138f593",
       "function": "xtask/src/engine.rs::run_api_serve_cmd",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -19509,7 +19607,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "4aaeb79e02ee80333d8f61b7aacb5a7420488e0592978655c2be0a5660e1d0e4",
+      "kappa": "59cc47fbfdc29be3932e4c8a0d96e3376e958bbde6f6757b37611ee750161287",
       "function": "xtask/src/engine.rs::serve_listener_until_stopped",
       "status": "effect",
       "effect": "stdio-console-effect",

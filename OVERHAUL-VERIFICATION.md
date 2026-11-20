@@ -162,3 +162,23 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `1`
   - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'StudioLoraUorV13Admitted' - 'RefusedPromptShrinkWithoutFineTunedManifest'` at `tests/e2e/r4_64_webgpu_speculative_lora_e2e.mjs:186:10`
 - **Restored result**: Restored `if (!fineTunedManifestPinned) return 'RefusedPromptShrinkWithoutFineTunedManifest';` inside `admitStudioLoraPromptShrink()`; `node tests/e2e/r4_64_webgpu_speculative_lora_e2e.mjs` exited `0` (`[PASS] R4-64 resident WebGPU <=128 MiB slabs, 28-layer 0-LSB speculative tiles, and Studio LoRA lockstep verified.`).
+
+## Seamless Completion Wave (`R4-65`): Bound Live WebGPU Turn Shortlist Bridge, `COEP: credentialless` Cross-Origin Isolation & Adaptive 2-Tier `HoloTok13` Drafter (`v0.15.0`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` = `11,680,856` B < `15 MiB`, `provenance.json`), `wasm=bbd520a245e8`, `js=977c02e8a6d7`, `core=5b77b8621dca`.
+- **`build-holo --sync-site-manifest`**: verified Hologram v4 archive (`13,231,401` bytes <= `33,554,432` B / `32 MiB`, `blake3=28f80513d5b63c86`, `wasmSha256=bbd520a245e820b1`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **GitHub Pages `COEP: credentialless` Service Worker (`site/coi-serviceworker.js`)**: injects `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: credentialless` (never `require-corp`) with single-reload guard (`sessionStorage['uor_coi_reloaded_v1']`) and deployed via `.github/workflows/pages.yml` post-`just vv` so `public/` preserves its exact 6-file closure.
+- **API Readiness Race Closure (`xtask/src/engine.rs` + `m4_iter2_chal2.rs`)**: `api::default_model_backend()` warmed before `TcpListener::bind`, `1ms` nonblocking accept poll, and HTTP `200 /v1/traces` warmup probe (`43/43` `empirical_suite` green).
+- **`check-model`**: `CONFORMANCE.md` matches `model/`, `65` conformance IDs (`R4-01..R4-65`, including `R4-65` / `R4.LiveWebGpuTurnBridge`).
+- **`lift-register`**: `total=2859`, `lifted=2081`, `residue=342` (`< 343` baseline, `<= 355` threshold, `UE-16` monotone).
+- **`ratchet-check`**: `r30_gen=261`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=342`, `float=0`, `matmul=0`, `unwired_ui=0`.
+- **`check-routes`**: `16` routes (including `R4-UR16` / `live-webgpu-coi-adaptive-drafter`) and `19` test vectors verified under `uorust/routes/1`.
+- **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=342`, `routes=16`, `provenance_sources=24`).
+- **`synthesize`**: `score_milli=988`, `complexity=342`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
+
+### 12. Unbound WebGPU Compute Pass Refusal Gate (`R4-65`)
+- **Planted defect**: Replaced `if (Number(boundDispatches) < Number(totalDispatches)) return 'RefusedUnboundComputePass';` with `if (Number(boundDispatches) < Number(totalDispatches)) return 'LiveGpuBoundStepAdmitted';` inside `admitLiveGpuBoundStep()` in `crates/wasm/js/worker_host_bridge.js`.
+- **Failing command**: `node tests/e2e/r4_65_live_webgpu_coi_drafter_e2e.mjs`
+  - **Exit code**: `1`
+  - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'LiveGpuBoundStepAdmitted' - 'RefusedUnboundComputePass'` at `tests/e2e/r4_65_live_webgpu_coi_drafter_e2e.mjs:46:10`
+- **Restored result**: Restored `if (Number(boundDispatches) < Number(totalDispatches)) return 'RefusedUnboundComputePass';` inside `admitLiveGpuBoundStep()`; `node tests/e2e/r4_65_live_webgpu_coi_drafter_e2e.mjs` exited `0` (`[PASS] R4-65 bound WebGPU turn bridge, COEP credentialless SW, and adaptive drafter verified.`).

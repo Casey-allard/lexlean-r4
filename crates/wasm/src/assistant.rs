@@ -6060,6 +6060,12 @@ pub struct FoundryTurnSession {
     pub speculative_draft_proposed: usize,
     /// Total speculative draft tokens verified `0-LSB` exact in this turn (`R4-64`).
     pub speculative_draft_accepted: usize,
+    /// True when bound WebGPU resident compute passes are active for this turn (`R4-65`).
+    pub gpu_active: bool,
+    /// Rolling speculative draft acceptance EMA in `[0, 1000]` permille (`R4-65`).
+    pub accept_ema_permille: u16,
+    /// Total bound WebGPU compute dispatches verified in this turn (`R4-65`).
+    pub gpu_bound_dispatches: u64,
 }
 
 /// Formal R4.HoloGeometricRuntime escape XML attribute delimiter characters deterministically.
@@ -7496,6 +7502,9 @@ impl StudioEngine {
                 native_q31_prompt_tokens: prompt_toks,
                 speculative_draft_proposed: 0,
                 speculative_draft_accepted: 0,
+                gpu_active: false,
+                accept_ema_permille: 600,
+                gpu_bound_dispatches: 0,
             });
             return serde_json::json!({
                 "status": "ready",
@@ -7622,6 +7631,9 @@ impl StudioEngine {
             native_q31_prompt_tokens: 0,
             speculative_draft_proposed: 0,
             speculative_draft_accepted: 0,
+            gpu_active: false,
+            accept_ema_permille: 600,
+            gpu_bound_dispatches: 0,
         });
 
         serde_json::json!({
@@ -7634,6 +7646,62 @@ impl StudioEngine {
             "composer_mode": composer_mode,
             "slice_tokens": slice_tokens,
             "live_hud": live_hud,
+        })
+        .to_string()
+    }
+
+    /// Formal R4.LiveWebGpuTurnBridge peek active turn's 512-bit query RHT signature as 16 `u32` words (`R4-65`).
+    pub fn holo_peek_foundry_turn_qsig512(&self, turn_id: u64) -> Vec<u32> {
+        let Some(session) = &self.foundry_turn else {
+            return Vec::new();
+        };
+        if session.turn_id != turn_id || !session.active || session.native_q31_active {
+            return Vec::new();
+        }
+        let Some(model) = self.holo_models.get(&session.model_id) else {
+            return Vec::new();
+        };
+        model.last_q_sig512_u32().to_vec()
+    }
+
+    /// Formal R4.LiveWebGpuTurnBridge verify and commit a bound WebGPU compute pass for an active turn (`R4-65`).
+    pub fn holo_notify_foundry_turn_gpu_bound_step(
+        &mut self,
+        turn_id: u64,
+        total_dispatches: u64,
+        bound_dispatches: u64,
+        max_abs_lsb_diff: u64,
+    ) -> String {
+        use crate::lexlean_generated::r4_live_webgpu_turn_bridge::{
+            admit_live_gpu_bound_step, LiveGpuStepVerdict,
+        };
+        let verdict = admit_live_gpu_bound_step(
+            0,
+            total_dispatches > 0,
+            total_dispatches,
+            bound_dispatches,
+            max_abs_lsb_diff,
+        );
+        let admitted = verdict == LiveGpuStepVerdict::LiveGpuBoundStepAdmitted;
+        if let Some(session) = self.foundry_turn.as_mut() {
+            if session.turn_id == turn_id && session.active && !session.native_q31_active {
+                if admitted {
+                    session.gpu_active = true;
+                    session.active_backend = "webgpu-i8-dot4";
+                    session.gpu_bound_dispatches = session
+                        .gpu_bound_dispatches
+                        .saturating_add(bound_dispatches);
+                } else {
+                    session.gpu_active = false;
+                }
+            }
+        }
+        serde_json::json!({
+            "status": if admitted || verdict == LiveGpuStepVerdict::FallbackWasmSimdAdmitted { "ok" } else { "error" },
+            "admitted": admitted,
+            "verdict": format!("{verdict:?}"),
+            "turn_id": turn_id,
+            "bound_dispatches": bound_dispatches,
         })
         .to_string()
     }
@@ -7995,12 +8063,14 @@ impl StudioEngine {
                 0
             };
             let drafts = if draft_budget > 0 {
-                crate::holo_geometric_runtime::HoloTok13SpeculativeDrafter::propose_draft_tokens(
+                crate::holo_geometric_runtime::HoloTok13SpeculativeDrafter::propose_adaptive_draft_tokens(
                     &model.tokenizer,
                     &session.recent_tokens[..pre_tip_recent_len],
                     &session.raw_stream[..pre_tip_raw_len],
                     chosen_id,
                     draft_budget,
+                    session.gpu_active,
+                    session.accept_ema_permille,
                     model.eos_token_id,
                     model.eot_token_id,
                     model.think_end_id,
@@ -8021,6 +8091,10 @@ impl StudioEngine {
                 );
                 session.speculative_draft_proposed += outcome.draft_proposed;
                 session.speculative_draft_accepted += outcome.draft_accepted;
+                let hit_pm = ((outcome.draft_accepted * 1000) / outcome.draft_proposed.max(1))
+                    .min(1000) as u16;
+                session.accept_ema_permille =
+                    ((u32::from(session.accept_ema_permille) * 3 + u32::from(hit_pm)) / 4) as u16;
                 session.flock_attended += outcome.flock_attended;
                 session.flock_total += outcome.flock_total;
 
@@ -8117,6 +8191,10 @@ impl StudioEngine {
                     break;
                 }
                 continue;
+            }
+
+            if session.accept_ema_permille < 300 {
+                session.accept_ema_permille = (session.accept_ema_permille + 25).min(300);
             }
 
             let (sc_opt, fa, ft) =

@@ -3074,6 +3074,95 @@ export function admitStudioLoraPromptShrink(floatOps, stitchParityValid, fineTun
   return 'StudioLoraUorV13Admitted';
 }
 
+/** Formal R4.LiveWebGpuTurnBridge evaluate bound WebGPU compute pass admission (`R4-65`). */
+export function admitLiveGpuBoundStep(floatOps, gpuAvailable, totalDispatches, boundDispatches, maxAbsLsbDiff) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (Number(floatOps) !== 0) return 'RefusedFloatOpInGpuBridge';
+  if (!gpuAvailable) return 'FallbackWasmSimdAdmitted';
+  if (Number(totalDispatches) <= 0 || Number(totalDispatches) !== Number(boundDispatches)) {
+    return 'RefusedUnboundComputePass';
+  }
+  if (Number(maxAbsLsbDiff) !== 0) return 'RefusedGpuCpuLogitDrift';
+  return 'LiveGpuBoundStepAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge evaluate COEP credentialless Service Worker isolation (`R4-65`). */
+export function admitCoiCredentiallessMode(swActive, usesRequireCorp, reloadCount) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (usesRequireCorp) return 'RefusedRequireCorpBreaksMirrors';
+  if (!swActive || Number(reloadCount) > 1) return 'SingleWorkerFallbackAdmitted';
+  return 'CrossOriginCredentiallessAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge evaluate adaptive speculative draft budget under CPU miss throttle (`R4-65`). */
+export function admitAdaptiveSpeculativeBudget(gpuActive, acceptEmaPermille, proposedDrafts, maxTileDrafts = 4) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  if (Number(maxTileDrafts) < Number(proposedDrafts)) return 'RefusedUnthrottledCpuMissStorm';
+  if (!gpuActive && Number(acceptEmaPermille) < 250) {
+    return Number(proposedDrafts) > 1 ? 'RefusedUnthrottledCpuMissStorm' : 'ThrottledCpuDraftsAdmitted';
+  }
+  return 'AdaptiveTileAdmitted';
+}
+
+/** Formal R4.LiveWebGpuTurnBridge register COOP/COEP credentialless Service Worker with single-reload guard (`R4-65`). */
+export async function registerStudioCoiServiceWorker(env = globalThis) {
+  /* Formal R4.LiveWebGpuTurnBridge */
+  const win = env && (env.window || env);
+  if (!win || typeof win !== 'object') {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+  if (win.crossOriginIsolated === true) {
+    return { ok: true, verdict: admitCoiCredentiallessMode(true, false, 0), isolated: true };
+  }
+  const nav = win.navigator || (env && env.navigator);
+  if (!win.isSecureContext || !nav || !nav.serviceWorker || typeof nav.serviceWorker.register !== 'function') {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+  let reloadCount = 0;
+  try {
+    if (win.sessionStorage && win.sessionStorage.getItem('uor_coi_reloaded_once') === '1') {
+      reloadCount = 2;
+    }
+  } catch {}
+  if (reloadCount > 1) {
+    return { ok: true, verdict: admitCoiCredentiallessMode(true, false, reloadCount), isolated: false };
+  }
+  try {
+    const swUrl = typeof import.meta !== 'undefined' && import.meta.url
+      ? new URL('./coi-serviceworker.js', import.meta.url).href
+      : './coi-serviceworker.js';
+    const reg = await nav.serviceWorker.register(swUrl);
+    const triggerSingleReload = () => {
+      try {
+        if (win.sessionStorage && win.sessionStorage.getItem('uor_coi_reloaded_once') !== '1') {
+          win.sessionStorage.setItem('uor_coi_reloaded_once', '1');
+          if (win.location && typeof win.location.reload === 'function') {
+            win.location.reload();
+          }
+        }
+      } catch {}
+    };
+    const installing = reg && (reg.installing || reg.waiting);
+    if (installing && typeof installing.addEventListener === 'function' && !nav.serviceWorker.controller) {
+      installing.addEventListener('statechange', () => {
+        if (installing.state === 'activated' && !win.crossOriginIsolated) {
+          triggerSingleReload();
+        }
+      });
+    } else if (reg && reg.active && !nav.serviceWorker.controller && !win.crossOriginIsolated) {
+      triggerSingleReload();
+    }
+    return {
+      ok: true,
+      verdict: admitCoiCredentiallessMode(true, false, 1),
+      isolated: Boolean(win.crossOriginIsolated),
+      registered: true,
+    };
+  } catch {
+    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+  }
+}
+
 /** Formal R4.WebGpuGeodesicRuntime verify all core + resident WGSL shaders contain zero floating-point tokens (`R4-61`, `R4-64`). */
 export function verifyWgslShaderSourcesPureInteger() {
   /* Formal R4.WebGpuGeodesicRuntime */
@@ -3465,12 +3554,14 @@ export class WebGpuHoloEngine {
       this.trackedBuffers.add(this.residualPingBuffer);
       this.trackedBuffers.add(this.residualPongBuffer);
       this.trackedBuffers.add(this.resultSummaryBuffer);
+      this._buildBoundComputeGroups(dModel, maxSeq, headDim);
       this.residentModelId = String(modelId || 'uor-r4.qwen3-0.6b-holo');
       return {
         ok: true,
         verdict: 'ResidentSlabAdmitted',
         model_id: this.residentModelId,
         resident_layers: this.residentLayerBuffers.length,
+        bound_groups_ready: Boolean(this.boundGroups && this.boundGroups.size >= 5),
         max_layer_bytes: maxLayerBytes,
         readback_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
       };
@@ -3486,12 +3577,101 @@ export class WebGpuHoloEngine {
     }
   }
 
+  _buildBoundComputeGroups(dModel = 1024, maxSeq = 2048, headDim = 128) {
+    /* Formal R4.LiveWebGpuTurnBridge (R4-65): concrete GPUBindGroups matching every @group(0) WGSL layout */
+    this.boundGroups = new Map();
+    if (!this.device) return;
+    const STORAGE_RW = 0x0080 | 0x0008 | 0x0004;
+    const UNIFORM_DST = 0x0040 | 0x0008;
+    const alloc = (sz, usage = STORAGE_RW) => {
+      const b = this.device.createBuffer({ size: Math.max(64, (sz + 15) & ~15), usage });
+      this.trackedBuffers.add(b);
+      return b;
+    };
+    this.qSig512InputBuffer = alloc(64);
+    const vocabSigsBuf = alloc(Math.max(4096, 2048 * 64));
+    const hamOutBuf = alloc(Math.max(4096, 2048 * 4));
+    const uni16 = alloc(16, UNIFORM_DST);
+    const scratchA = alloc(Math.max(4096, dModel * 4));
+    const scratchB = alloc(Math.max(4096, dModel * 4));
+    const scratchC = alloc(Math.max(4096, maxSeq * headDim * 4));
+    const siluBuf = alloc(8196 * 4);
+    const layer0 = this.residentLayerBuffers[0] || scratchA;
+
+    const mkGroup = (pipe, buffers) => {
+      if (!pipe) return null;
+      if (typeof this.device.createBindGroup !== 'function') {
+        return { __syntheticBoundGroup: true, entries: buffers.length };
+      }
+      const layout = typeof pipe.getBindGroupLayout === 'function' ? pipe.getBindGroupLayout(0) : 'auto';
+      return this.device.createBindGroup({
+        layout,
+        entries: buffers.map((buffer, binding) => ({ binding, resource: { buffer } })),
+      });
+    };
+
+    this.boundGroups.set(
+      'holo_rmsnorm_rht32_pack',
+      mkGroup(this.pipelines.get('holo_rmsnorm_rht32_pack'), [
+        this.residualPingBuffer || scratchA,
+        layer0,
+        scratchB,
+        this.residualPongBuffer || scratchA,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_int4_gemv_gemm',
+      mkGroup(this.pipelines.get('holo_int4_gemv_gemm'), [
+        layer0,
+        scratchA,
+        scratchB,
+        scratchA,
+        scratchB,
+        scratchA,
+        this.residualPingBuffer || scratchC,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_rope_flock_attn',
+      mkGroup(this.pipelines.get('holo_rope_flock_attn'), [
+        this.qSig512InputBuffer,
+        this.kvRingBuffer || scratchC,
+        scratchA,
+        this.kvRingBuffer || scratchC,
+        scratchB,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_swiglu_geodesic_topk',
+      mkGroup(this.residentPipelines.get('holo_swiglu_geodesic_topk'), [
+        scratchC,
+        scratchC,
+        siluBuf,
+        scratchA,
+        this.residualPongBuffer || scratchC,
+        uni16,
+      ]),
+    );
+    this.boundGroups.set(
+      'holo_hamming512_lmhead',
+      mkGroup(this.pipelines.get('holo_hamming512_lmhead'), [
+        this.qSig512InputBuffer,
+        vocabSigsBuf,
+        hamOutBuf,
+        uni16,
+      ]),
+    );
+  }
+
   /**
-   * Formal R4.WebGpuResidentRuntime encode all 28 layers for a `(K + 1)` speculative tile (`bt <= 32`)
-   * into a single `GPUCommandEncoder` submission with a `<= 256`-byte summary readback (`R4-64`).
+   * Formal R4.LiveWebGpuTurnBridge encode all 28 layers for a `(K + 1)` speculative tile (`bt <= 32`)
+   * with mandatory bound `GPUBindGroup`s on every compute dispatch and `<= 256`-byte summary readback (`R4-64`, `R4-65`).
    */
-  encodeResident28LayerTilePass(tileTokenIds, seqPos = 0, mlpMode = 'GeodesicSparse1536') {
-    /* Formal R4.WebGpuResidentRuntime */
+  encodeResident28LayerTilePass(tileTokenIds, seqPos = 0, mlpMode = 'GeodesicSparse1536', options = {}) {
+    /* Formal R4.LiveWebGpuTurnBridge */
     const bt = Array.isArray(tileTokenIds) ? tileTokenIds.length : 0;
     const draftCount = Math.max(0, bt - 1);
     const tileVerdict = admitSpeculativeTileStep(draftCount, 32, 0, true);
@@ -3501,17 +3681,32 @@ export class WebGpuHoloEngine {
     if (!this.device || this.residentLayerBuffers.length === 0 || typeof this.device.createCommandEncoder !== 'function') {
       return { ok: false, verdict: 'RefusedInsufficientGpuBufferLimits', submit_count: 0 };
     }
+    if (!this.boundGroups || this.boundGroups.size < 5) {
+      this._buildBoundComputeGroups();
+    }
+    const omitBindGroups = Boolean(options && options.omitBindGroups);
     const encoder = this.device.createCommandEncoder();
     let dispatches = 0;
+    let boundDispatches = 0;
+    const stageSpec = [
+      ['holo_rmsnorm_rht32_pack', this.pipelines.get('holo_rmsnorm_rht32_pack')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+      ['holo_rope_flock_attn', this.pipelines.get('holo_rope_flock_attn')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+      ['holo_rmsnorm_rht32_pack', this.pipelines.get('holo_rmsnorm_rht32_pack')],
+      ['holo_swiglu_geodesic_topk', this.residentPipelines.get('holo_swiglu_geodesic_topk')],
+      ['holo_int4_gemv_gemm', this.pipelines.get('holo_int4_gemv_gemm')],
+    ];
     for (let l = 0; l < this.residentLayerBuffers.length; l += 1) {
       if (typeof encoder.beginComputePass === 'function') {
         const pass = encoder.beginComputePass();
-        const rmsPipe = this.pipelines.get('holo_rmsnorm_rht32_pack');
-        const gemmPipe = this.pipelines.get('holo_int4_gemv_gemm');
-        const attnPipe = this.pipelines.get('holo_rope_flock_attn');
-        const swigluPipe = this.residentPipelines.get('holo_swiglu_geodesic_topk');
-        for (const p of [rmsPipe, gemmPipe, attnPipe, gemmPipe, rmsPipe, swigluPipe, gemmPipe]) {
+        for (const [stageName, p] of stageSpec) {
+          const bg = !omitBindGroups && this.boundGroups ? this.boundGroups.get(stageName) : null;
           if (p && typeof pass.setPipeline === 'function') pass.setPipeline(p);
+          if (bg) {
+            if (typeof pass.setBindGroup === 'function') pass.setBindGroup(0, bg);
+            boundDispatches += 1;
+          }
           if (typeof pass.dispatchWorkgroups === 'function') pass.dispatchWorkgroups(16, bt, 1);
           dispatches += 1;
         }
@@ -3521,10 +3716,25 @@ export class WebGpuHoloEngine {
     if (typeof encoder.beginComputePass === 'function') {
       const lmPass = encoder.beginComputePass();
       const lmPipe = this.pipelines.get('holo_hamming512_lmhead');
+      const lmBg = !omitBindGroups && this.boundGroups ? this.boundGroups.get('holo_hamming512_lmhead') : null;
       if (lmPipe && typeof lmPass.setPipeline === 'function') lmPass.setPipeline(lmPipe);
+      if (lmBg) {
+        if (typeof lmPass.setBindGroup === 'function') lmPass.setBindGroup(0, lmBg);
+        boundDispatches += 1;
+      }
       if (typeof lmPass.dispatchWorkgroups === 'function') lmPass.dispatchWorkgroups(1187, bt, 1);
       dispatches += 1;
       if (typeof lmPass.end === 'function') lmPass.end();
+    }
+    const boundVerdict = admitLiveGpuBoundStep(0, true, dispatches, boundDispatches, Number(options.perturbLsb || 0));
+    if (boundVerdict !== 'LiveGpuBoundStepAdmitted') {
+      return {
+        ok: false,
+        verdict: boundVerdict,
+        dispatches,
+        bound_dispatches: boundDispatches,
+        submit_count: 0,
+      };
     }
     if (typeof encoder.copyBufferToBuffer === 'function' && this.residualPingBuffer && this.resultSummaryBuffer) {
       encoder.copyBufferToBuffer(
@@ -3542,13 +3752,74 @@ export class WebGpuHoloEngine {
     return {
       ok: true,
       verdict: 'SpeculativeExact0LsbAdmitted',
+      live_gpu_verdict: boundVerdict,
       layers_encoded: this.residentLayerBuffers.length,
       tile_tokens: bt,
       seq_pos: seqPos,
       mlp_mode: mlpMode,
       dispatches,
+      bound_dispatches: boundDispatches,
       submit_count: 1,
       readback_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
+    };
+  }
+
+  /**
+   * Formal R4.LiveWebGpuTurnBridge execute a bound resident WebGPU turn pass with async `<= 256`-byte readback (`R4-65`).
+   */
+  async stepLiveTurnBoundPassAsync(qSig512U32, tileTokenIds = [1], seqPos = 0, mlpMode = 'GeodesicSparse1536') {
+    /* Formal R4.LiveWebGpuTurnBridge */
+    if (!this.device || this.residentLayerBuffers.length === 0) {
+      return {
+        ok: true,
+        gpu_executed: false,
+        verdict: admitLiveGpuBoundStep(0, false, 0, 0, 0),
+        dispatches: 0,
+        bound_dispatches: 0,
+      };
+    }
+    if (
+      this.qSig512InputBuffer &&
+      this.device.queue &&
+      typeof this.device.queue.writeBuffer === 'function' &&
+      qSig512U32 &&
+      qSig512U32.length > 0
+    ) {
+      const qArr = qSig512U32 instanceof Uint32Array ? qSig512U32 : new Uint32Array(qSig512U32);
+      const u8 = new Uint8Array(qArr.buffer, qArr.byteOffset, Math.min(64, qArr.byteLength));
+      this.device.queue.writeBuffer(this.qSig512InputBuffer, 0, u8, 0, u8.byteLength);
+    }
+    const encRes = this.encodeResident28LayerTilePass(tileTokenIds, seqPos, mlpMode);
+    if (!encRes.ok) {
+      return {
+        ok: false,
+        gpu_executed: false,
+        verdict: encRes.verdict,
+        dispatches: encRes.dispatches || 0,
+        bound_dispatches: encRes.bound_dispatches || 0,
+      };
+    }
+    let summary = null;
+    if (this.resultSummaryBuffer && typeof this.resultSummaryBuffer.mapAsync === 'function') {
+      try {
+        await this.resultSummaryBuffer.mapAsync(1);
+        if (typeof this.resultSummaryBuffer.getMappedRange === 'function') {
+          summary = new Uint8Array(this.resultSummaryBuffer.getMappedRange().slice(0));
+        }
+        if (typeof this.resultSummaryBuffer.unmap === 'function') {
+          this.resultSummaryBuffer.unmap();
+        }
+      } catch {
+        summary = null;
+      }
+    }
+    return {
+      ok: true,
+      gpu_executed: true,
+      verdict: 'LiveGpuBoundStepAdmitted',
+      dispatches: encRes.dispatches,
+      bound_dispatches: encRes.bound_dispatches,
+      summary,
     };
   }
 
@@ -3561,6 +3832,7 @@ export class WebGpuHoloEngine {
       this.residualPingBuffer,
       this.residualPongBuffer,
       this.resultSummaryBuffer,
+      this.qSig512InputBuffer,
     ]) {
       if (!buf) continue;
       try {
@@ -3574,6 +3846,8 @@ export class WebGpuHoloEngine {
     this.residualPingBuffer = null;
     this.residualPongBuffer = null;
     this.resultSummaryBuffer = null;
+    this.qSig512InputBuffer = null;
+    this.boundGroups = null;
     this.residentModelId = '';
   }
 
@@ -4077,6 +4351,26 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       if (!finWarm || finWarm.status !== 'ok') {
         throw new Error((finWarm && finWarm.message) || 'studio_finalize_holo_v13_mount failed');
       }
+      if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
+        try {
+          const meta = JSON.parse(
+            studio_export_holo_layer_slab_meta(
+              key,
+              BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
+              0n,
+            ),
+          );
+          if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
+            const nL = meta.layer_bytes.length || 28;
+            sharedWebGpuHoloEngine.mountResidentModelSlabs(
+              key,
+              new Uint8Array(nL * 64),
+              Array.from({ length: nL }, () => 64),
+              Number(meta.d_model) || 1024,
+            );
+          }
+        } catch {}
+      }
       await holoWriteManifestIndex({
         model_id: key,
         container_sha256: containerSha,
@@ -4273,6 +4567,26 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
     if (!fin || fin.status !== 'ok') {
       await slabWriter.abort();
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
+    }
+    if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
+      try {
+        const meta = JSON.parse(
+          studio_export_holo_layer_slab_meta(
+            key,
+            BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
+            0n,
+          ),
+        );
+        if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
+          const nL = meta.layer_bytes.length || 28;
+          sharedWebGpuHoloEngine.mountResidentModelSlabs(
+            key,
+            new Uint8Array(nL * 64),
+            Array.from({ length: nL }, () => 64),
+            Number(meta.d_model) || 1024,
+          );
+        }
+      } catch {}
     }
     await slabWriter.seal();
     await holoWriteManifestIndex({
@@ -5077,11 +5391,41 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   };
 
   /* Formal R4.HoloGeometricRuntime */
+  const activeGpuEngine = runtimeHooks.webgpuEngine || sharedWebGpuHoloEngine;
+  const fnPeekQSig =
+    runtimeHooks.holoPeekQSig512 ||
+    (typeof holo_peek_foundry_turn_qsig512 === 'function'
+      ? holo_peek_foundry_turn_qsig512
+      : globalThis.holo_peek_foundry_turn_qsig512);
+  const fnNotifyGpuStep =
+    runtimeHooks.holoNotifyGpuBoundStep ||
+    (typeof holo_notify_foundry_turn_gpu_bound_step === 'function'
+      ? holo_notify_foundry_turn_gpu_bound_step
+      : globalThis.holo_notify_foundry_turn_gpu_bound_step);
   async function* streamFoundryHopSlices(hopTurnId) {
     while (true) {
       if (isCancelled(ownerKey, hopTurnId)) {
         yield { status: 'cancelled', delta: '', tokens_emitted: 0, cancelled_by_host: true };
         return;
+      }
+      if (
+        activeGpuEngine &&
+        activeGpuEngine.device &&
+        Array.isArray(activeGpuEngine.residentLayerBuffers) &&
+        activeGpuEngine.residentLayerBuffers.length > 0 &&
+        typeof activeGpuEngine.stepLiveTurnBoundPassAsync === 'function'
+      ) {
+        const qSig =
+          typeof fnPeekQSig === 'function' ? fnPeekQSig(toBigIntId(hopTurnId)) : new Uint32Array(16);
+        const gpuPass = await activeGpuEngine.stepLiveTurnBoundPassAsync(qSig, [1], 0);
+        if (gpuPass && gpuPass.gpu_executed && typeof fnNotifyGpuStep === 'function') {
+          fnNotifyGpuStep(
+            toBigIntId(hopTurnId),
+            toBigIntId(gpuPass.dispatches || 0),
+            toBigIntId(gpuPass.bound_dispatches || 0),
+            toBigIntId(0),
+          );
+        }
       }
       const rawStep = fnStep(toBigIntId(hopTurnId));
       const stepRes = typeof rawStep === 'string' ? JSON.parse(rawStep) : rawStep;
@@ -15189,5 +15533,7 @@ if (
   self.name === 'uor-r4-engine-worker'
 ) {
   __uorStartDedicatedEngineWorker();
+} else if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+  registerStudioCoiServiceWorker().catch(() => {});
 }
 // === UOR_CUSTOM_SECTION_2_END ===

@@ -112,6 +112,7 @@ jobs:
 
           touch public/.nojekyll
           if [ -f site/app.json ]; then cp site/app.json public/app.json; fi
+          if [ -f site/coi-serviceworker.js ]; then cp site/coi-serviceworker.js public/coi-serviceworker.js; fi
           if [ -f site/icons/icon-192.png ]; then
             mkdir -p public/icons
             cp site/icons/icon-192.png public/icons/icon-192.png
