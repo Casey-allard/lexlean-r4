@@ -243,6 +243,8 @@ assert.ok(fs.existsSync(coiSwPath), 'site/coi-serviceworker.js must exist');
 const coiSrc = fs.readFileSync(coiSwPath, 'utf8');
 assert.ok(coiSrc.includes("'Cross-Origin-Opener-Policy', 'same-origin'"));
 assert.ok(coiSrc.includes("'Cross-Origin-Embedder-Policy', 'credentialless'"));
+assert.ok(coiSrc.includes("'Cross-Origin-Resource-Policy', 'same-origin'"));
+assert.ok(!coiSrc.includes("req.mode !== 'navigate'"), 'Must intercept same-origin worker & iframe GETs, not only navigate');
 assert.ok(!coiSrc.includes("'Cross-Origin-Embedder-Policy', 'require-corp'"), 'Must never set require-corp');
 
 const sessionMap = new Map();

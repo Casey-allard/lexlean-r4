@@ -4784,12 +4784,40 @@ export async function registerStudioCoiServiceWorker(env = globalThis) {
   if (!win || typeof win !== 'object') {
     return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
   }
-  if (win.crossOriginIsolated === true) {
-    return { ok: true, verdict: admitCoiCredentiallessMode(true, false, 0), isolated: true };
-  }
   const nav = win.navigator || (env && env.navigator);
   if (!win.isSecureContext || !nav || !nav.serviceWorker || typeof nav.serviceWorker.register !== 'function') {
-    return { ok: true, verdict: admitCoiCredentiallessMode(false, false, 0), isolated: false };
+    return {
+      ok: true,
+      verdict: admitCoiCredentiallessMode(Boolean(win.crossOriginIsolated), false, 0),
+      isolated: Boolean(win.crossOriginIsolated),
+    };
+  }
+  const swUrl = typeof import.meta !== 'undefined' && import.meta.url
+    ? new URL('./coi-serviceworker.js', import.meta.url).href
+    : './coi-serviceworker.js';
+  if (win.crossOriginIsolated === true) {
+    try {
+      const reg = await nav.serviceWorker.register(swUrl, { updateViaCache: 'none' });
+      if (reg && typeof reg.update === 'function') {
+        reg.update().catch(() => {});
+      }
+      const upgrading = reg && (reg.installing || reg.waiting);
+      if (upgrading && typeof upgrading.addEventListener === 'function') {
+        upgrading.addEventListener('statechange', () => {
+          if (upgrading.state === 'activated') {
+            try {
+              if (win.sessionStorage && win.sessionStorage.getItem('uor_coi_reloaded_v2') !== '1') {
+                win.sessionStorage.setItem('uor_coi_reloaded_v2', '1');
+                if (win.location && typeof win.location.reload === 'function') {
+                  win.location.reload();
+                }
+              }
+            } catch {}
+          }
+        });
+      }
+    } catch {}
+    return { ok: true, verdict: admitCoiCredentiallessMode(true, false, 0), isolated: true };
   }
   let reloadCount = 0;
   try {
@@ -4801,10 +4829,10 @@ export async function registerStudioCoiServiceWorker(env = globalThis) {
     return { ok: true, verdict: admitCoiCredentiallessMode(true, false, reloadCount), isolated: false };
   }
   try {
-    const swUrl = typeof import.meta !== 'undefined' && import.meta.url
-      ? new URL('./coi-serviceworker.js', import.meta.url).href
-      : './coi-serviceworker.js';
-    const reg = await nav.serviceWorker.register(swUrl);
+    const reg = await nav.serviceWorker.register(swUrl, { updateViaCache: 'none' });
+    if (reg && typeof reg.update === 'function') {
+      reg.update().catch(() => {});
+    }
     const triggerSingleReload = () => {
       try {
         if (win.sessionStorage && win.sessionStorage.getItem('uor_coi_reloaded_once') !== '1') {

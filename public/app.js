@@ -429,6 +429,17 @@ const AppState = {
 
 (() => {
   try {
+    if (
+      typeof localStorage !== 'undefined' &&
+      typeof localStorage.getItem === 'function' &&
+      typeof localStorage.setItem === 'function' &&
+      localStorage.getItem('uor_offline_q31_v15_migrated') !== '1'
+    ) {
+      if (typeof localStorage.removeItem === 'function') {
+        localStorage.removeItem('uor_offline_emergency_q31');
+      }
+      localStorage.setItem('uor_offline_q31_v15_migrated', '1');
+    }
     const emergency = typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function'
       && localStorage.getItem('uor_offline_emergency_q31') === '1';
     if (emergency) {
@@ -901,7 +912,29 @@ const engineWorkerClient = {
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
       this.worker.onerror = () => {
-        // Keep shadow workspace operational if worker script fails in restricted environment
+        this.enabled = false;
+        this.worker = null;
+        for (const [, p] of this.pending.entries()) {
+          try {
+            p.reject(new Error('Engine worker load failed; falling back to main-thread Wasm'));
+          } catch {}
+        }
+        this.pending.clear();
+        if (typeof mainThreadWasmReady !== 'undefined' && mainThreadWasmReady && typeof studio_dispatch === 'function') {
+          try {
+            const st = JSON.parse(studio_dispatch('1\tstudio\tstate\t'));
+            if (st && st.state_receipt_sha256) {
+              this.shadowState = st;
+              if (typeof renderAll === 'function') renderAll();
+            }
+          } catch {}
+        }
+        if (typeof navigator !== 'undefined' && navigator.serviceWorker && typeof navigator.serviceWorker.addEventListener === 'function' && !this._coiRetryBound) {
+          this._coiRetryBound = true;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!this.worker) this.spawn();
+          }, { once: true });
+        }
       };
       const initConsent = typeof safeStorageGet === 'function' ? safeStorageGet('uor_allow_off_origin_hydration') : null;
       if (initConsent === 'declined' && typeof safeStorageRemove === 'function') {
@@ -4506,6 +4539,14 @@ if (composerModelSelect) {
       holoObservatoryState.manualModelPinned = true;
     }
     const nextModel = e.target.value;
+    if (nextModel !== 'uor-r4.native-q31-d85' && typeof safeStorageRemove === 'function') {
+      safeStorageRemove('uor_offline_emergency_q31');
+      const emergencyChk = document.getElementById('settings-offline-q31-toggle');
+      if (emergencyChk) emergencyChk.checked = false;
+      if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+        engineWorkerClient.rpc('set_bridge_policy', { offlineEmergencyQ31: false }).catch(() => {});
+      }
+    }
     syncComposerModel(nextModel);
   });
 }
@@ -4522,6 +4563,14 @@ if (globalModelSelect) {
       holoObservatoryState.manualModelPinned = true;
     }
     const nextModel = e.target.value;
+    if (nextModel !== 'uor-r4.native-q31-d85' && typeof safeStorageRemove === 'function') {
+      safeStorageRemove('uor_offline_emergency_q31');
+      const emergencyChk = document.getElementById('settings-offline-q31-toggle');
+      if (emergencyChk) emergencyChk.checked = false;
+      if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+        engineWorkerClient.rpc('set_bridge_policy', { offlineEmergencyQ31: false }).catch(() => {});
+      }
+    }
     syncComposerModel(nextModel);
   });
 }
@@ -13156,8 +13205,23 @@ function updateWeightCacheBadge() {
     AppState.config.selectedModel = pickerVal;
   }
   const offlineEmergency = explicitEmergencyStored || selId === 'uor-r4.native-q31-d85';
-  if (topbarPicker && typeof topbarPicker.disabled === 'boolean') {
-    topbarPicker.disabled = Boolean(explicitEmergencyStored);
+  if (topbarPicker && topbarPicker.options && typeof document !== 'undefined' && document && typeof document.createElement === 'function') {
+    let dynOpt = Array.from(topbarPicker.options).find((o) => o && o.value === 'uor-r4.native-q31-d85');
+    if (offlineEmergency) {
+      if (!dynOpt) {
+        dynOpt = document.createElement('option');
+        dynOpt.value = 'uor-r4.native-q31-d85';
+        dynOpt.textContent = 'Offline Q31 · Emergency (0-Download)';
+        dynOpt.setAttribute('data-dynamic-emergency', '1');
+        topbarPicker.appendChild(dynOpt);
+      }
+      topbarPicker.value = 'uor-r4.native-q31-d85';
+    } else if (dynOpt && dynOpt.getAttribute && dynOpt.getAttribute('data-dynamic-emergency') === '1') {
+      dynOpt.remove();
+    }
+    if (typeof topbarPicker.disabled === 'boolean') {
+      topbarPicker.disabled = false;
+    }
   }
   const is17b = selId === 'uor-r4.qwen3-1.7b-holo';
   const targetMounted = Boolean(
