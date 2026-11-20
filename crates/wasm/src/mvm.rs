@@ -22,7 +22,7 @@ use crate::lexlean_generated::r4_spiralcore_vsock::{
     EgressPolicyCheck, EgressVerdict, Elf64HeaderSummary, ElfAdmission, FrameVerdict,
     SocketAdmission, SpiralCoreFrame,
 };
-use crate::mvm_cc::{compile_c_to_rv64_elf, CCompileError};
+use crate::mvm_cc::{compile_c_units_to_rv64_elf, CCompileError};
 
 /// Four-byte magic prefix for 16-byte `SpiralCore` `virtio-vsock` frames.
 pub const SPIRALCORE_MAGIC: [u8; 4] = *b"SPVS";
@@ -785,6 +785,7 @@ impl MvmSandbox {
             relay_ws_url: String::new(),
         };
         vm.mount_initramfs(INITRAMFS_IMAGE)?;
+        vm.seed_r4_63_headers_and_self_host()?;
         vm.dirty_sectors.clear();
         Ok(vm)
     }
@@ -1001,35 +1002,57 @@ impl MvmSandbox {
         self.dirty_sectors = snap.dirty_sectors.clone();
     }
 
+    /// Formal R4.MvmLinuxContainer mount and SHA-256 verify either raw `UORMVM01` or gzip-compressed `UORMVMZ1` initramfs images (`R4-63`).
+    pub fn mount_initramfs_image(&mut self, img: &[u8]) -> Result<(), MvmError> {
+        self.mount_initramfs(img)
+    }
+
     fn mount_initramfs(&mut self, img: &[u8]) -> Result<(), MvmError> {
-        if img.len() < 12 || &img[0..8] != b"UORMVM01" {
+        let decompressed;
+        let raw_img = if img.len() >= 8 && &img[0..8] == b"UORMVMZ1" {
+            decompressed = gzip_decompress_bytes(&img[8..])
+                .map_err(|e| MvmError::CorruptInitramfs(format!("corrupt UORMVMZ1 payload: {e}")))?;
+            decompressed.as_slice()
+        } else {
+            img
+        };
+        if raw_img.len() < 12 || &raw_img[0..8] != b"UORMVM01" {
             return Err(MvmError::CorruptInitramfs("bad magic".to_string()));
         }
-        let count = u32::from_le_bytes([img[8], img[9], img[10], img[11]]) as usize;
+        let count =
+            u32::from_le_bytes([raw_img[8], raw_img[9], raw_img[10], raw_img[11]]) as usize;
         let mut cur = 12usize;
         for _ in 0..count {
-            if cur + 42 > img.len() {
+            if cur + 42 > raw_img.len() {
                 return Err(MvmError::CorruptInitramfs(
                     "truncated entry header".to_string(),
                 ));
             }
-            let path_len = u16::from_le_bytes([img[cur], img[cur + 1]]) as usize;
-            let mode = u32::from_le_bytes([img[cur + 2], img[cur + 3], img[cur + 4], img[cur + 5]]);
-            let data_len =
-                u32::from_le_bytes([img[cur + 6], img[cur + 7], img[cur + 8], img[cur + 9]])
-                    as usize;
-            let expected_sha = &img[cur + 10..cur + 42];
+            let path_len = u16::from_le_bytes([raw_img[cur], raw_img[cur + 1]]) as usize;
+            let mode = u32::from_le_bytes([
+                raw_img[cur + 2],
+                raw_img[cur + 3],
+                raw_img[cur + 4],
+                raw_img[cur + 5],
+            ]);
+            let data_len = u32::from_le_bytes([
+                raw_img[cur + 6],
+                raw_img[cur + 7],
+                raw_img[cur + 8],
+                raw_img[cur + 9],
+            ]) as usize;
+            let expected_sha = &raw_img[cur + 10..cur + 42];
             cur += 42;
-            if cur + path_len + data_len > img.len() {
+            if cur + path_len + data_len > raw_img.len() {
                 return Err(MvmError::CorruptInitramfs(
                     "truncated entry payload".to_string(),
                 ));
             }
-            let path = std::str::from_utf8(&img[cur..cur + path_len])
+            let path = std::str::from_utf8(&raw_img[cur..cur + path_len])
                 .map_err(|_| MvmError::CorruptInitramfs("invalid utf8 path".to_string()))?
                 .to_string();
             cur += path_len;
-            let data = &img[cur..cur + data_len];
+            let data = &raw_img[cur..cur + data_len];
             cur += data_len;
 
             let mut h = Sha256::new();
@@ -1052,6 +1075,118 @@ impl MvmSandbox {
             } else {
                 self.write_inode_with_mode(&path, data, mode)?;
             }
+        }
+        Ok(())
+    }
+
+    /// Formal R4.MvmLinuxContainer seed freestanding C headers (`/usr/include/*`), self-hosting MVM sources (`/usr/src/mvm/*`), and Linux developer tool symlinks (`R4-63`).
+    fn seed_r4_63_headers_and_self_host(&mut self) -> Result<(), MvmError> {
+        for d in [
+            "/usr/include",
+            "/usr/include/sys",
+            "/usr/include/netinet",
+            "/usr/include/arpa",
+            "/usr/src",
+            "/usr/src/mvm",
+        ] {
+            self.dirs.insert(d.to_string());
+        }
+
+        const SEED_FILES: &[(&str, &str)] = &[
+            (
+                "/usr/include/stddef.h",
+                "#pragma once\n#define NULL 0\ntypedef unsigned long size_t;\n",
+            ),
+            (
+                "/usr/include/stdint.h",
+                "#pragma once\ntypedef long int64_t;\ntypedef unsigned long uint64_t;\n#define INT32_MAX 2147483647\n#define UINT32_MAX 4294967295\n",
+            ),
+            (
+                "/usr/include/stdbool.h",
+                "#pragma once\n#define true 1\n#define false 0\n",
+            ),
+            (
+                "/usr/include/errno.h",
+                "#pragma once\n#define ENOENT 2\n#define EBADF 9\n#define EACCES 13\n#define EINVAL 22\n#define ENOSYS 38\n#define EAFNOSUPPORT 97\n",
+            ),
+            (
+                "/usr/include/stdio.h",
+                "#pragma once\n#include <stddef.h>\nint puts(const char *s);\nint putchar(int c);\nint printf(const char *fmt, ...);\n",
+            ),
+            (
+                "/usr/include/stdlib.h",
+                "#pragma once\n#include <stddef.h>\nvoid exit(int status);\n",
+            ),
+            (
+                "/usr/include/string.h",
+                "#pragma once\n#include <stddef.h>\nsize_t strlen(const char *s);\nint strcmp(const char *a, const char *b);\nint strncmp(const char *a, const char *b, size_t n);\nchar *strcpy(char *dst, const char *src);\nvoid *memcpy(void *dst, const void *src, size_t n);\nvoid *memset(void *dst, int c, size_t n);\n",
+            ),
+            (
+                "/usr/include/sys/types.h",
+                "#pragma once\n#include <stddef.h>\n#include <stdint.h>\ntypedef long ssize_t;\ntypedef uint32_t socklen_t;\ntypedef uint16_t sa_family_t;\n",
+            ),
+            (
+                "/usr/include/unistd.h",
+                "#pragma once\n#include <stddef.h>\n#include <sys/types.h>\nssize_t read(int fd, void *buf, size_t count);\nssize_t write(int fd, const void *buf, size_t count);\nint close(int fd);\nint unlink(const char *pathname);\n",
+            ),
+            (
+                "/usr/include/fcntl.h",
+                "#pragma once\n#define O_RDONLY 0\n#define O_WRONLY 1\n#define O_RDWR 2\n#define O_CREAT 64\n#define O_TRUNC 512\n#define O_APPEND 1024\nint open(const char *pathname, int flags, ...);\nint openat(int dirfd, const char *pathname, int flags, ...);\n",
+            ),
+            (
+                "/usr/include/sys/socket.h",
+                "#pragma once\n#include <sys/types.h>\n#define AF_INET 2\n#define AF_INET6 10\n#define AF_VSOCK 40\n#define SOCK_STREAM 1\n#define SOCK_DGRAM 2\nstruct sockaddr {\n    uint16_t sa_family;\n    uint16_t sa_pad;\n};\nstruct sockaddr_vm {\n    uint16_t svm_family;\n    uint16_t svm_reserved1;\n    uint32_t svm_port;\n    uint32_t svm_cid;\n    uint32_t svm_zero;\n};\nint socket(int domain, int type, int protocol);\nint connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);\nssize_t send(int sockfd, const void *buf, size_t len, int flags);\nssize_t sendto(int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest_addr, socklen_t addrlen);\nssize_t recv(int sockfd, void *buf, size_t len, int flags);\nssize_t recvfrom(int sockfd, void *buf, size_t len, int flags, struct sockaddr *src_addr, socklen_t *addrlen);\n",
+            ),
+            (
+                "/usr/include/netinet/in.h",
+                "#pragma once\n#include <stdint.h>\n#include <sys/socket.h>\nstruct in_addr {\n    uint32_t s_addr;\n};\nstruct sockaddr_in {\n    uint16_t sin_family;\n    uint16_t sin_port;\n    struct in_addr sin_addr;\n    uint64_t sin_zero;\n};\nuint16_t htons(uint16_t hostshort);\nuint16_t ntohs(uint16_t netshort);\nuint32_t htonl(uint32_t hostlong);\nuint32_t ntohl(uint32_t netlong);\n",
+            ),
+            (
+                "/usr/include/arpa/inet.h",
+                "#pragma once\n#include <netinet/in.h>\n",
+            ),
+            (
+                "/usr/include/netdb.h",
+                "#pragma once\n#include <sys/socket.h>\nstruct addrinfo {\n    int ai_flags;\n    int ai_family;\n    int ai_socktype;\n    int ai_protocol;\n};\n",
+            ),
+            (
+                "/usr/src/mvm/README.md",
+                "# MVM Self-Hosting Guest Source Pack\nBuild and run `/usr/src/mvm/mvm_hello` directly inside MVM:\n  make -C /usr/src/mvm && /usr/src/mvm/mvm_hello\n",
+            ),
+            (
+                "/usr/src/mvm/mvm_util.h",
+                "#pragma once\nstruct MvmVec2 {\n    int x;\n    int y;\n};\nint mvm_dot2(struct MvmVec2 *a, struct MvmVec2 *b);\n",
+            ),
+            (
+                "/usr/src/mvm/mvm_util.c",
+                "#include \"mvm_util.h\"\nint mvm_dot2(struct MvmVec2 *a, struct MvmVec2 *b) {\n    return a->x * b->x + a->y * b->y;\n}\n",
+            ),
+            (
+                "/usr/src/mvm/mvm_hello.c",
+                "#include <stdio.h>\n#include \"mvm_util.h\"\nint main() {\n    struct MvmVec2 a;\n    struct MvmVec2 b;\n    a.x = 3;\n    a.y = 4;\n    b.x = 2;\n    b.y = 5;\n    int dot = mvm_dot2(&a, &b);\n    printf(\"MVM_SELF_HOST_OK dot=%d\\n\", dot);\n    return 0;\n}\n",
+            ),
+            (
+                "/usr/src/mvm/vsock_client.c",
+                "#include <stdio.h>\n#include <string.h>\n#include <sys/socket.h>\nint main() {\n    int fd = socket(AF_VSOCK, SOCK_STREAM, 0);\n    if (fd < 0) return 1;\n    struct sockaddr_vm addr;\n    addr.svm_family = AF_VSOCK;\n    addr.svm_reserved1 = 0;\n    addr.svm_port = 5257;\n    addr.svm_cid = 2;\n    addr.svm_zero = 0;\n    if (connect(fd, &addr, sizeof(addr)) < 0) return 2;\n    char msg[8];\n    strcpy(msg, \"PING\");\n    send(fd, msg, 4, 0);\n    return 0;\n}\n",
+            ),
+            (
+                "/usr/src/mvm/Makefile",
+                "CC = cc\nCFLAGS = -I/usr/src/mvm -Wall\n\nall: /usr/src/mvm/mvm_hello\n\n/usr/src/mvm/mvm_hello: /usr/src/mvm/mvm_util.c /usr/src/mvm/mvm_hello.c /usr/src/mvm/mvm_util.h\n\t$(CC) $(CFLAGS) /usr/src/mvm/mvm_util.c /usr/src/mvm/mvm_hello.c -o /usr/src/mvm/mvm_hello\n\nclean:\n\trm -f /usr/src/mvm/mvm_hello\n",
+            ),
+        ];
+
+        for &(path, content) in SEED_FILES {
+            self.write_inode_with_mode(path, content.as_bytes(), 0o100644)?;
+        }
+
+        for tool in ["rg", "xargs", "patch", "make", "df", "free", "xxd"] {
+            let link_path = format!("/bin/{tool}");
+            self.inodes.entry(link_path).or_insert_with(|| GuestInode {
+                mode: 0o120777,
+                kind: InodeKind::Symlink {
+                    target: "/bin/mvmbox".to_string(),
+                },
+            });
         }
         Ok(())
     }
@@ -3509,38 +3644,87 @@ impl MvmSandbox {
             return Ok(StageExecBytesOutcome::err(code, err_out));
         }
 
-        // Built-in C-to-RV64IM ELF64 compiler (`cc` / `gcc`)
-        if prog == "cc" || prog == "gcc" || prog == "/usr/bin/cc" {
-            let mut src_arg: Option<String> = None;
+        // Built-in C-to-RV64IM ELF64 compiler (`cc` / `gcc`) with multi-TU, `-I`, and `-D` support (`R4-63`)
+        if prog == "cc" || prog == "gcc" || prog == "/usr/bin/cc" || prog == "/usr/bin/gcc" {
+            let mut src_args: Vec<String> = Vec::new();
             let mut out_arg = "a.out".to_string();
+            let mut inc_dirs: Vec<String> = vec![working_cwd.clone(), "/usr/include".to_string()];
+            let mut defines: Vec<(String, String)> = Vec::new();
             let mut i = 1usize;
             while i < words.len() {
-                if words[i] == "-o" && i + 1 < words.len() {
+                let w = &words[i];
+                if w == "-o" && i + 1 < words.len() {
                     out_arg = words[i + 1].clone();
                     i += 2;
                     continue;
                 }
-                if !words[i].starts_with('-') && src_arg.is_none() {
-                    src_arg = Some(words[i].clone());
+                if let Some(rest) = w.strip_prefix("-o") {
+                    if !rest.is_empty() {
+                        out_arg = rest.to_string();
+                        i += 1;
+                        continue;
+                    }
                 }
+                if w == "-I" && i + 1 < words.len() {
+                    inc_dirs.push(Self::normalize_guest_path(working_cwd, &words[i + 1]));
+                    i += 2;
+                    continue;
+                }
+                if let Some(dir) = w.strip_prefix("-I") {
+                    if !dir.is_empty() {
+                        inc_dirs.push(Self::normalize_guest_path(working_cwd, dir));
+                    }
+                    i += 1;
+                    continue;
+                }
+                if w == "-D" && i + 1 < words.len() {
+                    let def = &words[i + 1];
+                    let (k, v) = def.split_once('=').unwrap_or((def.as_str(), "1"));
+                    defines.push((k.to_string(), v.to_string()));
+                    i += 2;
+                    continue;
+                }
+                if let Some(def) = w.strip_prefix("-D") {
+                    if !def.is_empty() {
+                        let (k, v) = def.split_once('=').unwrap_or((def, "1"));
+                        defines.push((k.to_string(), v.to_string()));
+                    }
+                    i += 1;
+                    continue;
+                }
+                if w.starts_with('-') {
+                    i += 1;
+                    continue;
+                }
+                src_args.push(w.clone());
                 i += 1;
             }
-            let Some(raw_src) = src_arg else {
+            if src_args.is_empty() {
                 return Ok(StageExecBytesOutcome::err(
                     1,
                     "cc: missing input C source file\n".to_string(),
                 ));
-            };
-            let src_path = Self::normalize_guest_path(working_cwd, &raw_src);
+            }
             let out_path = Self::normalize_guest_path(working_cwd, &out_arg);
-            let Some(src_bytes) = self.read_guest_file(&src_path) else {
-                return Ok(StageExecBytesOutcome::err(
-                    1,
-                    format!("cc: file not found: {src_path}\n"),
-                ));
-            };
-            let src_text = String::from_utf8_lossy(&src_bytes);
-            return match compile_c_to_rv64_elf(&src_text) {
+            let mut unit_storage: Vec<(String, String)> = Vec::with_capacity(src_args.len());
+            for raw_src in &src_args {
+                let src_path = Self::normalize_guest_path(working_cwd, raw_src);
+                let Some(src_bytes) = self.read_guest_file(&src_path) else {
+                    return Ok(StageExecBytesOutcome::err(
+                        1,
+                        format!("cc: file not found: {src_path}\n"),
+                    ));
+                };
+                unit_storage.push((src_path, String::from_utf8_lossy(&src_bytes).into_owned()));
+            }
+            let unit_refs: Vec<(&str, &str)> = unit_storage
+                .iter()
+                .map(|(p, s)| (p.as_str(), s.as_str()))
+                .collect();
+            return match compile_c_units_to_rv64_elf(&unit_refs, &inc_dirs, &defines, |hdr| {
+                self.read_guest_file(hdr)
+                    .and_then(|b| String::from_utf8(b).ok())
+            }) {
                 Ok(elf_bytes) => {
                     let adm = admit_elf64_riscv(&elf_bytes);
                     if adm != ElfAdmission::ElfAdmitted {
@@ -3569,6 +3753,17 @@ impl MvmSandbox {
             };
         }
 
+        // POSIX `sh`, `xargs`, and `make` developer runners (`R4-63`)
+        if matches!(prog, "sh" | "/bin/sh" | "/usr/bin/sh") {
+            return self.exec_sh_script_command(&words[1..], working_cwd, stdin_bytes);
+        }
+        if matches!(prog, "xargs" | "/bin/xargs" | "/usr/bin/xargs") {
+            return self.exec_xargs_command(&words[1..], working_cwd, stdin_bytes, stage_env);
+        }
+        if matches!(prog, "make" | "/bin/make" | "/usr/bin/make") {
+            return self.exec_make_command(&words[1..], working_cwd);
+        }
+
         // Local synchronous `pkg` / `git` invocations
         if prog == "pkg" || prog == "git" {
             let res = if prog == "pkg" {
@@ -3588,6 +3783,23 @@ impl MvmSandbox {
         // Explicit path execution (`/bin/...`, `/sbin/...`, `/usr/bin/...`, `/workspace/...`, `./...`)
         if prog.starts_with('/') || prog.starts_with("./") || prog.starts_with("../") {
             let p = Self::normalize_guest_path(working_cwd, prog);
+            if let Some(applet) = p
+                .strip_prefix("/usr/bin/")
+                .or_else(|| p.strip_prefix("/bin/"))
+                .or_else(|| p.strip_prefix("/sbin/"))
+            {
+                if matches!(applet, "rg" | "patch" | "df" | "free" | "xxd") {
+                    if let Some(res) = self.try_exec_native_coreutil(
+                        applet,
+                        &words[1..],
+                        working_cwd,
+                        stdin_bytes,
+                        stage_env,
+                    ) {
+                        return Ok(res);
+                    }
+                }
+            }
             if self.inodes.contains_key(&p) {
                 let out = self.run_elf_process_with_stdin(&p, words, working_cwd, stdin_bytes)?;
                 return Ok(StageExecBytesOutcome::from_exec_outcome(out));
@@ -3672,6 +3884,605 @@ impl MvmSandbox {
             127,
             format!("mvm-sh: command not found: {prog}\n"),
         ))
+    }
+
+    /// Formal R4.MvmLinuxContainer execute POSIX shell scripts or `-c` commands inside guest MVM CoW VFS (`R4-63`).
+    fn exec_sh_script_command(
+        &mut self,
+        args: &[String],
+        working_cwd: &str,
+        stdin_bytes: &[u8],
+    ) -> Result<StageExecBytesOutcome, MvmError> {
+        let mut errexit = false;
+        let mut inline_cmd = false;
+        let mut idx = 0usize;
+        while idx < args.len() {
+            let a = &args[idx];
+            if a == "--" {
+                idx += 1;
+                break;
+            }
+            if !a.starts_with('-') || a == "-" {
+                break;
+            }
+            for ch in a[1..].chars() {
+                match ch {
+                    'e' => errexit = true,
+                    'c' => inline_cmd = true,
+                    'x' => {}
+                    _ => {}
+                }
+            }
+            idx += 1;
+        }
+
+        let (script_name, script_text, pos_args): (String, String, Vec<String>) = if inline_cmd {
+            let Some(cmd_str) = args.get(idx) else {
+                return Ok(StageExecBytesOutcome::err(
+                    2,
+                    "sh: -c requires an argument\n".to_string(),
+                ));
+            };
+            let sname = args.get(idx + 1).cloned().unwrap_or_else(|| "sh".to_string());
+            let rest = if args.len() > idx + 2 {
+                args[idx + 2..].to_vec()
+            } else {
+                Vec::new()
+            };
+            (sname, cmd_str.clone(), rest)
+        } else if let Some(path_arg) = args.get(idx) {
+            let norm = Self::normalize_guest_path(working_cwd, path_arg);
+            let Some(bytes) = self.read_guest_file(&norm) else {
+                return Ok(StageExecBytesOutcome::err(
+                    127,
+                    format!("sh: can't open '{path_arg}': No such file or directory\n"),
+                ));
+            };
+            let rest = args[idx + 1..].to_vec();
+            (
+                path_arg.clone(),
+                String::from_utf8_lossy(&bytes).into_owned(),
+                rest,
+            )
+        } else {
+            (
+                "sh".to_string(),
+                String::from_utf8_lossy(stdin_bytes).into_owned(),
+                Vec::new(),
+            )
+        };
+
+        let mut logical_lines = Vec::new();
+        let mut cur_line = String::new();
+        for raw in script_text.lines() {
+            let no_cr = raw.trim_end_matches('\r');
+            let trimmed = no_cr.trim_start();
+            if cur_line.is_empty() && (trimmed.is_empty() || trimmed.starts_with('#')) {
+                continue;
+            }
+            if let Some(cont) = no_cr.strip_suffix('\\') {
+                cur_line.push_str(cont);
+                cur_line.push(' ');
+            } else {
+                cur_line.push_str(no_cr);
+                if !cur_line.trim().is_empty() {
+                    logical_lines.push(cur_line.clone());
+                }
+                cur_line.clear();
+            }
+        }
+        if !cur_line.trim().is_empty() {
+            logical_lines.push(cur_line);
+        }
+
+        let outer_cwd = self.current_cwd.clone();
+        let mut sub_cwd = working_cwd.to_string();
+        let mut out_bytes = Vec::new();
+        let mut err_str = String::new();
+        let mut total_insts = 0u64;
+        let mut vsock_frames = Vec::new();
+        let mut compiled_elf_machine = None;
+        let mut last_exit = 0i32;
+
+        for raw_line in &logical_lines {
+            let mut expanded = String::with_capacity(raw_line.len());
+            let bytes = raw_line.as_bytes();
+            let mut i = 0usize;
+            while i < bytes.len() {
+                if bytes[i] == b'$' && i + 1 < bytes.len() {
+                    let next = bytes[i + 1];
+                    if next == b'#' {
+                        expanded.push_str(&pos_args.len().to_string());
+                        i += 2;
+                        continue;
+                    }
+                    if next == b'@' || next == b'*' {
+                        expanded.push_str(&pos_args.join(" "));
+                        i += 2;
+                        continue;
+                    }
+                    if next.is_ascii_digit() {
+                        let d = (next - b'0') as usize;
+                        if d == 0 {
+                            expanded.push_str(&script_name);
+                        } else if let Some(val) = pos_args.get(d - 1) {
+                            expanded.push_str(val);
+                        }
+                        i += 2;
+                        continue;
+                    }
+                    if next == b'{' && i + 3 < bytes.len() && bytes[i + 2].is_ascii_digit() && bytes[i + 3] == b'}' {
+                        let d = (bytes[i + 2] - b'0') as usize;
+                        if d == 0 {
+                            expanded.push_str(&script_name);
+                        } else if let Some(val) = pos_args.get(d - 1) {
+                            expanded.push_str(val);
+                        }
+                        i += 4;
+                        continue;
+                    }
+                }
+                expanded.push(bytes[i] as char);
+                i += 1;
+            }
+            let step = self.exec_command(&expanded, &sub_cwd)?;
+            sub_cwd = self.current_cwd.clone();
+            out_bytes.extend_from_slice(step.stdout.as_bytes());
+            err_str.push_str(&step.stderr);
+            last_exit = step.exit_code;
+            total_insts = total_insts.saturating_add(step.instructions_retired);
+            vsock_frames.extend(step.vsock_frames);
+            if step.compiled_elf_machine.is_some() {
+                compiled_elf_machine = step.compiled_elf_machine;
+            }
+            if errexit && last_exit != 0 {
+                break;
+            }
+        }
+
+        self.current_cwd = outer_cwd.clone();
+        self.env_vars.insert("PWD".to_string(), outer_cwd);
+
+        Ok(StageExecBytesOutcome {
+            exit_code: last_exit,
+            stdout: out_bytes,
+            stderr: err_str,
+            instructions_retired: total_insts,
+            vsock_frames,
+            compiled_elf_machine,
+        })
+    }
+
+    /// Formal R4.MvmLinuxContainer execute piped argument lists via MVM command dispatch (`R4-63`).
+    fn exec_xargs_command(
+        &mut self,
+        args: &[String],
+        working_cwd: &mut String,
+        stdin_bytes: &[u8],
+        stage_env: &BTreeMap<String, String>,
+    ) -> Result<StageExecBytesOutcome, MvmError> {
+        let mut nul_sep = false;
+        let mut no_run_empty = false;
+        let mut max_args: Option<usize> = None;
+        let mut replace_tok: Option<String> = None;
+        let mut idx = 0usize;
+        while idx < args.len() {
+            let a = &args[idx];
+            if a == "--" {
+                idx += 1;
+                break;
+            }
+            if !a.starts_with('-') || a == "-" {
+                break;
+            }
+            if a == "-0" || a == "--null" {
+                nul_sep = true;
+            } else if a == "-r" || a == "--no-run-if-empty" {
+                no_run_empty = true;
+            } else if a == "-n" && idx + 1 < args.len() {
+                max_args = args[idx + 1].parse::<usize>().ok().filter(|&v| v > 0);
+                idx += 2;
+                continue;
+            } else if a == "-I" && idx + 1 < args.len() {
+                replace_tok = Some(args[idx + 1].clone());
+                idx += 2;
+                continue;
+            }
+            idx += 1;
+        }
+
+        let cmd_template: Vec<String> = if idx < args.len() {
+            args[idx..].to_vec()
+        } else {
+            vec!["echo".to_string()]
+        };
+
+        let raw_text = String::from_utf8_lossy(stdin_bytes);
+        let items: Vec<String> = if nul_sep {
+            raw_text
+                .split('\0')
+                .filter(|s| !s.is_empty())
+                .map(|s| s.to_string())
+                .collect()
+        } else if replace_tok.is_some() {
+            raw_text
+                .lines()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(|s| s.to_string())
+                .collect()
+        } else {
+            raw_text
+                .split_whitespace()
+                .map(|s| s.to_string())
+                .collect()
+        };
+
+        if items.is_empty() && no_run_empty {
+            return Ok(StageExecBytesOutcome::ok_empty());
+        }
+
+        let mut stdout = Vec::new();
+        let mut stderr = String::new();
+        let mut exit_code = 0i32;
+        let mut total_insts = 0u64;
+        let mut vsock_frames = Vec::new();
+        let mut compiled_elf_machine = None;
+
+        if let Some(ref ph) = replace_tok {
+            for item in &items {
+                let words: Vec<String> = cmd_template
+                    .iter()
+                    .map(|w| w.replace(ph.as_str(), item))
+                    .collect();
+                let res = self.exec_single_command_words(&words, working_cwd, &[], stage_env)?;
+                stdout.extend_from_slice(&res.stdout);
+                stderr.push_str(&res.stderr);
+                if res.exit_code != 0 {
+                    exit_code = res.exit_code;
+                }
+                total_insts = total_insts.saturating_add(res.instructions_retired);
+                vsock_frames.extend(res.vsock_frames);
+                if res.compiled_elf_machine.is_some() {
+                    compiled_elf_machine = res.compiled_elf_machine;
+                }
+            }
+        } else if items.is_empty() {
+            let res = self.exec_single_command_words(&cmd_template, working_cwd, &[], stage_env)?;
+            return Ok(res);
+        } else {
+            let chunk_len = max_args.unwrap_or(items.len());
+            for chunk in items.chunks(chunk_len) {
+                let mut words = cmd_template.clone();
+                words.extend(chunk.iter().cloned());
+                let res = self.exec_single_command_words(&words, working_cwd, &[], stage_env)?;
+                stdout.extend_from_slice(&res.stdout);
+                stderr.push_str(&res.stderr);
+                if res.exit_code != 0 {
+                    exit_code = res.exit_code;
+                }
+                total_insts = total_insts.saturating_add(res.instructions_retired);
+                vsock_frames.extend(res.vsock_frames);
+                if res.compiled_elf_machine.is_some() {
+                    compiled_elf_machine = res.compiled_elf_machine;
+                }
+            }
+        }
+
+        Ok(StageExecBytesOutcome {
+            exit_code,
+            stdout,
+            stderr,
+            instructions_retired: total_insts,
+            vsock_frames,
+            compiled_elf_machine,
+        })
+    }
+
+    /// Formal R4.MvmLinuxContainer execute `Makefile` targets against guest `/workspace` and `/usr/src/mvm` (`R4-63`).
+    fn exec_make_command(
+        &mut self,
+        args: &[String],
+        working_cwd: &str,
+    ) -> Result<StageExecBytesOutcome, MvmError> {
+        let mut make_dir = working_cwd.to_string();
+        let mut makefile_name: Option<String> = None;
+        let mut dry_run = false;
+        let mut cli_vars: BTreeMap<String, String> = BTreeMap::new();
+        let mut requested_targets: Vec<String> = Vec::new();
+
+        let mut idx = 0usize;
+        while idx < args.len() {
+            let a = &args[idx];
+            if (a == "-C" || a == "--directory") && idx + 1 < args.len() {
+                make_dir = Self::normalize_guest_path(&make_dir, &args[idx + 1]);
+                idx += 2;
+                continue;
+            }
+            if (a == "-f" || a == "--file" || a == "--makefile") && idx + 1 < args.len() {
+                makefile_name = Some(args[idx + 1].clone());
+                idx += 2;
+                continue;
+            }
+            if a == "-n" || a == "--just-print" || a == "--dry-run" {
+                dry_run = true;
+                idx += 1;
+                continue;
+            }
+            if a.starts_with('-') {
+                idx += 1;
+                continue;
+            }
+            if let Some((k, v)) = a.split_once('=') {
+                cli_vars.insert(k.trim().to_string(), v.trim().to_string());
+            } else {
+                requested_targets.push(a.clone());
+            }
+            idx += 1;
+        }
+
+        let mf_path = if let Some(ref f) = makefile_name {
+            Self::normalize_guest_path(&make_dir, f)
+        } else {
+            let c1 = Self::normalize_guest_path(&make_dir, "Makefile");
+            let c2 = Self::normalize_guest_path(&make_dir, "makefile");
+            if self.inodes.contains_key(&c1) {
+                c1
+            } else {
+                c2
+            }
+        };
+        let Some(mf_bytes) = self.read_guest_file(&mf_path) else {
+            return Ok(StageExecBytesOutcome::err(
+                2,
+                format!("make: *** No targets specified and no makefile found in {make_dir}. Stop.\n"),
+            ));
+        };
+        let mf_text = String::from_utf8_lossy(&mf_bytes);
+
+        #[derive(Clone)]
+        struct MakeRule {
+            name: String,
+            deps: Vec<String>,
+            recipes: Vec<String>,
+        }
+
+        let mut vars: BTreeMap<String, String> = BTreeMap::new();
+        for (k, v) in &self.env_vars {
+            vars.insert(k.clone(), v.clone());
+        }
+        let mut rules: BTreeMap<String, MakeRule> = BTreeMap::new();
+        let mut default_target: Option<String> = None;
+        let mut cur_target: Option<String> = None;
+
+        for raw in mf_text.lines() {
+            let line = raw.trim_end_matches('\r');
+            if let Some(recipe_raw) = line.strip_prefix('\t') {
+                if let Some(ref t) = cur_target {
+                    if let Some(rule) = rules.get_mut(t) {
+                        let r = recipe_raw.trim();
+                        if !r.is_empty() {
+                            rule.recipes.push(r.to_string());
+                        }
+                    }
+                }
+                continue;
+            }
+            let trimmed = line.trim();
+            if trimmed.is_empty() || trimmed.starts_with('#') || trimmed.starts_with(".PHONY") {
+                cur_target = None;
+                continue;
+            }
+            if let Some((lhs, rhs)) = trimmed.split_once(":=") {
+                vars.insert(lhs.trim().to_string(), rhs.trim().to_string());
+                cur_target = None;
+                continue;
+            }
+            if let Some((lhs, rhs)) = trimmed.split_once('=') {
+                if !lhs.contains(':') {
+                    vars.insert(lhs.trim().to_string(), rhs.trim().to_string());
+                    cur_target = None;
+                    continue;
+                }
+            }
+            if let Some((tpart, dpart)) = trimmed.split_once(':') {
+                let tname = tpart.trim().to_string();
+                if default_target.is_none() && !tname.starts_with('.') {
+                    default_target = Some(tname.clone());
+                }
+                let deps: Vec<String> = dpart
+                    .split_whitespace()
+                    .map(|s| s.to_string())
+                    .collect();
+                rules.entry(tname.clone()).or_insert_with(|| MakeRule {
+                    name: tname.clone(),
+                    deps,
+                    recipes: Vec::new(),
+                });
+                cur_target = Some(tname);
+            }
+        }
+        for (k, v) in cli_vars {
+            vars.insert(k, v);
+        }
+
+        fn expand_make_vars(
+            input: &str,
+            vars: &BTreeMap<String, String>,
+            target: &str,
+            deps: &[String],
+        ) -> String {
+            let mut cur = input.to_string();
+            for _ in 0..8 {
+                let mut next = String::with_capacity(cur.len());
+                let b = cur.as_bytes();
+                let mut i = 0usize;
+                let mut changed = false;
+                while i < b.len() {
+                    if b[i] == b'$' && i + 1 < b.len() {
+                        if b[i + 1] == b'$' {
+                            next.push('$');
+                            i += 2;
+                            continue;
+                        }
+                        if b[i + 1] == b'@' {
+                            next.push_str(target);
+                            i += 2;
+                            changed = true;
+                            continue;
+                        }
+                        if b[i + 1] == b'<' {
+                            if let Some(first_dep) = deps.first() {
+                                next.push_str(first_dep);
+                            }
+                            i += 2;
+                            changed = true;
+                            continue;
+                        }
+                        if b[i + 1] == b'^' {
+                            next.push_str(&deps.join(" "));
+                            i += 2;
+                            changed = true;
+                            continue;
+                        }
+                        if b[i + 1] == b'(' || b[i + 1] == b'{' {
+                            let close = if b[i + 1] == b'(' { b')' } else { b'}' };
+                            if let Some(rel_end) = b[i + 2..].iter().position(|&c| c == close) {
+                                let key = &cur[i + 2..i + 2 + rel_end];
+                                if let Some(val) = vars.get(key) {
+                                    next.push_str(val);
+                                }
+                                i += 3 + rel_end;
+                                changed = true;
+                                continue;
+                            }
+                        }
+                    }
+                    next.push(b[i] as char);
+                    i += 1;
+                }
+                cur = next;
+                if !changed {
+                    break;
+                }
+            }
+            cur
+        }
+
+        if requested_targets.is_empty() {
+            if let Some(dt) = default_target {
+                requested_targets.push(dt);
+            } else {
+                return Ok(StageExecBytesOutcome::err(
+                    2,
+                    "make: *** No targets. Stop.\n".to_string(),
+                ));
+            }
+        }
+
+        fn collect_rule_order(
+            tname: &str,
+            rules: &BTreeMap<String, MakeRule>,
+            vars: &BTreeMap<String, String>,
+            visited: &mut BTreeSet<String>,
+            order: &mut Vec<String>,
+            depth: usize,
+        ) -> Result<(), String> {
+            if depth > 16 {
+                return Err(format!("make: dependency recursion limit reached on `{tname}`"));
+            }
+            let exp = expand_make_vars(tname, vars, tname, &[]);
+            if visited.contains(&exp) {
+                return Ok(());
+            }
+            if let Some(rule) = rules.get(&exp) {
+                for dep in &rule.deps {
+                    let dep_exp = expand_make_vars(dep, vars, &rule.name, &rule.deps);
+                    if rules.contains_key(&dep_exp) {
+                        collect_rule_order(&dep_exp, rules, vars, visited, order, depth + 1)?;
+                    }
+                }
+                visited.insert(exp.clone());
+                order.push(exp);
+            }
+            Ok(())
+        }
+
+        let mut visited = BTreeSet::new();
+        let mut order = Vec::new();
+        for t in &requested_targets {
+            let exp_t = expand_make_vars(t, &vars, t, &[]);
+            if !rules.contains_key(&exp_t) {
+                return Ok(StageExecBytesOutcome::err(
+                    2,
+                    format!("make: *** No rule to make target '{exp_t}'. Stop.\n"),
+                ));
+            }
+            if let Err(msg) =
+                collect_rule_order(&exp_t, &rules, &vars, &mut visited, &mut order, 0)
+            {
+                return Ok(StageExecBytesOutcome::err(2, format!("{msg}\n")));
+            }
+        }
+
+        let outer_cwd = self.current_cwd.clone();
+        let mut stdout = Vec::new();
+        let mut stderr = String::new();
+        let mut total_insts = 0u64;
+        let mut vsock_frames = Vec::new();
+        let mut compiled_elf_machine = None;
+
+        for tname in &order {
+            if let Some(rule) = rules.get(tname) {
+                for recipe in &rule.recipes {
+                    let silent = recipe.starts_with('@');
+                    let clean_recipe = recipe.strip_prefix('@').unwrap_or(recipe.as_str()).trim();
+                    let cmd = expand_make_vars(clean_recipe, &vars, &rule.name, &rule.deps);
+                    if !silent {
+                        stdout.extend_from_slice(cmd.as_bytes());
+                        stdout.push(b'\n');
+                    }
+                    if dry_run {
+                        continue;
+                    }
+                    let step = self.exec_command(&cmd, &make_dir)?;
+                    stdout.extend_from_slice(step.stdout.as_bytes());
+                    stderr.push_str(&step.stderr);
+                    total_insts = total_insts.saturating_add(step.instructions_retired);
+                    vsock_frames.extend(step.vsock_frames);
+                    if step.compiled_elf_machine.is_some() {
+                        compiled_elf_machine = step.compiled_elf_machine;
+                    }
+                    if step.exit_code != 0 {
+                        stderr.push_str(&format!(
+                            "make: *** [{mf_path}: {tname}] Error {}\n",
+                            step.exit_code
+                        ));
+                        self.current_cwd = outer_cwd.clone();
+                        self.env_vars.insert("PWD".to_string(), outer_cwd);
+                        return Ok(StageExecBytesOutcome {
+                            exit_code: 2,
+                            stdout,
+                            stderr,
+                            instructions_retired: total_insts,
+                            vsock_frames,
+                            compiled_elf_machine,
+                        });
+                    }
+                }
+            }
+        }
+
+        self.current_cwd = outer_cwd.clone();
+        self.env_vars.insert("PWD".to_string(), outer_cwd);
+        Ok(StageExecBytesOutcome {
+            exit_code: 0,
+            stdout,
+            stderr,
+            instructions_retired: total_insts,
+            vsock_frames,
+            compiled_elf_machine,
+        })
     }
 
     fn resolve_guest_exec_path(&self, working_cwd: &str, prog: &str) -> Option<String> {
@@ -7954,6 +8765,213 @@ fn gzip_decompress_bytes(bytes: &[u8]) -> Result<Vec<u8>, &'static str> {
     Ok(out)
 }
 
+/// Formal R4.MvmLinuxContainer compress bytes into an RFC 1952 gzip container using RFC 1951 Fixed-Huffman LZ77 Deflate (`R4-63`).
+fn gzip_compress_bytes(input: &[u8]) -> Vec<u8> {
+    struct DeflateBitWriter {
+        out: Vec<u8>,
+        bit_buf: u32,
+        bit_cnt: u8,
+    }
+
+    impl DeflateBitWriter {
+        fn new(cap: usize) -> Self {
+            Self {
+                out: Vec::with_capacity(cap),
+                bit_buf: 0,
+                bit_cnt: 0,
+            }
+        }
+
+        fn write_bit(&mut self, bit: u32) {
+            self.bit_buf |= (bit & 1) << self.bit_cnt;
+            self.bit_cnt += 1;
+            if self.bit_cnt == 8 {
+                self.out.push(self.bit_buf as u8);
+                self.bit_buf = 0;
+                self.bit_cnt = 0;
+            }
+        }
+
+        fn write_bits_lsb(&mut self, val: u32, nbits: u8) {
+            for i in 0..nbits {
+                self.write_bit(val >> i);
+            }
+        }
+
+        fn write_huff_msb(&mut self, code: u32, nbits: u8) {
+            for i in (0..nbits).rev() {
+                self.write_bit(code >> i);
+            }
+        }
+
+        fn write_fixed_lit(&mut self, sym: u32) {
+            if sym < 144 {
+                self.write_huff_msb(0x30 + sym, 8);
+            } else if sym < 256 {
+                self.write_huff_msb(0x190 + (sym - 144), 9);
+            } else if sym < 280 {
+                self.write_huff_msb(sym - 256, 7);
+            } else {
+                self.write_huff_msb(0xC0 + (sym - 280), 8);
+            }
+        }
+
+        fn finish(mut self) -> Vec<u8> {
+            if self.bit_cnt > 0 {
+                self.out.push(self.bit_buf as u8);
+            }
+            self.out
+        }
+    }
+
+    const LEN_BASE: [usize; 29] = [
+        3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115,
+        131, 163, 195, 227, 258,
+    ];
+    const LEN_EXTRA: [u8; 29] = [
+        0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0,
+    ];
+    const DIST_BASE: [usize; 30] = [
+        1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537,
+        2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577,
+    ];
+    const DIST_EXTRA: [u8; 30] = [
+        0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12,
+        13, 13,
+    ];
+
+    let build_stored = || -> Vec<u8> {
+        let mut out = Vec::with_capacity(input.len() + 24);
+        out.extend_from_slice(&[0x1f, 0x8b, 0x08, 0x00, 0, 0, 0, 0, 0, 0x03]);
+        if input.is_empty() {
+            out.push(0x01);
+            out.extend_from_slice(&0u16.to_le_bytes());
+            out.extend_from_slice(&(!0u16).to_le_bytes());
+        } else {
+            let chunks = input.chunks(65_535);
+            let total_chunks = chunks.len();
+            for (idx, chunk) in chunks.enumerate() {
+                let bfinal = if idx + 1 == total_chunks { 0x01u8 } else { 0x00u8 };
+                out.push(bfinal);
+                let len16 = chunk.len() as u16;
+                out.extend_from_slice(&len16.to_le_bytes());
+                out.extend_from_slice(&(!len16).to_le_bytes());
+                out.extend_from_slice(chunk);
+            }
+        }
+        out.extend_from_slice(&crc32_ieee(input).to_le_bytes());
+        out.extend_from_slice(&(input.len() as u32).to_le_bytes());
+        out
+    };
+
+    if input.len() < 16 {
+        return build_stored();
+    }
+
+    let mut bw = DeflateBitWriter::new(input.len() / 2 + 32);
+    bw.out.extend_from_slice(&[0x1f, 0x8b, 0x08, 0x00, 0, 0, 0, 0, 0, 0x03]);
+    bw.write_bits_lsb(1, 1); // BFINAL = 1
+    bw.write_bits_lsb(1, 2); // BTYPE = 01 (Fixed Huffman)
+
+    let hash3 = |idx: usize| -> usize {
+        let a = input[idx] as usize;
+        let b = input[idx + 1] as usize;
+        let c = input[idx + 2] as usize;
+        ((a << 10) ^ (b << 5) ^ c) & 4095
+    };
+    let mut head = vec![usize::MAX; 4096];
+    let mut prev = vec![usize::MAX; 32768];
+    let mut pos = 0usize;
+
+    while pos < input.len() {
+        let mut best_len = 0usize;
+        let mut best_dist = 0usize;
+        if pos + 3 <= input.len() {
+            let h = hash3(pos);
+            let mut cand = head[h];
+            let mut hops = 0usize;
+            while cand != usize::MAX && hops < 16 && pos - cand <= 32768 {
+                let max_cmp = (input.len() - pos).min(258);
+                let mut l = 0usize;
+                while l < max_cmp && input[cand + l] == input[pos + l] {
+                    l += 1;
+                }
+                if l >= 3 && l > best_len {
+                    best_len = l;
+                    best_dist = pos - cand;
+                    if best_len == 258 {
+                        break;
+                    }
+                }
+                cand = prev[cand & 32767];
+                hops += 1;
+            }
+        }
+
+        if best_len >= 3 {
+            let mut lidx = 0usize;
+            while lidx + 1 < LEN_BASE.len() && best_len >= LEN_BASE[lidx + 1] {
+                lidx += 1;
+            }
+            bw.write_fixed_lit((257 + lidx) as u32);
+            let lextra = (best_len - LEN_BASE[lidx]) as u32;
+            if LEN_EXTRA[lidx] > 0 {
+                bw.write_bits_lsb(lextra, LEN_EXTRA[lidx]);
+            }
+
+            let mut didx = 0usize;
+            while didx + 1 < DIST_BASE.len() && best_dist >= DIST_BASE[didx + 1] {
+                didx += 1;
+            }
+            bw.write_huff_msb(didx as u32, 5);
+            let dextra = (best_dist - DIST_BASE[didx]) as u32;
+            if DIST_EXTRA[didx] > 0 {
+                bw.write_bits_lsb(dextra, DIST_EXTRA[didx]);
+            }
+
+            let end_pos = (pos + best_len).min(input.len().saturating_sub(2));
+            for k in pos..end_pos {
+                let h = hash3(k);
+                prev[k & 32767] = head[h];
+                head[h] = k;
+            }
+            pos += best_len;
+        } else {
+            if pos + 3 <= input.len() {
+                let h = hash3(pos);
+                prev[pos & 32767] = head[h];
+                head[h] = pos;
+            }
+            bw.write_fixed_lit(input[pos] as u32);
+            pos += 1;
+        }
+    }
+
+    bw.write_fixed_lit(256); // End of block
+    let mut deflated = bw.finish();
+    deflated.extend_from_slice(&crc32_ieee(input).to_le_bytes());
+    deflated.extend_from_slice(&(input.len() as u32).to_le_bytes());
+    if deflated.len() < input.len() + 24 {
+        deflated
+    } else {
+        build_stored()
+    }
+}
+
+/// Formal R4.MvmLinuxContainer pack a raw `UORMVM01` initramfs image into a compressed `UORMVMZ1` container (`R4-63`).
+pub fn pack_compressed_initramfs_uormvmz1(uormvm01_bytes: &[u8]) -> Result<Vec<u8>, MvmError> {
+    if uormvm01_bytes.len() < 12 || &uormvm01_bytes[0..8] != b"UORMVM01" {
+        return Err(MvmError::CorruptInitramfs(
+            "expected UORMVM01 payload for compression".to_string(),
+        ));
+    }
+    let gz = gzip_compress_bytes(uormvm01_bytes);
+    let mut packed = Vec::with_capacity(8 + gz.len());
+    packed.extend_from_slice(b"UORMVMZ1");
+    packed.extend_from_slice(&gz);
+    Ok(packed)
+}
+
 // ============================================================================
 // Pure-Rust Native Coreutils Applets (`R4-57`)
 // ============================================================================
@@ -7972,7 +8990,12 @@ impl MvmSandbox {
             .or_else(|| self.exec_coreutil_text_lang(prog, args, cwd, stdin))
         {
             let _ = self.cow_state_sha256();
-            if out.exit_code != 0 && out.stderr.is_empty() && prog != "diff" && prog != "grep" {
+            if out.exit_code != 0
+                && out.stderr.is_empty()
+                && prog != "diff"
+                && prog != "grep"
+                && prog != "rg"
+            {
                 out.stderr = format!("{prog}: operation failed\n");
             }
             return Some(out);
@@ -9422,34 +10445,6 @@ impl MvmSandbox {
         cwd: &str,
         stdin: &[u8],
     ) -> Option<StageExecBytesOutcome> {
-        fn gzip_compress_bytes(input: &[u8]) -> Vec<u8> {
-            let mut out = Vec::with_capacity(input.len() + 24);
-            out.extend_from_slice(&[0x1f, 0x8b, 0x08, 0x00, 0, 0, 0, 0, 0, 0x03]);
-            if input.is_empty() {
-                out.push(0x01);
-                out.extend_from_slice(&0u16.to_le_bytes());
-                out.extend_from_slice(&(!0u16).to_le_bytes());
-            } else {
-                let chunks = input.chunks(65_535);
-                let total_chunks = chunks.len();
-                for (idx, chunk) in chunks.enumerate() {
-                    let bfinal = if idx + 1 == total_chunks {
-                        0x01u8
-                    } else {
-                        0x00u8
-                    };
-                    out.push(bfinal);
-                    let len16 = chunk.len() as u16;
-                    out.extend_from_slice(&len16.to_le_bytes());
-                    out.extend_from_slice(&(!len16).to_le_bytes());
-                    out.extend_from_slice(chunk);
-                }
-            }
-            out.extend_from_slice(&crc32_ieee(input).to_le_bytes());
-            out.extend_from_slice(&(input.len() as u32).to_le_bytes());
-            out
-        }
-
         fn write_tar_octal(buf: &mut [u8], val: u64) {
             let len = buf.len();
             if len == 0 {
@@ -10002,6 +10997,210 @@ impl MvmSandbox {
                 let mut out = String::new();
                 for (name, b) in sources {
                     out.push_str(&format!("{}  {}\n", sha256_hex_bytes(&b), name));
+                }
+                StageExecBytesOutcome::ok_text(out)
+            })()),
+            "df" => Some((|| -> StageExecBytesOutcome {
+                let human = args.iter().any(|a| a == "-h" || a == "--human-readable");
+                let used_bytes =
+                    (self.cow_sectors.len() as u64) * (MVM_COW_SECTOR_BYTES as u64);
+                let total_bytes: u64 = 64 * 1024 * 1024;
+                let avail_bytes = total_bytes.saturating_sub(used_bytes);
+                let pct = ((used_bytes.saturating_mul(100)) / total_bytes).min(100);
+                let fmt_sz = |b: u64| -> String {
+                    if !human {
+                        return (b / 1024).to_string();
+                    }
+                    if b >= 1024 * 1024 {
+                        format!("{}M", b / (1024 * 1024))
+                    } else if b >= 1024 {
+                        format!("{}K", b / 1024)
+                    } else {
+                        format!("{b}B")
+                    }
+                };
+                let mut out = if human {
+                    "Filesystem      Size  Used Avail Use% Mounted on\n".to_string()
+                } else {
+                    "Filesystem     1K-blocks    Used Available Use% Mounted on\n".to_string()
+                };
+                out.push_str(&format!(
+                    "{:<14} {:>5} {:>5} {:>5} {:>3}% /\n",
+                    "mvm-rootfs",
+                    fmt_sz(total_bytes),
+                    fmt_sz(used_bytes),
+                    fmt_sz(avail_bytes),
+                    pct
+                ));
+                out.push_str(&format!(
+                    "{:<14} {:>5} {:>5} {:>5} {:>3}% /workspace\n",
+                    "mvm-cowfs",
+                    fmt_sz(total_bytes),
+                    fmt_sz(used_bytes),
+                    fmt_sz(avail_bytes),
+                    pct
+                ));
+                StageExecBytesOutcome::ok_text(out)
+            })()),
+            "free" => Some((|| -> StageExecBytesOutcome {
+                let mut unit = 'k';
+                for a in args {
+                    match a.as_str() {
+                        "-m" | "--mega" => unit = 'm',
+                        "-b" | "--bytes" => unit = 'b',
+                        "-h" | "--human" => unit = 'h',
+                        "-k" | "--kilo" => unit = 'k',
+                        _ => {}
+                    }
+                }
+                let total_bytes: u64 = 16 * 1024 * 1024;
+                let active_cow =
+                    (self.cow_sectors.len() as u64) * (MVM_COW_SECTOR_BYTES as u64);
+                let ram_live = (self.last_guest_ram.len().min(GUEST_RAM_BYTES)) as u64;
+                let used_bytes = (active_cow + ram_live).clamp(512 * 1024, 14 * 1024 * 1024);
+                let free_bytes = total_bytes.saturating_sub(used_bytes);
+                let buf_bytes = active_cow.min(free_bytes);
+                let avail_bytes = free_bytes;
+                let fmt_mem = |b: u64| -> String {
+                    match unit {
+                        'b' => b.to_string(),
+                        'm' => (b / (1024 * 1024)).to_string(),
+                        'h' => {
+                            if b >= 1024 * 1024 {
+                                format!("{}Mi", b / (1024 * 1024))
+                            } else {
+                                format!("{}Ki", b / 1024)
+                            }
+                        }
+                        _ => (b / 1024).to_string(),
+                    }
+                };
+                let mut out =
+                    "               total        used        free      shared  buff/cache   available\n"
+                        .to_string();
+                out.push_str(&format!(
+                    "Mem:     {:>11} {:>11} {:>11} {:>11} {:>11} {:>11}\n",
+                    fmt_mem(total_bytes),
+                    fmt_mem(used_bytes),
+                    fmt_mem(free_bytes),
+                    fmt_mem(0),
+                    fmt_mem(buf_bytes),
+                    fmt_mem(avail_bytes)
+                ));
+                StageExecBytesOutcome::ok_text(out)
+            })()),
+            "xxd" => Some((|| -> StageExecBytesOutcome {
+                let mut plain = false;
+                let mut revert = false;
+                let mut limit: Option<usize> = None;
+                let mut cols: Option<usize> = None;
+                let mut files: Vec<String> = Vec::new();
+                let mut i = 0usize;
+                while i < args.len() {
+                    let a = &args[i];
+                    if a == "-p" || a == "-ps" || a == "--plain" {
+                        plain = true;
+                    } else if a == "-r" || a == "--revert" {
+                        revert = true;
+                    } else if a == "-l" && i + 1 < args.len() {
+                        limit = args[i + 1].parse::<usize>().ok();
+                        i += 2;
+                        continue;
+                    } else if a == "-c" && i + 1 < args.len() {
+                        cols = args[i + 1].parse::<usize>().ok().filter(|&v| v > 0);
+                        i += 2;
+                        continue;
+                    } else if a != "-" && a.starts_with('-') {
+                        for ch in a[1..].chars() {
+                            match ch {
+                                'p' => plain = true,
+                                'r' => revert = true,
+                                _ => {
+                                    return StageExecBytesOutcome::err(
+                                        1,
+                                        format!("xxd: invalid option -- '{ch}'\n"),
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        files.push(a.clone());
+                    }
+                    i += 1;
+                }
+                let sources = match self.read_input_sources(&files, cwd, stdin, "xxd") {
+                    Ok(s) => s,
+                    Err(e) => return StageExecBytesOutcome::err(1, e),
+                };
+                if revert {
+                    let mut out_bytes = Vec::new();
+                    for (_, b) in sources {
+                        let text = String::from_utf8_lossy(&b);
+                        let mut hex_digits = Vec::new();
+                        if plain {
+                            for ch in text.bytes() {
+                                if ch.is_ascii_hexdigit() {
+                                    hex_digits.push(ch);
+                                }
+                            }
+                        } else {
+                            for line in text.lines() {
+                                let after_off = line.split_once(':').map(|(_, r)| r).unwrap_or(line);
+                                let hex_section = after_off.split("  ").next().unwrap_or(after_off);
+                                for ch in hex_section.bytes() {
+                                    if ch.is_ascii_hexdigit() {
+                                        hex_digits.push(ch);
+                                    }
+                                }
+                            }
+                        }
+                        for pair in hex_digits.chunks_exact(2) {
+                            let s = std::str::from_utf8(pair).unwrap_or("00");
+                            if let Ok(byte) = u8::from_str_radix(s, 16) {
+                                out_bytes.push(byte);
+                            }
+                        }
+                    }
+                    return StageExecBytesOutcome::ok_bytes(out_bytes);
+                }
+                let width = cols.unwrap_or(if plain { 30 } else { 16 });
+                let mut out = String::new();
+                for (_, b) in sources {
+                    let slice = match limit {
+                        Some(n) => &b[..n.min(b.len())],
+                        None => b.as_slice(),
+                    };
+                    if plain {
+                        for chunk in slice.chunks(width) {
+                            for byte in chunk {
+                                out.push_str(&format!("{byte:02x}"));
+                            }
+                            out.push('\n');
+                        }
+                    } else {
+                        for (ci, chunk) in slice.chunks(width).enumerate() {
+                            out.push_str(&format!("{:08x}: ", ci * width));
+                            for j in 0..width {
+                                if j < chunk.len() {
+                                    out.push_str(&format!("{:02x}", chunk[j]));
+                                } else {
+                                    out.push_str("  ");
+                                }
+                                if j % 2 == 1 {
+                                    out.push(' ');
+                                }
+                            }
+                            out.push(' ');
+                            for &byte in chunk {
+                                if (0x20..=0x7e).contains(&byte) {
+                                    out.push(byte as char);
+                                } else {
+                                    out.push('.');
+                                }
+                            }
+                            out.push('\n');
+                        }
+                    }
                 }
                 StageExecBytesOutcome::ok_text(out)
             })()),
@@ -13597,30 +14796,61 @@ impl MvmSandbox {
                 }
                 StageExecBytesOutcome::ok_text(out)
             })()),
-            "grep" => Some((|| -> StageExecBytesOutcome {
-                let mut extended = false;
+            "grep" | "rg" => Some((|| -> StageExecBytesOutcome {
+                let is_rg = prog == "rg";
+                let mut extended = is_rg;
                 let mut fixed = false;
                 let mut ignore_case = false;
                 let mut invert = false;
-                let mut show_line_num = false;
+                let mut show_line_num = is_rg;
                 let mut count_only = false;
                 let mut files_with_matches = false;
                 let mut quiet = false;
                 let mut only_matching = false;
                 let mut word_match = false;
-                let mut recursive = false;
+                let mut recursive = is_rg;
                 let mut force_no_fname = false;
                 let mut force_fname = false;
+                let mut include_hidden = false;
                 let mut patterns: Vec<String> = Vec::new();
                 let mut operands: Vec<String> = Vec::new();
 
                 let mut i = 0usize;
                 while i < args.len() {
                     let a = &args[i];
-                    if a == "-e" && i + 1 < args.len() {
+                    if (a == "-e" || a == "--regexp") && i + 1 < args.len() {
                         patterns.push(args[i + 1].clone());
                         i += 2;
                         continue;
+                    } else if is_rg && (a == "-g" || a == "--glob") && i + 1 < args.len() {
+                        i += 2;
+                        continue;
+                    } else if a == "--" {
+                        operands.extend(args[i + 1..].iter().cloned());
+                        break;
+                    } else if is_rg && a.starts_with("--") {
+                        match a.as_str() {
+                            "--no-line-number" => show_line_num = false,
+                            "--line-number" => show_line_num = true,
+                            "--fixed-strings" => fixed = true,
+                            "--ignore-case" => ignore_case = true,
+                            "--invert-match" => invert = true,
+                            "--files-with-matches" => files_with_matches = true,
+                            "--count" => count_only = true,
+                            "--quiet" => quiet = true,
+                            "--only-matching" => only_matching = true,
+                            "--word-regexp" => word_match = true,
+                            "--no-filename" => force_no_fname = true,
+                            "--with-filename" => force_fname = true,
+                            "--hidden" | "--unrestricted" => include_hidden = true,
+                            "--no-heading" | "--color=never" => {}
+                            _ => {
+                                return StageExecBytesOutcome::err(
+                                    2,
+                                    format!("rg: unrecognized flag '{a}'\n"),
+                                )
+                            }
+                        }
                     } else if a != "-" && a.starts_with('-') && a.len() > 1 {
                         for ch in a[1..].chars() {
                             match ch {
@@ -13629,6 +14859,7 @@ impl MvmSandbox {
                                 'i' => ignore_case = true,
                                 'v' => invert = true,
                                 'n' => show_line_num = true,
+                                'N' if is_rg => show_line_num = false,
                                 'c' => count_only = true,
                                 'l' => files_with_matches = true,
                                 'q' => quiet = true,
@@ -13637,10 +14868,12 @@ impl MvmSandbox {
                                 'r' | 'R' => recursive = true,
                                 'h' => force_no_fname = true,
                                 'H' => force_fname = true,
+                                'u' if is_rg => include_hidden = true,
+                                'S' if is_rg => {}
                                 _ => {
                                     return StageExecBytesOutcome::err(
                                         2,
-                                        format!("grep: invalid option -- '{ch}'\n"),
+                                        format!("{prog}: invalid option -- '{ch}'\n"),
                                     )
                                 }
                             }
@@ -13654,10 +14887,13 @@ impl MvmSandbox {
                     if operands.is_empty() {
                         return StageExecBytesOutcome::err(
                             2,
-                            "grep: missing pattern\n".to_string(),
+                            format!("{prog}: missing pattern\n"),
                         );
                     }
                     patterns.push(operands.remove(0));
+                }
+                if is_rg && operands.is_empty() && stdin.is_empty() {
+                    operands.push(".".to_string());
                 }
 
                 let compiled: Vec<Option<RxPattern>> = if fixed {
@@ -13672,13 +14908,14 @@ impl MvmSandbox {
                         };
                         match RxPattern::compile(&eff_pat, extended || word_match, ignore_case) {
                             Ok(rx) => v.push(Some(rx)),
-                            Err(e) => return StageExecBytesOutcome::err(2, format!("grep: {e}\n")),
+                            Err(e) => return StageExecBytesOutcome::err(2, format!("{prog}: {e}\n")),
                         }
                     }
                     v
                 };
 
                 let mut file_list: Vec<(String, Vec<u8>)> = Vec::new();
+                let mut searched_dir = false;
                 if operands.is_empty() {
                     file_list.push(("(standard input)".to_string(), stdin.to_vec()));
                 } else {
@@ -13690,6 +14927,7 @@ impl MvmSandbox {
                         let norm = Self::normalize_guest_path(cwd, op);
                         if self.dirs.contains(&norm) {
                             if recursive {
+                                searched_dir = true;
                                 let prefix = if norm == "/" {
                                     "/".to_string()
                                 } else {
@@ -13697,7 +14935,13 @@ impl MvmSandbox {
                                 };
                                 for p in self.inodes.keys() {
                                     if p.starts_with(&prefix) {
+                                        if is_rg && !include_hidden && p.contains("/.") {
+                                            continue;
+                                        }
                                         if let Some(b) = self.read_guest_file(p) {
+                                            if is_rg && (b.starts_with(b"\x7fELF") || b.contains(&0)) {
+                                                continue;
+                                            }
                                             file_list.push((p.clone(), b));
                                         }
                                     }
@@ -13705,7 +14949,7 @@ impl MvmSandbox {
                             } else {
                                 return StageExecBytesOutcome::err(
                                     2,
-                                    format!("grep: {op}: Is a directory\n"),
+                                    format!("{prog}: {op}: Is a directory\n"),
                                 );
                             }
                         } else if let Some(b) = self.read_guest_file(&norm) {
@@ -13713,13 +14957,13 @@ impl MvmSandbox {
                         } else {
                             return StageExecBytesOutcome::err(
                                 2,
-                                format!("grep: {op}: No such file or directory\n"),
+                                format!("{prog}: {op}: No such file or directory\n"),
                             );
                         }
                     }
                 }
 
-                let show_fname = force_fname || (!force_no_fname && file_list.len() > 1);
+                let show_fname = force_fname || (!force_no_fname && (file_list.len() > 1 || (is_rg && searched_dir)));
                 let mut out = String::new();
                 let mut any_match = false;
                 for (fname, bytes) in &file_list {
@@ -13793,6 +15037,251 @@ impl MvmSandbox {
                     vsock_frames: Vec::new(),
                     compiled_elf_machine: None,
                 }
+            })()),
+            "patch" => Some((|| -> StageExecBytesOutcome {
+                let mut strip_p: usize = 0;
+                let mut patch_file: Option<String> = None;
+                let mut patch_dir = cwd.to_string();
+                let mut dry_run = false;
+                let mut silent = false;
+                let mut pos_args: Vec<String> = Vec::new();
+                let mut i = 0usize;
+                while i < args.len() {
+                    let a = &args[i];
+                    if a == "-p" && i + 1 < args.len() {
+                        strip_p = args[i + 1].parse::<usize>().unwrap_or(0);
+                        i += 2;
+                        continue;
+                    } else if let Some(n) = a.strip_prefix("-p") {
+                        strip_p = n.parse::<usize>().unwrap_or(0);
+                    } else if (a == "-i" || a == "--input") && i + 1 < args.len() {
+                        patch_file = Some(args[i + 1].clone());
+                        i += 2;
+                        continue;
+                    } else if (a == "-d" || a == "--directory") && i + 1 < args.len() {
+                        patch_dir = Self::normalize_guest_path(&patch_dir, &args[i + 1]);
+                        i += 2;
+                        continue;
+                    } else if a == "--dry-run" {
+                        dry_run = true;
+                    } else if a == "-s" || a == "--silent" || a == "--quiet" {
+                        silent = true;
+                    } else if a == "-u" || a == "--unified" || a == "-N" || a == "--forward" {
+                    } else if a.starts_with('-') && a != "-" {
+                        return StageExecBytesOutcome::err(
+                            2,
+                            format!("patch: unsupported option '{a}'\n"),
+                        );
+                    } else {
+                        pos_args.push(a.clone());
+                    }
+                    i += 1;
+                }
+
+                let explicit_target = pos_args.first().cloned();
+                if patch_file.is_none() && pos_args.len() >= 2 {
+                    patch_file = Some(pos_args[1].clone());
+                }
+                let patch_bytes = if let Some(ref pf) = patch_file {
+                    if pf == "-" {
+                        stdin.to_vec()
+                    } else {
+                        let norm = Self::normalize_guest_path(cwd, pf);
+                        let Some(b) = self.read_guest_file(&norm) else {
+                            return StageExecBytesOutcome::err(
+                                2,
+                                format!("patch: **** Can't open patch file {pf} : No such file or directory\n"),
+                            );
+                        };
+                        b
+                    }
+                } else {
+                    stdin.to_vec()
+                };
+                let patch_text = String::from_utf8_lossy(&patch_bytes);
+                let plines: Vec<&str> = patch_text.lines().collect();
+
+                fn strip_patch_path(raw: &str, strip_p: usize) -> String {
+                    let clean = raw.split('\t').next().unwrap_or(raw).trim();
+                    if clean == "/dev/null" {
+                        return "/dev/null".to_string();
+                    }
+                    let mut parts: Vec<&str> = clean.split('/').filter(|s| !s.is_empty()).collect();
+                    if strip_p > 0 && parts.len() > strip_p {
+                        parts.drain(0..strip_p);
+                    }
+                    if clean.starts_with('/') && strip_p == 0 {
+                        format!("/{}", parts.join("/"))
+                    } else {
+                        parts.join("/")
+                    }
+                }
+
+                fn parse_hunk_range(spec: &str) -> (usize, usize) {
+                    let body = &spec[1..];
+                    if let Some((s, c)) = body.split_once(',') {
+                        (s.parse::<usize>().unwrap_or(1), c.parse::<usize>().unwrap_or(1))
+                    } else {
+                        (body.parse::<usize>().unwrap_or(1), 1)
+                    }
+                }
+
+                let mut out_msg = String::new();
+                let mut li = 0usize;
+                let mut applied_files = 0usize;
+                while li < plines.len() {
+                    if !plines[li].starts_with("--- ") {
+                        li += 1;
+                        continue;
+                    }
+                    let old_raw = &plines[li][4..];
+                    if li + 1 >= plines.len() || !plines[li + 1].starts_with("+++ ") {
+                        return StageExecBytesOutcome::err(
+                            2,
+                            "patch: malformed unified diff header\n".to_string(),
+                        );
+                    }
+                    let new_raw = &plines[li + 1][4..];
+                    li += 2;
+
+                    let old_path = strip_patch_path(old_raw, strip_p);
+                    let new_path = strip_patch_path(new_raw, strip_p);
+                    let target_rel = if let Some(ref et) = explicit_target {
+                        et.clone()
+                    } else if old_path != "/dev/null"
+                        && new_path != "/dev/null"
+                        && self
+                            .read_guest_file(&Self::normalize_guest_path(&patch_dir, &old_path))
+                            .is_some()
+                    {
+                        old_path.clone()
+                    } else if new_path != "/dev/null" {
+                        new_path.clone()
+                    } else {
+                        old_path.clone()
+                    };
+                    let norm_target = Self::normalize_guest_path(&patch_dir, &target_rel);
+
+                    let mut orig_lines: Vec<String> = if old_path == "/dev/null" {
+                        Vec::new()
+                    } else if let Some(b) = self.read_guest_file(&norm_target) {
+                        String::from_utf8_lossy(&b)
+                            .lines()
+                            .map(|s| s.to_string())
+                            .collect()
+                    } else if explicit_target.is_some() {
+                        Vec::new()
+                    } else {
+                        return StageExecBytesOutcome::err(
+                            1,
+                            format!("patch: can't find file to patch '{target_rel}'\n"),
+                        );
+                    };
+                    let had_trailing_nl = self
+                        .read_guest_file(&norm_target)
+                        .is_none_or(|b| b.is_empty() || b.ends_with(b"\n"));
+
+                    let mut net_delta: isize = 0;
+                    let mut saw_hunk = false;
+                    while li < plines.len() && !plines[li].starts_with("--- ") {
+                        if !plines[li].starts_with("@@ ") {
+                            li += 1;
+                            continue;
+                        }
+                        saw_hunk = true;
+                        let hdr_end = plines[li][3..].find(" @@").map(|k| 3 + k).unwrap_or(plines[li].len());
+                        let header_parts: Vec<&str> = plines[li][3..hdr_end].split_whitespace().collect();
+                        let (old_start, _) = header_parts
+                            .first()
+                            .filter(|s| s.starts_with('-'))
+                            .map(|s| parse_hunk_range(s))
+                            .unwrap_or((1, 1));
+                        li += 1;
+
+                        let mut h_old: Vec<String> = Vec::new();
+                        let mut h_new: Vec<String> = Vec::new();
+                        while li < plines.len()
+                            && !plines[li].starts_with("@@ ")
+                            && !plines[li].starts_with("--- ")
+                        {
+                            let hl = plines[li];
+                            if let Some(rest) = hl.strip_prefix(' ') {
+                                h_old.push(rest.to_string());
+                                h_new.push(rest.to_string());
+                            } else if let Some(rest) = hl.strip_prefix('-') {
+                                h_old.push(rest.to_string());
+                            } else if let Some(rest) = hl.strip_prefix('+') {
+                                h_new.push(rest.to_string());
+                            } else if hl.starts_with("\\ No newline") {
+                            } else {
+                                break;
+                            }
+                            li += 1;
+                        }
+
+                        let base_pos = if old_start == 0 {
+                            0usize
+                        } else {
+                            ((old_start as isize - 1 + net_delta).max(0) as usize).min(orig_lines.len())
+                        };
+                        let mut found_pos: Option<usize> = None;
+                        for offset in [0isize, -1, 1, -2, 2, -3, 3] {
+                            let cand = (base_pos as isize + offset).max(0) as usize;
+                            if cand + h_old.len() <= orig_lines.len()
+                                && orig_lines[cand..cand + h_old.len()] == h_old[..]
+                            {
+                                found_pos = Some(cand);
+                                break;
+                            }
+                        }
+                        let Some(apply_at) = found_pos else {
+                            return StageExecBytesOutcome::err(
+                                1,
+                                format!("patch: hunk FAILED for '{target_rel}' at line {old_start}\n"),
+                            );
+                        };
+                        let old_len = h_old.len();
+                        let new_len = h_new.len();
+                        orig_lines.splice(apply_at..apply_at + old_len, h_new);
+                        net_delta += (new_len as isize) - (old_len as isize);
+                    }
+                    if !saw_hunk {
+                        continue;
+                    }
+                    applied_files += 1;
+                    if !dry_run {
+                        if new_path == "/dev/null" {
+                            if let Err(msg) = self.remove_guest_path(&norm_target, false) {
+                                return StageExecBytesOutcome::err(1, format!("{msg}\n"));
+                            }
+                        } else {
+                            let mut rendered = orig_lines.join("\n");
+                            if !orig_lines.is_empty() && had_trailing_nl {
+                                rendered.push('\n');
+                            }
+                            if let Err(msg) = self.write_redirected_bytes(
+                                "/",
+                                &norm_target,
+                                rendered.as_bytes(),
+                                false,
+                                None,
+                            ) {
+                                return StageExecBytesOutcome::err(1, format!("{msg}\n"));
+                            }
+                        }
+                    }
+                    if !silent {
+                        out_msg.push_str(&format!("patching file {target_rel}\n"));
+                    }
+                }
+
+                if applied_files == 0 {
+                    return StageExecBytesOutcome::err(
+                        2,
+                        "patch: **** Only garbage was found in the patch input.\n".to_string(),
+                    );
+                }
+                StageExecBytesOutcome::ok_text(out_msg)
             })()),
             "sed" => Some((|| -> StageExecBytesOutcome {
                 let mut quiet = false;
@@ -14538,9 +16027,17 @@ fn is_native_coreutil_or_builtin(name: &str) -> bool {
             | "sort"
             | "uniq"
             | "grep"
+            | "rg"
             | "sed"
             | "awk"
             | "find"
+            | "xargs"
+            | "patch"
+            | "make"
+            | "sh"
+            | "df"
+            | "free"
+            | "xxd"
             | "cp"
             | "mv"
             | "touch"

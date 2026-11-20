@@ -6,8 +6,8 @@ use lexlean_r4_wasm::lexlean_generated::r4_spiralcore_vsock::{
     EgressVerdict, ElfAdmission, FrameVerdict, SocketAdmission,
 };
 use lexlean_r4_wasm::mvm::{
-    admit_elf64_riscv, admit_guest_socket_domain, admit_spiralcore_header, MvmSandbox,
-    SpiralCoreHeader, SPIRALCORE_MAGIC,
+    admit_elf64_riscv, admit_guest_socket_domain, admit_spiralcore_header,
+    pack_compressed_initramfs_uormvmz1, MvmError, MvmSandbox, SpiralCoreHeader, SPIRALCORE_MAGIC,
 };
 use lexlean_r4_wasm::{
     mvm_export_workspace_diff_json, mvm_sync_workspace_in_json, studio_dispatch,
@@ -1985,4 +1985,142 @@ fn test_opfs_cow_import_preserves_user_workspace_on_reboot_r4_60() {
     let bad_import: serde_json::Value =
         serde_json::from_str(&engine_b.import_cow_sectors(&bad_cow)).expect("error json");
     assert_eq!(bad_import["status"], "error");
+}
+
+#[test]
+fn test_r4_63_compressed_uormvmz1_initramfs_and_tamper_reject() {
+    let raw_initramfs = include_bytes!("../src/mvm_initramfs.bin");
+    assert_eq!(&raw_initramfs[0..8], b"UORMVM01");
+    let compressed =
+        pack_compressed_initramfs_uormvmz1(raw_initramfs).expect("pack UORMVMZ1 container");
+    assert_eq!(&compressed[0..8], b"UORMVMZ1");
+    assert!(
+        compressed.len() < raw_initramfs.len(),
+        "expected UORMVMZ1 ({} B) to shrink raw UORMVM01 ({} B)",
+        compressed.len(),
+        raw_initramfs.len()
+    );
+
+    let mut vm = MvmSandbox::boot_default().expect("MvmSandbox boots");
+    vm.mount_initramfs_image(&compressed)
+        .expect("compressed UORMVMZ1 initramfs mounts cleanly");
+    assert!(
+        vm.read_guest_file("/sbin/mvm-agent").is_some(),
+        "UORMVMZ1 must restore ELF userland"
+    );
+
+    let mut tampered = compressed.clone();
+    let flip_idx = tampered.len() - 12;
+    tampered[flip_idx] ^= 0xff;
+    let err = vm
+        .mount_initramfs_image(&tampered)
+        .expect_err("corrupt UORMVMZ1 payload must fail closed");
+    assert!(
+        matches!(err, MvmError::CorruptInitramfs(_)),
+        "expected CorruptInitramfs error on tampered archive, got {err:?}"
+    );
+}
+
+#[test]
+fn test_r4_63_self_host_multi_tu_cc_make_and_dev_userland() {
+    let mut vm = MvmSandbox::boot_default().expect("MvmSandbox boots");
+    assert_eq!(
+        vm.dirty_cow_sector_count(),
+        0,
+        "boot with /usr/include and /usr/src/mvm must leave zero dirty sectors"
+    );
+
+    let uname_out = vm
+        .exec_command("uname -a", "/workspace")
+        .expect("uname -a succeeds");
+    assert_eq!(uname_out.exit_code, 0);
+    assert!(
+        uname_out.stdout.contains("riscv64"),
+        "expected riscv64 kernel identity, got: {}",
+        uname_out.stdout
+    );
+
+    let build_out = vm
+        .exec_command(
+            "make -C /usr/src/mvm && /usr/src/mvm/mvm_hello",
+            "/workspace",
+        )
+        .expect("self-host make + mvm_hello runs");
+    assert_eq!(
+        build_out.exit_code, 0,
+        "make + mvm_hello failed: stderr={}",
+        build_out.stderr
+    );
+    assert!(
+        build_out.stdout.contains("MVM_SELF_HOST_OK dot=26"),
+        "unexpected mvm_hello stdout: {}",
+        build_out.stdout
+    );
+
+    let rg_out = vm
+        .exec_command("rg mvm_dot2 /usr/src/mvm", "/workspace")
+        .expect("rg searches directory");
+    assert_eq!(rg_out.exit_code, 0);
+    assert!(rg_out.stdout.contains("mvm_util.c"));
+    let rg_miss = vm
+        .exec_command("rg __never_present_symbol__ /usr/src/mvm", "/workspace")
+        .expect("rg miss completes");
+    assert_eq!(rg_miss.exit_code, 1);
+    assert!(
+        rg_miss.stderr.is_empty(),
+        "rg no-match must not emit stderr: {}",
+        rg_miss.stderr
+    );
+
+    vm.write_guest_file("/workspace/a.txt", b"alpha\nbeta\ngamma\n")
+        .expect("write a.txt");
+    vm.write_guest_file("/workspace/b.txt", b"alpha\nBETA_PATCHED\ngamma\n")
+        .expect("write b.txt");
+    let patch_out = vm
+        .exec_command(
+            "diff -u a.txt b.txt > change.patch; patch -p0 -i change.patch && cat a.txt",
+            "/workspace",
+        )
+        .expect("diff + patch pipeline");
+    assert_eq!(
+        patch_out.exit_code, 0,
+        "diff+patch stderr={}",
+        patch_out.stderr
+    );
+    assert!(patch_out.stdout.contains("BETA_PATCHED"));
+
+    let xargs_out = vm
+        .exec_command("printf 'one\\ntwo\\n' | xargs echo prefix", "/workspace")
+        .expect("xargs echo");
+    assert_eq!(xargs_out.exit_code, 0);
+    assert!(xargs_out.stdout.contains("prefix one two"));
+
+    let xxd_out = vm
+        .exec_command("printf 'R4!' | xxd -p && printf '523421' | xxd -r -p", "/workspace")
+        .expect("xxd hex dump & revert");
+    assert_eq!(xxd_out.exit_code, 0);
+    assert!(xxd_out.stdout.contains("523421"));
+    assert!(xxd_out.stdout.contains("R4!"));
+
+    let sys_out = vm
+        .exec_command("df -h && free -m", "/workspace")
+        .expect("df -h && free -m");
+    assert_eq!(sys_out.exit_code, 0);
+    assert!(sys_out.stdout.contains("/workspace"));
+    assert!(sys_out.stdout.contains("Mem:"));
+
+    vm.write_guest_file(
+        "/workspace/hello.sh",
+        b"# sample shell script\necho arg0=$1 arg1=$2 count=$# all=$@\n",
+    )
+    .expect("write hello.sh");
+    let sh_out = vm
+        .exec_command("sh hello.sh alpha beta", "/workspace")
+        .expect("sh script execution");
+    assert_eq!(sh_out.exit_code, 0, "sh stderr={}", sh_out.stderr);
+    assert!(
+        sh_out.stdout.contains("arg0=alpha arg1=beta count=2 all=alpha beta"),
+        "unexpected sh output: {}",
+        sh_out.stdout
+    );
 }
