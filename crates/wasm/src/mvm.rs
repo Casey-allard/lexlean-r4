@@ -794,6 +794,28 @@ impl MvmSandbox {
         &self.current_cwd
     }
 
+    /// Formal R4.MvmLinuxContainer return the last shell exit status code inside MVM (`R4-63`).
+    pub fn last_exit_code(&self) -> i32 {
+        self.last_exit_code
+    }
+
+    /// Formal R4.MvmLinuxContainer verify guest CoW VFS sector consistency for `SingleSourceMvmCow` (`R4-63`).
+    pub fn is_cow_vfs_consistent(&self) -> bool {
+        if !self.dirs.contains("/workspace") {
+            return false;
+        }
+        self.inodes.values().all(|inode| match &inode.kind {
+            InodeKind::Symlink { .. } => true,
+            InodeKind::Regular {
+                sector_start,
+                byte_len,
+            } => {
+                let needed = byte_len.div_ceil(MVM_COW_SECTOR_BYTES).max(1) as u32;
+                (0..needed).all(|off| self.cow_sectors.contains_key(&(sector_start + off)))
+            }
+        })
+    }
+
     /// Active `R4-39` MCP bridge policy mode (`Safe`, `Confirm`, or `Deny`).
     pub fn policy_mode(&self) -> McpPolicyMode {
         self.policy_mode
@@ -1468,17 +1490,15 @@ impl MvmSandbox {
         .to_string()
     }
 
-    /// Export UTF-8 files under guest `/workspace` (excluding heavy/binary/canonical paths)
-    /// back to Studio's workspace map and update deletion tracking.
-    pub fn export_workspace_text_files(&mut self) -> BTreeMap<String, String> {
+    /// Formal R4.MvmLinuxContainer snapshot UTF-8 files under guest `/workspace` directly without mutating VM state (`R4-63`).
+    pub fn snapshot_workspace_text_files(&self) -> BTreeMap<String, String> {
         let mut out = BTreeMap::new();
-        let paths: Vec<String> = self.inodes.keys().cloned().collect();
-        for path in paths {
+        for path in self.inodes.keys() {
             if let Some(rel) = path.strip_prefix("/workspace/") {
                 if rel.is_empty() || is_excluded_workspace_rel_path(rel) {
                     continue;
                 }
-                if let Some(bytes) = self.read_guest_file(&path) {
+                if let Some(bytes) = self.read_guest_file(path) {
                     if !is_binary_workspace_bytes(&bytes) {
                         if let Ok(text) = String::from_utf8(bytes) {
                             out.insert(rel.to_string(), text);
@@ -1487,8 +1507,103 @@ impl MvmSandbox {
                 }
             }
         }
+        out
+    }
+
+    /// Export UTF-8 files under guest `/workspace` (excluding heavy/binary/canonical paths)
+    /// back to Studio's workspace map and update deletion tracking.
+    pub fn export_workspace_text_files(&mut self) -> BTreeMap<String, String> {
+        let out = self.snapshot_workspace_text_files();
         self.synced_workspace_paths = out.keys().cloned().collect();
         out
+    }
+
+    /// Formal R4.MvmLinuxContainer delete a guest `/workspace` file or directory prefix safely (`R4-63`).
+    pub fn delete_workspace_file(&mut self, rel_path: &str) -> bool {
+        let target = rel_path.trim().trim_start_matches('/').trim_start_matches("./");
+        if target.is_empty() || target.contains("..") {
+            return false;
+        }
+        let prefix = format!("/workspace/{target}");
+        if target.ends_with('/') {
+            let matches: Vec<String> = self
+                .inodes
+                .keys()
+                .filter(|k| k.starts_with(&prefix) && !Self::is_protected_canonical_guest_path(k))
+                .cloned()
+                .collect();
+            if matches.is_empty() {
+                return false;
+            }
+            for k in matches {
+                if let Some(rel) = k.strip_prefix("/workspace/") {
+                    self.synced_workspace_paths.remove(rel);
+                    self.workspace_diff_baseline.remove(rel);
+                }
+                self.inodes.remove(&k);
+            }
+            return true;
+        }
+        if Self::is_protected_canonical_guest_path(&prefix) {
+            return false;
+        }
+        self.synced_workspace_paths.remove(target);
+        self.workspace_diff_baseline.remove(target);
+        self.inodes.remove(&prefix).is_some()
+    }
+
+    /// Formal R4.MvmLinuxContainer rename a guest `/workspace` file or symlink preserving ELF/binary mode (`R4-63`).
+    pub fn rename_workspace_file(&mut self, from_rel: &str, to_rel: &str) -> Result<bool, MvmError> {
+        let from_clean = from_rel.trim().trim_start_matches('/').trim_start_matches("./");
+        let to_clean = to_rel.trim().trim_start_matches('/').trim_start_matches("./");
+        if from_clean.is_empty()
+            || to_clean.is_empty()
+            || from_clean.contains("..")
+            || to_clean.contains("..")
+        {
+            return Err(MvmError::CpuTrap(
+                "RefusedParentTraversal: invalid workspace rename path".to_string(),
+            ));
+        }
+        let from_guest = Self::normalize_guest_path("/workspace", from_clean);
+        let to_guest = Self::normalize_guest_path("/workspace", to_clean);
+        if Self::is_protected_canonical_guest_path(&from_guest)
+            || Self::is_protected_canonical_guest_path(&to_guest)
+        {
+            return Err(MvmError::CanonicalPathProtected(from_guest));
+        }
+        let Some(inode) = self.inodes.get(&from_guest).cloned() else {
+            return Ok(false);
+        };
+        if from_guest == to_guest {
+            return Ok(true);
+        }
+        match inode.kind {
+            InodeKind::Symlink { target } => {
+                self.ensure_parent_dirs(&to_guest);
+                self.inodes.insert(
+                    to_guest,
+                    GuestInode {
+                        mode: inode.mode,
+                        kind: InodeKind::Symlink { target },
+                    },
+                );
+            }
+            InodeKind::Regular { .. } => {
+                let bytes = self.read_guest_file(&from_guest).unwrap_or_default();
+                self.write_inode_with_mode(&to_guest, &bytes, inode.mode)?;
+            }
+        }
+        self.inodes.remove(&from_guest);
+        self.synced_workspace_paths.remove(from_clean);
+        self.synced_workspace_paths.insert(to_clean.to_string());
+        Ok(true)
+    }
+
+    /// Formal R4.MvmLinuxContainer snapshot SHA-256 digests of current `/workspace` text files (`R4-63`).
+    pub fn record_workspace_baseline_current(&mut self) {
+        let current = self.snapshot_workspace_text_files();
+        self.record_workspace_baseline_from_map(&current);
     }
 
     fn is_protected_canonical_guest_path(norm_path: &str) -> bool {

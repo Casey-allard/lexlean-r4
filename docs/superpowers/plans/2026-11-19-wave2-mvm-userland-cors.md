@@ -1,0 +1,11 @@
+# Wave 2 (`R4-63`) Execution Checklist
+
+- **Goal:** Single-Source MVM `/workspace`, Compressed POSIX/Dev Userland + Multi-TU `#include` `mvm_cc`, Transparent `AF_INET` `SPVS` Encapsulation & Unprompted Public CORS Preemption (`R4-59` Override), Interactive `[▶ Run]` / `[Edit]` / `[Skip]` + `[Auto-run]`, and Compact `<= 120`-Token KV State Header.
+- **Branch:** `feat/wave2-r4-63-mvm-userland-cors` (from `92c2f83b`)
+
+## Tasks
+1. **Task 1:** Formal `R4-63` LexLean spec (`src/R4/MvmLinuxContainer.lex.tex`, `tests/lexlean/MvmLinuxContainerControls.lex.tex`), `lexlean.toml` + `lexlean.lock` sync, `crates/wasm/src/lexlean_generated.rs`, `studio_admit_mvm_container_policy_json`, `model/ids.toml`, `model/routes.toml` (`R4-UR14`), `model/measures.toml` (`14`), `features/suites/r4_63_mvm_linux_container.feature`, `crates/conformance/tests/r4_63_mvm_linux_container.rs`, BDD count updates (`63`).
+2. **Task 2:** Single-source MVM `/workspace` (`workspace_entries_from_mvm`, remove duplicate `Vec<WorkspaceFile>` store), `<= 120`-token `format_mvm_live_state_header` preserving byte-for-byte `STUDIO_SELF_KNOWLEDGE_PREFIX` KV reuse.
+3. **Task 3:** Gzip `UORMVMZ1` initramfs decoding, freestanding `/usr/include/*` headers & `/usr/src/mvm/*` self-host pack, `rg`/`xargs`/`patch`/`make`/`df`/`free`/`xxd`/`sh`, multi-TU & `#include`/`struct` support in `mvm_cc.rs`.
+4. **Task 4:** Preserved Zero-NIC default (`NetworkGateMode::Sandboxed`) + `NetworkGateMode::SpiralCoreNet` (`spiralcore_net`) with `AF_INET`/`AF_INET6` -> `SPVS` (`CID 3 -> CID 2`) encapsulation, unprompted CORS preemption in `worker_host_bridge.js` & `relay/worker.mjs` (strict SSRF + `RelayForbiddenForCredentialedHost` preserved), E2E suite `r4_63_mvm_container_cors_e2e.mjs`.
+5. **Task 5:** Replace JS fake terminal switch with real `MvmSandbox` execution (`6.6.0-uor-rv64imac`), `#terminal-autorun-btn` / `#composer-autorun-btn` synced with `#mcp-policy-select`, `Net: SpiralCore`, `.staged-mvm-card` (`[▶ Run]`, `[Edit]`, `[Skip]`), mobile drawer auto-collapse, `xtask` build/ratchet/mechanize closure, planted defect `#10`, Rust & Node sequential gates, `pro` whole-branch review, merge & deploy to `main`, live GitHub Pages check, then transition to Wave 3 (`R4-64`).

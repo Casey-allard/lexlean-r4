@@ -338,7 +338,7 @@ impl StudioEngine {
     }
 
     /// Handle workspace-inspection, file-explanation, code-review, and unit-test synthesis requests
-    /// against the live files in `self.workspace_files`.
+    /// against the live files in single-source MVM `/workspace`.
     pub(crate) fn try_handle_workspace_query(
         &self,
         prompt: &str,
@@ -347,6 +347,7 @@ impl StudioEngine {
         icosian_root: u8,
     ) -> Option<(String, Option<(String, String)>)> {
         let lower = prompt.to_ascii_lowercase();
+        let workspace_entries = self.workspace_entries_from_mvm();
 
         // 1. Summarize all files in the workspace
         let asks_workspace_summary = (lower.contains("workspace")
@@ -365,9 +366,9 @@ impl StudioEngine {
         if asks_workspace_summary {
             let mut out = format!(
                 "### Workspace Architecture Overview (`{}` files mounted)\n\n",
-                self.workspace_files.len()
+                workspace_entries.len()
             );
-            for file in &self.workspace_files {
+            for file in &workspace_entries {
                 let lines = file.content.lines().count().max(1);
                 let symbols = extract_file_symbols(&file.content);
                 let sym_str = if symbols.is_empty() {
@@ -401,8 +402,7 @@ impl StudioEngine {
         }
 
         // Identify if the user named a specific workspace file or refers to "this file" / "active file" / "current file" / "the editor"
-        let explicit_file = self
-            .workspace_files
+        let explicit_file = workspace_entries
             .iter()
             .find(|f| lower.contains(&f.path.to_ascii_lowercase()));
 
@@ -415,12 +415,14 @@ impl StudioEngine {
             || lower.contains("this code")
             || lower.contains("the code");
 
-        let target_file = explicit_file.or_else(|| {
-            self.workspace_files
-                .iter()
-                .find(|f| f.path == active_path)
-                .or_else(|| self.workspace_files.first())
-        })?;
+        let target_file = explicit_file
+            .or_else(|| {
+                workspace_entries
+                    .iter()
+                    .find(|f| f.path == active_path)
+                    .or_else(|| workspace_entries.first())
+            })?
+            .clone();
 
         // 2. Unit test generation for a workspace file
         if refers_to_active
@@ -1952,14 +1954,14 @@ impl StudioEngine {
                 let message = non_empty("message").ok_or_else(|| {
                     "MissingArgument: commit_push requires non-empty 'message'".to_string()
                 })?;
+                let workspace_snapshot = self.workspace_entries_from_mvm();
                 let files: Vec<serde_json::Value> = match args
                     .get("files")
                     .and_then(|v| v.as_array())
                     .filter(|arr| !arr.is_empty())
                 {
                     Some(explicit) => explicit.clone(),
-                    None if !self.workspace_files.is_empty() => self
-                        .workspace_files
+                    None if !workspace_snapshot.is_empty() => workspace_snapshot
                         .iter()
                         .map(|f| {
                             serde_json::json!({
@@ -5969,6 +5971,12 @@ struct FoundryTurnRequest {
     slice_tokens: Option<usize>,
     #[serde(default, alias = "liveHud")]
     live_hud: bool,
+    #[serde(default, alias = "autoRun")]
+    auto_run: bool,
+    #[serde(default, alias = "netMode")]
+    net_mode: Option<String>,
+    #[serde(default, alias = "dirtyFiles")]
+    dirty_files: Vec<String>,
 }
 
 /// Active non-blocking chunked Studio/Foundry turn session stored on `StudioEngine` (`R4-56`, `R4-60`).
@@ -6140,14 +6148,94 @@ fn format_foundry_system_parts(
     (core_sys, ws_header, ws_excerpts)
 }
 
-/// Formal R4.StudioFrame build ordered Studio/Foundry/Chat system prompt segments preserving prewarmed prefix alignment (`R4-60`).
-pub fn format_studio_system_parts(
+/// Formal R4.MvmLinuxContainer format a deterministic <=120-token KV-pinned live MVM state header (`R4-63`).
+pub fn format_mvm_live_state_header(
+    cwd: &str,
+    active_tab: &str,
+    dirty_files: &[String],
+    auto_run: bool,
+    net_mode: &str,
+    last_exit: i32,
+) -> String {
+    let clamp_seg = |raw: &str, max_chars: usize| -> String {
+        let s: String = raw
+            .trim()
+            .chars()
+            .filter(|c| !matches!(c, '\n' | '\r' | '\t' | ' '))
+            .collect();
+        let count = s.chars().count();
+        if count <= max_chars {
+            s
+        } else {
+            let tail: String = s
+                .chars()
+                .rev()
+                .take(max_chars.saturating_sub(2))
+                .collect::<Vec<_>>()
+                .into_iter()
+                .rev()
+                .collect();
+            format!("..{tail}")
+        }
+    };
+    let cwd_s = {
+        let v = clamp_seg(cwd, 14);
+        if v.is_empty() {
+            "/workspace".to_string()
+        } else {
+            v
+        }
+    };
+    let tab_s = {
+        let v = clamp_seg(active_tab, 14);
+        if v.is_empty() {
+            "none".to_string()
+        } else {
+            v
+        }
+    };
+    let mut dirty_parts = Vec::new();
+    for item in dirty_files.iter().take(2) {
+        let base = item.trim().rsplit('/').next().unwrap_or(item.trim());
+        let clamped = clamp_seg(base, 10);
+        if !clamped.is_empty() {
+            dirty_parts.push(clamped);
+        }
+    }
+    let dirty_s = if dirty_parts.is_empty() {
+        "none".to_string()
+    } else if dirty_files.len() > dirty_parts.len() {
+        format!(
+            "{}(+{})",
+            dirty_parts.join(","),
+            dirty_files.len() - dirty_parts.len()
+        )
+    } else {
+        dirty_parts.join(",")
+    };
+    let auto_s = if auto_run { "on" } else { "off" };
+    let net_s = {
+        let n = clamp_seg(net_mode, 10);
+        if n.is_empty() {
+            "spiralcore".to_string()
+        } else {
+            n
+        }
+    };
+    format!(
+        "\n[mvm cwd={cwd_s} tab={tab_s} dirty={dirty_s} auto={auto_s} net={net_s} exit={last_exit}]\n"
+    )
+}
+
+/// Formal R4.StudioFrame build ordered Studio/Foundry/Chat system prompt segments preserving prewarmed prefix alignment (`R4-60`, `R4-63`).
+pub fn format_studio_system_parts_with_mvm_state(
     surface_mode: &str,
     composer_mode: &str,
     repo: &str,
     branch: &str,
     workspace_files: &[FoundryWorkspaceFile],
     active_file: Option<&str>,
+    mvm_state_header: Option<&str>,
 ) -> (String, String, Vec<String>) {
     let surface = surface_mode.trim().to_ascii_lowercase();
     if surface == "foundry" || surface == "build" || surface.is_empty() {
@@ -6163,9 +6251,23 @@ pub fn format_studio_system_parts(
     }
 
     // Studio standalone mode: share STUDIO_SELF_KNOWLEDGE_PREFIX byte-for-byte with prewarm_system_prefix,
-    // placing repo@branch, plan policy note, and workspace tree/excerpts AFTER the prewarmed prefix.
+    // placing compact live MVM state header, repo@branch, plan policy note, and workspace tree/excerpts AFTER the prewarmed prefix.
     let core_sys = crate::STUDIO_SELF_KNOWLEDGE_PREFIX.to_string();
     let mut ws_header = String::new();
+    if let Some(hdr) = mvm_state_header.map(str::trim).filter(|s| !s.is_empty()) {
+        ws_header.push('\n');
+        ws_header.push_str(hdr);
+        ws_header.push('\n');
+    } else {
+        ws_header.push_str(&format_mvm_live_state_header(
+            "/workspace",
+            active_file.unwrap_or("none"),
+            &[],
+            false,
+            "spiralcore",
+            0,
+        ));
+    }
     let mut ws_excerpts = Vec::new();
     let repo_trim = repo.trim();
     if !repo_trim.is_empty() {
@@ -6188,6 +6290,26 @@ pub fn format_studio_system_parts(
         &mut ws_excerpts,
     );
     (core_sys, ws_header, ws_excerpts)
+}
+
+/// Formal R4.StudioFrame build ordered Studio/Foundry/Chat system prompt segments preserving prewarmed prefix alignment (`R4-60`).
+pub fn format_studio_system_parts(
+    surface_mode: &str,
+    composer_mode: &str,
+    repo: &str,
+    branch: &str,
+    workspace_files: &[FoundryWorkspaceFile],
+    active_file: Option<&str>,
+) -> (String, String, Vec<String>) {
+    format_studio_system_parts_with_mvm_state(
+        surface_mode,
+        composer_mode,
+        repo,
+        branch,
+        workspace_files,
+        active_file,
+        None,
+    )
 }
 
 /// Formal R4.HoloGeometricRuntime assemble Foundry's deterministic workspace-aware system prompt (`R4-56`).
@@ -7248,13 +7370,45 @@ impl StudioEngine {
                 }
             }
         };
-        let (core_sys, ws_header, ws_excerpts) = format_studio_system_parts(
+        let resolved_ws_files: Vec<FoundryWorkspaceFile> = if req.workspace_files.is_empty() {
+            self.workspace_entries_from_mvm()
+                .into_iter()
+                .map(|wf| FoundryWorkspaceFile {
+                    path: wf.path,
+                    content: wf.content,
+                    sha256: wf.updated_receipt,
+                })
+                .collect()
+        } else {
+            req.workspace_files.clone()
+        };
+        let active_tab = req
+            .active_file
+            .as_deref()
+            .filter(|s| !s.trim().is_empty())
+            .unwrap_or(&self.active_workspace_path);
+        let net_label = req.net_mode.as_deref().unwrap_or_else(|| {
+            match self.mvm.network_mode {
+                crate::mvm::NetworkGateMode::Sandboxed => "sandboxed",
+                crate::mvm::NetworkGateMode::FullSpiralcore => "full_spiralcore",
+            }
+        });
+        let mvm_hdr = format_mvm_live_state_header(
+            self.mvm.current_cwd(),
+            active_tab,
+            &req.dirty_files,
+            req.auto_run,
+            net_label,
+            self.mvm.last_exit_code(),
+        );
+        let (core_sys, ws_header, ws_excerpts) = format_studio_system_parts_with_mvm_state(
             &surface_mode,
             &composer_mode,
             &req.repo,
             &req.branch,
-            &req.workspace_files,
+            &resolved_ws_files,
             req.active_file.as_deref(),
+            Some(&mvm_hdr),
         );
         let user_turn = format_foundry_user_turn(&req.prompt, &req.tool_results);
         let tool_iterations_used = req.tool_results.len();
@@ -8206,5 +8360,43 @@ mod tests {
             &head_expected[..check_len],
             "small max_ctx={max_ctx} must not strip BUILD_SYSTEM_PREFIX at index 0"
         );
+    }
+
+    #[test]
+    fn test_format_mvm_live_state_header_under_120_tokens_and_prefix_preserved_r4_63() {
+        let model = crate::holo_geometric_runtime::tests::build_synthetic_test_model();
+        let many_dirty: Vec<String> = (0..50)
+            .map(|i| format!("deeply/nested/workspace/module_very_long_filename_{i}.rs"))
+            .collect();
+        let hdr = format_mvm_live_state_header(
+            "/workspace/projects/very/long/nested/directory/path/src",
+            "src/components/very_long_editor_tab_component_name.tsx",
+            &many_dirty,
+            true,
+            "spiralcore_net",
+            127,
+        );
+        let toks = model.tokenizer.encode(hdr.trim());
+        assert!(
+            toks.len() <= 120,
+            "MVM live state header exceeded 120 tokens: {} ({hdr:?})",
+            toks.len()
+        );
+        assert!(
+            crate::lexlean_generated::r4_mvm_linux_container::admit_live_state_header(
+                toks.len() as u64
+            )
+        );
+        let (core, ws_hdr, _) = format_studio_system_parts_with_mvm_state(
+            "studio",
+            "agent",
+            "Casey-allard/lexlean-r4",
+            "main",
+            &[],
+            Some("src/main.c"),
+            Some(&hdr),
+        );
+        assert_eq!(core, crate::STUDIO_SELF_KNOWLEDGE_PREFIX);
+        assert!(ws_hdr.contains("[mvm cwd="));
     }
 }
