@@ -1,12 +1,22 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   SpiralCoreHostBridge,
   admit_public_cors_preemption,
+  classifyShellCommandKind,
+  admitInteractiveCommand,
+  execute_inprism_foundry_turn,
+  resolve_staged_mvm_command,
 } from '../../crates/wasm/js/worker_host_bridge.js';
 import {
   handleSpvsEnvelope,
   handleWorkerFetch,
 } from '../../relay/worker.mjs';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = resolve(__dirname, '../..');
 
 const DEFAULT_RELAY_HTTP_URL =
   'https://lexlean-r4-spiralcore-relay.swarm-relay-cloud-8d31a122.workers.dev/spvs';
@@ -182,4 +192,155 @@ async function testSpiralCoreNetCorsPreemptionAndFailClosedGuards() {
   console.log('[PASS] R4-63 SpiralCoreNet & unprompted CORS preemption verified');
 }
 
+async function testInteractiveCommandGatesAndStagedFlow() {
+  console.log('=== Wave 2 (R4-63) Interactive Command Admission & Staged MVM Flow E2E ===');
+
+  assert.equal(classifyShellCommandKind('ls -la /workspace'), 'ReadOnlyInspection');
+  assert.equal(classifyShellCommandKind('git status'), 'ReadOnlyInspection');
+  assert.equal(classifyShellCommandKind('rm -rf /workspace/tmp'), 'MutatingOrNetwork');
+  assert.equal(classifyShellCommandKind('echo hi > /workspace/out.txt'), 'MutatingOrNetwork');
+
+  assert.equal(admitInteractiveCommand('safe', 'agent', true, 'MutatingOrNetwork'), 'AutoRunAdmitted');
+  assert.equal(admitInteractiveCommand('safe', 'agent', false, 'MutatingOrNetwork'), 'StagedPendingUserGo');
+  assert.equal(admitInteractiveCommand('confirm', 'agent', true, 'MutatingOrNetwork'), 'StagedPendingUserGo');
+  assert.equal(admitInteractiveCommand('safe', 'plan', true, 'MutatingOrNetwork'), 'RefusedInPlanMode');
+  assert.equal(admitInteractiveCommand('deny', 'agent', true, 'ReadOnlyInspection'), 'RefusedByDenyPolicy');
+
+  // Deny policy refuses even read-only tool calls
+  const denyOut = await execute_inprism_foundry_turn(
+    {
+      id: 'req-deny-1',
+      payload: {
+        prompt: 'list files',
+        selected_model: 'uor-r4.native-q31-d85',
+        composer_mode: 'agent',
+        mcp_policy: 'deny',
+        auto_run: true,
+        offlineEmergencyQ31: true,
+      },
+    },
+    {
+      holoRuntimeStatus: () => JSON.stringify({ mounted_count: 1, models: [{ model_id: 'uor-r4.native-q31-d85' }] }),
+      holoBeginTurn: () => JSON.stringify({ status: 'ready', turn_id: 401, model_id: 'uor-r4.native-q31-d85' }),
+      holoStepTurn: () =>
+        JSON.stringify({
+          status: 'needs_tool',
+          tokens_emitted: 2,
+          tool_call: { name: 'mvm_exec', cmd: 'ls /workspace', arguments: { cmd: 'ls /workspace' } },
+        }),
+      holoCancelTurn: () => JSON.stringify({ status: 'cancelled' }),
+      collectWorkspaceSnapshot: () => ({ files: [] }),
+    },
+  );
+  assert.equal(denyOut.ok, false);
+  assert.equal(denyOut.error_code, 'RefusedByDenyPolicy');
+
+  // Staged command ('edit' -> runs edited command)
+  const executedEnvelopes = [];
+  let hop = 0;
+  const stagedTurnPromise = execute_inprism_foundry_turn(
+    {
+      id: 'req-stage-1',
+      payload: {
+        prompt: 'build demo',
+        selected_model: 'uor-r4.native-q31-d85',
+        composer_mode: 'agent',
+        mcp_policy: 'confirm',
+        auto_run: false,
+        offlineEmergencyQ31: true,
+      },
+    },
+    {
+      postEvent: (stage, data) => {
+        if (stage === 'staged_mvm_command') {
+          setTimeout(() => {
+            resolve_staged_mvm_command({
+              stage_id: data.stage_id,
+              decision: 'edit',
+              cmd: 'make -C /usr/src/mvm && /usr/src/mvm/mvm_hello',
+            });
+          }, 5);
+        }
+      },
+      holoRuntimeStatus: () => JSON.stringify({ mounted_count: 1, models: [{ model_id: 'uor-r4.native-q31-d85' }] }),
+      holoBeginTurn: () => JSON.stringify({ status: 'ready', turn_id: 402 + hop, model_id: 'uor-r4.native-q31-d85' }),
+      holoStepTurn: () => {
+        hop += 1;
+        if (hop === 1) {
+          return JSON.stringify({
+            status: 'needs_tool',
+            tokens_emitted: 3,
+            tool_call: { name: 'mvm_exec', cmd: 'make -C /usr/src/mvm', arguments: { cmd: 'make -C /usr/src/mvm' } },
+          });
+        }
+        return JSON.stringify({ status: 'done', tokens_emitted: 4, reply: 'Built self-host binary.' });
+      },
+      dispatchBridge: async (env) => {
+        executedEnvelopes.push(env);
+        return { status: 'ok', exit_code: 0, mvm_stdout: 'MVM_SELF_HOST_OK dot=26\n', mvm_stderr: '' };
+      },
+      collectWorkspaceSnapshot: () => ({ files: [] }),
+      flushMvmCowToOpfs: async () => true,
+    },
+  );
+  const stagedOut = await stagedTurnPromise;
+  assert.equal(stagedOut.ok, true, `staged turn failed: ${JSON.stringify(stagedOut)}`);
+  assert.ok(
+    executedEnvelopes.some((e) => e.includes('make -C /usr/src/mvm && /usr/src/mvm/mvm_hello')),
+    `expected edited command in dispatchBridge, got: ${JSON.stringify(executedEnvelopes)}`,
+  );
+
+  console.log('[PASS] R4-63 interactive command gates & staged edit/run verified');
+}
+
+async function testWasmMvmSingleSourceAndUiCleanliness() {
+  console.log('=== Wave 2 (R4-63) Wasm Single-Source /workspace, Self-Host C, & Chat UI Cleanliness ===');
+
+  const appJs = readFileSync(resolve(REPO_ROOT, 'public/app.js'), 'utf8');
+  const appCss = readFileSync(resolve(REPO_ROOT, 'public/app.css'), 'utf8');
+  const indexHtml = readFileSync(resolve(REPO_ROOT, 'public/index.html'), 'utf8');
+
+  // Verify fake JS POSIX shell is deleted & chat HUD graph block is eliminated from runClaudeChat
+  assert.ok(!appJs.includes('this.gitHeadFiles'), 'fake gitHeadFiles must be removed from LexLeanTerminal');
+  assert.ok(!appJs.includes('applyStreamFilter('), 'fake JS pipe filter must be removed from LexLeanTerminal');
+  assert.ok(!appJs.includes('Linux wasm-container'), 'fake uname wasm-container must be removed');
+  assert.ok(!appJs.includes('createLiveTokenHudController(chatTranscript'), 'runClaudeChat must NEVER inject per-response graph block');
+  assert.ok(appCss.includes('#chat-transcript .holo-live-hud'), 'app.css must hard-hide .holo-live-hud inside #chat-transcript');
+  assert.ok(indexHtml.includes('id="composer-autorun-toggle"'), 'index.html must include #composer-autorun-toggle');
+
+  // Verify real compiled Wasm binary single-source /workspace + self-hosted multi-TU C build
+  const wasmJsUrl = new URL('../../public/lexlean_r4.js', import.meta.url);
+  const wasmBytes = readFileSync(resolve(REPO_ROOT, 'public/lexlean_r4_bg.wasm'));
+  const wasmMod = await import(wasmJsUrl.href);
+  wasmMod.initSync({ module: wasmBytes });
+
+  const wRes = JSON.parse(wasmMod.studio_dispatch('1\tstudio\tworkspace_write\thello_r463.txt\nfrom_editor_v1\n'));
+  assert.equal(wRes.status, 'ok');
+
+  const catRes = JSON.parse(
+    wasmMod.studio_dispatch(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: 'cat /workspace/hello_r463.txt', cwd: '/workspace' })}`),
+  );
+  assert.equal(catRes.exit_code, 0);
+  assert.equal(catRes.mvm_stdout.trim(), 'from_editor_v1');
+
+  const shWrite = JSON.parse(
+    wasmMod.studio_dispatch(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: 'echo from_mvm_shell_v2 > /workspace/hello_r463.txt', cwd: '/workspace' })}`),
+  );
+  assert.equal(shWrite.exit_code, 0);
+
+  const editorRead = JSON.parse(wasmMod.studio_dispatch('1\tstudio\tworkspace_read\thello_r463.txt'));
+  assert.equal(editorRead.status, 'ok');
+  assert.equal(editorRead.content.trim(), 'from_mvm_shell_v2', 'Editor read must see MVM shell write immediately (single-source CoW)');
+
+  const selfHost = JSON.parse(
+    wasmMod.studio_dispatch(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: 'make -C /usr/src/mvm && /usr/src/mvm/mvm_hello', cwd: '/workspace' })}`),
+  );
+  assert.equal(selfHost.exit_code, 0, `self-host make failed: ${JSON.stringify(selfHost)}`);
+  assert.ok(selfHost.mvm_stdout.includes('MVM_SELF_HOST_OK dot=26'), `unexpected selfHost stdout: ${selfHost.mvm_stdout}`);
+
+  console.log('[PASS] R4-63 single-source /workspace, self-hosted make+cc, and chat UI cleanliness verified');
+}
+
 await testSpiralCoreNetCorsPreemptionAndFailClosedGuards();
+await testInteractiveCommandGatesAndStagedFlow();
+await testWasmMvmSingleSourceAndUiCleanliness();

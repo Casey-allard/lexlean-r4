@@ -2097,7 +2097,10 @@ fn test_r4_63_self_host_multi_tu_cc_make_and_dev_userland() {
     assert!(xargs_out.stdout.contains("prefix one two"));
 
     let xxd_out = vm
-        .exec_command("printf 'R4!' | xxd -p && printf '523421' | xxd -r -p", "/workspace")
+        .exec_command(
+            "printf 'R4!' | xxd -p && printf '523421' | xxd -r -p",
+            "/workspace",
+        )
         .expect("xxd hex dump & revert");
     assert_eq!(xxd_out.exit_code, 0);
     assert!(xxd_out.stdout.contains("523421"));
@@ -2120,7 +2123,9 @@ fn test_r4_63_self_host_multi_tu_cc_make_and_dev_userland() {
         .expect("sh script execution");
     assert_eq!(sh_out.exit_code, 0, "sh stderr={}", sh_out.stderr);
     assert!(
-        sh_out.stdout.contains("arg0=alpha arg1=beta count=2 all=alpha beta"),
+        sh_out
+            .stdout
+            .contains("arg0=alpha arg1=beta count=2 all=alpha beta"),
         "unexpected sh output: {}",
         sh_out.stdout
     );
@@ -2183,7 +2188,10 @@ int main(void) {
         .write_guest_file("/workspace/inet_probe.c", inet_probe_c.as_bytes())
         .expect("write inet_probe.c");
     let cc_isolated = sandboxed_vm
-        .exec_command("cc /workspace/inet_probe.c -o /workspace/inet_probe", "/workspace")
+        .exec_command(
+            "cc /workspace/inet_probe.c -o /workspace/inet_probe",
+            "/workspace",
+        )
         .expect("compile inet_probe in sandboxed vm");
     assert_eq!(cc_isolated.exit_code, 0, "cc stderr={}", cc_isolated.stderr);
     let isolated_run = sandboxed_vm
@@ -2214,9 +2222,7 @@ int main(void) {
         .expect("compile & run inet_probe in SpiralCoreNet");
     assert_eq!(net_run.exit_code, 0, "stderr={}", net_run.stderr);
     assert!(
-        net_run
-            .stdout
-            .contains("SSRF_LO=-13 SSRF_META=-13 CONN=0"),
+        net_run.stdout.contains("SSRF_LO=-13 SSRF_META=-13 CONN=0"),
         "expected loopback/metadata SSRF=-13 (-EACCES) and public connect=0, got: {}",
         net_run.stdout
     );

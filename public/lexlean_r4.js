@@ -251,6 +251,36 @@ export function studio_admit_catalog_hydration_json(origin_kind, explicit_consen
 }
 
 /**
+ * Formal R4.MvmLinuxContainer evaluate single-source MVM workspace, SpiralCore CORS preemption, and interactive command policy (`R4-63`).
+ * @param {boolean} split_brain
+ * @param {boolean} cow_consistent
+ * @param {boolean} spiral_core_net
+ * @param {boolean} is_private_or_loopback
+ * @param {boolean} has_credentials
+ * @param {boolean} direct_fetch_cors_blocked
+ * @param {string} mcp_mode
+ * @param {boolean} plan_mode
+ * @param {boolean} auto_run
+ * @param {boolean} mutating_cmd
+ * @param {bigint} header_tokens
+ * @returns {string}
+ */
+export function studio_admit_mvm_container_policy_json(split_brain, cow_consistent, spiral_core_net, is_private_or_loopback, has_credentials, direct_fetch_cors_blocked, mcp_mode, plan_mode, auto_run, mutating_cmd, header_tokens) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(mcp_mode, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_admit_mvm_container_policy_json(split_brain, cow_consistent, spiral_core_net, is_private_or_loopback, has_credentials, direct_fetch_cors_blocked, ptr0, len0, plan_mode, auto_run, mutating_cmd, header_tokens);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
  * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
  * @param {string} subcommand
  * @param {string} filter
@@ -325,32 +355,6 @@ export function studio_export_mvm_cow_sectors() {
     return v1;
 }
 
-function passArray8ToWasm0(arg, malloc) {
-    const ptr = malloc(arg.length * 1, 1) >>> 0;
-    getUint8ArrayMemory0().set(arg, ptr / 1);
-    WASM_VECTOR_LEN = arg.length;
-    return ptr;
-}
-/**
- * Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`, `R4-60`).
- * @param {Uint8Array} bytes
- * @returns {string}
- */
-export function studio_import_mvm_cow_sectors(bytes) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_import_mvm_cow_sectors(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
 /**
  * Formal R4.HoloGeometricRuntime execute up to `slice_tokens` (`1..=4`) pure-integer token steps and emit live HUD frames on an active Studio/Foundry turn (`R4-56`, `R4-60`).
  * @param {bigint} turn_id
@@ -387,6 +391,12 @@ export function holo_cancel_foundry_turn(turn_id) {
     }
 }
 
+function passArray8ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 1, 1) >>> 0;
+    getUint8ArrayMemory0().set(arg, ptr / 1);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
 /**
  * Parse & validate a streamed HuggingFace Safetensors header slice (`R4-50`, `R4-51`).
  * @param {string} repo_id
@@ -540,6 +550,26 @@ export function studio_record_generation_fault(fault_reason) {
 }
 
 /**
+ * Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`, `R4-60`).
+ * @param {Uint8Array} bytes
+ * @returns {string}
+ */
+export function studio_import_mvm_cow_sectors(bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_import_mvm_cow_sectors(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
  * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
  * @returns {string}
  */
@@ -568,31 +598,43 @@ export function studio_export_uorlut_shard(e8_root) {
     return v1;
 }
 
-/**
- * Merge a content-addressed `UORSHRD1` binary shard into the resident `LutStackModel` and rebuild its Radix `/8` index.
- * @param {Uint8Array} shard_bytes
- * @returns {string}
- */
-export function studio_merge_uorlut_shard(shard_bytes) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passArray8ToWasm0(shard_bytes, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_merge_uorlut_shard(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
 function takeFromExternrefTable0(idx) {
     const value = wasm.__wbindgen_export_2.get(idx);
     wasm.__externref_table_dealloc(idx);
     return value;
 }
+/**
+ * Heal and recover a single requested shard (`left` if `recover_left == true`, else `right`)
+ * from a `StitchParityGroup` JSON descriptor and up to 3 candidate byte slices using 2-of-3 XOR
+ * parity + strict SHA-256 verification.
+ * @param {string} group_json
+ * @param {boolean} recover_left
+ * @param {boolean} has_left
+ * @param {Uint8Array} left_bytes
+ * @param {boolean} has_right
+ * @param {Uint8Array} right_bytes
+ * @param {boolean} has_parity
+ * @param {Uint8Array} parity_bytes
+ * @returns {Uint8Array}
+ */
+export function studio_stitch_recover_pair_auto(group_json, recover_left, has_left, left_bytes, has_right, right_bytes, has_parity, parity_bytes) {
+    const ptr0 = passStringToWasm0(group_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(left_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArray8ToWasm0(right_bytes, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passArray8ToWasm0(parity_bytes, wasm.__wbindgen_malloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_stitch_recover_pair_auto(ptr0, len0, recover_left, has_left, ptr1, len1, has_right, ptr2, len2, has_parity, ptr3, len3);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
+    }
+    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v5;
+}
+
 /**
  * Recover an original payload from any 2 of 3 raw `afflom/stitch` `xor-2-of-3` fragments and verify
  * its SHA-256 digest when `expected_object_sha256` is non-empty.
@@ -701,6 +743,26 @@ export function studio_verify_holo_v4_archive(archive_bytes) {
         const ptr0 = passArray8ToWasm0(archive_bytes, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
         const ret = wasm.studio_verify_holo_v4_archive(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Merge a content-addressed `UORSHRD1` binary shard into the resident `LutStackModel` and rebuild its Radix `/8` index.
+ * @param {Uint8Array} shard_bytes
+ * @returns {string}
+ */
+export function studio_merge_uorlut_shard(shard_bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(shard_bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_merge_uorlut_shard(ptr0, len0);
         deferred2_0 = ret[0];
         deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
@@ -878,38 +940,6 @@ export function studio_stitch_split_2of3(payload) {
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
-}
-
-/**
- * Heal and recover a single requested shard (`left` if `recover_left == true`, else `right`)
- * from a `StitchParityGroup` JSON descriptor and up to 3 candidate byte slices using 2-of-3 XOR
- * parity + strict SHA-256 verification.
- * @param {string} group_json
- * @param {boolean} recover_left
- * @param {boolean} has_left
- * @param {Uint8Array} left_bytes
- * @param {boolean} has_right
- * @param {Uint8Array} right_bytes
- * @param {boolean} has_parity
- * @param {Uint8Array} parity_bytes
- * @returns {Uint8Array}
- */
-export function studio_stitch_recover_pair_auto(group_json, recover_left, has_left, left_bytes, has_right, right_bytes, has_parity, parity_bytes) {
-    const ptr0 = passStringToWasm0(group_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(left_bytes, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passArray8ToWasm0(right_bytes, wasm.__wbindgen_malloc);
-    const len2 = WASM_VECTOR_LEN;
-    const ptr3 = passArray8ToWasm0(parity_bytes, wasm.__wbindgen_malloc);
-    const len3 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_stitch_recover_pair_auto(ptr0, len0, recover_left, has_left, ptr1, len1, has_right, ptr2, len2, has_parity, ptr3, len3);
-    if (ret[3]) {
-        throw takeFromExternrefTable0(ret[2]);
-    }
-    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v5;
 }
 
 /**
@@ -5576,27 +5606,91 @@ function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
     const rawCmd = typeof (hopToolCall && hopToolCall.cmd) === 'string'
       ? hopToolCall.cmd
       : String(args.cmd || args.command || '');
-    const trimmed = rawCmd.trim();
-    if (!trimmed) return false;
-    if (/[><`]|(\$\()/.test(trimmed)) return true;
-    const segments = trimmed.split(/&&|\|\||[;|\r\n]/).map((s) => s.trim()).filter(Boolean);
-    for (const seg of segments) {
-      const parts = seg.split(/\s+/);
-      const bin = (parts[0] || '').toLowerCase();
-      if (['cat', 'ls', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd'].includes(bin)) {
-        continue;
-      }
-      if (bin === 'git') {
-        const gsub = parts.slice(1).find((a) => !a.startsWith('-')) || '';
-        if (['status', 'log', 'diff', 'show', 'rev-parse', 'ls-files', 'describe'].includes(gsub)) {
-          continue;
-        }
-      }
-      return true;
-    }
-    return false;
+    return classifyShellCommandKind(rawCmd) === 'MutatingOrNetwork';
   }
   return false;
+}
+
+const __uorPendingStagedMvmCommands = new Map();
+let __uorStagedMvmSeq = 0;
+
+/* Formal R4.MvmLinuxContainer */
+export function classifyShellCommandKind(rawCmd) {
+  const trimmed = String(rawCmd || '').trim();
+  if (!trimmed) return 'ReadOnlyInspection';
+  if (/[><`]|(\$\()/.test(trimmed)) return 'MutatingOrNetwork';
+  const segments = trimmed.split(/&&|\|\||[;|\r\n]/).map((s) => s.trim()).filter(Boolean);
+  for (const seg of segments) {
+    const parts = seg.split(/\s+/);
+    const bin = (parts[0] || '').toLowerCase();
+    if ([
+      'cat', 'ls', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd',
+      'uname', 'whoami', 'id', 'hostname', 'df', 'free', 'ps', 'which', 'diff', 'true', 'false', 'echo', 'env',
+    ].includes(bin)) {
+      continue;
+    }
+    if (bin === 'find' && !parts.some((p) => p === '-delete' || p === '-exec' || p === '-execdir')) {
+      continue;
+    }
+    if (bin === 'git') {
+      const gsub = parts.slice(1).find((a) => !a.startsWith('-')) || '';
+      if (['status', 'log', 'diff', 'show', 'rev-parse', 'ls-files', 'describe', 'branch'].includes(gsub)) {
+        if (gsub === 'branch' && parts.slice(2).some((a) => !a.startsWith('-'))) {
+          return 'MutatingOrNetwork';
+        }
+        continue;
+      }
+    }
+    return 'MutatingOrNetwork';
+  }
+  return 'ReadOnlyInspection';
+}
+
+/* Formal R4.MvmLinuxContainer */
+export function admitInteractiveCommand(mcpMode, planMode, autoRun, cmdKind) {
+  const m = String(mcpMode || 'safe').trim().toLowerCase();
+  const p = String(planMode || 'agent').trim().toLowerCase();
+  const isPlan = p === 'plan' || p === 'planreadonly' || p === 'plan_read_only';
+  const isReadOnly = String(cmdKind || '') === 'ReadOnlyInspection';
+  if (m === 'deny') {
+    return 'RefusedByDenyPolicy';
+  }
+  if (m === 'confirm') {
+    if (isPlan) {
+      return isReadOnly ? 'AutoRunAdmitted' : 'RefusedInPlanMode';
+    }
+    return isReadOnly ? 'AutoRunAdmitted' : 'StagedPendingUserGo';
+  }
+  if (isPlan) {
+    return isReadOnly ? 'AutoRunAdmitted' : 'RefusedInPlanMode';
+  }
+  if (isReadOnly) {
+    return 'AutoRunAdmitted';
+  }
+  return Boolean(autoRun) ? 'AutoRunAdmitted' : 'StagedPendingUserGo';
+}
+
+/* Formal R4.MvmLinuxContainer */
+export function resolve_staged_mvm_command(payload = {}) {
+  const stageId = String((payload && (payload.stage_id || payload.stageId)) || '').trim();
+  const rawDecision = String((payload && payload.decision) || 'run').trim().toLowerCase();
+  const decision = rawDecision === 'skip' ? 'skip' : rawDecision === 'edit' ? 'edit' : 'run';
+  if (!stageId || !__uorPendingStagedMvmCommands.has(stageId)) {
+    return { ok: false, error_code: 'StagedCommandNotFound', stage_id: stageId };
+  }
+  const waiter = __uorPendingStagedMvmCommands.get(stageId);
+  __uorPendingStagedMvmCommands.delete(stageId);
+  const editedCmd =
+    typeof payload.cmd === 'string' && payload.cmd.trim().length > 0
+      ? payload.cmd.trim()
+      : waiter.cmd;
+  waiter.resolve({
+    ok: true,
+    stage_id: stageId,
+    decision,
+    cmd: decision === 'skip' ? '' : editedCmd,
+  });
+  return { ok: true, stage_id: stageId, decision, cmd: decision === 'skip' ? '' : editedCmd };
 }
 
 export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
@@ -6341,7 +6435,30 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         hopToolCall.arguments && typeof hopToolCall.arguments === 'object'
           ? hopToolCall.arguments
           : {};
-      if (composerMode === 'plan' && isStudioToolCallMutating(toolName, toolArgs, hopToolCall)) {
+      const mcpModeRaw = String(
+        payload.mcp_policy || payload.mcpPolicy || 'safe',
+      )
+        .trim()
+        .toLowerCase();
+      const autoRun =
+        payload.auto_run !== undefined
+          ? Boolean(payload.auto_run)
+          : payload.autoRun !== undefined
+            ? Boolean(payload.autoRun)
+            : mcpModeRaw === 'safe';
+      const cmdKind = isStudioToolCallMutating(toolName, toolArgs, hopToolCall)
+        ? 'MutatingOrNetwork'
+        : 'ReadOnlyInspection';
+      const interactiveVerdict = admitInteractiveCommand(
+        mcpModeRaw,
+        composerMode === 'plan' ? 'plan' : 'agent',
+        autoRun,
+        cmdKind,
+      );
+      if (
+        interactiveVerdict === 'RefusedByDenyPolicy' ||
+        interactiveVerdict === 'RefusedInPlanMode'
+      ) {
         const tid = activeTurnNum;
         if (typeof fnCancel === 'function' && tid != null) {
           try {
@@ -6351,16 +6468,20 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         }
         setActiveTurnId(null, ownerKey);
         clearCancelled(ownerKey, tid);
+        const isDeny = interactiveVerdict === 'RefusedByDenyPolicy';
         return {
           id: reqId,
           ok: false,
-          error_code: 'RefusedPlanModeMutation',
-          error: `Composer plan mode refuses mutating tool \`${toolName}\``,
+          error_code: isDeny ? 'RefusedByDenyPolicy' : 'RefusedPlanModeMutation',
+          verdict: interactiveVerdict,
+          error: isDeny
+            ? `MCP deny policy refuses tool \`${toolName}\``
+            : `Composer plan mode refuses mutating tool \`${toolName}\``,
           turn_id: tid,
         };
       }
 
-      const cmd =
+      let cmd =
         toolName === 'mvm_exec'
           ? typeof hopToolCall.cmd === 'string'
             ? hopToolCall.cmd
@@ -6379,12 +6500,55 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
             '',
         );
 
+      let stagedSkip = false;
+      if (interactiveVerdict === 'StagedPendingUserGo') {
+        const stageId = `stage-${activeTurnNum || 0}-${++__uorStagedMvmSeq}`;
+        postEvent('staged_mvm_command', {
+          id: reqId,
+          turn_id: activeTurnNum,
+          stage_id: stageId,
+          tool: toolName,
+          cmd: cmd || toolTarget,
+          arguments: toolArgs,
+          verdict: interactiveVerdict,
+        });
+        let cancelUnsub = () => {};
+        const stageDecision = await new Promise((resolve) => {
+          __uorPendingStagedMvmCommands.set(stageId, {
+            cmd: cmd || toolTarget,
+            resolve,
+          });
+          cancelUnsub = registerCancelWaiter(ownerKey, () => {
+            __uorPendingStagedMvmCommands.delete(stageId);
+            resolve({ cancelled: true });
+          });
+        });
+        cancelUnsub();
+        if (
+          (stageDecision && stageDecision.cancelled) ||
+          isCancelled(ownerKey, activeTurnNum)
+        ) {
+          return cancelAndBuildResult();
+        }
+        if (stageDecision && stageDecision.decision === 'skip') {
+          stagedSkip = true;
+        } else if (
+          toolName === 'mvm_exec' &&
+          stageDecision &&
+          typeof stageDecision.cmd === 'string' &&
+          stageDecision.cmd.trim().length > 0
+        ) {
+          cmd = stageDecision.cmd.trim();
+        }
+      }
+
       postEvent('tool_call', {
         id: reqId,
         turn_id: activeTurnNum,
         tool: toolName,
         ...(cmd ? { cmd } : {}),
         ...(toolTarget ? { target: toolTarget } : {}),
+        ...(stagedSkip ? { skipped: true } : {}),
         arguments: toolArgs,
         iteration: toolIterations + 1,
       });
@@ -6398,7 +6562,13 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       let explicitDeleted = [];
 
       try {
-        if (toolName === 'mvm_exec') {
+        if (stagedSkip) {
+          execRes = { status: 'skipped', exit_code: 0, mvm_stdout: '', mvm_stderr: '' };
+          explicitStdout = `[Skipped staged command by user: ${cmd || toolTarget || toolName}]`;
+          explicitStderr = '';
+          explicitExitCode = 0;
+          explicitChanged = [];
+        } else if (toolName === 'mvm_exec') {
           const mvmPayload = toolArgs.cwd ? { cmd, cwd: toolArgs.cwd } : { cmd };
           const rawExec = await dispatchBridge(`1\tstudio\tmvm_exec\t${JSON.stringify(mvmPayload)}`);
           execRes = typeof rawExec === 'string' ? JSON.parse(rawExec) : rawExec || {};
@@ -8475,6 +8645,29 @@ function __uorVerifyRiscv64ElfHeader(u8) {
   return { ok: true, e_machine: eMachine };
 }
 
+/* Formal R4.MvmLinuxContainer */
+export function admit_public_cors_preemption(
+  spiralCoreNetEnabled,
+  isPrivateOrLoopback,
+  hasCredentials,
+  directFetchCorsBlocked,
+) {
+  /* Formal R4.MvmLinuxContainer */
+  if (isPrivateOrLoopback) {
+    return 'RefusedPrivateAddressSsrf';
+  }
+  if (!spiralCoreNetEnabled) {
+    return 'RefusedSpiralCoreNetDisabled';
+  }
+  if (!directFetchCorsBlocked) {
+    return 'DirectBrowserFetchAdmitted';
+  }
+  if (hasCredentials) {
+    return 'RefusedCredentialedCorsProxy';
+  }
+  return 'StatelessRelayCorsPreempted';
+}
+
 export class SpiralCoreHostBridge {
   #secretVault = new Map();
   #ws = null;
@@ -8635,6 +8828,9 @@ export class SpiralCoreHostBridge {
 
   static normalizeNetworkMode(raw) {
     const lower = String(raw || 'sandboxed').trim().toLowerCase();
+    if (lower === 'spiralcore_net' || lower === 'net_spiralcore') {
+      return 'spiralcore_net';
+    }
     if (lower === 'full_spiralcore' || lower === 'full' || lower === 'mode_b' || lower === 'spiralcore') {
       return 'full_spiralcore';
     }
@@ -8721,7 +8917,7 @@ export class SpiralCoreHostBridge {
     for (const [k, v] of Object.entries(hdrObj)) {
       const kl = String(k || '').toLowerCase();
       const vs = String(v || '');
-      if (kl === 'authorization' || kl === 'x-github-token' || vs.includes('{{MVM_SECRET:')) {
+      if (kl === 'authorization' || kl === 'cookie' || kl === 'x-github-token' || vs.includes('{{MVM_SECRET:')) {
         return true;
       }
     }
@@ -8800,6 +8996,14 @@ export class SpiralCoreHostBridge {
         error_code: 'RelayConsentRequired',
         host: cleanHost,
         message: 'Full SpiralCore Internet mode requires explicit user consent (consentGranted=true)',
+      };
+    } else if (this.mode === 'spiralcore_net' && this.webAccessEnabled === false) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RefusedSpiralCoreNetDisabled',
+        host: cleanHost,
+        message: 'SpiralCore Internet access is disabled via webAccessEnabled=false',
       };
     }
     return { ok: true, host: cleanHost };
@@ -9030,7 +9234,7 @@ export class SpiralCoreHostBridge {
   }
 
   async tryRelayRpc(op, params) {
-    if (this.mode !== 'full_spiralcore') {
+    if (this.mode === 'sandboxed') {
       return {
         ok: false,
         status: 403,
@@ -9038,7 +9242,15 @@ export class SpiralCoreHostBridge {
         message: 'SpiralCore AF_VSOCK relay is disabled in Prism capabilities/1 Sandboxed mode',
       };
     }
-    if (!this.consentGranted) {
+    if (this.mode === 'spiralcore_net' && this.webAccessEnabled === false) {
+      return {
+        ok: false,
+        status: 403,
+        error_code: 'RefusedSpiralCoreNetDisabled',
+        message: 'SpiralCore Internet relay is disabled when webAccessEnabled=false',
+      };
+    }
+    if (this.mode === 'full_spiralcore' && !this.consentGranted) {
       return {
         ok: false,
         status: 403,
@@ -9047,7 +9259,9 @@ export class SpiralCoreHostBridge {
       };
     }
     const pObj = params && typeof params === 'object' ? params : {};
-    const targetCandidate = String(pObj.url || pObj.repo_url || '');
+    const { _corsPreempt, ...wireParams } = pObj;
+    const isCorsPreempt = Boolean(_corsPreempt) || (this.mode === 'spiralcore_net' && op === 'http_request');
+    const targetCandidate = String(wireParams.url || wireParams.repo_url || '');
     let targetHost = '';
     if (targetCandidate) {
       try {
@@ -9056,16 +9270,16 @@ export class SpiralCoreHostBridge {
         targetHost = '';
       }
     }
-    if (this.#isCredentialedRequest(targetHost, pObj.headers, Boolean(pObj.auth_bearer) || JSON.stringify(pObj).includes('{{MVM_SECRET:'))) {
+    if (this.#isCredentialedRequest(targetHost, wireParams.headers, Boolean(wireParams.auth_bearer) || JSON.stringify(wireParams).includes('{{MVM_SECRET:'))) {
       return {
         ok: false,
         status: 403,
         error_code: 'RelayForbiddenForCredentialedHost',
         host: targetHost,
-        message: 'Credentialed hosts and requests carrying Authorization/tokens are strictly forbidden from SpiralCore relay failback',
+        message: 'Credentialed hosts and requests carrying Authorization/Cookie/tokens are strictly forbidden from SpiralCore relay failback',
       };
     }
-    if (!this.relayUrl && !this.relayHttpUrl) {
+    if (!this.relayUrl && !this.relayHttpUrl && this.mode !== 'spiralcore_net') {
       return {
         ok: false,
         status: 502,
@@ -9080,10 +9294,10 @@ export class SpiralCoreHostBridge {
       vsock_port: 5257,
       policy: this.mcpPolicy,
       op,
-      params: pObj,
+      params: wireParams,
     };
 
-    if (typeof WebSocket === 'function' && this.relayUrl) {
+    if (!isCorsPreempt && typeof WebSocket === 'function' && this.relayUrl) {
       const valid = this.validateTransportUrl(this.relayUrl, true);
       if (valid.ok) {
         try {
@@ -9100,13 +9314,19 @@ export class SpiralCoreHostBridge {
 
     if (typeof this.#fetchImpl === 'function' || typeof fetch === 'function') {
       const candidateHttpUrls = [];
-      if (this.relayHttpUrl) candidateHttpUrls.push(this.relayHttpUrl);
+      const pushHttpUrl = (u) => {
+        if (u && !candidateHttpUrls.includes(u)) candidateHttpUrls.push(u);
+      };
+      pushHttpUrl(this.relayHttpUrl);
       if (this.relayUrl) {
         if (this.relayUrl.startsWith('wss://')) {
-          candidateHttpUrls.push('https://' + this.relayUrl.slice(6));
+          pushHttpUrl('https://' + this.relayUrl.slice(6));
         } else if (this.relayUrl.startsWith('ws://127.0.0.1')) {
-          candidateHttpUrls.push('http://127.0.0.1' + this.relayUrl.slice(14));
+          pushHttpUrl('http://127.0.0.1' + this.relayUrl.slice(14));
         }
+      }
+      if (this.mode === 'spiralcore_net') {
+        pushHttpUrl(DEFAULT_SPIRALCORE_RELAY_HTTP_URL);
       }
 
       for (const httpUrl of candidateHttpUrls) {
@@ -9124,7 +9344,9 @@ export class SpiralCoreHostBridge {
           });
           const parsed = await resp.json();
           if (parsed && typeof parsed.ok === 'boolean') {
-            this.lastTransportMode = httpUrl.includes('127.0.0.1') ? 'spvs-local-http' : 'spvs-cloud-https';
+            this.lastTransportMode = isCorsPreempt
+              ? 'spiralcore-cors-preempt'
+              : (httpUrl.includes('127.0.0.1') ? 'spvs-local-http' : 'spvs-cloud-https');
             return parsed;
           }
         } catch {
@@ -9429,7 +9651,7 @@ export class SpiralCoreHostBridge {
       }
     }
 
-    if (this.mode === 'full_spiralcore' && this.consentGranted) {
+    if ((this.mode === 'full_spiralcore' && this.consentGranted) || (this.mode === 'spiralcore_net' && this.webAccessEnabled !== false)) {
       const relayRes = await this.tryRelayRpc('dns_query', { name: domain, type: rrType });
       if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.answers)) {
         const records = relayRes.data.answers.map((a) => ({
@@ -9567,12 +9789,29 @@ export class SpiralCoreHostBridge {
           message: `Credentialed host/request ${hostname} failed direct fetch and is forbidden from SpiralCore relay failback: ${err && err.message ? err.message : String(err)}`,
         };
       }
-      if (this.mode === 'full_spiralcore' && this.consentGranted) {
+      const corsPreemptVerdict = admit_public_cors_preemption(
+        this.mode === 'spiralcore_net' && this.webAccessEnabled !== false,
+        false,
+        isCredentialed,
+        true,
+      );
+      if (corsPreemptVerdict === 'RefusedCredentialedCorsProxy') {
+        this.#emitAuditEvent('http_request', finalValid.url.href, 'direct-failed-credentialed', 403, 0);
+        return {
+          ok: false,
+          status: 403,
+          error_code: 'RelayForbiddenForCredentialedHost',
+          host: hostname,
+          message: `Credentialed host/request ${hostname} is forbidden from SpiralCore CORS preemption`,
+        };
+      }
+      if ((this.mode === 'full_spiralcore' && this.consentGranted) || corsPreemptVerdict === 'StatelessRelayCorsPreempted') {
         const relayRes = await this.tryRelayRpc('http_request', {
           method: String(req.method || 'GET').toUpperCase(),
           url: finalValid.url.href,
           headers: headerSub.headers,
           body_b64: req.body_base64 || req.body_b64 || undefined,
+          _corsPreempt: this.mode === 'spiralcore_net',
         });
         if (relayRes && !relayRes.ok && (relayRes.error_code === 'SsrfBlocked' || relayRes.error_code === 'PrivateAddressBlocked')) {
           this.#emitAuditEvent('http_request', finalValid.url.href, 'relay-ssrf-blocked', 403, 0);
@@ -9805,8 +10044,8 @@ export class SpiralCoreHostBridge {
     if (
       results.length === 0 &&
       failedCount === providers.length &&
-      this.mode === 'full_spiralcore' &&
-      this.consentGranted
+      ((this.mode === 'full_spiralcore' && this.consentGranted) ||
+        (this.mode === 'spiralcore_net' && this.webAccessEnabled !== false))
     ) {
       const relayRes = await this.tryRelayRpc('web_search', { query, limit });
       if (relayRes && relayRes.ok && relayRes.data && Array.isArray(relayRes.data.results)) {
@@ -13700,6 +13939,7 @@ function __uorStartDedicatedEngineWorker() {
     },
   };
   const hostBridge = new SpiralCoreHostBridge({
+    mode: 'spiralcore_net',
     onAuditEvent: (ev) => postEvent('audit_event', ev),
     workspaceFs: workerWorkspaceFs,
   });
@@ -14352,6 +14592,20 @@ function __uorStartDedicatedEngineWorker() {
           });
           return;
         }
+        if (wasmReady && typeof studio_dispatch === 'function') {
+          try {
+            const effNetMode =
+              hostBridge.webAccessEnabled === false ? 'sandboxed' : hostBridge.mode;
+            studio_dispatch(
+              `1\tstudio\tmvm_set_network_gate\t${JSON.stringify({
+                network_mode: effNetMode,
+                consentGranted: hostBridge.consentGranted,
+              })}`,
+            );
+          } catch {
+            // Ignore policy sync error before MVM gate initialization
+          }
+        }
         const hasEmergencyField = Boolean(
           payload &&
             (typeof payload.offlineEmergencyQ31 === 'boolean' ||
@@ -14894,6 +15148,16 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: true, result: cancelRes });
         return;
       }
+      if (op === 'resolve_staged_mvm_command') {
+        const res = resolve_staged_mvm_command(payload && typeof payload === 'object' ? payload : {});
+        self.postMessage({
+          id,
+          ok: Boolean(res && res.ok !== false),
+          result: res,
+          ...(res && res.ok === false ? { error_code: res.error_code || 'StagedCommandNotFound' } : {}),
+        });
+        return;
+      }
       if (op === 'terminal:write' || op === 'terminal:open' || op === 'terminal:close' || op === 'terminal:kill' || op === 'terminal:resize' || op === 'terminal:serialize') {
         if (payload != null && typeof payload !== 'object') {
           self.postMessage({
@@ -14906,6 +15170,7 @@ function __uorStartDedicatedEngineWorker() {
         }
         if (op === 'terminal:write') {
           const cmdStr = payload && typeof payload.cmd === 'string' ? payload.cmd.trim() : '';
+          const cwdStr = payload && typeof payload.cwd === 'string' && payload.cwd.trim() ? payload.cwd.trim() : undefined;
           const hasRawData = payload && typeof payload.data === 'string' && payload.data.length > 0;
           if (!cmdStr && !hasRawData) {
             self.postMessage({
@@ -14917,7 +15182,8 @@ function __uorStartDedicatedEngineWorker() {
             return;
           }
           if (cmdStr) {
-            const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: cmdStr })}`);
+            const mvmReq = cwdStr ? { cmd: cmdStr, cwd: cwdStr } : { cmd: cmdStr };
+            const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify(mvmReq)}`);
             self.postMessage({ id, ok: true, result: out });
             return;
           }
@@ -15123,6 +15389,15 @@ function __uorStartDedicatedEngineWorker() {
       await restore_cached_uorlut_from_indexeddb().catch(() => null);
       await restore_mvm_cow_sectors_from_opfs().catch(() => null);
       wasmReady = true;
+      try {
+        const effNetMode =
+          hostBridge.webAccessEnabled === false ? 'sandboxed' : hostBridge.mode;
+        studio_dispatch(
+          `1\tstudio\tmvm_set_network_gate\t${JSON.stringify({ network_mode: effNetMode })}`,
+        );
+      } catch {
+        // Ignore if studio dispatch gate sync is unavailable
+      }
 
       const state = JSON.parse(studio_dispatch('1\tstudio\tstate\t'));
       const workspace = __uorCollectWorkspaceSnapshot();

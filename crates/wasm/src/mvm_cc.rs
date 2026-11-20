@@ -229,7 +229,7 @@ where
         branch_taken: bool,
     }
     let mut cond_stack: Vec<CondFrame> = Vec::new();
-    let is_active = |st: &[CondFrame]| st.last().map_or(true, |f| f.this_active);
+    let is_active = |st: &[CondFrame]| st.last().is_none_or(|f| f.this_active);
 
     for (lidx, raw_line) in clean.lines().enumerate() {
         let line_no = lidx + 1;
@@ -264,10 +264,18 @@ where
                 let e = expr.trim();
                 let parent = is_active(&cond_stack);
                 let taken = if let Some(sym) = e.strip_prefix("defined") {
-                    let s = sym.trim().trim_start_matches('(').trim_end_matches(')').trim();
+                    let s = sym
+                        .trim()
+                        .trim_start_matches('(')
+                        .trim_end_matches(')')
+                        .trim();
                     defines.contains_key(s)
                 } else if let Some(sym) = e.strip_prefix("!defined") {
-                    let s = sym.trim().trim_start_matches('(').trim_end_matches(')').trim();
+                    let s = sym
+                        .trim()
+                        .trim_start_matches('(')
+                        .trim_end_matches(')')
+                        .trim();
                     !defines.contains_key(s)
                 } else {
                     e != "0"
@@ -712,7 +720,7 @@ enum Expr {
     PtrMember(Box<Expr>, String),
     Deref(Box<Expr>),
     AddrOf(Box<Expr>),
-    SizeOfExpr(Box<Expr>),
+    SizeOfValue(Box<Expr>),
     Unary(UnaryOp, Box<Expr>),
     Binary(BinOp, Box<Expr>, Box<Expr>),
     Ternary(Box<Expr>, Box<Expr>, Box<Expr>),
@@ -868,6 +876,7 @@ impl Parser {
         }
     }
 
+    /// Formal R4.MvmLinuxContainer classify whether the next token begins a C type specifier (`R4-63`).
     fn is_type_start(&self) -> bool {
         match &self.peek().kind {
             TokKind::Ident(s) => {
@@ -904,6 +913,7 @@ impl Parser {
         }
     }
 
+    /// Formal R4.MvmLinuxContainer parse a C struct body with natural field alignment (`R4-63`).
     fn parse_struct_body(&mut self, struct_name: String) -> Result<StructDef, CCompileError> {
         self.expect(&TokKind::LBrace)?;
         let mut fields = Vec::new();
@@ -966,6 +976,7 @@ impl Parser {
         Ok(def)
     }
 
+    /// Formal R4.MvmLinuxContainer parse a C type specifier including structs and typedefs (`R4-63`).
     fn parse_type(&mut self) -> Result<CType, CCompileError> {
         let mut base: Option<CType> = None;
         let mut is_char = false;
@@ -973,9 +984,7 @@ impl Parser {
         let mut is_u32 = false;
         let mut consumed = false;
         while self.is_type_start() {
-            if consumed
-                && self.toks.get(self.pos + 1).map(|t| &t.kind) == Some(&TokKind::Semi)
-            {
+            if consumed && self.toks.get(self.pos + 1).map(|t| &t.kind) == Some(&TokKind::Semi) {
                 break;
             }
             let ident = match &self.peek().kind {
@@ -1081,7 +1090,10 @@ impl Parser {
                             while self.eat(&TokKind::Star) {
                                 pty = CType::Ptr(Box::new(pty));
                             }
-                            let pname = if matches!(&self.peek().kind, TokKind::Comma | TokKind::RParen | TokKind::LBracket) {
+                            let pname = if matches!(
+                                &self.peek().kind,
+                                TokKind::Comma | TokKind::RParen | TokKind::LBracket
+                            ) {
                                 format!("__arg_{arg_idx}")
                             } else {
                                 self.expect_ident()?
@@ -1662,7 +1674,7 @@ impl Parser {
                     }
                     let e = self.parse_expr()?;
                     self.expect(&TokKind::RParen)?;
-                    return Ok(Expr::SizeOfExpr(Box::new(e)));
+                    return Ok(Expr::SizeOfValue(Box::new(e)));
                 }
                 if self.eat(&TokKind::LParen) {
                     let mut args = Vec::new();
@@ -2176,8 +2188,7 @@ impl Codegen {
             }
             Stmt::While(_, b) => self.count_stmt_slots(b),
             Stmt::For(i, _, _, b) => {
-                i.as_deref().map_or(0, |is| self.count_stmt_slots(is))
-                    + self.count_stmt_slots(b)
+                i.as_deref().map_or(0, |is| self.count_stmt_slots(is)) + self.count_stmt_slots(b)
             }
             _ => 0,
         }
@@ -2711,7 +2722,7 @@ impl Codegen {
                 let _ = self.compile_lvalue_addr(inner)?;
                 Ok(())
             }
-            Expr::SizeOfExpr(inner) => {
+            Expr::SizeOfValue(inner) => {
                 let (_, sz) = self.infer_expr_type_and_size(inner);
                 self.emit_li(A0, sz as i64);
                 Ok(())
@@ -2944,9 +2955,7 @@ impl Codegen {
                     ("unlink", 1) => {
                         return self.emit_syscall_call(args, &[A1], &[(A0, -100), (A2, 0)], 35)
                     }
-                    ("unlinkat", 3) => {
-                        return self.emit_syscall_call(args, &[A0, A1, A2], &[], 35)
-                    }
+                    ("unlinkat", 3) => return self.emit_syscall_call(args, &[A0, A1, A2], &[], 35),
                     ("open", 2) => {
                         return self.emit_syscall_call(
                             args,
@@ -3115,7 +3124,8 @@ where
         while cg.data.len() < off + g.size_bytes {
             cg.data.push(0);
         }
-        cg.global_offsets.insert(g.name.clone(), (off, g.ty.clone()));
+        cg.global_offsets
+            .insert(g.name.clone(), (off, g.ty.clone()));
     }
 
     // _start at text[0]: Load argc/argv from initial sp, call main, SYS_exit_group(a0)
@@ -3234,10 +3244,7 @@ int main() {
 "#;
         let inc = vec!["/usr/include".to_string(), "/workspace".to_string()];
         let elf = compile_c_units_to_rv64_elf(
-            &[
-                ("/workspace/util.c", util_c),
-                ("/workspace/main.c", main_c),
-            ],
+            &[("/workspace/util.c", util_c), ("/workspace/main.c", main_c)],
             &inc,
             &[("MVM_TEST".to_string(), "1".to_string())],
             |path| match path {

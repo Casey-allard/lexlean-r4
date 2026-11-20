@@ -1598,7 +1598,8 @@ impl StudioEngine {
         let exported = self.mvm.export_workspace_text_files();
         self.pinned_workspace_paths
             .retain(|p| exported.contains_key(p));
-        self.workspace_receipts.retain(|p, _| exported.contains_key(p));
+        self.workspace_receipts
+            .retain(|p, _| exported.contains_key(p));
         for (rel, content) in &exported {
             self.workspace_receipts
                 .entry(rel.clone())
@@ -1805,7 +1806,8 @@ impl StudioEngine {
                     self.pinned_workspace_paths.insert(to_clean.to_string());
                 }
                 if let Some(receipt) = self.workspace_receipts.remove(from_clean) {
-                    self.workspace_receipts.insert(to_clean.to_string(), receipt);
+                    self.workspace_receipts
+                        .insert(to_clean.to_string(), receipt);
                 }
                 if self.active_workspace_path == from_clean {
                     self.active_workspace_path = to_clean.to_string();
@@ -6159,7 +6161,8 @@ impl StudioEngine {
                         .write_guest_file(&format!("/workspace/{clean}"), wf.content.as_bytes())
                         .is_ok()
                     {
-                        self.workspace_receipts.insert(clean.clone(), wf.updated_receipt);
+                        self.workspace_receipts
+                            .insert(clean.clone(), wf.updated_receipt);
                         if wf.pinned {
                             self.pinned_workspace_paths.insert(clean);
                         }
@@ -7905,8 +7908,8 @@ impl StudioEngine {
                 ));
             }
 
-            let is_rust_target = target_path.ends_with(".rs")
-                || ws_snapshot.iter().any(|f| f.path.ends_with(".rs"));
+            let is_rust_target =
+                target_path.ends_with(".rs") || ws_snapshot.iter().any(|f| f.path.ends_with(".rs"));
             if is_rust_target {
                 let mut staged_pairs: Vec<(String, String)> = ws_snapshot
                     .iter()
@@ -7992,9 +7995,7 @@ impl StudioEngine {
                     if let Some((repaired_path, repair_desc)) =
                         repair_rust_files_from_cargo_report(&mut staged_pairs, &cargo_rep)
                     {
-                        if let Some(orig_f) =
-                            ws_snapshot.iter().find(|f| f.path == repaired_path)
-                        {
+                        if let Some(orig_f) = ws_snapshot.iter().find(|f| f.path == repaired_path) {
                             if target_path != repaired_path && synthesized_block.trim().is_empty() {
                                 target_path = repaired_path.clone();
                                 current_content = orig_f.content.clone();
@@ -13183,10 +13184,7 @@ mod tests {
         // 4. Bidirectional deletion visibility (MVM rm -> Studio, Studio delete -> MVM)
         let _ = engine.mvm_exec_json("rm README.md");
         assert!(
-            !engine
-                .list_workspace()
-                .iter()
-                .any(|p| p == "README.md"),
+            !engine.list_workspace().iter().any(|p| p == "README.md"),
             "rm README.md inside MVM must remove README.md from Studio VFS"
         );
         let _ = engine.workspace_delete_json("src/nebula.rs");
@@ -14518,17 +14516,26 @@ mod tests {
         let e2 = StudioEngine::new_default();
         assert_eq!(e1.turns.len(), 20);
         assert_eq!(e1.turns.len(), e2.turns.len());
-        assert_eq!(e1.workspace_entries_from_mvm(), e2.workspace_entries_from_mvm());
+        assert_eq!(
+            e1.workspace_entries_from_mvm(),
+            e2.workspace_entries_from_mvm()
+        );
         assert_eq!(e1.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
 
         e1.mvm
             .write_guest_file("/workspace/mutated.txt", b"mutated\n")
             .expect("write mutated file");
-        assert_ne!(e1.workspace_entries_from_mvm(), e2.workspace_entries_from_mvm());
+        assert_ne!(
+            e1.workspace_entries_from_mvm(),
+            e2.workspace_entries_from_mvm()
+        );
         assert_ne!(e1.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
 
         let e3 = StudioEngine::new_default();
-        assert_eq!(e3.workspace_entries_from_mvm(), e2.workspace_entries_from_mvm());
+        assert_eq!(
+            e3.workspace_entries_from_mvm(),
+            e2.workspace_entries_from_mvm()
+        );
         assert_eq!(e3.mvm.cow_state_sha256(), e2.mvm.cow_state_sha256());
     }
 

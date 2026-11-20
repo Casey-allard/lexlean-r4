@@ -143,6 +143,14 @@ function mockDispatchStudioEnvelope(command, payload) {
   if (command === 'reset') {
     return { status: 'ok' };
   }
+  if (command === 'mvm_exec') {
+    const req = JSON.parse(payload || '{}');
+    const cmdStr = String(req.cmd || '').trim();
+    if (cmdStr.startsWith('unknown_cmd_')) {
+      return { status: 'command_not_found', exit_code: 127, mvm_stdout: '', mvm_stderr: '' };
+    }
+    return { status: 'ok', exit_code: 0, mvm_stdout: `mvm:${cmdStr}\n`, mvm_stderr: '', cwd: req.cwd || '/workspace' };
+  }
   return { status: 'ok' };
 }
 
@@ -618,13 +626,13 @@ console.log('\n--- Suite 5: Terminal Execution & Wasm Control Plane Dispatch ---
   assert.ok(dispatchedEnvelopes.some(e => e.command === 'weight_status'), 'model must dispatch weight_status envelope');
 
   term.execute('cat src/main.rs');
-  assert.ok(dispatchedEnvelopes.some(e => e.command === 'workspace_read' && e.payload === 'src/main.rs'), 'cat must dispatch workspace_read');
+  assert.ok(dispatchedEnvelopes.some(e => e.command === 'mvm_exec' && e.payload.includes('cat src/main.rs')), 'cat must dispatch mvm_exec');
 
   term.execute('ls');
-  assert.ok(dispatchedEnvelopes.some(e => e.command === 'workspace_list'), 'ls must dispatch workspace_list');
+  assert.ok(dispatchedEnvelopes.some(e => e.command === 'mvm_exec' && e.payload.includes('"cmd":"ls"')), 'ls must dispatch mvm_exec');
 
   term.execute('touch new_file.txt');
-  assert.ok(dispatchedEnvelopes.some(e => e.command === 'workspace_write' && e.payload.startsWith('new_file.txt\n')), 'touch must dispatch workspace_write');
+  assert.ok(dispatchedEnvelopes.some(e => e.command === 'mvm_exec' && e.payload.includes('touch new_file.txt')), 'touch must dispatch mvm_exec');
 
   term.execute('write file.txt contents');
   assert.ok(dispatchedEnvelopes.some(e => e.command === 'workspace_write'), 'write must dispatch workspace_write');

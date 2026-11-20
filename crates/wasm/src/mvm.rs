@@ -1018,8 +1018,9 @@ impl MvmSandbox {
     fn mount_initramfs(&mut self, img: &[u8]) -> Result<(), MvmError> {
         let decompressed;
         let raw_img = if img.len() >= 8 && &img[0..8] == b"UORMVMZ1" {
-            decompressed = gzip_decompress_bytes(&img[8..])
-                .map_err(|e| MvmError::CorruptInitramfs(format!("corrupt UORMVMZ1 payload: {e}")))?;
+            decompressed = gzip_decompress_bytes(&img[8..]).map_err(|e| {
+                MvmError::CorruptInitramfs(format!("corrupt UORMVMZ1 payload: {e}"))
+            })?;
             decompressed.as_slice()
         } else {
             img
@@ -1027,8 +1028,7 @@ impl MvmSandbox {
         if raw_img.len() < 12 || &raw_img[0..8] != b"UORMVM01" {
             return Err(MvmError::CorruptInitramfs("bad magic".to_string()));
         }
-        let count =
-            u32::from_le_bytes([raw_img[8], raw_img[9], raw_img[10], raw_img[11]]) as usize;
+        let count = u32::from_le_bytes([raw_img[8], raw_img[9], raw_img[10], raw_img[11]]) as usize;
         let mut cur = 12usize;
         for _ in 0..count {
             if cur + 42 > raw_img.len() {
@@ -1663,7 +1663,10 @@ impl MvmSandbox {
 
     /// Formal R4.MvmLinuxContainer delete a guest `/workspace` file or directory prefix safely (`R4-63`).
     pub fn delete_workspace_file(&mut self, rel_path: &str) -> bool {
-        let target = rel_path.trim().trim_start_matches('/').trim_start_matches("./");
+        let target = rel_path
+            .trim()
+            .trim_start_matches('/')
+            .trim_start_matches("./");
         if target.is_empty() || target.contains("..") {
             return false;
         }
@@ -1696,9 +1699,19 @@ impl MvmSandbox {
     }
 
     /// Formal R4.MvmLinuxContainer rename a guest `/workspace` file or symlink preserving ELF/binary mode (`R4-63`).
-    pub fn rename_workspace_file(&mut self, from_rel: &str, to_rel: &str) -> Result<bool, MvmError> {
-        let from_clean = from_rel.trim().trim_start_matches('/').trim_start_matches("./");
-        let to_clean = to_rel.trim().trim_start_matches('/').trim_start_matches("./");
+    pub fn rename_workspace_file(
+        &mut self,
+        from_rel: &str,
+        to_rel: &str,
+    ) -> Result<bool, MvmError> {
+        let from_clean = from_rel
+            .trim()
+            .trim_start_matches('/')
+            .trim_start_matches("./");
+        let to_clean = to_rel
+            .trim()
+            .trim_start_matches('/')
+            .trim_start_matches("./");
         if from_clean.is_empty()
             || to_clean.is_empty()
             || from_clean.contains("..")
@@ -3931,7 +3944,10 @@ impl MvmSandbox {
                     "sh: -c requires an argument\n".to_string(),
                 ));
             };
-            let sname = args.get(idx + 1).cloned().unwrap_or_else(|| "sh".to_string());
+            let sname = args
+                .get(idx + 1)
+                .cloned()
+                .unwrap_or_else(|| "sh".to_string());
             let rest = if args.len() > idx + 2 {
                 args[idx + 2..].to_vec()
             } else {
@@ -4019,7 +4035,11 @@ impl MvmSandbox {
                         i += 2;
                         continue;
                     }
-                    if next == b'{' && i + 3 < bytes.len() && bytes[i + 2].is_ascii_digit() && bytes[i + 3] == b'}' {
+                    if next == b'{'
+                        && i + 3 < bytes.len()
+                        && bytes[i + 2].is_ascii_digit()
+                        && bytes[i + 3] == b'}'
+                    {
                         let d = (bytes[i + 2] - b'0') as usize;
                         if d == 0 {
                             expanded.push_str(&script_name);
@@ -4120,10 +4140,7 @@ impl MvmSandbox {
                 .map(|s| s.to_string())
                 .collect()
         } else {
-            raw_text
-                .split_whitespace()
-                .map(|s| s.to_string())
-                .collect()
+            raw_text.split_whitespace().map(|s| s.to_string()).collect()
         };
 
         if items.is_empty() && no_run_empty {
@@ -4243,7 +4260,9 @@ impl MvmSandbox {
         let Some(mf_bytes) = self.read_guest_file(&mf_path) else {
             return Ok(StageExecBytesOutcome::err(
                 2,
-                format!("make: *** No targets specified and no makefile found in {make_dir}. Stop.\n"),
+                format!(
+                    "make: *** No targets specified and no makefile found in {make_dir}. Stop.\n"
+                ),
             ));
         };
         let mf_text = String::from_utf8_lossy(&mf_bytes);
@@ -4298,10 +4317,7 @@ impl MvmSandbox {
                 if default_target.is_none() && !tname.starts_with('.') {
                     default_target = Some(tname.clone());
                 }
-                let deps: Vec<String> = dpart
-                    .split_whitespace()
-                    .map(|s| s.to_string())
-                    .collect();
+                let deps: Vec<String> = dpart.split_whitespace().map(|s| s.to_string()).collect();
                 rules.entry(tname.clone()).or_insert_with(|| MakeRule {
                     name: tname.clone(),
                     deps,
@@ -4397,7 +4413,9 @@ impl MvmSandbox {
             depth: usize,
         ) -> Result<(), String> {
             if depth > 16 {
-                return Err(format!("make: dependency recursion limit reached on `{tname}`"));
+                return Err(format!(
+                    "make: dependency recursion limit reached on `{tname}`"
+                ));
             }
             let exp = expand_make_vars(tname, vars, tname, &[]);
             if visited.contains(&exp) {
@@ -4426,8 +4444,7 @@ impl MvmSandbox {
                     format!("make: *** No rule to make target '{exp_t}'. Stop.\n"),
                 ));
             }
-            if let Err(msg) =
-                collect_rule_order(&exp_t, &rules, &vars, &mut visited, &mut order, 0)
+            if let Err(msg) = collect_rule_order(&exp_t, &rules, &vars, &mut visited, &mut order, 0)
             {
                 return Ok(StageExecBytesOutcome::err(2, format!("{msg}\n")));
             }
@@ -5463,7 +5480,8 @@ impl MvmSandbox {
                         }
                         p.regs[10] = take as u64;
                     }
-                    Some(FdKind::VsockSocket { .. }) | Some(FdKind::InetEncapsulatedSocket { .. }) => {
+                    Some(FdKind::VsockSocket { .. })
+                    | Some(FdKind::InetEncapsulatedSocket { .. }) => {
                         let msg_opt = match p.fds.get_mut(&fd) {
                             Some(FdKind::VsockSocket { rx_queue, .. })
                             | Some(FdKind::InetEncapsulatedSocket { rx_queue, .. }) => {
@@ -5550,7 +5568,8 @@ impl MvmSandbox {
                         }
                         p.regs[10] = count as u64;
                     }
-                    Some(FdKind::VsockSocket { .. }) | Some(FdKind::InetEncapsulatedSocket { .. }) => {
+                    Some(FdKind::VsockSocket { .. })
+                    | Some(FdKind::InetEncapsulatedSocket { .. }) => {
                         if let Some(evt) = self.emit_socket_spvs_packet(p, fd, &data) {
                             return Ok(Some(evt));
                         }
@@ -5676,11 +5695,16 @@ impl MvmSandbox {
                         };
                         let peer_ip = if family == 2 {
                             if off + 8 > p.ram.len() {
-                                return Err(MvmError::CpuTrap("SYS_connect sockaddr_in fault".to_string()));
+                                return Err(MvmError::CpuTrap(
+                                    "SYS_connect sockaddr_in fault".to_string(),
+                                ));
                             }
                             format!(
                                 "{}.{}.{}.{}",
-                                p.ram[off + 4], p.ram[off + 5], p.ram[off + 6], p.ram[off + 7]
+                                p.ram[off + 4],
+                                p.ram[off + 5],
+                                p.ram[off + 6],
+                                p.ram[off + 7]
                             )
                         } else {
                             if a2 < 24 || off + 24 > p.ram.len() {
@@ -5744,9 +5768,7 @@ impl MvmSandbox {
                 let max_len = a2 as usize;
                 let msg_opt = match p.fds.get_mut(&fd) {
                     Some(FdKind::VsockSocket { rx_queue, .. })
-                    | Some(FdKind::InetEncapsulatedSocket { rx_queue, .. }) => {
-                        rx_queue.pop_front()
-                    }
+                    | Some(FdKind::InetEncapsulatedSocket { rx_queue, .. }) => rx_queue.pop_front(),
                     _ => {
                         p.regs[10] = LINUX_EBADF as u64;
                         return Ok(None);
@@ -6003,7 +6025,12 @@ impl MvmSandbox {
                 } else {
                     b"SPIRALCORE_INET_ACK".to_vec()
                 };
-                (SPIRALCORE_HOST_CID, SPIRALCORE_VSOCK_PORT, env_json, Some(ack))
+                (
+                    SPIRALCORE_HOST_CID,
+                    SPIRALCORE_VSOCK_PORT,
+                    env_json,
+                    Some(ack),
+                )
             }
             _ => {
                 p.regs[10] = LINUX_EBADF as u64;
@@ -9041,7 +9068,11 @@ fn gzip_compress_bytes(input: &[u8]) -> Vec<u8> {
             let chunks = input.chunks(65_535);
             let total_chunks = chunks.len();
             for (idx, chunk) in chunks.enumerate() {
-                let bfinal = if idx + 1 == total_chunks { 0x01u8 } else { 0x00u8 };
+                let bfinal = if idx + 1 == total_chunks {
+                    0x01u8
+                } else {
+                    0x00u8
+                };
                 out.push(bfinal);
                 let len16 = chunk.len() as u16;
                 out.extend_from_slice(&len16.to_le_bytes());
@@ -9059,7 +9090,8 @@ fn gzip_compress_bytes(input: &[u8]) -> Vec<u8> {
     }
 
     let mut bw = DeflateBitWriter::new(input.len() / 2 + 32);
-    bw.out.extend_from_slice(&[0x1f, 0x8b, 0x08, 0x00, 0, 0, 0, 0, 0, 0x03]);
+    bw.out
+        .extend_from_slice(&[0x1f, 0x8b, 0x08, 0x00, 0, 0, 0, 0, 0, 0x03]);
     bw.write_bits_lsb(1, 1); // BFINAL = 1
     bw.write_bits_lsb(1, 2); // BTYPE = 01 (Fixed Huffman)
 
@@ -11190,10 +11222,9 @@ impl MvmSandbox {
                 }
                 StageExecBytesOutcome::ok_text(out)
             })()),
-            "df" => Some((|| -> StageExecBytesOutcome {
+            "df" => Some({
                 let human = args.iter().any(|a| a == "-h" || a == "--human-readable");
-                let used_bytes =
-                    (self.cow_sectors.len() as u64) * (MVM_COW_SECTOR_BYTES as u64);
+                let used_bytes = (self.cow_sectors.len() as u64) * (MVM_COW_SECTOR_BYTES as u64);
                 let total_bytes: u64 = 64 * 1024 * 1024;
                 let avail_bytes = total_bytes.saturating_sub(used_bytes);
                 let pct = ((used_bytes.saturating_mul(100)) / total_bytes).min(100);
@@ -11231,8 +11262,8 @@ impl MvmSandbox {
                     pct
                 ));
                 StageExecBytesOutcome::ok_text(out)
-            })()),
-            "free" => Some((|| -> StageExecBytesOutcome {
+            }),
+            "free" => Some({
                 let mut unit = 'k';
                 for a in args {
                     match a.as_str() {
@@ -11244,8 +11275,7 @@ impl MvmSandbox {
                     }
                 }
                 let total_bytes: u64 = 16 * 1024 * 1024;
-                let active_cow =
-                    (self.cow_sectors.len() as u64) * (MVM_COW_SECTOR_BYTES as u64);
+                let active_cow = (self.cow_sectors.len() as u64) * (MVM_COW_SECTOR_BYTES as u64);
                 let ram_live = (self.last_guest_ram.len().min(GUEST_RAM_BYTES)) as u64;
                 let used_bytes = (active_cow + ram_live).clamp(512 * 1024, 14 * 1024 * 1024);
                 let free_bytes = total_bytes.saturating_sub(used_bytes);
@@ -11278,7 +11308,7 @@ impl MvmSandbox {
                     fmt_mem(avail_bytes)
                 ));
                 StageExecBytesOutcome::ok_text(out)
-            })()),
+            }),
             "xxd" => Some((|| -> StageExecBytesOutcome {
                 let mut plain = false;
                 let mut revert = false;
@@ -11335,7 +11365,8 @@ impl MvmSandbox {
                             }
                         } else {
                             for line in text.lines() {
-                                let after_off = line.split_once(':').map(|(_, r)| r).unwrap_or(line);
+                                let after_off =
+                                    line.split_once(':').map(|(_, r)| r).unwrap_or(line);
                                 let hex_section = after_off.split("  ").next().unwrap_or(after_off);
                                 for ch in hex_section.bytes() {
                                     if ch.is_ascii_hexdigit() {
@@ -15075,10 +15106,7 @@ impl MvmSandbox {
                 }
                 if patterns.is_empty() {
                     if operands.is_empty() {
-                        return StageExecBytesOutcome::err(
-                            2,
-                            format!("{prog}: missing pattern\n"),
-                        );
+                        return StageExecBytesOutcome::err(2, format!("{prog}: missing pattern\n"));
                     }
                     patterns.push(operands.remove(0));
                 }
@@ -15098,7 +15126,9 @@ impl MvmSandbox {
                         };
                         match RxPattern::compile(&eff_pat, extended || word_match, ignore_case) {
                             Ok(rx) => v.push(Some(rx)),
-                            Err(e) => return StageExecBytesOutcome::err(2, format!("{prog}: {e}\n")),
+                            Err(e) => {
+                                return StageExecBytesOutcome::err(2, format!("{prog}: {e}\n"))
+                            }
                         }
                     }
                     v
@@ -15129,7 +15159,9 @@ impl MvmSandbox {
                                             continue;
                                         }
                                         if let Some(b) = self.read_guest_file(p) {
-                                            if is_rg && (b.starts_with(b"\x7fELF") || b.contains(&0)) {
+                                            if is_rg
+                                                && (b.starts_with(b"\x7fELF") || b.contains(&0))
+                                            {
                                                 continue;
                                             }
                                             file_list.push((p.clone(), b));
@@ -15153,7 +15185,8 @@ impl MvmSandbox {
                     }
                 }
 
-                let show_fname = force_fname || (!force_no_fname && (file_list.len() > 1 || (is_rg && searched_dir)));
+                let show_fname = force_fname
+                    || (!force_no_fname && (file_list.len() > 1 || (is_rg && searched_dir)));
                 let mut out = String::new();
                 let mut any_match = false;
                 for (fname, bytes) in &file_list {
@@ -15310,7 +15343,10 @@ impl MvmSandbox {
                 fn parse_hunk_range(spec: &str) -> (usize, usize) {
                     let body = &spec[1..];
                     if let Some((s, c)) = body.split_once(',') {
-                        (s.parse::<usize>().unwrap_or(1), c.parse::<usize>().unwrap_or(1))
+                        (
+                            s.parse::<usize>().unwrap_or(1),
+                            c.parse::<usize>().unwrap_or(1),
+                        )
                     } else {
                         (body.parse::<usize>().unwrap_or(1), 1)
                     }
@@ -15379,8 +15415,12 @@ impl MvmSandbox {
                             continue;
                         }
                         saw_hunk = true;
-                        let hdr_end = plines[li][3..].find(" @@").map(|k| 3 + k).unwrap_or(plines[li].len());
-                        let header_parts: Vec<&str> = plines[li][3..hdr_end].split_whitespace().collect();
+                        let hdr_end = plines[li][3..]
+                            .find(" @@")
+                            .map(|k| 3 + k)
+                            .unwrap_or(plines[li].len());
+                        let header_parts: Vec<&str> =
+                            plines[li][3..hdr_end].split_whitespace().collect();
                         let (old_start, _) = header_parts
                             .first()
                             .filter(|s| s.starts_with('-'))
@@ -15412,7 +15452,8 @@ impl MvmSandbox {
                         let base_pos = if old_start == 0 {
                             0usize
                         } else {
-                            ((old_start as isize - 1 + net_delta).max(0) as usize).min(orig_lines.len())
+                            ((old_start as isize - 1 + net_delta).max(0) as usize)
+                                .min(orig_lines.len())
                         };
                         let mut found_pos: Option<usize> = None;
                         for offset in [0isize, -1, 1, -2, 2, -3, 3] {
@@ -15427,7 +15468,9 @@ impl MvmSandbox {
                         let Some(apply_at) = found_pos else {
                             return StageExecBytesOutcome::err(
                                 1,
-                                format!("patch: hunk FAILED for '{target_rel}' at line {old_start}\n"),
+                                format!(
+                                    "patch: hunk FAILED for '{target_rel}' at line {old_start}\n"
+                                ),
                             );
                         };
                         let old_len = h_old.len();

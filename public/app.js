@@ -2626,14 +2626,6 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
   leftSpan.textContent = titleText;
   meta.appendChild(leftSpan);
 
-  if (role === 'assistant' && chatMeta && chatMeta.otelTraceId) {
-    const rightBadge = document.createElement('span');
-    rightBadge.className = 'chat-meta-otel-pill';
-    const pct = typeof chatMeta.otelSavingsPct === 'number' ? chatMeta.otelSavingsPct.toFixed(1) : '29.2';
-    rightBadge.textContent = `OTel ${chatMeta.otelTraceId.slice(0, 8)}… · -${pct}% u16 dedup`;
-    meta.appendChild(rightBadge);
-  }
-
   const body = document.createElement('div');
   body.className = 'chat-turn-body';
 
@@ -2667,55 +2659,6 @@ function appendChatTurnDom(role, titleText, bodyText, patchPath = '', patchCode 
       bar.appendChild(applyBtn);
       bar.appendChild(diffBtn);
       body.appendChild(bar);
-    }
-
-    if (role === 'assistant' && chatMeta) {
-      const footer = document.createElement('div');
-      footer.className = 'chat-otel-footer';
-
-      const traceInfo = document.createElement('span');
-      traceInfo.className = 'chat-otel-info';
-      const shortTrace = chatMeta.otelTraceId ? chatMeta.otelTraceId.slice(0, 10) : 'uor-trace';
-      const spanCnt = chatMeta.otelSpanCount || 5;
-      const rawWinRow = chatMeta.otelWinningRow !== undefined ? chatMeta.otelWinningRow : 0;
-      const winRow = rawWinRow >= 4294967295 ? (spanCnt * 97) % 17408 : rawWinRow;
-      traceInfo.textContent = `uor.gllm.trace/1 · trace=${shortTrace} · ${spanCnt} spans · Radix /8 bucket #${winRow}`;
-      footer.appendChild(traceInfo);
-
-      const btnGroup = document.createElement('div');
-      btnGroup.className = 'chat-otel-actions';
-
-      const inspectTraceBtn = document.createElement('button');
-      inspectTraceBtn.type = 'button';
-      inspectTraceBtn.className = 'agent-mini-btn';
-      inspectTraceBtn.textContent = 'Inspect OTel Waterfall';
-      inspectTraceBtn.addEventListener('click', () => {
-        fetchRecordedTraces();
-        activateCanvasTab('traces');
-      });
-
-      const consolidateTurnBtn = document.createElement('button');
-      consolidateTurnBtn.type = 'button';
-      consolidateTurnBtn.className = 'agent-mini-btn agent-mini-btn-primary';
-      consolidateTurnBtn.textContent = 'Consolidate Turn into LUT Weights';
-      consolidateTurnBtn.addEventListener('click', async () => {
-        activateCanvasTab('consolidation');
-        consolidateTurnBtn.disabled = true;
-        consolidateTurnBtn.textContent = 'Consolidating in Worker...';
-        try {
-          await runWebWorkerConsolidation([], { iterations: 3 });
-          consolidateTurnBtn.textContent = 'Weights Consolidated';
-        } catch {
-          consolidateTurnBtn.textContent = 'Consolidation Ready in Tab';
-        } finally {
-          consolidateTurnBtn.disabled = false;
-        }
-      });
-
-      btnGroup.appendChild(inspectTraceBtn);
-      btnGroup.appendChild(consolidateTurnBtn);
-      footer.appendChild(btnGroup);
-      body.appendChild(footer);
     }
   };
 
@@ -3149,13 +3092,21 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     web_access: engineWorkerClient.webAccessEnabled,
   });
 
+  const mcpPolicySelectEl = typeof document !== 'undefined' ? document.getElementById('mcp-policy-select') : null;
+  const effectiveMcpPolicy = String(
+    (mcpPolicySelectEl && mcpPolicySelectEl.value)
+      || (AppState && AppState.config && AppState.config.mcpSecurityPolicy)
+      || 'safe',
+  ).trim().toLowerCase();
+  const effectiveAutoRun = effectiveMcpPolicy === 'safe';
+
   if (engineWorkerClient.enabled) {
     let placeholderCard = null;
     let leftMetaEl = null;
     let rightMetaEl = null;
     let toolCallsEl = null;
     let statusLineEl = null;
-    let hudCtrl = null;
+    let streamedTokenCount = 0;
     if (chatTranscript) {
       placeholderCard = document.createElement('article');
       placeholderCard.className = 'chat-turn-card chat-assistant chat-streaming-turn';
@@ -3184,9 +3135,6 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       placeholderCard.appendChild(meta);
       placeholderCard.appendChild(body);
       chatTranscript.appendChild(placeholderCard);
-      if (typeof createLiveTokenHudController === 'function') {
-        hudCtrl = createLiveTokenHudController(chatTranscript, body);
-      }
       chatTranscript.scrollTop = chatTranscript.scrollHeight;
     }
 
@@ -3223,6 +3171,8 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       prompt: trimmed,
       selected_model: selectedModel,
       composer_mode: activeComposerMode === 'plan' ? 'plan' : 'agent',
+      mcp_policy: effectiveMcpPolicy,
+      auto_run: effectiveAutoRun,
       surface_mode: 'studio',
       live_hud: true,
       ...(allowOffOrigin ? { allowOffOriginHydration: true } : {}),
@@ -3246,6 +3196,89 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       composerSendBtn.disabled = true;
     }
 
+    const renderStagedMvmCommandCard = (stageEvt) => {
+      if (!toolCallsEl || !stageEvt) return;
+      const stageId = String(stageEvt.stage_id || '');
+      const initialCmd = String(stageEvt.cmd || '');
+      const termInputEl = typeof document !== 'undefined' ? document.getElementById('terminal-input') : null;
+      if (termInputEl) {
+        termInputEl.value = initialCmd;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'staged-mvm-card';
+
+      const head = document.createElement('div');
+      head.className = 'staged-mvm-head';
+      const titleSpan = document.createElement('span');
+      titleSpan.textContent = `Staged MVM Command (${stageEvt.tool || 'mvm_exec'})`;
+      const stateSpan = document.createElement('span');
+      stateSpan.textContent = 'Awaiting approval';
+      head.appendChild(titleSpan);
+      head.appendChild(stateSpan);
+
+      const cmdInput = document.createElement('input');
+      cmdInput.type = 'text';
+      cmdInput.className = 'staged-mvm-cmd-input';
+      cmdInput.value = initialCmd;
+      cmdInput.readOnly = true;
+
+      const actions = document.createElement('div');
+      actions.className = 'staged-mvm-actions';
+
+      const runBtn = document.createElement('button');
+      runBtn.type = 'button';
+      runBtn.className = 'agent-mini-btn agent-mini-btn-primary';
+      runBtn.textContent = '▶ Run';
+
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'agent-mini-btn';
+      editBtn.textContent = 'Edit';
+
+      const skipBtn = document.createElement('button');
+      skipBtn.type = 'button';
+      skipBtn.className = 'agent-mini-btn';
+      skipBtn.textContent = 'Skip';
+
+      const sendDecision = (decision) => {
+        runBtn.disabled = true;
+        editBtn.disabled = true;
+        skipBtn.disabled = true;
+        cmdInput.readOnly = true;
+        const chosenCmd = cmdInput.value.trim() || initialCmd;
+        stateSpan.textContent = decision === 'skip' ? 'Skipped' : 'Running in MVM...';
+        engineWorkerClient
+          .rpc('resolve_staged_mvm_command', {
+            stage_id: stageId,
+            decision,
+            cmd: chosenCmd,
+          })
+          .then(() => {
+            if (decision !== 'skip') stateSpan.textContent = 'Executed';
+          })
+          .catch(() => {
+            stateSpan.textContent = 'Failed';
+          });
+      };
+
+      runBtn.addEventListener('click', () => sendDecision(cmdInput.value.trim() !== initialCmd ? 'edit' : 'run'));
+      editBtn.addEventListener('click', () => {
+        cmdInput.readOnly = false;
+        cmdInput.focus();
+      });
+      skipBtn.addEventListener('click', () => sendDecision('skip'));
+
+      actions.appendChild(runBtn);
+      actions.appendChild(editBtn);
+      actions.appendChild(skipBtn);
+      card.appendChild(head);
+      card.appendChild(cmdInput);
+      card.appendChild(actions);
+      toolCallsEl.appendChild(card);
+      if (chatTranscript) chatTranscript.scrollTop = chatTranscript.scrollHeight;
+    };
+
     const liveHook = (bridgeEvt) => {
       if (!bridgeEvt) return;
       if (bridgeEvt.stage === 'hydration_consent_required') {
@@ -3263,6 +3296,10 @@ function runClaudeChat(promptText, recordUserBubble = true) {
         if (rightMetaEl) rightMetaEl.textContent = 'cancelled';
         return;
       }
+      if (bridgeEvt.stage === 'staged_mvm_command') {
+        renderStagedMvmCommandCard(bridgeEvt);
+        return;
+      }
       if (bridgeEvt.stage === 'tool_call' || bridgeEvt.stage === 'tool_result') {
         toolEvents.push(bridgeEvt);
         if (toolCallsEl) {
@@ -3270,13 +3307,14 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           item.className = 'chat-tool-card';
           const toolName = String(bridgeEvt.tool || bridgeEvt.name || 'tool');
           item.textContent = bridgeEvt.stage === 'tool_call'
-            ? `> tool_call: ${toolName}`
+            ? `> tool_call: ${toolName}${bridgeEvt.cmd ? ` (${bridgeEvt.cmd})` : ''}`
             : `< tool_result: ${toolName} (${bridgeEvt.ok === false ? 'denied/err' : 'ok'})`;
           toolCallsEl.appendChild(item);
         }
         return;
       }
       if (bridgeEvt.stage === 'token_step') {
+        streamedTokenCount += 1;
         const nowMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         if (!holoObservatoryState.firstDeltaMs && holoObservatoryState.turnStartMs > 0) {
           holoObservatoryState.firstDeltaMs = Math.max(1, Math.round(nowMs - holoObservatoryState.turnStartMs));
@@ -3286,9 +3324,6 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           const elapsedSinceStart = Math.round(nowMs - holoObservatoryState.turnStartMs);
           holoObservatoryState.lastDecodeDurationMs = Math.max(1, elapsedSinceStart - holoObservatoryState.firstDeltaMs);
           holoObservatoryState.lastGeneratedTokens = holoObservatoryState.deltaCount;
-        }
-        if (hudCtrl) {
-          hudCtrl.pushTokenStep(bridgeEvt);
         }
         const deltaPiece = bridgeEvt.delta !== undefined
           ? String(bridgeEvt.delta || '')
@@ -3376,12 +3411,12 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           persistCancelledTurn(partial, chatRes && chatRes.backend);
           return;
         }
-        if (hudCtrl && hudCtrl.frames.length > 0 && placeholderCard && statusLineEl) {
+        if ((streamedTokenCount > 0 || streamedReplyText.length > 0) && placeholderCard && statusLineEl && !(chatRes && chatRes.ok === false)) {
           const finalText = (chatRes && (chatRes.reply || chatRes.assistant_reply)) || streamedReplyText || '';
           renderFormattedMarkdownInto(statusLineEl, finalText);
           if (leftMetaEl) {
             const backendTag = (chatRes && chatRes.backend) || selectedModel;
-            const toks = (chatRes && chatRes.tokens_emitted) || hudCtrl.frames.length;
+            const toks = (chatRes && chatRes.tokens_emitted) || streamedTokenCount;
             leftMetaEl.textContent = `${backendTag} · ${toks} tok`;
           }
           if (rightMetaEl) {
@@ -6575,10 +6610,10 @@ const lockObservatoryToFrame = (frame, framesPrefix = null, lockedIdx = null) =>
   }
   if (
     lockedIdx !== null
-    && typeof document !== 'undefined'
-    && document.body
-    && document.body.dataset
-    && (document.body.dataset.observatoryHost === 'hud' || document.body.dataset.observatoryHost === 'modal')
+    && typeof inspectorsModalEl !== 'undefined'
+    && inspectorsModalEl
+    && typeof inspectorsModalEl.hasAttribute === 'function'
+    && !inspectorsModalEl.hasAttribute('hidden')
     && typeof openInspectorsModal === 'function'
   ) {
     openInspectorsModal('traces');
@@ -11178,79 +11213,21 @@ class LexLeanTerminal {
     this.savedDraft = '';
     this.bootTimeMs = Date.now();
     this.lastExitCode = 0;
-    this.gitHeadFiles = null;
-    this.gitCommits = [];
-    this.dirs = new Set(['/workspace', '/workspace/src', '/workspace/crates', '/workspace/tests']);
     this.env = {
       SHELL: '/bin/lexlean-sh',
       USER: 'lexlean',
-      HOSTNAME: 'wasm-container',
-      KERNEL: 'Linux 6.6.0-lexlean-wasm32',
+      HOSTNAME: 'mvm',
+      KERNEL: 'Linux 6.6.0-uor-mvm-riscv64',
       MODEL: 'uor-r4-glm-v8',
       CWD: '~/workspace',
-      PROMPT: 'lexlean@wasm-container:~/workspace$ ',
-      '?': '0'
+      PROMPT: 'lexlean@mvm:~/workspace$ ',
+      '?': '0',
     };
   }
 
   setExitCode(code) {
     this.lastExitCode = Number(code) | 0;
     this.env['?'] = String(this.lastExitCode);
-  }
-
-  hashStringHex(text) {
-    if (typeof computeSha256Hex === 'function') {
-      return computeSha256Hex(text);
-    }
-    let h1 = 0xdeadbeef ^ text.length;
-    let h2 = 0x41c6ce57 ^ text.length;
-    for (let i = 0; i < text.length; i++) {
-      const ch = text.charCodeAt(i);
-      h1 = Math.imul(h1 ^ ch, 2654435761);
-      h2 = Math.imul(h2 ^ ch, 1597334677);
-    }
-    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-    return (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0');
-  }
-
-  formatUnifiedDiff(oldText, newText, pathLabel) {
-    if (typeof computeUnifiedDiffJs === 'function') {
-      return computeUnifiedDiffJs(oldText, newText, pathLabel, 3);
-    }
-    const oldLines = String(oldText || '').split('\n');
-    const newLines = String(newText || '').split('\n');
-    const out = [`--- a/${pathLabel}`, `+++ b/${pathLabel}`, `@@ -1,${oldLines.length} +1,${newLines.length} @@`];
-    for (const l of oldLines) out.push(`-${l}`);
-    for (const l of newLines) out.push(`+${l}`);
-    return out.join('\n');
-  }
-
-  ensureGitInitialized() {
-    if (this.gitHeadFiles) return;
-    this.gitHeadFiles = new Map();
-    const ws = dispatchStudioEnvelope('workspace_list', '');
-    const files = ws && Array.isArray(ws.files) ? ws.files : [];
-    for (const f of files) {
-      const readRes = dispatchStudioEnvelope('workspace_read', f.path);
-      const content = readRes && readRes.status === 'ok' ? (readRes.content || '') : '';
-      const receipt = f.updated_receipt || f.sha256 || this.hashStringHex(content);
-      this.gitHeadFiles.set(f.path, {
-        path: f.path,
-        content,
-        receipt,
-        byte_len: f.byte_len ?? content.length
-      });
-    }
-    if (this.gitCommits.length === 0) {
-      const st = dispatchStudioEnvelope('state', '') || {};
-      this.gitCommits.push({
-        hash: (st.state_receipt || this.hashStringHex('uor-r4-initial-head')).slice(0, 16),
-        author: 'LexLean-R4 Control Plane <lexlean@wasm-container>',
-        message: 'Verified UOR-R4 Wasm state & 3D Holographic OSPF Brain closure',
-        timestamp: new Date(this.bootTimeMs).toUTCString()
-      });
-    }
   }
 
   init(containerId) {
@@ -11270,7 +11247,7 @@ class LexLeanTerminal {
   }
 
   printWelcome() {
-    this.printAnsi('\x1b[2mlexlean-sh v0.4 · Linux 6.6.0-lexlean-wasm32 · Type \x1b[0m\x1b[33mhelp\x1b[0m\x1b[2m or \x1b[0m\x1b[33mcargo test\x1b[0m');
+    this.printAnsi('\x1b[2mMVM riscv64 Linux Shell · /workspace single-source CoW · Type \x1b[0m\x1b[33mhelp\x1b[0m\x1b[2m or \x1b[0m\x1b[33muname -a\x1b[0m');
   }
 
   bindEvents() {
@@ -11298,7 +11275,7 @@ class LexLeanTerminal {
           this.clear();
         } else if (e.ctrlKey && e.key === 'c') {
           e.preventDefault();
-          this.printAnsi(`${this.env.PROMPT || 'lexlean@browser:~$ '}${this.inputEl.value}^C`);
+          this.printAnsi(`${this.env.PROMPT || 'casey@mvm:/workspace$ '}${this.inputEl.value}^C`);
           this.inputEl.value = '';
           this.historyIndex = -1;
         }
@@ -11404,6 +11381,23 @@ class LexLeanTerminal {
     return chain;
   }
 
+  hasUnquotedPipeOrRedirect(line) {
+    let inSingle = false;
+    let inDouble = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === "'" && !inDouble && line[i - 1] !== '\\') {
+        inSingle = !inSingle;
+      } else if (ch === '"' && !inSingle && line[i - 1] !== '\\') {
+        inDouble = !inDouble;
+      } else if (!inSingle && !inDouble) {
+        if (ch === '>' || ch === '<') return true;
+        if (ch === '|' && line[i - 1] !== '|' && line[i + 1] !== '|') return true;
+      }
+    }
+    return false;
+  }
+
   execute(rawLine) {
     const trimmed = rawLine.trim();
     if (!trimmed) return;
@@ -11415,8 +11409,22 @@ class LexLeanTerminal {
     this.historyIndex = -1;
     this.savedDraft = '';
 
-    const promptStr = this.env.PROMPT || 'lexlean@wasm-container:/workspace$ ';
+    const promptStr = this.env.PROMPT || 'casey@mvm:/workspace$ ';
     this.printAnsi(`\x1b[32m${promptStr}\x1b[0m${trimmed}`);
+
+    if (
+      typeof engineWorkerClient !== 'undefined'
+      && engineWorkerClient.enabled
+      && typeof globalThis.__uorRunMvmExecInTerm === 'function'
+      && (trimmed.includes('&&') || trimmed.includes('||') || trimmed.includes(';') || this.hasUnquotedPipeOrRedirect(trimmed))
+    ) {
+      const firstTok = trimmed.split(/\s+/)[0].toLowerCase();
+      const controlOnly = new Set(['help', 'clear', 'history', 'status', 'run', 'verify', 'pool', 'model', 'train', 'traces', 'reset', 'prism', 'holo']);
+      if (!controlOnly.has(firstTok)) {
+        globalThis.__uorRunMvmExecInTerm(firstTok, [], trimmed, this);
+        return;
+      }
+    }
 
     const chain = this.parseCommandChain(trimmed);
     for (const item of chain) {
@@ -11471,140 +11479,82 @@ class LexLeanTerminal {
     return trailingSlash && norm ? `${norm}/` : norm;
   }
 
-  applyStreamFilter(lines, pCmd) {
-    const tokenRegex = /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
-    const pTokens = [];
-    let m;
-    while ((m = tokenRegex.exec(pCmd.trim())) !== null) {
-      let tok = m[0];
-      if ((tok.startsWith('"') && tok.endsWith('"')) || (tok.startsWith("'") && tok.endsWith("'"))) {
-        tok = tok.slice(1, -1);
+  getMvmCwd() {
+    const raw = String(this.env.CWD || '/workspace').trim();
+    if (!raw || raw === '~' || raw === '~/workspace') return '/workspace';
+    if (raw.startsWith('~/workspace/')) {
+      return `/workspace/${raw.slice('~/workspace/'.length)}`;
+    }
+    return raw.startsWith('/') ? raw : `/workspace/${raw}`;
+  }
+
+  execInMvm(cmd, args, fullCmd) {
+    const line = fullCmd || [cmd, ...args].join(' ');
+    if (
+      ['curl', 'nslookup', 'dig', 'pkg', 'http'].includes(cmd)
+      && typeof globalThis.__uorRunConnectedTerminalCmd === 'function'
+    ) {
+      globalThis.__uorRunConnectedTerminalCmd(cmd, args, line, this);
+      return;
+    }
+    if (
+      typeof engineWorkerClient !== 'undefined'
+      && engineWorkerClient.enabled
+      && typeof globalThis.__uorRunMvmExecInTerm === 'function'
+    ) {
+      globalThis.__uorRunMvmExecInTerm(cmd, args, line, this);
+      return;
+    }
+    const mvmCwd = this.getMvmCwd();
+    const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: line, cwd: mvmCwd }));
+    if (
+      !res
+      || res.exit_code === 127
+      || res.status === 'command_not_found'
+      || (typeof res.mvm_stdout !== 'string' && typeof res.mvm_stderr !== 'string')
+    ) {
+      this.printAnsi(`\x1b[31mlexlean-sh: command not found: ${cmd}\x1b[0m (try \x1b[33mhelp\x1b[0m)`);
+      this.setExitCode(127);
+      return;
+    }
+    if (res.mvm_stdout && res.mvm_stdout.length > 0) {
+      for (const outLine of String(res.mvm_stdout).replace(/\n$/, '').split('\n')) {
+        this.printAnsi(outLine);
       }
-      pTokens.push(tok);
     }
-    const pName = (pTokens[0] || '').toLowerCase();
-    const pArgs = pTokens.slice(1);
-    if (pName === 'grep') {
-      const flags = pArgs.filter((a) => a.startsWith('-')).join('');
-      const clean = pArgs.filter((a) => !a.startsWith('-'));
-      const pat = clean[0] || '';
-      const ignoreCase = flags.includes('i');
-      const invert = flags.includes('v');
-      const showLineNum = flags.includes('n');
-      const countOnly = flags.includes('c');
-      const useRegex = flags.includes('E');
-      const regex = useRegex ? new RegExp(pat, ignoreCase ? 'i' : '') : null;
-      const out = [];
-      lines.forEach((l, idx) => {
-        const matched = regex
-          ? regex.test(l)
-          : (ignoreCase ? l.toLowerCase().includes(pat.toLowerCase()) : l.includes(pat));
-        if (invert ? !matched : matched) {
-          out.push(showLineNum ? `${idx + 1}:${l}` : l);
-        }
-      });
-      return countOnly ? [String(out.length)] : out;
-    }
-    if (pName === 'sed') {
-      const expr = pArgs.filter((a) => !a.startsWith('-'))[0] || '';
-      const sm = expr.match(/^s\/([^/]*)\/([^/]*)\/([gi]*)$/);
-      if (sm) {
-        const re = new RegExp(sm[1], sm[3] || '');
-        return lines.map((l) => l.replace(re, sm[2]));
+    if (res.mvm_stderr && res.mvm_stderr.length > 0) {
+      for (const errLine of String(res.mvm_stderr).replace(/\n$/, '').split('\n')) {
+        this.printAnsi(`\x1b[31m${errLine}\x1b[0m`);
       }
-      return lines;
     }
-    if (pName === 'sort') {
-      const rev = pArgs.includes('-r');
-      const uniq = pArgs.includes('-u');
-      let sorted = [...lines].sort();
-      if (rev) sorted.reverse();
-      if (uniq) sorted = Array.from(new Set(sorted));
-      return sorted;
+    if ((cmd === 'cc' || cmd === 'gcc') && (res.exit_code ?? 1) === 0) {
+      this.printAnsi(`\x1b[32m[ELF64 EM_RISCV=${res.compiled_elf_machine ?? 243}]\x1b[0m Compiled native RV64IMAC executable.`);
     }
-    if (pName === 'uniq') {
-      const countMode = pArgs.includes('-c');
-      const out = [];
-      let prev = null;
-      let cnt = 0;
-      for (const l of lines) {
-        if (l === prev) {
-          cnt++;
-        } else {
-          if (prev !== null) out.push(countMode ? `   ${cnt} ${prev}` : prev);
-          prev = l;
-          cnt = 1;
-        }
-      }
-      if (prev !== null) out.push(countMode ? `   ${cnt} ${prev}` : prev);
-      return out;
+    if (typeof res.cwd === 'string' && res.cwd.startsWith('/')) {
+      this.env.CWD = res.cwd;
     }
-    if (pName === 'head') {
-      const nFlagIdx = pArgs.indexOf('-n');
-      const n = nFlagIdx >= 0 && pArgs[nFlagIdx + 1] ? (Number(pArgs[nFlagIdx + 1]) | 0) : 10;
-      return lines.slice(0, Math.max(n, 1));
+    const ws = dispatchStudioEnvelope('workspace_list', '');
+    if (ws && Array.isArray(ws.files)) {
+      renderWorkspaceList(ws);
     }
-    if (pName === 'tail') {
-      const nFlagIdx = pArgs.indexOf('-n');
-      const n = nFlagIdx >= 0 && pArgs[nFlagIdx + 1] ? (Number(pArgs[nFlagIdx + 1]) | 0) : 10;
-      return lines.slice(-Math.max(n, 1));
+    if (typeof persist_mvm_cow_sectors_to_opfs === 'function') {
+      persist_mvm_cow_sectors_to_opfs().catch(() => {});
     }
-    if (pName === 'wc') {
-      const joined = lines.join('\n');
-      const words = joined.trim() ? joined.trim().split(/\s+/).length : 0;
-      if (pArgs.includes('-l')) return [String(lines.length)];
-      return [`  ${lines.length}  ${words}  ${joined.length}`];
-    }
-    return lines;
+    this.setExitCode(res.exit_code ?? 0);
   }
 
   executeSegment(segmentLine) {
     this.setExitCode(0);
-    let redirectMode = null;
-    let redirectTarget = null;
-    let pipeSpec = null;
-    let workingLine = segmentLine;
-
-    const appendMatch = workingLine.match(/^(.*?)\s*>>\s*([^\s|]+)\s*$/);
-    const writeMatch = !appendMatch ? workingLine.match(/^(.*?)\s*>\s*([^\s|]+)\s*$/) : null;
-    if (appendMatch) {
-      workingLine = appendMatch[1].trim();
-      redirectMode = 'append';
-      redirectTarget = this.resolveWorkspacePath(appendMatch[2]);
-    } else if (writeMatch) {
-      workingLine = writeMatch[1].trim();
-      redirectMode = 'write';
-      redirectTarget = this.resolveWorkspacePath(writeMatch[2]);
-    }
-
-    {
-      const pipeParts = [];
-      let curPipe = '';
-      let pipeQuote = null;
-      for (let i = 0; i < workingLine.length; i++) {
-        const ch = workingLine[i];
-        if ((ch === '"' || ch === "'") && workingLine[i - 1] !== '\\') {
-          if (pipeQuote === ch) pipeQuote = null;
-          else if (!pipeQuote) pipeQuote = ch;
-          curPipe += ch;
-        } else if (!pipeQuote && ch === '|' && workingLine[i - 1] !== '|' && workingLine[i + 1] !== '|') {
-          pipeParts.push(curPipe.trim());
-          curPipe = '';
-        } else {
-          curPipe += ch;
-        }
-      }
-      if (curPipe.trim()) pipeParts.push(curPipe.trim());
-      if (pipeParts.length > 1) {
-        workingLine = pipeParts[0];
-        pipeSpec = pipeParts.slice(1);
-      }
+    if (this.hasUnquotedPipeOrRedirect(segmentLine)) {
+      const firstTok = (segmentLine.trim().split(/\s+/)[0] || 'sh').toLowerCase();
+      this.execInMvm(firstTok, [], segmentLine);
+      return;
     }
 
     const tokenRegex = /(?:[^\s"']+|"[^"]*"|'[^']*')+/g;
     const tokens = [];
     let match;
-    while ((match = tokenRegex.exec(workingLine)) !== null) {
+    while ((match = tokenRegex.exec(segmentLine)) !== null) {
       let tok = match[0];
       if ((tok.startsWith('"') && tok.endsWith('"')) || (tok.startsWith("'") && tok.endsWith("'"))) {
         tok = tok.slice(1, -1);
@@ -11629,449 +11579,36 @@ class LexLeanTerminal {
 
     const cmd = expandedTokens[0].toLowerCase();
     const args = expandedTokens.slice(1);
-
-    const MVM_PIPE_BINS = new Set([
-      'jq',
-      'rg',
-      'bc',
-      'xxd',
-      'tree',
-      'sha256sum',
-      'b3sum',
-      'wc-rv',
-      'sed-rv',
-      'awk-rv',
-    ]);
-    if (
-      pipeSpec &&
-      typeof globalThis.__uorRunMvmExecInTerm === 'function' &&
-      [cmd, ...pipeSpec.map((p) => p.trim().split(/\s+/)[0].toLowerCase())].some(
-        (prog) => MVM_PIPE_BINS.has(prog) || prog.startsWith('/usr/local/bin/') || prog.startsWith('./'),
-      )
-    ) {
-      globalThis.__uorRunMvmExecInTerm(cmd, args, segmentLine, this);
-      return;
-    }
-
-    if (redirectMode || pipeSpec) {
-      if (redirectMode && redirectTarget) {
-        this.ensureGitInitialized();
-      }
-      const captured = [];
-      const origPrint = this.printAnsi.bind(this);
-      this.printAnsi = (line) => {
-        captured.push(String(line).replace(/\x1b\[[0-9;]*m/g, ''));
-      };
-      try {
-        this.dispatchCommand(cmd, args, workingLine);
-      } finally {
-        this.printAnsi = origPrint;
-      }
-      let lines = captured;
-      if (pipeSpec) {
-        for (const pCmd of pipeSpec) {
-          lines = this.applyStreamFilter(lines, pCmd);
-        }
-      }
-      if (redirectMode && redirectTarget) {
-        let finalContent = lines.join('\n');
-        if (redirectMode === 'append') {
-          try {
-            const existing = dispatchStudioEnvelope('workspace_read', redirectTarget);
-            if (existing && existing.status === 'ok' && existing.content) {
-              finalContent = `${existing.content}\n${finalContent}`;
-            }
-          } catch (_) {}
-        }
-        const ws = dispatchStudioEnvelope('workspace_write', `${redirectTarget}\n${finalContent}`);
-        renderWorkspaceList(ws);
-        this.printAnsi(`\x1b[32m[OK]\x1b[0m Redirected ${finalContent.length} bytes to ${redirectTarget}`);
-      } else {
-        for (const l of lines) {
-          this.printAnsi(l);
-        }
-      }
-      return;
-    }
-
-    this.dispatchCommand(cmd, args, workingLine);
+    this.dispatchCommand(cmd, args, segmentLine);
   }
 
   dispatchCommand(cmd, args, rawLine) {
     switch (cmd) {
       case 'help': {
-        this.printAnsi('\x1b[1m\x1b[36mlexlean-sh Linux/Wasm Container Command Reference:\x1b[0m');
-        this.printAnsi('  \x1b[33muname\x1b[0m [-a]             Print Linux/Wasm32 container kernel & architecture');
-        this.printAnsi('  \x1b[33mwhoami\x1b[0m / \x1b[33mid\x1b[0m / \x1b[33mpwd\x1b[0m      Print container user identity & working directory');
-        this.printAnsi('  \x1b[33mcd\x1b[0m / \x1b[33mmkdir\x1b[0m / \x1b[33mrm\x1b[0m / \x1b[33mmv\x1b[0m   Navigate & mutate virtual container filesystem');
-        this.printAnsi('  \x1b[33mls\x1b[0m / \x1b[33mcat\x1b[0m / \x1b[33mgrep\x1b[0m / \x1b[33msed\x1b[0m  Inspect, search & transform workspace files (|, >, &&, ||)');
-        this.printAnsi('  \x1b[33mcargo\x1b[0m [build|test|check] Execute in-browser Rust/Wasm verification & build pipeline');
-        this.printAnsi('  \x1b[33mjust\x1b[0m [vv|model-write]  Run LexLean & PrismPM acceptance boundary inside container');
-        this.printAnsi('  \x1b[33mgit\x1b[0m [status|diff|commit|log|checkout|reset] Stateful virtual workspace Git engine');
-        this.printAnsi('  \x1b[33mps\x1b[0m / \x1b[33mdf\x1b[0m / \x1b[33mfree\x1b[0m         Inspect active Wasm container processes, memory & storage');
-        this.printAnsi('  \x1b[33mstatus\x1b[0m [--json]        Show local Wasm engine state, schema, & receipts');
-        this.printAnsi('  \x1b[33mrun\x1b[0m <prompt>           Execute prompt against Wasm engine & trigger 3D neural cascade');
-        this.printAnsi('  \x1b[33mverify\x1b[0m [all|R4-XX]      Run integer verification kernels (R4-24..R4-35)');
-        this.printAnsi('  \x1b[33mpool\x1b[0m [--workers]        Inspect agentic pool status & review queue');
-        this.printAnsi('  \x1b[33mmodel\x1b[0m [status|sync]     Inspect container header & sync IndexedDB weight cache');
-        this.printAnsi('  \x1b[33mtouch\x1b[0m / \x1b[33mwrite\x1b[0m / \x1b[33mpatch\x1b[0m  Create, write, or patch virtual workspace files');
-        this.printAnsi('  \x1b[33mtrain\x1b[0m [epochs]          Run on-device discrete coordinate descent sweeps');
-        this.printAnsi('  \x1b[33mtraces\x1b[0m [count]          Inspect OTel trace buffer (uor.gllm.trace/1)');
-        this.printAnsi('  \x1b[33menv\x1b[0m / \x1b[33mexport\x1b[0m / \x1b[33mecho\x1b[0m    Manage container session environment variables');
-        this.printAnsi('  \x1b[33mmvm\x1b[0m [status|exec|handshake] Execute inside RV64IMAC Linux MicroVM (R4-37)');
-        this.printAnsi('  \x1b[33mcc\x1b[0m <src.c> -o <bin>     Compile C source to native RV64IMAC ELF64 binary');
-        this.printAnsi('  \x1b[33mvsock\x1b[0m [probe|inet-test] Inspect SpiralCore AF_VSOCK=40 zero-NIC switch');
-        this.printAnsi('  \x1b[33mclear\x1b[0m / \x1b[33mhistory\x1b[0m / \x1b[33mreset\x1b[0m Manage terminal scrollback & Wasm engine state');
-        break;
-      }
-      case 'true': {
-        this.setExitCode(0);
-        break;
-      }
-      case 'false': {
-        this.setExitCode(1);
-        break;
-      }
-      case 'uname': {
-        if (args.includes('-a')) {
-          this.printAnsi('Linux wasm-container 6.6.0-lexlean-wasm32 #1 SMP PREEMPT_DYNAMIC UOR-R4 wasm32 GNU/Linux');
-        } else if (args.includes('-r')) {
-          this.printAnsi('6.6.0-lexlean-wasm32');
-        } else if (args.includes('-m')) {
-          this.printAnsi('wasm32');
-        } else {
-          this.printAnsi('Linux');
-        }
-        break;
-      }
-      case 'whoami': {
-        this.printAnsi(this.env.USER || 'lexlean');
-        break;
-      }
-      case 'id': {
-        const u = this.env.USER || 'lexlean';
-        this.printAnsi(`uid=1000(${u}) gid=1000(${u}) groups=1000(${u}),27(sudo),999(wasm)`);
-        break;
-      }
-      case 'hostname': {
-        this.printAnsi(this.env.HOSTNAME || 'wasm-container');
-        break;
-      }
-      case 'pwd': {
-        const cwd = this.env.CWD === '~/workspace' ? '/workspace' : (this.env.CWD || '/workspace');
-        this.printAnsi(cwd);
+        this.printAnsi('\x1b[1m\x1b[36mMVM riscv64 Linux Shell & Studio Control Reference:\x1b[0m');
+        this.printAnsi('  \x1b[33msh / ls / cat / rg / sed / patch / make / xargs / xxd\x1b[0m  Native MVM riscv64 userland');
+        this.printAnsi('  \x1b[33mcc\x1b[0m [-I dir] [-D K=V] a.c b.c -o bin                    Compile multi-TU C to RV64IMAC ELF64');
+        this.printAnsi('  \x1b[33mcurl / http / pkg / git\x1b[0m                                SpiralCore AF_VSOCK=40 guest networking');
+        this.printAnsi('  \x1b[33mcargo\x1b[0m [build|test|check] / \x1b[33mjust\x1b[0m [vv]                   In-browser Wasm verification kernels');
+        this.printAnsi('  \x1b[33mstatus / run / verify / model / train / traces\x1b[0m         Studio engine control plane');
+        this.printAnsi('  \x1b[33mmvm\x1b[0m [status|handshake|exec] / \x1b[33mvsock\x1b[0m                    Inspect RV64IMAC MicroVM & CoW state');
+        this.printAnsi('  \x1b[33menv / export / clear / history / reset\x1b[0m                 Session environment & scrollback');
         break;
       }
       case 'cd': {
         const dest = args[0] || '/workspace';
         if (dest === '~' || dest === '/workspace' || dest === '~/workspace') {
           this.env.CWD = '/workspace';
+        } else if (dest.startsWith('/') && !dest.startsWith('/workspace')) {
+          this.env.CWD = dest.replace(/\/+$/, '') || '/';
         } else {
           const rel = this.resolveWorkspacePath(dest).replace(/\/+$/, '');
           this.env.CWD = rel ? `/workspace/${rel}` : '/workspace';
         }
-        this.env.PROMPT = `${this.env.USER}@${this.env.HOSTNAME}:${this.env.CWD}$ `;
+        this.env.PROMPT = `${this.env.USER || 'casey'}@${this.env.HOSTNAME || 'mvm'}:${this.env.CWD}$ `;
         if (this.promptLabel) {
           this.promptLabel.textContent = this.env.PROMPT;
         }
-        break;
-      }
-      case 'mkdir': {
-        const dirName = args.filter((a) => !a.startsWith('-'))[0];
-        if (!dirName) {
-          this.printAnsi('Usage: mkdir [-p] <directory>');
-          this.setExitCode(1);
-          return;
-        }
-        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
-          break;
-        }
-        const rel = this.resolveWorkspacePath(dirName).replace(/\/+$/, '');
-        const fullDir = rel ? `/workspace/${rel}` : '/workspace';
-        this.dirs.add(fullDir);
-        this.printAnsi(`\x1b[32m[OK]\x1b[0m Created directory ${fullDir}`);
-        break;
-      }
-      case 'rm': {
-        const flags = args.filter((a) => a.startsWith('-')).join('');
-        const force = flags.includes('f');
-        const recursive = flags.includes('r') || flags.includes('R');
-        const rawTarget = args.filter((a) => !a.startsWith('-'))[0];
-        const target = this.resolveWorkspacePath(rawTarget);
-        if (!target) {
-          this.printAnsi('Usage: rm [-rf] <workspace-path>');
-          this.setExitCode(1);
-          return;
-        }
-        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
-          break;
-        }
-        try {
-          let delRes = dispatchStudioEnvelope('workspace_delete', target);
-          if ((!delRes || delRes.status === 'error') && recursive && !target.endsWith('/')) {
-            delRes = dispatchStudioEnvelope('workspace_delete', `${target}/`);
-          }
-          if (delRes && delRes.status === 'ok') {
-            renderWorkspaceList(delRes);
-            this.printAnsi(`\x1b[32m[OK]\x1b[0m Removed ${target} from virtual workspace`);
-            this.setExitCode(0);
-          } else if (force) {
-            this.setExitCode(0);
-          } else {
-            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m rm: cannot remove '${target}': ${delRes?.message || 'No such file'}`);
-            this.setExitCode(1);
-          }
-        } catch (err) {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m rm failed: ${err?.message || String(err)}`);
-          this.setExitCode(1);
-        }
-        break;
-      }
-      case 'cp':
-      case 'mv': {
-        const cleanArgs = args.filter((a) => !a.startsWith('-'));
-        const src = this.resolveWorkspacePath(cleanArgs[0]);
-        const dst = this.resolveWorkspacePath(cleanArgs[1]);
-        if (!src || !dst) {
-          this.printAnsi(`Usage: ${cmd} <source> <dest>`);
-          this.setExitCode(1);
-          return;
-        }
-        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
-          break;
-        }
-        try {
-          const readRes = dispatchStudioEnvelope('workspace_read', src);
-          if (!readRes || readRes.status !== 'ok') {
-            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Source file not found: ${src}`);
-            this.setExitCode(1);
-            return;
-          }
-          let ws = dispatchStudioEnvelope('workspace_write', `${dst}\n${readRes.content || ''}`);
-          if (cmd === 'mv' && src !== dst) {
-            const delRes = dispatchStudioEnvelope('workspace_delete', src);
-            if (delRes && delRes.status === 'ok') ws = delRes;
-          }
-          renderWorkspaceList(ws);
-          this.printAnsi(`\x1b[32m[OK]\x1b[0m ${cmd === 'cp' ? 'Copied' : 'Moved'} ${src} -> ${dst}`);
-          this.setExitCode(0);
-        } catch (err) {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m ${cmd} failed: ${err?.message || String(err)}`);
-          this.setExitCode(1);
-        }
-        break;
-      }
-      case 'grep': {
-        const flags = args.filter((a) => a.startsWith('-')).join('');
-        const cleanArgs = args.filter((a) => !a.startsWith('-'));
-        const pattern = cleanArgs[0];
-        const targetPath = cleanArgs[1] ? this.resolveWorkspacePath(cleanArgs[1]) : '';
-        if (!pattern) {
-          this.printAnsi('Usage: grep [-n|-i|-v|-c|-E] <pattern> [workspace-path]');
-          this.setExitCode(1);
-          return;
-        }
-        const ignoreCase = flags.includes('i');
-        const invert = flags.includes('v');
-        const countOnly = flags.includes('c');
-        const useRegex = flags.includes('E');
-        const regex = useRegex ? new RegExp(pattern, ignoreCase ? 'i' : '') : null;
-        try {
-          const ws = dispatchStudioEnvelope('workspace_list', '');
-          const files = ws && Array.isArray(ws.files) ? ws.files : [];
-          let hits = 0;
-          for (const f of files) {
-            if (targetPath && f.path !== targetPath) continue;
-            const readRes = dispatchStudioEnvelope('workspace_read', f.path);
-            const lines = (readRes?.content || '').split('\n');
-            let fileHits = 0;
-            lines.forEach((line, idx) => {
-              const matched = regex
-                ? regex.test(line)
-                : (ignoreCase ? line.toLowerCase().includes(pattern.toLowerCase()) : line.includes(pattern));
-              if (invert ? !matched : matched) {
-                hits += 1;
-                fileHits += 1;
-                if (!countOnly) {
-                  this.printAnsi(`\x1b[36m${f.path}\x1b[0m:\x1b[33m${idx + 1}\x1b[0m: ${line}`);
-                }
-              }
-            });
-            if (countOnly && (targetPath || fileHits > 0)) {
-              this.printAnsi(`${targetPath ? '' : `${f.path}:`}${fileHits}`);
-            }
-          }
-          if (hits === 0) {
-            if (!countOnly) this.printAnsi(`\x1b[90m(no matches for "${pattern}")\x1b[0m`);
-            this.setExitCode(1);
-          } else {
-            this.setExitCode(0);
-          }
-        } catch (err) {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m grep failed: ${err?.message || String(err)}`);
-          this.setExitCode(1);
-        }
-        break;
-      }
-      case 'sed': {
-        const inPlace = args.includes('-i');
-        const cleanArgs = args.filter((a) => !a.startsWith('-'));
-        const expr = cleanArgs[0] || '';
-        const targetPath = this.resolveWorkspacePath(cleanArgs[1]);
-        const sm = expr.match(/^s\/([^/]*)\/([^/]*)\/([gi]*)$/);
-        if (!sm || !targetPath) {
-          this.printAnsi('Usage: sed [-i] "s/pattern/replacement/g" <workspace-path>');
-          this.setExitCode(1);
-          return;
-        }
-        if (inPlace && typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
-          break;
-        }
-        const readRes = dispatchStudioEnvelope('workspace_read', targetPath);
-        if (!readRes || readRes.status !== 'ok') {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m File not found: ${targetPath}`);
-          this.setExitCode(1);
-          return;
-        }
-        const re = new RegExp(sm[1], sm[3] || '');
-        const transformed = String(readRes.content || '').split('\n').map((l) => l.replace(re, sm[2])).join('\n');
-        if (inPlace) {
-          const ws = dispatchStudioEnvelope('workspace_write', `${targetPath}\n${transformed}`);
-          renderWorkspaceList(ws);
-          this.printAnsi(`\x1b[32m[OK]\x1b[0m Updated ${targetPath} in-place via sed`);
-        } else {
-          transformed.split('\n').forEach((l) => this.printAnsi(l));
-        }
-        break;
-      }
-      case 'sort':
-      case 'uniq': {
-        const targetPath = this.resolveWorkspacePath(args.filter((a) => !a.startsWith('-'))[0]);
-        if (!targetPath) {
-          this.printAnsi(`Usage: ${cmd} <workspace-path>`);
-          this.setExitCode(1);
-          return;
-        }
-        const readRes = dispatchStudioEnvelope('workspace_read', targetPath);
-        if (!readRes || readRes.status !== 'ok') {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m File not found: ${targetPath}`);
-          this.setExitCode(1);
-          return;
-        }
-        const filtered = this.applyStreamFilter(String(readRes.content || '').split('\n'), `${cmd} ${args.filter((a) => a.startsWith('-')).join(' ')}`);
-        filtered.forEach((l) => this.printAnsi(l));
-        break;
-      }
-      case 'diff': {
-        const cleanArgs = args.filter((a) => !a.startsWith('-'));
-        const pathA = this.resolveWorkspacePath(cleanArgs[0]);
-        const pathB = this.resolveWorkspacePath(cleanArgs[1]);
-        if (!pathA || !pathB) {
-          this.printAnsi('Usage: diff [-u] <file-a> <file-b>');
-          this.setExitCode(1);
-          return;
-        }
-        const resA = dispatchStudioEnvelope('workspace_read', pathA);
-        const resB = dispatchStudioEnvelope('workspace_read', pathB);
-        if (!resA || resA.status !== 'ok' || !resB || resB.status !== 'ok') {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m diff: file not found`);
-          this.setExitCode(1);
-          return;
-        }
-        const udiff = this.formatUnifiedDiff(resA.content || '', resB.content || '', `${pathA}..${pathB}`);
-        udiff.split('\n').forEach((l) => this.printAnsi(l));
-        break;
-      }
-      case 'find': {
-        const ws = dispatchStudioEnvelope('workspace_list', '');
-        const files = ws && Array.isArray(ws.files) ? ws.files : [];
-        for (const d of this.dirs) {
-          this.printAnsi(`\x1b[34m${d}\x1b[0m`);
-        }
-        for (const f of files) {
-          this.printAnsi(`/workspace/${f.path}`);
-        }
-        break;
-      }
-      case 'wc':
-      case 'head':
-      case 'tail': {
-        let rawTarget = '';
-        for (let i = 0; i < args.length; i++) {
-          if (args[i] === '-n') {
-            i++;
-            continue;
-          }
-          if (!args[i].startsWith('-')) {
-            rawTarget = args[i];
-            break;
-          }
-        }
-        const targetPath = this.resolveWorkspacePath(rawTarget);
-        if (!targetPath) {
-          this.printAnsi(`Usage: ${cmd} <workspace-path>`);
-          this.setExitCode(1);
-          return;
-        }
-        const readRes = dispatchStudioEnvelope('workspace_read', targetPath);
-        if (!readRes || readRes.status !== 'ok') {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m File not found: ${targetPath}`);
-          this.setExitCode(1);
-          return;
-        }
-        const content = readRes.content || '';
-        const lines = content.split('\n');
-        if (cmd === 'wc') {
-          if (args.includes('-l')) {
-            this.printAnsi(`${lines.length} ${targetPath}`);
-          } else {
-            const words = content.trim() ? content.trim().split(/\s+/).length : 0;
-            this.printAnsi(`  ${lines.length}  ${words}  ${content.length} ${targetPath}`);
-          }
-        } else {
-          this.applyStreamFilter(lines, `${cmd} ${args.join(' ')}`).forEach((l) => this.printAnsi(l));
-        }
-        break;
-      }
-      case 'ps': {
-        this.printAnsi('  PID TTY          TIME CMD');
-        this.printAnsi('    1 pts/0    00:00:00 \x1b[36m/bin/lexlean-sh\x1b[0m (Wasm Control Plane)');
-        this.printAnsi('   12 pts/0    00:00:01 \x1b[32muor-r4-glm-v8\x1b[0m (/8 Radix Engine · 17,408 Basins)');
-        this.printAnsi('   24 pts/0    00:00:00 \x1b[33motel-collector\x1b[0m (uor.gllm.trace/1 Ring Buffer)');
-        this.printAnsi('   38 pts/0    00:00:00 \x1b[35mwebgl-brain-3d\x1b[0m (Bi-Hemispheric OSPF Router)');
-        break;
-      }
-      case 'df':
-      case 'free': {
-        const st = dispatchStudioEnvelope('state', '');
-        const occupied = st.occupied_cells ?? 0;
-        if (cmd === 'df') {
-          this.printAnsi('Filesystem           1K-blocks      Used Available Use% Mounted on');
-          this.printAnsi(`wasm-ramfs               65536     18432     47104  28% /workspace`);
-          this.printAnsi(`indexeddb-lut8          262144     40960    221184  16% /weights (${occupied}/17408 basins)`);
-        } else {
-          this.printAnsi('               total        used        free      shared  buff/cache   available');
-          this.printAnsi('Mem:          262144       42880      186400        4096       32864      219264');
-        }
-        break;
-      }
-      case 'uptime':
-      case 'date': {
-        const upSec = Math.max(1, Math.floor((Date.now() - this.bootTimeMs) / 1000));
-        if (cmd === 'date') {
-          this.printAnsi(new Date().toUTCString());
-        } else {
-          this.printAnsi(`up ${upSec}s, 1 user, load average: 0.08, 0.04, 0.01 (Wasm32 deterministic tick)`);
-        }
-        break;
-      }
-      case 'which': {
-        const target = args[0] || 'lexlean-sh';
-        this.printAnsi(`/usr/local/bin/${target}`);
         break;
       }
       case 'cargo': {
@@ -12125,163 +11662,21 @@ class LexLeanTerminal {
         this.printAnsi(`\x1b[1m\x1b[36m==> Running LexLean/PrismPM recipe: just ${recipe}\x1b[0m`);
         const res = dispatchStudioEnvelope('subsystems', '7,6,1,10,2180') || {};
         const receipt = (res.receipt_sha256 || '').slice(0, 16) || 'verified';
-        this.printAnsi(`  \x1b[32m✓\x1b[0m check-model: 35/35 R4 claims verified in CONFORMANCE.md`);
-        this.printAnsi(`  \x1b[32m✓\x1b[0m browser_closure: exact 6-file public/ closure verified`);
-        this.printAnsi(`  \x1b[32m✓\x1b[0m wasm kernels: 6/6 integer proof receipts valid (${receipt})`);
+        this.printAnsi(`  \x1b[32m✓\x1b[0m check-model: R4 claims verified in CONFORMANCE.md`);
+        this.printAnsi(`  \x1b[32m✓\x1b[0m browser_closure: exact public/ closure verified`);
+        this.printAnsi(`  \x1b[32m✓\x1b[0m wasm kernels: integer proof receipts valid (${receipt})`);
         break;
       }
       case 'git': {
-        this.ensureGitInitialized();
         const sub = (args[0] || 'status').toLowerCase();
         if (
-          sub !== 'clone'
-          && sub !== 'pull'
-          && sub !== 'push'
-          && sub !== 'fetch'
-          && sub !== 'remote'
-          && typeof engineWorkerClient !== 'undefined'
-          && engineWorkerClient.enabled
-          && typeof globalThis.__uorRunMvmExecInTerm === 'function'
-          && (!rawLine || (!rawLine.includes('|') && !rawLine.includes('>')))
-        ) {
-          globalThis.__uorRunMvmExecInTerm('git', [sub, ...args.slice(1)], rawLine || ['git', ...args].join(' '), this);
-          break;
-        }
-        const ws = dispatchStudioEnvelope('workspace_list', '');
-        const files = ws && Array.isArray(ws.files) ? ws.files : [];
-        const currentMap = new Map();
-        for (const f of files) {
-          const readRes = dispatchStudioEnvelope('workspace_read', f.path);
-          const content = readRes && readRes.status === 'ok' ? (readRes.content || '') : '';
-          const receipt = f.updated_receipt || f.sha256 || this.hashStringHex(content);
-          currentMap.set(f.path, {
-            path: f.path,
-            content,
-            receipt,
-            byte_len: f.byte_len ?? content.length
-          });
-        }
-        if (sub === 'status') {
-          this.printAnsi('On branch main');
-          const modified = [];
-          const added = [];
-          const deleted = [];
-          for (const [path, cur] of currentMap.entries()) {
-            const head = this.gitHeadFiles.get(path);
-            if (!head) {
-              added.push(cur);
-            } else if (head.content !== cur.content) {
-              modified.push(cur);
-            }
-          }
-          for (const [path, head] of this.gitHeadFiles.entries()) {
-            if (!currentMap.has(path)) {
-              deleted.push(head);
-            }
-          }
-          if (modified.length === 0 && added.length === 0 && deleted.length === 0) {
-            this.printAnsi('nothing to commit, working tree clean (synchronized with uor-r4.lut-stack/8):');
-            for (const cur of currentMap.values()) {
-              this.printAnsi(`  \x1b[32mtracked:\x1b[0m   ${cur.path} (${cur.byte_len} B · sha256:${String(cur.receipt).slice(0, 12)})`);
-            }
-          } else {
-            this.printAnsi('Changes not staged for commit / untracked files:');
-            for (const m of modified) {
-              this.printAnsi(`  \x1b[33mmodified:\x1b[0m  ${m.path} (${m.byte_len} B · sha256:${String(m.receipt).slice(0, 12)})`);
-            }
-            for (const a of added) {
-              this.printAnsi(`  \x1b[32mnew file:\x1b[0m  ${a.path} (${a.byte_len} B · sha256:${String(a.receipt).slice(0, 12)})`);
-            }
-            for (const d of deleted) {
-              this.printAnsi(`  \x1b[31mdeleted:\x1b[0m   ${d.path}`);
-            }
-          }
-        } else if (sub === 'diff') {
-          const targetFilter = args[1] ? this.resolveWorkspacePath(args[1]) : '';
-          let anyDiff = false;
-          for (const [path, cur] of currentMap.entries()) {
-            if (targetFilter && path !== targetFilter) continue;
-            const head = this.gitHeadFiles.get(path);
-            const oldContent = head ? head.content : '';
-            if (oldContent !== cur.content) {
-              anyDiff = true;
-              const udiff = this.formatUnifiedDiff(oldContent, cur.content, path);
-              for (const dl of udiff.split('\n')) {
-                if (dl.startsWith('+') && !dl.startsWith('+++')) this.printAnsi(`\x1b[32m${dl}\x1b[0m`);
-                else if (dl.startsWith('-') && !dl.startsWith('---')) this.printAnsi(`\x1b[31m${dl}\x1b[0m`);
-                else if (dl.startsWith('@@')) this.printAnsi(`\x1b[36m${dl}\x1b[0m`);
-                else this.printAnsi(dl);
-              }
-            }
-          }
-          for (const [path, head] of this.gitHeadFiles.entries()) {
-            if (targetFilter && path !== targetFilter) continue;
-            if (!currentMap.has(path)) {
-              anyDiff = true;
-              const udiff = this.formatUnifiedDiff(head.content, '', path);
-              udiff.split('\n').forEach((dl) => this.printAnsi(`\x1b[31m${dl}\x1b[0m`));
-            }
-          }
-          if (!anyDiff) {
-            this.printAnsi('\x1b[90m(no working tree differences from HEAD)\x1b[0m');
-          }
-        } else if (sub === 'commit') {
-          const mIdx = args.indexOf('-m');
-          const msg = mIdx >= 0 && args[mIdx + 1] ? args.slice(mIdx + 1).join(' ') : 'Workspace snapshot commit';
-          this.gitHeadFiles = new Map(currentMap);
-          const digestInput = Array.from(currentMap.values()).map((c) => `${c.path}:${c.receipt}`).join('|') + `|${msg}`;
-          const commitHash = this.hashStringHex(digestInput).slice(0, 16);
-          this.gitCommits.unshift({
-            hash: commitHash,
-            author: 'LexLean-R4 Control Plane <lexlean@wasm-container>',
-            message: msg,
-            timestamp: new Date().toUTCString()
-          });
-          this.printAnsi(`\x1b[32m[main ${commitHash}]\x1b[0m ${msg}`);
-          this.printAnsi(` ${currentMap.size} files tracked in HEAD`);
-        } else if (sub === 'checkout' || sub === 'reset') {
-          const dashIdx = args.indexOf('--');
-          const targetPath = dashIdx >= 0 && args[dashIdx + 1] ? this.resolveWorkspacePath(args[dashIdx + 1]) : '';
-          if (sub === 'checkout' && targetPath) {
-            const head = this.gitHeadFiles.get(targetPath);
-            if (!head) {
-              this.printAnsi(`\x1b[31m[ERROR]\x1b[0m pathspec '${targetPath}' did not match any file(s) known to git`);
-              this.setExitCode(1);
-            } else {
-              const wsRes = dispatchStudioEnvelope('workspace_write', `${targetPath}\n${head.content}`);
-              renderWorkspaceList(wsRes);
-              this.printAnsi(`\x1b[32m[OK]\x1b[0m Restored '${targetPath}' from HEAD`);
-            }
-          } else {
-            for (const [path] of currentMap.entries()) {
-              if (!this.gitHeadFiles.has(path)) {
-                dispatchStudioEnvelope('workspace_delete', path);
-              }
-            }
-            let lastWs = null;
-            for (const [path, head] of this.gitHeadFiles.entries()) {
-              lastWs = dispatchStudioEnvelope('workspace_write', `${path}\n${head.content}`);
-            }
-            if (lastWs) renderWorkspaceList(lastWs);
-            const headCommit = this.gitCommits[0]?.hash || 'HEAD';
-            this.printAnsi(`HEAD is now at ${headCommit}`);
-          }
-        } else if (sub === 'log') {
-          for (let i = 0; i < this.gitCommits.length; i++) {
-            const c = this.gitCommits[i];
-            this.printAnsi(`\x1b[33mcommit ${c.hash}\x1b[0m${i === 0 ? ' (HEAD -> main)' : ''}`);
-            this.printAnsi(`Author: ${c.author}`);
-            this.printAnsi(`Date:   ${c.timestamp}`);
-            this.printAnsi(`    ${c.message}`);
-          }
-        } else if (
           (sub === 'clone' || sub === 'pull' || sub === 'push' || sub === 'fetch' || sub === 'remote')
           && typeof globalThis.__uorRunConnectedGitInTerm === 'function'
         ) {
           globalThis.__uorRunConnectedGitInTerm(sub, args.slice(1), this);
-        } else {
-          this.printAnsi(`git ${sub}: completed in virtual workspace.`);
+          break;
         }
+        this.execInMvm('git', args, rawLine || ['git', ...args].join(' '));
         break;
       }
       case 'export': {
@@ -12566,88 +11961,6 @@ class LexLeanTerminal {
         }
         break;
       }
-      case 'cat': {
-        const filePath = this.resolveWorkspacePath(args[0]);
-        if (!filePath) {
-          this.printAnsi('Usage: cat <workspace-path>');
-          this.setExitCode(1);
-          return;
-        }
-        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
-          break;
-        }
-        try {
-          const res = dispatchStudioEnvelope('workspace_read', filePath);
-          if (res && res.status === 'ok') {
-            const lines = (res.content || '').split('\n');
-            lines.forEach((l, idx) => {
-              const num = String(idx + 1).padStart(3, ' ');
-              this.printAnsi(`\x1b[90m${num} │\x1b[0m ${l}`);
-            });
-            this.setExitCode(0);
-          } else {
-            this.printAnsi(`\x1b[31m[ERROR]\x1b[0m ${res?.error || res?.message || 'File not found'}`);
-            this.setExitCode(1);
-          }
-        } catch (err) {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Read error: ${err?.message || String(err)}`);
-          this.setExitCode(1);
-        }
-        break;
-      }
-      case 'ls': {
-        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
-          break;
-        }
-        try {
-          const ws = dispatchStudioEnvelope('workspace_list', '');
-          const filterDir = args.filter((a) => !a.startsWith('-'))[0]
-            ? this.resolveWorkspacePath(args.filter((a) => !a.startsWith('-'))[0]).replace(/\/+$/, '')
-            : this.resolveWorkspacePath('').replace(/\/+$/, '');
-          if (ws && Array.isArray(ws.files)) {
-            this.printAnsi('PERMS   SIZE    SHA-256 (PREFIX)                  PATH');
-            this.printAnsi('──────  ──────  ────────────────────────────────  ────────────');
-            let count = 0;
-            for (const f of ws.files) {
-              if (filterDir && !f.path.startsWith(`${filterDir}/`) && f.path !== filterDir) continue;
-              count++;
-              const sizeStr = `${f.byte_len || (f.content || '').length} B`.padEnd(6, ' ');
-              const hashPrefix = (f.updated_receipt || f.sha256 || '—').slice(0, 32);
-              this.printAnsi(`rw-r-  ${sizeStr}  \x1b[33m${hashPrefix}\x1b[0m  \x1b[36m${f.path}\x1b[0m`);
-            }
-            this.printAnsi(`Total files: ${count}`);
-          } else {
-            this.printAnsi('\x1b[90m(workspace is empty)\x1b[0m');
-          }
-        } catch (err) {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m List error: ${err?.message || String(err)}`);
-          this.setExitCode(1);
-        }
-        break;
-      }
-      case 'touch': {
-        const filePath = this.resolveWorkspacePath(args[0]);
-        if (!filePath) {
-          this.printAnsi('Usage: touch <workspace-path>');
-          this.setExitCode(1);
-          return;
-        }
-        if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled && typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm(cmd, args, rawLine || [cmd, ...args].join(' '), this);
-          break;
-        }
-        try {
-          const ws = dispatchStudioEnvelope('workspace_write', `${filePath}\n`);
-          renderWorkspaceList(ws);
-          this.printAnsi(`\x1b[32m[OK]\x1b[0m Created file: ${filePath}`);
-        } catch (err) {
-          this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Touch error: ${err?.message || String(err)}`);
-          this.setExitCode(1);
-        }
-        break;
-      }
       case 'write': {
         const filePath = this.resolveWorkspacePath(args[0]);
         const content = args.slice(1).join(' ');
@@ -12686,6 +11999,10 @@ class LexLeanTerminal {
         break;
       }
       case 'patch': {
+        if (args.length > 0 && args[0] !== 'preview' && args[0] !== 'apply') {
+          this.execInMvm('patch', args, rawLine || ['patch', ...args].join(' '));
+          break;
+        }
         const sub = args[0] || 'preview';
         const diffBlock = document.getElementById('chat-diff-preview');
         const diffText = diffBlock ? diffBlock.textContent : '';
@@ -12750,10 +12067,7 @@ class LexLeanTerminal {
       case 'reset': {
         try {
           dispatchStudioEnvelope('reset', '');
-          this.gitHeadFiles = null;
-          this.gitCommits = [];
-          this.ensureGitInitialized();
-          this.printAnsi('\x1b[32m[OK]\x1b[0m Wasm engine reinitialized to baseline.');
+          this.printAnsi('\x1b[32m[OK]\x1b[0m Wasm engine & MVM CoW reinitialized to baseline.');
         } catch (err) {
           this.printAnsi(`\x1b[31m[ERROR]\x1b[0m Reset failed: ${err?.message || String(err)}`);
           this.setExitCode(1);
@@ -12817,131 +12131,28 @@ class LexLeanTerminal {
         const sub = args[0] || 'status';
         if (sub === 'status') {
           const st = dispatchStudioEnvelope('mvm_status', '');
-          this.printAnsi('\x1b[1m\x1b[36m--- MVM-Wasm RV64IMAC MicroVM (R4-37) ---\x1b[0m');
+          this.printAnsi('\x1b[1m\x1b[36m--- MVM-Wasm RV64IMAC MicroVM (R4-63) ---\x1b[0m');
           this.printAnsi(`  ISA:          \x1b[32m${st?.architecture || 'riscv64-rv64imac'}\x1b[0m`);
           this.printAnsi(`  Guest CID:    \x1b[33m${st?.guest_cid ?? 3}\x1b[0m`);
-          this.printAnsi(`  Zero-NIC:     \x1b[32mAF_INET denied (-EAFNOSUPPORT)\x1b[0m`);
+          this.printAnsi(`  Network Gate: \x1b[32m${st?.network_mode || 'spiralcore_net'}\x1b[0m`);
           this.printAnsi(`  Transport:    ${st?.transport || 'SpiralCore virtio-vsock (AF_VSOCK=40)'}`);
           this.printAnsi(`  Dirty CoW:    ${st?.dirty_cow_sectors ?? 0} x 64 KB`);
           this.printAnsi(`  CoW SHA-256:  ${st?.cow_state_sha256 || '—'}`);
         } else if (sub === 'handshake') {
-          const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: '/sbin/mvm-agent --handshake', cwd: this.cwd || '/workspace' }));
-          if (res?.mvm_stdout) this.printAnsi(res.mvm_stdout.trimEnd());
-          if (Array.isArray(res?.vsock_frames) && res.vsock_frames.length > 0) {
-            const f = res.vsock_frames[0];
-            this.printAnsi(`\x1b[36m[SpiralCore AF_VSOCK]\x1b[0m CID ${f.src_cid} -> CID ${f.dst_cid}:${f.vsock_port} spin=${f.cl06_spin} orbit=${f.e8_orbit}`);
-          }
-          this.setExitCode(res?.exit_code ?? 0);
+          this.execInMvm('mvm-agent', ['--handshake'], '/sbin/mvm-agent --handshake');
         } else {
           const innerCmd = sub === 'exec' ? args.slice(1).join(' ') : args.join(' ');
-          const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: innerCmd, cwd: this.cwd || '/workspace' }));
-          if (res?.mvm_stdout) {
-            for (const line of res.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
-          }
-          if (res?.mvm_stderr) {
-            for (const line of res.mvm_stderr.replace(/\n$/, '').split('\n')) this.printAnsi(`\x1b[31m${line}\x1b[0m`);
-          }
-          const ws = dispatchStudioEnvelope('workspace_list', '');
-          if (ws && ws.files) renderWorkspaceList(ws);
-          if (typeof persist_mvm_cow_sectors_to_opfs === 'function') {
-            persist_mvm_cow_sectors_to_opfs().catch(() => {});
-          }
-          this.setExitCode(res?.exit_code ?? 0);
+          this.execInMvm('sh', [], innerCmd);
         }
-        break;
-      }
-      case 'python':
-      case 'python3':
-      case 'node':
-      case 'cc':
-      case 'gcc':
-      case 'sha256sum':
-      case 'mvmbox': {
-        const fullCmd = rawLine || [cmd, ...args].join(' ');
-        if (typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm(cmd, args, fullCmd, this);
-          break;
-        }
-        const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: fullCmd, cwd: this.cwd || '/workspace' }));
-        if (res?.mvm_stdout) {
-          for (const line of res.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
-        }
-        if (res?.mvm_stderr) {
-          for (const line of res.mvm_stderr.replace(/\n$/, '').split('\n')) this.printAnsi(`\x1b[31m${line}\x1b[0m`);
-        }
-        if ((cmd === 'cc' || cmd === 'gcc') && (res?.exit_code ?? 1) === 0) {
-          this.printAnsi(`\x1b[32m[ELF64 EM_RISCV=${res?.compiled_elf_machine ?? 243}]\x1b[0m Compiled native RV64IMAC executable.`);
-        }
-        const ws = dispatchStudioEnvelope('workspace_list', '');
-        if (ws && ws.files) renderWorkspaceList(ws);
-        if (typeof persist_mvm_cow_sectors_to_opfs === 'function') {
-          persist_mvm_cow_sectors_to_opfs().catch(() => {});
-        }
-        this.setExitCode(res?.exit_code ?? 0);
-        break;
-      }
-      case 'curl':
-      case 'nslookup':
-      case 'dig':
-      case 'pkg':
-      case 'jq':
-      case 'rg':
-      case 'tree':
-      case 'xxd':
-      case 'bc':
-      case 'http': {
-        const fullCmd = rawLine || [cmd, ...args].join(' ');
-        if (typeof globalThis.__uorRunConnectedTerminalCmd === 'function') {
-          globalThis.__uorRunConnectedTerminalCmd(cmd, args, fullCmd, this);
-          break;
-        }
-        const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: fullCmd, cwd: this.cwd || '/workspace' }));
-        if (res?.mvm_stdout) {
-          for (const line of res.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
-        }
-        if (res?.mvm_stderr) {
-          for (const line of res.mvm_stderr.replace(/\n$/, '').split('\n')) this.printAnsi(`\x1b[31m${line}\x1b[0m`);
-        }
-        this.setExitCode(res?.exit_code ?? 0);
         break;
       }
       case 'vsock': {
         const mode = args[0] === 'inet-test' ? '--try-inet' : '--vsock-ping';
-        if (typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-          globalThis.__uorRunMvmExecInTerm('vsock', [mode], `/bin/vsock_probe ${mode}`, this);
-          break;
-        }
-        const res = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: `/bin/vsock_probe ${mode}`, cwd: this.cwd || '/workspace' }));
-        if (res?.mvm_stdout) this.printAnsi(res.mvm_stdout.trimEnd());
-        this.setExitCode(res?.exit_code ?? 0);
+        this.execInMvm('vsock_probe', [mode], `/bin/vsock_probe ${mode}`);
         break;
       }
       default: {
-        if (cmd.startsWith('./') || cmd.startsWith('/')) {
-          const fullCmd = rawLine || [cmd, ...args].join(' ');
-          if (typeof globalThis.__uorRunMvmExecInTerm === 'function') {
-            globalThis.__uorRunMvmExecInTerm(cmd, args, fullCmd, this);
-            break;
-          }
-          const mvmRes = dispatchStudioEnvelope('mvm_exec', JSON.stringify({ cmd: fullCmd, cwd: this.cwd || '/workspace' }));
-          if (mvmRes && typeof mvmRes.mvm_stdout === 'string' && mvmRes.exit_code !== 127) {
-            if (mvmRes.mvm_stdout.length > 0) {
-              for (const line of mvmRes.mvm_stdout.replace(/\n$/, '').split('\n')) this.printAnsi(line);
-            }
-            if (mvmRes.mvm_stderr) {
-              for (const line of mvmRes.mvm_stderr.replace(/\n$/, '').split('\n')) this.printAnsi(`\x1b[31m${line}\x1b[0m`);
-            }
-            const ws = dispatchStudioEnvelope('workspace_list', '');
-            if (ws && ws.files) renderWorkspaceList(ws);
-            if (typeof persist_mvm_cow_sectors_to_opfs === 'function') {
-              persist_mvm_cow_sectors_to_opfs().catch(() => {});
-            }
-            this.setExitCode(mvmRes.exit_code ?? 0);
-            break;
-          }
-        }
-        this.printAnsi(`\x1b[31mlexlean-sh: command not found: ${cmd}\x1b[0m (try \x1b[33mhelp\x1b[0m)`);
-        this.setExitCode(127);
+        this.execInMvm(cmd, args, rawLine || [cmd, ...args].join(' '));
         break;
       }
     }
@@ -13238,10 +12449,38 @@ function initCustomizationsAndMcp() {
   }
 
   const mcpPolicy = document.getElementById('mcp-policy-select');
+  const autoRunToggleBtn = document.getElementById('composer-autorun-toggle');
+  const syncAutoRunButtonWithPolicy = (rawPolicy) => {
+    const policy = String(rawPolicy || 'safe').trim().toLowerCase();
+    AppState.config.mcpSecurityPolicy = policy;
+    if (mcpPolicy && mcpPolicy.value !== policy) {
+      mcpPolicy.value = policy;
+    }
+    if (autoRunToggleBtn) {
+      const isOn = policy === 'safe';
+      autoRunToggleBtn.classList.toggle('active', isOn);
+      autoRunToggleBtn.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+      autoRunToggleBtn.textContent = policy === 'deny'
+        ? 'Tools: Deny'
+        : (isOn ? 'Auto-run: On' : 'Auto-run: Off');
+    }
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient && engineWorkerClient.enabled) {
+      engineWorkerClient.rpc('set_bridge_policy', { policy }).catch(() => {});
+    }
+  };
   if (mcpPolicy) {
+    syncAutoRunButtonWithPolicy(mcpPolicy.value || 'safe');
     mcpPolicy.addEventListener('change', (e) => {
-      AppState.config.mcpSecurityPolicy = e.target.value;
+      syncAutoRunButtonWithPolicy(e.target.value);
       secopsAudit.recordEvent('policy_update', e.target.value, 'mcp_security', { policy: e.target.value }, 'notice');
+    });
+  }
+  if (autoRunToggleBtn) {
+    autoRunToggleBtn.addEventListener('click', () => {
+      const cur = String(AppState.config.mcpSecurityPolicy || 'safe').toLowerCase();
+      const next = cur === 'safe' ? 'confirm' : 'safe';
+      syncAutoRunButtonWithPolicy(next);
+      secopsAudit.recordEvent('policy_update', next, 'mcp_security', { policy: next }, 'notice');
     });
   }
 
@@ -17188,7 +16427,10 @@ function registerBrowserTerminalBridgeHooks() {
 
   globalThis.__uorRunMvmExecInTerm = (cmd, _args, fullCmd, term) => {
     if (!engineWorkerClient.enabled) return;
-    const termCwd = (term && term.env && term.env.CWD) || (term && term.cwd) || '/workspace';
+    const rawCwd = (term && term.env && term.env.CWD) || (term && term.cwd) || '/workspace';
+    const termCwd = rawCwd === '~/workspace' || rawCwd === '~'
+      ? '/workspace'
+      : (rawCwd.startsWith('~/workspace/') ? `/workspace/${rawCwd.slice('~/workspace/'.length)}` : rawCwd);
     engineWorkerClient
       .rpc('studio_dispatch', `1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: fullCmd, cwd: termCwd })}`)
       .then((res) => {
@@ -17199,17 +16441,24 @@ function registerBrowserTerminalBridgeHooks() {
           for (const line of String(res.mvm_stderr).replace(/\n$/, '').split('\n')) {
             term.printAnsi(`\x1b[31m${line}\x1b[0m`);
           }
+        } else if ((res?.exit_code ?? 0) === 127) {
+          term.printAnsi(`\x1b[31mlexlean-sh: command not found: ${cmd}\x1b[0m (try \x1b[33mhelp\x1b[0m)`);
         }
         if ((cmd === 'cc' || cmd === 'gcc') && (res?.exit_code ?? 1) === 0) {
           term.printAnsi(
             `\x1b[32m[ELF64 EM_RISCV=${res?.compiled_elf_machine ?? 243}]\x1b[0m Compiled native RV64IMAC executable.`,
           );
         }
+        if (typeof res?.cwd === 'string' && res.cwd.startsWith('/') && term && term.env) {
+          term.env.CWD = res.cwd;
+          term.env.PROMPT = `casey@mvm:${res.cwd}$ `;
+          if (term.promptLabel) term.promptLabel.textContent = term.env.PROMPT;
+        }
         term.setExitCode(res?.exit_code ?? 0);
-        const mutatingMvmCmds = new Set(['mkdir', 'rm', 'mv', 'cp', 'touch', 'sed', 'cc', 'gcc', 'python', 'python3', 'node', 'pkg']);
+        const mutatingMvmCmds = new Set(['mkdir', 'rm', 'mv', 'cp', 'touch', 'sed', 'patch', 'make', 'xargs', 'sh', 'cc', 'gcc', 'python', 'python3', 'node', 'pkg']);
         const isMutatingGit = cmd === 'git' && /\b(?:commit|checkout|reset|init|add|merge|rm|mv)\b/.test(String(fullCmd || ''));
         const hasShellRedirect = typeof fullCmd === 'string' && fullCmd.includes('>');
-        if ((mutatingMvmCmds.has(cmd) || isMutatingGit || hasShellRedirect) && typeof globalThis.__uorRefreshWorkspaceAfterFsChange === 'function') {
+        if ((mutatingMvmCmds.has(cmd) || cmd.startsWith('./') || cmd.startsWith('/') || isMutatingGit || hasShellRedirect) && typeof globalThis.__uorRefreshWorkspaceAfterFsChange === 'function') {
           globalThis.__uorRefreshWorkspaceAfterFsChange({ source: cmd }).catch(() => {});
         }
       })
@@ -18964,6 +18213,21 @@ try {
       navigator.storage.persist().catch(() => false);
     }
     initLayoutAndConnectedControls();
+    if (typeof window !== 'undefined' && Number(window.innerWidth) > 0 && Number(window.innerWidth) < 840) {
+      const mainEl = document.querySelector('main');
+      const sidebarEl = document.getElementById('threads-sidebar');
+      if (mainEl && mainEl.classList) {
+        mainEl.classList.remove('sidebar-expanded');
+        mainEl.classList.add('sidebar-collapsed');
+      }
+      if (sidebarEl && sidebarEl.classList) {
+        sidebarEl.classList.remove('sidebar-expanded');
+        sidebarEl.classList.add('sidebar-collapsed');
+      }
+      if (typeof applyWindowWidthClass === 'function') {
+        applyWindowWidthClass(window.innerWidth);
+      }
+    }
     registerBrowserTerminalBridgeHooks();
     startHeaderBrainPulseCanvas();
 

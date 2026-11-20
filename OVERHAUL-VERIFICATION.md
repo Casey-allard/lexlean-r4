@@ -122,3 +122,21 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `1`
   - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Stale declined flag must be purged` at `tests/e2e/foundry_worker_stepper_unit.mjs:1538`
 - **Restored result**: Restored `safeStorageRemove('uor_allow_off_origin_hydration')` inside `purgeLegacyDeclinedHydrationFlag()`; `NODE_OPTIONS="--max-old-space-size=1024" node tests/e2e/foundry_worker_stepper_unit.mjs` exited `0` (`tests 12, pass 12, fail 0`).
+
+## Wave 2 Redesign (`R4-63`): Single-Source MVM Linux `/workspace`, Unprompted Public CORS Preemption & Interactive Command Gates (`v0.14.0`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` `<= 12 MiB` < `15 MiB`, `provenance.json`), `wasm=58091ff3c397`, `js=af77f86c2840`, `core=4893c103fc2c`.
+- **`build-holo --sync-site-manifest`**: verified Hologram v4 archive (`13,168,900` bytes <= `33,554,432` B / `32 MiB`, `blake3=c3465c6f93b88b86`, `wasmSha256=58091ff3c397eb76`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **`check-model`**: `CONFORMANCE.md` matches `model/`, `63` conformance IDs (`R4-01..R4-63`, including `R4-63` / `R4.MvmLinuxContainer`).
+- **`lift-register`**: `total=2831`, `lifted=2055`, `effect=277`, `foreign=157`, `residue=342` (`< 343` incumbent, `<= 355` threshold, `UE-16` monotone).
+- **`ratchet-check`**: `r30_gen=261`, `orphans=0`, `ungrounded=0`, `ignored=0`, `residue=342`, `float=0`, `matmul=0`, `unwired_ui=0`.
+- **`check-routes`**: `14` routes (including `R4-UR14` / `mvm-linux-spiralcore-container`) and `17` test vectors verified under `uorust/routes/1`.
+- **`check-measures`**: `6` measures admitted under `prism/measures/1` (`uncovered=0`, `undeclared=0`, `float_ops=0`, `matmul_ops=0`, `kappa_residue=342`, `routes=14`, `provenance_sources=24`).
+- **`synthesize`**: `score_milli=987`, `complexity=342`, `defects=0`, `strategy=pure-integer-lut-serving`, `verdict=CandidateAdmitted`.
+
+### 10. Credentialed CORS Proxy Refusal Gate (`R4-63`)
+- **Planted defect**: Replaced `return 'RefusedCredentialedCorsProxy';` with `return 'StatelessRelayCorsPreempted';` inside `admit_public_cors_preemption()` in `crates/wasm/js/worker_host_bridge.js`.
+- **Failing command**: `node tests/e2e/r4_63_mvm_container_cors_e2e.mjs`
+  - **Exit code**: `1`
+  - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'StatelessRelayCorsPreempted' - 'RefusedCredentialedCorsProxy'` at `tests/e2e/r4_63_mvm_container_cors_e2e.mjs:44:10`
+- **Restored result**: Restored `return 'RefusedCredentialedCorsProxy';` inside `admit_public_cors_preemption()`; `node tests/e2e/r4_63_mvm_container_cors_e2e.mjs` exited `0` (`[PASS] R4-63 single-source /workspace, self-hosted make+cc, and chat UI cleanliness verified`).

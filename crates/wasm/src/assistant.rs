@@ -7175,7 +7175,21 @@ fn fit_foundry_prompt_tokens(
         }
     }
 
-    // If even `ws_header` overflows small `max_ctx`, drop workspace file listing before trimming `core_sys`.
+    // If `ws_header` overflows small `max_ctx`, drop `# Workspace Files` tree listing before dropping metadata or `core_sys`.
+    if let Some(tree_pos) = ws_header.find("\n# Workspace Files\n") {
+        let meta_only = &ws_header[..tree_pos];
+        if !meta_only.is_empty() {
+            let mut candidate_sys = String::with_capacity(core_sys.len() + meta_only.len());
+            candidate_sys.push_str(core_sys);
+            candidate_sys.push_str(meta_only);
+            let meta_chunk = format!("<|im_start|>system\n{candidate_sys}<|im_end|>\n");
+            let mut meta_ids = model.tokenizer.encode(&meta_chunk);
+            if meta_ids.len() + cur_u_ids.len() <= max_ctx {
+                meta_ids.extend_from_slice(&cur_u_ids);
+                return (candidate_sys, meta_ids);
+            }
+        }
+    }
     let core_chunk = format!("<|im_start|>system\n{core_sys}<|im_end|>\n");
     let mut core_ids = model.tokenizer.encode(&core_chunk);
     if core_ids.len() + cur_u_ids.len() <= max_ctx {
@@ -7387,13 +7401,14 @@ impl StudioEngine {
             .as_deref()
             .filter(|s| !s.trim().is_empty())
             .unwrap_or(&self.active_workspace_path);
-        let net_label = req.net_mode.as_deref().unwrap_or_else(|| {
-            match self.mvm.network_mode {
+        let net_label = req
+            .net_mode
+            .as_deref()
+            .unwrap_or(match self.mvm.network_mode {
                 crate::mvm::NetworkGateMode::Sandboxed => "sandboxed",
                 crate::mvm::NetworkGateMode::FullSpiralcore => "full_spiralcore",
                 crate::mvm::NetworkGateMode::SpiralCoreNet => "spiralcore_net",
-            }
-        });
+            });
         let mvm_hdr = format_mvm_live_state_header(
             self.mvm.current_cwd(),
             active_tab,

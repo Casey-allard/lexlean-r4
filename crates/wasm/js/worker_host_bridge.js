@@ -4078,27 +4078,91 @@ function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
     const rawCmd = typeof (hopToolCall && hopToolCall.cmd) === 'string'
       ? hopToolCall.cmd
       : String(args.cmd || args.command || '');
-    const trimmed = rawCmd.trim();
-    if (!trimmed) return false;
-    if (/[><`]|(\$\()/.test(trimmed)) return true;
-    const segments = trimmed.split(/&&|\|\||[;|\r\n]/).map((s) => s.trim()).filter(Boolean);
-    for (const seg of segments) {
-      const parts = seg.split(/\s+/);
-      const bin = (parts[0] || '').toLowerCase();
-      if (['cat', 'ls', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd'].includes(bin)) {
-        continue;
-      }
-      if (bin === 'git') {
-        const gsub = parts.slice(1).find((a) => !a.startsWith('-')) || '';
-        if (['status', 'log', 'diff', 'show', 'rev-parse', 'ls-files', 'describe'].includes(gsub)) {
-          continue;
-        }
-      }
-      return true;
-    }
-    return false;
+    return classifyShellCommandKind(rawCmd) === 'MutatingOrNetwork';
   }
   return false;
+}
+
+const __uorPendingStagedMvmCommands = new Map();
+let __uorStagedMvmSeq = 0;
+
+/* Formal R4.MvmLinuxContainer */
+export function classifyShellCommandKind(rawCmd) {
+  const trimmed = String(rawCmd || '').trim();
+  if (!trimmed) return 'ReadOnlyInspection';
+  if (/[><`]|(\$\()/.test(trimmed)) return 'MutatingOrNetwork';
+  const segments = trimmed.split(/&&|\|\||[;|\r\n]/).map((s) => s.trim()).filter(Boolean);
+  for (const seg of segments) {
+    const parts = seg.split(/\s+/);
+    const bin = (parts[0] || '').toLowerCase();
+    if ([
+      'cat', 'ls', 'head', 'tail', 'grep', 'rg', 'wc', 'pwd',
+      'uname', 'whoami', 'id', 'hostname', 'df', 'free', 'ps', 'which', 'diff', 'true', 'false', 'echo', 'env',
+    ].includes(bin)) {
+      continue;
+    }
+    if (bin === 'find' && !parts.some((p) => p === '-delete' || p === '-exec' || p === '-execdir')) {
+      continue;
+    }
+    if (bin === 'git') {
+      const gsub = parts.slice(1).find((a) => !a.startsWith('-')) || '';
+      if (['status', 'log', 'diff', 'show', 'rev-parse', 'ls-files', 'describe', 'branch'].includes(gsub)) {
+        if (gsub === 'branch' && parts.slice(2).some((a) => !a.startsWith('-'))) {
+          return 'MutatingOrNetwork';
+        }
+        continue;
+      }
+    }
+    return 'MutatingOrNetwork';
+  }
+  return 'ReadOnlyInspection';
+}
+
+/* Formal R4.MvmLinuxContainer */
+export function admitInteractiveCommand(mcpMode, planMode, autoRun, cmdKind) {
+  const m = String(mcpMode || 'safe').trim().toLowerCase();
+  const p = String(planMode || 'agent').trim().toLowerCase();
+  const isPlan = p === 'plan' || p === 'planreadonly' || p === 'plan_read_only';
+  const isReadOnly = String(cmdKind || '') === 'ReadOnlyInspection';
+  if (m === 'deny') {
+    return 'RefusedByDenyPolicy';
+  }
+  if (m === 'confirm') {
+    if (isPlan) {
+      return isReadOnly ? 'AutoRunAdmitted' : 'RefusedInPlanMode';
+    }
+    return isReadOnly ? 'AutoRunAdmitted' : 'StagedPendingUserGo';
+  }
+  if (isPlan) {
+    return isReadOnly ? 'AutoRunAdmitted' : 'RefusedInPlanMode';
+  }
+  if (isReadOnly) {
+    return 'AutoRunAdmitted';
+  }
+  return Boolean(autoRun) ? 'AutoRunAdmitted' : 'StagedPendingUserGo';
+}
+
+/* Formal R4.MvmLinuxContainer */
+export function resolve_staged_mvm_command(payload = {}) {
+  const stageId = String((payload && (payload.stage_id || payload.stageId)) || '').trim();
+  const rawDecision = String((payload && payload.decision) || 'run').trim().toLowerCase();
+  const decision = rawDecision === 'skip' ? 'skip' : rawDecision === 'edit' ? 'edit' : 'run';
+  if (!stageId || !__uorPendingStagedMvmCommands.has(stageId)) {
+    return { ok: false, error_code: 'StagedCommandNotFound', stage_id: stageId };
+  }
+  const waiter = __uorPendingStagedMvmCommands.get(stageId);
+  __uorPendingStagedMvmCommands.delete(stageId);
+  const editedCmd =
+    typeof payload.cmd === 'string' && payload.cmd.trim().length > 0
+      ? payload.cmd.trim()
+      : waiter.cmd;
+  waiter.resolve({
+    ok: true,
+    stage_id: stageId,
+    decision,
+    cmd: decision === 'skip' ? '' : editedCmd,
+  });
+  return { ok: true, stage_id: stageId, decision, cmd: decision === 'skip' ? '' : editedCmd };
 }
 
 export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
@@ -4843,7 +4907,30 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         hopToolCall.arguments && typeof hopToolCall.arguments === 'object'
           ? hopToolCall.arguments
           : {};
-      if (composerMode === 'plan' && isStudioToolCallMutating(toolName, toolArgs, hopToolCall)) {
+      const mcpModeRaw = String(
+        payload.mcp_policy || payload.mcpPolicy || 'safe',
+      )
+        .trim()
+        .toLowerCase();
+      const autoRun =
+        payload.auto_run !== undefined
+          ? Boolean(payload.auto_run)
+          : payload.autoRun !== undefined
+            ? Boolean(payload.autoRun)
+            : mcpModeRaw === 'safe';
+      const cmdKind = isStudioToolCallMutating(toolName, toolArgs, hopToolCall)
+        ? 'MutatingOrNetwork'
+        : 'ReadOnlyInspection';
+      const interactiveVerdict = admitInteractiveCommand(
+        mcpModeRaw,
+        composerMode === 'plan' ? 'plan' : 'agent',
+        autoRun,
+        cmdKind,
+      );
+      if (
+        interactiveVerdict === 'RefusedByDenyPolicy' ||
+        interactiveVerdict === 'RefusedInPlanMode'
+      ) {
         const tid = activeTurnNum;
         if (typeof fnCancel === 'function' && tid != null) {
           try {
@@ -4853,16 +4940,20 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         }
         setActiveTurnId(null, ownerKey);
         clearCancelled(ownerKey, tid);
+        const isDeny = interactiveVerdict === 'RefusedByDenyPolicy';
         return {
           id: reqId,
           ok: false,
-          error_code: 'RefusedPlanModeMutation',
-          error: `Composer plan mode refuses mutating tool \`${toolName}\``,
+          error_code: isDeny ? 'RefusedByDenyPolicy' : 'RefusedPlanModeMutation',
+          verdict: interactiveVerdict,
+          error: isDeny
+            ? `MCP deny policy refuses tool \`${toolName}\``
+            : `Composer plan mode refuses mutating tool \`${toolName}\``,
           turn_id: tid,
         };
       }
 
-      const cmd =
+      let cmd =
         toolName === 'mvm_exec'
           ? typeof hopToolCall.cmd === 'string'
             ? hopToolCall.cmd
@@ -4881,12 +4972,55 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
             '',
         );
 
+      let stagedSkip = false;
+      if (interactiveVerdict === 'StagedPendingUserGo') {
+        const stageId = `stage-${activeTurnNum || 0}-${++__uorStagedMvmSeq}`;
+        postEvent('staged_mvm_command', {
+          id: reqId,
+          turn_id: activeTurnNum,
+          stage_id: stageId,
+          tool: toolName,
+          cmd: cmd || toolTarget,
+          arguments: toolArgs,
+          verdict: interactiveVerdict,
+        });
+        let cancelUnsub = () => {};
+        const stageDecision = await new Promise((resolve) => {
+          __uorPendingStagedMvmCommands.set(stageId, {
+            cmd: cmd || toolTarget,
+            resolve,
+          });
+          cancelUnsub = registerCancelWaiter(ownerKey, () => {
+            __uorPendingStagedMvmCommands.delete(stageId);
+            resolve({ cancelled: true });
+          });
+        });
+        cancelUnsub();
+        if (
+          (stageDecision && stageDecision.cancelled) ||
+          isCancelled(ownerKey, activeTurnNum)
+        ) {
+          return cancelAndBuildResult();
+        }
+        if (stageDecision && stageDecision.decision === 'skip') {
+          stagedSkip = true;
+        } else if (
+          toolName === 'mvm_exec' &&
+          stageDecision &&
+          typeof stageDecision.cmd === 'string' &&
+          stageDecision.cmd.trim().length > 0
+        ) {
+          cmd = stageDecision.cmd.trim();
+        }
+      }
+
       postEvent('tool_call', {
         id: reqId,
         turn_id: activeTurnNum,
         tool: toolName,
         ...(cmd ? { cmd } : {}),
         ...(toolTarget ? { target: toolTarget } : {}),
+        ...(stagedSkip ? { skipped: true } : {}),
         arguments: toolArgs,
         iteration: toolIterations + 1,
       });
@@ -4900,7 +5034,13 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       let explicitDeleted = [];
 
       try {
-        if (toolName === 'mvm_exec') {
+        if (stagedSkip) {
+          execRes = { status: 'skipped', exit_code: 0, mvm_stdout: '', mvm_stderr: '' };
+          explicitStdout = `[Skipped staged command by user: ${cmd || toolTarget || toolName}]`;
+          explicitStderr = '';
+          explicitExitCode = 0;
+          explicitChanged = [];
+        } else if (toolName === 'mvm_exec') {
           const mvmPayload = toolArgs.cwd ? { cmd, cwd: toolArgs.cwd } : { cmd };
           const rawExec = await dispatchBridge(`1\tstudio\tmvm_exec\t${JSON.stringify(mvmPayload)}`);
           execRes = typeof rawExec === 'string' ? JSON.parse(rawExec) : rawExec || {};
@@ -13480,6 +13620,16 @@ function __uorStartDedicatedEngineWorker() {
         self.postMessage({ id, ok: true, result: cancelRes });
         return;
       }
+      if (op === 'resolve_staged_mvm_command') {
+        const res = resolve_staged_mvm_command(payload && typeof payload === 'object' ? payload : {});
+        self.postMessage({
+          id,
+          ok: Boolean(res && res.ok !== false),
+          result: res,
+          ...(res && res.ok === false ? { error_code: res.error_code || 'StagedCommandNotFound' } : {}),
+        });
+        return;
+      }
       if (op === 'terminal:write' || op === 'terminal:open' || op === 'terminal:close' || op === 'terminal:kill' || op === 'terminal:resize' || op === 'terminal:serialize') {
         if (payload != null && typeof payload !== 'object') {
           self.postMessage({
@@ -13492,6 +13642,7 @@ function __uorStartDedicatedEngineWorker() {
         }
         if (op === 'terminal:write') {
           const cmdStr = payload && typeof payload.cmd === 'string' ? payload.cmd.trim() : '';
+          const cwdStr = payload && typeof payload.cwd === 'string' && payload.cwd.trim() ? payload.cwd.trim() : undefined;
           const hasRawData = payload && typeof payload.data === 'string' && payload.data.length > 0;
           if (!cmdStr && !hasRawData) {
             self.postMessage({
@@ -13503,7 +13654,8 @@ function __uorStartDedicatedEngineWorker() {
             return;
           }
           if (cmdStr) {
-            const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd: cmdStr })}`);
+            const mvmReq = cwdStr ? { cmd: cmdStr, cwd: cwdStr } : { cmd: cmdStr };
+            const out = await dispatchWithConnectedBridge(`1\tstudio\tmvm_exec\t${JSON.stringify(mvmReq)}`);
             self.postMessage({ id, ok: true, result: out });
             return;
           }
