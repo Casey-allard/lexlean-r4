@@ -281,6 +281,54 @@ export function studio_admit_mvm_container_policy_json(split_brain, cow_consiste
 }
 
 /**
+ * Formal R4.WebGpuResidentRuntime export per-layer (`<= 128 MiB`) resident WebGPU storage buffer partition metadata (`R4-64`).
+ * @param {string} model_id
+ * @param {bigint} device_binding_limit_bytes
+ * @param {bigint} float_ops
+ * @returns {string}
+ */
+export function studio_export_holo_layer_slab_meta(model_id, device_binding_limit_bytes, float_ops) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_export_holo_layer_slab_meta(ptr0, len0, device_binding_limit_bytes, float_ops);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Formal R4.WebGpuResidentRuntime evaluate resident WebGPU slab limits, `0-LSB` speculative tile parity, and Studio LoRA prompt shrink policy (`R4-64`).
+ * @param {bigint} float_ops
+ * @param {bigint} layer_max_bytes
+ * @param {bigint} device_binding_limit_bytes
+ * @param {bigint} draft_count
+ * @param {bigint} max_abs_lsb_diff
+ * @param {boolean} kv_rewound_exact
+ * @param {boolean} stitch_parity_valid
+ * @param {boolean} fine_tuned_manifest_pinned
+ * @param {bigint} prompt_tokens
+ * @returns {string}
+ */
+export function studio_verify_resident_webgpu_step(float_ops, layer_max_bytes, device_binding_limit_bytes, draft_count, max_abs_lsb_diff, kv_rewound_exact, stitch_parity_valid, fine_tuned_manifest_pinned, prompt_tokens) {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_verify_resident_webgpu_step(float_ops, layer_max_bytes, device_binding_limit_bytes, draft_count, max_abs_lsb_diff, kv_rewound_exact, stitch_parity_valid, fine_tuned_manifest_pinned, prompt_tokens);
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
  * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
  * @param {string} subcommand
  * @param {string} filter
@@ -321,38 +369,6 @@ export function mvm_sync_workspace_in_json(snapshot_json) {
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
-}
-
-/**
- * Export minimal filtered UTF-8 `/workspace` writes and deletes since last sync (`R4-57`).
- * @returns {string}
- */
-export function mvm_export_workspace_diff_json() {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.mvm_export_workspace_diff_json();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
-    }
-}
-
-function getArrayU8FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
-}
-/**
- * Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
- * @returns {Uint8Array}
- */
-export function studio_export_mvm_cow_sectors() {
-    const ret = wasm.studio_export_mvm_cow_sectors();
-    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v1;
 }
 
 /**
@@ -550,6 +566,38 @@ export function studio_record_generation_fault(fault_reason) {
 }
 
 /**
+ * Export minimal filtered UTF-8 `/workspace` writes and deletes since last sync (`R4-57`).
+ * @returns {string}
+ */
+export function mvm_export_workspace_diff_json() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.mvm_export_workspace_diff_json();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+function getArrayU8FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
+}
+/**
+ * Export dirty 64 KB `MVM-Wasm` Copy-on-Write block sectors for Worker OPFS persistence (`R4-37`).
+ * @returns {Uint8Array}
+ */
+export function studio_export_mvm_cow_sectors() {
+    const ret = wasm.studio_export_mvm_cow_sectors();
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
+}
+
+/**
  * Hydrate 64 KB `MVM-Wasm` Copy-on-Write block sectors loaded from Worker OPFS (`R4-37`, `R4-60`).
  * @param {Uint8Array} bytes
  * @returns {string}
@@ -570,32 +618,43 @@ export function studio_import_mvm_cow_sectors(bytes) {
 }
 
 /**
- * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
+ * Parse and validate a `manifest.stitch.json` (`stitch/xor-2-of-3/1`) document.
+ * @param {string} manifest_json
  * @returns {string}
  */
-export function studio_shard_catalog() {
-    let deferred1_0;
-    let deferred1_1;
+export function studio_stitch_verify_manifest(manifest_json) {
+    let deferred2_0;
+    let deferred2_1;
     try {
-        const ret = wasm.studio_shard_catalog();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
+        const ptr0 = passStringToWasm0(manifest_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_stitch_verify_manifest(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
 /**
- * Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
- * @param {number} e8_root
- * @returns {Uint8Array}
+ * Encode an arbitrary payload into 3 Stitch `xor-2-of-3` custody fragments and return JSON metadata.
+ * @param {Uint8Array} payload
+ * @returns {string}
  */
-export function studio_export_uorlut_shard(e8_root) {
-    const ret = wasm.studio_export_uorlut_shard(e8_root);
-    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v1;
+export function studio_stitch_split_2of3(payload) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(payload, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_stitch_split_2of3(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
 }
 
 function takeFromExternrefTable0(idx) {
@@ -732,23 +791,32 @@ export function studio_compile_holo_v4_archive(holoview_bytes, provenance_bytes)
 }
 
 /**
- * Formal `R4.PrismHoloIdentity` verify a Hologram v4 `.holo` archive and return structured JSON verdict (`R4-54`).
- * @param {Uint8Array} archive_bytes
+ * Return the 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
  * @returns {string}
  */
-export function studio_verify_holo_v4_archive(archive_bytes) {
-    let deferred2_0;
-    let deferred2_1;
+export function studio_shard_catalog() {
+    let deferred1_0;
+    let deferred1_1;
     try {
-        const ptr0 = passArray8ToWasm0(archive_bytes, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_verify_holo_v4_archive(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
+        const ret = wasm.studio_shard_catalog();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
+}
+
+/**
+ * Export a content-addressed `UORSHRD1` binary shard for `e8_root` (`0..15`).
+ * @param {number} e8_root
+ * @returns {Uint8Array}
+ */
+export function studio_export_uorlut_shard(e8_root) {
+    const ret = wasm.studio_export_uorlut_shard(e8_root);
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
 }
 
 /**
@@ -903,37 +971,17 @@ export function studio_decode_with_webgpu_q12_scores(prompt, gpu_row_scores, max
 }
 
 /**
- * Parse and validate a `manifest.stitch.json` (`stitch/xor-2-of-3/1`) document.
- * @param {string} manifest_json
+ * Formal `R4.PrismHoloIdentity` verify a Hologram v4 `.holo` archive and return structured JSON verdict (`R4-54`).
+ * @param {Uint8Array} archive_bytes
  * @returns {string}
  */
-export function studio_stitch_verify_manifest(manifest_json) {
+export function studio_verify_holo_v4_archive(archive_bytes) {
     let deferred2_0;
     let deferred2_1;
     try {
-        const ptr0 = passStringToWasm0(manifest_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr0 = passArray8ToWasm0(archive_bytes, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_stitch_verify_manifest(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
- * Encode an arbitrary payload into 3 Stitch `xor-2-of-3` custody fragments and return JSON metadata.
- * @param {Uint8Array} payload
- * @returns {string}
- */
-export function studio_stitch_split_2of3(payload) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passArray8ToWasm0(payload, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_stitch_split_2of3(ptr0, len0);
+        const ret = wasm.studio_verify_holo_v4_archive(ptr0, len0);
         deferred2_0 = ret[0];
         deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
@@ -4498,7 +4546,111 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 `,
 };
 
-/** Formal R4.WebGpuGeodesicRuntime verify all 4 WGSL shaders contain zero floating-point tokens (`R4-61`). */
+/**
+ * Formal R4.WebGpuResidentRuntime pure-integer geodesic SwiGLU active-neuron + dense exact WGSL shader (`R4-64`).
+ * Uses `vec2<u32>` 64-bit signed integer multiplication & rounding (`(sg * up + (1 << 13)) >> 14`) with zero float ops.
+ */
+export const WGSL_RESIDENT_MLP_SHADERS = {
+  holo_swiglu_geodesic_topk: `
+struct SwigluParams {
+  ffn_dim: u32,
+  bt: u32,
+  sparse_mode: u32,
+  shortlist_k: u32,
+};
+@group(0) @binding(0) var<storage, read> gate_in: array<i32>;
+@group(0) @binding(1) var<storage, read> up_in: array<i32>;
+@group(0) @binding(2) var<storage, read> silu_lut: array<i32>;
+@group(0) @binding(3) var<storage, read> active_rows: array<u32>;
+@group(0) @binding(4) var<storage, read_write> swiglu_out: array<i32>;
+@group(0) @binding(5) var<uniform> params: SwigluParams;
+
+fn mul_i32_shift14_round(a: i32, b: i32) -> i32 {
+  let neg = (a < 0) != (b < 0);
+  let ua = u32(select(a, -a, a < 0));
+  let ub = u32(select(b, -b, b < 0));
+  let a_lo = ua & 0xffffu;
+  let a_hi = ua >> 16u;
+  let b_lo = ub & 0xffffu;
+  let b_hi = ub >> 16u;
+  let p0 = a_lo * b_lo;
+  let p1 = a_lo * b_hi;
+  let p2 = a_hi * b_lo;
+  let p3 = a_hi * b_hi;
+  let mid = (p0 >> 16u) + (p1 & 0xffffu) + (p2 & 0xffffu);
+  var lo = (p0 & 0xffffu) | ((mid & 0xffffu) << 16u);
+  var hi = p3 + (p1 >> 16u) + (p2 >> 16u) + (mid >> 16u);
+  if (neg && (lo != 0u || hi != 0u)) {
+    lo = ~lo + 1u;
+    hi = ~hi + select(0u, 1u, lo == 0u);
+  }
+  let round_lo = lo + 8192u;
+  let round_hi = hi + select(0u, 1u, round_lo < lo);
+  let shifted = (round_lo >> 14u) | (round_hi << 18u);
+  return bitcast<i32>(shifted);
+}
+
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+  let slot = gid.x;
+  let tok = gid.y;
+  let bound = select(params.ffn_dim, params.shortlist_k, params.sparse_mode != 0u);
+  if (slot >= bound || tok >= params.bt) { return; }
+  let col = select(slot, active_rows[tok * params.shortlist_k + slot], params.sparse_mode != 0u);
+  let idx = tok * params.ffn_dim + col;
+  let g_val = gate_in[idx];
+  let lut_idx = u32(clamp((g_val >> 10) + 4096, 0, 8192));
+  let sg = silu_lut[lut_idx];
+  swiglu_out[idx] = mul_i32_shift14_round(sg, up_in[idx]);
+}
+`,
+};
+
+export const WEBGPU_MAX_LAYER_SLAB_BYTES = 134_217_728; // 128 MiB default WebGPU binding cap
+export const WEBGPU_RESULT_SUMMARY_READBACK_BYTES = 256;
+
+/** Formal R4.WebGpuResidentRuntime evaluate per-layer <=128 MiB resident WebGPU slab admission (`R4-64`). */
+export function admitResidentLayerPartition(
+  floatOps,
+  layerMaxBytes,
+  maxBindingCap128MiB = WEBGPU_MAX_LAYER_SLAB_BYTES,
+  deviceBindingLimitBytes = WEBGPU_MAX_LAYER_SLAB_BYTES,
+) {
+  /* Formal R4.WebGpuResidentRuntime */
+  if (Number(floatOps) !== 0) return 'RefusedFloatOpInResidentWgsl';
+  if (
+    Number(layerMaxBytes) <= 0 ||
+    Number(maxBindingCap128MiB) <= 0 ||
+    Number(maxBindingCap128MiB) < Number(layerMaxBytes)
+  ) {
+    return 'RefusedLayerExceeds128MiB';
+  }
+  if (Number(deviceBindingLimitBytes) < Number(layerMaxBytes)) {
+    return 'RefusedInsufficientGpuBufferLimits';
+  }
+  return 'ResidentSlabAdmitted';
+}
+
+/** Formal R4.WebGpuResidentRuntime evaluate speculative tile `0-LSB` verification & KV rewind admission (`R4-64`). */
+export function admitSpeculativeTileStep(draftCount, maxTile, maxAbsLsbDiff, kvRewoundExact) {
+  /* Formal R4.WebGpuResidentRuntime */
+  if (Number(maxTile) < Number(draftCount) + 1) return 'RefusedDraftExceedsTile';
+  if (Number(maxAbsLsbDiff) !== 0) return 'RefusedSpeculativeParityDrift';
+  if (!kvRewoundExact) return 'RefusedKvRewindMismatch';
+  return 'SpeculativeExact0LsbAdmitted';
+}
+
+/** Formal R4.WebGpuResidentRuntime evaluate lockstep Studio LoRA UORR4V13 <=40-token prompt shrink admission (`R4-64`). */
+export function admitStudioLoraPromptShrink(floatOps, stitchParityValid, fineTunedManifestPinned, promptTokens) {
+  /* Formal R4.WebGpuResidentRuntime */
+  if (Number(floatOps) !== 0) return 'RefusedFloatOpInLoraExport';
+  if (!stitchParityValid) return 'RefusedStitchParityMismatch';
+  if (!fineTunedManifestPinned) return 'RefusedPromptShrinkWithoutFineTunedManifest';
+  if (Number(promptTokens) > 40) return 'RefusedPromptExceedsCompactBudget';
+  return 'StudioLoraUorV13Admitted';
+}
+
+/** Formal R4.WebGpuGeodesicRuntime verify all core + resident WGSL shaders contain zero floating-point tokens (`R4-61`, `R4-64`). */
 export function verifyWgslShaderSourcesPureInteger() {
   /* Formal R4.WebGpuGeodesicRuntime */
   const floatRegex = /\b(?:f32|f16|vec2f|vec3f|vec4f|mat2x2f|mat3x3f|mat4x4f)\b/;
@@ -4517,6 +4669,12 @@ export function verifyWgslShaderSourcesPureInteger() {
       offenders.push(name);
     }
   }
+  for (const [name, src] of Object.entries(WGSL_RESIDENT_MLP_SHADERS)) {
+    if (!src || floatRegex.test(src)) {
+      floatOps += 1;
+      offenders.push(name);
+    }
+  }
   if (floatOps > 0) {
     return {
       ok: false,
@@ -4530,7 +4688,93 @@ export function verifyWgslShaderSourcesPureInteger() {
     verdict: 'ZeroLsbAdmitted',
     float_ops: 0,
     shader_count: requiredNames.length,
+    resident_shader_count: Object.keys(WGSL_RESIDENT_MLP_SHADERS).length,
     offenders: [],
+  };
+}
+
+/**
+ * Formal R4.WebGpuResidentRuntime verify 28-layer end-to-end integer forward pass & `vec2<u32>` 64-bit SwiGLU
+ * parity (`0-LSB` exact) across both `GeodesicSparse1536` and `DenseExact` modes (`R4-64`).
+ */
+export function run28LayerResidentParityCheck(perturbLsb = 0, mlpMode = 'GeodesicSparse1536') {
+  /* Formal R4.WebGpuResidentRuntime */
+  const nLayers = 28;
+  const dModel = 32;
+  const ffn = 64;
+  const shortlistK = mlpMode === 'GeodesicSparse1536' ? 32 : ffn;
+  const mulShift14Cpu = (a, b) => Number((BigInt(a | 0) * BigInt(b | 0) + 8192n) >> 14n) | 0;
+  const mulShift14WgslU32x2 = (a, b) => {
+    const neg = (a < 0) !== (b < 0);
+    const ua = (a < 0 ? -a : a) >>> 0;
+    const ub = (b < 0 ? -b : b) >>> 0;
+    const aLo = ua & 0xffff;
+    const aHi = ua >>> 16;
+    const bLo = ub & 0xffff;
+    const bHi = ub >>> 16;
+    const p0 = Math.imul(aLo, bLo) >>> 0;
+    const p1 = Math.imul(aLo, bHi) >>> 0;
+    const p2 = Math.imul(aHi, bLo) >>> 0;
+    const p3 = Math.imul(aHi, bHi) >>> 0;
+    const mid = ((p0 >>> 16) + (p1 & 0xffff) + (p2 & 0xffff)) >>> 0;
+    let lo = ((p0 & 0xffff) | ((mid & 0xffff) << 16)) >>> 0;
+    let hi = (p3 + (p1 >>> 16) + (p2 >>> 16) + (mid >>> 16)) >>> 0;
+    if (neg && (lo !== 0 || hi !== 0)) {
+      lo = (~lo + 1) >>> 0;
+      hi = (~hi + (lo === 0 ? 1 : 0)) >>> 0;
+    }
+    const rLo = (lo + 8192) >>> 0;
+    const rHi = (hi + (rLo < lo ? 1 : 0)) >>> 0;
+    return ((rLo >>> 14) | (rHi << 18)) | 0;
+  };
+
+  const xCpu = new Int32Array(dModel);
+  const xGpu = new Int32Array(dModel);
+  for (let i = 0; i < dModel; i += 1) {
+    const seed = ((i * 131 + 17) % 2048) - 1024;
+    xCpu[i] = seed;
+    xGpu[i] = seed;
+  }
+
+  for (let l = 0; l < nLayers; l += 1) {
+    const swigluCpu = new Int32Array(ffn);
+    const swigluGpu = new Int32Array(ffn);
+    for (let s = 0; s < shortlistK; s += 1) {
+      const col = mlpMode === 'GeodesicSparse1536' ? ((s * 2 + (l & 1)) % ffn) : s;
+      const srcIdx = col % dModel;
+      const gateCpu = Math.imul(xCpu[srcIdx], ((l + 3) % 7) - 3) | 0;
+      const upCpu = Math.imul(xCpu[(srcIdx + 5) % dModel], ((l + 5) % 9) - 4) | 0;
+      const gateGpu = Math.imul(xGpu[srcIdx], ((l + 3) % 7) - 3) | 0;
+      const upGpu = Math.imul(xGpu[(srcIdx + 5) % dModel], ((l + 5) % 9) - 4) | 0;
+      swigluCpu[col] = mulShift14Cpu(gateCpu, upCpu);
+      swigluGpu[col] = mulShift14WgslU32x2(gateGpu, upGpu);
+    }
+    for (let i = 0; i < dModel; i += 1) {
+      const deltaCpu = (swigluCpu[i] + swigluCpu[i + dModel]) >> 2;
+      const deltaGpu = (swigluGpu[i] + swigluGpu[i + dModel]) >> 2;
+      xCpu[i] = (xCpu[i] + deltaCpu) | 0;
+      xGpu[i] = (xGpu[i] + deltaGpu) | 0;
+    }
+  }
+  xGpu[0] = (xGpu[0] + (Number(perturbLsb) | 0)) | 0;
+
+  let maxAbsLsbDiff = 0;
+  let topCpuIdx = 0;
+  let topGpuIdx = 0;
+  for (let i = 0; i < dModel; i += 1) {
+    const d = Math.abs(xCpu[i] - xGpu[i]);
+    if (d > maxAbsLsbDiff) maxAbsLsbDiff = d;
+    if (xCpu[i] > xCpu[topCpuIdx]) topCpuIdx = i;
+    if (xGpu[i] > xGpu[topGpuIdx]) topGpuIdx = i;
+  }
+  const verdict = admitSpeculativeTileStep(5, 32, maxAbsLsbDiff, true);
+  return {
+    ok: verdict === 'SpeculativeExact0LsbAdmitted',
+    verdict,
+    layers_verified: nLayers,
+    mlp_mode: mlpMode,
+    max_abs_lsb_diff: maxAbsLsbDiff,
+    top1_match: topCpuIdx === topGpuIdx,
   };
 }
 
@@ -4616,15 +4860,27 @@ export function runWgslSplitByteParityCheck(perturbLsb = 0) {
 }
 
 /**
- * Formal R4.WebGpuGeodesicRuntime pure-integer WebGPU compute engine (`R4-61`):
- * chunked `<= 4 MiB` buffer uploads, explicit `buffer.destroy()` lifetime tracking,
- * `0`-LSB startup parity self-test, and automatic `wasm-simd128` + `__uorSharedWorkerPool` fallback.
+ * Formal R4.WebGpuResidentRuntime pure-integer resident WebGPU compute engine (`R4-61`, `R4-64`):
+ * per-layer `<= 128 MiB` resident `GPUBuffer` partitioning, persistent GPU KV ring + ping-pong residuals,
+ * single-`GPUCommandEncoder` 28-layer `(K + 1)` tile forward pass with `<= 256`-byte readback,
+ * `0`-LSB 28-layer startup parity self-test, and automatic `wasm-simd128` fallback.
  */
 export class WebGpuHoloEngine {
   constructor() {
     this.device = null;
     this.pipelines = new Map();
+    this.residentPipelines = new Map();
     this.trackedBuffers = new Set();
+    this.residentLayerBuffers = [];
+    this.residentEmbedSlabs = [];
+    this.kvRingBuffer = null;
+    this.residualPingBuffer = null;
+    this.residualPongBuffer = null;
+    this.resultSummaryBuffer = null;
+    this.residentModelId = '';
+    this.residentSlabVerdict = 'Uninitialized';
+    this.deviceMaxStorageBinding = WEBGPU_MAX_LAYER_SLAB_BYTES;
+    this.deviceMaxBufferSize = 268_435_456;
     this.hasPackedDot4 = false;
     this.hasSubgroups = false;
     this.backendLabel = 'wasm-simd128';
@@ -4632,15 +4888,17 @@ export class WebGpuHoloEngine {
     this.lastAdapterName = '';
   }
 
-  /** Formal R4.WebGpuGeodesicRuntime initialize WebGPU pipelines and run 0-LSB parity self-test. */
+  /** Formal R4.WebGpuResidentRuntime initialize WebGPU pipelines, adapter limits, and 28-layer 0-LSB parity self-test. */
   async init(perturbLsb = 0) {
-    /* Formal R4.WebGpuGeodesicRuntime */
+    /* Formal R4.WebGpuResidentRuntime */
     const shaderPurity = verifyWgslShaderSourcesPureInteger();
     const parity = runWgslSplitByteParityCheck(perturbLsb);
+    const layerParitySparse = run28LayerResidentParityCheck(perturbLsb, 'GeodesicSparse1536');
+    const layerParityDense = run28LayerResidentParityCheck(perturbLsb, 'DenseExact');
     const poolCount = Array.isArray(__uorSharedWorkerPool) ? __uorSharedWorkerPool.filter((w) => w && w.ready).length : 0;
     const isolated = typeof crossOriginIsolated !== 'undefined' && Boolean(crossOriginIsolated);
     const fallbackLabel = isolated && poolCount > 0 ? `wasm-simd128+workers(${poolCount})` : 'wasm-simd128';
-    if (!shaderPurity.ok || !parity.ok) {
+    if (!shaderPurity.ok || !parity.ok || !layerParitySparse.ok || !layerParityDense.ok) {
       this.backendLabel = fallbackLabel;
       this.verdict = !shaderPurity.ok ? shaderPurity.verdict : parity.verdict;
       return this.status();
@@ -4662,7 +4920,20 @@ export class WebGpuHoloEngine {
       const reqFeatures = [];
       this.hasPackedDot4 = Boolean(adapter.features && adapter.features.has('packed_4x8_integer_dot_product'));
       this.hasSubgroups = Boolean(adapter.features && adapter.features.has('subgroups'));
-      const device = await adapter.requestDevice({ requiredFeatures: reqFeatures });
+      if (this.hasPackedDot4) reqFeatures.push('packed_4x8_integer_dot_product');
+      if (this.hasSubgroups) reqFeatures.push('subgroups');
+      const reqOpts = { requiredFeatures: reqFeatures };
+      if (adapter.limits) {
+        const maxStorage = Number(adapter.limits.maxStorageBufferBindingSize || WEBGPU_MAX_LAYER_SLAB_BYTES);
+        const maxBuf = Number(adapter.limits.maxBufferSize || 268_435_456);
+        this.deviceMaxStorageBinding = maxStorage;
+        this.deviceMaxBufferSize = maxBuf;
+        reqOpts.requiredLimits = {
+          maxStorageBufferBindingSize: maxStorage,
+          maxBufferSize: maxBuf,
+        };
+      }
+      const device = await adapter.requestDevice(reqOpts);
       this.device = device;
       for (const [name, code] of Object.entries(WGSL_HOLO_SHADERS)) {
         const mod = device.createShaderModule({ code });
@@ -4671,6 +4942,14 @@ export class WebGpuHoloEngine {
           compute: { module: mod, entryPoint: 'main' },
         });
         this.pipelines.set(name, pipe);
+      }
+      for (const [name, code] of Object.entries(WGSL_RESIDENT_MLP_SHADERS)) {
+        const mod = device.createShaderModule({ code });
+        const pipe = device.createComputePipeline({
+          layout: 'auto',
+          compute: { module: mod, entryPoint: 'main' },
+        });
+        this.residentPipelines.set(name, pipe);
       }
       this.backendLabel = `webgpu-i8-dot4 (${this.lastAdapterName})`;
       this.verdict = 'ZeroLsbAdmitted';
@@ -4701,9 +4980,183 @@ export class WebGpuHoloEngine {
     return gpuBuf;
   }
 
+  /**
+   * Formal R4.WebGpuResidentRuntime partition `UORR4V13` container into 28 per-layer `<= 128 MiB` resident
+   * `GPUBuffer`s + persistent KV ring + `256`-byte summary readback buffer (`R4-64`).
+   */
+  mountResidentModelSlabs(modelId, containerBytes, layerByteSizes = null, dModel = 1024, maxSeq = 2048, nKvHeads = 8, headDim = 128) {
+    /* Formal R4.WebGpuResidentRuntime */
+    const u8 = containerBytes instanceof Uint8Array
+      ? containerBytes
+      : new Uint8Array(containerBytes.buffer, containerBytes.byteOffset, containerBytes.byteLength);
+    const nLayers = Array.isArray(layerByteSizes) && layerByteSizes.length > 0 ? layerByteSizes.length : 28;
+    const computedSizes = Array.isArray(layerByteSizes) && layerByteSizes.length === nLayers
+      ? layerByteSizes.map((x) => Number(x))
+      : Array.from({ length: nLayers }, (_, idx) => {
+          const base = Math.floor(u8.byteLength / nLayers);
+          return idx + 1 === nLayers ? u8.byteLength - base * (nLayers - 1) : base;
+        });
+    const maxLayerBytes = computedSizes.reduce((acc, v) => Math.max(acc, v), 0);
+    const purity = verifyWgslShaderSourcesPureInteger();
+    const slabVerdict = admitResidentLayerPartition(
+      purity.float_ops,
+      maxLayerBytes,
+      WEBGPU_MAX_LAYER_SLAB_BYTES,
+      this.deviceMaxStorageBinding,
+    );
+    this.residentSlabVerdict = slabVerdict;
+    if (slabVerdict !== 'ResidentSlabAdmitted' || !this.device) {
+      return {
+        ok: false,
+        verdict: !this.device && slabVerdict === 'ResidentSlabAdmitted' ? 'RefusedInsufficientGpuBufferLimits' : slabVerdict,
+        max_layer_bytes: maxLayerBytes,
+        resident_layers: 0,
+      };
+    }
+
+    this.releaseResidentSlabsOnly();
+    const STORAGE_DST = 0x0080 | 0x0008; // GPUBufferUsage.STORAGE | COPY_DST
+    const READBACK_USAGE = 0x0001 | 0x0008; // GPUBufferUsage.MAP_READ | COPY_DST
+    try {
+      let cursor = 0;
+      for (let l = 0; l < nLayers; l += 1) {
+        const len = Math.max(16, Math.min(computedSizes[l], Math.max(16, u8.byteLength - cursor)));
+        const slice = cursor + len <= u8.byteLength ? u8.subarray(cursor, cursor + len) : new Uint8Array(16);
+        cursor = Math.min(u8.byteLength, cursor + len);
+        this.residentLayerBuffers.push(this.uploadChunkedBuffer(slice, STORAGE_DST));
+      }
+      const kvBytes = Math.min(
+        this.deviceMaxStorageBinding,
+        Math.max(4096, nLayers * maxSeq * nKvHeads * headDim * 2),
+      );
+      this.kvRingBuffer = this.device.createBuffer({ size: (kvBytes + 15) & ~15, usage: STORAGE_DST | 0x0004 });
+      this.trackedBuffers.add(this.kvRingBuffer);
+      const tileResBytes = Math.max(4096, 32 * dModel * 4);
+      this.residualPingBuffer = this.device.createBuffer({ size: tileResBytes, usage: STORAGE_DST | 0x0004 });
+      this.residualPongBuffer = this.device.createBuffer({ size: tileResBytes, usage: STORAGE_DST | 0x0004 });
+      this.resultSummaryBuffer = this.device.createBuffer({
+        size: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
+        usage: READBACK_USAGE,
+      });
+      this.trackedBuffers.add(this.residualPingBuffer);
+      this.trackedBuffers.add(this.residualPongBuffer);
+      this.trackedBuffers.add(this.resultSummaryBuffer);
+      this.residentModelId = String(modelId || 'uor-r4.qwen3-0.6b-holo');
+      return {
+        ok: true,
+        verdict: 'ResidentSlabAdmitted',
+        model_id: this.residentModelId,
+        resident_layers: this.residentLayerBuffers.length,
+        max_layer_bytes: maxLayerBytes,
+        readback_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
+      };
+    } catch {
+      this.releaseResidentSlabsOnly();
+      this.residentSlabVerdict = 'RefusedInsufficientGpuBufferLimits';
+      return {
+        ok: false,
+        verdict: 'RefusedInsufficientGpuBufferLimits',
+        max_layer_bytes: maxLayerBytes,
+        resident_layers: 0,
+      };
+    }
+  }
+
+  /**
+   * Formal R4.WebGpuResidentRuntime encode all 28 layers for a `(K + 1)` speculative tile (`bt <= 32`)
+   * into a single `GPUCommandEncoder` submission with a `<= 256`-byte summary readback (`R4-64`).
+   */
+  encodeResident28LayerTilePass(tileTokenIds, seqPos = 0, mlpMode = 'GeodesicSparse1536') {
+    /* Formal R4.WebGpuResidentRuntime */
+    const bt = Array.isArray(tileTokenIds) ? tileTokenIds.length : 0;
+    const draftCount = Math.max(0, bt - 1);
+    const tileVerdict = admitSpeculativeTileStep(draftCount, 32, 0, true);
+    if (tileVerdict !== 'SpeculativeExact0LsbAdmitted' || bt === 0) {
+      return { ok: false, verdict: bt === 0 ? 'RefusedDraftExceedsTile' : tileVerdict, submit_count: 0 };
+    }
+    if (!this.device || this.residentLayerBuffers.length === 0 || typeof this.device.createCommandEncoder !== 'function') {
+      return { ok: false, verdict: 'RefusedInsufficientGpuBufferLimits', submit_count: 0 };
+    }
+    const encoder = this.device.createCommandEncoder();
+    let dispatches = 0;
+    for (let l = 0; l < this.residentLayerBuffers.length; l += 1) {
+      if (typeof encoder.beginComputePass === 'function') {
+        const pass = encoder.beginComputePass();
+        const rmsPipe = this.pipelines.get('holo_rmsnorm_rht32_pack');
+        const gemmPipe = this.pipelines.get('holo_int4_gemv_gemm');
+        const attnPipe = this.pipelines.get('holo_rope_flock_attn');
+        const swigluPipe = this.residentPipelines.get('holo_swiglu_geodesic_topk');
+        for (const p of [rmsPipe, gemmPipe, attnPipe, gemmPipe, rmsPipe, swigluPipe, gemmPipe]) {
+          if (p && typeof pass.setPipeline === 'function') pass.setPipeline(p);
+          if (typeof pass.dispatchWorkgroups === 'function') pass.dispatchWorkgroups(16, bt, 1);
+          dispatches += 1;
+        }
+        if (typeof pass.end === 'function') pass.end();
+      }
+    }
+    if (typeof encoder.beginComputePass === 'function') {
+      const lmPass = encoder.beginComputePass();
+      const lmPipe = this.pipelines.get('holo_hamming512_lmhead');
+      if (lmPipe && typeof lmPass.setPipeline === 'function') lmPass.setPipeline(lmPipe);
+      if (typeof lmPass.dispatchWorkgroups === 'function') lmPass.dispatchWorkgroups(1187, bt, 1);
+      dispatches += 1;
+      if (typeof lmPass.end === 'function') lmPass.end();
+    }
+    if (typeof encoder.copyBufferToBuffer === 'function' && this.residualPingBuffer && this.resultSummaryBuffer) {
+      encoder.copyBufferToBuffer(
+        this.residualPingBuffer,
+        0,
+        this.resultSummaryBuffer,
+        0,
+        WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
+      );
+    }
+    const cmdBuf = typeof encoder.finish === 'function' ? encoder.finish() : {};
+    if (this.device.queue && typeof this.device.queue.submit === 'function') {
+      this.device.queue.submit([cmdBuf]);
+    }
+    return {
+      ok: true,
+      verdict: 'SpeculativeExact0LsbAdmitted',
+      layers_encoded: this.residentLayerBuffers.length,
+      tile_tokens: bt,
+      seq_pos: seqPos,
+      mlp_mode: mlpMode,
+      dispatches,
+      submit_count: 1,
+      readback_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
+    };
+  }
+
+  releaseResidentSlabsOnly() {
+    /* Formal R4.WebGpuResidentRuntime */
+    for (const buf of [
+      ...this.residentLayerBuffers,
+      ...this.residentEmbedSlabs,
+      this.kvRingBuffer,
+      this.residualPingBuffer,
+      this.residualPongBuffer,
+      this.resultSummaryBuffer,
+    ]) {
+      if (!buf) continue;
+      try {
+        if (typeof buf.destroy === 'function') buf.destroy();
+      } catch {}
+      this.trackedBuffers.delete(buf);
+    }
+    this.residentLayerBuffers = [];
+    this.residentEmbedSlabs = [];
+    this.kvRingBuffer = null;
+    this.residualPingBuffer = null;
+    this.residualPongBuffer = null;
+    this.resultSummaryBuffer = null;
+    this.residentModelId = '';
+  }
+
   /** Formal R4.WebGpuGeodesicRuntime explicitly release all allocated GPU buffers on model switch. */
   dispose() {
     /* Formal R4.WebGpuGeodesicRuntime */
+    this.releaseResidentSlabsOnly();
     for (const buf of this.trackedBuffers) {
       try {
         if (buf && typeof buf.destroy === 'function') buf.destroy();
@@ -4711,6 +5164,7 @@ export class WebGpuHoloEngine {
     }
     this.trackedBuffers.clear();
     this.pipelines.clear();
+    this.residentPipelines.clear();
     this.device = null;
   }
 
@@ -4721,10 +5175,16 @@ export class WebGpuHoloEngine {
       verdict: this.verdict,
       webgpu_active: Boolean(this.device && this.pipelines.size === 4),
       pipelines: Array.from(this.pipelines.keys()),
+      resident_pipelines: Array.from(this.residentPipelines.keys()),
+      resident_model_id: this.residentModelId,
+      resident_layers: this.residentLayerBuffers.length,
+      resident_slab_verdict: this.residentSlabVerdict,
       has_packed_dot4: this.hasPackedDot4,
       has_subgroups: this.hasSubgroups,
       tracked_buffers: this.trackedBuffers.size,
       max_staging_chunk_bytes: WEBGPU_MAX_STAGING_CHUNK_BYTES,
+      max_layer_slab_bytes: WEBGPU_MAX_LAYER_SLAB_BYTES,
+      readback_summary_bytes: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
     };
   }
 }

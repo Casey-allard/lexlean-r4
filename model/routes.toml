@@ -106,6 +106,13 @@ prism_record = "Foundation.Arch::MvmLinuxSpiralCoreContainer"
 facet = "arch"
 note = "Single-source MVM /workspace CoW VFS, compressed POSIX/dev userland, multi-TU #include mvm_cc, unprompted CORS-preempting SpiralCore net, and interactive staged Run/Auto-run."
 
+[[route]]
+id = "R4-UR15"
+rust_fact = "webgpu-resident-speculative-lora"
+prism_record = "Foundation.Qual::WebGpuResidentSpeculativeLora"
+facet = "qual"
+note = "True resident <=128 MiB per-layer WebGPU integer serving, 0-LSB HoloTok13 speculative decoding, and fine-tuned UORR4V13 Studio LoRA <=40-token lockstep."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -175,6 +182,11 @@ response = "route R4-UR13\nfact compact-studio-auto-hydration\nrecord Foundation
 case = "route R4-UR14"
 request_hex = "6d766d2d6c696e75782d73706972616c636f72652d636f6e7461696e6572"
 response = "route R4-UR14\nfact mvm-linux-spiralcore-container\nrecord Foundation.Arch::MvmLinuxSpiralCoreContainer\nfacet arch"
+
+[[vector]]
+case = "route R4-UR15"
+request_hex = "7765626770752d7265736964656e742d73706563756c61746976652d6c6f7261"
+response = "route R4-UR15\nfact webgpu-resident-speculative-lora\nrecord Foundation.Qual::WebGpuResidentSpeculativeLora\nfacet qual"
 
 [[vector]]
 case = "error empty"

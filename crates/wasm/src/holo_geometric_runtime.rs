@@ -1305,6 +1305,124 @@ pub enum HoloDownProjMatrix {
     Int8(HoloInt8RhtMatrix),
 }
 
+/// Verified outcome of one `HoloV13Model::step_speculative_tile` pass (`R4-64`).
+#[derive(Clone, Debug)]
+pub struct HoloSpeculativeTileOutcome {
+    /// Accepted token IDs in emission order (`accepted_tokens[0] == accepted_tip`).
+    pub accepted_tokens: Vec<u32>,
+    /// Scored candidate logits at the final accepted position (`None` when `compute_next_logits == false`).
+    pub next_scored: Option<Vec<(u32, i32)>>,
+    /// Number of speculative draft tokens evaluated in this tile (`0..=MAX_PREFILL_TILE-1`).
+    pub draft_proposed: usize,
+    /// Number of speculative draft tokens verified `0-LSB` exact (`accepted_tokens.len() - 1`).
+    pub draft_accepted: usize,
+    /// Starling Flock attended KV positions across accepted tokens.
+    pub flock_attended: usize,
+    /// Starling Flock total KV positions across accepted tokens.
+    pub flock_total: usize,
+    /// Formal `R4.WebGpuResidentRuntime.SpeculativeVerifyVerdict` admission result.
+    pub verdict: crate::lexlean_generated::r4_webgpu_resident_runtime::SpeculativeVerifyVerdict,
+}
+
+/// Zero-table `HoloTok13`-native suffix N-gram + Studio `<tool_call>`/`<prism-write>` grammar drafter (`R4-64`).
+#[derive(Clone, Debug, Default)]
+pub struct HoloTok13SpeculativeDrafter;
+
+impl HoloTok13SpeculativeDrafter {
+    /// Formal R4.WebGpuResidentRuntime propose up to `max_drafts` (`4..=6`) candidate `HoloTok13` token IDs
+    /// grounded in prompt/workspace suffix N-grams and deterministic `<tool_call>` / `<prism-write>` grammar prefixes (`R4-64`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn propose_draft_tokens(
+        tokenizer: &HoloTok13,
+        recent_before_tip: &[u32],
+        raw_stream_before_tip: &[u8],
+        accepted_tip: u32,
+        max_drafts: usize,
+        eos_id: u32,
+        eot_id: u32,
+        think_end_id: u32,
+    ) -> Vec<u32> {
+        let cap = max_drafts.min(6);
+        if cap == 0 {
+            return Vec::new();
+        }
+        let is_stop = |t: u32| t == eos_id || t == eot_id || t == think_end_id;
+        if is_stop(accepted_tip) {
+            return Vec::new();
+        }
+
+        // 1. Suffix N-gram scan (`n = 4, 3, 2`) over the trailing 1024 prompt/workspace/generated tokens.
+        let win_start = recent_before_tip.len().saturating_sub(1024);
+        let win = &recent_before_tip[win_start..];
+        if !win.is_empty() {
+            for ngram_len in [4usize, 3, 2] {
+                let need_prev = ngram_len - 1;
+                if win.len() < need_prev + 2 {
+                    continue;
+                }
+                let tail_prev = &win[win.len() - need_prev..];
+                let search_end = win.len().saturating_sub(1);
+                for idx in (need_prev..search_end).rev() {
+                    if win[idx] == accepted_tip && win[idx - need_prev..idx] == *tail_prev {
+                        let mut out = Vec::with_capacity(cap);
+                        for &cand in win[idx + 1..].iter().take(cap) {
+                            if is_stop(cand) || (cand as usize) >= tokenizer.vocab_size {
+                                break;
+                            }
+                            if let Some(b) = tokenizer.id_to_raw.get(cand as usize) {
+                                if b.windows(12).any(|w| w == b"</tool_call>") {
+                                    out.push(cand);
+                                    break;
+                                }
+                            }
+                            out.push(cand);
+                        }
+                        if !out.is_empty() {
+                            return out;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Deterministic Studio `<tool_call>` / `<prism-write>` grammar trie continuation.
+        let tip_bytes = tokenizer
+            .id_to_raw
+            .get(accepted_tip as usize)
+            .map(Vec::as_slice)
+            .unwrap_or(&[]);
+        let tail_take = raw_stream_before_tip.len().saturating_sub(48);
+        let mut combined_tail =
+            Vec::with_capacity((raw_stream_before_tip.len() - tail_take) + tip_bytes.len());
+        combined_tail.extend_from_slice(&raw_stream_before_tip[tail_take..]);
+        combined_tail.extend_from_slice(tip_bytes);
+        if let Ok(tail_str) = std::str::from_utf8(&combined_tail) {
+            let cont: Option<&str> = if tail_str.ends_with("<tool_call>") {
+                Some("{\"name\":\"")
+            } else if tail_str.ends_with("{\"name\":\"mvm_exec\"") {
+                Some(",\"arguments\":{\"cmd\":\"")
+            } else if tail_str.ends_with("{\"name\":\"workspace_read\"") {
+                Some(",\"arguments\":{\"path\":\"")
+            } else if tail_str.ends_with("{\"name\":\"workspace_search\"") {
+                Some(",\"arguments\":{\"query\":\"")
+            } else if tail_str.ends_with("{\"name\":\"spiralcore_fetch\"") {
+                Some(",\"arguments\":{\"url\":\"https://")
+            } else if tail_str.ends_with("<prism-write") {
+                Some(" path=\"")
+            } else {
+                None
+            };
+            if let Some(suffix) = cont {
+                let mut ids = tokenizer.encode(suffix);
+                ids.retain(|&t| !is_stop(t) && (t as usize) < tokenizer.vocab_size);
+                ids.truncate(cap);
+                return ids;
+            }
+        }
+        Vec::new()
+    }
+}
+
 /// Single `UORR4V13` Qwen3 transformer layer with explicit pre-RoPE `q_norm`/`k_norm` `[128]`.
 #[derive(Clone, Debug)]
 pub struct HoloV13Layer {
@@ -5182,6 +5300,591 @@ impl HoloV13Model {
         (None, flock_attended, flock_total)
     }
 
+    /// Formal R4.WebGpuResidentRuntime compute exact packed byte footprint of resident layer `layer_idx` (`<= 128 MiB`, `R4-64`).
+    pub fn layer_slab_byte_len(&self, layer_idx: usize) -> usize {
+        let Some(layer) = self.layers.get(layer_idx) else {
+            return 0;
+        };
+        let i4_bytes = |m: &HoloInt4RhtMatrix| -> usize {
+            m.rht_signs_packed.len() * 4
+                + m.row_exp.len()
+                + m.group_mult.len() * 2
+                + m.nibbles.len()
+        };
+        let down_bytes = match &layer.down_proj {
+            HoloDownProjMatrix::Int4(m) => i4_bytes(m),
+            HoloDownProjMatrix::Int8(m) => {
+                m.rht_signs_packed.len() * 4
+                    + m.row_exp.len()
+                    + m.group_mult.len() * 2
+                    + m.weights.len()
+            }
+        };
+        let norms = (layer.in_ln_q24.len()
+            + layer.post_ln_q24.len()
+            + layer.q_norm_q24.len()
+            + layer.k_norm_q24.len())
+            * 4;
+        let projs = i4_bytes(&layer.q_proj)
+            + i4_bytes(&layer.k_proj)
+            + i4_bytes(&layer.v_proj)
+            + i4_bytes(&layer.o_proj)
+            + i4_bytes(&layer.gate_proj)
+            + i4_bytes(&layer.up_proj)
+            + down_bytes;
+        let sigs = layer.gate_row_sigs_256.len() * MLP_SIG_WORDS * 8;
+        (norms + projs + sigs + 15) & !15
+    }
+
+    /// Formal R4.WebGpuResidentRuntime export resident per-layer (`<= 128 MiB`) WebGPU storage buffer partition metadata (`R4-64`).
+    pub fn export_resident_layer_slabs_meta(
+        &self,
+        device_binding_limit_bytes: u64,
+        float_ops: u64,
+    ) -> serde_json::Value {
+        const MAX_BINDING_CAP_128_MIB: u64 = 134_217_728;
+        let mut layer_bytes = Vec::with_capacity(self.n_layers);
+        let mut max_layer_bytes = 0u64;
+        let mut total_layer_bytes = 0u64;
+        for l in 0..self.n_layers {
+            let sz = self.layer_slab_byte_len(l) as u64;
+            max_layer_bytes = max_layer_bytes.max(sz);
+            total_layer_bytes = total_layer_bytes.saturating_add(sz);
+            layer_bytes.push(sz);
+        }
+        let embed_row_bytes = self.embed.cols + (self.embed.cols / 32) * 2 + 1;
+        let rows_per_embed_slab = ((67_108_864usize) / embed_row_bytes.max(1)).max(256);
+        let embed_slab_count = self.vocab_size.div_ceil(rows_per_embed_slab);
+        let verdict =
+            crate::lexlean_generated::r4_webgpu_resident_runtime::admit_resident_layer_partition(
+                float_ops,
+                max_layer_bytes,
+                MAX_BINDING_CAP_128_MIB,
+                device_binding_limit_bytes,
+            );
+        let admitted = verdict
+            == crate::lexlean_generated::r4_webgpu_resident_runtime::ResidentSlabVerdict::ResidentSlabAdmitted;
+        serde_json::json!({
+            "schema": "uor-r4.webgpu-resident-slabs/1",
+            "model_id": self.model_id,
+            "container_sha256": self.container_sha256,
+            "admitted": admitted,
+            "verdict": format!("{verdict:?}"),
+            "n_layers": self.n_layers,
+            "d_model": self.d_model,
+            "intermediate_size": self.intermediate_size,
+            "vocab_size": self.vocab_size,
+            "max_binding_cap_bytes": MAX_BINDING_CAP_128_MIB,
+            "device_binding_limit_bytes": device_binding_limit_bytes,
+            "max_layer_bytes": max_layer_bytes,
+            "total_layer_bytes": total_layer_bytes,
+            "layer_bytes": layer_bytes,
+            "embed_slab_count": embed_slab_count,
+            "rows_per_embed_slab": rows_per_embed_slab,
+            "float_ops": float_ops,
+        })
+    }
+
+    /// Formal R4.WebGpuResidentRuntime verify `[accepted_tip, drafts..]` in one batched `(K + 1)` tile pass,
+    /// accepting the longest `0-LSB` prefix matching `pick_next_holo_token` and rewinding KV cleanly (`R4-64`).
+    pub fn step_speculative_tile(
+        &mut self,
+        accepted_tip: u32,
+        drafts: &[u32],
+        recent_before_tip: &[u32],
+        generated_before_tip: &[u32],
+        compute_next_logits: bool,
+        use_shortlist: bool,
+    ) -> HoloSpeculativeTileOutcome {
+        let kv_base = self.kv_cache.tokens.len();
+        let max_room = self.max_seq.saturating_sub(kv_base);
+        let capped_drafts_len = drafts
+            .len()
+            .min(MAX_PREFILL_TILE.saturating_sub(1))
+            .min(max_room.saturating_sub(1));
+        if capped_drafts_len == 0 || !compute_next_logits {
+            let mut rec = Vec::with_capacity(recent_before_tip.len() + 1);
+            rec.extend_from_slice(recent_before_tip);
+            rec.push(accepted_tip);
+            let (sc_opt, fa, ft) =
+                self.step_token(accepted_tip, &rec, compute_next_logits, use_shortlist);
+            let verdict =
+                crate::lexlean_generated::r4_webgpu_resident_runtime::admit_speculative_tile_step(
+                    0,
+                    MAX_PREFILL_TILE as u64,
+                    0,
+                    self.kv_cache.tokens.len() == kv_base + 1,
+                );
+            return HoloSpeculativeTileOutcome {
+                accepted_tokens: vec![accepted_tip],
+                next_scored: sc_opt,
+                draft_proposed: drafts.len(),
+                draft_accepted: 0,
+                flock_attended: fa,
+                flock_total: ft,
+                verdict,
+            };
+        }
+
+        let bt = 1 + capped_drafts_len;
+        let mut tile_tokens = [0u32; MAX_PREFILL_TILE];
+        tile_tokens[0] = accepted_tip;
+        tile_tokens[1..bt].copy_from_slice(&drafts[..capped_drafts_len]);
+
+        let d = self.d_model;
+        let nh = self.n_heads;
+        let nkv = self.n_kv_heads;
+        let hd = self.head_dim;
+        let q_dim = nh * hd;
+        let kv_dim = nkv * hd;
+        let ffn = self.intermediate_size;
+        let half = hd / 2;
+        let vocab_size = self.vocab_size;
+        let n_layers = self.n_layers;
+        let flock_window = self.flock_window;
+        let rms_eps_q48 = self.rms_eps_q48;
+        let score_scale_q30 = self.score_scale_q30;
+        let use_sparse_mlp = self.active_mlp_mode() == MlpShortlistMode::GeodesicSparse1536
+            && self.mlp_shortlist_k < ffn;
+        let mlp_k = self.mlp_shortlist_k.min(ffn);
+
+        self.scratch
+            .ensure_sized(d, q_dim, kv_dim, ffn, hd, n_layers, vocab_size);
+        self.scratch
+            .prefill_tile
+            .ensure_sized(d, q_dim, kv_dim, ffn);
+
+        let mut per_slot_fa = [0usize; MAX_PREFILL_TILE];
+        let mut per_slot_ft = [0usize; MAX_PREFILL_TILE];
+        let mut per_slot_mag = vec![vec![0u16; n_layers]; bt];
+        let mut per_slot_bits = vec![vec![0u8; n_layers]; bt];
+
+        {
+            let s = &mut self.scratch;
+            s.last_attn_peaks.clear();
+            for (b, &tok) in tile_tokens[..bt].iter().enumerate() {
+                dequant_embed_row_into(
+                    &self.embed,
+                    (tok as usize).min(vocab_size - 1),
+                    &mut s.wide_i64,
+                    &mut s.prefill_tile.x_b[b * d..(b + 1) * d],
+                );
+            }
+
+            let mut x_exps = [0i32; MAX_PREFILL_TILE];
+            for l in 0..n_layers {
+                let layer = &self.layers[l];
+                for b in 0..bt {
+                    int_rms_norm_gain(
+                        &s.prefill_tile.x_b[b * d..(b + 1) * d],
+                        &layer.in_ln_q24,
+                        rms_eps_q48,
+                        RESIDUAL_EXP,
+                        NORM_EXP,
+                        &mut s.prefill_tile.norm_b[b * d..(b + 1) * d],
+                    );
+                }
+                prescale_norm_batch_to_i32(
+                    &s.prefill_tile.norm_b,
+                    bt,
+                    d,
+                    &mut s.prefill_tile.prescaled_b,
+                    &mut s.prefill_tile.pre_sh_b,
+                );
+                prepare_rht_act16_from_prescaled_batch(
+                    &s.prefill_tile.prescaled_b,
+                    &s.prefill_tile.pre_sh_b,
+                    bt,
+                    d,
+                    NORM_EXP,
+                    &layer.q_proj.rht_signs_packed,
+                    &mut s.rht_i32,
+                    &mut s.prefill_tile.act16_tmp,
+                    &mut s.prefill_tile.act16_interleaved,
+                    &mut x_exps,
+                );
+                let mut cur_qkv_seed = layer.q_proj.rht_seed;
+                gemm_i4_rht_prepared_batch(
+                    &layer.q_proj,
+                    bt,
+                    RESIDUAL_EXP,
+                    &s.prefill_tile.act16_interleaved,
+                    &x_exps,
+                    &mut s.prefill_tile.q_b,
+                );
+                if layer.k_proj.rht_seed != cur_qkv_seed {
+                    prepare_rht_act16_from_prescaled_batch(
+                        &s.prefill_tile.prescaled_b,
+                        &s.prefill_tile.pre_sh_b,
+                        bt,
+                        d,
+                        NORM_EXP,
+                        &layer.k_proj.rht_signs_packed,
+                        &mut s.rht_i32,
+                        &mut s.prefill_tile.act16_tmp,
+                        &mut s.prefill_tile.act16_interleaved,
+                        &mut x_exps,
+                    );
+                    cur_qkv_seed = layer.k_proj.rht_seed;
+                }
+                gemm_i4_rht_prepared_batch(
+                    &layer.k_proj,
+                    bt,
+                    RESIDUAL_EXP,
+                    &s.prefill_tile.act16_interleaved,
+                    &x_exps,
+                    &mut s.prefill_tile.k_b,
+                );
+                if layer.v_proj.rht_seed != cur_qkv_seed {
+                    prepare_rht_act16_from_prescaled_batch(
+                        &s.prefill_tile.prescaled_b,
+                        &s.prefill_tile.pre_sh_b,
+                        bt,
+                        d,
+                        NORM_EXP,
+                        &layer.v_proj.rht_signs_packed,
+                        &mut s.rht_i32,
+                        &mut s.prefill_tile.act16_tmp,
+                        &mut s.prefill_tile.act16_interleaved,
+                        &mut x_exps,
+                    );
+                }
+                gemm_i4_rht_prepared_batch(
+                    &layer.v_proj,
+                    bt,
+                    RESIDUAL_EXP,
+                    &s.prefill_tile.act16_interleaved,
+                    &x_exps,
+                    &mut s.prefill_tile.v_b,
+                );
+
+                for b in 0..bt {
+                    let pos = (kv_base + b).min(self.max_seq.saturating_sub(1));
+                    let cos_row = &self.rope_cos_q14[pos * half..(pos + 1) * half];
+                    let sin_row = &self.rope_sin_q14[pos * half..(pos + 1) * half];
+                    let span_slot = if b == 0 {
+                        Some(&mut s.layer_flock_spans[l])
+                    } else {
+                        None
+                    };
+                    let peaks_out = if b == 0 && l + 1 == n_layers {
+                        Some(&mut s.last_attn_peaks)
+                    } else {
+                        None
+                    };
+                    let (fa, ft) = attend_token_layer(
+                        layer,
+                        &mut self.kv_cache,
+                        l,
+                        nh,
+                        nkv,
+                        hd,
+                        flock_window,
+                        rms_eps_q48,
+                        score_scale_q30,
+                        cos_row,
+                        sin_row,
+                        &self.exp_table,
+                        &mut s.prefill_tile.q_b[b * q_dim..(b + 1) * q_dim],
+                        &mut s.prefill_tile.k_b[b * kv_dim..(b + 1) * kv_dim],
+                        &s.prefill_tile.v_b[b * kv_dim..(b + 1) * kv_dim],
+                        &mut s.prefill_tile.attn_b[b * q_dim..(b + 1) * q_dim],
+                        &mut s.attn_work,
+                        span_slot,
+                        peaks_out,
+                    );
+                    per_slot_fa[b] += fa;
+                    per_slot_ft[b] += ft;
+                }
+
+                gemm_i4_rht_batch(
+                    &layer.o_proj,
+                    &s.prefill_tile.attn_b,
+                    bt,
+                    RESIDUAL_EXP,
+                    RESIDUAL_EXP,
+                    &mut s.rht_i32,
+                    &mut s.prefill_tile.act16_tmp,
+                    &mut s.prefill_tile.act16_interleaved,
+                    &mut s.prefill_tile.proj_b,
+                );
+                for b in 0..bt {
+                    let off = b * d;
+                    for i in 0..d {
+                        s.prefill_tile.x_b[off + i] = s.prefill_tile.x_b[off + i]
+                            .saturating_add(s.prefill_tile.proj_b[off + i]);
+                    }
+                    int_rms_norm_gain(
+                        &s.prefill_tile.x_b[off..off + d],
+                        &layer.post_ln_q24,
+                        rms_eps_q48,
+                        RESIDUAL_EXP,
+                        NORM_EXP,
+                        &mut s.prefill_tile.norm_b[off..off + d],
+                    );
+                }
+
+                prescale_norm_batch_to_i32(
+                    &s.prefill_tile.norm_b,
+                    bt,
+                    d,
+                    &mut s.prefill_tile.prescaled_b,
+                    &mut s.prefill_tile.pre_sh_b,
+                );
+                if use_sparse_mlp {
+                    for b in 0..bt {
+                        let off_d = b * d;
+                        let off_f = b * ffn;
+                        let x_exp_gate = prepare_rht_act16_from_prescaled(
+                            &s.prefill_tile.prescaled_b[off_d..off_d + d],
+                            s.prefill_tile.pre_sh_b[b],
+                            NORM_EXP,
+                            &layer.gate_proj.rht_signs_packed,
+                            &mut s.rht_i32,
+                            &mut s.prefill_tile.act16_tmp[..d],
+                        );
+                        let q_sig256 = extract_rht256_sig_from_rht(&s.rht_i32[..d]);
+                        select_mlp_shortlist_into(
+                            ffn,
+                            mlp_k,
+                            q_sig256,
+                            &layer.gate_row_sigs_256,
+                            &mut s.mlp_hamming_dists,
+                            &mut s.mlp_hamming_hist,
+                            &mut s.mlp_shortlist_out,
+                        );
+                        gemv_i4_rht_subset_from_act16(
+                            &layer.gate_proj,
+                            &s.mlp_shortlist_out,
+                            &s.prefill_tile.act16_tmp[..d],
+                            x_exp_gate,
+                            RESIDUAL_EXP,
+                            &mut s.prefill_tile.gate_b[off_f..off_f + ffn],
+                        );
+                        let x_exp_up = if layer.up_proj.rht_seed == layer.gate_proj.rht_seed {
+                            x_exp_gate
+                        } else {
+                            prepare_rht_act16_from_prescaled(
+                                &s.prefill_tile.prescaled_b[off_d..off_d + d],
+                                s.prefill_tile.pre_sh_b[b],
+                                NORM_EXP,
+                                &layer.up_proj.rht_signs_packed,
+                                &mut s.rht_i32,
+                                &mut s.prefill_tile.act16_tmp[..d],
+                            )
+                        };
+                        gemv_i4_rht_subset_from_act16(
+                            &layer.up_proj,
+                            &s.mlp_shortlist_out,
+                            &s.prefill_tile.act16_tmp[..d],
+                            x_exp_up,
+                            RESIDUAL_EXP,
+                            &mut s.prefill_tile.up_b[off_f..off_f + ffn],
+                        );
+                        s.prefill_tile.swiglu_b[off_f..off_f + ffn].fill(0);
+                        for &row_u32 in &s.mlp_shortlist_out {
+                            let i = row_u32 as usize;
+                            let sg = silu_i32_with_table(
+                                &self.silu_table,
+                                s.prefill_tile.gate_b[off_f + i],
+                            );
+                            s.prefill_tile.swiglu_b[off_f + i] = (i64::from(sg)
+                                * i64::from(s.prefill_tile.up_b[off_f + i])
+                                + (1 << 13))
+                                >> 14;
+                        }
+                        s.active_mlp_neurons_last = s.mlp_shortlist_out.len();
+                    }
+                } else {
+                    prepare_rht_act16_from_prescaled_batch(
+                        &s.prefill_tile.prescaled_b,
+                        &s.prefill_tile.pre_sh_b,
+                        bt,
+                        d,
+                        NORM_EXP,
+                        &layer.gate_proj.rht_signs_packed,
+                        &mut s.rht_i32,
+                        &mut s.prefill_tile.act16_tmp,
+                        &mut s.prefill_tile.act16_interleaved,
+                        &mut x_exps,
+                    );
+                    gemm_i4_rht_prepared_batch(
+                        &layer.gate_proj,
+                        bt,
+                        RESIDUAL_EXP,
+                        &s.prefill_tile.act16_interleaved,
+                        &x_exps,
+                        &mut s.prefill_tile.gate_b,
+                    );
+                    if layer.up_proj.rht_seed != layer.gate_proj.rht_seed {
+                        prepare_rht_act16_from_prescaled_batch(
+                            &s.prefill_tile.prescaled_b,
+                            &s.prefill_tile.pre_sh_b,
+                            bt,
+                            d,
+                            NORM_EXP,
+                            &layer.up_proj.rht_signs_packed,
+                            &mut s.rht_i32,
+                            &mut s.prefill_tile.act16_tmp,
+                            &mut s.prefill_tile.act16_interleaved,
+                            &mut x_exps,
+                        );
+                    }
+                    gemm_i4_rht_prepared_batch(
+                        &layer.up_proj,
+                        bt,
+                        RESIDUAL_EXP,
+                        &s.prefill_tile.act16_interleaved,
+                        &x_exps,
+                        &mut s.prefill_tile.up_b,
+                    );
+                    for b in 0..bt {
+                        let off = b * ffn;
+                        for i in 0..ffn {
+                            let sg = silu_i32_with_table(
+                                &self.silu_table,
+                                s.prefill_tile.gate_b[off + i],
+                            );
+                            s.prefill_tile.swiglu_b[off + i] = (i64::from(sg)
+                                * i64::from(s.prefill_tile.up_b[off + i])
+                                + (1 << 13))
+                                >> 14;
+                        }
+                    }
+                    s.active_mlp_neurons_last = ffn;
+                }
+
+                match &layer.down_proj {
+                    HoloDownProjMatrix::Int4(m) => {
+                        gemm_i4_rht_batch(
+                            m,
+                            &s.prefill_tile.swiglu_b,
+                            bt,
+                            -20,
+                            RESIDUAL_EXP,
+                            &mut s.rht_i32,
+                            &mut s.prefill_tile.act16_tmp,
+                            &mut s.prefill_tile.act16_interleaved,
+                            &mut s.prefill_tile.proj_b,
+                        );
+                    }
+                    HoloDownProjMatrix::Int8(m) => {
+                        gemm_i8_rht_batch(
+                            m,
+                            &s.prefill_tile.swiglu_b,
+                            bt,
+                            -20,
+                            RESIDUAL_EXP,
+                            &mut s.rht_i32,
+                            &mut s.prefill_tile.act16_tmp,
+                            &mut s.prefill_tile.act16_interleaved,
+                            &mut s.prefill_tile.proj_b,
+                        );
+                    }
+                }
+
+                for b in 0..bt {
+                    let off = b * d;
+                    let mut sum_abs = 0u64;
+                    let mut max_abs_x = 0u32;
+                    for i in 0..d {
+                        let nv = s.prefill_tile.x_b[off + i]
+                            .saturating_add(s.prefill_tile.proj_b[off + i]);
+                        s.prefill_tile.x_b[off + i] = nv;
+                        let a = nv.unsigned_abs();
+                        sum_abs = sum_abs.wrapping_add(u64::from(a));
+                        max_abs_x = max_abs_x.max(a);
+                    }
+                    let mean_scaled = (sum_abs / d.max(1) as u64) >> 10;
+                    per_slot_mag[b][l] = mean_scaled.min(u64::from(u16::MAX)) as u16;
+                    per_slot_bits[b][l] = (32 - max_abs_x.leading_zeros()) as u8;
+                }
+            }
+        }
+
+        self.kv_cache.tokens.extend_from_slice(&tile_tokens[..bt]);
+
+        let mut running_recent = Vec::with_capacity(recent_before_tip.len() + bt);
+        running_recent.extend_from_slice(recent_before_tip);
+        let mut running_gen = Vec::with_capacity(generated_before_tip.len() + bt);
+        running_gen.extend_from_slice(generated_before_tip);
+        let mut accepted_tokens = Vec::with_capacity(bt);
+        let mut accepted_slot = 0usize;
+        let mut final_scored = Vec::new();
+        let mut total_fa = 0usize;
+        let mut total_ft = 0usize;
+
+        for b in 0..bt {
+            let cur_tok = tile_tokens[b];
+            running_recent.push(cur_tok);
+            running_gen.push(cur_tok);
+            accepted_tokens.push(cur_tok);
+            accepted_slot = b;
+            total_fa += per_slot_fa[b];
+            total_ft += per_slot_ft[b];
+
+            let off = b * d;
+            self.scratch
+                .x
+                .copy_from_slice(&self.scratch.prefill_tile.x_b[off..off + d]);
+            let scored_b = self.score_final_hidden_logits(&running_recent, use_shortlist);
+            final_scored = scored_b;
+
+            if b + 1 >= bt {
+                break;
+            }
+            let pred_next = pick_next_holo_token(
+                &final_scored,
+                &running_gen,
+                self.eos_token_id,
+                self.eot_token_id,
+                &self.tokenizer,
+            );
+            if pred_next == self.eos_token_id
+                || pred_next == self.eot_token_id
+                || pred_next != tile_tokens[b + 1]
+            {
+                break;
+            }
+        }
+
+        self.scratch
+            .layer_residual_mag
+            .copy_from_slice(&per_slot_mag[accepted_slot]);
+        self.scratch
+            .layer_max_bits
+            .copy_from_slice(&per_slot_bits[accepted_slot]);
+
+        let target_kv_len = kv_base + accepted_tokens.len();
+        if self.kv_cache.tokens.len() > target_kv_len {
+            self.kv_cache
+                .truncate_to(target_kv_len, self.n_kv_heads, self.head_dim);
+        }
+        let kv_exact = self.kv_cache.tokens.len() == target_kv_len
+            && self
+                .kv_cache
+                .seq_len
+                .iter()
+                .all(|&len| len == target_kv_len);
+        let verdict =
+            crate::lexlean_generated::r4_webgpu_resident_runtime::admit_speculative_tile_step(
+                capped_drafts_len as u64,
+                MAX_PREFILL_TILE as u64,
+                0,
+                kv_exact,
+            );
+
+        HoloSpeculativeTileOutcome {
+            draft_accepted: accepted_tokens.len().saturating_sub(1),
+            accepted_tokens,
+            next_scored: Some(final_scored),
+            draft_proposed: capped_drafts_len,
+            flock_attended: total_fa,
+            flock_total: total_ft,
+            verdict,
+        }
+    }
+
     /// Formal R4.HoloGeometricRuntime pre-populate `HoloPrefixKvCache` at mount time with the default
     /// ChatML system prefix so Turn 1 skips system-prompt prefill latency completely.
     pub fn prewarm_system_prefix(&mut self, system_prompt: &str) {
@@ -7613,5 +8316,162 @@ pub(crate) mod tests {
             model_restored.intermediate_size
         );
         assert_eq!(restored_logits, dense_logits);
+    }
+
+    #[test]
+    fn speculative_tile_matches_sequential_step_token_0_lsb_and_rewinds_kv_exact() {
+        use crate::lexlean_generated::r4_webgpu_resident_runtime::SpeculativeVerifyVerdict;
+
+        for force_sparse in [false, true] {
+            let mut model_seq = build_synthetic_test_model();
+            if force_sparse {
+                let half_ffn = model_seq.intermediate_size / 2;
+                model_seq.set_mlp_policy(MlpUserPolicy::ForceGeodesicSparse, half_ffn);
+            }
+            let mut model_spec = model_seq.clone();
+
+            let prompt = [11u32, 22, 33, 44, 11, 22, 33, 44];
+            let (Some(mut seq_scored), _, _) =
+                model_seq.prefill_tokens_tiled(&prompt, &prompt, true, true)
+            else {
+                panic!("expected prefill logits");
+            };
+            let (Some(mut spec_scored), _, _) =
+                model_spec.prefill_tokens_tiled(&prompt, &prompt, true, true)
+            else {
+                panic!("expected prefill logits");
+            };
+
+            // Compute 10 ground-truth autoregressive tokens via sequential `step_token`.
+            let mut seq_recent = prompt.to_vec();
+            let mut seq_gen = Vec::new();
+            for step in 0..10 {
+                let chosen = pick_next_holo_token(
+                    &seq_scored,
+                    &seq_gen,
+                    model_seq.eos_token_id,
+                    model_seq.eot_token_id,
+                    &model_seq.tokenizer,
+                );
+                seq_gen.push(chosen);
+                seq_recent.push(chosen);
+                if step + 1 < 10 {
+                    let (Some(ns), _, _) = model_seq.step_token(chosen, &seq_recent, true, true)
+                    else {
+                        panic!("expected step logits");
+                    };
+                    seq_scored = ns;
+                } else {
+                    model_seq.step_token(chosen, &seq_recent, false, true);
+                }
+            }
+
+            // Now decode those exact 10 tokens with `step_speculative_tile`, intentionally mixing:
+            // - partial match + mismatch (requiring KV rewind),
+            // - full 4-draft exact match,
+            // - 0-match immediate miss (requiring 5-slot KV rewind).
+            let mut spec_recent = prompt.to_vec();
+            let mut spec_gen = Vec::new();
+            let mut cursor = 0usize;
+            while spec_gen.len() < 10 {
+                let chosen_tip = pick_next_holo_token(
+                    &spec_scored,
+                    &spec_gen,
+                    model_spec.eos_token_id,
+                    model_spec.eot_token_id,
+                    &model_spec.tokenizer,
+                );
+                let rem = 10 - (spec_gen.len() + 1);
+                if rem == 0 {
+                    spec_gen.push(chosen_tip);
+                    spec_recent.push(chosen_tip);
+                    model_spec.step_token(chosen_tip, &spec_recent, false, true);
+                    break;
+                }
+                let drafts: Vec<u32> = match cursor % 3 {
+                    0 => {
+                        // 2 exact ground-truth drafts followed by 2 wrong drafts -> must accept 2 and rewind 2!
+                        let mut d = Vec::new();
+                        for k in 1..=rem.min(2) {
+                            d.push(seq_gen[spec_gen.len() + k]);
+                        }
+                        d.push(250);
+                        d.push(251);
+                        d.truncate(rem);
+                        d
+                    }
+                    1 => {
+                        // Full exact hit up to 4 tokens!
+                        (1..=rem.min(4))
+                            .map(|k| seq_gen[spec_gen.len() + k])
+                            .collect()
+                    }
+                    _ => {
+                        // Immediate miss -> must accept 0 drafts (only tip) and rewind all drafts!
+                        let wrong = (seq_gen[spec_gen.len() + 1] + 17) % 200;
+                        vec![wrong; rem.min(4)]
+                    }
+                };
+                let outcome = model_spec.step_speculative_tile(
+                    chosen_tip,
+                    &drafts,
+                    &spec_recent,
+                    &spec_gen,
+                    true,
+                    true,
+                );
+                assert_eq!(
+                    outcome.verdict,
+                    SpeculativeVerifyVerdict::SpeculativeExact0LsbAdmitted
+                );
+                for &acc in &outcome.accepted_tokens {
+                    spec_gen.push(acc);
+                    spec_recent.push(acc);
+                }
+                spec_scored = outcome.next_scored.expect("next_scored present");
+                cursor += 1;
+            }
+
+            assert_eq!(spec_gen, seq_gen);
+            assert_eq!(model_spec.kv_cache.tokens, model_seq.kv_cache.tokens);
+            assert_eq!(model_spec.kv_cache.k_i16, model_seq.kv_cache.k_i16);
+            assert_eq!(model_spec.kv_cache.v_i16, model_seq.kv_cache.v_i16);
+            assert_eq!(model_spec.kv_cache.k_sig128, model_seq.kv_cache.k_sig128);
+            assert_eq!(spec_scored, seq_scored);
+        }
+    }
+
+    #[test]
+    fn resident_layer_slab_partition_admits_sub_128mib_and_drafter_proposes_ngrams() {
+        let model = build_synthetic_test_model();
+        let ok_meta = model.export_resident_layer_slabs_meta(134_217_728, 0);
+        assert_eq!(ok_meta["admitted"], true);
+        assert_eq!(ok_meta["verdict"], "ResidentSlabAdmitted");
+        assert!(ok_meta["max_layer_bytes"].as_u64().unwrap_or(0) > 0);
+        assert!(ok_meta["max_layer_bytes"].as_u64().unwrap() <= 134_217_728);
+
+        let low_limit_meta = model.export_resident_layer_slabs_meta(64, 0);
+        assert_eq!(low_limit_meta["admitted"], false);
+        assert_eq!(
+            low_limit_meta["verdict"],
+            "RefusedInsufficientGpuBufferLimits"
+        );
+
+        let float_meta = model.export_resident_layer_slabs_meta(134_217_728, 1);
+        assert_eq!(float_meta["admitted"], false);
+        assert_eq!(float_meta["verdict"], "RefusedFloatOpInResidentWgsl");
+
+        let recent = [10u32, 20, 30, 40, 50, 60, 10, 20, 30];
+        let drafts = HoloTok13SpeculativeDrafter::propose_draft_tokens(
+            &model.tokenizer,
+            &recent,
+            b"",
+            40,
+            4,
+            model.eos_token_id,
+            model.eot_token_id,
+            model.think_end_id,
+        );
+        assert_eq!(drafts, vec![50, 60, 10, 20]);
     }
 }

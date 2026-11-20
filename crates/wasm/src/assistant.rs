@@ -6056,6 +6056,10 @@ pub struct FoundryTurnSession {
     pub native_q31_checksum: u64,
     /// Input token count for `native-q31-d85`.
     pub native_q31_prompt_tokens: usize,
+    /// Total speculative draft tokens proposed across `HoloTok13` tiles in this turn (`R4-64`).
+    pub speculative_draft_proposed: usize,
+    /// Total speculative draft tokens verified `0-LSB` exact in this turn (`R4-64`).
+    pub speculative_draft_accepted: usize,
 }
 
 /// Formal R4.HoloGeometricRuntime escape XML attribute delimiter characters deterministically.
@@ -7375,7 +7379,10 @@ impl StudioEngine {
         };
         let live_hud = req.live_hud;
         let slice_tokens = match req.slice_tokens {
-            Some(n) => n.clamp(1, FOUNDRY_SLICE_TOKENS),
+            Some(n) => {
+                let cap = if live_hud { FOUNDRY_SLICE_TOKENS } else { 6 };
+                n.clamp(1, cap)
+            }
             None => {
                 if live_hud {
                     2
@@ -7487,6 +7494,8 @@ impl StudioEngine {
                 native_q31_start_len: prompt_toks,
                 native_q31_checksum: 0,
                 native_q31_prompt_tokens: prompt_toks,
+                speculative_draft_proposed: 0,
+                speculative_draft_accepted: 0,
             });
             return serde_json::json!({
                 "status": "ready",
@@ -7611,6 +7620,8 @@ impl StudioEngine {
             native_q31_start_len: 0,
             native_q31_checksum: 0,
             native_q31_prompt_tokens: 0,
+            speculative_draft_proposed: 0,
+            speculative_draft_accepted: 0,
         });
 
         serde_json::json!({
@@ -7845,7 +7856,8 @@ impl StudioEngine {
             .min(session.observatory_frames.len());
         let mut slice_frames = session.observatory_frames[frame_start..].to_vec();
 
-        for _ in 0..session.slice_tokens {
+        let mut slice_emitted = 0usize;
+        while slice_emitted < session.slice_tokens {
             if session.tokens_emitted >= session.max_new_tokens
                 || model.kv_cache.tokens.len() >= model.max_seq
             {
@@ -7891,9 +7903,14 @@ impl StudioEngine {
                 break;
             }
 
+            let pre_tip_recent_len = session.recent_tokens.len();
+            let pre_tip_gen_len = session.generated_ids.len();
+            let pre_tip_raw_len = session.raw_stream.len();
+
             session.generated_ids.push(chosen_id);
             session.recent_tokens.push(chosen_id);
             session.tokens_emitted += 1;
+            slice_emitted += 1;
             if !session.ttft_recorded {
                 let elapsed = crate::api::host_monotonic_ms().saturating_sub(session.started_ms);
                 session.ttft_ms = elapsed.min(u64::from(u32::MAX)) as u32;
@@ -7968,6 +7985,140 @@ impl StudioEngine {
 
             let need_logits = session.tokens_emitted < session.max_new_tokens
                 && model.kv_cache.tokens.len() + 1 < model.max_seq;
+            let rem_slice = session.slice_tokens.saturating_sub(slice_emitted);
+            let rem_turn = session
+                .max_new_tokens
+                .saturating_sub(session.tokens_emitted);
+            let draft_budget = if !session.live_hud && need_logits {
+                rem_slice.min(rem_turn).min(5)
+            } else {
+                0
+            };
+            let drafts = if draft_budget > 0 {
+                crate::holo_geometric_runtime::HoloTok13SpeculativeDrafter::propose_draft_tokens(
+                    &model.tokenizer,
+                    &session.recent_tokens[..pre_tip_recent_len],
+                    &session.raw_stream[..pre_tip_raw_len],
+                    chosen_id,
+                    draft_budget,
+                    model.eos_token_id,
+                    model.eot_token_id,
+                    model.think_end_id,
+                )
+            } else {
+                Vec::new()
+            };
+
+            if !drafts.is_empty() {
+                let kv_before_tile = model.kv_cache.tokens.len();
+                let outcome = model.step_speculative_tile(
+                    chosen_id,
+                    &drafts,
+                    &session.recent_tokens[..pre_tip_recent_len],
+                    &session.generated_ids[..pre_tip_gen_len],
+                    true,
+                    true,
+                );
+                session.speculative_draft_proposed += outcome.draft_proposed;
+                session.speculative_draft_accepted += outcome.draft_accepted;
+                session.flock_attended += outcome.flock_attended;
+                session.flock_total += outcome.flock_total;
+
+                let mut stopped_in_drafts = false;
+                for (di, &acc_tok) in outcome.accepted_tokens.iter().enumerate().skip(1) {
+                    session.generated_ids.push(acc_tok);
+                    session.recent_tokens.push(acc_tok);
+                    session.tokens_emitted += 1;
+                    slice_emitted += 1;
+                    if let Some(tok_bytes) = model.tokenizer.id_to_raw.get(acc_tok as usize) {
+                        session.raw_stream.extend_from_slice(tok_bytes);
+                        let flushed = crate::holo_geometric_runtime::flush_incremental_utf8(
+                            &session.raw_stream,
+                            &mut session.emitted_raw,
+                            false,
+                        );
+                        slice_delta.push_str(&flushed);
+                    }
+                    let d_step = session.step_idx;
+                    session.step_idx += 1;
+                    if crate::holo_geometric_runtime::should_emit_decode_observatory_frame(
+                        d_step,
+                        session.tokens_emitted,
+                        session.max_new_tokens,
+                        session.live_hud,
+                    ) {
+                        let sc_ref = outcome
+                            .next_scored
+                            .as_deref()
+                            .unwrap_or(&session.last_scored);
+                        let frame = crate::holo_geometric_runtime::build_observatory_frame(
+                            &model.tokenizer,
+                            &model.scratch,
+                            &model.exp_table,
+                            sc_ref,
+                            acc_tok,
+                            false,
+                            d_step,
+                            "decode",
+                            kv_before_tile + di,
+                            session.prefix_reused_tokens,
+                            session.active_backend,
+                        );
+                        let cur_tps_x10 =
+                            foundry_tps_x10(session.tokens_emitted, session.started_ms);
+                        admit_and_push_studio_frame(
+                            frame,
+                            session.ttft_ms,
+                            cur_tps_x10,
+                            &mut slice_frames,
+                            &mut session.observatory_frames,
+                        );
+                        session.last_emitted_decode_step = d_step;
+                    }
+                    if let Some(inv) = detect_studio_tool_call(
+                        &session.raw_stream,
+                        &session.surface_mode,
+                        &session.composer_mode,
+                        session.tool_iterations_used,
+                    ) {
+                        if inv.admitted {
+                            model.kv_cache.truncate_to(
+                                kv_before_tile + di + 1,
+                                model.n_kv_heads,
+                                model.head_dim,
+                            );
+                            status = "needs_tool";
+                        } else {
+                            model.kv_cache.truncate_to(
+                                session.kv_checkpoint_len,
+                                model.n_kv_heads,
+                                model.head_dim,
+                            );
+                            status = "refused_plan";
+                        }
+                        detected_tool = Some(inv);
+                        stopped_in_drafts = true;
+                        break;
+                    }
+                }
+                if stopped_in_drafts {
+                    break;
+                }
+                if let Some(sc) = outcome.next_scored {
+                    session.last_scored = sc;
+                } else {
+                    status = "done";
+                    break;
+                }
+                if session.tokens_emitted >= session.max_new_tokens
+                    || model.kv_cache.tokens.len() >= model.max_seq
+                {
+                    status = "done";
+                    break;
+                }
+                continue;
+            }
+
             let (sc_opt, fa, ft) =
                 model.step_token(chosen_id, &session.recent_tokens, need_logits, true);
             session.flock_attended += fa;

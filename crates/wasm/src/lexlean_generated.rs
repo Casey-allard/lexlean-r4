@@ -48529,3 +48529,124 @@ pub mod r4_mvm_linux_container {
             && !admit_live_state_header(121)
     }
 }
+
+/// Generated from `R4.WebGpuResidentRuntime` (`src/R4/WebGpuResidentRuntime.lex.tex`, `R4-64`).
+pub mod r4_webgpu_resident_runtime {
+    /// Inductive `R4.WebGpuResidentRuntime.ResidentSlabVerdict` (`R4-64`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ResidentSlabVerdict {
+        ResidentSlabAdmitted,
+        RefusedFloatOpInResidentWgsl,
+        RefusedLayerExceeds128MiB,
+        RefusedInsufficientGpuBufferLimits,
+    }
+
+    /// Inductive `R4.WebGpuResidentRuntime.SpeculativeVerifyVerdict` (`R4-64`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SpeculativeVerifyVerdict {
+        SpeculativeExact0LsbAdmitted,
+        RefusedDraftExceedsTile,
+        RefusedSpeculativeParityDrift,
+        RefusedKvRewindMismatch,
+    }
+
+    /// Inductive `R4.WebGpuResidentRuntime.StudioLoraDeployVerdict` (`R4-64`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum StudioLoraDeployVerdict {
+        StudioLoraUorV13Admitted,
+        RefusedFloatOpInLoraExport,
+        RefusedStitchParityMismatch,
+        RefusedPromptShrinkWithoutFineTunedManifest,
+        RefusedPromptExceedsCompactBudget,
+    }
+
+    /// Function `R4.WebGpuResidentRuntime.maxCompactStudioPromptTokens` (`R4-64`).
+    pub fn max_compact_studio_prompt_tokens() -> u64 {
+        40
+    }
+
+    /// Function `R4.WebGpuResidentRuntime.admitResidentLayerPartition` (`R4-64`).
+    pub fn admit_resident_layer_partition(
+        float_ops: u64,
+        layer_max_bytes: u64,
+        max_binding_cap_128_mib: u64,
+        device_binding_limit_bytes: u64,
+    ) -> ResidentSlabVerdict {
+        if float_ops != 0 {
+            ResidentSlabVerdict::RefusedFloatOpInResidentWgsl
+        } else if layer_max_bytes == 0
+            || max_binding_cap_128_mib == 0
+            || max_binding_cap_128_mib < layer_max_bytes
+        {
+            ResidentSlabVerdict::RefusedLayerExceeds128MiB
+        } else if device_binding_limit_bytes < layer_max_bytes {
+            ResidentSlabVerdict::RefusedInsufficientGpuBufferLimits
+        } else {
+            ResidentSlabVerdict::ResidentSlabAdmitted
+        }
+    }
+
+    /// Function `R4.WebGpuResidentRuntime.admitSpeculativeTileStep` (`R4-64`).
+    pub fn admit_speculative_tile_step(
+        draft_count: u64,
+        max_tile: u64,
+        max_abs_lsb_diff: u64,
+        kv_rewound_exact: bool,
+    ) -> SpeculativeVerifyVerdict {
+        if max_tile < draft_count.saturating_add(1) {
+            SpeculativeVerifyVerdict::RefusedDraftExceedsTile
+        } else if max_abs_lsb_diff != 0 {
+            SpeculativeVerifyVerdict::RefusedSpeculativeParityDrift
+        } else if !kv_rewound_exact {
+            SpeculativeVerifyVerdict::RefusedKvRewindMismatch
+        } else {
+            SpeculativeVerifyVerdict::SpeculativeExact0LsbAdmitted
+        }
+    }
+
+    /// Function `R4.WebGpuResidentRuntime.admitStudioLoraPromptShrink` (`R4-64`).
+    pub fn admit_studio_lora_prompt_shrink(
+        float_ops: u64,
+        stitch_parity_valid: bool,
+        fine_tuned_manifest_pinned: bool,
+        prompt_tokens: u64,
+    ) -> StudioLoraDeployVerdict {
+        if float_ops != 0 {
+            StudioLoraDeployVerdict::RefusedFloatOpInLoraExport
+        } else if !stitch_parity_valid {
+            StudioLoraDeployVerdict::RefusedStitchParityMismatch
+        } else if !fine_tuned_manifest_pinned {
+            StudioLoraDeployVerdict::RefusedPromptShrinkWithoutFineTunedManifest
+        } else if max_compact_studio_prompt_tokens() < prompt_tokens {
+            StudioLoraDeployVerdict::RefusedPromptExceedsCompactBudget
+        } else {
+            StudioLoraDeployVerdict::StudioLoraUorV13Admitted
+        }
+    }
+
+    /// Function `R4.WebGpuResidentRuntime.verifyWebGpuResidentRuntimeAdmitted` (`R4-64`).
+    pub fn verify_webgpu_resident_runtime_admitted() -> bool {
+        admit_resident_layer_partition(0, 39_845_888, 134_217_728, 134_217_728)
+            == ResidentSlabVerdict::ResidentSlabAdmitted
+            && admit_resident_layer_partition(1, 39_845_888, 134_217_728, 134_217_728)
+                == ResidentSlabVerdict::RefusedFloatOpInResidentWgsl
+            && admit_resident_layer_partition(0, 150_000_000, 134_217_728, 268_435_456)
+                == ResidentSlabVerdict::RefusedLayerExceeds128MiB
+            && admit_resident_layer_partition(0, 39_845_888, 134_217_728, 16_777_216)
+                == ResidentSlabVerdict::RefusedInsufficientGpuBufferLimits
+            && admit_speculative_tile_step(5, 32, 0, true)
+                == SpeculativeVerifyVerdict::SpeculativeExact0LsbAdmitted
+            && admit_speculative_tile_step(32, 32, 0, true)
+                == SpeculativeVerifyVerdict::RefusedDraftExceedsTile
+            && admit_speculative_tile_step(5, 32, 1, true)
+                == SpeculativeVerifyVerdict::RefusedSpeculativeParityDrift
+            && admit_speculative_tile_step(5, 32, 0, false)
+                == SpeculativeVerifyVerdict::RefusedKvRewindMismatch
+            && admit_studio_lora_prompt_shrink(0, true, true, 34)
+                == StudioLoraDeployVerdict::StudioLoraUorV13Admitted
+            && admit_studio_lora_prompt_shrink(0, true, false, 34)
+                == StudioLoraDeployVerdict::RefusedPromptShrinkWithoutFineTunedManifest
+            && admit_studio_lora_prompt_shrink(0, true, true, 41)
+                == StudioLoraDeployVerdict::RefusedPromptExceedsCompactBudget
+    }
+}
