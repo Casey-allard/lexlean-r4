@@ -2962,17 +2962,26 @@ impl StudioEngine {
         &mut self,
         piece: &[u8],
     ) -> Result<String, r4_geometric_stack::R4StackError> {
-        let (key, builder) = self
-            .holo_stream_builder
-            .as_mut()
-            .ok_or(r4_geometric_stack::R4StackError::TruncatedContainer)?;
-        builder.push_piece(piece)?;
-        Ok(serde_json::json!({
-            "status": "ok",
-            "model_id": key,
-            "piece_bytes": piece.len(),
-        })
-        .to_string())
+        let res = {
+            let (key, builder) = self
+                .holo_stream_builder
+                .as_mut()
+                .ok_or(r4_geometric_stack::R4StackError::TruncatedContainer)?;
+            builder.push_piece(piece).map(|()| key.clone())
+        };
+        match res {
+            Ok(key) => Ok(serde_json::json!({
+                "status": "ok",
+                "model_id": key,
+                "piece_bytes": piece.len(),
+            })
+            .to_string()),
+            Err(err) => {
+                // Drop partial stream buffer immediately so warm-slab self-healing starts fresh.
+                self.holo_stream_builder = None;
+                Err(err)
+            }
+        }
     }
 
     /// Formal R4.HoloGeometricRuntime finalize SHA-256 verification and mount the streamed `HoloV13Model` (`R4-51`).

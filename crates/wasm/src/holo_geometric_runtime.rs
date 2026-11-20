@@ -744,7 +744,9 @@ impl HoloTok13 {
     /// Formal R4.HoloGeometricRuntime parse compact `UORTK13\0` section from `UORR4V13`.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, R4StackError> {
         if bytes.len() < 20 || &bytes[..8] != HOLO_TOK13_MAGIC {
-            return Err(R4StackError::InvalidMagic);
+            return Err(R4StackError::InvalidGeometry(
+                "invalid magic header: expected UORTK13",
+            ));
         }
         let u32_at = |off: usize| -> u32 {
             u32::from_le_bytes(bytes[off..off + 4].try_into().unwrap_or([0; 4]))
@@ -1924,7 +1926,9 @@ impl HoloV13StreamingBuilder {
                     }
                     let hdr = Self::take_from(&self.buf, &mut self.cursor, 96);
                     if &hdr[..8] != HOLO_V13_MAGIC {
-                        return Err(R4StackError::InvalidMagic);
+                        return Err(R4StackError::InvalidGeometry(
+                            "invalid magic header: expected UORR4V13",
+                        ));
                     }
                     let u32_at = |o: usize| u32::from_le_bytes(hdr[o..o + 4].try_into().unwrap());
                     let i64_at = |o: usize| i64::from_le_bytes(hdr[o..o + 8].try_into().unwrap());
@@ -8630,5 +8634,19 @@ pub(crate) mod tests {
             model.think_end_id,
         );
         assert_eq!(gpu_full, vec![50, 60, 10, 20]);
+    }
+
+    #[test]
+    fn holo_v13_and_tok13_bad_magic_report_uorr4v13_and_uortk13() {
+        let mut builder = HoloV13StreamingBuilder::new("uor-r4.qwen3-0.6b-holo", 1, "");
+        let err = builder.push_piece(&[0u8; 128]).unwrap_err();
+        let msg = err.to_string();
+        assert!(msg.contains("UORR4V13"), "got: {msg}");
+        assert!(!msg.contains("UORR4V12"), "got: {msg}");
+
+        let tok_err = HoloTok13::from_bytes(&[0u8; 32]).unwrap_err();
+        let tok_msg = tok_err.to_string();
+        assert!(tok_msg.contains("UORTK13"), "got: {tok_msg}");
+        assert!(!tok_msg.contains("UORR4V12"), "got: {tok_msg}");
     }
 }

@@ -2667,6 +2667,7 @@ export class OpfsKappaStore {
     if (!dir && reqTotal > 0 && reqTotal <= 64 * 1024 * 1024) {
       memBuf = new Uint8Array(reqTotal);
     }
+    const writtenPieces = new Set();
     const selfStore = this;
     return {
       async writePieceAt(pieceIdx, buf) {
@@ -2676,14 +2677,28 @@ export class OpfsKappaStore {
         const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
         if (access) {
           access.write(u8, { at: pm.byte_offset });
+          writtenPieces.add(pieceIdx);
         } else if (dir) {
           await selfStore.putPiece(pm.sha256, u8);
         } else if (memBuf && pm.byte_offset + u8.byteLength <= memBuf.byteLength) {
           memBuf.set(u8, pm.byte_offset);
+          writtenPieces.add(pieceIdx);
         }
       },
       async seal() {
         /* Formal R4.WebGpuGeodesicRuntime */
+        const allContiguousWritten =
+          pieceMeta.length > 0 && writtenPieces.size === pieceMeta.length;
+        if (!allContiguousWritten) {
+          if (access) {
+            try { access.close(); } catch {}
+            access = null;
+          }
+          if (dir) {
+            try { await dir.removeEntry('model.holoslab.partial'); } catch {}
+          }
+          return null;
+        }
         const merkleRoot = await computeHoloSlab2MerkleRootHex(pieceMeta);
         const seal = {
           schema: HOLOSLAB2_SCHEMA,
@@ -2753,8 +2768,29 @@ export class OpfsKappaStore {
           try { access.close(); } catch {}
           access = null;
         }
+        if (dir) {
+          try { await dir.removeEntry('model.holoslab.partial'); } catch {}
+        }
       },
     };
+  }
+
+  /** Formal R4.WebGpuGeodesicRuntime purge a corrupt or poisoned warm OPFS slab so hydration can cleanly rebuild it. */
+  async purgeCorruptSlab(modelId) {
+    /* Formal R4.WebGpuGeodesicRuntime */
+    const key = String(modelId || 'uor-r4.qwen3-0.6b-holo').trim();
+    this._memSlabs.delete(__uorSlabSlug(key));
+    const dir = await this._openModelSlabDir(key, false).catch(() => null);
+    if (dir) {
+      for (const name of ['manifest.verified.json', 'model.holoslab', 'model.holoslab.partial']) {
+        try {
+          await dir.removeEntry(name);
+        } catch {}
+      }
+    }
+    await holoDeleteManifestIndex(key).catch(() => false);
+    this.lastSlabVerdict = 'RefusedSlabSealMismatch';
+    return true;
   }
 
   /** Formal R4.HoloKappaStore atomically persist verified piece using `createSyncAccessHandle()` when present. */
@@ -3963,6 +3999,26 @@ export class WebGpuHoloEngine {
 export const sharedWebGpuHoloEngine = new WebGpuHoloEngine();
 export const sharedKappaStore = new OpfsKappaStore();
 const holoHydrationInflight = new Map();
+let __uorHoloMountQueue = Promise.resolve();
+
+function __uorRunExclusiveHoloMount(lockKey, task) {
+  const runLocked = () => {
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.locks &&
+      typeof navigator.locks.request === 'function'
+    ) {
+      return navigator.locks.request(`uor-holo-slab:${lockKey}`, () => task());
+    }
+    return task();
+  };
+  const next = __uorHoloMountQueue.then(runLocked, runLocked);
+  __uorHoloMountQueue = next.then(
+    () => {},
+    () => {},
+  );
+  return next;
+}
 const UOR_OBS_METRICS_KEY = ['tele', 'metry'].join('');
 
 function __uorIsSameOriginMirror(rawUrl, httpOrigin) {
@@ -4253,11 +4309,48 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
   if (allowCustomExternal && options && options.rememberConsent === true) {
     safeStorageSet('uor_allow_off_origin_hydration', '1');
   }
-  const inflightKey = `${key}:${hasCustomMirrors ? 'custom:' : ''}${explicitAllowOffOrigin === false ? 'same' : explicitAllowOffOrigin === true ? 'ext' : 'auto'}`;
+  const policyBucket = hasCustomMirrors
+    ? `custom:${explicitAllowOffOrigin === true ? 'ext' : 'same'}`
+    : explicitAllowOffOrigin === false
+      ? 'same'
+      : isCatalogModel
+        ? 'catalog'
+        : explicitAllowOffOrigin === true
+          ? 'ext'
+          : 'auto';
+  const inflightKey = `${key}:${policyBucket}`;
   if (!forceReload && holoHydrationInflight.has(inflightKey)) {
-    return await holoHydrationInflight.get(inflightKey);
+    const existing = holoHydrationInflight.get(inflightKey);
+    if (typeof onProgress === 'function') {
+      existing.listeners.add(onProgress);
+      if (existing.lastEvent) {
+        try {
+          onProgress(existing.lastEvent);
+        } catch {}
+      }
+    }
+    try {
+      return await existing.job;
+    } finally {
+      if (typeof onProgress === 'function') {
+        existing.listeners.delete(onProgress);
+      }
+    }
   }
-  const job = (async () => {
+  const listenerEntry = {
+    listeners: new Set(typeof onProgress === 'function' ? [onProgress] : []),
+    lastEvent: null,
+    job: null,
+  };
+  const emitFanoutProgress = (evt) => {
+    listenerEntry.lastEvent = evt;
+    for (const cb of listenerEntry.listeners) {
+      try {
+        cb(evt);
+      } catch {}
+    }
+  };
+  const job = __uorRunExclusiveHoloMount(key, async () => {
     const spec = HOLO_MODEL_CATALOG[key];
     if (!spec) {
       throw new Error(`Unknown Holo catalog model: ${key}`);
@@ -4390,83 +4483,88 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       ? await sharedKappaStore.readWarmSlabSeal(key, containerSha, manifestTotalBytes).catch(() => null)
       : null;
     if (warmCheck && warmCheck.ok && warmCheck.verdict === 'SlabSealAdmitted') {
-      sharedWebGpuHoloEngine.dispose();
-      await sharedWebGpuHoloEngine.init().catch(() => null);
-      if (typeof studio_begin_holo_v13_mount_verified === 'function') {
-        studio_begin_holo_v13_mount_verified(key, pieceCount, containerSha, true);
-      } else {
-        studio_begin_holo_v13_mount(key, pieceCount, containerSha);
-      }
-      let pushedChunks = 0;
-      await sharedKappaStore.streamWarmSlabChunks(key, async (chunkView, chunkIdx, off, total) => {
-        pushedChunks = chunkIdx + 1;
-        const pushOut = JSON.parse(studio_push_holo_v13_piece(chunkView));
-        if (!pushOut || pushOut.status !== 'ok') {
-          throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
+      try {
+        sharedWebGpuHoloEngine.dispose();
+        await sharedWebGpuHoloEngine.init().catch(() => null);
+        if (typeof studio_begin_holo_v13_mount_verified === 'function') {
+          studio_begin_holo_v13_mount_verified(key, 0, containerSha, true);
+        } else {
+          studio_begin_holo_v13_mount(key, 0, containerSha);
         }
-        if (typeof onProgress === 'function' && (chunkIdx === 0 || off + chunkView.byteLength >= total || chunkIdx % 8 === 0)) {
-          const downloadedBytes = Math.min(total, off + chunkView.byteLength);
-          const percent = total > 0 ? Math.min(100, Math.round((downloadedBytes / total) * 100)) : 100;
-          onProgress({
-            modelId: key,
-            index: Math.min(pieceCount, Math.max(1, Math.round((downloadedBytes / Math.max(1, total)) * pieceCount))),
-            total: pieceCount,
-            downloadedBytes,
-            totalBytes: total,
-            percent,
-            cachedHits: pieceCount,
-            stitchRecoveries: sharedKappaStore.stitchRecoveries,
-            label: `HOLOSLAB2 warm seal ${key} (${warmCheck.elapsedMs.toFixed(1)} ms)`,
-          });
-        }
-      });
-      const finWarm = JSON.parse(studio_finalize_holo_v13_mount());
-      if (!finWarm || finWarm.status !== 'ok') {
-        throw new Error((finWarm && finWarm.message) || 'studio_finalize_holo_v13_mount failed');
-      }
-      if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
-        try {
-          const meta = JSON.parse(
-            studio_export_holo_layer_slab_meta(
-              key,
-              BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
-              0n,
-            ),
-          );
-          if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
-            const nL = meta.layer_bytes.length || 28;
-            sharedWebGpuHoloEngine.mountResidentModelSlabs(
-              key,
-              new Uint8Array(nL * 64),
-              Array.from({ length: nL }, () => 64),
-              Number(meta.d_model) || 1024,
-            );
+        let pushedChunks = 0;
+        await sharedKappaStore.streamWarmSlabChunks(key, async (chunkView, chunkIdx, off, total) => {
+          pushedChunks = chunkIdx + 1;
+          const pushOut = JSON.parse(studio_push_holo_v13_piece(chunkView));
+          if (!pushOut || pushOut.status !== 'ok') {
+            throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
           }
-        } catch {}
+          if (listenerEntry.listeners.size > 0 && (chunkIdx === 0 || off + chunkView.byteLength >= total || chunkIdx % 8 === 0)) {
+            const downloadedBytes = Math.min(total, off + chunkView.byteLength);
+            const percent = total > 0 ? Math.min(100, Math.round((downloadedBytes / total) * 100)) : 100;
+            emitFanoutProgress({
+              modelId: key,
+              index: Math.min(pieceCount, Math.max(1, Math.round((downloadedBytes / Math.max(1, total)) * pieceCount))),
+              total: pieceCount,
+              downloadedBytes,
+              totalBytes: total,
+              percent,
+              cachedHits: pieceCount,
+              stitchRecoveries: sharedKappaStore.stitchRecoveries,
+              label: `HOLOSLAB2 warm seal ${key} (${warmCheck.elapsedMs.toFixed(1)} ms)`,
+            });
+          }
+        });
+        const finWarm = JSON.parse(studio_finalize_holo_v13_mount());
+        if (!finWarm || finWarm.status !== 'ok') {
+          throw new Error((finWarm && finWarm.message) || 'studio_finalize_holo_v13_mount failed');
+        }
+        if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
+          try {
+            const meta = JSON.parse(
+              studio_export_holo_layer_slab_meta(
+                key,
+                BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
+                0n,
+              ),
+            );
+            if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
+              const nL = meta.layer_bytes.length || 28;
+              sharedWebGpuHoloEngine.mountResidentModelSlabs(
+                key,
+                new Uint8Array(nL * 64),
+                Array.from({ length: nL }, () => 64),
+                Number(meta.d_model) || 1024,
+              );
+            }
+          } catch {}
+        }
+        await holoWriteManifestIndex({
+          model_id: key,
+          container_sha256: containerSha,
+          manifest,
+          updatedAt: new Date().toISOString(),
+        });
+        globalThis.__uorHoloKappaStatus = {
+          container_format: 'UORR4V13',
+          slab_format: HOLOSLAB2_MAGIC,
+          holoslab_verdict: warmCheck.verdict,
+          warm_reload_ms: warmCheck.elapsedMs,
+          active_model_id: key,
+          container_sha256: containerSha,
+          piece_count: pieceCount,
+          verified_pieces: pieceCount,
+          cached_hits: pieceCount,
+          hold_tail_bytes: HOLO_HOLD_TAIL_BYTES,
+          stitch_recoveries: sharedKappaStore.stitchRecoveries,
+          liar_mirrors: Array.from(sharedKappaStore.liarMirrors),
+          persisted_ready: true,
+          warm_chunks_streamed: pushedChunks,
+        };
+        return finWarm;
+      } catch {
+        // Poisoned or truncated warm OPFS slab: purge immediately and fall through to verified pack hydration.
+        await sharedKappaStore.purgeCorruptSlab(key);
       }
-      await holoWriteManifestIndex({
-        model_id: key,
-        container_sha256: containerSha,
-        manifest,
-        updatedAt: new Date().toISOString(),
-      });
-      globalThis.__uorHoloKappaStatus = {
-        container_format: 'UORR4V13',
-        slab_format: HOLOSLAB2_MAGIC,
-        holoslab_verdict: warmCheck.verdict,
-        warm_reload_ms: warmCheck.elapsedMs,
-        active_model_id: key,
-        container_sha256: containerSha,
-        piece_count: pieceCount,
-        verified_pieces: pieceCount,
-        cached_hits: pieceCount,
-        hold_tail_bytes: HOLO_HOLD_TAIL_BYTES,
-        stitch_recoveries: sharedKappaStore.stitchRecoveries,
-        liar_mirrors: Array.from(sharedKappaStore.liarMirrors),
-        persisted_ready: true,
-        warm_chunks_streamed: pushedChunks,
-      };
-      return finWarm;
     }
 
     sharedWebGpuHoloEngine.dispose();
@@ -4507,7 +4605,10 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       const expectedLen = Number(pieceMeta.byte_length) || 0;
       if (!forceReload) {
         const cached = await sharedKappaStore.getVerifiedPiece(sha, expectedLen);
-        if (cached) return { bytes: cached, fromOpfs: true };
+        if (cached) {
+          await slabWriter.writePieceAt(pieceMeta.index, cached);
+          return { bytes: cached, fromOpfs: true };
+        }
       }
       if (admittedMirrorUrls.length === 0 && offOriginMirrors.length > 0 && (explicitAllowOffOrigin === false || !allowCustomExternal)) {
         throw __uorConsentError(undefined, {
@@ -4611,8 +4712,8 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       const percent = totalBytes > 0
         ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100))
         : Math.min(100, Math.round((stepNum / Math.max(1, pieceCount)) * 100));
-      if (typeof onProgress === 'function' && (stepNum === 1 || stepNum === pieceCount || pieceCount <= 16 || stepNum % 4 === 0)) {
-        onProgress({
+      if (listenerEntry.listeners.size > 0 && (stepNum === 1 || stepNum === pieceCount || pieceCount <= 16 || stepNum % 4 === 0)) {
+        emitFanoutProgress({
           modelId: key,
           index: stepNum,
           total: pieceCount,
@@ -4647,6 +4748,9 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
           ),
         );
         if (cachedCheck.every(Boolean)) {
+          for (let ci = 0; ci < subPieces.length; ci += 1) {
+            await slabWriter.writePieceAt(subPieces[ci].index, cachedCheck[ci]);
+          }
           return cachedCheck.map((bytes) => ({ bytes, fromOpfs: true }));
         }
       }
@@ -4806,12 +4910,16 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       persisted_ready: true,
     };
     return fin;
-  })();
-  holoHydrationInflight.set(inflightKey, job);
+  });
+  listenerEntry.job = job;
+  holoHydrationInflight.set(inflightKey, listenerEntry);
   try {
     return await job;
   } finally {
-    if (holoHydrationInflight.get(inflightKey) === job) {
+    if (typeof onProgress === 'function') {
+      listenerEntry.listeners.delete(onProgress);
+    }
+    if (holoHydrationInflight.get(inflightKey) === listenerEntry) {
       holoHydrationInflight.delete(inflightKey);
     }
   }
