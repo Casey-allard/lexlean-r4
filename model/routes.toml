@@ -134,6 +134,13 @@ prism_record = "Foundation.Feature::MvmPolyglotToolchain"
 facet = "features"
 note = "In-MVM cargo/rustc AST execution, npm test/start/build/ls/uninstall subcommands, and C99 <stdlib.h>/<stdbool.h> RV64 ELF64 toolchain."
 
+[[route]]
+id = "R4-UR19"
+rust_fact = "chunked-prefill-single-pass-ci-gate"
+prism_record = "Foundation.Qual::ChunkedPrefillCiGate"
+facet = "qual"
+note = "Chunked <= 24-token async prompt prefill slices, live-HUD speculative draft admission, precomputed BPE token flags, and single-pass deduplicated CI gate."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -223,6 +230,11 @@ response = "route R4-UR17\nfact fast-pack-single-truth-hydration\nrecord Foundat
 case = "route R4-UR18"
 request_hex = "6d766d2d706f6c79676c6f742d636172676f2d6e706d2d633939"
 response = "route R4-UR18\nfact mvm-polyglot-cargo-npm-c99\nrecord Foundation.Feature::MvmPolyglotToolchain\nfacet features"
+
+[[vector]]
+case = "route R4-UR19"
+request_hex = "6368756e6b65642d70726566696c6c2d73696e676c652d706173732d63692d67617465"
+response = "route R4-UR19\nfact chunked-prefill-single-pass-ci-gate\nrecord Foundation.Qual::ChunkedPrefillCiGate\nfacet qual"
 
 [[vector]]
 case = "error empty"

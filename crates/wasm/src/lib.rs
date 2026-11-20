@@ -11293,11 +11293,10 @@ mod tests {
 
     #[test]
     fn test_generalized_glm_multi_domain_reasoning_and_generation() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let _ = dispatch_string("1\tstudio\treset\t");
+        let mut engine = StudioEngine::new_default();
 
-        let ask = |prompt: &str| -> String {
-            let raw = dispatch_string(&format!("1\tstudio\tchat\t{prompt}"));
+        let mut ask = |prompt: &str| -> String {
+            let raw = engine.chat_assistant_json(prompt);
             let json: serde_json::Value = serde_json::from_str(&raw).expect("valid chat JSON");
             assert_eq!(json["status"], "ok");
             json["assistant_reply"].as_str().unwrap().to_string()
@@ -11650,8 +11649,10 @@ mod tests {
 
         // 14. Verify `1\tstudio\tpredict_next\t<context>` per-token TokenTransitionNode distribution
         //     and 3-4 content-word natural prompts routing to concept basins without Mad-Libs templates.
-        let pred_next_raw =
-            dispatch_string("1\tstudio\tpredict_next\tHow do superconductors conduct electricity");
+        let pred_next_raw = {
+            let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+            dispatch_string("1\tstudio\tpredict_next\tHow do superconductors conduct electricity")
+        };
         let pred_next_json: serde_json::Value =
             serde_json::from_str(&pred_next_raw).expect("valid predict_next JSON");
         assert_eq!(pred_next_json["status"], "ok");
@@ -11665,8 +11666,6 @@ mod tests {
             !volcano_q.contains("1. **Define the Goal & Constraints First**"),
             "3-4 content-word domain question must not fall into Mad-Libs bullet template: {volcano_q}"
         );
-
-        let _ = dispatch_string("1\tstudio\treset\t");
     }
 
     #[test]
@@ -11929,11 +11928,10 @@ mod tests {
 
     #[test]
     fn test_casual_multiturn_episodic_memory_and_generalized_conversation() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let _ = dispatch_string("1\tstudio\treset\t");
+        let mut engine = StudioEngine::new_default();
 
-        let ask_chat = |prompt: &str| -> String {
-            let raw = dispatch_string(&format!("1\tstudio\tchat\t{prompt}"));
+        let mut ask_chat = |prompt: &str| -> String {
+            let raw = engine.chat_assistant_json(prompt);
             let json: serde_json::Value =
                 serde_json::from_str(&raw).expect("valid studio chat JSON");
             assert_eq!(json["status"], "ok");
@@ -11991,8 +11989,6 @@ mod tests {
             !t7.is_empty(),
             "Turn 7 must produce a non-empty response: {t7}"
         );
-
-        let _ = dispatch_string("1\tstudio\treset\t");
     }
 
     #[test]
@@ -12083,9 +12079,6 @@ mod tests {
 
     #[test]
     fn test_chat_assistant_json_thinking_tag_separation_and_no_leakage() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let _ = dispatch_string("1\tstudio\treset\t");
-
         let mut engine = StudioEngine::new_default();
 
         // Turn 1: Teach turn with <thinking> tags
@@ -12176,9 +12169,6 @@ mod tests {
 
     #[test]
     fn test_chat_history_preserves_clean_replies_without_thinking_tags() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let _ = dispatch_string("1\tstudio\treset\t");
-
         let mut engine = StudioEngine::new_default();
         let prompt = "Teach: What is Wilson's Theorem? => <thought>p divides (p-1)! + 1</thought>Wilson's Theorem states that (p-1)! == -1 (mod p) for prime p.";
         let _ = engine.chat_assistant_json(prompt);
@@ -12255,7 +12245,6 @@ mod tests {
 
     #[test]
     fn test_lexlean_generated_r4_29_radix_otel_and_r4_30_secops_audit_runtime_integration() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut engine = StudioEngine::new_default();
 
         // 1. Verify render_subsystems_json includes R4-29 and R4-30 verified outputs
@@ -12303,7 +12292,6 @@ mod tests {
 
     #[test]
     fn test_r4_31_slot_binding_r4_32_wasm_ast_eval_and_track_d_shards_in_studio_engine() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut engine = StudioEngine::new_default();
 
         // 1. Verify R4-31 and R4-32 in render_subsystems_json
@@ -12424,7 +12412,6 @@ mod tests {
 
     #[test]
     fn test_r4_35_react_agent_surgical_merge_unified_diff_and_workspace_delete() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let mut engine = StudioEngine::new_default();
 
         // 1. Verify R4-33, R4-34, R4-35 are present in conformance_ids
@@ -12617,11 +12604,10 @@ mod tests {
 
     #[test]
     fn test_frontier_long_horizon_episodic_analogical_and_verified_ast_synthesis() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let _ = dispatch_string("1\tstudio\treset\t");
+        let mut engine = StudioEngine::new_default();
 
-        let ask_chat = |prompt: &str| -> serde_json::Value {
-            let raw = dispatch_string(&format!("1\tstudio\tchat\t{prompt}"));
+        let mut ask_chat = |prompt: &str| -> serde_json::Value {
+            let raw = engine.chat_assistant_json(prompt);
             let json: serde_json::Value =
                 serde_json::from_str(&raw).expect("valid studio chat JSON");
             assert_eq!(json["status"], "ok");
@@ -12664,17 +12650,14 @@ mod tests {
             !t9.is_empty(),
             "Turn 9 must synthesize response for coding turn: {t9}"
         );
-
-        let _ = dispatch_string("1\tstudio\treset\t");
     }
 
     #[test]
     fn test_type_directed_ast_synthesis_multibranch_mcts_and_stylistic_multilingual_glm() {
-        let _guard = TEST_STUDIO_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let _ = dispatch_string("1\tstudio\treset\t");
+        let mut engine = StudioEngine::new_default();
 
-        let ask_chat = |prompt: &str| -> serde_json::Value {
-            let raw = dispatch_string(&format!("1\tstudio\tchat\t{prompt}"));
+        let mut ask_chat = |prompt: &str| -> serde_json::Value {
+            let raw = engine.chat_assistant_json(prompt);
             let json: serde_json::Value =
                 serde_json::from_str(&raw).expect("valid studio chat JSON");
             assert_eq!(json["status"], "ok");
@@ -12852,8 +12835,6 @@ mod tests {
             decoded.contains("WebGPU Q12 Coprocessor Synthesis") && decoded.contains("top_row=#"),
             "WebGPU Q12 decoder must rank GLM_TRANSITION_HORIZONS rows from GPU inner-product scores: {decoded}"
         );
-
-        let _ = dispatch_string("1\tstudio\treset\t");
     }
 
     #[test]

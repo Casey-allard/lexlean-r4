@@ -181,12 +181,12 @@ fn validate(root: &Path) -> Result<(), Fail> {
     check_model(root, false)?;
     audit::audit_limits(root)?;
     audit::audit_deferral(root)?;
-    engine::mechanizer::run_mechanizer_gate(root)?;
-    engine::ratchet::check(root)?;
+    let mech_rep = engine::mechanizer::run_mechanizer_gate(root)?;
+    let _ratchet_rep = engine::ratchet::check(root)?;
     routes_and_measures::check_routes(root)?;
     routes_and_measures::check_measures(root)?;
     run_build_holo_cmd(root, &["--verify-site-manifest".to_string()])?;
-    engine::synthesis::cmd_synthesize(root, false)?;
+    engine::synthesis::cmd_synthesize_with_reports(root, false, Some(&mech_rep), Some(true))?;
     bootstrap::audit(root)?;
     Ok(())
 }

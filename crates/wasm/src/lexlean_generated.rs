@@ -48907,3 +48907,104 @@ pub mod r4_mvm_polyglot_toolchain {
                 == PolyglotToolchainVerdict::RefusedUnalignedHeapBreak
     }
 }
+
+/// Generated from `R4.ChunkedPrefillCiGate` (`src/R4/ChunkedPrefillCiGate.lex.tex`, `R4-68`).
+pub mod r4_chunked_prefill_ci_gate {
+    /// Inductive `R4.ChunkedPrefillCiGate.PrefillSliceVerdict` (`R4-68`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum PrefillSliceVerdict {
+        SyncFastPrefillAdmitted,
+        ChunkedAsyncPrefillAdmitted,
+        RefusedFloatOpInPrefill,
+        RefusedZeroOrOversizedPrefillSlice,
+        RefusedPrefillCursorOverrun,
+    }
+
+    /// Inductive `R4.ChunkedPrefillCiGate.LiveSpeculativeHudVerdict` (`R4-68`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum LiveSpeculativeHudVerdict {
+        LiveHudSpeculativeAdmitted,
+        NoDraftsTerminalAdmitted,
+        RefusedDisabledDrafterUnderLiveHud,
+        RefusedMissingHudFramesOnDrafts,
+        RefusedOversizedSpeculativeBudget,
+    }
+
+    /// Inductive `R4.ChunkedPrefillCiGate.SinglePassCiGateVerdict` (`R4-68`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SinglePassCiGateVerdict {
+        DeduplicatedGateAdmitted,
+        RefusedDuplicateMechanizerOrRatchetRun,
+        RefusedInnerLoopBpeAllocations,
+    }
+
+    /// Function `R4.ChunkedPrefillCiGate.admitPrefillSlice` (`R4-68`).
+    pub fn admit_prefill_slice(
+        float_ops: u64,
+        tail_tokens: u64,
+        prefill_cursor: u64,
+        chunk_tokens: u64,
+    ) -> PrefillSliceVerdict {
+        if 0 < float_ops {
+            PrefillSliceVerdict::RefusedFloatOpInPrefill
+        } else if chunk_tokens == 0 || 24 < chunk_tokens {
+            PrefillSliceVerdict::RefusedZeroOrOversizedPrefillSlice
+        } else if tail_tokens < prefill_cursor {
+            PrefillSliceVerdict::RefusedPrefillCursorOverrun
+        } else if tail_tokens <= 24 {
+            PrefillSliceVerdict::SyncFastPrefillAdmitted
+        } else {
+            PrefillSliceVerdict::ChunkedAsyncPrefillAdmitted
+        }
+    }
+
+    /// Function `R4.ChunkedPrefillCiGate.admitLiveHudSpeculativeBudget` (`R4-68`).
+    pub fn admit_live_hud_speculative_budget(
+        live_hud: bool,
+        need_logits: bool,
+        draft_budget: u64,
+        hud_frames_emitted: bool,
+    ) -> LiveSpeculativeHudVerdict {
+        if 5 < draft_budget {
+            LiveSpeculativeHudVerdict::RefusedOversizedSpeculativeBudget
+        } else if !need_logits {
+            if draft_budget == 0 {
+                LiveSpeculativeHudVerdict::NoDraftsTerminalAdmitted
+            } else {
+                LiveSpeculativeHudVerdict::RefusedOversizedSpeculativeBudget
+            }
+        } else if live_hud && draft_budget == 0 {
+            LiveSpeculativeHudVerdict::RefusedDisabledDrafterUnderLiveHud
+        } else if live_hud && !hud_frames_emitted {
+            LiveSpeculativeHudVerdict::RefusedMissingHudFramesOnDrafts
+        } else {
+            LiveSpeculativeHudVerdict::LiveHudSpeculativeAdmitted
+        }
+    }
+
+    /// Function `R4.ChunkedPrefillCiGate.admitSinglePassCiGate` (`R4-68`).
+    pub fn admit_single_pass_ci_gate(
+        mechanizer_runs: u64,
+        ratchet_runs: u64,
+        bpe_inner_allocations: u64,
+    ) -> SinglePassCiGateVerdict {
+        if mechanizer_runs != 1 || ratchet_runs != 1 {
+            SinglePassCiGateVerdict::RefusedDuplicateMechanizerOrRatchetRun
+        } else if 0 < bpe_inner_allocations {
+            SinglePassCiGateVerdict::RefusedInnerLoopBpeAllocations
+        } else {
+            SinglePassCiGateVerdict::DeduplicatedGateAdmitted
+        }
+    }
+
+    /// Function `R4.ChunkedPrefillCiGate.verifyChunkedPrefillCiAdmitted` (`R4-68`).
+    pub fn verify_chunked_prefill_ci_admitted() -> bool {
+        admit_prefill_slice(0, 18, 18, 18) == PrefillSliceVerdict::SyncFastPrefillAdmitted
+            && admit_prefill_slice(0, 120, 32, 16)
+                == PrefillSliceVerdict::ChunkedAsyncPrefillAdmitted
+            && admit_live_hud_speculative_budget(true, true, 4, true)
+                == LiveSpeculativeHudVerdict::LiveHudSpeculativeAdmitted
+            && admit_single_pass_ci_gate(1, 1, 0)
+                == SinglePassCiGateVerdict::DeduplicatedGateAdmitted
+    }
+}

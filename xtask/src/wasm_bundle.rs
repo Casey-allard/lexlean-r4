@@ -289,7 +289,11 @@ pub fn build_wasm(root: &Path, out_dir: &Path) -> Result<ProvenanceManifest, Fai
 
     let staging = out_dir.join(".wasm-bindgen-staging");
     std::fs::create_dir_all(&staging)?;
-    let wasm_artifact = root.join("target/wasm32-unknown-unknown/release/lexlean_r4_wasm.wasm");
+    let target_root = std::env::var_os("CARGO_TARGET_DIR")
+        .map(PathBuf::from)
+        .map(|p| if p.is_absolute() { p } else { root.join(p) })
+        .unwrap_or_else(|| root.join("target"));
+    let wasm_artifact = target_root.join("wasm32-unknown-unknown/release/lexlean_r4_wasm.wasm");
     let bg_status = Command::new(&bindgen)
         .current_dir(root)
         .arg(&wasm_artifact)

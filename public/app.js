@@ -3440,7 +3440,14 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       }
       if (bridgeEvt.stage === 'chat_prefill_start') {
         if (!streamedReplyText) {
-          statusLineEl.textContent = 'Generating response...';
+          const pDone = typeof bridgeEvt.prefill_done === 'number' ? bridgeEvt.prefill_done : 0;
+          const pTot = typeof bridgeEvt.prefill_total === 'number' ? bridgeEvt.prefill_total : 0;
+          if (pTot > 0 && pDone > 0) {
+            const pPct = Math.min(100, Math.floor((pDone * 100) / pTot));
+            statusLineEl.textContent = `Prefilling context · ${pDone} / ${pTot} tok (${pPct}%)...`;
+          } else {
+            statusLineEl.textContent = 'Generating response...';
+          }
         }
         return;
       }

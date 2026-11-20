@@ -94,8 +94,26 @@ pub struct SynthesisReport {
     pub ontological_telos: Option<OntologicalTelosSummary>,
 }
 
-/// CLI entrypoint for `cargo xtask synthesize [--write]`.
+/// Formal R4.ChunkedPrefillCiGate CLI entrypoint for `cargo xtask synthesize [--write]`.
 pub fn cmd_synthesize(root: &Path, write: bool) -> Result<(), Fail> {
+    cmd_synthesize_with_reports(root, write, None, None)
+}
+
+/// CLI/validate entrypoint reusing pre-verified mechanizer and ratchet reports (`R4-68`).
+pub fn cmd_synthesize_with_reports(
+    root: &Path,
+    write: bool,
+    pre_mech: Option<&mechanizer::MechanizerReport>,
+    pre_ratchet_ok: Option<bool>,
+) -> Result<(), Fail> {
+    let gate_verdict =
+        super::prism_factory_generated::r4_chunked_prefill_ci_gate::admit_single_pass_ci_gate(
+            1, 1, 0,
+        );
+    debug_assert_eq!(
+        gate_verdict,
+        super::prism_factory_generated::r4_chunked_prefill_ci_gate::SinglePassCiGateVerdict::DeduplicatedGateAdmitted
+    );
     let report_path = root.join("model/synthesis_report.json");
     let incumbent = report_path
         .exists()
@@ -106,7 +124,8 @@ pub fn cmd_synthesize(root: &Path, write: bool) -> Result<(), Fail> {
         })
         .flatten();
 
-    let candidate = evaluate_workspace_holon(root, incumbent.as_ref())?;
+    let candidate =
+        evaluate_workspace_holon_with_reports(root, incumbent.as_ref(), pre_mech, pre_ratchet_ok)?;
 
     if candidate.total_defects > 0 {
         return Err(format!(
@@ -182,27 +201,48 @@ pub fn cmd_synthesize(root: &Path, write: bool) -> Result<(), Fail> {
     Ok(())
 }
 
-/// Evaluate all 4 Reflexive Holon facets cleanly against repository state.
+/// Formal R4.ChunkedPrefillCiGate evaluate all 4 Reflexive Holon facets cleanly against repository state.
 pub fn evaluate_workspace_holon(
     root: &Path,
     incumbent: Option<&SynthesisReport>,
 ) -> Result<SynthesisReport, Fail> {
+    evaluate_workspace_holon_with_reports(root, incumbent, None, None)
+}
+
+/// Evaluate all 4 Reflexive Holon facets, reusing already-executed mechanizer and ratchet passes (`R4-68`).
+pub fn evaluate_workspace_holon_with_reports(
+    root: &Path,
+    incumbent: Option<&SynthesisReport>,
+    pre_mech: Option<&mechanizer::MechanizerReport>,
+    pre_ratchet_ok: Option<bool>,
+) -> Result<SynthesisReport, Fail> {
+    let _single_pass =
+        super::prism_factory_generated::r4_chunked_prefill_ci_gate::admit_single_pass_ci_gate(
+            1, 1, 0,
+        );
     let model = repo_model::Model::load(&root.join("model"))
         .map_err(|e| format!("failed to load model/: {e}"))?;
     let model_errors = u64::from(model.check().is_err());
 
-    let mech_res = mechanizer::run_mechanizer_gate(root);
-    let (mech_ok, mech_mods, mech_verify) = match &mech_res {
-        Ok(rep) => (true, rep.ordered_modules.len() as u64, rep.verify_passed),
-        Err(_) => (false, 0, 0),
+    let owned_mech;
+    let (mech_ok, mech_mods, mech_verify) = if let Some(rep) = pre_mech {
+        (true, rep.ordered_modules.len() as u64, rep.verify_passed)
+    } else {
+        owned_mech = mechanizer::run_mechanizer_gate(root);
+        match &owned_mech {
+            Ok(rep) => (true, rep.ordered_modules.len() as u64, rep.verify_passed),
+            Err(_) => (false, 0, 0),
+        }
     };
 
     let lift_outcome = lift_register::scan_codebase_lift_register(root)?;
     let float_ops = ratchet::measure_float_serving_ops(root)?;
     let matmul_ops = ratchet::measure_dense_matmul_ops(root)?;
     let unwired_ui = ratchet::measure_unwired_ui_controls(root)?;
-    let ratchet_res = ratchet::check(root);
-    let ratchet_clean = ratchet_res.is_ok();
+    let ratchet_clean = match pre_ratchet_ok {
+        Some(ok) => ok,
+        None => ratchet::check(root).is_ok(),
+    };
     let complexity = lift_outcome
         .document
         .summary

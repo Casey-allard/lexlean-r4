@@ -84,13 +84,22 @@ fn every_id_has_a_scenario_and_a_test_cm_02() {
         "the honesty meta-gate failed:\n\n{}",
         report.violations.join("\n\n")
     );
-    assert_eq!(
-        report.ids_checked, 67,
-        "CM-02 requires exactly 67 registered conformance IDs"
+    let expected_ids = Model::load(&root.join("model"))
+        .expect("model loads")
+        .ids
+        .id
+        .len();
+    assert!(
+        expected_ids >= 68,
+        "CM-02 requires at least 68 registered conformance IDs, got {expected_ids}"
     );
     assert_eq!(
-        report.scenarios_checked, 67,
-        "CM-02 requires exactly 67 Gherkin scenarios"
+        report.ids_checked, expected_ids,
+        "CM-02 requires every registered conformance ID checked"
+    );
+    assert_eq!(
+        report.scenarios_checked, expected_ids,
+        "CM-02 requires one Gherkin scenario per registered ID"
     );
     eprintln!(
         "CM-02: {} registered IDs, {} scenarios, {} test names",
@@ -111,10 +120,10 @@ fn every_id_has_a_scenario_and_a_test_cm_02() {
 fn no_scenario_is_pending_cm_02() {
     let model = Model::load(&root().join("model")).expect("model loads");
     let suites = scenarios_in(&root().join("features/suites")).expect("suites read");
-    assert_eq!(
-        model.ids.id.len(),
-        67,
-        "M2 requires all 67 registered IDs present"
+    assert!(
+        model.ids.id.len() >= 68,
+        "M2 requires at least 68 registered IDs present, got {}",
+        model.ids.id.len()
     );
     assert!(
         suites.files >= 50,

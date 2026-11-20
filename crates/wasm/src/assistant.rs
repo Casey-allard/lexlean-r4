@@ -5969,6 +5969,8 @@ struct FoundryTurnRequest {
     branch: String,
     #[serde(default, alias = "sliceTokens")]
     slice_tokens: Option<usize>,
+    #[serde(default, alias = "prefillSliceTokens")]
+    prefill_slice_tokens: Option<usize>,
     #[serde(default, alias = "liveHud")]
     live_hud: bool,
     #[serde(default, alias = "autoRun")]
@@ -6068,6 +6070,10 @@ pub struct FoundryTurnSession {
     pub accept_ema_permille: u16,
     /// Total bound WebGPU compute dispatches verified in this turn (`R4-65`).
     pub gpu_bound_dispatches: u64,
+    /// Remaining prompt tail tokens scheduled across chunked `<= 16`-token prefill slices (`R4-68`).
+    pub pending_prefill_tail: Vec<u32>,
+    /// Cursor inside `pending_prefill_tail` already ingested into `model.kv_cache` (`R4-68`).
+    pub prefill_cursor: usize,
 }
 
 /// Formal R4.HoloGeometricRuntime escape XML attribute delimiter characters deterministically.
@@ -7507,6 +7513,8 @@ impl StudioEngine {
                 gpu_active: false,
                 accept_ema_permille: 600,
                 gpu_bound_dispatches: 0,
+                pending_prefill_tail: Vec::new(),
+                prefill_cursor: 0,
             });
             return serde_json::json!({
                 "status": "ready",
@@ -7625,31 +7633,71 @@ impl StudioEngine {
                 .truncate_to(reuse_len, model.n_kv_heads, model.head_dim);
         }
 
+        const SYNC_FAST_PREFILL_MAX_TOKENS: usize = 24;
+        const ASYNC_PREFILL_SLICE_TOKENS: usize = 16;
+
         let simd_active = cfg!(all(target_arch = "wasm32", target_feature = "simd128"));
         let active_backend = if simd_active {
             "wasm-simd128"
         } else {
             "host-int"
         };
-        let recent_tokens = prompt_ids.clone();
         let tail = &prompt_ids[reuse_len..];
-        let (sc_opt, flock_attended, flock_total) =
-            model.prefill_tokens_tiled(tail, &recent_tokens, true, true);
-        let last_scored = sc_opt.unwrap_or_default();
-        let mut observatory_frames = Vec::new();
-        if let Some(&last_tok) = tail.last() {
-            crate::holo_geometric_runtime::record_observatory_frame(
-                model,
-                &last_scored,
-                last_tok,
-                true,
-                tail.len().saturating_sub(1),
-                "prefill",
-                reuse_len,
-                active_backend,
-                &mut observatory_frames,
+        let tail_total = tail.len();
+        let requested_prefill_slice = req.prefill_slice_tokens.map(|n| n.clamp(1, 24));
+        let initial_chunk = match requested_prefill_slice {
+            Some(ps) if tail_total > SYNC_FAST_PREFILL_MAX_TOKENS => ps.min(tail_total),
+            _ => tail_total,
+        };
+        let checked_chunk = requested_prefill_slice
+            .unwrap_or(ASYNC_PREFILL_SLICE_TOKENS)
+            .clamp(1, SYNC_FAST_PREFILL_MAX_TOKENS);
+        let prefill_verdict =
+            crate::lexlean_generated::r4_chunked_prefill_ci_gate::admit_prefill_slice(
+                0,
+                tail_total as u64,
+                initial_chunk as u64,
+                checked_chunk as u64,
             );
+        debug_assert!(matches!(
+            prefill_verdict,
+            crate::lexlean_generated::r4_chunked_prefill_ci_gate::PrefillSliceVerdict::SyncFastPrefillAdmitted
+                | crate::lexlean_generated::r4_chunked_prefill_ci_gate::PrefillSliceVerdict::ChunkedAsyncPrefillAdmitted
+        ));
+        let is_complete_prefill = initial_chunk >= tail_total;
+        let recent_tokens = prompt_ids[..reuse_len + initial_chunk].to_vec();
+        let (sc_opt, flock_attended, flock_total) = model.prefill_tokens_tiled(
+            &tail[..initial_chunk],
+            &recent_tokens,
+            is_complete_prefill,
+            true,
+        );
+        let last_scored = if is_complete_prefill {
+            sc_opt.unwrap_or_default()
+        } else {
+            Vec::new()
+        };
+        let mut observatory_frames = Vec::new();
+        if let Some(&last_tok) = tail[..initial_chunk].last() {
+            if is_complete_prefill {
+                crate::holo_geometric_runtime::record_observatory_frame(
+                    model,
+                    &last_scored,
+                    last_tok,
+                    true,
+                    initial_chunk.saturating_sub(1),
+                    "prefill",
+                    reuse_len,
+                    active_backend,
+                    &mut observatory_frames,
+                );
+            }
         }
+        let (pending_prefill_tail, prefill_cursor, begin_status) = if is_complete_prefill {
+            (Vec::new(), 0usize, "ready")
+        } else {
+            (tail.to_vec(), initial_chunk, "prefilling")
+        };
 
         let container_sha256 = model.container_sha256.clone();
         self.next_foundry_turn_id = self.next_foundry_turn_id.saturating_add(1);
@@ -7670,7 +7718,7 @@ impl StudioEngine {
             tool_iterations_used,
             kv_checkpoint_len: reuse_len,
             prefix_reused_tokens: reuse_len,
-            prompt_tokens_new: tail.len(),
+            prompt_tokens_new: tail_total,
             started_ms,
             active: true,
             cancelled: false,
@@ -7697,14 +7745,18 @@ impl StudioEngine {
             gpu_active: false,
             accept_ema_permille: 600,
             gpu_bound_dispatches: 0,
+            pending_prefill_tail,
+            prefill_cursor,
         });
 
         serde_json::json!({
-            "status": "ready",
+            "status": begin_status,
             "turn_id": turn_id,
             "model_id": target_model,
             "max_new_tokens": max_new_tokens,
             "prefix_reused_tokens": reuse_len,
+            "prefill_done": initial_chunk,
+            "prefill_total": tail_total,
             "surface_mode": surface_mode,
             "composer_mode": composer_mode,
             "slice_tokens": slice_tokens,
@@ -7979,6 +8031,67 @@ impl StudioEngine {
             );
         };
 
+        if session.prefill_cursor < session.pending_prefill_tail.len() {
+            const ASYNC_PREFILL_SLICE_TOKENS: usize = 16;
+            let total_tail = session.pending_prefill_tail.len();
+            let cur = session.prefill_cursor;
+            let next_end = (cur + ASYNC_PREFILL_SLICE_TOKENS).min(total_tail);
+            let chunk = &session.pending_prefill_tail[cur..next_end];
+            let _slice_verdict =
+                crate::lexlean_generated::r4_chunked_prefill_ci_gate::admit_prefill_slice(
+                    0,
+                    total_tail as u64,
+                    next_end as u64,
+                    chunk.len().max(1) as u64,
+                );
+            session.recent_tokens.extend_from_slice(chunk);
+            let is_final_prefill = next_end >= total_tail;
+            let (sc_opt, fa, ft) =
+                model.prefill_tokens_tiled(chunk, &session.recent_tokens, is_final_prefill, true);
+            session.flock_attended += fa;
+            session.flock_total += ft;
+            session.prefill_cursor = next_end;
+            let mut slice_frames = Vec::new();
+            if is_final_prefill {
+                session.last_scored = sc_opt.unwrap_or_default();
+                session.pending_prefill_tail.clear();
+                session.prefill_cursor = 0;
+                if let Some(&last_tok) = session.recent_tokens.last() {
+                    crate::holo_geometric_runtime::record_observatory_frame(
+                        model,
+                        &session.last_scored,
+                        last_tok,
+                        true,
+                        total_tail.saturating_sub(1),
+                        "prefill",
+                        session.prefix_reused_tokens,
+                        session.active_backend,
+                        &mut slice_frames,
+                    );
+                    session.observatory_frames.extend(slice_frames.clone());
+                    session.emitted_observatory_frames = session.observatory_frames.len();
+                }
+            }
+            let latest_frame = slice_frames.last().cloned();
+            let model_id = session.model_id.clone();
+            let reused = session.prefix_reused_tokens;
+            self.foundry_turn = Some(session);
+            return serde_json::json!({
+                "status": "prefilling",
+                "turn_id": turn_id,
+                "model_id": model_id,
+                "delta": "",
+                "tokens_emitted": 0,
+                "tok_per_sec": 0,
+                "prefill_done": next_end,
+                "prefill_total": total_tail,
+                "prefix_reused_tokens": reused,
+                "observatory_frames": slice_frames,
+                "frame": latest_frame,
+            })
+            .to_string();
+        }
+
         let mut slice_delta = String::new();
         let mut status: &'static str = "streaming";
         let mut detected_tool: Option<StudioToolInvocation> = None;
@@ -8120,11 +8233,18 @@ impl StudioEngine {
             let rem_turn = session
                 .max_new_tokens
                 .saturating_sub(session.tokens_emitted);
-            let draft_budget = if !session.live_hud && need_logits {
+            let draft_budget = if need_logits {
                 rem_slice.min(rem_turn).min(5)
             } else {
                 0
             };
+            let _hud_spec_verdict =
+                crate::lexlean_generated::r4_chunked_prefill_ci_gate::admit_live_hud_speculative_budget(
+                    session.live_hud,
+                    need_logits,
+                    draft_budget as u64,
+                    true,
+                );
             let drafts = if draft_budget > 0 {
                 crate::holo_geometric_runtime::HoloTok13SpeculativeDrafter::propose_adaptive_draft_tokens(
                     &model.tokenizer,
@@ -8706,5 +8826,68 @@ mod tests {
         );
         assert_eq!(core, crate::STUDIO_SELF_KNOWLEDGE_PREFIX);
         assert!(ws_hdr.contains("[mvm cwd="));
+    }
+
+    #[test]
+    fn test_holo_chunked_async_prefill_and_live_hud_speculative_drafter_r4_68() {
+        let mut engine = crate::StudioEngine::new_default();
+        let mut model = crate::holo_geometric_runtime::tests::build_synthetic_test_model();
+        model.max_seq = 256;
+        engine
+            .holo_models
+            .insert("uor-r4.qwen3-0.6b-holo".to_string(), model);
+
+        let long_prompt = "alpha beta gamma delta epsilon zeta eta theta ".repeat(8);
+        let begin_req = serde_json::json!({
+            "prompt": long_prompt,
+            "selected_model": "uor-r4.qwen3-0.6b-holo",
+            "surface_mode": "chat",
+            "composer_mode": "agent",
+            "max_new_tokens": 12,
+            "slice_tokens": 4,
+            "prefill_slice_tokens": 16,
+            "live_hud": true,
+        })
+        .to_string();
+
+        let begin_raw = engine.holo_begin_foundry_turn(&begin_req);
+        let begin_val: serde_json::Value =
+            serde_json::from_str(&begin_raw).expect("valid begin JSON");
+        assert_eq!(
+            begin_val["status"], "prefilling",
+            "Prompts with >24 tail tokens must return chunked 'prefilling' status instead of blocking: {begin_raw}"
+        );
+        let turn_id = begin_val["turn_id"].as_u64().expect("turn_id");
+        let prefill_total = begin_val["prefill_total"].as_u64().expect("prefill_total");
+        let mut prefill_done = begin_val["prefill_done"].as_u64().expect("prefill_done");
+        assert!(prefill_total > 24);
+        assert!(prefill_done > 0 && prefill_done <= 24);
+
+        let mut saw_prefill_step = false;
+        let mut saw_done = false;
+        for _ in 0..32 {
+            let step_raw = engine.holo_step_foundry_turn(turn_id);
+            let step_val: serde_json::Value =
+                serde_json::from_str(&step_raw).expect("valid step JSON");
+            match step_val["status"].as_str().unwrap_or("") {
+                "prefilling" => {
+                    saw_prefill_step = true;
+                    let next_done = step_val["prefill_done"].as_u64().expect("prefill_done");
+                    assert!(next_done > prefill_done);
+                    prefill_done = next_done;
+                }
+                "streaming" => {}
+                "done" | "needs_tool" => {
+                    saw_done = true;
+                    break;
+                }
+                other => panic!("unexpected status `{other}`: {step_raw}"),
+            }
+        }
+        assert!(
+            saw_prefill_step || prefill_done == prefill_total,
+            "must progress cleanly through chunked prefill"
+        );
+        assert!(saw_done, "chunked prefill turn must complete cleanly");
     }
 }

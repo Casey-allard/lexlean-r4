@@ -154,8 +154,14 @@ fn test_scenario_3_autonomous_engine_tick_self_improvement_cycle() {
     println!("\n=== Starting Scenario 3: Autonomous Engine Tick Self-Improvement ===");
 
     // 1. Live model & conformance gate synchronization
+    let expected_ids = load_all_capability_rows()
+        .expect("load model/ids.toml")
+        .len();
+    assert!(expected_ids >= 68);
     let check_model_out = XtaskEngineInvoker::check_model().expect("xtask check-model");
-    assert!(check_model_out.contains("CONFORMANCE.md equals the model, 67 ids"));
+    assert!(check_model_out.contains(&format!(
+        "CONFORMANCE.md equals the model, {expected_ids} ids"
+    )));
 
     // 2. Prism Reflexive Holon Evaluation
     let report = XtaskEngineInvoker::load_synthesis_report().expect("load synthesis report");

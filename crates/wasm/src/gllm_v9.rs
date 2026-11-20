@@ -1454,6 +1454,55 @@ struct GllmV9KvCache {
     last_hidden: Vec<i16>,
 }
 
+const BPE_F_TRIM_IDENT_ALNUM: u8 = 1 << 0;
+const BPE_F_NO_WS_IDENT: u8 = 1 << 1;
+const BPE_F_MULTI_BYTE: u8 = 1 << 2;
+const BPE_F_STARTS_NO_WS_IDENT: u8 = 1 << 3;
+
+/// Formal R4.ChunkedPrefillCiGate precomputed BPE-4096 lexical bitflags eliminating inner-loop heap decodes (`R4-68`).
+fn bpe_v9_token_flags() -> &'static [u8; GLLM_V9_VOCAB] {
+    static FLAGS: std::sync::OnceLock<[u8; GLLM_V9_VOCAB]> = std::sync::OnceLock::new();
+    let _gate =
+        crate::lexlean_generated::r4_chunked_prefill_ci_gate::admit_single_pass_ci_gate(1, 1, 0);
+    FLAGS.get_or_init(|| {
+        let bpe = ByteBpe4096::global();
+        let mut table = [0u8; GLLM_V9_VOCAB];
+        for (tok_u, slot) in table.iter_mut().enumerate() {
+            let piece = bpe.decode(&[tok_u as u32]);
+            let mut f = 0u8;
+            let trimmed = piece.trim_start_matches(' ');
+            if !trimmed.is_empty()
+                && trimmed
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '_')
+                && trimmed.chars().any(|c| c.is_ascii_alphanumeric())
+            {
+                f |= BPE_F_TRIM_IDENT_ALNUM;
+            }
+            if !piece.is_empty()
+                && !piece.starts_with(char::is_whitespace)
+                && piece.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+            {
+                f |= BPE_F_NO_WS_IDENT;
+            }
+            if piece.len() >= 2 {
+                f |= BPE_F_MULTI_BYTE;
+            }
+            if !piece.is_empty()
+                && !piece.starts_with(char::is_whitespace)
+                && piece
+                    .chars()
+                    .next()
+                    .is_some_and(|ch| ch.is_ascii_alphanumeric() || ch == '_')
+            {
+                f |= BPE_F_STARTS_NO_WS_IDENT;
+            }
+            *slot = f;
+        }
+        table
+    })
+}
+
 impl GllmV9KvCache {
     fn new(
         model: &GllmV9Model,
@@ -1886,6 +1935,50 @@ impl GllmV9KvCache {
         let attn_res_shift = if self.n_layers >= 16 { 2 } else { 1 };
         let ffn_shift = if d >= 256 { 5 } else { 4 };
         let sk_blocks = if d >= 256 { d / 64 } else { 1 };
+        let bpe_flags = bpe_v9_token_flags();
+        let prompt_hi = self.prompt_len.min(self.tokens.len());
+        let is_glued_after = |p: usize| -> bool {
+            let next_i = p + 1;
+            if next_i >= prompt_hi || self.prompt_nocopy.get(next_i).copied().unwrap_or(false) {
+                return false;
+            }
+            (bpe_flags[self.tokens[next_i] as usize] & BPE_F_NO_WS_IDENT) != 0
+        };
+        let mut pos_gates = vec![0u8; t + 1];
+        for (idx, slot) in pos_gates.iter_mut().enumerate() {
+            let tok_u = self.tokens[idx] as usize;
+            let base = model.copy_tok_gate.get(tok_u).copied().unwrap_or(0);
+            *slot = if base != 0 || tok_u < 3 {
+                base
+            } else if (bpe_flags[tok_u] & BPE_F_TRIM_IDENT_ALNUM) == 0 {
+                0
+            } else if idx < prompt_hi {
+                if is_glued_after(idx) {
+                    224
+                } else {
+                    0
+                }
+            } else if (0..prompt_hi.saturating_sub(1))
+                .any(|p| self.tokens[p] as usize == tok_u && is_glued_after(p))
+            {
+                224
+            } else {
+                0
+            };
+        }
+        let t_delim = pos_gates[t] == 0;
+        let t_multi_byte = (bpe_flags[self.tokens[t] as usize] & BPE_F_MULTI_BYTE) != 0;
+        let t_prev = if !t_delim {
+            None
+        } else if t >= 1 && pos_gates[t - 1] > 0 {
+            Some(t - 1)
+        } else if t >= 2 && pos_gates[t - 2] > 0 {
+            Some(t - 2)
+        } else if t >= 3 && pos_gates[t - 3] > 0 {
+            Some(t - 3)
+        } else {
+            None
+        };
 
         for (l, lt) in model.layers.iter().enumerate() {
             for c in 0..d {
@@ -1987,63 +2080,6 @@ impl GllmV9KvCache {
                 let mut best_w = 0u64;
                 let mut min_d = i32::MAX;
                 let k_slice = &self.k_cache[l];
-                let gate_at = |idx: usize| -> u8 {
-                    let tok_u = self.tokens[idx] as usize;
-                    let base = model.copy_tok_gate.get(tok_u).copied().unwrap_or(0);
-                    if base != 0 || tok_u < 3 {
-                        return base;
-                    }
-                    let bpe = ByteBpe4096::global();
-                    let piece = bpe.decode(&[tok_u as u32]);
-                    let trimmed = piece.trim_start_matches(' ');
-                    if trimmed.is_empty()
-                        || !trimmed
-                            .chars()
-                            .all(|c| c.is_ascii_alphanumeric() || c == '_')
-                        || !trimmed.chars().any(|c| c.is_ascii_alphanumeric())
-                    {
-                        return 0;
-                    }
-                    let prompt_hi = self.prompt_len.min(self.tokens.len());
-                    let is_glued_after = |p: usize| -> bool {
-                        let next_i = p + 1;
-                        if next_i >= prompt_hi
-                            || self.prompt_nocopy.get(next_i).copied().unwrap_or(false)
-                        {
-                            return false;
-                        }
-                        let np = bpe.decode(&[self.tokens[next_i]]);
-                        !np.is_empty()
-                            && !np.starts_with(char::is_whitespace)
-                            && np.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
-                    };
-                    if idx < prompt_hi {
-                        if is_glued_after(idx) {
-                            224
-                        } else {
-                            0
-                        }
-                    } else if (0..prompt_hi.saturating_sub(1))
-                        .any(|p| self.tokens[p] as usize == tok_u && is_glued_after(p))
-                    {
-                        224
-                    } else {
-                        0
-                    }
-                };
-                let t_delim = gate_at(t) == 0;
-                let t_multi_byte = ByteBpe4096::global().decode(&[self.tokens[t]]).len() >= 2;
-                let t_prev = if !t_delim {
-                    None
-                } else if t >= 1 && gate_at(t - 1) > 0 {
-                    Some(t - 1)
-                } else if t >= 2 && gate_at(t - 2) > 0 {
-                    Some(t - 2)
-                } else if t >= 3 && gate_at(t - 3) > 0 {
-                    Some(t - 3)
-                } else {
-                    None
-                };
 
                 for (s, rw) in raw_w.iter_mut().enumerate().take(t + 1) {
                     let k_base = s * d;
@@ -2073,7 +2109,7 @@ impl GllmV9KvCache {
                     } else if sh == 2 {
                         if s + 1 < self.prompt_len
                             && s + 1 < self.tokens.len()
-                            && gate_at(s + 1) == 0
+                            && pos_gates[s + 1] == 0
                         {
                             2048
                         } else if s >= 1
@@ -2089,13 +2125,13 @@ impl GllmV9KvCache {
                                 && self.tokens[s] == self.tokens[tp]
                             {
                                 64
-                            } else if gate_at(s) == 0
+                            } else if pos_gates[s] == 0
                                 && ((s >= 1 && self.tokens[s - 1] == self.tokens[tp])
                                     || (s >= 2 && self.tokens[s - 2] == self.tokens[tp])
                                     || (s >= 3
                                         && self.tokens[s - 3] == self.tokens[tp]
-                                        && gate_at(s - 1) == 0
-                                        && gate_at(s - 2) == 0))
+                                        && pos_gates[s - 1] == 0
+                                        && pos_gates[s - 2] == 0))
                             {
                                 128
                             } else if self.tokens[s] == self.tokens[t] {
@@ -2312,6 +2348,7 @@ impl GllmV9KvCache {
             is_ident_or_slug || is_dotted_host || is_url_scheme
         }
 
+        let bpe_flags = bpe_v9_token_flags();
         let mut eff_ctg_override = [0u8; GLLM_V9_VOCAB];
         for h in 0..self.n_heads {
             let wp_vec = &self.last_top_prll_w[h];
@@ -2349,19 +2386,11 @@ impl GllmV9KvCache {
                     && tok_next >= 3
                     && s + 2 < self.prompt_len
                     && !self.prompt_nocopy.get(s + 2).copied().unwrap_or(false)
+                    && (bpe_flags[tok_next] & BPE_F_TRIM_IDENT_ALNUM) != 0
+                    && piece_continues_span(&self.tokens, self.prompt_len, in_code_gen, s + 2)
                 {
-                    let tok_piece = bpe.decode(&[tok_next as u32]);
-                    let trimmed = tok_piece.trim_start_matches(' ');
-                    if !trimmed.is_empty()
-                        && trimmed
-                            .chars()
-                            .all(|c| c.is_ascii_alphanumeric() || c == '_')
-                        && trimmed.chars().any(|c| c.is_ascii_alphanumeric())
-                        && piece_continues_span(&self.tokens, self.prompt_len, in_code_gen, s + 2)
-                    {
-                        ctg = 224;
-                        eff_ctg_override[tok_next] = 224;
-                    }
+                    ctg = 224;
+                    eff_ctg_override[tok_next] = 224;
                 }
                 if tok_next < 3 || wp == 0 || ctg == 0 {
                     continue;
@@ -2501,17 +2530,8 @@ impl GllmV9KvCache {
             if blocked_cycle_next == Some(v as u32) {
                 continue;
             }
-            if block_span_exit_alnum && v >= 3 {
-                let piece = bpe.decode(&[v as u32]);
-                if !piece.is_empty()
-                    && !piece.starts_with(char::is_whitespace)
-                    && piece
-                        .chars()
-                        .next()
-                        .is_some_and(|ch| ch.is_ascii_alphanumeric() || ch == '_')
-                {
-                    continue;
-                }
+            if block_span_exit_alnum && v >= 3 && (bpe_flags[v] & BPE_F_STARTS_NO_WS_IDENT) != 0 {
+                continue;
             }
 
             let hi_row = &model.tmac_readout_hi[v * g_cnt..(v + 1) * g_cnt];

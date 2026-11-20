@@ -7427,6 +7427,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     if (composerMode) beginPayload.composer_mode = composerMode;
     if (hasLiveHud || isStudioSurface) beginPayload.live_hud = liveHud;
     if (sliceTokens !== undefined) beginPayload.slice_tokens = sliceTokens;
+    beginPayload.prefill_slice_tokens = 16;
     if (repoParam) beginPayload.repo = repoParam;
     if (branchParam) beginPayload.branch = branchParam;
 
@@ -7435,7 +7436,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     }
     const rawBegin = fnBegin(JSON.stringify(beginPayload));
     const beginRes = typeof rawBegin === 'string' ? JSON.parse(rawBegin) : rawBegin;
-    if (!beginRes || beginRes.status !== 'ready') {
+    if (!beginRes || (beginRes.status !== 'ready' && beginRes.status !== 'prefilling')) {
       const errCode = (beginRes && beginRes.error_code) || 'ModelNotMounted';
       const errTid = beginRes && beginRes.turn_id != null ? Number(beginRes.turn_id) : activeTurnNum;
       if (errCode !== 'BusyTurn') {
@@ -7458,6 +7459,16 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     }
     if (Number.isFinite(Number(beginRes.prefix_reused_tokens))) {
       prefixReusedTokens = Number(beginRes.prefix_reused_tokens);
+    }
+    if (beginRes.status === 'prefilling') {
+      postEvent('chat_prefill_start', {
+        id: reqId,
+        turn_id: activeTurnNum,
+        modelId: selectedModel,
+        prefill_done: Number(beginRes.prefill_done || 0),
+        prefill_total: Number(beginRes.prefill_total || 0),
+        prefix_reused_tokens: prefixReusedTokens,
+      });
     }
 
     let hopToolCall = null;
@@ -7514,6 +7525,17 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       }
       if (stepRes.receipt_sha256) receiptSha256 = stepRes.receipt_sha256;
       if (stepRes.weights_kappa) weightsKappa = stepRes.weights_kappa;
+
+      if (stepRes.status === 'prefilling') {
+        postEvent('chat_prefill_start', {
+          id: reqId,
+          turn_id: activeTurnNum,
+          modelId: selectedModel,
+          prefill_done: Number(stepRes.prefill_done || 0),
+          prefill_total: Number(stepRes.prefill_total || 0),
+          prefix_reused_tokens: prefixReusedTokens,
+        });
+      }
 
       const stepFrames = [];
       if (Array.isArray(stepRes.observatory_frames)) {
