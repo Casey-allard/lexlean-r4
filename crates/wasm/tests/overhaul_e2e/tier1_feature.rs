@@ -966,9 +966,14 @@ fn test_t1_f12_engine_tick_provenance_json_generation() {
 fn test_t1_f12_engine_tick_discrete_lut_weight_step() {
     let ratchet_path = repo_root().join("model/ratchet.toml");
     let content = std::fs::read_to_string(ratchet_path).expect("read ratchet.toml");
+    let res_val = content
+        .lines()
+        .find_map(|l| l.strip_prefix("max_residue_functions = "))
+        .and_then(|v| v.trim().parse::<u64>().ok())
+        .expect("max_residue_functions integer in ratchet.toml");
     assert!(
-        content.contains("max_residue_functions = 355"),
-        "ratchet.toml must mandate max_residue_functions <= 355"
+        res_val <= 355,
+        "ratchet.toml must mandate max_residue_functions <= 355, got {res_val}"
     );
 }
 
@@ -1046,6 +1051,7 @@ fn test_t1_f13_prism_conformance_md_authority_rebuild() {
     assert!(content.contains("`R4-66`"));
     assert!(content.contains("`R4-67`"));
     assert!(content.contains("`R4-68`"));
+    assert!(content.contains("`R4-69`"));
 }
 
 #[test]

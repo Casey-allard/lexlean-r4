@@ -49008,3 +49008,131 @@ pub mod r4_chunked_prefill_ci_gate {
                 == SinglePassCiGateVerdict::DeduplicatedGateAdmitted
     }
 }
+
+/// Generated from `R4.VerdantRatchetCycle` (`src/R4/VerdantRatchetCycle.lex.tex`, `R4-69`).
+pub mod r4_verdant_ratchet_cycle {
+    /// Structure `R4.VerdantRatchetCycle.VerdantRatchetCycleCheck` (`R4-69`).
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct VerdantRatchetCycleCheck {
+        pub rust_tree_sha256_matches: bool,
+        pub js_tree_sha256_matches: bool,
+        pub lifecycle_categories: u64,
+        pub min_lifted_floor: u64,
+        pub curr_lifted: u64,
+        pub min_verified_modules_floor: u64,
+        pub curr_verified_modules: u64,
+        pub max_residue_ceiling: u64,
+        pub curr_residue: u64,
+        pub max_rust_lines_ceiling: u64,
+        pub curr_max_rust_lines: u64,
+        pub max_js_lines_ceiling: u64,
+        pub curr_max_js_lines: u64,
+        pub max_wasm_bytes_ceiling: u64,
+        pub curr_wasm_bytes: u64,
+        pub classical_choice_count: u64,
+        pub float_serving_ops: u64,
+        pub dense_matmul_ops: u64,
+    }
+
+    /// Inductive `R4.VerdantRatchetCycle.RatchetCycleVerdict` (`R4-69`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum RatchetCycleVerdict {
+        RatchetCycleAdmitted,
+        RefusedStaleSourceTreeSha256,
+        RefusedIncompleteLifecycleCategories,
+        RefusedLiftedFloorRegression,
+        RefusedWatermarkCeilingInflation,
+        RefusedClassicalChoiceOrOntologyDrift,
+    }
+
+    /// Inductive `R4.VerdantRatchetCycle.DevRelCatalogVerdict` (`R4-69`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum DevRelCatalogVerdict {
+        CatalogCoveredAdmitted,
+        RefusedUncoveredSubjectRecord,
+        RefusedUndeclaredCoverResource,
+    }
+
+    /// Function `R4.VerdantRatchetCycle.tightenFloorUp` (`R4-69`).
+    pub fn tighten_floor_up(current_floor: u64, measured_value: u64) -> u64 {
+        if current_floor < measured_value {
+            measured_value
+        } else {
+            current_floor
+        }
+    }
+
+    /// Function `R4.VerdantRatchetCycle.tightenCeilingDown` (`R4-69`).
+    pub fn tighten_ceiling_down(current_ceiling: u64, measured_value: u64) -> u64 {
+        if measured_value < current_ceiling {
+            measured_value
+        } else {
+            current_ceiling
+        }
+    }
+
+    /// Function `R4.VerdantRatchetCycle.admitVerdantRatchetCycle` (`R4-69`).
+    pub fn admit_verdant_ratchet_cycle(r: VerdantRatchetCycleCheck) -> RatchetCycleVerdict {
+        if !r.rust_tree_sha256_matches || !r.js_tree_sha256_matches {
+            RatchetCycleVerdict::RefusedStaleSourceTreeSha256
+        } else if r.lifecycle_categories < 7 {
+            RatchetCycleVerdict::RefusedIncompleteLifecycleCategories
+        } else if r.curr_lifted < r.min_lifted_floor
+            || r.curr_verified_modules < r.min_verified_modules_floor
+        {
+            RatchetCycleVerdict::RefusedLiftedFloorRegression
+        } else if r.max_residue_ceiling < r.curr_residue
+            || r.max_rust_lines_ceiling < r.curr_max_rust_lines
+            || r.max_js_lines_ceiling < r.curr_max_js_lines
+            || r.max_wasm_bytes_ceiling < r.curr_wasm_bytes
+        {
+            RatchetCycleVerdict::RefusedWatermarkCeilingInflation
+        } else if 0 < r.classical_choice_count || 0 < r.float_serving_ops || 0 < r.dense_matmul_ops
+        {
+            RatchetCycleVerdict::RefusedClassicalChoiceOrOntologyDrift
+        } else {
+            RatchetCycleVerdict::RatchetCycleAdmitted
+        }
+    }
+
+    /// Function `R4.VerdantRatchetCycle.admitDevRelCatalogCoverage` (`R4-69`).
+    pub fn admit_dev_rel_catalog_coverage(
+        uncovered_records: u64,
+        undeclared_resources: u64,
+    ) -> DevRelCatalogVerdict {
+        if 0 < uncovered_records {
+            DevRelCatalogVerdict::RefusedUncoveredSubjectRecord
+        } else if 0 < undeclared_resources {
+            DevRelCatalogVerdict::RefusedUndeclaredCoverResource
+        } else {
+            DevRelCatalogVerdict::CatalogCoveredAdmitted
+        }
+    }
+
+    /// Function `R4.VerdantRatchetCycle.verifyVerdantRatchetCycleAdmitted` (`R4-69`).
+    pub fn verify_verdant_ratchet_cycle_admitted() -> bool {
+        tighten_floor_up(2090, 2103) == 2103
+            && tighten_ceiling_down(355, 340) == 340
+            && admit_verdant_ratchet_cycle(VerdantRatchetCycleCheck {
+                rust_tree_sha256_matches: true,
+                js_tree_sha256_matches: true,
+                lifecycle_categories: 7,
+                min_lifted_floor: 2100,
+                curr_lifted: 2103,
+                min_verified_modules_floor: 150,
+                curr_verified_modules: 162,
+                max_residue_ceiling: 341,
+                curr_residue: 340,
+                max_rust_lines_ceiling: 15000,
+                curr_max_rust_lines: 14700,
+                max_js_lines_ceiling: 17000,
+                curr_max_js_lines: 16030,
+                max_wasm_bytes_ceiling: 14155776,
+                curr_wasm_bytes: 11700000,
+                classical_choice_count: 0,
+                float_serving_ops: 0,
+                dense_matmul_ops: 0,
+            }) == RatchetCycleVerdict::RatchetCycleAdmitted
+            && admit_dev_rel_catalog_coverage(0, 0) == DevRelCatalogVerdict::CatalogCoveredAdmitted
+    }
+}

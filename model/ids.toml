@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-69"
+level = "build"
+suite = "r4_69_verdant_ratchet_cycle"
+statement = "Pure LexLean models the R4-69 Verdant M15 bidirectional self-improvement Ratchet-Cycle, cryptographic Rust/JS source-tree SHA-256 register binding, 7-category lifted lifecycle audit, and Prism-DevRel DR-01/DR-02 subject-to-resource coverage (R4.VerdantRatchetCycle): tightenFloorUp and tightenCeilingDown monotonically clicking floors up and ceilings down; admitVerdantRatchetCycle admitting synchronized source-tree digests across all 7 lifecycle categories within floor and ceiling watermarks and zero Classical.choice/float/matmul drift (RatchetCycleAdmitted) while refusing stale Rust/JS source-tree SHA-256 digests (RefusedStaleSourceTreeSha256), incomplete lifecycle categories (RefusedIncompleteLifecycleCategories), lifted-function or verified-module floor regressions (RefusedLiftedFloorRegression), residue/line-count/Wasm-byte ceiling inflation (RefusedWatermarkCeilingInflation), and classical-choice or banned-op drift (RefusedClassicalChoiceOrOntologyDrift); and admitDevRelCatalogCoverage enforcing DR-01/DR-02 total facet coverage (CatalogCoveredAdmitted, RefusedUncoveredSubjectRecord, RefusedUndeclaredCoverResource). Formal controls establish modeled admission verdicts only, not external upstream GitHub repository state."
+
+[[id]]
 id = "R4-68"
 level = "build"
 suite = "r4_68_chunked_prefill_ci_gate"

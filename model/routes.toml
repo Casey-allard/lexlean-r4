@@ -141,6 +141,13 @@ prism_record = "Foundation.Qual::ChunkedPrefillCiGate"
 facet = "qual"
 note = "Chunked <= 24-token async prompt prefill slices, live-HUD speculative draft admission, precomputed BPE token flags, and single-pass deduplicated CI gate."
 
+[[route]]
+id = "R4-UR20"
+rust_fact = "verdant-m15-ratchet-cycle"
+prism_record = "Foundation.Qual::VerdantRatchetCycle"
+facet = "qual"
+note = "Verdant M15 v2.7.0 bidirectional floor-up/ceiling-down ratchet-cycle, live rust_tree_sha256/js_tree_sha256 binding, 7-category lifecycle, and DR-01/DR-02 coverage."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -235,6 +242,11 @@ response = "route R4-UR18\nfact mvm-polyglot-cargo-npm-c99\nrecord Foundation.Fe
 case = "route R4-UR19"
 request_hex = "6368756e6b65642d70726566696c6c2d73696e676c652d706173732d63692d67617465"
 response = "route R4-UR19\nfact chunked-prefill-single-pass-ci-gate\nrecord Foundation.Qual::ChunkedPrefillCiGate\nfacet qual"
+
+[[vector]]
+case = "route R4-UR20"
+request_hex = "76657264616e742d6d31352d726174636865742d6379636c65"
+response = "route R4-UR20\nfact verdant-m15-ratchet-cycle\nrecord Foundation.Qual::VerdantRatchetCycle\nfacet qual"
 
 [[vector]]
 case = "error empty"

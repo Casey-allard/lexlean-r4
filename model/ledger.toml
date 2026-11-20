@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-VERDANT-ENGINE-RATCHET"
+level = "some-true"
+authority = "VERDANT-ENGINE-RATCHET"
+statement = "Verdant Engine M15 v2.7.0 (8f560d975e) VE-55 live source-tree SHA-256 register binding, bidirectional floor-up and ceiling-down watermark auto-tightening, observer_refine debt selection, and 7-category lifted lifecycle orchestration are imported from afflom/verdant-engine and afflom/verdant-resonance. Formal LexLean controls do not entail upstream repository build status."
+
+[[claim]]
 id = "AUTH-VERDANT-ONTOLOGICAL-TELOS"
 level = "some-true"
 authority = "VERDANT-ONTOLOGICAL-TELOS"

@@ -19,7 +19,12 @@ use super::prism_factory_generated::{
     },
     r4_prism_factory::admit_ratchet_obligation,
     r4_rule30_evolution::{admit_shrink_only_ratchet, RatchetMetricVerdict},
+    r4_verdant_ratchet_cycle::{
+        admit_dev_rel_catalog_coverage, admit_verdant_ratchet_cycle, tighten_ceiling_down,
+        tighten_floor_up, DevRelCatalogVerdict, RatchetCycleVerdict, VerdantRatchetCycleCheck,
+    },
 };
+use sha2::{Digest, Sha256};
 
 type Fail = Box<dyn std::error::Error>;
 
@@ -62,6 +67,33 @@ pub struct RatchetModel {
     /// Maximum allowed unwired interactive Studio UI controls (`R4-46`, must equal `0`).
     #[serde(default)]
     pub max_unwired_ui_controls: Option<u64>,
+    /// Live deterministic SHA-256 over sorted shipped Rust `src/` files (`VE-55`, `R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rust_tree_sha256: Option<String>,
+    /// Live deterministic SHA-256 over shipped Studio/Worker JS sources (`R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub js_tree_sha256: Option<String>,
+    /// Count of lifted lifecycle categories (`7`: rust, verification-test, lexlean, feature-suite, model-governance, viewpoint, automation) (`R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lifecycle_categories: Option<u64>,
+    /// Monotone floor clicking UP on formally lifted functions (`R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_lifted_functions: Option<u64>,
+    /// Monotone floor clicking UP on verified `.lex.tex` modules (`R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min_verified_lexlean_modules: Option<u64>,
+    /// Monotone ceiling clicking DOWN on max handwritten production Rust lines per file (`R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_rust_file_lines: Option<u64>,
+    /// Monotone ceiling clicking DOWN on max handwritten JS lines per file (`R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_js_file_lines: Option<u64>,
+    /// Hard Wasm binary byte ceiling (`<= 14_155_776` = 13.5 MiB) (`R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_wasm_core_bytes: Option<u64>,
+    /// Maximum allowed `Classical.choice` / `sorry` tokens in `.lex.tex` specs (`0`) (`R4-69`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_classical_choice_count: Option<u64>,
 }
 
 /// Measured repository state checked against `RatchetModel`.
@@ -89,6 +121,24 @@ pub struct RatchetMeasuredState {
     pub dense_matmul_ops: u64,
     /// Count of unwired interactive controls between `public/index.html` and `public/app.js`.
     pub unwired_ui_controls: u64,
+    /// Deterministic SHA-256 hex over sorted shipped Rust `src/` files (`R4-69`).
+    pub rust_tree_sha256: String,
+    /// Deterministic SHA-256 hex over shipped Studio/Worker JS files (`R4-69`).
+    pub js_tree_sha256: String,
+    /// Verified lifecycle categories present in workspace (`0..=7`, `R4-69`).
+    pub lifecycle_categories: u64,
+    /// Count of formally lifted functions in `lift_register` (`R4-69`).
+    pub lifted_functions: u64,
+    /// Count of valid `.lex.tex` modules across `src/R4` and `tests/lexlean` (`R4-69`).
+    pub verified_lexlean_modules: u64,
+    /// Max handwritten production lines in any single `.rs` file (`R4-69`).
+    pub max_rust_file_lines: u64,
+    /// Max lines in any single source `.js` file (`R4-69`).
+    pub max_js_file_lines: u64,
+    /// Byte length of `public/lexlean_r4_bg.wasm` (`R4-69`).
+    pub wasm_core_bytes: u64,
+    /// Count of `Classical.choice` or `sorryAx` occurrences across `.lex.tex` files (`R4-69`).
+    pub classical_choice_count: u64,
 }
 
 /// Result of verifying the shrink-only ratchet and Peirce triadic invariants.
@@ -217,6 +267,8 @@ pub fn measure_ratchet_state(root: &Path) -> Result<RatchetMeasuredState, Fail> 
     }
 
     let mut ungrounded_defs = 0u64;
+    let mut verified_lexlean_modules = 0u64;
+    let mut classical_choice_count = 0u64;
     let r4_dir = root.join("src/R4");
     if !r4_dir.exists() {
         return Err("missing src/R4 semantic module directory".into());
@@ -230,20 +282,48 @@ pub fn measure_ratchet_state(root: &Path) -> Result<RatchetMeasuredState, Fail> 
     if r4_entries.is_empty() {
         return Err("no .lex.tex modules found under src/R4".into());
     }
-    for path in r4_entries {
-        let raw = std::fs::read_to_string(&path)?;
-        if !is_valid_semantic_module(&raw) {
+    for path in &r4_entries {
+        let raw = std::fs::read_to_string(path)?;
+        if is_valid_semantic_module(&raw) {
+            verified_lexlean_modules += 1;
+        } else {
             ungrounded_defs += 1;
+        }
+        if raw.contains("Classical.choice") || raw.contains("sorryAx") {
+            classical_choice_count += 1;
+        }
+    }
+    let ctrl_dir = root.join("tests/lexlean");
+    if ctrl_dir.is_dir() {
+        let mut ctrl_entries: Vec<PathBuf> = std::fs::read_dir(&ctrl_dir)?
+            .flatten()
+            .map(|e| e.path())
+            .filter(|p| p.to_string_lossy().ends_with(".lex.tex"))
+            .collect();
+        ctrl_entries.sort();
+        for path in &ctrl_entries {
+            let raw = std::fs::read_to_string(path)?;
+            if is_valid_semantic_module(&raw) {
+                verified_lexlean_modules += 1;
+            }
+            if raw.contains("Classical.choice") || raw.contains("sorryAx") {
+                classical_choice_count += 1;
+            }
         }
     }
 
-    let residue_functions = super::lift_register::scan_codebase_lift_register(root)?
-        .document
-        .summary
-        .residue;
+    let lift_scan = super::lift_register::scan_codebase_lift_register(root)?;
+    let residue_functions = lift_scan.document.summary.residue;
+    let lifted_functions = lift_scan.document.summary.lifted;
     let float_serving_ops = measure_float_serving_ops(root)?;
     let dense_matmul_ops = measure_dense_matmul_ops(root)?;
     let unwired_ui_controls = measure_unwired_ui_controls(root)?;
+    let (rust_tree_sha256, max_rust_file_lines) = measure_shipped_rust_tree(root)?;
+    let (js_tree_sha256, max_js_file_lines) = measure_shipped_js_tree(root)?;
+    let wasm_core_bytes = std::fs::metadata(root.join("public/lexlean_r4_bg.wasm"))
+        .map(|m| m.len())
+        .unwrap_or(0);
+    let lifecycle_categories = measure_lifecycle_categories(root);
 
     Ok(RatchetMeasuredState {
         handwritten_bypass_files,
@@ -257,7 +337,170 @@ pub fn measure_ratchet_state(root: &Path) -> Result<RatchetMeasuredState, Fail> 
         float_serving_ops,
         dense_matmul_ops,
         unwired_ui_controls,
+        rust_tree_sha256,
+        js_tree_sha256,
+        lifecycle_categories,
+        lifted_functions,
+        verified_lexlean_modules,
+        max_rust_file_lines,
+        max_js_file_lines,
+        wasm_core_bytes,
+        classical_choice_count,
     })
+}
+
+/// Formal R4.VerdantRatchetCycle compute deterministic SHA-256 and max production line count over shipped Rust `src/` files.
+pub fn measure_shipped_rust_tree(root: &Path) -> Result<(String, u64), Fail> {
+    let mut files = Vec::new();
+    for rel in [
+        "crates/wasm/src",
+        "crates/model/src",
+        "crates/conformance/src",
+        "xtask/src",
+    ] {
+        collect_files(&root.join(rel), &mut files)?;
+    }
+    files.retain(|p| p.extension().is_some_and(|e| e == "rs"));
+    files.sort();
+
+    let mut hasher = Sha256::new();
+    hasher.update(b"verdant/rust-tree/1\n");
+    let mut max_lines = 0u64;
+    for path in files {
+        let rel = path
+            .strip_prefix(root)
+            .unwrap_or(&path)
+            .to_string_lossy()
+            .replace('\\', "/");
+        let raw = std::fs::read_to_string(&path)?;
+        hasher.update(rel.as_bytes());
+        hasher.update(b"\n");
+        hasher.update(raw.as_bytes());
+        hasher.update(b"\0");
+        if !rel.ends_with("lexlean_generated.rs") && !rel.ends_with("glm_weights.rs") {
+            let prod = raw.split("#[cfg(test)]").next().unwrap_or(&raw);
+            let lines = prod.lines().count() as u64;
+            if lines > max_lines {
+                max_lines = lines;
+            }
+        }
+    }
+    let hex: String = hasher
+        .finalize()
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    Ok((hex, max_lines))
+}
+
+/// Formal R4.VerdantRatchetCycle compute deterministic SHA-256 and max code-line count over shipped Studio/Worker JS sources.
+pub fn measure_shipped_js_tree(root: &Path) -> Result<(String, u64), Fail> {
+    let mut hasher = Sha256::new();
+    hasher.update(b"verdant/js-tree/1\n");
+    let mut max_lines = 0u64;
+    for rel in ["crates/wasm/js/worker_host_bridge.js", "public/app.js"] {
+        let p = root.join(rel);
+        if p.is_file() {
+            let raw = std::fs::read_to_string(&p)?;
+            hasher.update(rel.as_bytes());
+            hasher.update(b"\n");
+            hasher.update(raw.as_bytes());
+            hasher.update(b"\0");
+            let lines = raw
+                .lines()
+                .filter(|l| {
+                    let t = l.trim();
+                    !t.is_empty()
+                        && !t.starts_with("//")
+                        && !t.starts_with("/*")
+                        && !t.starts_with('*')
+                })
+                .count() as u64;
+            if lines > max_lines {
+                max_lines = lines;
+            }
+        }
+    }
+    let hex: String = hasher
+        .finalize()
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect();
+    Ok((hex, max_lines))
+}
+
+/// Formal R4.VerdantRatchetCycle measure `prism-devrel` `DR-01` subject coverage and `DR-02` cover resource registration.
+pub fn measure_devrel_catalog_coverage(root: &Path) -> Result<(u64, u64), Fail> {
+    let ids_path = root.join("model/ids.toml");
+    let auth_path = root.join("model/authorities.toml");
+    let suites_dir = root.join("features/suites");
+    if !ids_path.is_file() || !auth_path.is_file() || !suites_dir.is_dir() {
+        return Ok((0, 0));
+    }
+    let model = repo_model::Model::load(&root.join("model"))?;
+    let declared_ids: std::collections::BTreeSet<String> =
+        model.ids.id.iter().map(|r| r.id.clone()).collect();
+
+    let mut suite_blob = String::new();
+    let mut suite_files = Vec::new();
+    collect_files(&suites_dir, &mut suite_files)?;
+    suite_files.sort();
+    for p in suite_files {
+        if p.extension().is_some_and(|e| e == "feature") {
+            suite_blob.push_str(&std::fs::read_to_string(p)?);
+            suite_blob.push('\n');
+        }
+    }
+    let uncovered_records = declared_ids
+        .iter()
+        .filter(|id| !suite_blob.contains(&format!("@{id}")))
+        .count() as u64;
+    let undeclared_resources = model
+        .authorities
+        .authority
+        .iter()
+        .flat_map(|a| a.realized_by.iter())
+        .filter(|id| !declared_ids.contains(*id))
+        .count() as u64;
+    Ok((uncovered_records, undeclared_resources))
+}
+
+/// Formal R4.VerdantRatchetCycle count lifted lifecycle categories (`rust`, `verification-test`, `lexlean`, `feature-suite`, `model-governance`, `viewpoint`, `automation`).
+pub fn measure_lifecycle_categories(root: &Path) -> u64 {
+    let checks = [
+        root.join("crates/wasm/src/lib.rs").is_file(),
+        root.join("crates/conformance/tests/bdd.rs").is_file(),
+        root.join("src/R4").is_dir() && root.join("lexlean.toml").is_file(),
+        root.join("features/suites").is_dir(),
+        root.join("model/ids.toml").is_file() && root.join("model/ratchet.toml").is_file(),
+        root.join("public/index.html").is_file() && root.join("public/app.js").is_file(),
+        root.join("Justfile").is_file() && root.join("xtask/src/main.rs").is_file(),
+    ];
+    checks.into_iter().filter(|&ok| ok).count() as u64
+}
+
+/// Formal R4.VerdantRatchetCycle rank the highest-debt unlifted/oversized file for `observer_refine` (`VE-55`, `R4-69`).
+pub fn observer_refine_highest_debt_target(root: &Path) -> Result<(String, u64, u64), Fail> {
+    let scan = super::lift_register::scan_codebase_lift_register(root)?;
+    let mut residue_by_file: std::collections::BTreeMap<String, u64> =
+        std::collections::BTreeMap::new();
+    for row in &scan.document.rows {
+        if row.status == "residue" {
+            if let Some((file, _)) = row.function.split_once("::") {
+                *residue_by_file.entry(file.to_string()).or_insert(0) += 1;
+            }
+        }
+    }
+    let mut best = ("none".to_string(), 0u64, 0u64);
+    for (file, res_cnt) in residue_by_file {
+        let lines = std::fs::read_to_string(root.join(&file))
+            .map(|s| s.split("#[cfg(test)]").next().unwrap_or(&s).lines().count() as u64)
+            .unwrap_or(0);
+        if (res_cnt, lines) > (best.1, best.2) {
+            best = (file, res_cnt, lines);
+        }
+    }
+    Ok(best)
 }
 
 fn serving_rust_files(root: &Path) -> Result<Vec<PathBuf>, Fail> {
@@ -664,6 +907,60 @@ pub fn enforce_monotone_ceilings(
             }
         }
     }
+
+    let floor_pairs = [
+        (
+            "min_lifted_functions",
+            current.min_lifted_functions,
+            parent.min_lifted_functions,
+        ),
+        (
+            "min_verified_lexlean_modules",
+            current.min_verified_lexlean_modules,
+            parent.min_verified_lexlean_modules,
+        ),
+    ];
+    for (name, next_f, prev_f) in floor_pairs {
+        if let (Some(nf), Some(pf)) = (next_f, prev_f) {
+            if nf < pf {
+                return Err(format!(
+                    "ratchet floor regression in `{name}`: parent={pf}, current={nf}"
+                ));
+            }
+        }
+    }
+
+    let extra_ceilings = [
+        (
+            "max_rust_file_lines",
+            current.max_rust_file_lines,
+            parent.max_rust_file_lines,
+        ),
+        (
+            "max_js_file_lines",
+            current.max_js_file_lines,
+            parent.max_js_file_lines,
+        ),
+        (
+            "max_wasm_core_bytes",
+            current.max_wasm_core_bytes,
+            parent.max_wasm_core_bytes,
+        ),
+        (
+            "max_classical_choice_count",
+            current.max_classical_choice_count,
+            parent.max_classical_choice_count,
+        ),
+    ];
+    for (name, next_c, prev_c) in extra_ceilings {
+        if let (Some(nc), Some(pc)) = (next_c, prev_c) {
+            if nc > pc {
+                return Err(format!(
+                    "ratchet ceiling regression in `{name}`: parent={pc}, current={nc}"
+                ));
+            }
+        }
+    }
     Ok(())
 }
 
@@ -716,6 +1013,14 @@ pub fn verify_peirce_triadic_step(
 
 /// Verify the full `model/ratchet.toml` policy, mechanizer, lift-register, serving & UI gates, git monotonicity, and Peirce cycle.
 pub fn check(root: &Path) -> Result<RatchetReport, Fail> {
+    check_with_mechanizer(root, None)
+}
+
+/// Formal R4.VerdantRatchetCycle verify `model/ratchet.toml` reusing a pre-verified mechanizer report when available (`R4-68`, `R4-69`).
+pub fn check_with_mechanizer(
+    root: &Path,
+    pre_mech: Option<&super::mechanizer::MechanizerReport>,
+) -> Result<RatchetReport, Fail> {
     let model = load_ratchet_model(root)?;
     if model.spec != RATCHET_SPEC {
         return Err(format!(
@@ -756,7 +1061,9 @@ pub fn check(root: &Path) -> Result<RatchetReport, Fail> {
         .into());
     }
 
-    super::mechanizer::run_mechanizer_gate(root)?;
+    if pre_mech.is_none() {
+        super::mechanizer::run_mechanizer_gate(root)?;
+    }
     super::lift_register::check_lift_register_ratchet(root, max_res)?;
 
     let measured = measure_ratchet_state(root)?;
@@ -827,6 +1134,69 @@ pub fn check(root: &Path) -> Result<RatchetReport, Fail> {
         return Err(format!("{err}; unwired_controls={unwired:?}").into());
     }
 
+    if let Some(expected_rust_sha) = &model.rust_tree_sha256 {
+        let expected_js_sha = model
+            .js_tree_sha256
+            .as_deref()
+            .ok_or("model/ratchet.toml with rust_tree_sha256 must also set js_tree_sha256")?;
+        let cycle_check = VerdantRatchetCycleCheck {
+            rust_tree_sha256_matches: expected_rust_sha == &measured.rust_tree_sha256,
+            js_tree_sha256_matches: expected_js_sha == measured.js_tree_sha256,
+            lifecycle_categories: model
+                .lifecycle_categories
+                .unwrap_or(measured.lifecycle_categories)
+                .min(measured.lifecycle_categories),
+            min_lifted_floor: model.min_lifted_functions.unwrap_or(0),
+            curr_lifted: measured.lifted_functions,
+            min_verified_modules_floor: model.min_verified_lexlean_modules.unwrap_or(0),
+            curr_verified_modules: measured.verified_lexlean_modules,
+            max_residue_ceiling: max_res,
+            curr_residue: measured.residue_functions,
+            max_rust_lines_ceiling: model.max_rust_file_lines.unwrap_or(u64::MAX),
+            curr_max_rust_lines: measured.max_rust_file_lines,
+            max_js_lines_ceiling: model.max_js_file_lines.unwrap_or(u64::MAX),
+            curr_max_js_lines: measured.max_js_file_lines,
+            max_wasm_bytes_ceiling: model.max_wasm_core_bytes.unwrap_or(14_155_776),
+            curr_wasm_bytes: measured.wasm_core_bytes,
+            classical_choice_count: measured.classical_choice_count,
+            float_serving_ops: measured.float_serving_ops,
+            dense_matmul_ops: measured.dense_matmul_ops,
+        };
+        let cycle_verdict = admit_verdant_ratchet_cycle(cycle_check);
+        if cycle_verdict != RatchetCycleVerdict::RatchetCycleAdmitted {
+            return Err(format!(
+                "Verdant ratchet-cycle gate refused (`R4-69`): {cycle_verdict:?} \
+                 (rust_sha_match={}, js_sha_match={}, lifted={}/{:?}, modules={}/{:?}, residue={}/{}, rust_lines={}/{:?}, js_lines={}/{:?}, wasm_bytes={}/{:?}, choice={})",
+                expected_rust_sha == &measured.rust_tree_sha256,
+                expected_js_sha == measured.js_tree_sha256,
+                measured.lifted_functions,
+                model.min_lifted_functions,
+                measured.verified_lexlean_modules,
+                model.min_verified_lexlean_modules,
+                measured.residue_functions,
+                max_res,
+                measured.max_rust_file_lines,
+                model.max_rust_file_lines,
+                measured.max_js_file_lines,
+                model.max_js_file_lines,
+                measured.wasm_core_bytes,
+                model.max_wasm_core_bytes,
+                measured.classical_choice_count
+            )
+            .into());
+        }
+    }
+
+    let (uncovered_records, undeclared_resources) = measure_devrel_catalog_coverage(root)?;
+    let devrel_verdict = admit_dev_rel_catalog_coverage(uncovered_records, undeclared_resources);
+    if devrel_verdict != DevRelCatalogVerdict::CatalogCoveredAdmitted {
+        return Err(format!(
+            "DevRel catalog coverage gate refused (`DR-01`/`DR-02`, `R4-69`): {devrel_verdict:?} \
+             (uncovered_records={uncovered_records}, undeclared_resources={undeclared_resources})"
+        )
+        .into());
+    }
+
     let monotone_vs_parent = check_git_parent_ratchet(root, &model)?;
 
     for phase in [
@@ -838,12 +1208,13 @@ pub fn check(root: &Path) -> Result<RatchetReport, Fail> {
     }
 
     println!(
-        "ratchet-check: shrink-only + Peirce triadic verified (r30_gen={}, orphans={}, ungrounded={}, ignored={}, residue={}, float={}, matmul={}, unwired_ui={})",
+        "ratchet-check: shrink-only + Peirce + Verdant M15 verified (r30_gen={}, lifted={}, modules={}, residue={}, rust_lines={}, js_lines={}, float={}, matmul={}, unwired_ui={})",
         measured.rule30_generation,
-        measured.orphaned_point_rows,
-        measured.ungrounded_defs,
-        measured.ignored_conformance_tests,
+        measured.lifted_functions,
+        measured.verified_lexlean_modules,
         measured.residue_functions,
+        measured.max_rust_file_lines,
+        measured.max_js_file_lines,
         measured.float_serving_ops,
         measured.dense_matmul_ops,
         measured.unwired_ui_controls
@@ -855,6 +1226,68 @@ pub fn check(root: &Path) -> Result<RatchetReport, Fail> {
         monotone_vs_parent,
         peirce_admitted: true,
     })
+}
+
+/// Formal R4.VerdantRatchetCycle run autonomous bidirectional ratchet cycle (`VE-55`, `R4-69`):
+/// ranks highest-debt unlifted target (`observer_refine`), clicks formal floors UP via
+/// `tighten_floor_up`, clicks handwritten watermarks DOWN via `tighten_ceiling_down`,
+/// binds live `rust_tree_sha256` + `js_tree_sha256`, and verifies full admission.
+pub fn run_ratchet_cycle(root: &Path, write: bool) -> Result<RatchetReport, Fail> {
+    let mech_rep = super::mechanizer::run_mechanizer_gate(root)?;
+    let mut model = load_ratchet_model(root)?;
+    let measured = measure_ratchet_state(root)?;
+    let (hot_file, hot_residue, hot_lines) = observer_refine_highest_debt_target(root)?;
+
+    if write {
+        let prev_res = model
+            .max_residue_functions
+            .unwrap_or(measured.residue_functions);
+        model.max_residue_functions =
+            Some(tighten_ceiling_down(prev_res, measured.residue_functions));
+
+        let prev_lifted = model.min_lifted_functions.unwrap_or(0);
+        model.min_lifted_functions = Some(tighten_floor_up(prev_lifted, measured.lifted_functions));
+
+        let prev_mods = model.min_verified_lexlean_modules.unwrap_or(0);
+        model.min_verified_lexlean_modules = Some(tighten_floor_up(
+            prev_mods,
+            measured.verified_lexlean_modules,
+        ));
+
+        let prev_rs = model
+            .max_rust_file_lines
+            .unwrap_or(measured.max_rust_file_lines);
+        model.max_rust_file_lines =
+            Some(tighten_ceiling_down(prev_rs, measured.max_rust_file_lines));
+
+        let prev_js = model
+            .max_js_file_lines
+            .unwrap_or(measured.max_js_file_lines);
+        model.max_js_file_lines = Some(tighten_ceiling_down(prev_js, measured.max_js_file_lines));
+
+        let prev_wasm = model.max_wasm_core_bytes.unwrap_or(14_155_776);
+        model.max_wasm_core_bytes = Some(tighten_ceiling_down(prev_wasm, 14_155_776));
+        model.max_classical_choice_count = Some(0);
+        model.lifecycle_categories = Some(7);
+        model.rust_tree_sha256 = Some(measured.rust_tree_sha256.clone());
+        model.js_tree_sha256 = Some(measured.js_tree_sha256.clone());
+
+        let header = "# Authoritative Verdant M15 bidirectional ratchet & Peirce triadic invariants (`r4/ratchet/1`).\n\
+                      # Governed by `src/R4/{AutonomousEngine,PrismFactory,Rule30Evolution,VerdantRatchetCycle}.lex.tex` (`R4-41`, `R4-69`).\n\n";
+        let serialized =
+            toml::to_string(&model).map_err(|e| format!("serializing model/ratchet.toml: {e}"))?;
+        std::fs::write(
+            root.join("model/ratchet.toml"),
+            format!("{header}{serialized}"),
+        )?;
+    }
+
+    println!(
+        "ratchet-cycle (write={write}): observer_refine_target={hot_file} (residue={hot_residue}, lines={hot_lines}), lifted={}, modules={}, residue={}",
+        measured.lifted_functions, measured.verified_lexlean_modules, measured.residue_functions
+    );
+
+    check_with_mechanizer(root, Some(&mech_rep))
 }
 
 #[cfg(test)]
@@ -895,6 +1328,15 @@ mod tests {
             max_float_serving_ops: Some(0),
             max_dense_matmul_ops: Some(0),
             max_unwired_ui_controls: Some(0),
+            rust_tree_sha256: None,
+            js_tree_sha256: None,
+            lifecycle_categories: None,
+            min_lifted_functions: None,
+            min_verified_lexlean_modules: None,
+            max_rust_file_lines: None,
+            max_js_file_lines: None,
+            max_wasm_core_bytes: None,
+            max_classical_choice_count: None,
         }
     }
 
@@ -1049,5 +1491,18 @@ mod tests {
         assert!(
             verify_peirce_triadic_step(PeircePhase::Deduction, false, true, 10, 10, 1).is_err()
         );
+
+        // R4-69 floor regression and extra ceiling inflation are refused.
+        let mut with_floors = base.clone();
+        with_floors.min_lifted_functions = Some(2100);
+        with_floors.min_verified_lexlean_modules = Some(160);
+        with_floors.max_rust_file_lines = Some(18000);
+        with_floors.max_js_file_lines = Some(17500);
+        let mut floor_reg = with_floors.clone();
+        floor_reg.min_lifted_functions = Some(2099);
+        assert!(enforce_monotone_ceilings(&floor_reg, &with_floors).is_err());
+        let mut js_inf = with_floors.clone();
+        js_inf.max_js_file_lines = Some(17501);
+        assert!(enforce_monotone_ceilings(&js_inf, &with_floors).is_err());
     }
 }

@@ -30,6 +30,7 @@ fn main() -> ExitCode {
         "lift-register" => engine::lift_register::cmd_lift_register(&root, write),
         "synthesize" => engine::synthesis::cmd_synthesize(&root, write),
         "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
+        "ratchet-cycle" => engine::ratchet::run_ratchet_cycle(&root, write).map(|_| ()),
         "build-wasm" => wasm_bundle::run_build_wasm_cmd(&root, rest),
         "build-holo" => run_build_holo_cmd(&root, rest),
         "generate-studio-sft-dataset" => run_generate_studio_sft_dataset_cmd(&root, rest),
@@ -111,6 +112,7 @@ fn main() -> ExitCode {
                  lift-register     R4-45: UORust function kappa-lift scanner + UE-16 ratchet (--write)\n\
                  synthesize        R4-45: 4-facet holon KPIs + Hebbian bandit Pareto tick (--write)\n\
                  ratchet-check     R4-41: shrink-only metric ratchet + Peirce triadic cycle\n\
+                 ratchet-cycle     R4-69: Verdant M15 bidirectional floors-UP / ceilings-DOWN ratchet (--write)\n\
                  build-wasm        compile crates/wasm, inject bridge + cache hook, write provenance.json\n\
                  build-holo        compile public/ closure into Hologram v4 .holo (--out / --sync-site-manifest / --verify-site-manifest)\n\
                  check-wasm-sync   verify public/ Wasm/JS bundle matches provenance.json\n\
@@ -182,7 +184,7 @@ fn validate(root: &Path) -> Result<(), Fail> {
     audit::audit_limits(root)?;
     audit::audit_deferral(root)?;
     let mech_rep = engine::mechanizer::run_mechanizer_gate(root)?;
-    let _ratchet_rep = engine::ratchet::check(root)?;
+    let _ratchet_rep = engine::ratchet::check_with_mechanizer(root, Some(&mech_rep))?;
     routes_and_measures::check_routes(root)?;
     routes_and_measures::check_measures(root)?;
     run_build_holo_cmd(root, &["--verify-site-manifest".to_string()])?;

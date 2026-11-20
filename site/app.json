@@ -1,7 +1,7 @@
 {
   "address": "lexlean-r4",
-  "applicationKappa": "blake3:058083d47e474d7b7bf76e23a81a8c52d06419b2e2d71eb283fccf98cbf81cd9",
-  "archiveKappa": "blake3:776c570392de61963eee18396d782597bb579671f51649a6b7cd49047412129b",
+  "applicationKappa": "blake3:2bab825c4de074346889f9d55ac14507a915b77a39f139e3b7a185a67a92af78",
+  "archiveKappa": "blake3:45f2e57b5ceed78b748717c40a14906d842db34c4be9fc52eae7d39728a1d254",
   "capabilities": [
     "holo_v13_pure_integer",
     "opfs_kappastore_sync_access",
@@ -75,7 +75,7 @@
     "queryParam": "embed=me",
     "supported": true
   },
-  "fingerprint": "957cb4bb795e22aec21dfab5a54d70658786967dd55f30c02c3fea9b4e9737ef",
+  "fingerprint": "506ce4c3add075b6c0509ddcc87005319610755595dae1fb62d26caf1669dc51",
   "foundry": {
     "embedQueryParam": "embed=foundry",
     "fork": "https://github.com/Casey-allard/foundry",
@@ -94,7 +94,7 @@
   "guestContentKappa": "blake3:432ef4380308a8212164bf5ec406050034fca4ca62675e073a750df6461a1ce3",
   "holoAddress": "holo://lexlean-r4",
   "holoByteLength": 13279487,
-  "holoFingerprintUrl": "https://casey-allard.github.io/lexlean-r4/holo/957cb4bb795e22aec21dfab5a54d70658786967dd55f30c02c3fea9b4e9737ef.holo",
+  "holoFingerprintUrl": "https://casey-allard.github.io/lexlean-r4/holo/506ce4c3add075b6c0509ddcc87005319610755595dae1fb62d26caf1669dc51.holo",
   "holoUrl": "https://casey-allard.github.io/lexlean-r4/app.holo",
   "icons": [
     {
@@ -105,7 +105,7 @@
   ],
   "inputLabel": "Prompt or Workspace Command",
   "live": "https://casey-allard.github.io/lexlean-r4/",
-  "modelContentKappa": "blake3:9f1fadbbfb2960ad8aa2b6d6c6b97f2ce5db7245db69362ccbbf963436bb2847",
+  "modelContentKappa": "blake3:927b60663331b885dc127e47092162cd7b04c949fb1f3e4716158eedae498227",
   "models": [
     "uor-r4.qwen3-0.6b-holo",
     "uor-r4.qwen3-1.7b-holo",
@@ -161,6 +161,6 @@
     }
   ],
   "version": "0.14.0",
-  "viewContentKappa": "blake3:1812524752d102a59e7a374bf3ce5ec6f1103516598140098436386920708840",
+  "viewContentKappa": "blake3:001d8d034a397df597831e75e1a57ff50ea492347a7705979309e852797b2019",
   "wasmSha256": "a5a99b5103a09bd15ebfab963453880f791f69a35e3057468f8923d392e0d6b7"
 }

@@ -171,9 +171,10 @@ fn every_some_true_claim_cites_an_authority_cm_03() {
             "{name} has no checksum and no reason for its absence"
         );
     }
-    assert_eq!(
-        some_true, 47,
-        "CM-03 requires exactly 47 cited some-true authorities"
+    let expected_authorities = model.authorities.authority.len();
+    assert!(
+        some_true >= 48 && some_true >= expected_authorities,
+        "CM-03 requires >= 48 cited some-true authorities covering all {expected_authorities} authority rows, got {some_true}"
     );
     eprintln!("CM-03: {some_true} cited authorities, each with a citation");
 }

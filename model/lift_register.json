@@ -2,9 +2,9 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2882,
-    "lifted": 2103,
-    "effect": 283,
+    "total_functions": 2894,
+    "lifted": 2109,
+    "effect": 289,
     "foreign": 155,
     "residue": 341
   },
@@ -3788,6 +3788,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "5b5b7f74e532844cbcff076c68c02899dd7057750ba379e5637d11a4a8ebf9d2",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_dev_rel_catalog_coverage",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_dev_rel_catalog_coverage",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "c17173e1797d91c20d60ffd50b9550d03928bbc966d7ba230cc7d81c35f1124f",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_fresh_model",
       "status": "lifted",
@@ -4184,6 +4191,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_uorc_generation_capsule",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_uorc_generation_capsule",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "dcac9f52c9cfb8c1488f28b09a2a558f16eb48e333eaf67c77c62a370c2271f0",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_verdant_ratchet_cycle",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_verdant_ratchet_cycle",
       "exact_divergence_free": true
     },
     {
@@ -12209,6 +12223,20 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "6102fd804359a39b65daf800be025fd15fda1c1960c4be05554705ef3a0fa15a",
+      "function": "crates/wasm/src/lexlean_generated.rs::tighten_ceiling_down",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::tighten_ceiling_down",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "dd88650d5a7910b422b4fedfc41be0badbc459619bf90d9588449f235d57c5f1",
+      "function": "crates/wasm/src/lexlean_generated.rs::tighten_floor_up",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::tighten_floor_up",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "5f838940b26b0ed50b12575145d498701b65ffd184de8e21661f0e39f9be2ab2",
       "function": "crates/wasm/src/lexlean_generated.rs::tokenizer_alphabet_decode",
       "status": "lifted",
@@ -12969,6 +12997,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::verify_test_assertion",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::verify_test_assertion",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "7a4142a0398d9d0a5622a3d6cd6bef05d9a1647086f4d0219947fd272edaa7a1",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_verdant_ratchet_cycle_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_verdant_ratchet_cycle_admitted",
       "exact_divergence_free": true
     },
     {
@@ -19998,7 +20033,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "ca7e60a0f7cc063caae3119c367e6fe2f75481207f9a2b1fad8cdbdd81b1fa94",
+      "kappa": "87a7de0bb7ba3cb53ef415b629c891f937ffc3a41cb2571f600e77a4400f37ae",
       "function": "xtask/src/main.rs::main",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -20019,7 +20054,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "35ed401d1acb99b52bb65cf506af553688f58d9295d6e44eace99945f75a62ea",
+      "kappa": "0d67fc6a73197e52c4f4d3ddf30848b34d2e4f85c2567566da8870e9a65f2000",
       "function": "xtask/src/main.rs::validate",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -20152,7 +20187,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "37e179df3ce9107fb29e269e1309e52c509b423815c8240ede2d93dee3dd7388",
+      "kappa": "ef9116d566a7e7cfce50db43a9795490223e41d546739b3e47075412f9418b5c",
       "function": "xtask/src/ratchet.rs::check",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -20174,6 +20209,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "0ca484a653addb5e71a4723a6b16273447a63ed61fcb5b5376e9953e94db1c70",
+      "function": "xtask/src/ratchet.rs::check_with_mechanizer",
+      "status": "effect",
+      "effect": "stdio-console-effect",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "bc72a4e4db06595168ca251a4b01a968e4e9af1d8b60c12ea2051bb7499e6f29",
       "function": "xtask/src/ratchet.rs::collect_files",
       "status": "effect",
@@ -20181,7 +20223,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "d8276fc78c02cb19dd08cd5b4126456bd278f8c6c71041c58430531b7c0046c3",
+      "kappa": "e742a232b41c5d13047d33d26ee8b7a3e70deb1b793265ba1dd8a1dc3e5a5f3e",
       "function": "xtask/src/ratchet.rs::enforce_monotone_ceilings",
       "status": "residue",
       "reason": "unlifted-pure-fn",
@@ -20225,6 +20267,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "9c75e770411a6348771b862dcce6d5d5da18c63449edb3b0e491cd26a9940e14",
+      "function": "xtask/src/ratchet.rs::measure_devrel_catalog_coverage",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "2d776442aef1450f397a7b4e3ac327c1079d1b662ef4d27f3c50f6efc1a6498e",
       "function": "xtask/src/ratchet.rs::measure_float_serving_ops",
       "status": "effect",
@@ -20232,8 +20281,29 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "7d4bd1954f3a1d6c410f24ecf2e6affc2d819043eab91cb23d55e099e177b7ae",
+      "kappa": "5bb36d1bf300d174b6e1972dbebea8a93e30ce4fe00100f9c96e022ac1741174",
+      "function": "xtask/src/ratchet.rs::measure_lifecycle_categories",
+      "status": "lifted",
+      "definition": "R4.VerdantRatchetCycle",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "f6286f9357bb0c29bf18d3045054873380c216563c79e4f3bf803af1203b46f4",
       "function": "xtask/src/ratchet.rs::measure_ratchet_state",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "4dc72ae0217f0bd51c11980e45c51e8d8929e4e575da207c37724b4a3fe3ee19",
+      "function": "xtask/src/ratchet.rs::measure_shipped_js_tree",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "ff2a9f267f7d3126b715c8caa9002324f4614a4dff21d9be21953e7fdf67a98b",
+      "function": "xtask/src/ratchet.rs::measure_shipped_rust_tree",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
@@ -20246,11 +20316,25 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "f943ab0490230d18de37eb62ef4d7fb17c38c95a996ebf24cf1401f91dadd439",
+      "function": "xtask/src/ratchet.rs::observer_refine_highest_debt_target",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "c40df255ca1b7af875d0a71346b98217bb7f43255d2fa94c170b7006d254acd0",
       "function": "xtask/src/ratchet.rs::outside_backticks",
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `xtask/src/ratchet.rs::outside_backticks` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "9319870b3ed6cfd52c09a8050ccdc7af625ceed72149a03d686c0c13f2460489",
+      "function": "xtask/src/ratchet.rs::run_ratchet_cycle",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {

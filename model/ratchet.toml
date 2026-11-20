@@ -1,18 +1,26 @@
-# Authoritative shrink-only ratchet & Peirce triadic invariants (`r4/ratchet/1`).
-# Governed by `src/R4/{AutonomousEngine,PrismFactory,Rule30Evolution}.lex.tex` (`R4-41`).
+# Authoritative Verdant M15 bidirectional ratchet & Peirce triadic invariants (`r4/ratchet/1`).
+# Governed by `src/R4/{AutonomousEngine,PrismFactory,Rule30Evolution,VerdantRatchetCycle}.lex.tex` (`R4-41`, `R4-69`).
 
 spec = "r4/ratchet/1"
 peirce_phases = ["Abduction", "Deduction", "Induction"]
 rule30_rule_number = 30
 rule30_min_generation = 1
-
 max_handwritten_bypass_files = 0
 max_deferral_markers = 0
 max_ignored_conformance_tests = 0
 max_ungrounded_defs = 0
 max_orphaned_point_rows = 0
 max_trajectory_l1_milli = 250000
-max_residue_functions = 355
+max_residue_functions = 341
 max_float_serving_ops = 0
 max_dense_matmul_ops = 0
 max_unwired_ui_controls = 0
+rust_tree_sha256 = "9c581368888823214ee7bf2743132319e4237af80d4bc8e099f08364ddf8815c"
+js_tree_sha256 = "4498223b2b773478fa63b309b5b5d0f26c3e43652134d8edde3fdd994074a455"
+lifecycle_categories = 7
+min_lifted_functions = 2109
+min_verified_lexlean_modules = 308
+max_rust_file_lines = 17545
+max_js_file_lines = 17158
+max_wasm_core_bytes = 14155776
+max_classical_choice_count = 0
