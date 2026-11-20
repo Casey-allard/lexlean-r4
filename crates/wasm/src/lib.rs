@@ -10201,6 +10201,88 @@ pub fn studio_admit_mvm_container_policy_json(
     .to_string()
 }
 
+/// Formal R4.WebGpuResidentRuntime export per-layer (`<= 128 MiB`) resident WebGPU storage buffer partition metadata (`R4-64`).
+#[wasm_bindgen]
+pub fn studio_export_holo_layer_slab_meta(
+    model_id: &str,
+    device_binding_limit_bytes: u64,
+    float_ops: u64,
+) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let target = if model_id.trim().is_empty() {
+        "uor-r4.qwen3-0.6b-holo"
+    } else {
+        model_id.trim()
+    };
+    let Some(model) = engine.holo_models.get(target) else {
+        return serde_json::json!({
+            "status": "error",
+            "admitted": false,
+            "error_code": "ModelNotMounted",
+            "model_id": target,
+        })
+        .to_string();
+    };
+    model
+        .export_resident_layer_slabs_meta(device_binding_limit_bytes, float_ops)
+        .to_string()
+}
+
+/// Formal R4.WebGpuResidentRuntime evaluate resident WebGPU slab limits, `0-LSB` speculative tile parity, and Studio LoRA prompt shrink policy (`R4-64`).
+#[wasm_bindgen]
+#[allow(clippy::too_many_arguments)]
+pub fn studio_verify_resident_webgpu_step(
+    float_ops: u64,
+    layer_max_bytes: u64,
+    device_binding_limit_bytes: u64,
+    draft_count: u64,
+    max_abs_lsb_diff: u64,
+    kv_rewound_exact: bool,
+    stitch_parity_valid: bool,
+    fine_tuned_manifest_pinned: bool,
+    prompt_tokens: u64,
+) -> String {
+    use crate::lexlean_generated::r4_webgpu_resident_runtime::{
+        admit_resident_layer_partition, admit_speculative_tile_step,
+        admit_studio_lora_prompt_shrink, max_compact_studio_prompt_tokens, ResidentSlabVerdict,
+        SpeculativeVerifyVerdict, StudioLoraDeployVerdict,
+    };
+    let slab_verdict = admit_resident_layer_partition(
+        float_ops,
+        layer_max_bytes,
+        134_217_728,
+        device_binding_limit_bytes,
+    );
+    let spec_verdict = admit_speculative_tile_step(
+        draft_count,
+        crate::holo_geometric_runtime::MAX_PREFILL_TILE as u64,
+        max_abs_lsb_diff,
+        kv_rewound_exact,
+    );
+    let lora_verdict = admit_studio_lora_prompt_shrink(
+        float_ops,
+        stitch_parity_valid,
+        fine_tuned_manifest_pinned,
+        prompt_tokens,
+    );
+    let admitted = slab_verdict == ResidentSlabVerdict::ResidentSlabAdmitted
+        && spec_verdict == SpeculativeVerifyVerdict::SpeculativeExact0LsbAdmitted
+        && lora_verdict == StudioLoraDeployVerdict::StudioLoraUorV13Admitted;
+    serde_json::json!({
+        "status": if admitted { "ok" } else { "error" },
+        "admitted": admitted,
+        "slab_verdict": format!("{slab_verdict:?}"),
+        "speculative_verdict": format!("{spec_verdict:?}"),
+        "lora_verdict": format!("{lora_verdict:?}"),
+        "max_compact_studio_prompt_tokens": max_compact_studio_prompt_tokens(),
+    })
+    .to_string()
+}
+
 pub(crate) fn format_mvm_agent_prompt(raw: &str) -> String {
     let trimmed = raw.trim();
     if trimmed.contains("<tool_response>") {
