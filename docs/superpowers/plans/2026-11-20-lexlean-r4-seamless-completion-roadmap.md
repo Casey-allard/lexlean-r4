@@ -44,19 +44,19 @@
   - `pub fn acquire_loopback_hammer_guard() -> std::sync::MutexGuard<'static, ()>` in `xtask/tests/empirical_suite.rs`
   - `R4.LiveWebGpuTurnBridge` (`admitLiveGpuBoundStep`, `admitCoiCredentiallessMode`, `admitAdaptiveSpeculativeBudget`, `verifyLiveWebGpuTurnBridgeAdmitted`) and Rust mirror `crates/wasm/src/lexlean_generated.rs::r4_live_webgpu_turn_bridge`
 
-- [ ] **Step 1: Add `acquire_loopback_hammer_guard()` to `xtask/tests/empirical_suite.rs` and acquire it in the 200-worker TCP flood tests**
+- [x] **Step 1: Add `acquire_loopback_hammer_guard()` to `xtask/tests/empirical_suite.rs` and acquire it in the 200-worker TCP flood tests**
   Acquire `let _hammer_guard = crate::acquire_loopback_hammer_guard();` at the start of `m3_api::challenge_11_live_daemon_concurrency_hammer_200_requests`, `m4_provenance_concurrency::test_challenge_5_concurrent_api_flooding_socket_stability`, and `m4_iter2_chal2::test_stress_api_concurrency_hammer_and_client_disconnects` (preserving all 200 concurrent workers within each test while preventing simultaneous multi-daemon SYN-backlog saturation).
 
-- [ ] **Step 2: Author `src/R4/LiveWebGpuTurnBridge.lex.tex`, `tests/lexlean/LiveWebGpuTurnBridgeControls.lex.tex`, `features/suites/r4_65_live_webgpu_turn_bridge.feature`, and failing `crates/conformance/tests/r4_65_live_webgpu_turn_bridge.rs`**
+- [x] **Step 2: Author `src/R4/LiveWebGpuTurnBridge.lex.tex`, `tests/lexlean/LiveWebGpuTurnBridgeControls.lex.tex`, `features/suites/r4_65_live_webgpu_turn_bridge.feature`, and failing `crates/conformance/tests/r4_65_live_webgpu_turn_bridge.rs`**
   Model:
   - `LiveGpuStepVerdict` (`LiveGpuBoundStepAdmitted`, `FallbackWasmSimdAdmitted`, `RefusedFloatOpInGpuBridge`, `RefusedUnboundComputePass`, `RefusedGpuCpuLogitDrift`)
   - `CoiIsolationVerdict` (`CrossOriginCredentiallessAdmitted`, `SingleWorkerFallbackAdmitted`, `RefusedRequireCorpBreaksMirrors`)
   - `AdaptiveDrafterVerdict` (`AdaptiveTileAdmitted`, `ThrottledCpuDraftsAdmitted`, `RefusedUnthrottledCpuMissStorm`)
 
-- [ ] **Step 3: Verify `lexlean check` + `lexlean verify` inside locked SDK container on `wick`, wire `r4_live_webgpu_turn_bridge` + `R4-65` (`R4-UR16`), and run `just model-write` + `cargo test -p repo-conformance --test r4_65_live_webgpu_turn_bridge` + `cargo test -p xtask --test empirical_suite` on `wick`**
+- [x] **Step 3: Verify `lexlean check` + `lexlean verify` inside locked SDK container on `wick`, wire `r4_live_webgpu_turn_bridge` + `R4-65` (`R4-UR16`), and run `just model-write` + `cargo test -p repo-conformance --test r4_65_live_webgpu_turn_bridge` + `cargo test -p xtask --test empirical_suite` on `wick`**
   Expected: `verified 2 modules`, `CONFORMANCE.md equals the model, 65 ids`, `16 routes`, `empirical_suite` `43 passed; 0 failed`.
 
-- [ ] **Step 4: Commit Task 1**
+- [x] **Step 4: Commit Task 1**
   Commit message: `feat(r4-65): model LiveWebGpuTurnBridge and serialize 200-worker loopback flood tests`
 
 ---
@@ -81,18 +81,18 @@
   - `WebGpuHoloEngine.mountResidentLayerTensors(...)` + `WebGpuHoloEngine.stepLiveTurnShortlistAsync(qSig512U32, shortlistK)` (creates real `GPUBindGroup`s for every compute pass, verifies `bound_dispatches === total_dispatches`, `mapAsync` reads distances/shortlist, feeds `holo_step_foundry_turn_gpu_shortlist`).
   - `site/coi-serviceworker.js` (`COOP: same-origin`, `COEP: credentialless`, one-shot reload guard) + `registerStudioCoiServiceWorker()` in `worker_host_bridge.js` + `cp site/coi-serviceworker.js public/coi-serviceworker.js` in `.github/workflows/pages.yml`.
 
-- [ ] **Step 1: Write failing Rust unit tests in `holo_geometric_runtime.rs` and failing Node E2E `tests/e2e/r4_65_live_webgpu_coi_drafter_e2e.mjs`**
+- [x] **Step 1: Write failing Rust unit tests in `holo_geometric_runtime.rs` and failing Node E2E `tests/e2e/r4_65_live_webgpu_coi_drafter_e2e.mjs`**
   Test:
   1. Tier-2 structural drafter proposes `<prism-write` / `pub fn` continuations on Turn 1 (`recent` without prior repetition) and throttles `max_drafts` to `<= 1` when `!gpu_active && accept_ema_permille < 250`.
   2. `WebGpuHoloEngine` rejects any unbound compute pass (`RefusedUnboundComputePass`), binds real `GPUBindGroup`s on every dispatch, and drives `execute_inprism_foundry_turn` via `holo_step_foundry_turn_gpu_shortlist` with `0-LSB` token parity against CPU Wasm `simd128`.
   3. `site/coi-serviceworker.js` emits `Cross-Origin-Embedder-Policy: credentialless` (never `require-corp`) and guards single reload via `sessionStorage`.
 
-- [ ] **Step 2: Implement adaptive 2-tier drafter + GPU shortlist/layer exports in Rust (`holo_geometric_runtime.rs`, `assistant.rs`, `lib.rs`), bound `WebGpuHoloEngine` live turn integration + COI registration in `worker_host_bridge.js`, and `site/coi-serviceworker.js` + `pages.yml` copy**
+- [x] **Step 2: Implement adaptive 2-tier drafter + GPU shortlist/layer exports in Rust (`holo_geometric_runtime.rs`, `assistant.rs`, `lib.rs`), bound `WebGpuHoloEngine` live turn integration + COI registration in `worker_host_bridge.js`, and `site/coi-serviceworker.js` + `pages.yml` copy**
 
-- [ ] **Step 3: Rebuild Wasm (`xtask build-wasm` + `build-holo --sync-site-manifest`), plant Defect #12 (`RefusedUnboundComputePass` bypass), verify failure & restore in `OVERHAUL-VERIFICATION.md`, and run Rust + Node E2E tests on `wick`**
+- [x] **Step 3: Rebuild Wasm (`xtask build-wasm` + `build-holo --sync-site-manifest`), plant Defect #12 (`RefusedUnboundComputePass` bypass), verify failure & restore in `OVERHAUL-VERIFICATION.md`, and run Rust + Node E2E tests on `wick`**
   Expected: `r4_65_live_webgpu_coi_drafter_e2e.mjs` PASS, `float_ops = 0`, `matmul_ops = 0`, exact 6 files in `public/`.
 
-- [ ] **Step 4: Commit Task 2**
+- [x] **Step 4: Commit Task 2**
   Commit message: `feat(r4-65): wire bound WebGPU turn shortlist stepping, COEP credentialless SW, and adaptive 2-tier drafter`
 
 ---
@@ -117,19 +117,19 @@
   - Streaming `ReadableStream` pack reader in `hydrate_holo_model` + immediate `missingBlobMirrors.add(mBase)` on first HTTP `404`/`403` + `CONCURRENCY = 12` piece fallback + Stitch 2-of-3 mid-pack recovery.
   - Queue-not-downgrade Turn-1 behavior (`bootNativeQ31Fallback` stays `false` unless `uor_offline_emergency_q31 === '1'` or user explicitly selects Offline Emergency Q31) + single-truth `#weight-cache-badge` + canonical `data-studio-id` aliases (`chat-input`, `hud-dropdown-toggle`, `neural-hud-dropdown`).
 
-- [ ] **Step 1: Author `R4-66` LexLean model & Controls, verify inside locked SDK on `wick`, and write failing `r4_66_fast_pack_single_truth_ui_e2e.mjs`**
+- [x] **Step 1: Author `R4-66` LexLean model & Controls, verify inside locked SDK on `wick`, and write failing `r4_66_fast_pack_single_truth_ui_e2e.mjs`**
   Test:
   1. Same-origin mirror returning HTTP `404` on `pack_00.pack` / `piece_0000.bin` is probed **once** (`<= 1` 404 fetch, not `410`) before switching all remaining fetches to the live mirror.
   2. Streaming `pack_00.pack` slices pieces in-flight, verifies SHA-256 per piece, and if `pack_01.pack` corrupts mid-stream, keeps verified pieces and recovers the corrupt piece via `pieces[]` / Stitch 2-of-3 XOR parity.
   3. Sending a prompt while `uor-r4.qwen3-0.6b-holo` is hydrating awaits hydration and answers with `uor-r4.qwen3-0.6b-holo` (never silently downgrading to `uor-r4.native-q31-d85` unless Offline Emergency Q31 is explicitly enabled), and `#weight-cache-badge` never displays `Offline Q31 · Emergency` while Qwen3 is selected and online.
 
-- [ ] **Step 2: Build `<= 48 MiB` `pack_XX.pack` files on `wick` from existing verified pieces on `origin/weights-v13-qwen3-{0.6b,1.7b}`, push to GitHub orphan branches (`*.pack` excluded from `public/weights` in `pages.yml`), pull updated `manifest.json`s, and clean `/var/tmp` on `wick`**
+- [x] **Step 2: Build `<= 48 MiB` `pack_XX.pack` files on `wick` from existing verified pieces on `origin/weights-v13-qwen3-{0.6b,1.7b}`, push to GitHub orphan branches (`*.pack` excluded from `public/weights` in `pages.yml`), pull updated `manifest.json`s, and clean `/var/tmp` on `wick`**
 
-- [ ] **Step 3: Implement streaming pack hydration, 404-mirror pruning, queue-not-downgrade turn routing, single-truth `#weight-cache-badge`, and canonical `data-studio-id` aliases (`worker_host_bridge.js`, `public/index.html`, `public/app.js`, `pages.yml`)**
+- [x] **Step 3: Implement streaming pack hydration, 404-mirror pruning, queue-not-downgrade turn routing, single-truth `#weight-cache-badge`, and canonical `data-studio-id` aliases (`worker_host_bridge.js`, `public/index.html`, `public/app.js`, `pages.yml`)**
 
-- [ ] **Step 4: Rebuild Wasm/Holo on `wick`, plant Defect #13 (`RefusedPiece404MirrorRetry` / `RefusedSilentEmergencyDowngrade`), record in `OVERHAUL-VERIFICATION.md`, and pass all E2E suites**
+- [x] **Step 4: Rebuild Wasm/Holo on `wick`, plant Defect #13 (`RefusedPiece404MirrorRetry` / `RefusedSilentEmergencyDowngrade`), record in `OVERHAUL-VERIFICATION.md`, and pass all E2E suites**
 
-- [ ] **Step 5: Commit Task 3**
+- [x] **Step 5: Commit Task 3**
   Commit message: `feat(r4-66): add <=48 MiB streaming pack hydration, 404 mirror pruning, and single-truth model UX`
 
 ---
@@ -154,15 +154,15 @@
   - Extended `handleNpmBridge` (`npm test`/`t`, `npm start`, `npm build`, `npm ls`/`list`, `npm uninstall`/`rm`/`remove`) over `/workspace/package.json` + `/workspace/node_modules`.
   - Extended `mvm_cc` C99 support (`<stdint.h>`, `<stdbool.h>`, `<stddef.h>`, `<string.h>`, `typedef` fixed-width integers + `bool`, built-in `strlen`/`strcmp`/`strncmp`/`memcpy`/`memset`) compiling directly to `RV64IMAC` ELF64 (`EM_RISCV = 243`).
 
-- [ ] **Step 1: Author `R4-67` LexLean model & Controls, verify inside locked SDK on `wick`, and write failing Rust unit tests + `tests/e2e/r4_67_mvm_polyglot_toolchain_e2e.mjs`**
+- [x] **Step 1: Author `R4-67` LexLean model & Controls, verify inside locked SDK on `wick`, and write failing Rust unit tests + `tests/e2e/r4_67_mvm_polyglot_toolchain_e2e.mjs`**
   Test:
   1. `cargo check` and `cargo test` inside MVM Terminal succeed (`exit_code == 0`) on valid `/workspace/src/lib.rs` and fail (`exit_code == 101`) when a syntax/assertion error is written into `/workspace/src/lib.rs`.
   2. `npm init`, `npm test`, `npm ls`, and `npm uninstall` succeed cleanly in `/workspace`.
   3. A C99 program in `/workspace/src/vec.c` using `#include <stdint.h>`, `#include <stdbool.h>`, `#include <string.h>`, `uint32_t`, `bool`, `strlen`, and `memcpy` compiles via `cc /workspace/src/vec.c -o /workspace/vec` into a genuine `EM_RISCV` ELF64 binary and prints expected output on `RV64IMAC`.
 
-- [ ] **Step 2: Implement `exec_cargo_command` in `mvm.rs`, C99 headers/intrinsics/`typedef`s in `mvm_cc.rs`, and full `npm` subcommands in `worker_host_bridge.js`**
+- [x] **Step 2: Implement `exec_cargo_command` in `mvm.rs`, C99 headers/intrinsics/`typedef`s in `mvm_cc.rs`, and full `npm` subcommands in `worker_host_bridge.js`**
 
-- [ ] **Step 3: Rebuild Wasm/Holo (`build-wasm`, `build-holo --sync-site-manifest`, `lift-register --write`, `synthesize --write`, `ratchet-check`), plant Defect #14 (`RefusedCargoBrokenSyntaxPass`), record in `OVERHAUL-VERIFICATION.md`, and run FULL locked-SDK Docker `just vv` on `wick`**
+- [x] **Step 3: Rebuild Wasm/Holo (`build-wasm`, `build-holo --sync-site-manifest`, `lift-register --write`, `synthesize --write`, `ratchet-check`), plant Defect #14 (`RefusedCargoBrokenSyntaxPass`), record in `OVERHAUL-VERIFICATION.md`, and run FULL locked-SDK Docker `just vv` on `wick`**
   Expected: `vv: the acceptance gate passed` (`67` IDs, `18` routes, `float_ops = 0`, `matmul_ops = 0`, `residue <= 342`, `score_milli >= 987`).
 
-- [ ] **Step 4: Merge to `main`, push to `origin/main`, verify `pages.yml` + `bootstrap.yml` + `deploy watch` all green, host-verify live GitHub Pages with 1 `browser` subagent (`Model: "flash"`), and clean `/tmp/lexlean-r4-*` on `wick`**
+- [x] **Step 4: Merge to `main`, push to `origin/main`, verify `pages.yml` + `bootstrap.yml` + `deploy watch` all green, host-verify live GitHub Pages with 1 `browser` subagent (`Model: "flash"`), and clean `/tmp/lexlean-r4-*` on `wick`**
