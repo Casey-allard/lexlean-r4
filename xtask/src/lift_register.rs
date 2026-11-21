@@ -250,9 +250,29 @@ fn scan_with_baseline(
             }
         }
     }
-    for js_rel in ["public/app.js", "crates/wasm/js/worker_host_bridge.js"] {
-        if root.join(js_rel).is_file() {
-            target_files.push((js_rel.to_string(), false));
+    let bridge_dir = root.join("crates/wasm/js/bridge");
+    let app_dir = root.join("crates/wasm/js/app");
+    if bridge_dir.is_dir() && app_dir.is_dir() {
+        for sub in ["crates/wasm/js/app", "crates/wasm/js/bridge"] {
+            let mut js_paths: Vec<String> = std::fs::read_dir(root.join(sub))?
+                .filter_map(|e| e.ok().map(|de| de.path()))
+                .filter(|p| p.extension().is_some_and(|e| e == "js"))
+                .filter_map(|p| {
+                    p.strip_prefix(root)
+                        .ok()
+                        .map(|rel| rel.to_string_lossy().replace('\\', "/"))
+                })
+                .collect();
+            js_paths.sort();
+            for rel in js_paths {
+                target_files.push((rel, false));
+            }
+        }
+    } else {
+        for js_rel in ["public/app.js", "crates/wasm/js/worker_host_bridge.js"] {
+            if root.join(js_rel).is_file() {
+                target_files.push((js_rel.to_string(), false));
+            }
         }
     }
 

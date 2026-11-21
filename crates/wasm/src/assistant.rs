@@ -2130,6 +2130,7 @@ impl StudioEngine {
     }
 }
 
+/// Formal R4.StudioFrame.
 fn extract_partial_json_str_field(raw: &str, key: &str) -> Option<String> {
     let pat = format!("\"{key}\":");
     let idx = raw.find(&pat)?;
@@ -2157,6 +2158,7 @@ fn extract_partial_json_str_field(raw: &str, key: &str) -> Option<String> {
     }
 }
 
+/// Formal R4.StudioFrame.
 fn extract_explicit_http_url(prompt: &str) -> Option<String> {
     for tok in prompt.split_whitespace() {
         let cleaned = tok.trim_matches(|c: char| {
@@ -2170,6 +2172,7 @@ fn extract_explicit_http_url(prompt: &str) -> Option<String> {
     None
 }
 
+/// Formal R4.StudioFrame.
 fn extract_explicit_mvm_pkg_install(prompt: &str) -> Option<String> {
     const MVM_PKGS: &[&str] = &[
         "jq",
@@ -2210,6 +2213,7 @@ fn extract_explicit_mvm_pkg_install(prompt: &str) -> Option<String> {
     None
 }
 
+/// Formal R4.StudioFrame.
 fn extract_explicit_web_search_query(prompt: &str) -> Option<String> {
     let trimmed = prompt.trim();
     let lower = trimmed.to_ascii_lowercase();
@@ -2605,6 +2609,7 @@ fn live_v10_kv_warmup(model: &crate::gllm_v9::GllmV9Model) -> Vec<(String, Strin
     turns
 }
 
+/// Formal R4.StudioFrame.
 fn sanitize_lut_prose_fallback(raw: &str) -> String {
     let mut cleaned = raw
         .replace("<tool_call>", "")
@@ -2689,6 +2694,7 @@ pub(crate) fn has_calibrated_v10_steps(gen: &crate::gllm_v9::GllmV9Generation) -
     has_calibrated_v10_steps_for_dim(gen, 128)
 }
 
+/// Formal R4.StudioFrame.
 pub(crate) fn has_calibrated_v10_steps_for_dim(
     gen: &crate::gllm_v9::GllmV9Generation,
     d_model: u32,
@@ -2718,6 +2724,7 @@ pub(crate) fn has_calibrated_v10_steps_for_dim(
     }
 }
 
+/// Formal R4.StudioFrame.
 pub(crate) fn is_well_formed_v10_prose(gen: &crate::gllm_v9::GllmV9Generation) -> bool {
     let trimmed = gen.text.trim();
     if trimmed.is_empty() {
@@ -2837,6 +2844,7 @@ pub(crate) fn is_well_formed_v10_prose(gen: &crate::gllm_v9::GllmV9Generation) -
     true
 }
 
+/// Formal R4.StudioFrame.
 fn extract_prompt_code_identifiers(prompt: &str) -> Vec<String> {
     const IGNORED: &[&str] = &[
         "given",
@@ -2912,6 +2920,7 @@ fn extract_prompt_code_identifiers(prompt: &str) -> Vec<String> {
     idents
 }
 
+/// Formal R4.StudioFrame.
 fn is_well_formed_v10_code(gen: &crate::gllm_v9::GllmV9Generation, user_prompt: &str) -> bool {
     if !is_well_formed_v10_prose(gen) {
         return false;
@@ -2966,6 +2975,7 @@ fn is_well_formed_v10_code(gen: &crate::gllm_v9::GllmV9Generation, user_prompt: 
     true
 }
 
+/// Formal R4.StudioFrame.
 fn has_clean_identifier_boundaries(haystack: &str, ident: &str) -> bool {
     if ident.is_empty() {
         return true;
@@ -2994,6 +3004,7 @@ fn has_clean_identifier_boundaries(haystack: &str, ident: &str) -> bool {
     found
 }
 
+/// Formal R4.StudioFrame.
 pub(crate) fn is_well_formed_v10_step2(gen: &crate::gllm_v9::GllmV9Generation, obs: &str) -> bool {
     if !is_well_formed_v10_prose(gen) || !has_calibrated_v10_steps(gen) {
         return false;
@@ -3025,6 +3036,7 @@ pub(crate) fn is_well_formed_v10_step2(gen: &crate::gllm_v9::GllmV9Generation, o
     true
 }
 
+/// Formal R4.StudioFrame.
 fn normalize_session_key(input: &str) -> String {
     input
         .to_ascii_lowercase()
@@ -3051,6 +3063,7 @@ fn has_any_word(lower_text: &str, targets: &[&str]) -> bool {
     targets.iter().any(|t| words.iter().any(|w| w == t))
 }
 
+/// Formal R4.StudioFrame.
 fn expand_contractions_lower(text: &str) -> String {
     let mut s = text.to_ascii_lowercase();
     s = s.replace(['’', '‘', '`'], "'");
@@ -3104,6 +3117,7 @@ fn expand_contractions_lower(text: &str) -> String {
     s
 }
 
+/// Formal R4.StudioFrame.
 fn tokenize_words_lower(text: &str) -> Vec<String> {
     let expanded = expand_contractions_lower(text);
     let mut out = Vec::new();
@@ -3121,6 +3135,7 @@ fn tokenize_words_lower(text: &str) -> Vec<String> {
     out
 }
 
+/// Formal R4.StudioFrame.
 fn extract_signed_integers(text: &str) -> Vec<i64> {
     let mut nums = Vec::new();
     let chars: Vec<char> = text.chars().collect();
@@ -3152,6 +3167,7 @@ fn extract_signed_integers(text: &str) -> Vec<i64> {
     nums
 }
 
+/// Formal R4.StudioFrame.
 fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
     while b != 0 {
         let r = a % b;
@@ -3161,6 +3177,7 @@ fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
     a
 }
 
+/// Formal R4.StudioFrame.
 fn isqrt_u64(n: u64) -> u64 {
     if n < 2 {
         return n;
@@ -3195,6 +3212,7 @@ fn prime_factorization_full(mut n: u64) -> Vec<(u64, u32)> {
     out
 }
 
+/// Formal R4.StudioFrame.
 fn prime_factors_unique(n: u64) -> Vec<u32> {
     prime_factorization_full(n)
         .into_iter()
@@ -3202,6 +3220,7 @@ fn prime_factors_unique(n: u64) -> Vec<u32> {
         .collect()
 }
 
+/// Formal R4.StudioFrame.
 fn extract_file_symbols(content: &str) -> Vec<String> {
     let mut syms = Vec::new();
     for line in content.lines() {
@@ -3249,6 +3268,7 @@ fn language_display_name(lang: &str) -> &'static str {
     }
 }
 
+/// Formal R4.StudioFrame.
 fn extract_c_fn_signature(raw_prompt: &str) -> (String, String, Vec<(String, String)>) {
     let bytes = raw_prompt.as_bytes();
     let mut idx = 0usize;
@@ -3404,6 +3424,7 @@ fn extract_given_bindings_and_stmt(raw_prompt: &str) -> (Vec<(String, String)>, 
     (bindings, target_stmt)
 }
 
+/// Formal R4.StudioFrame.
 fn extract_explicit_identifier(raw_prompt: &str, lower: &str) -> Option<String> {
     if let Some(bt_start) = raw_prompt.find('`') {
         if let Some(bt_end) = raw_prompt[bt_start + 1..].find('`') {
@@ -3447,6 +3468,7 @@ fn extract_explicit_identifier(raw_prompt: &str, lower: &str) -> Option<String> 
     None
 }
 
+/// Formal R4.StudioFrame.
 fn extract_custom_identifier(words: &[String], fallback: &str) -> String {
     let ignored = [
         "write",
@@ -4483,6 +4505,7 @@ fn build_language_task_code(
     }
 }
 
+/// Formal R4.StudioFrame.
 /// Extract explicit `fn_name(args) == expected` assertions written by the user in `raw_prompt`.
 fn extract_user_io_assertions(fn_name: &str, raw_prompt: &str) -> Vec<String> {
     let mut assertions = Vec::new();
@@ -5549,6 +5572,7 @@ fn match_knowledge_basin(
 
 pub use crate::lut_stack_exec::parse_thinking_block;
 
+/// Formal R4.StudioFrame.
 /// Resolve multi-turn episodic working memory queries (user name, preferences, active project,
 /// or prior conversation topics) and warm personal introductions across `chat_history`.
 #[allow(dead_code)]
@@ -5841,6 +5865,7 @@ pub fn try_resolve_episodic_memory_turn(
     None
 }
 
+/// Formal R4.StudioFrame.
 /// Extract and update a concise, high-signal contextual summary across multi-turn interactions.
 pub fn update_context_summary(
     existing_summary: &str,

@@ -204,6 +204,13 @@ prism_record = "Foundation.Sec::FoundryAgentToolSurface"
 facet = "sec"
 note = "Policy-checked foundry_prove (FK-01..09 InTabProver), foundry_publish_holo (proof-gated blake3: kappa), and vtensor_render_3d (zero-float LOD0..LOD4 3D PBR) agent <tool_call> tools."
 
+[[route]]
+id = "R4-UR29"
+rust_fact = "modular-decomposition-residue-ratchet"
+prism_record = "Foundation.Qual::ModularDecompositionRatchet"
+facet = "qual"
+note = "Verdant M15 modular Rust/JS decomposition (<= 11400 Rust lines, <= 12800 JS lines), <= 200 residue functions, and byte-synced 6-file public/ closure."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -343,6 +350,11 @@ response = "route R4-UR27\nfact studio-agent-lora-v14-distill\nrecord Foundation
 case = "route R4-UR28"
 request_hex = "666f756e6472792d70726f76652d7674656e736f722d6167656e742d746f6f6c73"
 response = "route R4-UR28\nfact foundry-prove-vtensor-agent-tools\nrecord Foundation.Sec::FoundryAgentToolSurface\nfacet sec"
+
+[[vector]]
+case = "route R4-UR29"
+request_hex = "6d6f64756c61722d6465636f6d706f736974696f6e2d726573696475652d72617463686574"
+response = "route R4-UR29\nfact modular-decomposition-residue-ratchet\nrecord Foundation.Qual::ModularDecompositionRatchet\nfacet qual"
 
 [[vector]]
 case = "error empty"

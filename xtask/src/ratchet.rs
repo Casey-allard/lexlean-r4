@@ -398,8 +398,30 @@ pub fn measure_shipped_js_tree(root: &Path) -> Result<(String, u64), Fail> {
     let mut hasher = Sha256::new();
     hasher.update(b"verdant/js-tree/1\n");
     let mut max_lines = 0u64;
-    for rel in ["crates/wasm/js/worker_host_bridge.js", "public/app.js"] {
-        let p = root.join(rel);
+    let mut js_rels: Vec<String> = Vec::new();
+    let bridge_dir = root.join("crates/wasm/js/bridge");
+    let app_dir = root.join("crates/wasm/js/app");
+    if bridge_dir.is_dir() && app_dir.is_dir() {
+        for sub in ["crates/wasm/js/bridge", "crates/wasm/js/app"] {
+            let mut sub_files: Vec<String> = std::fs::read_dir(root.join(sub))?
+                .filter_map(|e| e.ok().map(|de| de.path()))
+                .filter(|p| p.extension().is_some_and(|e| e == "js"))
+                .filter_map(|p| {
+                    p.strip_prefix(root)
+                        .ok()
+                        .map(|r| r.to_string_lossy().replace('\\', "/"))
+                })
+                .collect();
+            sub_files.sort();
+            js_rels.extend(sub_files);
+        }
+    } else {
+        for rel in ["crates/wasm/js/worker_host_bridge.js", "public/app.js"] {
+            js_rels.push(rel.to_string());
+        }
+    }
+    for rel in js_rels {
+        let p = root.join(&rel);
         if p.is_file() {
             let raw = std::fs::read_to_string(&p)?;
             hasher.update(rel.as_bytes());

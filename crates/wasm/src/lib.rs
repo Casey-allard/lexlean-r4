@@ -185,6 +185,7 @@ pub mod vsock;
 /// In-Wasm Rust AST Parser, Static Typechecker, Fuel-Bounded Interpreter, and Live Test Runner (`R4-32`).
 pub mod wasm_ast_eval;
 
+/// Formal R4.StudioFrame.
 fn default_lut_stack_model() -> Arc<lut_stack_exec::LutStackModel> {
     api::default_model_backend()
 }

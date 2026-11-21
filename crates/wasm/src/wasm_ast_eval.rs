@@ -221,6 +221,7 @@ pub enum RuntimeValue {
 }
 
 impl RuntimeValue {
+    /// Formal R4.WasmAstEval.
     /// Map runtime value to its static type.
     pub fn runtime_type(&self) -> RustSubsetType {
         match self {
@@ -299,6 +300,7 @@ impl RuntimeValue {
         }
     }
 
+    /// Formal R4.WasmAstEval.
     /// Format runtime value for diagnostic messages and `println!`.
     pub fn display_value(&self) -> String {
         match self {
@@ -619,6 +621,7 @@ fn escape_json(input: &str) -> String {
     out
 }
 
+/// Formal R4.WasmAstEval.
 /// Check delimiter balance (`()`, `[]`, `{}`) and string literal closure across `source`.
 /// Returns `Ok(())` if balanced, or `Err((1_based_line, message))` on the first unbalanced delimiter.
 pub fn check_delimiter_balance(source: &str) -> Result<(), (usize, String)> {
@@ -2052,6 +2055,7 @@ fn parse_if_chain(
     ))
 }
 
+/// Formal R4.WasmAstEval.
 fn split_assignment(stmt: &str) -> Option<(&str, &'static str, &str)> {
     let bytes = stmt.as_bytes();
     let mut paren = 0i32;
@@ -2113,6 +2117,7 @@ fn split_assignment(stmt: &str) -> Option<(&str, &'static str, &str)> {
     None
 }
 
+/// Formal R4.WasmAstEval.
 fn validate_expr_syntax(file_path: &str, line: usize, expr: &str) -> Result<(), AstDiagnostic> {
     let trimmed = expr.trim();
     if trimmed.is_empty() {
@@ -2168,6 +2173,7 @@ pub fn typecheck_module_items(
     typecheck_module_items_with_aliases(structs, enums, consts, &empty_aliases, functions)
 }
 
+/// Formal R4.WasmAstEval.
 fn resolve_subset_type(
     ty: &RustSubsetType,
     type_aliases: &BTreeMap<String, RustSubsetType>,
@@ -3175,6 +3181,7 @@ fn infer_block_or_expr_type(
     infer_expr_type(file_path, line, trimmed, env, fn_return_types, struct_defs)
 }
 
+/// Formal R4.WasmAstEval.
 fn bind_closure_param_type(
     pattern: &str,
     elem_ty: &RustSubsetType,
@@ -3218,6 +3225,7 @@ fn bind_closure_param_type(
     }
 }
 
+/// Formal R4.WasmAstEval.
 fn bind_match_pattern_types(
     pat: &str,
     scrut_ty: &RustSubsetType,
@@ -3408,6 +3416,7 @@ fn parse_match_expr(s: &str) -> Option<(&str, Vec<(&str, &str)>)> {
     Some((scrutinee, arms))
 }
 
+/// Formal R4.WasmAstEval.
 fn split_inline_block_lines(line: usize, inner: &str) -> Vec<(usize, String)> {
     let mut out = Vec::new();
     let mut cur = String::new();
@@ -3464,6 +3473,7 @@ fn split_inline_block_lines(line: usize, inner: &str) -> Vec<(usize, String)> {
     out
 }
 
+/// Formal R4.WasmAstEval.
 fn strip_outer_parens(mut s: &str) -> &str {
     loop {
         let trimmed = s.trim();
@@ -3479,6 +3489,7 @@ fn strip_outer_parens(mut s: &str) -> &str {
     }
 }
 
+/// Formal R4.WasmAstEval.
 fn split_outermost_call(s: &str) -> Option<(&str, &str)> {
     let trimmed = s.trim();
     if !trimmed.ends_with(')') {
@@ -3529,6 +3540,7 @@ fn split_outermost_call(s: &str) -> Option<(&str, &str)> {
     Some((callee, &trimmed[idx + 1..trimmed.len() - 1]))
 }
 
+/// Formal R4.WasmAstEval.
 fn strip_whole_bracket_literal(s: &str) -> Option<&str> {
     let trimmed = s.trim();
     if let Some((callee, inner)) = split_outermost_call(trimmed) {
@@ -3584,6 +3596,7 @@ fn strip_whole_bracket_literal(s: &str) -> Option<&str> {
     }
 }
 
+/// Formal R4.WasmAstEval.
 fn split_trailing_index(s: &str) -> Option<(&str, &str)> {
     let trimmed = s.trim();
     if !trimmed.ends_with(']') || strip_whole_bracket_literal(trimmed).is_some() {
@@ -3635,6 +3648,7 @@ fn split_trailing_index(s: &str) -> Option<(&str, &str)> {
     Some((target, idx_expr))
 }
 
+/// Formal R4.WasmAstEval.
 fn rsplit_top_level_dot(s: &str) -> Option<(&str, &str)> {
     let bytes = s.as_bytes();
     let mut paren = 0i32;
@@ -3677,6 +3691,7 @@ fn rsplit_top_level_dot(s: &str) -> Option<(&str, &str)> {
     Some((lhs, rhs))
 }
 
+/// Formal R4.WasmAstEval.
 fn split_top_level_range(s: &str) -> Option<(&str, &str, bool)> {
     let bytes = s.as_bytes();
     let mut paren = 0i32;
@@ -3714,6 +3729,7 @@ fn split_top_level_range(s: &str) -> Option<(&str, &str, bool)> {
     None
 }
 
+/// Formal R4.WasmAstEval.
 fn strip_int_cast_suffix(s: &str) -> Option<&str> {
     for suffix in [
         " as usize",
@@ -3734,6 +3750,7 @@ fn strip_int_cast_suffix(s: &str) -> Option<&str> {
     None
 }
 
+/// Formal R4.WasmAstEval.
 fn parse_closure_expr(s: &str) -> Option<(Vec<String>, &str)> {
     let trimmed = s.trim();
     let rest = trimmed
@@ -3774,6 +3791,7 @@ fn parse_closure_expr(s: &str) -> Option<(Vec<String>, &str)> {
     Some((params, body_raw))
 }
 
+/// Formal R4.WasmAstEval.
 fn unescape_rust_string(raw: &str) -> String {
     let mut out = String::with_capacity(raw.len());
     let mut chars = raw.chars();
@@ -3799,6 +3817,7 @@ fn unescape_rust_string(raw: &str) -> String {
     out
 }
 
+/// Formal R4.WasmAstEval.
 fn split_top_level_binary_tier<'a>(
     s: &'a str,
     ops: &[&'static str],
@@ -3912,6 +3931,7 @@ fn split_top_level_binary_tier<'a>(
     last_match.map(|(pos, op)| (s[..pos].trim(), op, s[pos + op.len()..].trim()))
 }
 
+/// Formal R4.WasmAstEval.
 fn parse_int_literal(s: &str) -> Option<i64> {
     let mut clean = s.trim();
     if clean.is_empty() {
@@ -3964,6 +3984,7 @@ enum ControlFlowOutcome {
 }
 
 impl<'a> EvalContext<'a> {
+    /// Formal R4.WasmAstEval.
     #[allow(clippy::too_many_arguments)]
     fn consume_step(
         &mut self,
@@ -4284,6 +4305,7 @@ impl<'a> EvalContext<'a> {
         }
     }
 
+    /// Formal R4.WasmAstEval.
     fn apply_assign_op(
         &mut self,
         file_path: &str,

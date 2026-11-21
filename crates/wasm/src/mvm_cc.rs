@@ -826,14 +826,17 @@ impl Parser {
         }
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn peek(&self) -> &Tok {
         &self.toks[self.pos.min(self.toks.len() - 1)]
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn line(&self) -> usize {
         self.peek().line
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn next(&mut self) -> Tok {
         let t = self.peek().clone();
         if self.pos + 1 < self.toks.len() {
@@ -842,6 +845,7 @@ impl Parser {
         t
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn eat(&mut self, expected: &TokKind) -> bool {
         if &self.peek().kind == expected {
             self.next();
@@ -851,6 +855,7 @@ impl Parser {
         }
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn expect(&mut self, expected: &TokKind) -> Result<(), CCompileError> {
         if self.eat(expected) {
             Ok(())
@@ -862,6 +867,7 @@ impl Parser {
         }
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn expect_ident(&mut self) -> Result<String, CCompileError> {
         match &self.peek().kind {
             TokKind::Ident(s) => {
@@ -1044,6 +1050,7 @@ impl Parser {
         Ok(ty)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_program(&mut self) -> Result<Program, CCompileError> {
         let mut globals = Vec::new();
         let mut funcs = Vec::new();
@@ -1164,6 +1171,7 @@ impl Parser {
         Ok(Program { globals, funcs })
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_decl_stmt(&mut self, eat_semi: bool) -> Result<Stmt, CCompileError> {
         let base_ty = self.parse_type()?;
         if eat_semi && matches!(base_ty, CType::Struct(_)) && self.eat(&TokKind::Semi) {
@@ -1216,6 +1224,7 @@ impl Parser {
         Ok(Stmt::Decl(decls))
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_stmt(&mut self) -> Result<Stmt, CCompileError> {
         if self.eat(&TokKind::Semi) {
             return Ok(Stmt::Empty);
@@ -1312,10 +1321,12 @@ impl Parser {
         Ok(Stmt::ExprStmt(expr))
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_expr(&mut self) -> Result<Expr, CCompileError> {
         self.parse_assign()
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_assign(&mut self) -> Result<Expr, CCompileError> {
         let lhs = self.parse_ternary()?;
         if self.eat(&TokKind::Assign) {
@@ -1407,6 +1418,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_ternary(&mut self) -> Result<Expr, CCompileError> {
         let cond = self.parse_log_or()?;
         if self.eat(&TokKind::Question) {
@@ -1419,6 +1431,7 @@ impl Parser {
         }
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_log_or(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_log_and()?;
         while self.eat(&TokKind::PipePipe) {
@@ -1428,6 +1441,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_log_and(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_bit_or()?;
         while self.eat(&TokKind::AmpAmp) {
@@ -1437,6 +1451,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_bit_or(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_bit_xor()?;
         while self.eat(&TokKind::Pipe) {
@@ -1446,6 +1461,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_bit_xor(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_bit_and()?;
         while self.eat(&TokKind::Caret) {
@@ -1455,6 +1471,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_bit_and(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_eq()?;
         while self.eat(&TokKind::Amp) {
@@ -1464,6 +1481,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_eq(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_rel()?;
         loop {
@@ -1480,6 +1498,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_rel(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_shift()?;
         loop {
@@ -1502,6 +1521,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_shift(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_add()?;
         loop {
@@ -1518,6 +1538,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_add(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_mul()?;
         loop {
@@ -1534,6 +1555,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_mul(&mut self) -> Result<Expr, CCompileError> {
         let mut lhs = self.parse_unary()?;
         loop {
@@ -1553,6 +1575,7 @@ impl Parser {
         Ok(lhs)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_unary(&mut self) -> Result<Expr, CCompileError> {
         if self.eat(&TokKind::Minus) {
             return Ok(Expr::Unary(UnaryOp::Neg, Box::new(self.parse_unary()?)));
@@ -1598,6 +1621,7 @@ impl Parser {
         self.parse_postfix()
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_postfix(&mut self) -> Result<Expr, CCompileError> {
         let mut expr = self.parse_primary()?;
         loop {
@@ -1640,6 +1664,7 @@ impl Parser {
         Ok(expr)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn parse_primary(&mut self) -> Result<Expr, CCompileError> {
         match &self.peek().kind {
             TokKind::IntLit(v) => {
@@ -1800,12 +1825,14 @@ struct Codegen {
 }
 
 impl Codegen {
+    /// Formal R4.MvmPolyglotToolchain.
     fn emit(&mut self, inst: u32) -> usize {
         let idx = self.insts.len();
         self.insts.push(inst);
         idx
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn emit_li(&mut self, rd: u32, val: i64) {
         if (-2048..=2047).contains(&val) {
             self.emit(enc_i(val as i32, X0, 0, rd, 0x13)); // addi rd, x0, imm
@@ -1838,6 +1865,7 @@ impl Codegen {
         self.emit(enc_i(c0, rd, 6, rd, 0x13)); // ori rd, rd, c0
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn emit_fp_addr(&mut self, rd: u32, offset: i32) {
         if (-2048..=2047).contains(&offset) {
             self.emit(enc_i(offset, S0, 0, rd, 0x13));
@@ -1847,6 +1875,7 @@ impl Codegen {
         }
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn add_data_bytes(&mut self, bytes: &[u8], nul_terminate: bool) -> usize {
         while !self.data.len().is_multiple_of(8) {
             self.data.push(0);
@@ -1859,6 +1888,7 @@ impl Codegen {
         off
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn emit_load_data_addr(&mut self, rd: u32, data_offset: usize) {
         let idx = self.emit(0);
         self.emit(0); // 2-instruction lui + addi slot
@@ -1871,6 +1901,7 @@ impl Codegen {
         });
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn emit_call(&mut self, target: &str) {
         let idx = self.emit(0);
         self.fixups.push(Fixup {
@@ -1882,6 +1913,7 @@ impl Codegen {
         });
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn emit_syscall_call(
         &mut self,
         args: &[Expr],
@@ -1904,26 +1936,31 @@ impl Codegen {
         Ok(())
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn push_a0(&mut self) {
         self.emit(enc_i(-8, SP, 0, SP, 0x13)); // addi sp, sp, -8
         self.emit(enc_s(0, A0, SP, 3, 0x23)); // sd a0, 0(sp)
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn pop_to(&mut self, reg: u32) {
         self.emit(enc_i(0, SP, 3, reg, 0x03)); // ld reg, 0(sp)
         self.emit(enc_i(8, SP, 0, SP, 0x13)); // addi sp, sp, 8
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn patch_b(&mut self, inst_idx: usize, target_idx: usize, rs2: u32, rs1: u32, funct3: u32) {
         let off = ((target_idx as isize) - (inst_idx as isize)) * 4;
         self.insts[inst_idx] = enc_b(off as i32, rs2, rs1, funct3, 0x63);
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn patch_j(&mut self, inst_idx: usize, target_idx: usize, rd: u32) {
         let off = ((target_idx as isize) - (inst_idx as isize)) * 4;
         self.insts[inst_idx] = enc_j(off as i32, rd, 0x6f);
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn emit_runtime_helpers(&mut self) {
         // __rt_putchar(a0 = byte): write 1 byte to stdout (fd=1)
         self.func_inst_idx
@@ -2300,6 +2337,7 @@ impl Codegen {
         }
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn compile_func(&mut self, func: &FuncDef) -> Result<(), CCompileError> {
         self.func_inst_idx
             .insert(func.name.clone(), self.insts.len());
@@ -2362,6 +2400,7 @@ impl Codegen {
         Ok(())
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn compile_stmt(&mut self, stmt: &Stmt, next_off: &mut i32) -> Result<(), CCompileError> {
         match stmt {
             Stmt::Empty => Ok(()),
@@ -2714,6 +2753,7 @@ impl Codegen {
         }
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn compile_printf(&mut self, args: &[Expr]) -> Result<(), CCompileError> {
         if args.is_empty() {
             self.emit(enc_i(0, X0, 0, A0, 0x13));
@@ -2808,6 +2848,7 @@ impl Codegen {
         Ok(())
     }
 
+    /// Formal R4.MvmPolyglotToolchain.
     fn compile_expr(&mut self, expr: &Expr) -> Result<(), CCompileError> {
         match expr {
             Expr::Int(v) => {

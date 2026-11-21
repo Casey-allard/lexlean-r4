@@ -50,7 +50,7 @@ import init, {
   studio_weight_pack_status,
   sync_cached_weights,
   withStorageLock,
-} from './lexlean_r4.js?v=v12r4-22cadef16a92';
+} from './lexlean_r4.js?v=v12r4-4387c815296d';
 
 let mainThreadWasmReady = false;
 
@@ -168,7 +168,7 @@ let pendingDiffPreview = '';
 // In-Browser Cryptographic Merkle-Chained Secops Audit Pipeline (FIPS 180-4)
 // ============================================================================
 
-function computeSha256Hex(asciiStr) {
+function computeSha256Hex(asciiStr) { /* Formal R4.StudioFrame */
   const K = [
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -341,7 +341,7 @@ class SecopsAuditLedger {
 }
 
 const secopsAudit = new SecopsAuditLedger();
-function emitAuditEvent(category, action, target, details, severity) {
+function emitAuditEvent(category, action, target, details, severity) { /* Formal R4.StudioFrame */
   return secopsAudit.emit(category, action, target, details, severity);
 }
 
@@ -354,7 +354,7 @@ const COMPOSER_MODE_STORAGE_KEY = 'uor_r4_composer_mode_v13';
 const DEFAULT_HONEST_MODEL_ID = 'uor-r4.qwen3-0.6b-holo';
 
 /** Formal R4.HonestPlumbing resolve persisted or requested model identifier onto active v0.13.0 lanes. */
-function resolveHonestModelId(rawId) {
+function resolveHonestModelId(rawId) { /* Formal R4.StudioFrame */
   const val = String(rawId || '').trim();
   if (
     val === 'uor-r4.qwen3-0.6b-holo'
@@ -461,7 +461,7 @@ const AppState = {
   }
 })();
 
-function computeUnifiedDiffJs(oldText, newText, targetPath, contextLines = 3) {
+function computeUnifiedDiffJs(oldText, newText, targetPath, contextLines = 3) { /* Formal R4.StudioFrame */
   const oldLines = String(oldText || '').split('\n');
   const newLines = String(newText || '').split('\n');
   const n = oldLines.length;
@@ -807,7 +807,7 @@ const MAX = 9223372036854775807n;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-function operand(value) {
+function operand(value) { /* Formal R4.StudioFrame */
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (!/^(?:0|-[1-9][0-9]*|[1-9][0-9]*)$/.test(trimmed)) return null;
@@ -820,7 +820,7 @@ function operand(value) {
   }
 }
 
-function show(message) {
+function show(message) { /* Formal R4.StudioFrame */
   if (result) {
     result.textContent = message;
   }
@@ -910,7 +910,7 @@ const engineWorkerClient = {
   spawn() {
     if (typeof Worker !== 'function') return false;
     try {
-      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-22cadef16a92', import.meta.url);
+      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-4387c815296d', import.meta.url);
       this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
@@ -1801,7 +1801,7 @@ const LATEX_MATH_SYMBOLS = {
   quad: '  ', qquad: '    '
 };
 
-function tokenizeLatex(tex) {
+function tokenizeLatex(tex) { /* Formal R4.StudioFrame */
   const tokens = [];
   let i = 0;
   const len = tex.length;
@@ -1841,15 +1841,15 @@ function tokenizeLatex(tex) {
 function parseLatexTokensToAst(tokens) {
   let pos = 0;
 
-  function peek() {
+  function peek() { /* Formal R4.StudioFrame */
     return pos < tokens.length ? tokens[pos] : null;
   }
 
-  function next() {
+  function next() { /* Formal R4.StudioFrame */
     return pos < tokens.length ? tokens[pos++] : null;
   }
 
-  function parseGroup() {
+  function parseGroup() { /* Formal R4.StudioFrame */
     const t = peek();
     if (t && t.type === 'delim' && t.value === '{') {
       next();
@@ -1867,7 +1867,7 @@ function parseLatexTokensToAst(tokens) {
     return parseAtom();
   }
 
-  function grpToString(node) {
+  function grpToString(node) { /* Formal R4.StudioFrame */
     if (!node) return '';
     if (node.type === 'text' || node.type === 'symbol') return node.value;
     if (node.type === 'group' && Array.isArray(node.items)) {
@@ -1876,7 +1876,7 @@ function parseLatexTokensToAst(tokens) {
     return '';
   }
 
-  function parseAtom() {
+  function parseAtom() { /* Formal R4.StudioFrame */
     const t = next();
     if (!t) return { type: 'text', value: '' };
 
@@ -2554,7 +2554,7 @@ function persistThreadsToStorage() {
   }
 }
 
-function getActiveThread() {
+function getActiveThread() { /* Formal R4.StudioFrame */
   return chatThreads.find((t) => t.id === activeThreadId) || chatThreads[0];
 }
 
@@ -2617,7 +2617,7 @@ function extractThinkingAndTools(rawText) {
   return { thinking, toolCalls, cleanText };
 }
 
-function synthesizeAgenticToolCards(promptText, chatRes) {
+function synthesizeAgenticToolCards(promptText, chatRes) { /* Formal R4.StudioFrame */
   if (!agenticModeEnabled || !chatRes) return [];
   const cards = [];
   const lower = (promptText || '').toLowerCase();
@@ -3782,7 +3782,7 @@ function runStudioGenerate(promptText) {
   renderInferenceResult(res);
 }
 
-function renderSubsystemsReport(res) {
+function renderSubsystemsReport(res) { /* Formal R4.StudioFrame */
   if (!res || res.status !== 'ok') return;
   const r24 = res.r4_24_spiralcore;
   const r25 = res.r4_25_discrete_trunk;
@@ -3805,7 +3805,7 @@ function renderSubsystemsReport(res) {
   }
 }
 
-function runStudioSubsystems(payloadText) {
+function runStudioSubsystems(payloadText) { /* Formal R4.StudioFrame */
   if (engineWorkerClient.enabled) {
     engineWorkerClient
       .rpc('studio_dispatch', `1\tstudio\tsubsystems\t${payloadText || ''}`)
@@ -3817,7 +3817,7 @@ function runStudioSubsystems(payloadText) {
   renderSubsystemsReport(res);
 }
 
-function renderCoordinateEnvelopeResponse(responseText) {
+function renderCoordinateEnvelopeResponse(responseText) { /* Formal R4.StudioFrame */
   const parts = String(responseText || '').split('\t');
   if (parts.length >= 3 && parts[0] === '1' && parts[1] === 'ok') {
     show(parts[2]);
@@ -3834,7 +3834,7 @@ function renderCoordinateEnvelopeResponse(responseText) {
   }
 }
 
-function executeCoordinateEnvelope() {
+function executeCoordinateEnvelope() { /* Formal R4.StudioFrame */
   if (!left || !right || !operation) return;
   const a = operand(left.value);
   const b = operand(right.value);
@@ -4013,7 +4013,7 @@ if (snapshotImportBtn) {
   });
 }
 
-function hexCharToVal(ch) {
+function hexCharToVal(ch) { /* Formal R4.StudioFrame */
   const code = ch.charCodeAt(0);
   if (code >= 48 && code <= 57) return code - 48;
   if (code >= 65 && code <= 70) return code - 55;
@@ -4021,7 +4021,7 @@ function hexCharToVal(ch) {
   return 0;
 }
 
-function hexToBytes(hexStr) {
+function hexToBytes(hexStr) { /* Formal R4.StudioFrame */
   const clean = (hexStr || '').trim();
   const len = Math.floor(clean.length / 2);
   const out = new Uint8Array(len);
@@ -4031,7 +4031,7 @@ function hexToBytes(hexStr) {
   return out;
 }
 
-function bytesToHex(bytes) {
+function bytesToHex(bytes) { /* Formal R4.StudioFrame */
   const alphabet = '0123456789abcdef';
   let out = '';
   for (let i = 0; i < bytes.length; i += 1) {
@@ -4668,7 +4668,7 @@ if (composerAttachBtn && composerFileInput) {
   });
 }
 
-function getComposerMentionCandidates(query) {
+function getComposerMentionCandidates(query) { /* Formal R4.StudioFrame */
   const candidates = [];
   const activePath = activeWorkspacePath || 'src/engine.rs';
   candidates.push({ id: `file:${activePath}`, kind: 'file', label: activePath, detail: 'Active Workspace File' });
@@ -4696,7 +4696,7 @@ function getComposerMentionCandidates(query) {
   );
 }
 
-function updateComposerTokenBadge() {
+function updateComposerTokenBadge() { /* Formal R4.StudioFrame */
   if (!composerTokenBadge || !claudeChatInput) return;
   const tokCount = tsComposer.estimateTokenCount(claudeChatInput.value);
   composerTokenBadge.textContent = `${tokCount}t`;
@@ -4733,7 +4733,7 @@ function renderComposerAttachments() {
   updateComposerTokenBadge();
 }
 
-function closeComposerAutocomplete() {
+function closeComposerAutocomplete() { /* Formal R4.StudioFrame */
   const st = tsComposer.getState();
   st.autocompleteOpen = false;
   st.autocompleteTrigger = null;
@@ -5113,7 +5113,7 @@ if (mainLayoutEl && dockableCanvasPane && dockableCanvasPane.hasAttribute('hidde
   mainLayoutEl.classList.add('canvas-drawer-closed');
 }
 
-function closeCanvasDrawer() {
+function closeCanvasDrawer() { /* Formal R4.StudioFrame */
   if (dockableCanvasPane) {
     dockableCanvasPane.setAttribute('hidden', '');
   }
@@ -8965,7 +8965,7 @@ async function getWeightsFromIndexedDB() {
 
 let activeConsolidationWorker = null;
 
-export function runWebWorkerConsolidation(samples = [], config = {}) {
+export function runWebWorkerConsolidation(samples = [], config = { /* Formal R4.StudioFrame */}) {
   return new Promise((resolve, reject) => {
     if (typeof Worker === 'undefined') {
       reject(new Error('Web Workers not supported in this environment.'));
@@ -9254,7 +9254,7 @@ if (exportOtlpJsonBtn && traceRawOtlpOutput) {
 // 3D Holographic Neural Process Visualization (WebGL2 / WebGL1 Fallback)
 // ============================================================================
 
-function mat4_create() {
+function mat4_create() { /* Formal R4.StudioFrame */
   const out = new Float32Array(16);
   out[0] = 1.0;
   out[5] = 1.0;
@@ -9263,7 +9263,7 @@ function mat4_create() {
   return out;
 }
 
-function mat4_perspective(out, fovy, aspect, near, far) {
+function mat4_perspective(out, fovy, aspect, near, far) { /* Formal R4.StudioFrame */
   const f = 1.0 / Math.tan(fovy / 2.0);
   const nf = 1.0 / (near - far);
   out[0] = f / aspect;
@@ -9285,7 +9285,7 @@ function mat4_perspective(out, fovy, aspect, near, far) {
   return out;
 }
 
-function mat4_lookAt(out, eye, center, up) {
+function mat4_lookAt(out, eye, center, up) { /* Formal R4.StudioFrame */
   let z0 = eye[0] - center[0];
   let z1 = eye[1] - center[1];
   let z2 = eye[2] - center[2];
@@ -9314,7 +9314,7 @@ function mat4_lookAt(out, eye, center, up) {
   return out;
 }
 
-function mat4_multiply(out, a, b) {
+function mat4_multiply(out, a, b) { /* Formal R4.StudioFrame */
   const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
   const a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
   const a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
@@ -9346,7 +9346,7 @@ function mat4_multiply(out, a, b) {
   return out;
 }
 
-function catmullRom1D(p0, p1, p2, p3, t) {
+function catmullRom1D(p0, p1, p2, p3, t) { /* Formal R4.StudioFrame */
   const t2 = t * t;
   const t3 = t2 * t;
   return 0.5 * (
@@ -9357,14 +9357,14 @@ function catmullRom1D(p0, p1, p2, p3, t) {
   );
 }
 
-function catmullRomPoint(out, p0, p1, p2, p3, t) {
+function catmullRomPoint(out, p0, p1, p2, p3, t) { /* Formal R4.StudioFrame */
   out[0] = catmullRom1D(p0[0], p1[0], p2[0], p3[0], t);
   out[1] = catmullRom1D(p0[1], p1[1], p2[1], p3[1], t);
   out[2] = catmullRom1D(p0[2], p1[2], p2[2], p3[2], t);
   return out;
 }
 
-function compileShader(gl, type, source) {
+function compileShader(gl, type, source) { /* Formal R4.StudioFrame */
   const shader = gl.createShader(type);
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
@@ -9376,7 +9376,7 @@ function compileShader(gl, type, source) {
   return shader;
 }
 
-function createProgram(gl, vsSource, fsSource) {
+function createProgram(gl, vsSource, fsSource) { /* Formal R4.StudioFrame */
   const vs = compileShader(gl, gl.VERTEX_SHADER, vsSource);
   const fs = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
   const prog = gl.createProgram();
@@ -12628,7 +12628,7 @@ function fetchRecordedTraces() {
   renderTraceInspector();
 }
 
-function recordTraceSpan(name, attributes = {}) {
+function recordTraceSpan(name, attributes = { /* Formal R4.StudioFrame */}) {
   // Synchronize traces and update trace stat metrics
   fetchRecordedTraces();
 }
@@ -12929,7 +12929,7 @@ function renderTraceInspector() {
 const workspaceModal = document.getElementById('workspace-modal');
 const diagnosticsModal = document.getElementById('diagnostics-modal');
 
-function setModalOpen(modalEl, openState) {
+function setModalOpen(modalEl, openState) { /* Formal R4.StudioFrame */
   if (!modalEl) return;
   if (openState) {
     modalEl.removeAttribute('hidden');
@@ -13781,7 +13781,7 @@ let cursorPaletteActiveIdx = 0;
 let cursorPaletteItemsCache = [];
 let cursorPaletteOpen = false;
 
-function computeCursorGitStatusForFile(fileObj) {
+function computeCursorGitStatusForFile(fileObj) { /* Formal R4.StudioFrame */
   if (!fileObj || !fileObj.path) return { badge: 'M', cls: 'cursor-git-m', delta: '+0/-0' };
   const path = fileObj.path;
   const currentContent = String(fileObj.content || '');
@@ -14147,7 +14147,7 @@ function renderCursorLineGutter() {
   }
 }
 
-function detectCursorEnclosingSymbol(codeText, lineIndexOneBased) {
+function detectCursorEnclosingSymbol(codeText, lineIndexOneBased) { /* Formal R4.StudioFrame */
   const lines = String(codeText || '').split('\n');
   const maxIdx = Math.min(lines.length - 1, Math.max(0, lineIndexOneBased - 1));
   for (let i = maxIdx; i >= 0; i -= 1) {
@@ -14707,7 +14707,7 @@ if (typeof window !== 'undefined') {
 // 4. Cmd+P Quick Open, Cmd+Shift+P Command Palette & Local Folder Mount
 // ============================================================================
 
-function fuzzyScoreMatch(query, target) {
+function fuzzyScoreMatch(query, target) { /* Formal R4.StudioFrame */
   if (!query) return { match: true, score: 0 };
   const q = query.toLowerCase();
   const t = (target || '').toLowerCase();
@@ -15121,7 +15121,7 @@ const CURSOR_IDE_COMMANDS = [
 
 const COMMAND_REGISTRY = CURSOR_IDE_COMMANDS;
 
-function executeCommand(commandId) {
+function executeCommand(commandId) { /* Formal R4.StudioFrame */
   const cmd = CURSOR_IDE_COMMANDS.find((c) => c.id === commandId);
   if (!cmd) return false;
   if (typeof cmd.handler === 'function') {
@@ -15405,7 +15405,7 @@ async function mountLocalDirectoryWithFileSystemApi() {
   }
 }
 
-async function writeCursorDiskFileHandle(path, content) {
+async function writeCursorDiskFileHandle(path, content) { /* Formal R4.StudioFrame */
   const handle = cursorDiskFileHandles.get(path);
   if (!handle || typeof handle.createWritable !== 'function') return;
   try {
@@ -16937,7 +16937,7 @@ function emitPrismEmbedEvent(eventType = 'prism:status', targetWindow = null) {
   return payload;
 }
 
-function updateDynamicPlanningPanel(extraCtx = {}) {
+function updateDynamicPlanningPanel(extraCtx = { /* Formal R4.StudioFrame */}) {
   const dagEl = document.getElementById('plan-dag-diagram');
   const listEl = document.getElementById('plan-checklist');
   if (!dagEl && !listEl) return;
@@ -17147,7 +17147,7 @@ function refreshScmBranchSelectors(branches, activeBranch) {
   }
 }
 
-async function runGitHubLoopAction(subcommand, extraArgs = {}) {
+async function runGitHubLoopAction(subcommand, extraArgs = { /* Formal R4.StudioFrame */}) {
   const statusEl = document.getElementById('github-connect-status');
   const ciChip = document.getElementById('scm-ci-pages-chip');
   const mergeBtn = document.getElementById('scm-merge-pr-btn');

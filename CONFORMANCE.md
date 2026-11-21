@@ -480,6 +480,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-77` | `build` | Pure LexLean models the R4-77 policy-checked Foundry Quantum Studio InTabProver (FK-01..09) and vTensor 3D agent <tool_call> tool surface (R4.FoundryAgentToolSurface): admitFoundryAgentToolCall admitting read-only in-tab LexLean proof checking via foundry_prove over propext/Quot.sound-only kernel axioms (FoundryProveAdmitted), proof-gated blake3: kappa .holo publication via foundry_publish_holo under AgentFull over Checked+Proved workspaces (FoundryPublishHoloAdmitted), and zero-float 16x16 tile-binned UORC LOD0..LOD4 3D PBR scene rendering via vtensor_render_3d (VtensorRender3dAdmitted) while refusing PlanReadOnly .holo publication (RefusedPlanModeMutatingPublish), publish-without-proved-workspace (RefusedPublishWithoutProvedWorkspace), extra unsound axioms in agent prove/publish (RefusedUnsoundAxiomsInAgentProve), and float ops or LOD > 4 in 3D rendering (RefusedOutOfBoundsLodOrFloat3d). Formal controls establish modeled tool-admission invariants only, not external registry upload transport. |
 
+## r4_78_modular_decomposition_ratchet
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-78` | `build` | Pure LexLean models the R4-78 Verdant M15 modular Rust/JavaScript source decomposition and bidirectional residue ratchet (R4.ModularDecompositionRatchet): admitModularDecompositionRatchet admitting repository states with <= 200 unlifted residue functions, <= 11400 production lines per Rust file (>= 35% ceiling reduction), <= 12800 code lines per modular JavaScript source file (>= 25% ceiling reduction), exact 6-file public/ browser closure, verified deterministic bundle concatenation sync, and zero float serving ops (ModularDecompositionAdmitted) while refusing residue > 200 (RefusedResidueAbove200), Rust file lines > 11400 (RefusedRustFileExceeds11400Lines), JS file lines > 12800 (RefusedJsFileExceeds12800Lines), non-6-file public/ closure (RefusedBrokenSixFileBrowserClosure), and float ops or bundle sync drift (RefusedFloatOrBundleSyncDrift). Formal controls establish modeled modular-ratchet bounds only, not human readability judgments. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

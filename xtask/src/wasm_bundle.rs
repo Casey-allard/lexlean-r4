@@ -257,6 +257,26 @@ fn rewrite_v12r4_query_tag(text: &str, prefix: &str, js_sha12: &str) -> String {
     out
 }
 
+/// Formal R4.ModularDecompositionRatchet deterministically concatenate sorted `*.js` modules in `dir` (`R4-78`).
+pub fn assemble_modular_js_dir(dir: &Path) -> Result<Option<String>, Fail> {
+    if !dir.is_dir() {
+        return Ok(None);
+    }
+    let mut parts: Vec<PathBuf> = std::fs::read_dir(dir)?
+        .filter_map(|e| e.ok().map(|de| de.path()))
+        .filter(|p| p.extension().is_some_and(|e| e == "js"))
+        .collect();
+    parts.sort();
+    if parts.is_empty() {
+        return Ok(None);
+    }
+    let mut out = String::new();
+    for p in parts {
+        out.push_str(&std::fs::read_to_string(&p)?);
+    }
+    Ok(Some(out))
+}
+
 /// Formal R4.ResidentGpuHybridDrafter stamp content-addressed `?v=v12r4-<js_sha12>` across `index.html` and `app.js` in `out_dir`.
 pub fn stamp_asset_digest_queries(out_dir: &Path, js_sha12: &str) -> Result<(), Fail> {
     let index_path = out_dir.join("index.html");
@@ -283,12 +303,21 @@ pub fn stamp_asset_digest_queries(out_dir: &Path, js_sha12: &str) -> Result<(), 
 /// `lexlean_r4_bg.wasm`, and `provenance.json` into `out_dir`.
 pub fn build_wasm(root: &Path, out_dir: &Path) -> Result<ProvenanceManifest, Fail> {
     let bridge_path = root.join("crates/wasm/js/worker_host_bridge.js");
-    let bridge_js = std::fs::read_to_string(&bridge_path).map_err(|e| {
-        format!(
-            "missing {} (run after host bridge extraction lands): {e}",
-            bridge_path.display()
-        )
-    })?;
+    let bridge_js =
+        if let Some(assembled) = assemble_modular_js_dir(&root.join("crates/wasm/js/bridge"))? {
+            let prev = std::fs::read_to_string(&bridge_path).unwrap_or_default();
+            if prev != assembled {
+                std::fs::write(&bridge_path, &assembled)?;
+            }
+            assembled
+        } else {
+            std::fs::read_to_string(&bridge_path).map_err(|e| {
+                format!(
+                    "missing {} (run after host bridge extraction lands): {e}",
+                    bridge_path.display()
+                )
+            })?
+        };
 
     let bindgen = find_wasm_bindgen()?;
     if let Some(expected_ver) = pinned_wasm_bindgen_version(root) {
@@ -366,7 +395,32 @@ pub fn build_wasm(root: &Path, out_dir: &Path) -> Result<ProvenanceManifest, Fai
     let _ = std::fs::remove_dir_all(&staging);
 
     let manifest = build_provenance_manifest(root, out_dir)?;
-    stamp_asset_digest_queries(out_dir, &manifest.binding_javascript_sha256[..12])?;
+    let js_sha12 = &manifest.binding_javascript_sha256[..12];
+    if out_dir == root.join("public") {
+        let app_parts_dir = root.join("crates/wasm/js/app");
+        if app_parts_dir.is_dir() {
+            let mut parts: Vec<PathBuf> = std::fs::read_dir(&app_parts_dir)?
+                .filter_map(|e| e.ok().map(|de| de.path()))
+                .filter(|p| p.extension().is_some_and(|e| e == "js"))
+                .collect();
+            parts.sort();
+            for p in &parts {
+                let raw = std::fs::read_to_string(p)?;
+                let stamped = rewrite_v12r4_query_tag(&raw, "./lexlean_r4.js", js_sha12);
+                if stamped != raw {
+                    std::fs::write(p, stamped)?;
+                }
+            }
+            if let Some(assembled_app) = assemble_modular_js_dir(&app_parts_dir)? {
+                let dest_app = out_dir.join("app.js");
+                let prev = std::fs::read_to_string(&dest_app).unwrap_or_default();
+                if prev != assembled_app {
+                    std::fs::write(&dest_app, assembled_app)?;
+                }
+            }
+        }
+    }
+    stamp_asset_digest_queries(out_dir, js_sha12)?;
     let encoded = format!("{}\n", serde_json::to_string_pretty(&manifest)?);
     std::fs::write(out_dir.join("provenance.json"), encoded)?;
     Ok(manifest)
@@ -440,6 +494,28 @@ pub fn check_wasm_sync_in(root: &Path, dir: &Path) -> Result<ProvenanceManifest,
             mismatches.push(format!(
                 "app.js missing stamped worker query `{want_worker}`"
             ));
+        }
+        if dir == root.join("public") {
+            if let Some(expected_bridge) =
+                assemble_modular_js_dir(&root.join("crates/wasm/js/bridge"))?
+            {
+                let actual_bridge =
+                    std::fs::read_to_string(root.join("crates/wasm/js/worker_host_bridge.js"))
+                        .unwrap_or_default();
+                if actual_bridge != expected_bridge {
+                    mismatches.push(
+                        "crates/wasm/js/worker_host_bridge.js drifted from crates/wasm/js/bridge/*.js"
+                            .to_string(),
+                    );
+                }
+            }
+            if let Some(expected_app) = assemble_modular_js_dir(&root.join("crates/wasm/js/app"))? {
+                if app_text != expected_app {
+                    mismatches.push(
+                        "public/app.js drifted from modular crates/wasm/js/app/*.js".to_string(),
+                    );
+                }
+            }
         }
     }
 

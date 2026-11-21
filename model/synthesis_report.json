@@ -17,18 +17,18 @@
       "facet": "UiAndPlumbing",
       "score_milli": 1000,
       "defects": 0,
-      "evidence": "unwired_ui_controls=0, route_verdict=RoutingAdmitted, uorc_verdict=CapsuleAdmitted, wasm_bytes=11928167, stale_banner=false, watchdog_ok=true"
+      "evidence": "unwired_ui_controls=0, route_verdict=RoutingAdmitted, uorc_verdict=CapsuleAdmitted, wasm_bytes=11929509, stale_banner=false, watchdog_ok=true"
     },
     {
       "facet": "EcosystemStandards",
-      "score_milli": 954,
+      "score_milli": 982,
       "defects": 0,
-      "evidence": "model_errors=0, mechanizer_ok=true (325 mods), lifted=2203/2998 residue=341"
+      "evidence": "model_errors=0, mechanizer_ok=true (327 mods), lifted=2420/3001 residue=129"
     }
   ],
-  "aggregate_score_milli": 988,
+  "aggregate_score_milli": 995,
   "total_defects": 0,
-  "complexity": 341,
+  "complexity": 129,
   "bandit_weights": {
     "ecosystem-lift-ratchet": 8,
     "geometric-recompilation": 8,

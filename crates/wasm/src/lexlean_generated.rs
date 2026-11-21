@@ -49859,3 +49859,47 @@ pub mod r4_foundry_agent_tool_surface {
             ) == FoundryAgentToolVerdict::VtensorRender3dAdmitted
     }
 }
+
+/// Generated from `src/R4/ModularDecompositionRatchet.lex.tex` (`R4.ModularDecompositionRatchet`, `R4-78`).
+pub mod r4_modular_decomposition_ratchet {
+    /// Inductive `R4.ModularDecompositionRatchet.ModularDecompositionVerdict` (`R4-78`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ModularDecompositionVerdict {
+        ModularDecompositionAdmitted,
+        RefusedResidueAbove200,
+        RefusedRustFileExceeds11400Lines,
+        RefusedJsFileExceeds12800Lines,
+        RefusedBrokenSixFileBrowserClosure,
+        RefusedFloatOrBundleSyncDrift,
+    }
+
+    /// Function `R4.ModularDecompositionRatchet.admitModularDecompositionRatchet` (`R4-78`).
+    pub fn admit_modular_decomposition_ratchet(
+        residue_count: u64,
+        max_rust_file_lines: u64,
+        max_js_file_lines: u64,
+        closure_file_count: u64,
+        bundle_sync_valid: bool,
+        float_ops: u64,
+    ) -> ModularDecompositionVerdict {
+        if 0 < float_ops || !bundle_sync_valid {
+            ModularDecompositionVerdict::RefusedFloatOrBundleSyncDrift
+        } else if closure_file_count < 6 || 6 < closure_file_count {
+            ModularDecompositionVerdict::RefusedBrokenSixFileBrowserClosure
+        } else if 200 < residue_count {
+            ModularDecompositionVerdict::RefusedResidueAbove200
+        } else if 11_400 < max_rust_file_lines {
+            ModularDecompositionVerdict::RefusedRustFileExceeds11400Lines
+        } else if 12_800 < max_js_file_lines {
+            ModularDecompositionVerdict::RefusedJsFileExceeds12800Lines
+        } else {
+            ModularDecompositionVerdict::ModularDecompositionAdmitted
+        }
+    }
+
+    /// Function `R4.ModularDecompositionRatchet.verifyModularDecompositionRatchetAdmitted` (`R4-78`).
+    pub fn verify_modular_decomposition_ratchet_admitted() -> bool {
+        admit_modular_decomposition_ratchet(180, 9500, 9500, 6, true, 0)
+            == ModularDecompositionVerdict::ModularDecompositionAdmitted
+    }
+}

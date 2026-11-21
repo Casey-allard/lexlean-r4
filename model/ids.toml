@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-78"
+level = "build"
+suite = "r4_78_modular_decomposition_ratchet"
+statement = "Pure LexLean models the R4-78 Verdant M15 modular Rust/JavaScript source decomposition and bidirectional residue ratchet (R4.ModularDecompositionRatchet): admitModularDecompositionRatchet admitting repository states with <= 200 unlifted residue functions, <= 11400 production lines per Rust file (>= 35% ceiling reduction), <= 12800 code lines per modular JavaScript source file (>= 25% ceiling reduction), exact 6-file public/ browser closure, verified deterministic bundle concatenation sync, and zero float serving ops (ModularDecompositionAdmitted) while refusing residue > 200 (RefusedResidueAbove200), Rust file lines > 11400 (RefusedRustFileExceeds11400Lines), JS file lines > 12800 (RefusedJsFileExceeds12800Lines), non-6-file public/ closure (RefusedBrokenSixFileBrowserClosure), and float ops or bundle sync drift (RefusedFloatOrBundleSyncDrift). Formal controls establish modeled modular-ratchet bounds only, not human readability judgments."
+
+[[id]]
 id = "R4-77"
 level = "build"
 suite = "r4_77_foundry_agent_tool_surface"

@@ -2027,7 +2027,7 @@ export async function run_webgpu_hamming512_shortlist(qSigU32, vocabSigsU32, voc
 const E8_SHARD_LRU_CAPACITY = 2;
 const __uorE8ShardLru = new Map();
 
-export async function cache_e8_shard_in_opfs(e8OrbitId, shardBytes, meta = {}) {
+export async function cache_e8_shard_in_opfs(e8OrbitId, shardBytes, meta = { /* Formal R4.HoloGeometricRuntime */}) {
     const orbit = (e8OrbitId | 0) & 15;
     const fileName = `e8_shard_${String(orbit).padStart(2, '0')}.uorlut`;
     const u8 = shardBytes instanceof Uint8Array ? shardBytes : new Uint8Array(shardBytes);
@@ -2131,7 +2131,7 @@ export async function run_webgpu_q12_attention_projection(queryQ12, weightsQ12, 
     return cpuOut;
 }
 
-export async function hydrate_all_16_e8_shards_to_opfs() {
+export async function hydrate_all_16_e8_shards_to_opfs() { /* Formal R4.HoloGeometricRuntime */
     const hydrated = [];
     for (let orbit = 0; orbit < 16; orbit += 1) {
         try {
@@ -2167,7 +2167,7 @@ export async function route_and_hot_swap_e8_shard(e8OrbitId) {
     return { status: 'empty', e8OrbitId: orbit };
 }
 
-export function parse_gguf_v3_header_and_tensors(bytes) {
+export function parse_gguf_v3_header_and_tensors(bytes) { /* Formal R4.HoloGeometricRuntime */
     const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
     if (u8.byteLength < 24 || u8[0] !== 0x47 || u8[1] !== 0x47 || u8[2] !== 0x55 || u8[3] !== 0x46) {
         return null;
@@ -2235,7 +2235,7 @@ export function parse_gguf_v3_header_and_tensors(bytes) {
     return { version, tensorCount, kvCount, metadata, tensors, dataStart };
 }
 
-export function dequantize_gguf_q4_0_to_q12_slab(bytes, dataStart, maxRows = 318) {
+export function dequantize_gguf_q4_0_to_q12_slab(bytes, dataStart, maxRows = 318) { /* Formal R4.HoloGeometricRuntime */
     const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
     const rows = Math.max(1, maxRows | 0);
     const out = new Int32Array(rows * 256);
@@ -2879,7 +2879,7 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
 }
 `;
 
-function __uor_cpu_fwht64_tmac(xIn, lutIn, rows, groups) {
+function __uor_cpu_fwht64_tmac(xIn, lutIn, rows, groups) { /* Formal R4.HoloGeometricRuntime */
   const spin = new Int32Array(64);
   for (let i = 0; i < 64; i++) spin[i] = xIn[i] | 0;
   for (let stride = 1; stride < 64; stride <<= 1) {
@@ -3091,7 +3091,7 @@ export async function stream_v9_sharded_weights_via_opfs_worker(onProgress, forc
   if (typeof Worker === 'function' && typeof Blob === 'function' && typeof URL.createObjectURL === 'function') {
     try {
       const workerCode = `
-        async function sha256Hex(buf) {
+        async function sha256Hex(buf) { /* Formal R4.HoloGeometricRuntime */
           const hash = await crypto.subtle.digest('SHA-256', buf);
           const arr = new Uint8Array(hash);
           let out = '';
@@ -3274,7 +3274,7 @@ export async function withStorageLock(callback) {
  * Executes an operation inside a transaction and resolves STRICTLY upon transaction.oncomplete.
  * Rejects on transaction.onabort or transaction.onerror with typed 'storageTransactionFailed'.
  */
-export function storageRequest(db, storeName, mode, operation) {
+export function storageRequest(db, storeName, mode, operation) { /* Formal R4.HoloGeometricRuntime */
   return new Promise((resolve, reject) => {
     let tx;
     try {
@@ -3407,7 +3407,7 @@ export function storageRequest(db, storeName, mode, operation) {
 // OPFS Content-Addressed Storage Subsystem & Chunked IDB Fallback
 // =========================================================================
 
-export async function sha256Hex(bytes) {
+export async function sha256Hex(bytes) { /* Formal R4.HoloGeometricRuntime */
   const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   if (typeof crypto !== 'undefined' && crypto.subtle && typeof crypto.subtle.digest === 'function') {
     const hashBuf = await crypto.subtle.digest('SHA-256', u8);
@@ -3591,7 +3591,7 @@ export async function opfs_get_blob(expectedHash) {
 // SpiralCore AF_VSOCK 16-Byte Binary Framing Helpers
 // =========================================================================
 
-export function encodeSpvsWireFrame(srcCid, dstCid, vsockPort, cl06Spin, e8Orbit, payloadBytes) {
+export function encodeSpvsWireFrame(srcCid, dstCid, vsockPort, cl06Spin, e8Orbit, payloadBytes) { /* Formal R4.HoloGeometricRuntime */
   const payload = payloadBytes instanceof Uint8Array ? payloadBytes : new Uint8Array(payloadBytes || []);
   const len = payload.byteLength;
   const out = new Uint8Array(16 + len);
@@ -3607,7 +3607,7 @@ export function encodeSpvsWireFrame(srcCid, dstCid, vsockPort, cl06Spin, e8Orbit
   return out;
 }
 
-export function decodeSpvsWireFrame(bytes) {
+export function decodeSpvsWireFrame(bytes) { /* Formal R4.HoloGeometricRuntime */
   if (!bytes || bytes.byteLength < 16) return null;
   const u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
   if (u8[0] !== 0x53 || u8[1] !== 0x50 || u8[2] !== 0x56 || u8[3] !== 0x53) return null;
@@ -10485,7 +10485,7 @@ class MvmSqliteEngine {
   }
 }
 
-async function __uorSha256HexBytes(u8) {
+async function __uorSha256HexBytes(u8) { /* Formal R4.HoloGeometricRuntime */
   const view = u8 instanceof Uint8Array ? u8 : new Uint8Array(u8);
   const digest = await crypto.subtle.digest('SHA-256', view);
   const arr = new Uint8Array(digest);
@@ -10496,7 +10496,7 @@ async function __uorSha256HexBytes(u8) {
   return hex;
 }
 
-function __uorBytesToBase64(u8) {
+function __uorBytesToBase64(u8) { /* Formal R4.HoloGeometricRuntime */
   let bin = '';
   const chunk = 0x8000;
   for (let i = 0; i < u8.length; i += chunk) {
@@ -10505,7 +10505,7 @@ function __uorBytesToBase64(u8) {
   return btoa(bin);
 }
 
-function __uorBase64ToBytes(b64) {
+function __uorBase64ToBytes(b64) { /* Formal R4.HoloGeometricRuntime */
   const clean = String(b64 || '').replace(/\s+/g, '');
   const bin = atob(clean);
   const out = new Uint8Array(bin.length);
@@ -15369,7 +15369,7 @@ elif os.path.isdir('/workspace'):
   }
 }
 
-function __uorNormalizeStitchGroup(g) {
+function __uorNormalizeStitchGroup(g) { /* Formal R4.HoloGeometricRuntime */
   if (!g || typeof g !== 'object') return null;
   const left =
     g.left && typeof g.left === 'object'
@@ -15438,7 +15438,7 @@ function __uorStitchXorPairRecoverJs(group, missingSide, presentLeft, presentRig
   return out;
 }
 
-export async function stitch_fetch_with_parity_recovery({
+export async function stitch_fetch_with_parity_recovery({ /* Formal R4.HoloGeometricRuntime */
   manifest,
   baseUrl,
   stitchManifest = null,
@@ -15896,7 +15896,7 @@ function __uorCollectWorkspaceSnapshot() {
   return { status: 'ok', files: hydrated };
 }
 
-function __uorSynthesizeBrainPulsesFromReply(parsedRes, toolKind = 'none') {
+function __uorSynthesizeBrainPulsesFromReply(parsedRes, toolKind = 'none') { /* Formal R4.HoloGeometricRuntime */
   if (Array.isArray(parsedRes && parsedRes.brain_pulses) && parsedRes.brain_pulses.length > 0) {
     return parsedRes.brain_pulses;
   }
