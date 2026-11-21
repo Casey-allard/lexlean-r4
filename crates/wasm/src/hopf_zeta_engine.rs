@@ -1040,6 +1040,60 @@ impl HopfZetaPoincareEngineV14 {
             hopf_s2_trail_milli: trail_milli,
         })
     }
+
+    /// Formal R4.ResidentGpuHybridDrafter propose up to `max_drafts` (`<= 4`) `HoloTok13` token IDs
+    /// from the 4D Signed Hopf + Zeta-zero + `C1/S5` resonant wave chord table when the trailing
+    /// context word matches an indexed `UORR4V14` anchor (`R4-75`).
+    pub fn propose_speculative_wave_holo_ids<F>(
+        &self,
+        context_tail_text: &str,
+        max_drafts: usize,
+        mut encode_fn: F,
+    ) -> Vec<u32>
+    where
+        F: FnMut(&str) -> Vec<u32>,
+    {
+        let cap = max_drafts.min(TOKENS_PER_WAVE);
+        if cap == 0 || self.vocab.is_empty() {
+            return Vec::new();
+        }
+        // Only propose when context ends at a word boundary so BPE piece alignment stays exact.
+        let ends_with_space = context_tail_text.ends_with(' ');
+        let trimmed = context_tail_text.trim_end();
+        let Some(last_word) = trimmed.split_whitespace().last() else {
+            return Vec::new();
+        };
+        let clean = last_word.trim_matches(|c: char| c.is_ascii_punctuation());
+        if clean.len() < 3 {
+            return Vec::new();
+        }
+        let Some(anchor) = self.vocab.iter().find(|e| {
+            e.piece
+                .trim()
+                .trim_matches(|c: char| c.is_ascii_punctuation())
+                .eq_ignore_ascii_case(clean)
+        }) else {
+            return Vec::new();
+        };
+        let mut chord_text = String::new();
+        for (ci, &tid) in anchor.wave_chord_4.iter().take(cap).enumerate() {
+            let raw_piece = &self.vocab[tid as usize % self.vocab.len()].piece;
+            if ci == 0 && ends_with_space {
+                chord_text.push_str(raw_piece.trim_start());
+            } else if raw_piece.starts_with(' ') {
+                chord_text.push_str(raw_piece);
+            } else {
+                chord_text.push(' ');
+                chord_text.push_str(raw_piece);
+            }
+        }
+        if chord_text.is_empty() {
+            return Vec::new();
+        }
+        let mut ids = encode_fn(&chord_text);
+        ids.truncate(cap);
+        ids
+    }
 }
 
 /// Formal R4.HopfZetaPoincareArchitecture cached built-in `UORR4V14` Hopf–Zeta–Poincaré Studio engine (`R4-73`).

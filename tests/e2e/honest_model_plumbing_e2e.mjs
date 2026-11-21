@@ -117,10 +117,13 @@ async function verifyPartAClosureAndStaticUi() {
   assert.equal(/GLM\s*v10|GLLM\s*v10|gllm-v11|\bv10\b/i.test(html), false, 'public/index.html must not contain stale v10 references');
   assert.equal(/\bpython\b/i.test(html), false, 'public/index.html must not contain Python starter missions or prompts');
 
-  // Verify ?v=v12r4 query cache busting
-  assert.ok(html.includes('href="app.css?v=v12r4"'), 'index.html must cache-bust app.css?v=v12r4');
-  assert.ok(html.includes('src="app.js?v=v12r4"'), 'index.html must cache-bust app.js?v=v12r4');
-  assert.ok(appJs.includes("./lexlean_r4.js?v=v12r4'"), 'app.js must cache-bust ./lexlean_r4.js?v=v12r4');
+  // Verify ?v=v12r4-<js_sha12> content-addressed query cache busting (R4-75)
+  const provDoc = JSON.parse(fs.readFileSync(path.join(PUBLIC_DIR, 'provenance.json'), 'utf8'));
+  const jsSha12 = String(provDoc.binding_javascript_sha256 || '').slice(0, 12);
+  assert.equal(jsSha12.length, 12, 'provenance.json must carry 64-hex binding_javascript_sha256');
+  assert.ok(html.includes(`href="app.css?v=v12r4-${jsSha12}"`), `index.html must cache-bust app.css?v=v12r4-${jsSha12}`);
+  assert.ok(html.includes(`src="app.js?v=v12r4-${jsSha12}"`), `index.html must cache-bust app.js?v=v12r4-${jsSha12}`);
+  assert.ok(appJs.includes(`./lexlean_r4.js?v=v12r4-${jsSha12}'`), `app.js must cache-bust ./lexlean_r4.js?v=v12r4-${jsSha12}`);
 
   // Extract #model-select & #composer-model-select option values in exact order (R4-62: 2 UI Qwen3 models)
   const selectMatch = html.match(/<select[^>]*id="composer-model-select"[^>]*>([\s\S]*?)<\/select>/i);

@@ -50,7 +50,7 @@ import init, {
   studio_weight_pack_status,
   sync_cached_weights,
   withStorageLock,
-} from './lexlean_r4.js?v=v12r4';
+} from './lexlean_r4.js?v=v12r4-2997238515fc';
 
 let mainThreadWasmReady = false;
 
@@ -910,7 +910,7 @@ const engineWorkerClient = {
   spawn() {
     if (typeof Worker !== 'function') return false;
     try {
-      const workerUrl = new URL('./lexlean_r4.js?v=v12r4', import.meta.url);
+      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-2997238515fc', import.meta.url);
       this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
@@ -1201,12 +1201,9 @@ const engineWorkerClient = {
     }
     if (evType === 'holo_observatory_batch' && Array.isArray(msg.frames)) {
       for (let i = 0; i < msg.frames.length; i += 1) {
-        ingestHoloObservatoryFrame(msg.frames[i], {
-          prefixReused: msg.prefixReused || 0,
-          selectedModel: msg.selectedModel || '',
-        });
+        ingestHoloObservatoryFrame(msg.frames[i], { prefixReused: msg.prefixReused || 0, selectedModel: msg.selectedModel || '' });
       }
-      refreshHoloStorageGeometry(msg.selectedModel || '').catch(() => {});
+      if (!this.activeChatStreamHook) refreshHoloStorageGeometry(msg.selectedModel || '').catch(() => {});
       return;
     }
     if (evType === 'telos_tick') {
@@ -3121,20 +3118,14 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     (AppState && AppState.config && AppState.config.selectedModel === 'uor-r4.native-q31-d85');
   const rawTsModel = typeof tsComposer !== 'undefined' && tsComposer.getSelectedModel();
   const isProgrammaticActive = rawTsModel === 'uor-r4.native-q31-d85' || rawTsModel === 'uor-r4.hf-repo-holo';
-  const selectedModel = offlineEmergencyActive
-    ? 'uor-r4.native-q31-d85'
-    : isProgrammaticActive
-      ? rawTsModel
-      : ((typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value)
-        || rawTsModel
-        || AppState.config.selectedModel
-        || DEFAULT_HONEST_MODEL_ID);
-  const activeComposerMode = (typeof tsComposer !== 'undefined' && tsComposer.getState && tsComposer.getState().mode)
-    || AppState.config.composerMode
-    || 'agentic';
-  const activeTierTag = engineWorkerClient.holoStatus && engineWorkerClient.holoStatus.mounted_count > 0
-    ? 'Holo v13 Int4'
-    : 'Holo v13 Worker';
+  /* Formal R4.ResidentGpuHybridDrafter */
+  const visPickerVal = (typeof globalModelSelect !== 'undefined' && globalModelSelect && globalModelSelect.value) || '';
+  const hidPickerVal = (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value) || '';
+  const selectedModel = offlineEmergencyActive ? 'uor-r4.native-q31-d85' : isProgrammaticActive ? rawTsModel : (visPickerVal || hidPickerVal || rawTsModel || AppState.config.selectedModel || DEFAULT_HONEST_MODEL_ID);
+  if (typeof composerModelSelect !== 'undefined' && composerModelSelect && composerModelSelect.value !== selectedModel && selectedModel.includes('qwen3-')) composerModelSelect.value = selectedModel;
+  const activeComposerMode = (typeof tsComposer !== 'undefined' && tsComposer.getState && tsComposer.getState().mode) || AppState.config.composerMode || 'agentic';
+  const curHs = engineWorkerClient.holoStatus;
+  const isResidentMounted = Boolean(curHs && ((selectedModel.includes('1.7b') && curHs.qwen3_17b_mounted) || (selectedModel.includes('0.6b') && curHs.qwen3_06b_mounted) || (curHs.mounted_count > 0 && (!Array.isArray(curHs.models) || curHs.models.some((m) => m && m.model_id === selectedModel)))));
   holoObservatoryState.turnStartMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   holoObservatoryState.firstDeltaMs = 0;
   holoObservatoryState.lastDecodeDurationMs = 0;
@@ -3174,9 +3165,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       const meta = document.createElement('div');
       meta.className = 'chat-turn-meta';
       leftMetaEl = document.createElement('span');
-      leftMetaEl.textContent = engineWorkerClient.ready
-        ? `${selectedModel} · ${activeTierTag} · Streaming`
-        : `${selectedModel} · Booting Engine Worker`;
+      leftMetaEl.textContent = !engineWorkerClient.ready ? `${selectedModel} · Booting Engine Worker` : isResidentMounted ? `${selectedModel} · Resident · Generating (0 B dl)` : `${selectedModel} · Hydrating Weights`;
       rightMetaEl = document.createElement('span');
       rightMetaEl.textContent = activeComposerMode === 'plan' ? 'PlanReadOnly' : 'live';
       meta.appendChild(leftMetaEl);
@@ -3188,9 +3177,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       toolCallsEl.className = 'chat-tool-calls';
       statusLineEl = document.createElement('div');
       statusLineEl.className = 'chat-prose';
-      statusLineEl.textContent = engineWorkerClient.ready
-        ? `Streaming zero-float geometric turn (${selectedModel})...`
-        : 'Initializing Wasm simd128 Worker & OPFS Holo v13 cache...';
+      statusLineEl.textContent = !engineWorkerClient.ready ? 'Initializing Wasm simd128 Worker & OPFS Holo v13 cache...' : isResidentMounted ? `Generating from resident RAM (${selectedModel}, 0 B network)...` : `Preparing ${selectedModel} weights...`;
       body.appendChild(toolCallsEl);
       body.appendChild(statusLineEl);
       placeholderCard.appendChild(meta);
@@ -3269,6 +3256,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       surface_mode: 'studio',
       include_excerpts: includeExcerpts,
       live_hud: true,
+      slice_tokens: 4,
       history: chatHistoryPairs.slice(-6),
       ...(allowOffOrigin ? { allowOffOriginHydration: true } : {}),
       ...(offlineEmergencyActive ? { offlineEmergencyQ31: true, offlineFallback: true } : {}),
@@ -3410,6 +3398,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       }
       if (bridgeEvt.stage === 'token_step') {
         streamedTokenCount += 1;
+        if (leftMetaEl && isResidentMounted) leftMetaEl.textContent = `${selectedModel} · Resident · ${streamedTokenCount} tok (0 B dl)`;
         const nowMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
         if (!holoObservatoryState.firstDeltaMs && holoObservatoryState.turnStartMs > 0) {
           holoObservatoryState.firstDeltaMs = Math.max(1, Math.round(nowMs - holoObservatoryState.turnStartMs));

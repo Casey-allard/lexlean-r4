@@ -10249,6 +10249,26 @@ pub fn studio_export_holo_layer_slab_meta(
         .to_string()
 }
 
+/// Formal R4.ResidentGpuHybridDrafter stream real packed Int4 RHT-32 + Q24 RMSNorm slab bytes for resident layer `layer_idx` (`R4-75`).
+#[wasm_bindgen]
+pub fn studio_export_holo_layer_slab_bytes(model_id: &str, layer_idx: u32) -> Vec<u8> {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    let target = if model_id.trim().is_empty() {
+        "uor-r4.qwen3-0.6b-holo"
+    } else {
+        model_id.trim()
+    };
+    engine
+        .holo_models
+        .get(target)
+        .map(|m| m.export_layer_slab_bytes(layer_idx as usize))
+        .unwrap_or_default()
+}
+
 /// Formal R4.WebGpuResidentRuntime evaluate resident WebGPU slab limits, `0-LSB` speculative tile parity, and Studio LoRA prompt shrink policy (`R4-64`).
 #[wasm_bindgen]
 #[allow(clippy::too_many_arguments)]

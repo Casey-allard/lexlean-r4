@@ -1460,6 +1460,17 @@ impl HoloTok13SpeculativeDrafter {
                 }
             }
         }
+
+        // 4. Hybrid UORR4V14 Hopf-Zeta-Icosian resonant wave chord fallback (`R4-75`), verified 0-LSB by `step_speculative_tile`.
+        if let Ok(tail_str) = std::str::from_utf8(&combined_tail) {
+            let mut v14_ids = crate::hopf_zeta_engine::default_hopf_zeta_v14_engine()
+                .propose_speculative_wave_holo_ids(tail_str, cap, |s| tokenizer.encode(s));
+            v14_ids.retain(|&t| !is_stop(t) && (t as usize) < tokenizer.vocab_size);
+            v14_ids.truncate(cap);
+            if !v14_ids.is_empty() {
+                return v14_ids;
+            }
+        }
         Vec::new()
     }
 
@@ -5434,6 +5445,66 @@ impl HoloV13Model {
             + down_bytes;
         let sigs = layer.gate_row_sigs_256.len() * MLP_SIG_WORDS * 8;
         (norms + projs + sigs + 15) & !15
+    }
+
+    /// Formal R4.ResidentGpuHybridDrafter serialize exact packed Int4 RHT-32 + Q24 RMSNorm + 256-bit geodesic sketch slab bytes for `layer_idx` (`R4-75`).
+    pub fn export_layer_slab_bytes(&self, layer_idx: usize) -> Vec<u8> {
+        let Some(layer) = self.layers.get(layer_idx) else {
+            return Vec::new();
+        };
+        let expected_len = self.layer_slab_byte_len(layer_idx);
+        let mut out = Vec::with_capacity(expected_len);
+        for v in layer
+            .in_ln_q24
+            .iter()
+            .chain(layer.post_ln_q24.iter())
+            .chain(layer.q_norm_q24.iter())
+            .chain(layer.k_norm_q24.iter())
+        {
+            out.extend_from_slice(&v.to_le_bytes());
+        }
+        let push_i4 = |buf: &mut Vec<u8>, m: &HoloInt4RhtMatrix| {
+            for &s in &m.rht_signs_packed {
+                buf.extend_from_slice(&s.to_le_bytes());
+            }
+            for &e in &m.row_exp {
+                buf.push(e as u8);
+            }
+            for &gm in &m.group_mult {
+                buf.extend_from_slice(&gm.to_le_bytes());
+            }
+            buf.extend_from_slice(&m.nibbles);
+        };
+        push_i4(&mut out, &layer.q_proj);
+        push_i4(&mut out, &layer.k_proj);
+        push_i4(&mut out, &layer.v_proj);
+        push_i4(&mut out, &layer.o_proj);
+        push_i4(&mut out, &layer.gate_proj);
+        push_i4(&mut out, &layer.up_proj);
+        match &layer.down_proj {
+            HoloDownProjMatrix::Int4(m) => push_i4(&mut out, m),
+            HoloDownProjMatrix::Int8(m) => {
+                for &s in &m.rht_signs_packed {
+                    out.extend_from_slice(&s.to_le_bytes());
+                }
+                for &e in &m.row_exp {
+                    out.push(e as u8);
+                }
+                for &gm in &m.group_mult {
+                    out.extend_from_slice(&gm.to_le_bytes());
+                }
+                for &w in &m.weights {
+                    out.push(w as u8);
+                }
+            }
+        }
+        for row_sig in &layer.gate_row_sigs_256 {
+            for &w64 in row_sig {
+                out.extend_from_slice(&w64.to_le_bytes());
+            }
+        }
+        out.resize(expected_len, 0u8);
+        out
     }
 
     /// Formal R4.WebGpuResidentRuntime export resident per-layer (`<= 128 MiB`) WebGPU storage buffer partition metadata (`R4-64`).

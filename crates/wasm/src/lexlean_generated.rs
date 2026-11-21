@@ -49626,3 +49626,95 @@ pub mod r4_agent_workspace_tool_awareness {
                 == WarmMountCacheVerdict::OpfsWarmSlabMountedZeroHttp
     }
 }
+
+pub mod r4_resident_gpu_hybrid_drafter {
+    //! Generated from `src/R4/ResidentGpuHybridDrafter.lex.tex` (`R4-75`).
+
+    /// Inductive `R4.ResidentGpuHybridDrafter.ResidentTurnVerdict` (`R4-75`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ResidentTurnVerdict {
+        ResidentTurnZeroDownloadAdmitted,
+        ColdOrUnmountedHydrationAdmitted,
+        RefusedHydrationOnResidentModel,
+        RefusedDesyncedModelSelectors,
+        RefusedStaleStaticAssetQuery,
+        RefusedMisleadingStreamingLabel,
+    }
+
+    /// Inductive `R4.ResidentGpuHybridDrafter.HybridDraftVerdict` (`R4-75`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HybridDraftVerdict {
+        HybridV14WebGpuDraftAdmitted,
+        HybridV14WasmSimdFallbackAdmitted,
+        RefusedPlaceholderZeroLayerSlab,
+        RefusedFloatOrNonZeroVerifierDrift,
+        RefusedPrefillMapAsyncStall,
+        RefusedDraftWaveExceedsTile,
+    }
+
+    /// Function `R4.ResidentGpuHybridDrafter.admitResidentTurnZeroDownload` (`R4-75`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn admit_resident_turn_zero_download(
+        mounted_in_ram: bool,
+        hydration_invoked: bool,
+        network_bytes: u64,
+        opfs_bytes: u64,
+        picker_synced: bool,
+        digest_query_stamped: bool,
+        misleading_streaming_label: bool,
+    ) -> ResidentTurnVerdict {
+        if !picker_synced {
+            ResidentTurnVerdict::RefusedDesyncedModelSelectors
+        } else if !digest_query_stamped {
+            ResidentTurnVerdict::RefusedStaleStaticAssetQuery
+        } else if mounted_in_ram {
+            if hydration_invoked || 0 < network_bytes || 0 < opfs_bytes {
+                ResidentTurnVerdict::RefusedHydrationOnResidentModel
+            } else if misleading_streaming_label {
+                ResidentTurnVerdict::RefusedMisleadingStreamingLabel
+            } else {
+                ResidentTurnVerdict::ResidentTurnZeroDownloadAdmitted
+            }
+        } else {
+            ResidentTurnVerdict::ColdOrUnmountedHydrationAdmitted
+        }
+    }
+
+    /// Function `R4.ResidentGpuHybridDrafter.admitHybridV14WebGpuDraft` (`R4-75`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn admit_hybrid_v14_webgpu_draft(
+        gpu_available: bool,
+        min_layer_slab_bytes: u64,
+        layer_count: u64,
+        v14_draft_count: u64,
+        verifier_lsb_diff: u64,
+        float_ops: u64,
+        prefill_map_async_stall: bool,
+    ) -> HybridDraftVerdict {
+        if 0 < float_ops || 0 < verifier_lsb_diff {
+            HybridDraftVerdict::RefusedFloatOrNonZeroVerifierDrift
+        } else if prefill_map_async_stall {
+            HybridDraftVerdict::RefusedPrefillMapAsyncStall
+        } else if 6 < v14_draft_count {
+            HybridDraftVerdict::RefusedDraftWaveExceedsTile
+        } else if gpu_available {
+            if layer_count < 1 || min_layer_slab_bytes < 1024 {
+                HybridDraftVerdict::RefusedPlaceholderZeroLayerSlab
+            } else {
+                HybridDraftVerdict::HybridV14WebGpuDraftAdmitted
+            }
+        } else {
+            HybridDraftVerdict::HybridV14WasmSimdFallbackAdmitted
+        }
+    }
+
+    /// Function `R4.ResidentGpuHybridDrafter.verifyResidentGpuHybridDrafterAdmitted` (`R4-75`).
+    pub fn verify_resident_gpu_hybrid_drafter_admitted() -> bool {
+        admit_resident_turn_zero_download(true, false, 0, 0, true, true, false)
+            == ResidentTurnVerdict::ResidentTurnZeroDownloadAdmitted
+            && admit_hybrid_v14_webgpu_draft(true, 11_796_480, 28, 4, 0, 0, false)
+                == HybridDraftVerdict::HybridV14WebGpuDraftAdmitted
+            && admit_hybrid_v14_webgpu_draft(false, 0, 28, 4, 0, 0, false)
+                == HybridDraftVerdict::HybridV14WasmSimdFallbackAdmitted
+    }
+}

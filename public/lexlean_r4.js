@@ -302,6 +302,25 @@ export function studio_export_holo_layer_slab_meta(model_id, device_binding_limi
     }
 }
 
+function getArrayU8FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
+}
+/**
+ * Formal R4.ResidentGpuHybridDrafter stream real packed Int4 RHT-32 + Q24 RMSNorm slab bytes for resident layer `layer_idx` (`R4-75`).
+ * @param {string} model_id
+ * @param {number} layer_idx
+ * @returns {Uint8Array}
+ */
+export function studio_export_holo_layer_slab_bytes(model_id, layer_idx) {
+    const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_export_holo_layer_slab_bytes(ptr0, len0, layer_idx);
+    var v2 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v2;
+}
+
 /**
  * Formal R4.WebGpuResidentRuntime evaluate resident WebGPU slab limits, `0-LSB` speculative tile parity, and Studio LoRA prompt shrink policy (`R4-64`).
  * @param {bigint} float_ops
@@ -353,18 +372,6 @@ export function studio_export_holo_vocab_sigs_u32(model_id) {
     var v2 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
     return v2;
-}
-
-/**
- * Formal R4.LiveWebGpuTurnBridge peek active turn's 512-bit query signature (`R4-65`).
- * @param {bigint} turn_id
- * @returns {Uint32Array}
- */
-export function holo_peek_foundry_turn_qsig512(turn_id) {
-    const ret = wasm.holo_peek_foundry_turn_qsig512(turn_id);
-    var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
-    return v1;
 }
 
 /**
@@ -562,6 +569,18 @@ export function studio_record_generation_fault(fault_reason) {
 }
 
 /**
+ * Formal R4.LiveWebGpuTurnBridge peek active turn's 512-bit query signature (`R4-65`).
+ * @param {bigint} turn_id
+ * @returns {Uint32Array}
+ */
+export function holo_peek_foundry_turn_qsig512(turn_id) {
+    const ret = wasm.holo_peek_foundry_turn_qsig512(turn_id);
+    var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+    return v1;
+}
+
+/**
  * Formal R4.LiveWebGpuTurnBridge verify and commit a bound WebGPU compute pass for an active turn (`R4-65`).
  * @param {bigint} turn_id
  * @param {bigint} total_dispatches
@@ -605,24 +624,24 @@ export function studio_wasm_eval(subcommand, filter) {
     }
 }
 
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_2.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
 /**
- * Synchronize base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
- * @param {string} snapshot_json
- * @returns {string}
+ * WebAssembly entrypoint executing an application request with JsValue representation.
+ * @param {Uint8Array} input_bytes
+ * @returns {any}
  */
-export function mvm_sync_workspace_in_json(snapshot_json) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passStringToWasm0(snapshot_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.mvm_sync_workspace_in_json(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+export function execute_application(input_bytes) {
+    const ptr0 = passArray8ToWasm0(input_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.execute_application(ptr0, len0);
+    if (ret[2]) {
+        throw takeFromExternrefTable0(ret[1]);
     }
+    return takeFromExternrefTable0(ret[0]);
 }
 
 let cachedInt32ArrayMemory0 = null;
@@ -735,16 +754,6 @@ export function studio_stitch_split_2of3(payload) {
     }
 }
 
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_2.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
-
-function getArrayU8FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
-}
 /**
  * Heal and recover a single requested shard (`left` if `recover_left == true`, else `right`)
  * from a `StitchParityGroup` JSON descriptor and up to 3 candidate byte slices using 2-of-3 XOR
@@ -809,19 +818,22 @@ export function studio_stitch_recover_2of3_object(has_frag0, frag0, has_frag1, f
 }
 
 /**
- * Formal `R4.PrismHoloIdentity` query active `afflom/stitch` Prism Identity ledger state (`R4-54`).
+ * Synchronize base64 `/workspace` snapshot JSON into `MVM-Wasm` and Studio (`R4-57`).
+ * @param {string} snapshot_json
  * @returns {string}
  */
-export function studio_prism_identity_status() {
-    let deferred1_0;
-    let deferred1_1;
+export function mvm_sync_workspace_in_json(snapshot_json) {
+    let deferred2_0;
+    let deferred2_1;
     try {
-        const ret = wasm.studio_prism_identity_status();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
+        const ptr0 = passStringToWasm0(snapshot_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.mvm_sync_workspace_in_json(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
@@ -960,18 +972,20 @@ export function process_envelope(input) {
 }
 
 /**
- * WebAssembly entrypoint executing an application request with JsValue representation.
- * @param {Uint8Array} input_bytes
- * @returns {any}
+ * Formal `R4.PrismHoloIdentity` query active `afflom/stitch` Prism Identity ledger state (`R4-54`).
+ * @returns {string}
  */
-export function execute_application(input_bytes) {
-    const ptr0 = passArray8ToWasm0(input_bytes, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.execute_application(ptr0, len0);
-    if (ret[2]) {
-        throw takeFromExternrefTable0(ret[1]);
+export function studio_prism_identity_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_prism_identity_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
-    return takeFromExternrefTable0(ret[0]);
 }
 
 /**
@@ -1023,26 +1037,6 @@ export function studio_compile_holo_v4_archive(holoview_bytes, provenance_bytes)
 }
 
 /**
- * Formal `R4.PrismHoloIdentity` verify a Hologram v4 `.holo` archive and return structured JSON verdict (`R4-54`).
- * @param {Uint8Array} archive_bytes
- * @returns {string}
- */
-export function studio_verify_holo_v4_archive(archive_bytes) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const ptr0 = passArray8ToWasm0(archive_bytes, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_verify_holo_v4_archive(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
-/**
  * Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
  * @param {string} request_json
  * @returns {string}
@@ -1054,6 +1048,26 @@ export function studio_v1_messages(request_json) {
         const ptr0 = passStringToWasm0(request_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
         const ret = wasm.studio_v1_messages(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Formal `R4.PrismHoloIdentity` verify a Hologram v4 `.holo` archive and return structured JSON verdict (`R4-54`).
+ * @param {Uint8Array} archive_bytes
+ * @returns {string}
+ */
+export function studio_verify_holo_v4_archive(archive_bytes) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passArray8ToWasm0(archive_bytes, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_verify_holo_v4_archive(ptr0, len0);
         deferred2_0 = ret[0];
         deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
@@ -5287,6 +5301,52 @@ export function runWgslSplitByteParityCheck(perturbLsb = 0) {
   };
 }
 
+/** Formal R4.ResidentGpuHybridDrafter admit zero-download resident turn UX (`R4-75`). */
+export function admitResidentTurnZeroDownload(
+  mountedInRam,
+  hydrationInvoked,
+  networkBytes,
+  opfsBytes,
+  pickerSynced = true,
+  digestQueryStamped = true,
+  misleadingStreamingLabel = false,
+) {
+  /* Formal R4.ResidentGpuHybridDrafter */
+  if (!pickerSynced) return 'RefusedDesyncedModelSelectors';
+  if (!digestQueryStamped) return 'RefusedStaleStaticAssetQuery';
+  if (mountedInRam) {
+    if (hydrationInvoked || Number(networkBytes) > 0 || Number(opfsBytes) > 0) {
+      return 'RefusedHydrationOnResidentModel';
+    }
+    if (misleadingStreamingLabel) return 'RefusedMisleadingStreamingLabel';
+    return 'ResidentTurnZeroDownloadAdmitted';
+  }
+  return 'ColdOrUnmountedHydrationAdmitted';
+}
+
+/** Formal R4.ResidentGpuHybridDrafter admit real 28-layer WebGPU Int4 slabs & hybrid UORR4V14 draft waves (`R4-75`). */
+export function admitHybridV14WebGpuDraft(
+  gpuAvailable,
+  minLayerSlabBytes,
+  layerCount,
+  v14DraftCount,
+  verifierLsbDiff = 0,
+  floatOps = 0,
+  prefillMapAsyncStall = false,
+) {
+  /* Formal R4.ResidentGpuHybridDrafter */
+  if (Number(floatOps) > 0 || Number(verifierLsbDiff) > 0) return 'RefusedFloatOrNonZeroVerifierDrift';
+  if (prefillMapAsyncStall) return 'RefusedPrefillMapAsyncStall';
+  if (Number(v14DraftCount) > 6) return 'RefusedDraftWaveExceedsTile';
+  if (gpuAvailable) {
+    if (Number(layerCount) < 1 || Number(minLayerSlabBytes) < 1024) {
+      return 'RefusedPlaceholderZeroLayerSlab';
+    }
+    return 'HybridV14WebGpuDraftAdmitted';
+  }
+  return 'HybridV14WasmSimdFallbackAdmitted';
+}
+
 /**
  * Formal R4.WebGpuResidentRuntime pure-integer resident WebGPU compute engine (`R4-61`, `R4-64`):
  * per-layer `<= 128 MiB` resident `GPUBuffer` partitioning, persistent GPU KV ring + ping-pong residuals,
@@ -5301,6 +5361,8 @@ export class WebGpuHoloEngine {
     this.trackedBuffers = new Set();
     this.residentLayerBuffers = [];
     this.residentEmbedSlabs = [];
+    this.layerBoundGroups = null;
+    this.minLayerBytesUploaded = 0;
     this.kvRingBuffer = null;
     this.residualPingBuffer = null;
     this.residualPongBuffer = null;
@@ -5492,9 +5554,137 @@ export class WebGpuHoloEngine {
     }
   }
 
-  _buildBoundComputeGroups(dModel = 1024, maxSeq = 2048, headDim = 128) {
+  /**
+   * Formal R4.ResidentGpuHybridDrafter stream real per-layer Int4 RHT-32 + Q24 RMSNorm slabs (`>= 1 KiB` each)
+   * one layer at a time into `GPUBuffer`s without allocating a monolithic container copy (`R4-75`).
+   */
+  mountResidentModelSlabsFromExporter(modelId, meta, exportLayerFn, exportVocabSigsFn = null) {
+    /* Formal R4.ResidentGpuHybridDrafter */
+    const layerSizes =
+      meta && Array.isArray(meta.layer_bytes) ? meta.layer_bytes.map((x) => Number(x)) : [];
+    const nLayers = layerSizes.length > 0 ? layerSizes.length : Number((meta && meta.n_layers) || 28);
+    const maxLayerBytes = layerSizes.reduce((acc, v) => Math.max(acc, v), 0);
+    const minDeclaredBytes =
+      layerSizes.length > 0 ? layerSizes.reduce((acc, v) => Math.min(acc, v), Infinity) : 0;
+    const purity = verifyWgslShaderSourcesPureInteger();
+    const slabVerdict = admitResidentLayerPartition(
+      purity.float_ops,
+      maxLayerBytes,
+      WEBGPU_MAX_LAYER_SLAB_BYTES,
+      this.deviceMaxStorageBinding,
+    );
+    const hybridVerdict = admitHybridV14WebGpuDraft(
+      Boolean(this.device),
+      minDeclaredBytes,
+      nLayers,
+      4,
+      0,
+      purity.float_ops,
+      false,
+    );
+    this.residentSlabVerdict = slabVerdict;
+    if (
+      slabVerdict !== 'ResidentSlabAdmitted' ||
+      hybridVerdict !== 'HybridV14WebGpuDraftAdmitted' ||
+      !this.device ||
+      typeof exportLayerFn !== 'function'
+    ) {
+      return {
+        ok: false,
+        verdict:
+          hybridVerdict !== 'HybridV14WebGpuDraftAdmitted'
+            ? hybridVerdict
+            : !this.device
+              ? 'RefusedInsufficientGpuBufferLimits'
+              : slabVerdict,
+        max_layer_bytes: maxLayerBytes,
+        min_layer_bytes: minDeclaredBytes,
+        resident_layers: 0,
+      };
+    }
+
+    this.releaseResidentSlabsOnly();
+    const dModel = Number((meta && meta.d_model) || 1024);
+    const maxSeq = Number((meta && meta.max_seq) || 2048);
+    const nKvHeads = Number((meta && meta.n_kv_heads) || 8);
+    const headDim = Number((meta && meta.head_dim) || 128);
+    const STORAGE_DST = 0x0080 | 0x0008;
+    const READBACK_USAGE = 0x0001 | 0x0008;
+    try {
+      let minActual = Infinity;
+      let totalUploaded = 0;
+      for (let l = 0; l < nLayers; l += 1) {
+        const raw = exportLayerFn(String(modelId || 'uor-r4.qwen3-0.6b-holo'), l);
+        const u8 =
+          raw instanceof Uint8Array
+            ? raw
+            : raw && raw.buffer
+              ? new Uint8Array(raw.buffer, raw.byteOffset || 0, raw.byteLength || 0)
+              : new Uint8Array(0);
+        if (u8.byteLength < 1024) {
+          this.releaseResidentSlabsOnly();
+          this.residentSlabVerdict = 'RefusedPlaceholderZeroLayerSlab';
+          return {
+            ok: false,
+            verdict: 'RefusedPlaceholderZeroLayerSlab',
+            resident_layers: 0,
+            min_layer_bytes: u8.byteLength,
+          };
+        }
+        minActual = Math.min(minActual, u8.byteLength);
+        totalUploaded += u8.byteLength;
+        this.residentLayerBuffers.push(this.uploadChunkedBuffer(u8, STORAGE_DST));
+      }
+      this.minLayerBytesUploaded = Number.isFinite(minActual) ? minActual : 0;
+      const kvBytes = Math.min(
+        this.deviceMaxStorageBinding,
+        Math.max(4096, nLayers * maxSeq * nKvHeads * headDim * 2),
+      );
+      this.kvRingBuffer = this.device.createBuffer({ size: (kvBytes + 15) & ~15, usage: STORAGE_DST | 0x0004 });
+      this.trackedBuffers.add(this.kvRingBuffer);
+      const tileResBytes = Math.max(4096, 32 * dModel * 4);
+      this.residualPingBuffer = this.device.createBuffer({ size: tileResBytes, usage: STORAGE_DST | 0x0004 });
+      this.residualPongBuffer = this.device.createBuffer({ size: tileResBytes, usage: STORAGE_DST | 0x0004 });
+      this.resultSummaryBuffer = this.device.createBuffer({
+        size: WEBGPU_RESULT_SUMMARY_READBACK_BYTES,
+        usage: READBACK_USAGE,
+      });
+      this.trackedBuffers.add(this.residualPingBuffer);
+      this.trackedBuffers.add(this.residualPongBuffer);
+      this.trackedBuffers.add(this.resultSummaryBuffer);
+      const vocabWords =
+        typeof exportVocabSigsFn === 'function'
+          ? exportVocabSigsFn(String(modelId || 'uor-r4.qwen3-0.6b-holo'))
+          : null;
+      this._buildBoundComputeGroups(dModel, maxSeq, headDim, vocabWords, true);
+      this.residentModelId = String(modelId || 'uor-r4.qwen3-0.6b-holo');
+      return {
+        ok: true,
+        verdict: 'HybridV14WebGpuDraftAdmitted',
+        slab_verdict: 'ResidentSlabAdmitted',
+        model_id: this.residentModelId,
+        resident_layers: this.residentLayerBuffers.length,
+        min_layer_bytes: this.minLayerBytesUploaded,
+        total_uploaded_bytes: totalUploaded,
+        bound_groups_ready: Boolean(this.boundGroups && this.boundGroups.size >= 5),
+        per_layer_groups_ready: Boolean(this.layerBoundGroups && this.layerBoundGroups.length === nLayers),
+      };
+    } catch {
+      this.releaseResidentSlabsOnly();
+      this.residentSlabVerdict = 'RefusedInsufficientGpuBufferLimits';
+      return {
+        ok: false,
+        verdict: 'RefusedInsufficientGpuBufferLimits',
+        max_layer_bytes: maxLayerBytes,
+        resident_layers: 0,
+      };
+    }
+  }
+
+  _buildBoundComputeGroups(dModel = 1024, maxSeq = 2048, headDim = 128, vocabWords = null, buildPerLayer = false) {
     /* Formal R4.LiveWebGpuTurnBridge (R4-65): concrete GPUBindGroups matching every @group(0) WGSL layout */
     this.boundGroups = new Map();
+    this.layerBoundGroups = null;
     if (!this.device) return;
     const STORAGE_RW = 0x0080 | 0x0008 | 0x0004;
     const UNIFORM_DST = 0x0040 | 0x0008;
@@ -5504,8 +5694,15 @@ export class WebGpuHoloEngine {
       return b;
     };
     this.qSig512InputBuffer = alloc(64);
-    const vocabSigsBuf = alloc(Math.max(4096, 2048 * 64));
-    const hamOutBuf = alloc(Math.max(4096, 2048 * 4));
+    const vocabBytes =
+      vocabWords && vocabWords.byteLength >= 4096
+        ? new Uint8Array(vocabWords.buffer, vocabWords.byteOffset || 0, Math.min(this.deviceMaxStorageBinding, vocabWords.byteLength))
+        : null;
+    const vocabSigsBuf = vocabBytes
+      ? this.uploadChunkedBuffer(vocabBytes, STORAGE_RW)
+      : alloc(Math.max(4096, 2048 * 64));
+    const numVocab = vocabBytes ? Math.max(2048, Math.floor(vocabBytes.byteLength / 64)) : 2048;
+    const hamOutBuf = alloc(Math.max(4096, numVocab * 4));
     const uni16 = alloc(16, UNIFORM_DST);
     const scratchA = alloc(Math.max(4096, dModel * 4));
     const scratchB = alloc(Math.max(4096, dModel * 4));
@@ -5579,6 +5776,36 @@ export class WebGpuHoloEngine {
         uni16,
       ]),
     );
+    if (buildPerLayer && this.residentLayerBuffers.length > 0) {
+      this.layerBoundGroups = this.residentLayerBuffers.map((lBuf, idx) => {
+        if (idx === 0) return this.boundGroups;
+        const m = new Map(this.boundGroups);
+        m.set(
+          'holo_rmsnorm_rht32_pack',
+          mkGroup(this.pipelines.get('holo_rmsnorm_rht32_pack'), [
+            this.residualPingBuffer || scratchA,
+            lBuf,
+            scratchB,
+            this.residualPongBuffer || scratchA,
+            uni16,
+          ]),
+        );
+        m.set(
+          'holo_int4_gemv_gemm',
+          mkGroup(this.pipelines.get('holo_int4_gemv_gemm'), [
+            lBuf,
+            scratchA,
+            scratchB,
+            scratchA,
+            scratchB,
+            scratchA,
+            this.residualPingBuffer || scratchC,
+            uni16,
+          ]),
+        );
+        return m;
+      });
+    }
   }
 
   /**
@@ -5615,8 +5842,12 @@ export class WebGpuHoloEngine {
     for (let l = 0; l < this.residentLayerBuffers.length; l += 1) {
       if (typeof encoder.beginComputePass === 'function') {
         const pass = encoder.beginComputePass();
+        const layerMap =
+          !omitBindGroups && this.layerBoundGroups && this.layerBoundGroups[l]
+            ? this.layerBoundGroups[l]
+            : this.boundGroups;
         for (const [stageName, p] of stageSpec) {
-          const bg = !omitBindGroups && this.boundGroups ? this.boundGroups.get(stageName) : null;
+          const bg = !omitBindGroups && layerMap ? layerMap.get(stageName) : null;
           if (p && typeof pass.setPipeline === 'function') pass.setPipeline(p);
           if (bg) {
             if (typeof pass.setBindGroup === 'function') pass.setBindGroup(0, bg);
@@ -5763,6 +5994,8 @@ export class WebGpuHoloEngine {
     this.resultSummaryBuffer = null;
     this.qSig512InputBuffer = null;
     this.boundGroups = null;
+    this.layerBoundGroups = null;
+    this.minLayerBytesUploaded = 0;
     this.residentModelId = '';
   }
 
@@ -6194,6 +6427,36 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       } catch {}
     }
   };
+/** Formal R4.ResidentGpuHybridDrafter upload real 28-layer Int4 RHT-32 slabs from mounted Wasm model into `sharedWebGpuHoloEngine` (`R4-75`). */
+function mountResidentGpuFromWasmModel(modelKey) {
+  /* Formal R4.ResidentGpuHybridDrafter */
+  if (
+    !sharedWebGpuHoloEngine.device ||
+    typeof studio_export_holo_layer_slab_meta !== 'function' ||
+    typeof studio_export_holo_layer_slab_bytes !== 'function'
+  ) {
+    return null;
+  }
+  try {
+    const meta = JSON.parse(
+      studio_export_holo_layer_slab_meta(
+        modelKey,
+        BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
+        0n,
+      ),
+    );
+    if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
+      return sharedWebGpuHoloEngine.mountResidentModelSlabsFromExporter(
+        modelKey,
+        meta,
+        (mId, lIdx) => studio_export_holo_layer_slab_bytes(mId, lIdx >>> 0),
+        typeof studio_export_holo_vocab_sigs_u32 === 'function' ? studio_export_holo_vocab_sigs_u32 : null,
+      );
+    }
+  } catch {}
+  return null;
+}
+
   const job = __uorRunExclusiveHoloMount(key, async () => {
     const spec = HOLO_MODEL_CATALOG[key];
     if (!spec) {
@@ -6249,26 +6512,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
           if (!finEarly || finEarly.status !== 'ok') {
             throw new Error((finEarly && finEarly.message) || 'studio_finalize_holo_v13_mount failed');
           }
-          if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
-            try {
-              const meta = JSON.parse(
-                studio_export_holo_layer_slab_meta(
-                  key,
-                  BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
-                  0n,
-                ),
-              );
-              if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
-                const nL = meta.layer_bytes.length || 28;
-                sharedWebGpuHoloEngine.mountResidentModelSlabs(
-                  key,
-                  new Uint8Array(nL * 64),
-                  Array.from({ length: nL }, () => 64),
-                  Number(meta.d_model) || 1024,
-                );
-              }
-            } catch {}
-          }
+          mountResidentGpuFromWasmModel(key);
           globalThis.__uorHoloKappaStatus = {
             container_format: 'UORR4V13',
             slab_format: HOLOSLAB2_MAGIC,
@@ -6454,26 +6698,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
         if (!finWarm || finWarm.status !== 'ok') {
           throw new Error((finWarm && finWarm.message) || 'studio_finalize_holo_v13_mount failed');
         }
-        if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
-          try {
-            const meta = JSON.parse(
-              studio_export_holo_layer_slab_meta(
-                key,
-                BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
-                0n,
-              ),
-            );
-            if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
-              const nL = meta.layer_bytes.length || 28;
-              sharedWebGpuHoloEngine.mountResidentModelSlabs(
-                key,
-                new Uint8Array(nL * 64),
-                Array.from({ length: nL }, () => 64),
-                Number(meta.d_model) || 1024,
-              );
-            }
-          } catch {}
-        }
+        mountResidentGpuFromWasmModel(key);
         await holoWriteManifestIndex({
           model_id: key,
           container_sha256: containerSha,
@@ -6787,26 +7012,7 @@ export async function hydrate_holo_model(modelId, onProgress, forceReload = fals
       await slabWriter.abort();
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
     }
-    if (sharedWebGpuHoloEngine.device && typeof studio_export_holo_layer_slab_meta === 'function') {
-      try {
-        const meta = JSON.parse(
-          studio_export_holo_layer_slab_meta(
-            key,
-            BigInt(sharedWebGpuHoloEngine.deviceMaxStorageBinding || WEBGPU_MAX_LAYER_SLAB_BYTES),
-            0n,
-          ),
-        );
-        if (meta && meta.admitted && Array.isArray(meta.layer_bytes)) {
-          const nL = meta.layer_bytes.length || 28;
-          sharedWebGpuHoloEngine.mountResidentModelSlabs(
-            key,
-            new Uint8Array(nL * 64),
-            Array.from({ length: nL }, () => 64),
-            Number(meta.d_model) || 1024,
-          );
-        }
-      } catch {}
-    }
+    mountResidentGpuFromWasmModel(key);
     await slabWriter.seal();
     await holoWriteManifestIndex({
       model_id: key,
@@ -7414,7 +7620,12 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
 
   const knownHoloTarget =
     selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
-  if (knownHoloTarget && !isTargetMounted(selectedModel, runtimeStatus)) {
+  const targetWasMountedAtStart = isTargetMounted(selectedModel, runtimeStatus);
+  let turnHydrationInvoked = false;
+  let turnNetworkBytes = 0;
+  let turnOpfsBytes = 0;
+  if (knownHoloTarget && !targetWasMountedAtStart) {
+    turnHydrationInvoked = true;
     let unsubWaiter = () => {};
     try {
       const cancelPromise = new Promise((resolve) => {
@@ -7431,6 +7642,16 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         fnHydrate(
           selectedModel,
           (prog) => {
+            if (prog && typeof prog === 'object') {
+              const dl = Number(prog.downloadedBytes || 0);
+              const hits = Number(prog.cachedHits || 0);
+              const tot = Number(prog.total || 0);
+              if (tot > 0 && hits >= tot) {
+                turnOpfsBytes = Math.max(turnOpfsBytes, dl);
+              } else {
+                turnNetworkBytes = Math.max(turnNetworkBytes, dl);
+              }
+            }
             const enriched = {
               stage: 'holo_v13',
               modelId: selectedModel,
@@ -7642,6 +7863,17 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       tool_iterations: toolIterations,
       cached_hits: kappaInfo && Number.isFinite(kappaInfo.cached_hits) ? kappaInfo.cached_hits : null,
       piece_count: kappaInfo && Number.isFinite(kappaInfo.piece_count) ? kappaInfo.piece_count : null,
+      resident_turn_verdict: admitResidentTurnZeroDownload(
+        targetWasMountedAtStart,
+        turnHydrationInvoked,
+        turnNetworkBytes,
+        turnOpfsBytes,
+        true,
+        true,
+        false,
+      ),
+      network_bytes_downloaded: turnNetworkBytes,
+      opfs_bytes_read: turnOpfsBytes,
     };
   };
 
@@ -7713,13 +7945,15 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     (typeof holo_notify_foundry_turn_gpu_bound_step === 'function'
       ? holo_notify_foundry_turn_gpu_bound_step
       : globalThis.holo_notify_foundry_turn_gpu_bound_step);
-  async function* streamFoundryHopSlices(hopTurnId) {
+  async function* streamFoundryHopSlices(hopTurnId, initialPrefilling = false) {
+    let isPrefillingSlice = Boolean(initialPrefilling);
     while (true) {
       if (isCancelled(ownerKey, hopTurnId)) {
         yield { status: 'cancelled', delta: '', tokens_emitted: 0, cancelled_by_host: true };
         return;
       }
       if (
+        !isPrefillingSlice &&
         activeGpuEngine &&
         activeGpuEngine.device &&
         Array.isArray(activeGpuEngine.residentLayerBuffers) &&
@@ -7740,6 +7974,11 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       }
       const rawStep = fnStep(toBigIntId(hopTurnId));
       const stepRes = typeof rawStep === 'string' ? JSON.parse(rawStep) : rawStep;
+      isPrefillingSlice = Boolean(
+        stepRes &&
+          stepRes.status === 'prefilling' &&
+          !(Number(stepRes.prefill_total) > 0 && Number(stepRes.prefill_done) >= Number(stepRes.prefill_total)),
+      );
       yield stepRes;
       if (
         !stepRes ||
@@ -7827,7 +8066,11 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     let hopAccumText = '';
     let hopTagCursor = 0;
 
-    for await (const stepRes of streamFoundryHopSlices(activeTurnNum)) {
+    const beginStillPrefilling = Boolean(
+      beginRes.status === 'prefilling' &&
+        !(Number(beginRes.prefill_total) > 0 && Number(beginRes.prefill_done) >= Number(beginRes.prefill_total)),
+    );
+    for await (const stepRes of streamFoundryHopSlices(activeTurnNum, beginStillPrefilling)) {
       if (!stepRes) {
         const tid = activeTurnNum;
         setActiveTurnId(null, ownerKey);
@@ -16562,6 +16805,12 @@ function __uorStartDedicatedEngineWorker() {
             safeStorageSet('uor_allow_off_origin_hydration', '1');
           }
           postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+          postEvent('holo_ready', {
+            holo,
+            recommendedModel: modelId,
+            promoted: false,
+            kappaStore: globalThis.__uorHoloKappaStatus || null,
+          });
           postReply({ id, ok: true, result: { holo, kappaStore: globalThis.__uorHoloKappaStatus || null } });
         } catch (err) {
           const code = (err && (err.error_code || err.code)) || '';

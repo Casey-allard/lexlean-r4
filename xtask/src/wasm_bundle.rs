@@ -235,6 +235,50 @@ pub fn has_matching_wasm_bindgen(root: &Path) -> bool {
         .unwrap_or(false)
 }
 
+/// Formal R4.ResidentGpuHybridDrafter rewrite `?v=v12r4` or `?v=v12r4-<hex>` asset query tags to `?v=v12r4-<js_sha12>`.
+fn rewrite_v12r4_query_tag(text: &str, prefix: &str, js_sha12: &str) -> String {
+    let mut out = String::with_capacity(text.len() + 32);
+    let mut rest = text;
+    let needle = format!("{prefix}?v=v12r4");
+    while let Some(pos) = rest.find(&needle) {
+        out.push_str(&rest[..pos]);
+        out.push_str(&format!("{prefix}?v=v12r4-{js_sha12}"));
+        let mut after = &rest[pos + needle.len()..];
+        if let Some(stripped) = after.strip_prefix('-') {
+            let hex_len = stripped
+                .bytes()
+                .take_while(|b| b.is_ascii_hexdigit())
+                .count();
+            after = &stripped[hex_len..];
+        }
+        rest = after;
+    }
+    out.push_str(rest);
+    out
+}
+
+/// Formal R4.ResidentGpuHybridDrafter stamp content-addressed `?v=v12r4-<js_sha12>` across `index.html` and `app.js` in `out_dir`.
+pub fn stamp_asset_digest_queries(out_dir: &Path, js_sha12: &str) -> Result<(), Fail> {
+    let index_path = out_dir.join("index.html");
+    if index_path.is_file() {
+        let html = std::fs::read_to_string(&index_path)?;
+        let stamped_css = rewrite_v12r4_query_tag(&html, "app.css", js_sha12);
+        let stamped_html = rewrite_v12r4_query_tag(&stamped_css, "app.js", js_sha12);
+        if stamped_html != html {
+            std::fs::write(&index_path, stamped_html)?;
+        }
+    }
+    let app_js_path = out_dir.join("app.js");
+    if app_js_path.is_file() {
+        let app_js = std::fs::read_to_string(&app_js_path)?;
+        let stamped_app = rewrite_v12r4_query_tag(&app_js, "./lexlean_r4.js", js_sha12);
+        if stamped_app != app_js {
+            std::fs::write(&app_js_path, stamped_app)?;
+        }
+    }
+    Ok(())
+}
+
 /// Compile `crates/wasm`, splice `worker_host_bridge.js`, and emit `lexlean_r4.js`,
 /// `lexlean_r4_bg.wasm`, and `provenance.json` into `out_dir`.
 pub fn build_wasm(root: &Path, out_dir: &Path) -> Result<ProvenanceManifest, Fail> {
@@ -322,6 +366,7 @@ pub fn build_wasm(root: &Path, out_dir: &Path) -> Result<ProvenanceManifest, Fai
     let _ = std::fs::remove_dir_all(&staging);
 
     let manifest = build_provenance_manifest(root, out_dir)?;
+    stamp_asset_digest_queries(out_dir, &manifest.binding_javascript_sha256[..12])?;
     let encoded = format!("{}\n", serde_json::to_string_pretty(&manifest)?);
     std::fs::write(out_dir.join("provenance.json"), encoded)?;
     Ok(manifest)
@@ -375,6 +420,27 @@ pub fn check_wasm_sync_in(root: &Path, dir: &Path) -> Result<ProvenanceManifest,
     let js_text = std::fs::read_to_string(dir.join("lexlean_r4.js"))?;
     if !js_text.contains("__uor_resolve_cached_wasm(module_or_path, false)") {
         mismatches.push("lexlean_r4.js missing __uor_resolve_cached_wasm hook".to_string());
+    }
+
+    let index_path = dir.join("index.html");
+    let app_js_path = dir.join("app.js");
+    if index_path.is_file() && app_js_path.is_file() {
+        let js_sha12 = &expected_js[..12];
+        let html_text = std::fs::read_to_string(&index_path)?;
+        let app_text = std::fs::read_to_string(&app_js_path)?;
+        let want_css = format!("app.css?v=v12r4-{js_sha12}");
+        let want_app = format!("app.js?v=v12r4-{js_sha12}");
+        let want_worker = format!("./lexlean_r4.js?v=v12r4-{js_sha12}");
+        if !html_text.contains(&want_css) || !html_text.contains(&want_app) {
+            mismatches.push(format!(
+                "index.html missing stamped query `{want_css}` / `{want_app}`"
+            ));
+        }
+        if !app_text.contains(&want_worker) {
+            mismatches.push(format!(
+                "app.js missing stamped worker query `{want_worker}`"
+            ));
+        }
     }
 
     if !mismatches.is_empty() {

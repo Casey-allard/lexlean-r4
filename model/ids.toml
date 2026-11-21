@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-75"
+level = "build"
+suite = "r4_75_resident_gpu_hybrid_drafter"
+statement = "Pure LexLean models the R4-75 zero-download resident turn UX, SHA-256 digest asset query cache-busting, real 28-layer WebGPU Int4 RHT-32 slab streaming, and hybrid UORR4V14 -> HoloV13 0-LSB speculative drafter (R4.ResidentGpuHybridDrafter): admitResidentTurnZeroDownload admitting zero-fetch, zero-OPFS-read turns on RAM-mounted models with synchronized #model-select/#composer-model-select pickers, digest-stamped asset URLs, and honest Resident turn headers (ResidentTurnZeroDownloadAdmitted) while refusing hydration/network/OPFS reads on already-mounted models (RefusedHydrationOnResidentModel), desynchronized model pickers (RefusedDesyncedModelSelectors), static unstamped asset queries (RefusedStaleStaticAssetQuery), and misleading Streaming headers on resident turns (RefusedMisleadingStreamingLabel); and admitHybridV14WebGpuDraft admitting real >= 1 KiB per-layer 28-layer WebGPU Int4 RHT-32 slabs and Wasm simd128 fallback coupled to <= 6-token UORR4V14 speculative waves verified 0-LSB against HoloV13 without prefill mapAsync stalls (HybridV14WebGpuDraftAdmitted, HybridV14WasmSimdFallbackAdmitted) while refusing 64-byte placeholder GPU slabs (RefusedPlaceholderZeroLayerSlab), float ops or non-zero verifier drift (RefusedFloatOrNonZeroVerifierDrift), prefill mapAsync stalls (RefusedPrefillMapAsyncStall), and oversized draft waves (RefusedDraftWaveExceedsTile). Formal controls establish modeled admission invariants only, not client GPU hardware clock speeds."
+
+[[id]]
 id = "R4-74"
 level = "build"
 suite = "r4_74_agent_workspace_tool_awareness"

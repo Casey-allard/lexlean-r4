@@ -2,9 +2,9 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2979,
-    "lifted": 2188,
-    "effect": 292,
+    "total_functions": 2988,
+    "lifted": 2196,
+    "effect": 293,
     "foreign": 158,
     "residue": 341
   },
@@ -247,6 +247,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "f9ffc6183927e6915e395df3098f1c72fe57651d84bca74a72193fc826fd8a69",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitHybridV14WebGpuDraft",
+      "status": "lifted",
+      "definition": "R4.ResidentGpuHybridDrafter",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "332da23c8a7912b0438abd5f4a3460b14a3294ee0e6a767a152a2755b48dcea3",
       "function": "crates/wasm/js/worker_host_bridge.js::admitLiveGpuBoundStep",
       "status": "lifted",
@@ -272,6 +279,13 @@
       "function": "crates/wasm/js/worker_host_bridge.js::admitResidentLayerPartition",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "fbc3c64758c0049349f6518600a89af29df55a89a9e1c428b3c92943ce71003a",
+      "function": "crates/wasm/js/worker_host_bridge.js::admitResidentTurnZeroDownload",
+      "status": "lifted",
+      "definition": "R4.ResidentGpuHybridDrafter",
       "exact_divergence_free": true
     },
     {
@@ -469,7 +483,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "bae62fddea8199c933d2567f2e3a1f6fe1af1ebbbdb787fbefb2009010793f1f",
+      "kappa": "88f4fe6e1394f6a0810da0a15a5f3a17ce427910b55b219b0025c87822a898b6",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -553,7 +567,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "18fc85e3651c2a0e82f7c851a2c0d2458c16139f79ba06b12c0ab6537810778c",
+      "kappa": "01b735593331991e8d9922194e2e9c5f6737000fbd4189f0e8dd78f5a0b3218b",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -2689,7 +2703,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "b50f40004cf6a1cfa040b544c42de5e6a2bdb2eef17e29b1f11dd9f66bb96264",
+      "kappa": "c670c08e63071e80ed6e5e78329a8a8f4f16a660f2113effe8eee378f82bb901",
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloTok13SpeculativeDrafter::propose_draft_tokens",
       "status": "lifted",
       "definition": "R4.WebGpuResidentRuntime",
@@ -2700,6 +2714,13 @@
       "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::active_mlp_mode",
       "status": "lifted",
       "definition": "R4.WebGpuGeodesicRuntime",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "9e559acf87f0c3f330d2684fa8014b4c4dc7a84644cd77b82e24c39aab934fd8",
+      "function": "crates/wasm/src/holo_geometric_runtime.rs::HoloV13Model::export_layer_slab_bytes",
+      "status": "lifted",
+      "definition": "R4.ResidentGpuHybridDrafter",
       "exact_divergence_free": true
     },
     {
@@ -3571,6 +3592,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "1f57bd6796cf4e19fae23d17b3543ca0cfe2be02e6c76ba06af7448b553aeb21",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::HopfZetaPoincareEngineV14::propose_speculative_wave_holo_ids",
+      "status": "lifted",
+      "definition": "R4.ResidentGpuHybridDrafter",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "e5d9cae0d6c1f0535b093d0c7bf6e259584b69e4496dbea928383767586c05f0",
       "function": "crates/wasm/src/hopf_zeta_engine.rs::HopfZetaPoincareEngineV14::to_v14_bytes",
       "status": "lifted",
@@ -4124,6 +4152,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "bc9446e6f5621107d967ee10f622eaefc952db02038318fc056e0999698556b7",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_hybrid_v14_webgpu_draft",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_hybrid_v14_webgpu_draft",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "137b8cfd6285cef52b521314cf565c30083af7870868ecefa6a6db463fdbf84c",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_interactive_command",
       "status": "lifted",
@@ -4338,6 +4373,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_resident_layer_partition",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_resident_layer_partition",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ce03b0320bd08c6a2f052ed624e53eea724e790c8e619157c06cb8eadb15af4b",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_resident_turn_zero_download",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_resident_turn_zero_download",
       "exact_divergence_free": true
     },
     {
@@ -13315,6 +13357,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "b1a7001b6f657d55f82d24bf4c8342bde55f1b3176f250553261dd2d434b2477",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_resident_gpu_hybrid_drafter_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_resident_gpu_hybrid_drafter_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "28c7329e64b36d61afe26ac63a46c37460c8f93657f40e4004f04245d83cd7e4",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_studio_frame_admitted",
       "status": "lifted",
@@ -14488,7 +14537,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "fbed8781cb1789a8eefb2e8dee7a46883bcaceb5a728917b866164ff9346f9ef",
+      "kappa": "41ae7871e13ec2f3542c83160a23bb8033ee41d23766fa835432db24dd958ac2",
       "function": "crates/wasm/src/lib.rs::studio_dispatch",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -19405,7 +19454,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "5fa9904a53cda1f05d1115e5cd0cda653e698d4df3fe5d348ca71e12ea0478b4",
+      "kappa": "e890ef8e5f78a28d8546a47d405ad69b4a18de2948c4d8dba2873c716b625914",
       "function": "public/app.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -21134,14 +21183,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "8c4bc7d01aa4af041b5b391196d4029f6bf201725288cf0916249956dd22e8a1",
+      "kappa": "ab02291ef95265ecf96dc29b3a1e15b545b1f12a73bcf57acbc8a2628c01057d",
       "function": "xtask/src/wasm_bundle.rs::build_wasm",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {
-      "kappa": "ec87d1200a495aead07102841b19c10f8aabb6203db67be0da40ad8477159049",
+      "kappa": "4d4328c173b9d210b3e68a0c08f6389a52a62cb8b22d97be4b5715657b1b8ca6",
       "function": "xtask/src/wasm_bundle.rs::check_wasm_sync_in",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -21169,6 +21218,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "2c073d78b4bb8734e0b348d9770de776464f6bf8f6534e3760b9427c46f62e5c",
+      "function": "xtask/src/wasm_bundle.rs::rewrite_v12r4_query_tag",
+      "status": "lifted",
+      "definition": "R4.ResidentGpuHybridDrafter",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "de19b7d69137e1d546202b6ef9b8a4718b213db6aee1bb319c05a9de381255bc",
       "function": "xtask/src/wasm_bundle.rs::run_build_wasm_cmd",
       "status": "effect",
@@ -21194,6 +21250,13 @@
       "function": "xtask/src/wasm_bundle.rs::sha256_hex",
       "status": "foreign",
       "foreign_crate": "sha2",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "e20be3fface9dcd55567d8c2562e665754256625ea3a5c73c9f96c61575c8ee1",
+      "function": "xtask/src/wasm_bundle.rs::stamp_asset_digest_queries",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {
