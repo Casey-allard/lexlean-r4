@@ -128,8 +128,10 @@ fn test_r4_82_real_qwen3_lossless_streaming_r4_82() {
     let asst_rs = std::fs::read_to_string(root.join("crates/wasm/src/assistant.rs"))
         .expect("read assistant.rs");
     assert!(
-        lib_rs.contains("pub fn studio_prewarm_holo_prefix_idle("),
-        "lib.rs must export studio_prewarm_holo_prefix_idle"
+        lib_rs.contains("pub fn studio_prewarm_holo_prefix_idle(")
+            && lib_rs.contains("telos_shortlist_k: 16384")
+            && lib_rs.contains("let k_ladder: [u64; 5] = [8192, 12288, 16384, 20480, 24576];"),
+        "lib.rs must export studio_prewarm_holo_prefix_idle and keep telos_shortlist_k >= 8192 so telos_tick never prunes Qwen3 vocabulary down to 1536"
     );
     assert!(
         asst_rs.contains("pub instant_ttft: bool"),

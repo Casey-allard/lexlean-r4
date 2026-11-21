@@ -3948,7 +3948,7 @@ export function admitFastBootAndZeroRedundancySlice(
   return 'FastBootAndSliceAdmitted';
 }
 
-/** Formal R4.RealQwen3LosslessStreaming admit 100% real Qwen3 neural turns with deferred idle prefix prewarm, immediate Token-1 TTFT flush, and monotonic Ready badge (`R4-82`). */
+/** Formal R4.RealQwen3LosslessStreaming admit 100% real Qwen3 neural turns (`telos_shortlist_k >= 8192`, `flock_window >= 384`) with deferred idle prefix prewarm, immediate Token-1 TTFT flush, and monotonic Ready badge (`R4-82`). */
 export function admitRealQwen3LosslessTurn(
   cannedPassageUsedOnQwenLane,
   syncPrefixPrewarmBlockingMount,

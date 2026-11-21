@@ -15183,7 +15183,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a822876e555be7658a83d6f7e8fc99342eb24c425db522479c85a5a9bdad4dc5",
+      "kappa": "69a5746b49c41d6f4e4a40249ec092b107b57f22de5a946827e7b5d719e897c0",
       "function": "crates/wasm/src/lib.rs::StudioEngine::new_default",
       "status": "lifted",
       "definition": "lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::AutoReceiptGated",
@@ -15247,14 +15247,14 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "0be57963664f0a917390787fe3c568db8456d6d7c865cb49e4fb384c6205b3ef",
+      "kappa": "b290a8f5e03c7c19cbb684e9c3ec56d9f7caadb73f216cebc0b2bde2fae7605e",
       "function": "crates/wasm/src/lib.rs::StudioEngine::run_telos_self_improvement_tick_json",
       "status": "lifted",
       "definition": "R4.OntologicalTelos",
       "exact_divergence_free": true
     },
     {
-      "kappa": "1ecdba5e8935b6a75ac92ddc00bbe47ed80b1e0e96109e25a2c5c3646c02b56a",
+      "kappa": "e0e5d400b60575c5bab075de402792375781fa52ef640fee670fd2f4013f8a4f",
       "function": "crates/wasm/src/lib.rs::StudioEngine::set_holo_budgets_json",
       "status": "effect",
       "effect": "dom-browser-environment-io",

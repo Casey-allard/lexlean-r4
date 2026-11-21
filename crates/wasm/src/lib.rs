@@ -1465,8 +1465,8 @@ impl StudioEngine {
                 generation_last_verdict: "Healthy".to_string(),
                 admitted_capsules: Vec::new(),
                 telos_step_index: 0,
-                telos_shortlist_k: 1536,
-                telos_flock_window: 256,
+                telos_shortlist_k: 16384,
+                telos_flock_window: 512,
                 telos_incumbent_loss: 1_000,
                 last_holo_observatory_frames: Vec::new(),
                 foundry_turn: None,
@@ -1536,8 +1536,8 @@ impl StudioEngine {
             generation_last_verdict: "Healthy".to_string(),
             admitted_capsules: Vec::new(),
             telos_step_index: 0,
-            telos_shortlist_k: 1536,
-            telos_flock_window: 256,
+            telos_shortlist_k: 16384,
+            telos_flock_window: 512,
             telos_incumbent_loss: 1_000,
             last_holo_observatory_frames: Vec::new(),
             foundry_turn: None,
@@ -2815,7 +2815,7 @@ impl StudioEngine {
 
     /// Formal R4.HoloGeometricRuntime update Hamming shortlist and Starling Flock budgets across mounted `HoloV13Model`s.
     pub fn set_holo_budgets_json(&mut self, shortlist_k: usize, flock_window: usize) -> String {
-        let clamped_k = shortlist_k.clamp(512, 16_384);
+        let clamped_k = shortlist_k.clamp(512, 32_768);
         let clamped_w = flock_window.clamp(32, 1024);
         self.telos_shortlist_k = clamped_k as u64;
         self.telos_flock_window = clamped_w as u64;
@@ -2979,8 +2979,8 @@ impl StudioEngine {
             .unwrap_or(0)
             .min(prompt_len.saturating_sub(1));
 
-        let k_ladder: [u64; 5] = [1024, 1536, 2048, 3072, 4096];
-        let w_ladder: [u64; 5] = [128, 192, 256, 384, 512];
+        let k_ladder: [u64; 5] = [8192, 12288, 16384, 20480, 24576];
+        let w_ladder: [u64; 5] = [384, 512, 640, 768, 1024];
         let cur_k_idx = k_ladder
             .iter()
             .position(|&v| v == self.telos_shortlist_k)
