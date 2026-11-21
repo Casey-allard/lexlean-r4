@@ -1054,6 +1054,8 @@ fn test_t1_f13_prism_conformance_md_authority_rebuild() {
     assert!(content.contains("`R4-69`"));
     assert!(content.contains("`R4-70`"));
     assert!(content.contains("`R4-71`"));
+    assert!(content.contains("`R4-72`"));
+    assert!(content.contains("`R4-73`"));
 }
 
 #[test]

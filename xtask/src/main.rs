@@ -31,6 +31,7 @@ fn main() -> ExitCode {
         "synthesize" => engine::synthesis::cmd_synthesize(&root, write),
         "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
         "ratchet-cycle" => engine::ratchet::run_ratchet_cycle(&root, write).map(|_| ()),
+        "recompile-v14" => xtask::recompiler_v14::run_recompile_v14_cmd(&root, rest).map(|_| ()),
         "build-wasm" => wasm_bundle::run_build_wasm_cmd(&root, rest),
         "build-holo" => run_build_holo_cmd(&root, rest),
         "generate-studio-sft-dataset" => run_generate_studio_sft_dataset_cmd(&root, rest),
@@ -113,6 +114,7 @@ fn main() -> ExitCode {
                  synthesize        R4-45: 4-facet holon KPIs + Hebbian bandit Pareto tick (--write)\n\
                  ratchet-check     R4-41: shrink-only metric ratchet + Peirce triadic cycle\n\
                  ratchet-cycle     R4-69: Verdant M15 bidirectional floors-UP / ceilings-DOWN ratchet (--write)\n\
+                 recompile-v14     R4-72: compile Qwen3-0.6B & Qwen3-1.7B UORR4V14 Hopf-Zeta atlases (--out-dir)\n\
                  build-wasm        compile crates/wasm, inject bridge + cache hook, write provenance.json\n\
                  build-holo        compile public/ closure into Hologram v4 .holo (--out / --sync-site-manifest / --verify-site-manifest)\n\
                  check-wasm-sync   verify public/ Wasm/JS bundle matches provenance.json\n\

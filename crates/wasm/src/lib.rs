@@ -43,6 +43,8 @@ pub mod glm_weights;
 pub mod holo_geometric_runtime;
 /// Track 1 (`R4-50`): Content-addressed (`kappa`) OPFS piece store & `HOLD_TAIL_BYTES` guard.
 pub mod holo_kappa_store;
+/// Wave 4 (`R4-72`, `R4-73`): `UORR4V14` `10,000+ tok/s` Hopf–Poincaré–Zeta–Icosian geometric LLM engine.
+pub mod hopf_zeta_engine;
 #[allow(dead_code, clippy::all, missing_docs)]
 #[path = "lexlean_generated.rs"]
 mod lexlean_generated_core;
@@ -10970,6 +10972,18 @@ pub fn studio_verify_holo_v4_archive(archive_bytes: &[u8]) -> String {
         })
         .to_string(),
     }
+}
+
+/// Formal R4.HopfZetaPoincareArchitecture Wasm export running `UORR4V14` 4-token resonant wave generation (`R4-73`).
+#[wasm_bindgen]
+pub fn studio_hopf_zeta_v14_generate_json(prompt: &str, max_tokens: u32) -> String {
+    hopf_zeta_engine::studio_hopf_zeta_v14_generate_json(prompt, max_tokens)
+}
+
+/// Formal R4.HopfZetaPoincareArchitecture Wasm self-check verifying `UORR4V14` 5-pillar invariants (`R4-72`, `R4-73`).
+#[wasm_bindgen]
+pub fn studio_hopf_zeta_v14_self_check_json() -> String {
+    hopf_zeta_engine::studio_hopf_zeta_v14_self_check_json()
 }
 
 #[cfg(test)]

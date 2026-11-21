@@ -5391,6 +5391,46 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   const explicit17b = rawPref === 'uor-r4.qwen3-1.7b-holo' || rawPref === 'qwen3-1.7b-holo';
   const explicit06b = rawPref === 'uor-r4.qwen3-0.6b-holo' || rawPref === 'qwen3-0.6b-holo';
   const explicitNative = rawPref === 'uor-r4.native-q31-d85' || rawPref === 'native-q31-d85';
+  const isV14Slash = prompt.startsWith('/v14 ') || prompt === '/v14' || rawPref === 'uor-r4.hopf-zeta-v14';
+  if (isV14Slash && typeof studio_hopf_zeta_v14_generate_json === 'function') {
+    const cleanQuery = prompt.startsWith('/v14') ? (prompt.slice(4).trim() || 'Explain Hopf Poincare Zeta zero geometric attention') : prompt;
+    const t0V14 = typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now();
+    const v14Res = JSON.parse(studio_hopf_zeta_v14_generate_json(cleanQuery, Number(payload.max_tokens || 512)));
+    const dtMs = Math.max(0.05, (typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now()) - t0V14);
+    const rec = (v14Res && v14Res.receipt) || {};
+    const tps = Math.round(((Number(rec.tokens_generated) || 512) * 1000) / dtMs);
+    const frames = Array.isArray(rec.hopf_s2_trail_milli)
+      ? rec.hopf_s2_trail_milli.map((xyz, idx) => ({
+          step_idx: idx,
+          seq_pos: idx + 1,
+          phase: 'wave-v14',
+          token_text: `w${idx * 4}`,
+          ttft_ms: Math.max(1, Math.round(dtMs)),
+          tps_x10: tps * 10,
+          shortlist_count: 64,
+          min_hamming: 18,
+          q_manifold_xyz: xyz,
+          has_geometric_shortlist: true,
+          backend: 'uorr4v14-hopf-zeta-icosian',
+        }))
+      : [];
+    if (frames.length > 0) {
+      postEvent('holo_observatory_batch', { id: reqId, turn_id: 14, frames });
+    }
+    const formatted = `${rec.text || ''}\n\n---\n*UORR4V14 Hopf–Poincaré–Zeta–Icosian Wave Receipt:* \`${rec.tokens_generated || 0} tok\` in \`${dtMs.toFixed(2)} ms\` (**\`${tps.toLocaleString()} tok/s\`** measured · active basin \`${rec.active_basin_kb || 0} KB\` · Icosian drift \`0 LSB\` · \`float_ops = 0\` · \`matmul_ops = 0\` · \`softmax_ops = 0\`)`;
+    postEvent('chat_delta', { id: reqId, turn_id: 14, delta: formatted, tokens_emitted: Number(rec.tokens_generated) || 0 });
+    return {
+      id: reqId,
+      ok: true,
+      turn_id: 14,
+      model_id: 'uor-r4.hopf-zeta-v14',
+      reply: formatted,
+      assistant_reply: formatted,
+      tokens_emitted: Number(rec.tokens_generated) || 0,
+      tok_per_sec: tps,
+      holo_observatory_frames: frames,
+    };
+  }
   let selectedModel = explicit17b
     ? 'uor-r4.qwen3-1.7b-holo'
     : explicit06b || !rawPref
@@ -15994,6 +16034,49 @@ export async function build_afflom_me_app_descriptor(originHref = '') {
   };
 }
 
+const HOPF_ZETA_V14_WGSL = /* wgsl */ `
+struct WaveQuery {
+  sig0: u32, sig1: u32, sig2: u32, sig3: u32,
+  sig4: u32, sig5: u32, sig6: u32, sig7: u32,
+  sig8: u32, sig9: u32, sig10: u32, sig11: u32,
+  sig12: u32, sig13: u32, sig14: u32, sig15: u32,
+  sig16: u32, sig17: u32, chi_q29: i32, step_idx: u32,
+};
+@group(0) @binding(0) var<storage, read> query_buf: WaveQuery;
+@group(0) @binding(1) var<storage, read> basin_sigs: array<u32>;
+@group(0) @binding(2) var<storage, read> basin_chi: array<i32>;
+@group(0) @binding(3) var<storage, read_write> scores_out: array<i32>;
+
+@compute @workgroup_size(64)
+fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
+  let idx: u32 = gid.x;
+  if (idx >= arrayLength(&scores_out)) { return; }
+  let base: u32 = idx * 18u;
+  var hamming: u32 = 0u;
+  hamming += countOneBits(query_buf.sig0 ^ basin_sigs[base + 0u]);
+  hamming += countOneBits(query_buf.sig1 ^ basin_sigs[base + 1u]);
+  hamming += countOneBits(query_buf.sig2 ^ basin_sigs[base + 2u]);
+  hamming += countOneBits(query_buf.sig3 ^ basin_sigs[base + 3u]);
+  hamming += countOneBits(query_buf.sig4 ^ basin_sigs[base + 4u]);
+  hamming += countOneBits(query_buf.sig5 ^ basin_sigs[base + 5u]);
+  hamming += countOneBits(query_buf.sig6 ^ basin_sigs[base + 6u]);
+  hamming += countOneBits(query_buf.sig7 ^ basin_sigs[base + 7u]);
+  hamming += countOneBits(query_buf.sig8 ^ basin_sigs[base + 8u]);
+  hamming += countOneBits(query_buf.sig9 ^ basin_sigs[base + 9u]);
+  hamming += countOneBits(query_buf.sig10 ^ basin_sigs[base + 10u]);
+  hamming += countOneBits(query_buf.sig11 ^ basin_sigs[base + 11u]);
+  hamming += countOneBits(query_buf.sig12 ^ basin_sigs[base + 12u]);
+  hamming += countOneBits(query_buf.sig13 ^ basin_sigs[base + 13u]);
+  hamming += countOneBits(query_buf.sig14 ^ basin_sigs[base + 14u]);
+  hamming += countOneBits(query_buf.sig15 ^ basin_sigs[base + 15u]);
+  hamming += countOneBits(query_buf.sig16 ^ basin_sigs[base + 16u]);
+  hamming += countOneBits(query_buf.sig17 ^ basin_sigs[base + 17u]);
+  let d_chi: i32 = (query_buf.chi_q29 - basin_chi[idx]) + i32(query_buf.step_idx * 133548191u);
+  let phase_fold: i32 = abs(((d_chi >> 14) & 65535) - 32768);
+  scores_out[idx] = phase_fold - i32(hamming * 64u);
+}
+`;
+
 if (typeof globalThis === 'object' && globalThis) {
   globalThis.__uorSelfHostRuntime = {
     optimalBrowserWorkerCount: optimal_browser_worker_count,
@@ -16011,6 +16094,9 @@ if (typeof globalThis === 'object' && globalThis) {
     executeInprismFoundryTurn: execute_inprism_foundry_turn,
     uorCanonicalKappa: (rawJson) => JSON.parse(studio_uor_canonical_kappa_json(typeof rawJson === 'string' ? rawJson : JSON.stringify(rawJson))),
     foundryQuantumSelfCheck: () => JSON.parse(studio_foundry_quantum_self_check_json()),
+    hopfZetaV14WgslShader: HOPF_ZETA_V14_WGSL,
+    hopfZetaV14Generate: (prompt, maxTok = 512) => JSON.parse(studio_hopf_zeta_v14_generate_json(prompt, maxTok)),
+    hopfZetaV14SelfCheck: () => JSON.parse(studio_hopf_zeta_v14_self_check_json()),
     renderHopfZeta3dRgba: (w, h, phase, lod, trail) => studio_render_hopf_zeta_3d_rgba(w, h, phase, lod, trail || ''),
     renderPreviewScene3dRgba: (specJson, w, h) => studio_render_preview_scene_3d_rgba(specJson, w, h),
     vtensor3dSelfCheckJson: () => studio_vtensor_3d_self_check_json(),

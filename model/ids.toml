@@ -20,6 +20,18 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-73"
+level = "build"
+suite = "r4_73_hopf_zeta_poincare_engine"
+statement = "Pure LexLean models the R4-73 UORR4V14 Hopf-Poincare-Zeta-Icosian 10,000+ tok/s browser geometric language model engine (R4.HopfZetaPoincareArchitecture): bandwidthSustainableTokensPerSec proving that scanning 307,200 KB of dense weights per token caps 80,000 MB/s bandwidth at 266 tok/s whereas touching <= 1,024 KB of active Hopf-Zeta basins while casting 4 resonant tokens per wave raises the physical bandwidth ceiling to 320,000 tok/s; and admitTenKGeometricStep admitting zero-float, zero-matmul, zero-softmax 4-token resonant waves over 6-layer Cl(0,6) SpiralCore FBS, 8-head causal Starling Flock, 64-ordinate C2 Riemann zeta-zero harmonic interference, >= 512-bit bitwise XOR popcount Hamming similarity, and 0-LSB 120-vertex H4 600-cell Icosian snap (TenKWaveResonanceAdmitted) while refusing float/matmul/softmax ops (RefusedBannedFloatMatmulOrSoftmax), dense weight-scan bandwidth shortfalls (RefusedDenseWeightScanBandwidthGap), non-zero Icosian drift (RefusedIcosianNormDrift), and incomplete SpiralCore/Flock/Hamming geometry (RefusedMissingSpiralFlockXorPopcount). Formal controls establish modeled admission invariants and arithmetic ceilings only; empirical client tok/s and open-domain fluency remain measured open quantities."
+
+[[id]]
+id = "R4-72"
+level = "build"
+suite = "r4_72_hopf_zeta_recompiler_v14"
+statement = "Pure LexLean models the R4-72 UORR4V14 dual-tier Qwen3-0.6B and Qwen3-1.7B teacher recompiler with UOR-r4 C1/S5 distance-split whole-context count memory (R4.HopfZetaRecompilerV14): admitUorR4V14AtlasExport admitting zero-float UORR4V14 harmonic atlases over 4D signed quaternionic Hopf spinors addressing all 16 signed orthants with preserved S1 storage fiber angle chi, exact Z[phi] Golden-Ratio Poincare 4-ball hyperbolic shells, >= 64 Riemann zeta-zero ordinates, 120 H4 600-cell Icosian vertices, and byte-bounded <= 1 MiB C1/S5 distance-split context tables (UorR4V14AtlasAdmitted) while refusing float exports (RefusedFloatInExportedAtlas), ablated 2D TurboQuant or unsigned orthants (RefusedAblatedTwoDimOrUnsignedHopf), non-Golden Poincare shells (RefusedNonGoldenPoincareShell), degenerate Zeta/Icosian tables (RefusedDegenerateZetaOrIcosianTable), and context byte overflows (RefusedContextCountExceedsByteLimit). Formal controls establish modeled export admission only, not teacher benchmark scores."
+
+[[id]]
 id = "R4-71"
 level = "build"
 suite = "r4_71_foundry_quantum_studio"

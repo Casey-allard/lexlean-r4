@@ -2,10 +2,10 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2940,
-    "lifted": 2153,
-    "effect": 289,
-    "foreign": 157,
+    "total_functions": 2974,
+    "lifted": 2184,
+    "effect": 291,
+    "foreign": 158,
     "residue": 341
   },
   "rows": [
@@ -553,7 +553,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2cb594ea4d5995da13054e9a5e36ab75d27663b6af6d2462e208d90644c5270c",
+      "kappa": "ab81ea17f4fa4ae037baf44b9db493f9fa5950a5c9b4df406fd1b463cab729ac",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -1655,7 +1655,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "465a806b775ca28449108db8c035aee7171da8d375ddb6a8f92e7a06ce1da9a3",
+      "kappa": "e2c546596425ff1f26903614e210cf5ed4a2895c04ed08b60a16f9ca7ec7487e",
       "function": "crates/wasm/src/foundry_quantum_pc.rs::studio_foundry_quantum_self_check_json",
       "status": "lifted",
       "definition": "R4.FoundryQuantumStudio",
@@ -3494,6 +3494,181 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "01e607dbb482d042d29758463e0f1a3c750a62773b2ab96141cd1a96f969ef34",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::GoldenInt::add_exact",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "63ee6887d28d42d89ee7f3cfe7792a4812e1c9d19c97ee11bfd4dddc67cfd2e8",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::GoldenInt::gt_exact",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "454c43b0c27be3de6623957867ddc85c002a599657d403c9650284b68c35e74c",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::GoldenInt::mul_exact",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "cb504ace7aa9905de47945385bce8842a4d539ecca0413585946cc84f250570c",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::GoldenInt::new",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e97505994635a9e6ae3014862281056fd2021c53d886dca2db610083a27638bd",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::GoldenInt::to_q15_scaled_half",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "14d526739cdd0ec84aa15d18cc204d97b31ddbc36ba451126210f1546d981ebe",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::HopfZetaError::fmt",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "06f932a26a8afb281526bbb241f4f1a9880d6bfe0f51579af0e71062726276a9",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::HopfZetaPoincareEngineV14::compile_from_corpus",
+      "status": "lifted",
+      "definition": "R4.HopfZetaRecompilerV14",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "1064be10f9656d56c42bd1a601bea0bb8bc84332b39ce92b549ed08effa76f8b",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::HopfZetaPoincareEngineV14::encode_prompt_tokens",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "dc54bfeba7ec9ce4cf1fe55181ae76787c41ab255346d1b1000c53a65ecec923",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::HopfZetaPoincareEngineV14::from_v14_bytes",
+      "status": "lifted",
+      "definition": "R4.HopfZetaRecompilerV14",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "4c67d609ff5ec1fc3e9d81d6c4d6aa0aab4952f1aa2a30f9f54a32471c057aee",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::HopfZetaPoincareEngineV14::generate_resonant_waves",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e5d9cae0d6c1f0535b093d0c7bf6e259584b69e4496dbea928383767586c05f0",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::HopfZetaPoincareEngineV14::to_v14_bytes",
+      "status": "lifted",
+      "definition": "R4.HopfZetaRecompilerV14",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "d89048e172cf9804753d9de29e0da2ee2fdac48f3a12ecc3466106b4add4733d",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::c1_s5_distance_bucket",
+      "status": "lifted",
+      "definition": "R4.HopfZetaRecompilerV14",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "f5855c113356b48d0b50a5a7e678e55a372ece78db773e1976d838686ceeb413",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::compute_piece_sig_576",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "af57d37b60e816e69680d602ae21b3d6ddd729bbc4c4ace6766f3a8ad90bfddf",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::cordic_atan2_phase_q29",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "3f708ea58894ba98f0ca770d440820c44bcacb92e29747ba26cb08bb10ee1e81",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::cos_phase1024_q15",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "2e25aa1694260a833da0fd46a2bf8f1e25a75fc3bc24423098fa6943ef9c6d8f",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::default_hopf_zeta_v14_engine",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "9122211a246e4d0300284f77f4d5d7d3a0b48493468813ce7d261aa578d279e3",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::encode_signed_hopf_spinor_cell",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "185717c893732928a1b42313e2ed8c577a0ca0ec87e093aa44c33e041669dd20",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::hamming_distance_576",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "5fb8b8d63e99f056d51ebd2b1421f81889e3cce3211bfb5b79c6dc3ceb98815f",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::icosian_120_vertices_q15",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "934f07ef3d5a3edaa8f6b966894a2b9e148b53102aec41daa7268690e081d24e",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::poincare_hyperbolic_shell_q24",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "4e4a1c78c107b0d44f2642652f03ddc6492b344b8500d7ba8bd142dc0362a004",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::snap_to_icosian_120",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "9223391f38d33655194ba81e98c3261725ad3ce52e63fa878e4c61fb2fc3710e",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::step_spiralcore_cl06_layer",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e12c50ef0ab92eb6234deb6677fc1389b2277b205b29f563048385c967d61ece",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::studio_hopf_zeta_v14_generate_json",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "fc95433bbff5a93eb0865715379f6e897dfa7d7da89b5015c4624abd7518b24b",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::studio_hopf_zeta_v14_self_check_json",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "4a63ec4aab2e4d6a8f2eb341c3d281e23cceca1f012ad2f1b96c39b9bacaf2da",
+      "function": "crates/wasm/src/hopf_zeta_engine.rs::zeta_ring_harmonic_resonance_q15",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "3dceb93a64ee6f99c30b457dbbd3cb9631b36856ec2fccfa7c7bed8c5a091a88",
       "function": "crates/wasm/src/lexlean_generated.rs::ComposerRouteMode::from_wire_id",
       "status": "lifted",
@@ -4250,10 +4425,24 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "f1b7a0f3a7e779dd0aae31a3600277c9dc88e020324401c46b77af6f07cbc087",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_ten_k_geometric_step",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_ten_k_geometric_step",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "af51f77ee4b717e8d87afd771a00dd4abe5046830a01fedcfac408727e0d4302",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_tmac_lut_read",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_tmac_lut_read",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "92dc997b122809533fe642d4892d8aef63a235f6397d939ccdd79dca34b090a1",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_uor_r4_v14_atlas_export",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_uor_r4_v14_atlas_export",
       "exact_divergence_free": true
     },
     {
@@ -4506,6 +4695,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::axis_value",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::axis_value",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "8f80bc07e856588e725082ad1f3324d16f0bc51e9ae718651616319b1e56a8f3",
+      "function": "crates/wasm/src/lexlean_generated.rs::bandwidth_sustainable_tokens_per_sec",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::bandwidth_sustainable_tokens_per_sec",
       "exact_divergence_free": true
     },
     {
@@ -13042,6 +13238,20 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "0cd5069acd822f5ad81094e6a37a6f1355b8db6cb1f0fca2f306c387ca53d9ce",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_hopf_zeta_poincare_engine_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_hopf_zeta_poincare_engine_admitted",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "f47daaa54ca1aa4971c4b33f9de4fd4e7d9b4e52ba7cf8328e6f90cb95148e71",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_hopf_zeta_recompiler_v14_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_hopf_zeta_recompiler_v14_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "28f299f56084d0a8c6dbf17aaf91331f42cc93425f2caadc305b4d32627255da",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_live_webgpu_turn_bridge_admitted",
       "status": "lifted",
@@ -14290,6 +14500,20 @@
       "function": "crates/wasm/src/lib.rs::studio_export_uorlut_shard",
       "status": "lifted",
       "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "6152382d2e23c5126aa4e53c33faf864ac266dc16efc04a4988032bb0ffe001d",
+      "function": "crates/wasm/src/lib.rs::studio_hopf_zeta_v14_generate_json",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b913516aed065d25d6f617e7e348c7d06e905717d1fd6dd1497002b1cfcf51cf",
+      "function": "crates/wasm/src/lib.rs::studio_hopf_zeta_v14_self_check_json",
+      "status": "lifted",
+      "definition": "R4.HopfZetaPoincareArchitecture",
       "exact_divergence_free": true
     },
     {
@@ -20355,7 +20579,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "87a7de0bb7ba3cb53ef415b629c891f937ffc3a41cb2571f600e77a4400f37ae",
+      "kappa": "23565380b7b5fbc94e833a85968f4ac29b4d407261b95f335b0b61d42924355b",
       "function": "xtask/src/main.rs::main",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -20696,6 +20920,20 @@
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `xtask/src/ratchet.rs::verify_peirce_triadic_step` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "9a6426bd671bbd058960caaba5d7a9bc67930f53d769379022945ba2ba7006a1",
+      "function": "xtask/src/recompiler_v14.rs::compile_single_v14_tier",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "1b2c563e8f35ee0fea0993811fa6e5f862f4997dcee84b5e6b90106c324c54b9",
+      "function": "xtask/src/recompiler_v14.rs::run_recompile_v14_cmd",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
     },
     {

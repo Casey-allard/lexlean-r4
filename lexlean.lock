@@ -1,7 +1,7 @@
 spec = "lexlean/lock/2"
 language = "1.2"
 compiler_semantics = "09f4b95d5994ca00acd413e6f9e8381c8a18d4fd778249d2c8654f7dc99dce86"
-project_config_sha256 = "1c0be84cdfc5e658ae6c59f01b690cd6cbef5e3b4a3fe6a64c70a98ae95d93b1"
+project_config_sha256 = "fe12f2667b0e15186566db204de8ecbff5c68c3a289d70229958c8451ee11e13"
 lean_toolchain = "leanprover/lean4:v4.32.1"
 
 [[workspace_file]]

@@ -49386,3 +49386,156 @@ pub mod r4_foundry_quantum_studio {
             }) == QuantumPcKappaVerdict::QuantumPcHoloAdmitted
     }
 }
+
+/// Generated mirror of `src/R4/HopfZetaRecompilerV14.lex.tex` (`R4-72`).
+pub mod r4_hopf_zeta_recompiler_v14 {
+    /// Structure `R4.HopfZetaRecompilerV14.HopfZetaAtlasExportCheck` (`R4-72`).
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct HopfZetaAtlasExportCheck {
+        pub exported_float_ops: u64,
+        pub hopf_spinor_dim: u64,
+        pub signed_orthants: u64,
+        pub storage_angle_preserved: bool,
+        pub golden_ratio_poincare_exact: bool,
+        pub zeta_ordinate_count: u64,
+        pub icosian_vertex_count: u64,
+        pub c1_s5_distance_buckets: u64,
+        pub context_count_bytes: u64,
+        pub max_deployed_context_bytes: u64,
+    }
+
+    /// Inductive `R4.HopfZetaRecompilerV14.HopfZetaRecompilerVerdict` (`R4-72`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum HopfZetaRecompilerVerdict {
+        UorR4V14AtlasAdmitted,
+        RefusedFloatInExportedAtlas,
+        RefusedAblatedTwoDimOrUnsignedHopf,
+        RefusedNonGoldenPoincareShell,
+        RefusedDegenerateZetaOrIcosianTable,
+        RefusedContextCountExceedsByteLimit,
+    }
+
+    /// Function `R4.HopfZetaRecompilerV14.admitUorR4V14AtlasExport` (`R4-72`).
+    pub fn admit_uor_r4_v14_atlas_export(a: HopfZetaAtlasExportCheck) -> HopfZetaRecompilerVerdict {
+        if 0 < a.exported_float_ops {
+            HopfZetaRecompilerVerdict::RefusedFloatInExportedAtlas
+        } else if a.hopf_spinor_dim != 4 || a.signed_orthants < 16 || !a.storage_angle_preserved {
+            HopfZetaRecompilerVerdict::RefusedAblatedTwoDimOrUnsignedHopf
+        } else if !a.golden_ratio_poincare_exact {
+            HopfZetaRecompilerVerdict::RefusedNonGoldenPoincareShell
+        } else if a.zeta_ordinate_count < 64
+            || a.icosian_vertex_count != 120
+            || a.c1_s5_distance_buckets < 4
+        {
+            HopfZetaRecompilerVerdict::RefusedDegenerateZetaOrIcosianTable
+        } else if a.max_deployed_context_bytes == 0
+            || a.max_deployed_context_bytes < a.context_count_bytes
+        {
+            HopfZetaRecompilerVerdict::RefusedContextCountExceedsByteLimit
+        } else {
+            HopfZetaRecompilerVerdict::UorR4V14AtlasAdmitted
+        }
+    }
+
+    /// Function `R4.HopfZetaRecompilerV14.verifyHopfZetaRecompilerV14Admitted` (`R4-72`).
+    pub fn verify_hopf_zeta_recompiler_v14_admitted() -> bool {
+        admit_uor_r4_v14_atlas_export(HopfZetaAtlasExportCheck {
+            exported_float_ops: 0,
+            hopf_spinor_dim: 4,
+            signed_orthants: 16,
+            storage_angle_preserved: true,
+            golden_ratio_poincare_exact: true,
+            zeta_ordinate_count: 64,
+            icosian_vertex_count: 120,
+            c1_s5_distance_buckets: 8,
+            context_count_bytes: 524_288,
+            max_deployed_context_bytes: 1_048_576,
+        }) == HopfZetaRecompilerVerdict::UorR4V14AtlasAdmitted
+    }
+}
+
+/// Generated mirror of `src/R4/HopfZetaPoincareArchitecture.lex.tex` (`R4-73`).
+pub mod r4_hopf_zeta_poincare_architecture {
+    /// Structure `R4.HopfZetaPoincareArchitecture.TenKGeometricStepCheck` (`R4-73`).
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct TenKGeometricStepCheck {
+        pub float_ops: u64,
+        pub dense_matmul_ops: u64,
+        pub softmax_ops: u64,
+        pub bandwidth_mb_per_sec: u64,
+        pub active_basin_kb: u64,
+        pub tokens_cast_per_wave: u64,
+        pub target_tokens_per_sec: u64,
+        pub icosian_drift_lsb: u64,
+        pub spiral_core_layers: u64,
+        pub flock_heads: u64,
+        pub hamming_xor_bits: u64,
+    }
+
+    /// Inductive `R4.HopfZetaPoincareArchitecture.TenKGeometricEngineVerdict` (`R4-73`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum TenKGeometricEngineVerdict {
+        TenKWaveResonanceAdmitted,
+        RefusedBannedFloatMatmulOrSoftmax,
+        RefusedDenseWeightScanBandwidthGap,
+        RefusedIcosianNormDrift,
+        RefusedMissingSpiralFlockXorPopcount,
+    }
+
+    /// Function `R4.HopfZetaPoincareArchitecture.bandwidthSustainableTokensPerSec` (`R4-73`).
+    pub fn bandwidth_sustainable_tokens_per_sec(
+        bandwidth_mb_per_sec: u64,
+        active_basin_kb: u64,
+        tokens_cast_per_wave: u64,
+    ) -> u64 {
+        if active_basin_kb == 0 {
+            0
+        } else {
+            (bandwidth_mb_per_sec
+                .saturating_mul(1024)
+                .saturating_mul(tokens_cast_per_wave))
+                / active_basin_kb
+        }
+    }
+
+    /// Function `R4.HopfZetaPoincareArchitecture.admitTenKGeometricStep` (`R4-73`).
+    pub fn admit_ten_k_geometric_step(e: TenKGeometricStepCheck) -> TenKGeometricEngineVerdict {
+        if 0 < e.float_ops || 0 < e.dense_matmul_ops || 0 < e.softmax_ops {
+            TenKGeometricEngineVerdict::RefusedBannedFloatMatmulOrSoftmax
+        } else if e.active_basin_kb == 0
+            || e.tokens_cast_per_wave == 0
+            || bandwidth_sustainable_tokens_per_sec(
+                e.bandwidth_mb_per_sec,
+                e.active_basin_kb,
+                e.tokens_cast_per_wave,
+            ) < e.target_tokens_per_sec
+        {
+            TenKGeometricEngineVerdict::RefusedDenseWeightScanBandwidthGap
+        } else if 0 < e.icosian_drift_lsb {
+            TenKGeometricEngineVerdict::RefusedIcosianNormDrift
+        } else if e.spiral_core_layers != 6 || e.flock_heads != 8 || e.hamming_xor_bits < 512 {
+            TenKGeometricEngineVerdict::RefusedMissingSpiralFlockXorPopcount
+        } else {
+            TenKGeometricEngineVerdict::TenKWaveResonanceAdmitted
+        }
+    }
+
+    /// Function `R4.HopfZetaPoincareArchitecture.verifyHopfZetaPoincareEngineAdmitted` (`R4-73`).
+    pub fn verify_hopf_zeta_poincare_engine_admitted() -> bool {
+        bandwidth_sustainable_tokens_per_sec(80_000, 307_200, 1) == 266
+            && bandwidth_sustainable_tokens_per_sec(80_000, 1_024, 4) == 320_000
+            && admit_ten_k_geometric_step(TenKGeometricStepCheck {
+                float_ops: 0,
+                dense_matmul_ops: 0,
+                softmax_ops: 0,
+                bandwidth_mb_per_sec: 80_000,
+                active_basin_kb: 1_024,
+                tokens_cast_per_wave: 4,
+                target_tokens_per_sec: 10_000,
+                icosian_drift_lsb: 0,
+                spiral_core_layers: 6,
+                flock_heads: 8,
+                hamming_xor_bits: 576,
+            }) == TenKGeometricEngineVerdict::TenKWaveResonanceAdmitted
+    }
+}

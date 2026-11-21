@@ -13,6 +13,15 @@
 spec = "template/1"
 
 [[authority]]
+id = "UOR-R4-HOPF-ZETA-CONTEXT"
+name = "UOR-r4 16-orthant signed quaternionic Hopf fibration (#0321), Riemann Zeta spectral projection (#0313), H4/E8 Icosian codebook (#0395), and C1/S5 byte-bounded whole-context counts (#4128..4134)"
+citation = "https://github.com/UOR-Foundation/UOR-r4/commit/8e5f5bf68b (research records #0321 16-orthant signed Hopf fibration, #0313 Riemann Zeta spectral phase projection, #0395 E8/H4 120-vertex Icosian codebook, and #4128..4134 byte-bounded C1/S5 distance-split whole-context count memory); companion src/R4/{HopfZetaRecompilerV14,HopfZetaPoincareArchitecture}.lex.tex"
+checksum = "none"
+checksum_reason = "Upstream UOR-Foundation/UOR-r4 (8e5f5bf68b) research corpus resides in an external repository rather than vendored verbatim; local LexLean proofs, xtask dual-tier recompiler, and Wasm simd128 engine live under src/R4/{HopfZetaRecompilerV14,HopfZetaPoincareArchitecture}.lex.tex, xtask/src/recompiler_v14.rs, and crates/wasm/src/hopf_zeta_engine.rs."
+statement = "Four-dimensional 16-orthant signed Hopf fibration preserving the S1 storage fiber angle, Golden-Ratio Poincare 4-ball indexing, Riemann Zeta ordinate phase projection, 120-vertex H4 Icosian snap, and byte-bounded C1/S5 distance-split whole-context count memory are imported from UOR-Foundation/UOR-r4 (8e5f5bf68b); external citations supply no client browser throughput measurements."
+realized_by = ["R4-72", "R4-73"]
+
+[[authority]]
 id = "FOUNDRY-QUANTUM-PC-INTAB"
 name = "UOR-Foundation/foundry Hologram Quantum PC runtime, FK-01..09 InTabProver proof-gated lifecycle, FR-05 sealed MlsChannel, and float-forbidding canonical JSON kappa"
 citation = "https://github.com/UOR-Foundation/foundry/commit/ebdd937945 (app/src/{ForgeKernel,InTabProver,InTabElaborator}.lex.tex FK-01..09, studio/core/src/holo/canonical.rs float-forbidding unique-key canonical JSON BLAKE3 kappa, studio/shell/q/pkg/holospaces_web.js LinuxVm/StreamingVm/DevcontainerImage/MlsChannel/ObjectStore); companion src/R4/FoundryQuantumStudio.lex.tex"

@@ -162,6 +162,20 @@ prism_record = "Foundation.Sec::FoundryQuantumStudio"
 facet = "sec"
 note = "Foundry Hologram Quantum PC LinuxVm/MlsChannel/ObjectStore, FK-01..09 InTabProver proof-gated .holo lifecycle, and float-forbidding unique-key canonical JSON BLAKE3 kappa."
 
+[[route]]
+id = "R4-UR23"
+rust_fact = "uorr4-v14-hopf-zeta-recompiler"
+prism_record = "Foundation.Arch::HopfZetaRecompilerV14"
+facet = "arch"
+note = "Dual-tier Qwen3-0.6B and Qwen3-1.7B teacher recompiler emitting UORR4V14 4D signed Hopf + Golden-Ratio Poincare + C1/S5 <= 1 MiB atlases."
+
+[[route]]
+id = "R4-UR24"
+rust_fact = "hopf-poincare-zeta-10k-engine"
+prism_record = "Foundation.Behavior::HopfZetaPoincareArchitecture"
+facet = "behavior"
+note = "10,000+ tok/s UORR4V14 resonant wave engine over 64-ordinate C2 Zeta ring, 6-layer Cl(0,6) SpiralCore, 8-head Starling Flock, 576-bit XOR+popcnt, and 120-vertex Icosian snap."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -271,6 +285,16 @@ response = "route R4-UR21\nfact vtensor-semiring-tile-pbr-3d\nrecord Foundation.
 case = "route R4-UR22"
 request_hex = "666f756e6472792d7175616e74756d2d70632d696e7461622d70726f766572"
 response = "route R4-UR22\nfact foundry-quantum-pc-intab-prover\nrecord Foundation.Sec::FoundryQuantumStudio\nfacet sec"
+
+[[vector]]
+case = "route R4-UR23"
+request_hex = "756f7272342d7631342d686f70662d7a6574612d7265636f6d70696c6572"
+response = "route R4-UR23\nfact uorr4-v14-hopf-zeta-recompiler\nrecord Foundation.Arch::HopfZetaRecompilerV14\nfacet arch"
+
+[[vector]]
+case = "route R4-UR24"
+request_hex = "686f70662d706f696e636172652d7a6574612d31306b2d656e67696e65"
+response = "route R4-UR24\nfact hopf-poincare-zeta-10k-engine\nrecord Foundation.Behavior::HopfZetaPoincareArchitecture\nfacet behavior"
 
 [[vector]]
 case = "error empty"

@@ -14,6 +14,17 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-UOR-R4-HOPF-ZETA-CONTEXT"
+level = "some-true"
+authority = "UOR-R4-HOPF-ZETA-CONTEXT"
+statement = "UOR-Foundation/UOR-r4 (8e5f5bf68b) #0321 16-orthant signed Hopf fibration, #0313 Riemann Zeta harmonic phase projection, #0395 120-vertex H4 Icosian snap, and #4128..4134 byte-bounded C1/S5 distance-split whole-context count memory are imported from UOR-Foundation/UOR-r4. Local compilation and Wasm execution enforce float_ops = 0, dense_matmul_ops = 0, and softmax_ops = 0."
+
+[[claim]]
+id = "OPEN-V14-BROWSER-10K-THROUGHPUT-QUALITY"
+level = "open"
+statement = "Empirical UORR4V14 resonant wave throughput (tok/s) across diverse end-user browser CPUs/GPUs and open-ended conversational quality parity against full-precision frontier teachers are measured runtime quantities rather than formal theorems."
+
+[[claim]]
 id = "AUTH-FOUNDRY-QUANTUM-PC-INTAB"
 level = "some-true"
 authority = "FOUNDRY-QUANTUM-PC-INTAB"
