@@ -2,11 +2,11 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 3023,
-    "lifted": 2442,
-    "effect": 295,
-    "foreign": 157,
-    "residue": 129
+    "total_functions": 3074,
+    "lifted": 2478,
+    "effect": 309,
+    "foreign": 159,
+    "residue": 128
   },
   "rows": [
     {
@@ -535,7 +535,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "72e7611a71c05ee2bb19832bddac8d6127f7ac8947b64b19c71325236a6f2190",
+      "kappa": "2871ec632a3e6dd8ba212ec4637ae8a5d8961ee1e92539f2d3f94e4a2d3cc41a",
       "function": "crates/wasm/js/app/01_studio_chat_preview.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -1510,7 +1510,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "30f13e3f810d274975ffdc592dc748a36912ff37468e48a13fec200c43058cc0",
+      "kappa": "7c9e6082da9d862649dd97ddf98c7a21f5aec92135d8ccefda064c0921b49c21",
       "function": "crates/wasm/js/bridge/01_opfs_webgpu_engine.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -1970,10 +1970,9 @@
     {
       "kappa": "6a48fced843b8d65d24d8053ab5bbd0518d3c4b2a8b426488d615b4bb4fb1089",
       "function": "crates/wasm/src/api.rs::capitalize_role",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/api.rs::capitalize_role` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "R4.RatchetGen1",
+      "exact_divergence_free": true
     },
     {
       "kappa": "740024620e01172d24fb3c86022bc0ff1ff146feccaca5ddc18e0ef2d529b05a",
@@ -5108,6 +5107,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "2f8a16114764d39d9f9203b90da02b216012488868dea2d92ed4649e64af7abb",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_autonomous_github_tick",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_autonomous_github_tick",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "7b0e383ab7a541634c943d1e3854cb587627efc8f1285c9039eb9801da02a611",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_batch",
       "status": "lifted",
@@ -5168,6 +5174,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_distilled_agent_atlas",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_distilled_agent_atlas",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "1a27c791476f2540e5dd8fccb3b748c9e1ea7bc915ac2eef97bdc611ce3eecb7",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_dual_surface_generation",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_dual_surface_generation",
       "exact_divergence_free": true
     },
     {
@@ -5402,6 +5415,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "d70df8997a4eff61c6178beb1cf57ae5118193cf9cf90d7b40c75262a3fe2138",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_observer_refinement_agenda",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_observer_refinement_agenda",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "6d9f41bbd03bafaa7a21d2ef0b8a75b96ff3d49da785d286f090288a08aea72e",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_off_origin_hydration",
       "status": "lifted",
@@ -5490,6 +5510,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_range_slice",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_range_slice",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ecfb2c847b1f5c3fafea76642fb895fd1d0d2c0ed96399401657fd525a51819f",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_1_slice",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_1_slice",
       "exact_divergence_free": true
     },
     {
@@ -7541,6 +7568,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::from_wire_word",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::from_wire_word",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "488cceaa55ebcd8b5c86e762f73a86d979aad3be4d6d0a5a982e0fc704272f75",
+      "function": "crates/wasm/src/lexlean_generated.rs::fullVv_ok",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::fullVv_ok",
       "exact_divergence_free": true
     },
     {
@@ -9704,6 +9738,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::parent_contributions",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::parent_contributions",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "1d8c2020cd03b35fd05328cb2937745ed427af4ac531968bb946d9f4d3c998ca",
+      "function": "crates/wasm/src/lexlean_generated.rs::part_health_score_permille",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::part_health_score_permille",
       "exact_divergence_free": true
     },
     {
@@ -13592,6 +13633,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "34906fc87cdcbd3cc78ce27bf54b15ad0b1fc70a40d080896be2d05ddf92d17f",
+      "function": "crates/wasm/src/lexlean_generated.rs::subtract_nat#9",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::subtract_nat#9",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "5ce4c37dc325e640febda639db770b7fe585379c3a71cd403a423a5a69047b85",
       "function": "crates/wasm/src/lexlean_generated.rs::subtract_sixteen",
       "status": "lifted",
@@ -14418,6 +14466,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "2a0077b5bc0257dc973e3c1df7c5e639e6670de37713a78a12f6d2b1be5fa2a5",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_autonomous_github_ratchet_loop_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_autonomous_github_ratchet_loop_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "614448e4ca34d4e161175eae48be5a0d13ea56a81e28aacd290b93a96ee26dbe",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_chunked_prefill_ci_admitted",
       "status": "lifted",
@@ -14443,6 +14498,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::verify_dag_synthesis",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::verify_dag_synthesis",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "d125f9dc95755c21d60beb4039a0dfc1c570c386079df2d570f6e48507ebe594",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_dual_surface_ratchet_evolution_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_dual_surface_ratchet_evolution_admitted",
       "exact_divergence_free": true
     },
     {
@@ -14516,6 +14578,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "cb9e03a7621eff4196bf5aff26db95399092a6c843b9f2222d7b9169127d16d1",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_observer_refinement_agenda_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_observer_refinement_agenda_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "40c64bdda2602a3a3af3edcd4e9b86898f87d8eb54ea899eb1805288be20cf8c",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_ontological_telos_admitted",
       "status": "lifted",
@@ -14534,6 +14603,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::verify_qwen3_sparse_basin_v15_admitted",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::verify_qwen3_sparse_basin_v15_admitted",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "68c74f944ae12ffbb9ca2c70428f57e8fa529b83c49cb72bc3dac5b5e0df2a52",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_1_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_1_admitted",
       "exact_divergence_free": true
     },
     {
@@ -19016,6 +19092,97 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "e0811732b64c4dac86b174f9e9c26e03155847d307e97496ad8442d007057bf3",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::SporeCapsuleError::fmt",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "7c6b3bbdb5c75da4b68f92f18cfef68f2c164e842fc05080ad181036ffcdb79d",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::hash_prompt_salt_u64",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e67c25166a8f4d55331aeea275ab8e38c151821beefb3da82036976b7a3d9ab8",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::initial_state",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "3d843895f37a1118dc520cbcaf8804e0e5e8e324554134f4d870bdc5173f2451",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::pack_r4_spore_capsule",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "87def4039e46a4c850b8b8f002adf0e2cc90ffe063f0a40a7dfc9b219367f78f",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::sha256_hex_slice",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "162ca51913f1d279370643750b09bd388b9cf7c03b81ad572533de60eadd140f",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::sovereign_ratchet_status_json",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "fb427e9b8fa61085773e606c6d412b9387e890ccd00f2d0da159546a104eec51",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::sovereign_ratchet_step_json",
+      "status": "lifted",
+      "definition": "R4.RatchetGen1",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "7572b0e67e11af2e71f3e126a25cd4347f62976ee5ddd05c3b01abdb8d1aed6b",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::step_rule30_register",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "d181dd1f58377e246e0c3f66a1b99e082bd8f974dea8ad6672580e19e1af82cc",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::studio_ratchet_status_json",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "013b0b39c6de868556700df674a11242b1cf2989115f3c85677cafdd26a6906f",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::studio_ratchet_step_json",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "202c04479db9e980f09a8d0372ad53e2390d5373d7029c6ce578535cf5bfe84c",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::try_pack_r4_spore_capsule",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "a0323873258a9799dc737b0a7507cec8e52118f3d5662e4f1b8ade5004b58a45",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::verify_cap0005_root_pair",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "894f79cb4afdc51643a7120c95178444f98274945a2f7a52a6ff3f295975edcd",
+      "function": "crates/wasm/src/sovereign_ratchet.rs::verify_r4_spore_capsule",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "f64e347aacc8867343b578fdee45e1e8a883e8df60135e33b2374542544bed4e",
       "function": "crates/wasm/src/sparse_basin_v15.rs::SparseBasinEngineV15::cast_resonant_waves",
       "status": "lifted",
@@ -19841,6 +20008,14 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "8010961a4707eef8030e94fade42ce9f24c05d47e9808da91b31dd5f1b36c595",
+      "function": "xtask/src/bootstrap.rs::policy_boundary_is_canonical",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `xtask/src/bootstrap.rs::policy_boundary_is_canonical` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "33b0856a157771250cc3a545bb957dc401dd24a39ef163eefd965611b3ae040c",
       "function": "xtask/src/bootstrap.rs::read",
       "status": "effect",
@@ -19848,10 +20023,18 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "b1701472856a9f4eeb81d3ca5557d5743b8c979269a4b40f61eefd3adfff1ca7",
+      "kappa": "dbcb569059b0d667c6954000d850bd0b0b21b5212432d0bf9177451973bcb289",
       "function": "xtask/src/bootstrap.rs::sdk_image",
       "status": "foreign",
       "foreign_crate": "sha2",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "959bed64e098e2224494ea2985cb86cb1628e8fc65b4afd2c1af12419b5af07f",
+      "function": "xtask/src/bootstrap.rs::update_preserves_project_content",
+      "status": "residue",
+      "reason": "unlifted-pure-fn",
+      "detail": "pure function `xtask/src/bootstrap.rs::update_preserves_project_content` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -19860,6 +20043,111 @@
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "00df5369e4150cb27a908db5b26065ef4c1dbb0f43cfe3b6cc771f56ddcab7d6",
+      "function": "xtask/src/bootstrap.rs::workflow_history_is_complete",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "389e8273e472c869cde879807bb8b09e4fb85807063286e811dd21785f409e1a",
+      "function": "xtask/src/dual_surface_ratchet.rs::cmd_dual_surface_ratchet",
+      "status": "effect",
+      "effect": "stdio-console-effect",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "99851083c79d61a410bee53fdda45d33e8b6e81bdc56564ce56b2f67bf7d7444",
+      "function": "xtask/src/dual_surface_ratchet.rs::eval_lex_expr",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "bded5f30dd4ce7dd6b214f2e20721d75977bb7ca276420fe489757af6927cdda",
+      "function": "xtask/src/dual_surface_ratchet.rs::has_non_trivial_guard",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "aa77be1f4a68fb8f0b96a0c4a1ac948b310cc5d83c17c59d6dc63ca2c8a668bb",
+      "function": "xtask/src/dual_surface_ratchet.rs::load_sovereign_generations",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "b43577fc782304d2c298f6fdda1e147f799796956e9cada2f0607f12e2bb6e79",
+      "function": "xtask/src/dual_surface_ratchet.rs::measure_function_slice_metrics",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "8ab800af8945135daad59d86c652cdb476cd7469d37fa7b46f65b8b18bf1242e",
+      "function": "xtask/src/dual_surface_ratchet.rs::perturb_interior_verdict",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e653aa156179ee74f4f0ea96d1e289f6e8f4a624ae2b14b3c7a868714f0c5f18",
+      "function": "xtask/src/dual_surface_ratchet.rs::register_lexlean_entrypoint",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "56225716f857437c107928e07a37391d79104f6d86ff41d6c31fedcb8d308a85",
+      "function": "xtask/src/dual_surface_ratchet.rs::save_sovereign_generations",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "b57166c6be34f705f3717cdf3dc2d7c168cfd7f461f29cc2b54b485e78988014",
+      "function": "xtask/src/dual_surface_ratchet.rs::sha256_hex_bytes",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "4bd76b16f49300af0740c1559ec4809d4a0343fde0b855ceee005fcd02a9aef8",
+      "function": "xtask/src/dual_surface_ratchet.rs::step_dual_surface_ratchet_evolution",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "97d6ec3955f0ddba0b9de007bb90aa0ce4b5c402d2a401c1baf66c099daeca5f",
+      "function": "xtask/src/dual_surface_ratchet.rs::sync_sovereign_ratchet_constants",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "5713b85f4cccee8106d268661568a5987ef7dd6eaefff5e102f5fe2704f41bca",
+      "function": "xtask/src/dual_surface_ratchet.rs::sync_sovereign_ratchet_from_repo",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "cd4ab1c406df60f93383e6eb9745d71f3ee8bf248ba65b7d9a5ed2ddd9f1660d",
+      "function": "xtask/src/dual_surface_ratchet.rs::synthesize_ratchet_gen_artifacts",
+      "status": "lifted",
+      "definition": "R4.DualSurfaceRatchetEvolution",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "90616f9b6c2f043519af90550bec9243d58f94a9e3cd6c695a19cbdf6c9d14a7",
+      "function": "xtask/src/dual_surface_ratchet.rs::verify_lex_module_falsifiers",
+      "status": "lifted",
+      "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
     },
     {
       "kappa": "ead4831445c965104a0d3e1397cf59734675374fc148c4b6209217f85f504146",
@@ -20040,7 +20328,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "77f01b60d1091658f00b8083fa71cae53f5b0c05ec9496a7dc62fb85b8732178",
+      "kappa": "4e9eb4b56f48793ef9f6a39e981c0df548d4500bfc7af23e2095fb0bc1d7e666",
       "function": "xtask/src/engine.rs::emit_ci_output",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -20085,6 +20373,13 @@
     {
       "kappa": "070abde5088b3372bf324e67ff2abfaf5958c3585e9c7c46267852fdcf566349",
       "function": "xtask/src/engine.rs::fetch_arxiv_atom_feed",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "5834632c47540b2221c83b5b1cdadaefea9d849e15dcb8081a187ac280f6c74c",
+      "function": "xtask/src/engine.rs::git_rev_parse_head",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
       "exact_divergence_free": false
@@ -20225,11 +20520,11 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "2abfbdd9b4db086a053d51d3884d8f067cd67bc7283d82defcae4205d23012e0",
+      "kappa": "9c226655bc2db45347feec36f6ff7f322953409ddb21cbc0ea1024605e45007d",
       "function": "xtask/src/engine.rs::render_engine_workflow",
-      "status": "effect",
-      "effect": "os-filesystem-and-process-io",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "R4.AutonomousEngine",
+      "exact_divergence_free": true
     },
     {
       "kappa": "702de0d52b8f067bcd80c24446ed7cd11cbcbf07c29ef01fd0b848d03cf3dc52",
@@ -20304,7 +20599,14 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "22c090069356649414bb99acba06ced466e0ad1483e4d7661ed9a79d5930c5f1",
+      "kappa": "e937121d390d0138bd2fde11a1e73d7795e6c47e5c3e53d96b486a250dd1abf7",
+      "function": "xtask/src/engine.rs::run_engine_tick_inner",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "7a2cbeb39316de3deae8c9d6abd2a428d18e9c5ea3c650b2f07e13a4e5fbeef5",
       "function": "xtask/src/engine.rs::run_engine_tick_with_mode",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -20495,6 +20797,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "7ad8433749222c94348b65ad12bfcb57882e4a9a1be7c30057434c3fc36b397f",
+      "function": "xtask/src/engine.rs::validate_workflow_homeostasis",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
       "kappa": "f2f565563a2d1131aa2ac6adfcdaf4266b71e2d7668eb4308fd1ea28aea0fb44",
       "function": "xtask/src/engine.rs::verify_frontier_theorems_ast",
       "status": "effect",
@@ -20538,6 +20847,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "e7fdcae69e39e3bcde69eb73798295d906a38294bfb593b82414ee56a9090db8",
+      "function": "xtask/src/lift_register.rs::classify_uorust_pure_lift",
+      "status": "lifted",
+      "definition": "lexlean_generated::",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "16e885c652f74f065400260b012359e9148d3290c4f8683128a3d61db5770549",
       "function": "xtask/src/lift_register.rs::cmd_lift_register",
       "status": "effect",
@@ -20549,14 +20865,6 @@
       "function": "xtask/src/lift_register.rs::compute_function_kappa",
       "status": "foreign",
       "foreign_crate": "sha2",
-      "exact_divergence_free": false
-    },
-    {
-      "kappa": "ae31cbbf415f2f35a98223514753152dab604975506d210ca08e128bcbe3077d",
-      "function": "xtask/src/lift_register.rs::contains_word",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::contains_word` pending formal .lex.tex lift",
       "exact_divergence_free": false
     },
     {
@@ -20589,14 +20897,6 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "c0aa11ee06df8029e6d14676713d63c1306a74b8fb3dd055d7b6eea83128d71d",
-      "function": "xtask/src/lift_register.rs::has_uorust_disqualifier",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `xtask/src/lift_register.rs::has_uorust_disqualifier` pending formal .lex.tex lift",
-      "exact_divergence_free": false
-    },
-    {
       "kappa": "8cbc6d2f4502f5acd3078d5be80644860c983905b301c24920f1771d689aa902",
       "function": "xtask/src/lift_register.rs::is_formally_lifted_bridge",
       "status": "lifted",
@@ -20617,13 +20917,6 @@
       "reason": "unlifted-pure-fn",
       "detail": "pure function `xtask/src/lift_register.rs::parse_js_fn_name` pending formal .lex.tex lift",
       "exact_divergence_free": false
-    },
-    {
-      "kappa": "305667b7e24457fad89d28d6465c85a23cac748638d2031f8c21ac72a17d7109",
-      "function": "xtask/src/lift_register.rs::propagate_residual_boundaries",
-      "status": "lifted",
-      "definition": "lexlean_generated::",
-      "exact_divergence_free": true
     },
     {
       "kappa": "8925d459ecc42d75f634bea114f39bfc484d0c231d1e0f02f696747d242c69ff",
@@ -20654,7 +20947,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "1b637d38b03d7143ddc05f1b31c1ceff150ba269f211e93ad6e9226ca0602fbb",
+      "kappa": "17b9a77ecc8389d09db6eae79b185104c5de9404ef259c36956f4025b2cab84b",
       "function": "xtask/src/main.rs::main",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -20675,7 +20968,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "0d67fc6a73197e52c4f4d3ddf30848b34d2e4f85c2567566da8870e9a65f2000",
+      "kappa": "5c8eab4708998ec5499577442738d2677f5845b81ad73f7bdfa7af260a221c8a",
       "function": "xtask/src/main.rs::validate",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -20806,6 +21099,69 @@
       "status": "lifted",
       "definition": "UORust.PureTotalExpr",
       "exact_divergence_free": true
+    },
+    {
+      "kappa": "4ed70587cbe698853c4e7734c4e99a0283849ceb1833983afcd6745bca84ffe5",
+      "function": "xtask/src/observer_agenda.rs::cmd_observer_agenda",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "20ee0ca10032bac646a1382aa3887ead558977084dfae5b472ad0885ffa3e49b",
+      "function": "xtask/src/observer_agenda.rs::count_file_lines",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "347347d121c3069e359cb6c3f9f51b95af3c6cc23ca18954834129e67cbe885f",
+      "function": "xtask/src/observer_agenda.rs::measure_organ_health",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "da616683ba02db588561d67149027a27849ec5d4cced52b906cf583c0abc7c63",
+      "function": "xtask/src/observer_agenda.rs::rank_residue_blockers",
+      "status": "lifted",
+      "definition": "R4.ObserverRefinementAgenda",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e45170b8d4991638e4b7ffeaa2ba8550372d68d6202f2e72b2d0767de70661b5",
+      "function": "xtask/src/observer_agenda.rs::seal_proposal",
+      "status": "lifted",
+      "definition": "R4.ObserverRefinementAgenda",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "571745b89cd09230c64581d0c7b83bdd34eee3af2eca636be58e18a1695ead40",
+      "function": "xtask/src/observer_agenda.rs::sha256_hex_bytes",
+      "status": "lifted",
+      "definition": "R4.ObserverRefinementAgenda",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e0bca7e90722d891ff2c847cdff6abc9f78e40c346fede48dcbb37c66a952cb3",
+      "function": "xtask/src/observer_agenda.rs::synthesize_observer_refinement_agenda",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "bb92edf6b7ea8537e336ce03c0362c78216f61bb7a5ff325cc9a5244716d084c",
+      "function": "xtask/src/observer_agenda.rs::verify_agenda_cryptographic_kappa",
+      "status": "lifted",
+      "definition": "R4.ObserverRefinementAgenda",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "43334c290e3b803bf72a320ba776af0617ecc25429dad3f73cec9aed71d467a6",
+      "function": "xtask/src/observer_agenda.rs::verify_sovereign_ratchet_sync",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
     },
     {
       "kappa": "ef9116d566a7e7cfce50db43a9795490223e41d546739b3e47075412f9418b5c",
@@ -21293,7 +21649,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "c79155803fa8b2ad57b2bbaaa41e5cf80836b621c4c825952addea0405666a5e",
+      "kappa": "a712f37e187481b85f29a5cc965316322c42121e93f8479c3f8217b48c57c219",
       "function": "xtask/src/wasm_bundle.rs::transform_wasm_bindgen_js",
       "status": "effect",
       "effect": "dom-browser-environment-io",

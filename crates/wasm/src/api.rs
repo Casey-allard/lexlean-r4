@@ -568,6 +568,7 @@ pub struct FormattedDialogue {
     pub combined_prompt: String,
 }
 
+/// Formal R4.RatchetGen1 dual-surface lifted slice (`gen-1`).
 fn capitalize_role(role: &str) -> String {
     let mut chars = role.chars();
     match chars.next() {

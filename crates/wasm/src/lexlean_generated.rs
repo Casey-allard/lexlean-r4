@@ -50071,3 +50071,205 @@ pub mod r4_real_qwen3_lossless_streaming {
             == RealQwen3StreamingVerdict::RealQwen3LosslessTurnAdmitted
     }
 }
+
+/// Generated from `src/R4/ObserverRefinementAgenda.lex.tex` (`R4.ObserverRefinementAgenda`, `R4-83`).
+pub mod r4_observer_refinement_agenda {
+    /// Inductive `R4.ObserverRefinementAgenda.AgendaVerdict` (`R4-83`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum AgendaVerdict {
+        AgendaAdmitted,
+        RefusedIncompleteOrganCoverage,
+        RefusedEmptyProposalSet,
+        RefusedNonMonotonicWatermarkTarget,
+        RefusedUnboundAgendaKappa,
+    }
+
+    /// Function `R4.ObserverRefinementAgenda.subtractNat` (`R4-83`).
+    pub fn subtract_nat(left: u64, right: u64) -> u64 {
+        left.saturating_sub(right)
+    }
+
+    /// Function `R4.ObserverRefinementAgenda.partHealthScorePermille` (`R4-83`).
+    pub fn part_health_score_permille(max_lines: u64, loc_ideal: u64, loc_ceiling: u64) -> u64 {
+        if max_lines <= loc_ideal {
+            1000
+        } else if loc_ceiling <= max_lines {
+            750
+        } else {
+            let gap = subtract_nat(loc_ceiling, loc_ideal);
+            let over = subtract_nat(max_lines, loc_ideal);
+            if over.saturating_add(over) <= gap {
+                900
+            } else {
+                800
+            }
+        }
+    }
+
+    /// Function `R4.ObserverRefinementAgenda.admitObserverRefinementAgenda` (`R4-83`).
+    pub fn admit_observer_refinement_agenda(
+        organ_count: u64,
+        proposal_count: u64,
+        next_lifted_target: u64,
+        curr_lifted: u64,
+        next_residue_target: u64,
+        curr_residue: u64,
+        agenda_kappa_bound: bool,
+    ) -> AgendaVerdict {
+        if organ_count < 6 {
+            AgendaVerdict::RefusedIncompleteOrganCoverage
+        } else if proposal_count == 0 {
+            AgendaVerdict::RefusedEmptyProposalSet
+        } else if next_lifted_target <= curr_lifted
+            || (0 < curr_residue && curr_residue <= next_residue_target)
+        {
+            AgendaVerdict::RefusedNonMonotonicWatermarkTarget
+        } else if !agenda_kappa_bound {
+            AgendaVerdict::RefusedUnboundAgendaKappa
+        } else {
+            AgendaVerdict::AgendaAdmitted
+        }
+    }
+
+    /// Function `R4.ObserverRefinementAgenda.verifyObserverRefinementAgendaAdmitted` (`R4-83`).
+    pub fn verify_observer_refinement_agenda_admitted() -> bool {
+        part_health_score_permille(1200, 1500, 10000) == 1000
+            && admit_observer_refinement_agenda(6, 4, 2443, 2442, 128, 129, true)
+                == AgendaVerdict::AgendaAdmitted
+    }
+}
+
+/// Generated from `src/R4/DualSurfaceRatchetEvolution.lex.tex` (`R4.DualSurfaceRatchetEvolution`, `R4-84`).
+pub mod r4_dual_surface_ratchet_evolution {
+    /// Inductive `R4.DualSurfaceRatchetEvolution.DualSurfaceVerdict` (`R4-84`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum DualSurfaceVerdict {
+        GenerationPromoted,
+        RefusedUnverifiedDecideGate,
+        RefusedVacuousFalsifierRoot,
+        RefusedStagnantDualSurfaceLift,
+        RefusedTelosLossRegression,
+        RefusedWasmBudgetExceeded,
+    }
+
+    /// Function `R4.DualSurfaceRatchetEvolution.admitDualSurfaceGeneration` (`R4-84`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn admit_dual_surface_generation(
+        decide_gates_passed: u64,
+        decide_gates_total: u64,
+        falsifiers_verified: u64,
+        verify_roots_total: u64,
+        prev_lifted: u64,
+        next_lifted: u64,
+        prev_residue: u64,
+        next_residue: u64,
+        candidate_telos_loss: u64,
+        incumbent_telos_loss: u64,
+        wasm_bytes: u64,
+        max_wasm_bytes: u64,
+    ) -> DualSurfaceVerdict {
+        if decide_gates_total == 0 || decide_gates_passed < decide_gates_total {
+            DualSurfaceVerdict::RefusedUnverifiedDecideGate
+        } else if verify_roots_total == 0 || falsifiers_verified < verify_roots_total {
+            DualSurfaceVerdict::RefusedVacuousFalsifierRoot
+        } else if next_lifted <= prev_lifted || (0 < prev_residue && prev_residue <= next_residue) {
+            DualSurfaceVerdict::RefusedStagnantDualSurfaceLift
+        } else if incumbent_telos_loss < candidate_telos_loss {
+            DualSurfaceVerdict::RefusedTelosLossRegression
+        } else if max_wasm_bytes < wasm_bytes {
+            DualSurfaceVerdict::RefusedWasmBudgetExceeded
+        } else {
+            DualSurfaceVerdict::GenerationPromoted
+        }
+    }
+
+    /// Function `R4.DualSurfaceRatchetEvolution.verifyDualSurfaceRatchetEvolutionAdmitted` (`R4-84`).
+    pub fn verify_dual_surface_ratchet_evolution_admitted() -> bool {
+        admit_dual_surface_generation(
+            2, 2, 1, 1, 2449, 2455, 129, 128, 80, 96, 12_100_000, 14_155_776,
+        ) == DualSurfaceVerdict::GenerationPromoted
+    }
+}
+
+/// Generated from `src/R4/RatchetGen1.lex.tex` (`R4.RatchetGen1`, `R4-84`).
+pub mod r4_ratchet_gen_1 {
+    /// Inductive `R4.RatchetGen1.RatchetGen1Verdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum RatchetGen1Verdict {
+        SliceAdmitted,
+        RefusedZeroGenerationRank,
+        RefusedResidueBudgetExceeded,
+    }
+
+    /// Function `R4.RatchetGen1.admitRatchetGen1Slice`.
+    pub fn admit_ratchet_gen_1_slice(
+        gen_rank: u64,
+        live_residue: u64,
+        max_residue: u64,
+    ) -> RatchetGen1Verdict {
+        if gen_rank == 0 {
+            RatchetGen1Verdict::RefusedZeroGenerationRank
+        } else if max_residue < live_residue {
+            RatchetGen1Verdict::RefusedResidueBudgetExceeded
+        } else {
+            RatchetGen1Verdict::SliceAdmitted
+        }
+    }
+
+    /// Function `R4.RatchetGen1.verifyRatchetGen1Admitted`.
+    pub fn verify_ratchet_gen_1_admitted() -> bool {
+        admit_ratchet_gen_1_slice(1, 129, 129) == RatchetGen1Verdict::SliceAdmitted
+    }
+}
+
+/// Generated from `src/R4/AutonomousGithubRatchetLoop.lex.tex` (`R4.AutonomousGithubRatchetLoop`, `R4-85`).
+pub mod r4_autonomous_github_ratchet_loop {
+    /// Inductive `R4.AutonomousGithubRatchetLoop.GithubRatchetLoopVerdict` (`R4-85`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum GithubRatchetLoopVerdict {
+        AutonomousTickAdmitted,
+        RefusedStaleMainTip,
+        RefusedSelfPushRecursion,
+        RefusedMissingLexleanCiCache,
+        RefusedFailedDualSurfaceOrWatermarks,
+        RefusedUnthrottledSelfRetrigger,
+    }
+
+    /// Function `R4.AutonomousGithubRatchetLoop.admitAutonomousGithubTick` (`R4-85`).
+    pub fn admit_autonomous_github_tick(
+        is_tip_of_main: bool,
+        author_is_engine_on_push: bool,
+        lexlean_cache_bound: bool,
+        dual_surface_admitted: bool,
+        ratchet_watermarks_tightened: bool,
+        full_vv_passed: bool,
+        unthrottled_self_retrigger: bool,
+    ) -> GithubRatchetLoopVerdict {
+        if !is_tip_of_main {
+            GithubRatchetLoopVerdict::RefusedStaleMainTip
+        } else if author_is_engine_on_push {
+            GithubRatchetLoopVerdict::RefusedSelfPushRecursion
+        } else if !lexlean_cache_bound {
+            GithubRatchetLoopVerdict::RefusedMissingLexleanCiCache
+        } else if !dual_surface_admitted
+            || !ratchet_watermarks_tightened
+            || !fullVv_ok(full_vv_passed)
+        {
+            GithubRatchetLoopVerdict::RefusedFailedDualSurfaceOrWatermarks
+        } else if unthrottled_self_retrigger {
+            GithubRatchetLoopVerdict::RefusedUnthrottledSelfRetrigger
+        } else {
+            GithubRatchetLoopVerdict::AutonomousTickAdmitted
+        }
+    }
+
+    const fn fullVv_ok(ok: bool) -> bool {
+        ok
+    }
+
+    /// Function `R4.AutonomousGithubRatchetLoop.verifyAutonomousGithubRatchetLoopAdmitted` (`R4-85`).
+    pub fn verify_autonomous_github_ratchet_loop_admitted() -> bool {
+        admit_autonomous_github_tick(true, false, true, true, true, true, false)
+            == GithubRatchetLoopVerdict::AutonomousTickAdmitted
+    }
+}

@@ -25,6 +25,8 @@ pub use assistant::{
     FoundryToolResult, FoundryTurnSession, FoundryWorkspaceFile, StudioToolInvocation,
     BUILD_SYSTEM_PREFIX, STUDIO_AGENT_TOOL_SCHEMA,
 };
+/// Task 2 (`R4-84`): Sovereign Dual-Surface Ratchet & `R4SPORE1` self-hosting generation engine.
+pub mod sovereign_ratchet;
 
 /// Shared <40-token KV-prewarmed self-knowledge system prefix for standalone LexLean-R4 Studio (`R4-60`, `R4-64`, `R4-74`).
 pub const STUDIO_SELF_KNOWLEDGE_PREFIX: &str =

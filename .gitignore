@@ -26,6 +26,9 @@ criterion/
 # Ephemeral build artifacts
 *.rlib
 rust_out
+/.r4-settled
+/.r4-engine-status.txt
+/.r4-engine-output.env
 
 # Agent workspace metadata
 .agents/

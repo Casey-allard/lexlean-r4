@@ -77,19 +77,30 @@ pub fn transform_wasm_bindgen_js(generated_js: &str, bridge_js: &str) -> Result<
             "missing `async function __wbg_init(module_or_path)` in wasm-bindgen JS".into(),
         );
     }
-    let export_marker = "export { initSync };";
-    if !generated_js.contains(export_marker) {
-        return Err("missing `export { initSync };` in wasm-bindgen JS".into());
-    }
+    let export_marker_v100 = "export { initSync };";
+    let export_marker_v122 = "export { initSync, __wbg_init as default };";
+    let export_marker = if generated_js.contains(export_marker_v100) {
+        export_marker_v100
+    } else if generated_js.contains(export_marker_v122) {
+        export_marker_v122
+    } else {
+        return Err(
+            "missing `export { initSync };` or `export { initSync, __wbg_init as default };` in wasm-bindgen JS"
+                .into(),
+        );
+    };
 
-    let orig_undef = "    if (typeof module_or_path === 'undefined') {\n        module_or_path = new URL('lexlean_r4_bg.wasm', import.meta.url);\n    }";
+    let orig_undef_v100 = "    if (typeof module_or_path === 'undefined') {\n        module_or_path = new URL('lexlean_r4_bg.wasm', import.meta.url);\n    }";
+    let orig_undef_v122 = "    if (module_or_path === undefined) {\n        module_or_path = new URL('lexlean_r4_bg.wasm', import.meta.url);\n    }";
     let patched_undef = "    const useManagedCache = (typeof module_or_path === 'undefined');\n    if (useManagedCache) {\n        module_or_path = new URL('lexlean_r4_bg.wasm', import.meta.url);\n    }";
     let mut out = if generated_js
         .contains("const useManagedCache = (typeof module_or_path === 'undefined');")
     {
         generated_js.to_string()
-    } else if generated_js.contains(orig_undef) {
-        generated_js.replacen(orig_undef, patched_undef, 1)
+    } else if generated_js.contains(orig_undef_v100) {
+        generated_js.replacen(orig_undef_v100, patched_undef, 1)
+    } else if generated_js.contains(orig_undef_v122) {
+        generated_js.replacen(orig_undef_v122, patched_undef, 1)
     } else {
         return Err("unable to locate default module_or_path initialization in __wbg_init".into());
     };
@@ -603,6 +614,38 @@ mod tests {
         let exp_pos = spliced.find("export { initSync };").expect("export");
         assert!(sec1_pos < init_pos);
         assert!(init_pos < sec2_pos);
+        assert!(sec2_pos < exp_pos);
+    }
+
+    #[test]
+    fn splices_wasm_bindgen_0_2_122_glue() {
+        let js_122 = concat!(
+            "function __wbg_get_imports() { return {}; }\n",
+            "async function __wbg_init(module_or_path) {\n",
+            "    if (module_or_path === undefined) {\n",
+            "        module_or_path = new URL('lexlean_r4_bg.wasm', import.meta.url);\n",
+            "    }\n",
+            "    const imports = __wbg_get_imports();\n",
+            "    if (typeof module_or_path === 'string' || (typeof Request === 'function' && module_or_path instanceof Request) || (typeof URL === 'function' && module_or_path instanceof URL)) {\n",
+            "        module_or_path = fetch(module_or_path);\n",
+            "    }\n",
+            "    return imports;\n",
+            "}\n",
+            "export { initSync, __wbg_init as default };\n",
+        );
+        let bridge = format!(
+            "{SECTION_1_START}\nasync function __uor_resolve_cached_wasm(u, r) {{ return fetch(u); }}\n{SECTION_1_END}\n\
+             {SECTION_2_START}\nfunction __uorStartDedicatedEngineWorker() {{}}\n{SECTION_2_END}\n"
+        );
+        let spliced = transform_wasm_bindgen_js(js_122, &bridge).expect("splices 0.2.122");
+        assert!(
+            spliced.contains("const useManagedCache = (typeof module_or_path === 'undefined');")
+        );
+        assert!(spliced.contains("__uor_resolve_cached_wasm(module_or_path, false)"));
+        let sec2_pos = spliced.find(SECTION_2_START).expect("sec2");
+        let exp_pos = spliced
+            .find("export { initSync, __wbg_init as default };")
+            .expect("0.2.122 export");
         assert!(sec2_pos < exp_pos);
     }
 

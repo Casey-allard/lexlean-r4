@@ -36,21 +36,11 @@ import init, {
   studio_load_uorlut_bytes,
   studio_merge_uorlut_shard,
   studio_mount_r4_v12_bytes,
-  studio_r4_stack_status,
-  studio_record_generation_fault,
-  studio_render_hopf_zeta_3d_rgba,
-  studio_render_preview_scene_3d_rgba,
-  studio_shard_catalog,
-  studio_v1_chat_completions,
-  studio_v1_messages,
-  studio_v1_traces,
-  studio_verdant_synthesis_status,
-  studio_vtensor_3d_self_check_json,
-  studio_wasm_eval,
-  studio_weight_pack_status,
-  sync_cached_weights,
-  withStorageLock,
-} from './lexlean_r4.js?v=v12r4-d876e51ea501';
+  studio_r4_stack_status, studio_ratchet_status_json, studio_ratchet_step_json, studio_record_generation_fault,
+  studio_render_hopf_zeta_3d_rgba, studio_render_preview_scene_3d_rgba, studio_shard_catalog,
+  studio_v1_chat_completions, studio_v1_messages, studio_v1_traces, studio_verdant_synthesis_status,
+  studio_vtensor_3d_self_check_json, studio_wasm_eval, studio_weight_pack_status, sync_cached_weights, withStorageLock,
+} from './lexlean_r4.js?v=v12r4-87f505536e6b';
 
 let mainThreadWasmReady = false;
 
@@ -910,7 +900,7 @@ const engineWorkerClient = {
   spawn() {
     if (typeof Worker !== 'function') return false;
     try {
-      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-d876e51ea501', import.meta.url);
+      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-87f505536e6b', import.meta.url);
       this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
@@ -3605,6 +3595,12 @@ function runClaudeChat(promptText, recordUserBubble = true) {
     return;
   }
 
+  if ((trimmed === '/ratchet' || trimmed.startsWith('/ratchet ')) && mainThreadWasmReady && typeof studio_ratchet_step_json === 'function') {
+    const rs = JSON.parse(studio_ratchet_step_json(JSON.stringify({ prompt: trimmed })));
+    const md = rs.schema === 'r4/sovereign-ratchet-status/1' ? `### Sovereign Dual-Surface Ratchet Status · \`${rs.head_generation_id}\`\n- \`lifted=${rs.lifted_functions}\` · \`residue=${rs.residue_functions}\` · \`target=${rs.latest_lifted_target}\`` : `### Sovereign Dual-Surface Ratchet · \`R4SPORE1\` (\`R4-84\`)\n- \`${rs.parent_generation_id}\` → **\`${rs.head_generation_id}\`** (\`verdict=${rs.verdict}\`, \`lifted=${rs.lifted_functions}\`, \`residue=${rs.residue_functions}\`)`;
+    renderCompletedChatResponse(trimmed, { status: 'ok', model_id: 'uor-sovereign-ratchet/1', reply: md, assistant_reply: md, tokens_emitted: 64, tok_per_sec: 64000 });
+    return;
+  }
   const chatRes = dispatchStudioEnvelope('chat', chatPayload);
   renderCompletedChatResponse(trimmed, chatRes);
 }
@@ -4184,26 +4180,13 @@ if (studioSubsystemsForm) {
 // ============================================================================
 
 const AGENTIC_SLASH_COMMANDS = [
+  { command: '/ratchet', title: 'Sovereign Dual-Surface Ratchet & R4SPORE1 Step', badge: 'R4-84', description: 'Run Rule-30 x Telos x CAP0005 dual-surface proof + app ratchet step', template: '/ratchet', mode: 'agentic' },
   { command: '/v14', title: 'UORR4V14 10k+ tok/s Hopf-Zeta Wave Engine', badge: 'UORR4V14', description: 'Run 4-token resonant waves over 4D signed Hopf + Poincare + Zeta ring + 120-Icosian snap', template: '/v14 ', mode: 'agentic' },
   { command: '/qpc', title: 'Foundry Quantum PC, InTabProver & vTensor 3D Check', badge: 'FK-01..09', description: 'Verify InTabProver, canonical BLAKE3 kappa, MLS FR-05, and 16x16 PBR 3D', template: '/qpc', mode: 'agentic' },
   { command: '/plan', title: 'Read-Only Plan & Audit Mode', badge: 'PlanReadOnly', description: 'Inspect workspace, preview, and git status without mutating files', template: 'Inspect /workspace and draft a plan for: ', mode: 'plan' },
   { command: '/think', title: 'Deep Geometric <thinking> Trace', badge: '256D Q12', description: 'Force multi-step Cl(0,6) + 256D Q12 latent reasoning before answering', template: 'Analyze step-by-step with <thinking> geometric coordinates: ', mode: 'thinking' },
-  {
-    command: '/teach',
-    title: 'Teach & Admit Online LUT Row',
-    badge: 'LUT /7+/8',
-    description: 'Insert a Teach: prompt => <thinking>...</thinking>reply rule into weights',
-    template: 'Teach: ',
-    mode: 'teach',
-  },
-  {
-    command: '/patch',
-    title: 'Synthesize Workspace Code Patch',
-    badge: 'IDE Diff',
-    description: 'Generate a unified diff for the pinned workspace file',
-    template: 'Write a patch for the active workspace file to implement: ',
-    mode: 'agentic',
-  },
+  { command: '/teach', title: 'Teach & Admit Online LUT Row', badge: 'LUT /7+/8', description: 'Insert a Teach: prompt => <thinking>...</thinking>reply rule into weights', template: 'Teach: ', mode: 'teach' },
+  { command: '/patch', title: 'Synthesize Workspace Code Patch', badge: 'IDE Diff', description: 'Generate a unified diff for the pinned workspace file', template: 'Write a patch for the active workspace file to implement: ', mode: 'agentic' },
   {
     command: '/arxiv',
     title: 'Query ArXiv Frontier Literature',

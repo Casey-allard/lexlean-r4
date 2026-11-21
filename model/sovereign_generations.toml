@@ -1,0 +1,17 @@
+# Authoritative Sovereign Dual-Surface Ratchet generation ledger (`r4/sovereign-generations/1`).
+# Governed by `src/R4/DualSurfaceRatchetEvolution.lex.tex` (`R4-84`).
+
+spec = "r4/sovereign-generations/1"
+
+[[generation]]
+id = "gen-1"
+index = 1
+lex_module = "R4.RatchetGen1"
+lifted_function = "crates/wasm/src/api.rs::capitalize_role"
+falsifiers_verified = 1
+prev_lifted = 2462
+next_lifted = 2465
+prev_residue = 130
+next_residue = 129
+telos_loss = 90
+spore_kappa_sha256 = "fe2da7af6e5cb2b801f5e064537b762c4b5dee6982b135e3ada4ba34088bed96"

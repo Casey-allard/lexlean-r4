@@ -510,6 +510,24 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-82` | `build` | Pure LexLean models the R4-82 lossless real Qwen3-0.6B/1.7B neural streaming, deferred idle prefix prewarming, instant first-token TTFT flush, and single-truth Ready badge contract (R4.RealQwen3LosslessStreaming): admitRealQwen3LosslessTurn admitting turns executed strictly on real HoloV13Model neural weights with non-blocking idle prefix prewarming, immediate Token-1 TTFT slice flush, and monotonic Ready badge preservation (RealQwen3LosslessTurnAdmitted), while refusing preplanned/canned passage routing on Qwen lanes (RefusedPreplannedCannedProseOnQwenLane), synchronous mount-blocking prefix prewarming (RefusedBlockingSyncPrefixPrewarmOnMount), delayed multi-token first-word buffering (RefusedDelayedMultiTokenFirstFlush), and cold-badge overwrites after holo_ready (RefusedColdBadgeOverwriteAfterReady). Formal controls establish modeled lossless Qwen3 streaming invariants only, not open-ended human prose preferences. |
 
+## r4_83_observer_refinement_agenda
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-83` | `build` | Pure LexLean models the R4-83 generative second-order Observer Refinement Agenda (R4.ObserverRefinementAgenda): partHealthScorePermille computing constructive modularity permille health over (maxLines, locIdeal, locCeiling) and admitObserverRefinementAgenda admitting six-organ self-diagnosis with non-empty prioritized proposals, strictly advancing lifted-function floor and residue-ceiling watermark targets, and SHA-256 agenda kappa binding (AgendaAdmitted), while refusing incomplete organ coverage (RefusedIncompleteOrganCoverage), empty proposal sets (RefusedEmptyProposalSet), non-monotonic watermark targets (RefusedNonMonotonicWatermarkTarget), and unbound agenda digests (RefusedUnboundAgendaKappa). Formal controls establish modeled agenda admission invariants only, not runtime scheduling latency. |
+
+## r4_84_dual_surface_ratchet_evolution
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-84` | `build` | Pure LexLean models the R4-84 dual-surface proof and application co-evolution, CAP0005 per-root boolean falsifier negation, and R4SPORE1 sovereign generation admission contract (R4.DualSurfaceRatchetEvolution): admitDualSurfaceGeneration promoting a candidate generation only when all decide gates pass, every zero-arg Bool verify* root fails under CAP0005 negation, lifted-function count strictly rises while residue-function count strictly drops, Telos loss does not regress, and Wasm core stays <= 14155776 bytes (GenerationPromoted), while refusing unverified decide gates (RefusedUnverifiedDecideGate), vacuous falsifier roots (RefusedVacuousFalsifierRoot), stagnant dual-surface lifts (RefusedStagnantDualSurfaceLift), Telos loss regressions (RefusedTelosLossRegression), and Wasm budget overflows (RefusedWasmBudgetExceeded). Formal controls establish modeled dual-surface admission invariants only, not external network latency. |
+
+## r4_85_autonomous_github_ratchet_loop
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-85` | `build` | Pure LexLean models the R4-85 continuous GitHub Actions r4-engine dual-surface ratchet pipeline, commit-pinned .lexlean verification cache, and bounded 30-minute direct-to-main cadence contract (R4.AutonomousGithubRatchetLoop): admitAutonomousGithubTick admitting autonomous ticks at the tip of main with commit-pinned .lexlean cache, verified dual-surface proof + application co-evolution, tightened model/ratchet.toml watermarks, full just vv passage, and zero runaway self-retrigger loops (AutonomousTickAdmitted), while refusing stale main tips (RefusedStaleMainTip), recursive push triggers authored by r4-engine (RefusedSelfPushRecursion), missing .lexlean caches (RefusedMissingLexleanCiCache), untightened watermarks or failed gates (RefusedFailedDualSurfaceOrWatermarks), and unthrottled self-retriggering (RefusedUnthrottledSelfRetrigger). Formal controls establish modeled CI workflow invariants only, not GitHub-hosted runner queue times. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

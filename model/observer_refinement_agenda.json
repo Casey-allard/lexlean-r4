@@ -1,0 +1,182 @@
+{
+  "spec": "r4/observer-refinement-agenda/1",
+  "overall_refinement_score_permille": 866,
+  "live_metrics": {
+    "wasm_core_bytes": 12023980,
+    "wasm_headroom_bytes": 2131796,
+    "max_rust_file_lines": 9492,
+    "max_js_file_lines": 8607,
+    "lifted_functions": 2478,
+    "residue_functions": 128,
+    "verified_lexlean_modules": 342,
+    "next_lifted_target": 2479,
+    "next_residue_target": 127
+  },
+  "part_health": [
+    {
+      "organ_id": "engine",
+      "vsm_system": "VSM-S4",
+      "owned_file_count": 4,
+      "max_file_lines": 8187,
+      "heaviest_file": "xtask/src/engine.rs",
+      "health_score_permille": 800
+    },
+    {
+      "organ_id": "studio",
+      "vsm_system": "VSM-S1",
+      "owned_file_count": 5,
+      "max_file_lines": 9492,
+      "heaviest_file": "crates/wasm/src/mvm_shell.rs",
+      "health_score_permille": 800
+    },
+    {
+      "organ_id": "runtime",
+      "vsm_system": "VSM-S2",
+      "owned_file_count": 6,
+      "max_file_lines": 8844,
+      "heaviest_file": "crates/wasm/js/bridge/01_opfs_webgpu_engine.js",
+      "health_score_permille": 800
+    },
+    {
+      "organ_id": "proofs",
+      "vsm_system": "VSM-S3*",
+      "owned_file_count": 343,
+      "max_file_lines": 1012,
+      "heaviest_file": "xtask/src/mechanizer.rs",
+      "health_score_permille": 1000
+    },
+    {
+      "organ_id": "tensor3d",
+      "vsm_system": "VSM-S1",
+      "owned_file_count": 2,
+      "max_file_lines": 1630,
+      "heaviest_file": "crates/wasm/src/prism_holo_compiler.rs",
+      "health_score_permille": 900
+    },
+    {
+      "organ_id": "automation",
+      "vsm_system": "VSM-S5",
+      "owned_file_count": 5,
+      "max_file_lines": 1525,
+      "heaviest_file": "xtask/src/lift_register.rs",
+      "health_score_permille": 900
+    }
+  ],
+  "top_residue_blockers": [
+    {
+      "file_path": "crates/wasm/src/glm_weights.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 38,
+      "top_function": "crates/wasm/src/glm_weights.rs::GlmRetentionState::step_token"
+    },
+    {
+      "file_path": "crates/wasm/src/lib.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 25,
+      "top_function": "crates/wasm/src/lib.rs::StudioEngine::build_opening_key"
+    },
+    {
+      "file_path": "crates/wasm/src/gllm_v9.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 9,
+      "top_function": "crates/wasm/src/gllm_v9.rs::GllmV9KvCache::push_token"
+    },
+    {
+      "file_path": "crates/wasm/src/api.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 8,
+      "top_function": "crates/wasm/src/api.rs::AnthropicContent::to_plain_text"
+    },
+    {
+      "file_path": "crates/wasm/src/otel.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 4,
+      "top_function": "crates/wasm/src/otel.rs::CanonicalInternTable::intern_hash"
+    },
+    {
+      "file_path": "crates/wasm/src/r4_geometric_stack.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 4,
+      "top_function": "crates/wasm/src/r4_geometric_stack.rs::SmolTokenizer::decode_global"
+    },
+    {
+      "file_path": "crates/wasm/src/stitch_fabric.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 4,
+      "top_function": "crates/wasm/src/stitch_fabric.rs::assess_custody_health"
+    },
+    {
+      "file_path": "crates/wasm/js/app/01_studio_chat_preview.js",
+      "reason": "unlifted-pure-fn",
+      "function_count": 1,
+      "top_function": "crates/wasm/js/app/01_studio_chat_preview.js::syncComposerModel"
+    }
+  ],
+  "proposals": [
+    {
+      "proposal_id": "PROP-DUAL-SURFACE-LIFT-01",
+      "owning_organ": "runtime",
+      "vsm_system": "VSM-S2",
+      "cited_authority": "R4.DualSurfaceRatchetEvolution",
+      "ratchet_layer": "dual-surface-proof-and-app",
+      "priority": "high",
+      "target_function": "crates/wasm/src/api.rs::AnthropicContent::to_plain_text",
+      "current_value": "lifted=2478, residue=128",
+      "target_value": "lifted>=2479, residue<=127",
+      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/api.rs::AnthropicContent::to_plain_text`",
+      "concrete_actions": [
+        "Synthesize constructive src/R4/RatchetGen<N>.lex.tex + Controls with CAP0005 per-root falsifier negation.",
+        "Wire formal LexLean predicate bridge on `crates/wasm/src/api.rs::AnthropicContent::to_plain_text` and rebuild public/ Wasm + .holo.",
+        "Click min_lifted_functions UP and max_residue_functions DOWN in model/ratchet.toml."
+      ],
+      "kappa_hex": "f39efd15449eb74f9d28d306d886e243de70a40d4b3916f1af1f9e85ce94ddf9"
+    },
+    {
+      "proposal_id": "PROP-PROOF-FALSIFIER-02",
+      "owning_organ": "proofs",
+      "vsm_system": "VSM-S3*",
+      "cited_authority": "R4.ObserverRefinementAgenda",
+      "ratchet_layer": "lexlean-proof-frontier",
+      "priority": "high",
+      "current_value": "verified_modules=342",
+      "target_value": "verified_modules>=344",
+      "summary": "Advance constructive zero-Classical.choice LexLean proof & CAP0005 falsifier count",
+      "concrete_actions": [
+        "Verify every zero-arg Bool verify* root fails when negated under CAP0005.",
+        "Verify Lean 4.32.1 kernel proofs and append mechanized Rust module to lexlean_generated.rs."
+      ],
+      "kappa_hex": "37afea33dd6efb862c85c851d51df7e0fa7271e940a954790cca6aeb26e1734b"
+    },
+    {
+      "proposal_id": "PROP-MODULARITY-03",
+      "owning_organ": "studio",
+      "vsm_system": "VSM-S1",
+      "cited_authority": "R4.ModularDecompositionRatchet",
+      "ratchet_layer": "source-modularity",
+      "priority": "medium",
+      "current_value": "crates/wasm/src/mvm_shell.rs=9492L",
+      "target_value": "max_rust_lines<=9492, max_js_lines<=8607",
+      "summary": "Hold or shrink heaviest organ file `crates/wasm/src/mvm_shell.rs` (9492 lines)",
+      "concrete_actions": [
+        "Preserve monotone max_rust_file_lines and max_js_file_lines ceilings in model/ratchet.toml."
+      ],
+      "kappa_hex": "dd6f460458818f532fb511aecc3a914f5c68aabb1a9d8fc1ece9a2c0a08e00bc"
+    },
+    {
+      "proposal_id": "PROP-WASM-HEADROOM-04",
+      "owning_organ": "automation",
+      "vsm_system": "VSM-S5",
+      "cited_authority": "R4.VerdantRatchetCycle",
+      "ratchet_layer": "wasm-and-capsule-budget",
+      "priority": "continuous",
+      "current_value": "wasm_core_bytes=12023980",
+      "target_value": "wasm_core_bytes<=14155776",
+      "summary": "Maintain Wasm binary headroom (2131796 B below 13.5 MiB ceiling) and .holo capsule parity",
+      "concrete_actions": [
+        "Verify check-wasm-sync and build-holo --verify-site-manifest on every autonomous tick."
+      ],
+      "kappa_hex": "b70b2551656a3405bf1f7efb0fcf5f00f38385dbeae2d6d23789a5a914b60095"
+    }
+  ],
+  "agenda_kappa_hex": "c71edc4cec2517192811138f5e33053ab98f42f04084d241abb2be3e6b3cca28"
+}

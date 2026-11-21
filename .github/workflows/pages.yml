@@ -34,6 +34,7 @@ jobs:
           key: r4-pages-lexlean-v1-${{ hashFiles('prismpm.lock', 'lexlean.toml', 'lexlean.lock') }}-${{ hashFiles('src/R4/**/*.lex.tex', 'tests/lexlean/**/*.lex.tex') }}
           restore-keys: |
             r4-pages-lexlean-v1-${{ hashFiles('prismpm.lock', 'lexlean.toml') }}-
+            r4-pages-lexlean-v1-
 
       - name: Restore Cargo target cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

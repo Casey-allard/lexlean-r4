@@ -990,12 +990,54 @@ fn strip_comments_and_normalize(raw: &str) -> String {
     stripped.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
+/// Advance past a Rust `r#"..."#` (or `br#"..."#`) raw string literal starting at `start` (`R4.VerdantSynthesis`).
+fn skip_rust_raw_string(bytes: &[u8], start: usize) -> Option<usize> {
+    let len = bytes.len();
+    if start >= len {
+        return None;
+    }
+    if start > 0 && (bytes[start - 1].is_ascii_alphanumeric() || bytes[start - 1] == b'_') {
+        return None;
+    }
+    let mut j = if bytes[start] == b'r' {
+        start + 1
+    } else if bytes[start] == b'b' && start + 1 < len && bytes[start + 1] == b'r' {
+        start + 2
+    } else {
+        return None;
+    };
+    let mut hashes = 0usize;
+    while j < len && bytes[j] == b'#' {
+        hashes += 1;
+        j += 1;
+    }
+    if j >= len || bytes[j] != b'"' {
+        return None;
+    }
+    j += 1;
+    while j < len {
+        if bytes[j] == b'"'
+            && j + 1 + hashes <= len
+            && bytes[j + 1..j + 1 + hashes].iter().all(|&c| c == b'#')
+        {
+            return Some(j + 1 + hashes);
+        }
+        j += 1;
+    }
+    Some(len)
+}
+
 fn strip_comments(raw: &str) -> String {
     let bytes = raw.as_bytes();
     let len = bytes.len();
     let mut out = String::with_capacity(len);
     let mut i = 0;
     while i < len {
+        if let Some(end) = skip_rust_raw_string(bytes, i) {
+            out.push_str(&raw[i..end]);
+            i = end;
+            continue;
+        }
         // String literal handling so `//` or `/*` inside literals is preserved cleanly.
         if bytes[i] == b'"' {
             out.push('"');
@@ -1216,6 +1258,10 @@ fn find_body_close(raw: &str, start_byte: usize) -> Option<usize> {
                 i += 1;
             }
             i = (i + 2).min(len);
+            continue;
+        }
+        if let Some(end) = skip_rust_raw_string(bytes, i) {
+            i = end;
             continue;
         }
         if b == b'"' {

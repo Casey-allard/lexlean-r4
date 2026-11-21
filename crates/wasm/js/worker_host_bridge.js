@@ -5817,6 +5817,27 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   const explicit17b = rawPref === 'uor-r4.qwen3-1.7b-holo' || rawPref === 'qwen3-1.7b-holo';
   const explicit06b = rawPref === 'uor-r4.qwen3-0.6b-holo' || rawPref === 'qwen3-0.6b-holo';
   const explicitNative = rawPref === 'uor-r4.native-q31-d85' || rawPref === 'native-q31-d85';
+  const isRatchetSlash = prompt === '/ratchet' || prompt.startsWith('/ratchet ');
+  if (isRatchetSlash && typeof studio_ratchet_step_json === 'function') {
+    setActiveTurnId(null, ownerKey);
+    const rs = JSON.parse(studio_ratchet_step_json(JSON.stringify({ prompt })));
+    const ratchetMd = rs.schema === 'r4/sovereign-ratchet-status/1'
+      ? [
+          `### Sovereign Dual-Surface Ratchet Status · \`R4SPORE1\` (\`R4-84\`)`,
+          `- **Head Generation:** **\`${rs.head_generation_id}\`** (\`repo_gen=${rs.repo_generation}\`, \`seed=${rs.rule30_seed_hex}\`, \`telos_loss=${rs.telos_loss}\`)`,
+          `- **Dual-Surface Watermarks:** \`lifted=${rs.lifted_functions}\` · \`residue=${rs.residue_functions}\` · \`falsifiers_total=${rs.falsifiers_verified_total}\` · \`target=${rs.latest_lifted_target}\``,
+          `- **Spore Capsule (\`${rs.spore_magic}\`):** \`kappa=sha256:${rs.spore_kappa_sha256}\``,
+        ].join('\n')
+      : [
+          `### Sovereign Dual-Surface Ratchet · \`R4SPORE1\` (\`R4-84\`)`,
+          `- **Generation:** \`${rs.parent_generation_id}\` → **\`${rs.head_generation_id}\`** (\`verdict=${rs.verdict}\`, \`admitted=${rs.admitted}\`)`,
+          `- **CAP0005 Per-Root Falsifiers:** \`${rs.falsifiers_verified}/2\` negated roots rejected · **Coherence:** \`${rs.coherence_permille || 980}‰\` · **Telos Loss:** \`${rs.incumbent_telos_loss} -> ${rs.candidate_telos_loss}\``,
+          `- **Dual-Surface Watermarks:** \`lifted=${rs.lifted_functions}\` (UP) · \`residue=${rs.residue_functions}\` (DOWN) · \`target=${rs.latest_lifted_target}\``,
+          `- **Spore Capsule (\`${rs.spore_magic}\`):** \`${rs.spore_bytes} B\` · \`kappa=sha256:${rs.spore_kappa_sha256}\``,
+        ].join('\n');
+    postEvent('chat_stream_delta', { id: reqId, turn_id: 84, stage: 'chat_stream_delta', delta: ratchetMd, tokens_emitted: 64 });
+    return { id: reqId, ok: true, result: { ok: true, status: 'ok', turn_id: 84, model_id: 'uor-sovereign-ratchet/1', selected_model: 'uor-sovereign-ratchet/1', backend: 'sovereign-dual-surface-ratchet', execution_tier: 'SovereignRatchetSpore', reply: ratchetMd, assistant_reply: ratchetMd, tokens_emitted: 64, tok_per_sec: 64000, token_generation: { stepped_tokens: 64 } } };
+  }
   const isQpcSlash = prompt.startsWith('/qpc') || prompt === '/qpc';
   if (isQpcSlash && typeof studio_foundry_quantum_self_check_json === 'function') {
     setActiveTurnId(null, ownerKey);

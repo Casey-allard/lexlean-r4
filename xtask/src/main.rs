@@ -31,6 +31,26 @@ fn main() -> ExitCode {
         "synthesize" => engine::synthesis::cmd_synthesize(&root, write),
         "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
         "ratchet-cycle" => engine::ratchet::run_ratchet_cycle(&root, write).map(|_| ()),
+        "observer-agenda" => engine::observer_agenda::cmd_observer_agenda(&root, write).map(|_| ()),
+        "dual-surface-ratchet" => {
+            engine::dual_surface_ratchet::cmd_dual_surface_ratchet(&root, write)
+        }
+        "ratchet" => (|| -> Result<(), Fail> {
+            let evolve = rest.iter().any(|a| a == "--evolve");
+            let dry_run = rest.iter().any(|a| a == "--dry-run");
+            let commit = rest.iter().any(|a| a == "--commit");
+            let push = rest.iter().any(|a| a == "--push");
+            if evolve || dry_run || commit || push {
+                engine::run_engine_tick_with_mode(&root, 75, commit, push, dry_run)
+                    .map_err(Into::into)
+            } else {
+                if write {
+                    engine::lift_register::cmd_lift_register(&root, true)?;
+                }
+                engine::ratchet::run_ratchet_cycle(&root, write)?;
+                engine::observer_agenda::cmd_observer_agenda(&root, write).map(|_| ())
+            }
+        })(),
         "recompile-v14" => xtask::recompiler_v14::run_recompile_v14_cmd(&root, rest).map(|_| ()),
         "studio-compile-v14-corpus" => {
             xtask::studio_lora_corpus::run_studio_compile_v14_corpus_cmd(&root, rest).map(|_| ())
@@ -117,6 +137,9 @@ fn main() -> ExitCode {
                  synthesize        R4-45: 4-facet holon KPIs + Hebbian bandit Pareto tick (--write)\n\
                  ratchet-check     R4-41: shrink-only metric ratchet + Peirce triadic cycle\n\
                  ratchet-cycle     R4-69: Verdant M15 bidirectional floors-UP / ceilings-DOWN ratchet (--write)\n\
+                 observer-agenda   R4-83: generative 6-organ self-refinement agenda (--write)\n\
+                 dual-surface-ratchet  R4-84: synthesize RatchetGen proof + lift residue slice (--write)\n\
+                 ratchet           R4-85: unified dual-surface ratchet (--write | --dry-run | --evolve | --commit | --push)\n\
                  recompile-v14     R4-72: compile Qwen3-0.6B & Qwen3-1.7B UORR4V14 Hopf-Zeta atlases (--out-dir)\n\
                  build-wasm        compile crates/wasm, inject bridge + cache hook, write provenance.json\n\
                  build-holo        compile public/ closure into Hologram v4 .holo (--out / --sync-site-manifest / --verify-site-manifest)\n\
@@ -190,8 +213,11 @@ fn validate(root: &Path) -> Result<(), Fail> {
     audit::audit_deferral(root)?;
     let mech_rep = engine::mechanizer::run_mechanizer_gate(root)?;
     let _ratchet_rep = engine::ratchet::check_with_mechanizer(root, Some(&mech_rep))?;
+    engine::observer_agenda::cmd_observer_agenda(root, false)?;
+    engine::validate_workflow_homeostasis(root)?;
     routes_and_measures::check_routes(root)?;
     routes_and_measures::check_measures(root)?;
+    wasm_bundle::run_check_wasm_sync_cmd(root)?;
     run_build_holo_cmd(root, &["--verify-site-manifest".to_string()])?;
     engine::synthesis::cmd_synthesize_with_reports(root, false, Some(&mech_rep), Some(true))?;
     bootstrap::audit(root)?;

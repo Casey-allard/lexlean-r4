@@ -33,6 +33,14 @@ pub mod lift_register;
 pub mod ratchet;
 
 #[allow(dead_code)]
+#[path = "observer_agenda.rs"]
+pub mod observer_agenda;
+
+#[allow(dead_code)]
+#[path = "dual_surface_ratchet.rs"]
+pub mod dual_surface_ratchet;
+
+#[allow(dead_code)]
 #[path = "synthesis.rs"]
 pub mod synthesis;
 
@@ -857,7 +865,10 @@ jobs:
           set -euo pipefail
           remote_head=$(git ls-remote origin refs/heads/main | awk '{print $1}')
           local_head=$(git rev-parse HEAD)
-          if [ "$local_head" = "$remote_head" ]; then
+          head_author=$(git log -1 --format='%an' HEAD)
+          if [ "${GITHUB_EVENT_NAME:-}" = "push" ] && [ "$head_author" = "r4-engine" ]; then
+            printf 'current=false\n' >> "$GITHUB_OUTPUT"
+          elif [ "$local_head" = "$remote_head" ]; then
             printf 'current=true\n' >> "$GITHUB_OUTPUT"
           else
             printf 'current=false\n' >> "$GITHUB_OUTPUT"
@@ -871,6 +882,15 @@ jobs:
           path: .r4-settled
           key: r4-settled-${{ github.sha }}
           lookup-only: true
+
+      - name: Restore LexLean verification cache
+        if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lexlean
+          key: r4-pages-lexlean-v1-${{ github.sha }}
+          restore-keys: |
+            r4-pages-lexlean-v1-
 
       - name: Restore Cargo target cache
         if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true'
@@ -906,7 +926,7 @@ jobs:
           docker run --rm \
             --user "$(id -u):$(id -g)" \
             --group-add "$(stat -c '%g' /var/run/docker.sock)" \
-            --tmpfs /tmp:rw,exec,nosuid,size=2g \
+            --tmpfs /tmp:rw,exec,nosuid,size=6g \
             --volume "$PWD:$PWD" \
             --volume /var/run/docker.sock:/var/run/docker.sock \
             --volume "$docker_config:/tmp/prismpm-home/.docker:ro" \
@@ -934,47 +954,29 @@ jobs:
               rm -rf target/debug/incremental target/wasm32-unknown-unknown/release/incremental || true
             '
           if [ -f .r4-engine-output.env ]; then
-            cat .r4-engine-output.env >> "$GITHUB_OUTPUT"
-            tick_branch=$(sed -n 's/^tick_branch=//p' .r4-engine-output.env)
-            tick_title=$(sed -n 's/^tick_title=//p' .r4-engine-output.env)
+            outcome_val=$(sed -n 's/^outcome=//p' .r4-engine-output.env)
             pushed_val=$(sed -n 's/^pushed=//p' .r4-engine-output.env)
+            tick_branch=$(sed -n 's/^tick_branch=//p' .r4-engine-output.env)
+            head_sha=$(sed -n 's/^head_sha=//p' .r4-engine-output.env)
             rm -f .r4-engine-output.env
-            if [ "$pushed_val" = "true" ] && [ -n "$tick_branch" ]; then
-              GH_TOKEN="$GITHUB_TOKEN" gh pr create \
-                --base main \
-                --head "$tick_branch" \
-                --title "$tick_title" \
-                --body-file .r4-engine-status.txt || true
-              b64=$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)
-              pushed_main=false
-              for attempt in 1 2 3 4; do
-                sleep 2
-                if git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push origin HEAD:refs/heads/main; then
-                  pushed_main=true
-                  break
-                fi
-                git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" fetch origin main && (git rebase --autostash origin/main && ./bin/r4 api sync && git add -A && git commit --amend --no-edit || git rebase --abort || true) && git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push --force origin "HEAD:refs/heads/$tick_branch" || true
-              done
-              if [ "$pushed_main" != "true" ]; then
-                GH_TOKEN="$GITHUB_TOKEN" gh pr close "$tick_branch" --delete-branch || true
-                sleep 2
-                GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
-                  | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh run cancel "{}" || true
-                sleep 5
-                GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
-                  | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/{}" || true
-                GH_TOKEN="$GITHUB_TOKEN" gh workflow run engine.yml --ref main || true
-                exit 0
-              fi
-              git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $b64" push origin --delete "$tick_branch" || true
-              sleep 2
-              GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
-                | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh run cancel "{}" || true
-              sleep 5
-              GH_TOKEN="$GITHUB_TOKEN" gh run list --branch "$tick_branch" --event pull_request --json databaseId --jq '.[].databaseId' \
-                | xargs -r -n1 -I{} GH_TOKEN="$GITHUB_TOKEN" gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/runs/{}" || true
+            if [ "$outcome_val" = "advanced" ] && [ "$pushed_val" != "true" ]; then
+              printf '%s\n' 'engine tick advanced locally without pushing to origin/main' >&2
+              exit 1
             fi
+            {
+              printf 'outcome=%s\n' "$outcome_val"
+              printf 'pushed=%s\n' "$pushed_val"
+              printf 'tick_branch=%s\n' "$tick_branch"
+              printf 'head_sha=%s\n' "$head_sha"
+            } >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Save LexLean verification cache
+        if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true' && steps.tick.outputs.pushed == 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .lexlean
+          key: r4-pages-lexlean-v1-${{ steps.tick.outputs.head_sha }}
 
       - name: Tick summary
         if: always() && steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true'
@@ -1007,19 +1009,17 @@ jobs:
             gh cache list --key "$family-" --sort created_at --order desc --limit 100 --json id --jq '.[1:][].id' \
               | xargs -r -n1 gh cache delete || true
           done
+          gh cache list --key "r4-pages-lexlean-v1-" --sort created_at --order desc --limit 100 --json id --jq '.[3:][].id' \
+            | xargs -r -n1 gh cache delete || true
 
-      - name: Publish the view of the pushed commit and chain next tick
+      - name: Publish the view of the pushed commit
         if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true' && steps.tick.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
-          active_pages=$(gh run list --workflow=pages.yml --limit 5 --json status --jq '[.[] | select(.status != "completed")] | length' 2>/dev/null || echo 0)
-          if [ "${active_pages:-0}" = "0" ]; then
-            gh workflow run pages.yml --ref main
-          fi
-          gh workflow run engine.yml --ref main
+          gh workflow run pages.yml --ref main
 "#
     .to_string()
 }
@@ -3278,9 +3278,15 @@ fn utc_now_iso8601() -> String {
 }
 
 /// Write `key=value` lines to `$GITHUB_OUTPUT` and `$R4_ENGINE_OUTPUT_FILE` when configured.
-fn emit_ci_output(outcome: &str, pushed: bool, tick_branch: &str, tick_title: &str) {
+fn emit_ci_output(
+    outcome: &str,
+    pushed: bool,
+    tick_branch: &str,
+    tick_title: &str,
+    head_sha: &str,
+) {
     let payload = format!(
-        "outcome={outcome}\npushed={}\ntick_branch={tick_branch}\ntick_title={tick_title}\n",
+        "outcome={outcome}\npushed={}\ntick_branch={tick_branch}\ntick_title={tick_title}\nhead_sha={head_sha}\n",
         if pushed { "true" } else { "false" }
     );
     for var in ["GITHUB_OUTPUT", "R4_ENGINE_OUTPUT_FILE"] {
@@ -3338,8 +3344,37 @@ pub fn run_engine_tick(
     run_engine_tick_with_mode(root, budget_minutes, commit, push, false)
 }
 
-/// Execute one autonomous homeostasis tick with optional `dry_run` (zero file mutations).
+/// Execute one autonomous homeostasis tick with atomic rollback on any mid-tick failure (`R4-47` / `R4-85`).
 pub fn run_engine_tick_with_mode(
+    root: &Path,
+    budget_minutes: u32,
+    commit: bool,
+    push: bool,
+    dry_run: bool,
+) -> Result<(), String> {
+    let res = run_engine_tick_inner(root, budget_minutes, commit, push, dry_run);
+    if !dry_run && res.is_err() {
+        let _ = rollback_failed_tick_worktree(root);
+    }
+    res
+}
+
+fn git_rev_parse_head(root: &Path, rev: &str) -> Option<String> {
+    Command::new("git")
+        .current_dir(root)
+        .args(["rev-parse", rev])
+        .output()
+        .ok()
+        .and_then(|o| {
+            if o.status.success() {
+                Some(String::from_utf8_lossy(&o.stdout).trim().to_string())
+            } else {
+                None
+            }
+        })
+}
+
+fn run_engine_tick_inner(
     root: &Path,
     budget_minutes: u32,
     commit: bool,
@@ -3500,6 +3535,21 @@ pub fn run_engine_tick_with_mode(
         &factory_report.receipt_sha256[..16.min(factory_report.receipt_sha256.len())]
     );
 
+    // Stage 6d (R4-84 / R4-85): Autonomous Dual-Surface Proof + Application Co-Evolution
+    let dual_rep = dual_surface_ratchet::step_dual_surface_ratchet_evolution(root, !dry_run)?;
+    println!(
+        "engine[6d/7 dual-surface-ratchet]: advanced={} gen={} mod={} target={:?} falsifiers={} lifted={}->{} residue={}->{}",
+        dual_rep.advanced,
+        dual_rep.generation_id,
+        dual_rep.lex_module,
+        dual_rep.target_function,
+        dual_rep.falsifiers_verified,
+        dual_rep.prev_lifted,
+        dual_rep.next_lifted,
+        dual_rep.prev_residue,
+        dual_rep.next_residue
+    );
+
     // Stage 4b/4c FIRST: compile proved claims & consolidate weights BEFORE building Wasm or scanning ratchets
     // so Cargo never invalidates `bootstrap_v8.uorlut` mtime after `build_wasm`.
     let mut consolidation_report = None;
@@ -3539,68 +3589,83 @@ pub fn run_engine_tick_with_mode(
             consolidation_report = Some(report);
         }
 
-        lift_register::cmd_lift_register(root, true)
-            .map_err(|e| format!("engine[6d/7 lift-register]: {e}"))?;
-        synthesis::cmd_synthesize(root, true)
-            .map_err(|e| format!("engine[6e/7 synthesize]: {e}"))?;
-        let mdl = repo_model::Model::load(&root.join("model"))
-            .map_err(|e| format!("engine[6f/7 check-model]: {e}"))?;
-        mdl.check()
-            .map_err(|e| format!("engine[6f/7 check-model]: {e}"))?;
-        let rendered_conf = repo_model::codegen::render_conformance(&mdl);
-        std::fs::write(
-            root.join(repo_model::codegen::CONFORMANCE_PATH),
-            rendered_conf,
-        )
-        .map_err(|e| format!("engine[6f/7 write CONFORMANCE.md]: {e}"))?;
-
-        let needs_wasm_rebuild =
-            weights_changed || wasm_bundle::check_wasm_sync_in(root, &root.join("public")).is_err();
-        if needs_wasm_rebuild && wasm_bundle::has_matching_wasm_bindgen(root) {
-            wasm_bundle::build_wasm(root, &root.join("public"))
-                .map_err(|e| format!("engine[6g/7 build-wasm]: {e}"))?;
-            let xtask_bin = std::env::current_exe().ok().filter(|p| {
-                p.file_stem()
-                    .and_then(|s| s.to_str())
-                    .is_some_and(|s| s == "xtask")
-            });
-            let status = if let Some(bin) = xtask_bin {
-                std::process::Command::new(bin)
-                    .current_dir(root)
-                    .args(["build-holo", "--sync-site-manifest"])
-                    .status()
-            } else {
-                std::process::Command::new("cargo")
-                    .current_dir(root)
-                    .args([
-                        "run",
-                        "-q",
-                        "-p",
-                        "xtask",
-                        "--",
-                        "build-holo",
-                        "--sync-site-manifest",
-                    ])
-                    .status()
+        let needs_wasm_rebuild = dual_rep.advanced
+            || weights_changed
+            || wasm_bundle::check_wasm_sync_in(root, &root.join("public")).is_err();
+        if needs_wasm_rebuild {
+            // Finalize sovereign_ratchet.rs constants + rustfmt BEFORE compiling Wasm so
+            // `public/lexlean_r4_bg.wasm` and `public/provenance.json` embed exact final counts.
+            dual_surface_ratchet::sync_sovereign_ratchet_from_repo(root)
+                .map_err(|e| format!("engine[6f/7 sync-sovereign-ratchet]: {e}"))?;
+            let fmt_st = Command::new("cargo")
+                .current_dir(root)
+                .args(["fmt", "--all"])
+                .status()
+                .map_err(|e| format!("engine[6f/7 cargo-fmt]: {e}"))?;
+            if !fmt_st.success() {
+                return Err(format!("engine[6f/7 cargo-fmt]: exited {fmt_st}"));
             }
-            .map_err(|e| format!("engine[6h/7 sync-site-manifest]: {e}"))?;
-            if !status.success() {
-                return Err(format!("engine[6h/7 sync-site-manifest]: exited {status}"));
+
+            if wasm_bundle::has_matching_wasm_bindgen(root) {
+                wasm_bundle::build_wasm(root, &root.join("public"))
+                    .map_err(|e| format!("engine[6g/7 build-wasm]: {e}"))?;
+                let wasm_len = std::fs::metadata(root.join("public/lexlean_r4_bg.wasm"))
+                    .map(|m| m.len())
+                    .map_err(|e| format!("engine[6g/7 stat-wasm]: {e}"))?;
+                if wasm_len > 14_155_776 {
+                    return Err(format!(
+                        "engine[6g/7 wasm-budget]: public/lexlean_r4_bg.wasm ({wasm_len} B) exceeds 14,155,776 B ceiling"
+                    ));
+                }
+                let xtask_bin = std::env::current_exe().ok().filter(|p| {
+                    p.file_stem()
+                        .and_then(|s| s.to_str())
+                        .is_some_and(|s| s == "xtask")
+                });
+                let status = if let Some(bin) = xtask_bin {
+                    std::process::Command::new(bin)
+                        .current_dir(root)
+                        .args(["build-holo", "--sync-site-manifest"])
+                        .status()
+                } else {
+                    std::process::Command::new("cargo")
+                        .current_dir(root)
+                        .args([
+                            "run",
+                            "-q",
+                            "-p",
+                            "xtask",
+                            "--",
+                            "build-holo",
+                            "--sync-site-manifest",
+                        ])
+                        .status()
+                }
+                .map_err(|e| format!("engine[6h/7 sync-site-manifest]: {e}"))?;
+                if !status.success() {
+                    return Err(format!("engine[6h/7 sync-site-manifest]: exited {status}"));
+                }
+            } else if std::env::var_os("SDK_IMAGE").is_some() {
+                return Err(
+                    "engine[6g/7 build-wasm]: matching wasm-bindgen CLI missing inside SDK image"
+                        .to_string(),
+                );
             }
         }
     }
 
-    let advanced = !discovered_ids.is_empty()
+    let advanced = dual_rep.advanced
+        || !discovered_ids.is_empty()
         || !pruned_ids.is_empty()
         || !deduce_summary.proved_ids.is_empty()
         || weights_changed;
-    let outcome = if advanced { "advanced" } else { "settled" };
+    let mut final_outcome = if advanced { "advanced" } else { "settled" };
 
     if !dry_run {
         if advanced {
             engine.tick.push(TickRecord {
                 id: tick_id.clone(),
-                outcome: outcome.to_string(),
+                outcome: final_outcome.to_string(),
                 discovered: discovered_ids.len(),
                 pruned: pruned_ids.len(),
                 proved: deduce_summary.proved_ids.clone(),
@@ -3613,14 +3678,80 @@ pub fn run_engine_tick_with_mode(
             save_frontier(root, &frontier)?;
             save_engine(root, &engine)?;
             save_hypotheses(root, &hyps)?;
+
+            // Finalize lift_register, bidirectional ratchet watermarks (tree hashes + floors UP / ceilings DOWN),
+            // Observer Refinement Agenda, synthesis report, and CONFORMANCE.md AFTER all Wasm/JS/engine writes.
+            lift_register::cmd_lift_register(root, true)
+                .map_err(|e| format!("engine[6e/7 lift-register]: {e}"))?;
+            ratchet::run_ratchet_cycle(root, true)
+                .map_err(|e| format!("engine[6f/7 ratchet-cycle]: {e}"))?;
+            observer_agenda::cmd_observer_agenda(root, true)
+                .map_err(|e| format!("engine[6g/7 observer-agenda]: {e}"))?;
+            synthesis::cmd_synthesize(root, true)
+                .map_err(|e| format!("engine[6h/7 synthesize]: {e}"))?;
+            let mdl = repo_model::Model::load(&root.join("model"))
+                .map_err(|e| format!("engine[6i/7 check-model]: {e}"))?;
+            mdl.check()
+                .map_err(|e| format!("engine[6i/7 check-model]: {e}"))?;
+            let rendered_conf = repo_model::codegen::render_conformance(&mdl);
+            std::fs::write(
+                root.join(repo_model::codegen::CONFORMANCE_PATH),
+                rendered_conf,
+            )
+            .map_err(|e| format!("engine[6i/7 write CONFORMANCE.md]: {e}"))?;
+
+            // Stage candidate paths before Stage 7 (`just vv`) so `frontier_e2e::test_f24` sees zero unstaged ` M public/` lines;
+            // `rollback_failed_tick_worktree` resets both index and working tree if Stage 7 fails.
+            let stage_paths = [
+                "src/R4",
+                "tests/lexlean",
+                "lexlean.toml",
+                "lexlean.lock",
+                "crates/wasm/src",
+                "crates/wasm/js",
+                "frontier.toml",
+                "model/engine.toml",
+                "model/hypotheses.toml",
+                "model/literature.toml",
+                "model/ratchet.toml",
+                "model/observer_refinement_agenda.json",
+                "model/sovereign_generations.toml",
+                "model/lift_register.json",
+                "model/synthesis_report.json",
+                "CONFORMANCE.md",
+                "public/app.js",
+                "public/app.css",
+                "public/index.html",
+                "public/lexlean_r4.js",
+                "public/lexlean_r4_bg.wasm",
+                "public/provenance.json",
+                "site/app.json",
+            ];
+            for rel in stage_paths {
+                if root.join(rel).exists() {
+                    let st = Command::new("git")
+                        .current_dir(root)
+                        .args(["add", rel])
+                        .status()
+                        .map_err(|e| format!("engine[6j/7 git-add {rel}]: {e}"))?;
+                    if !st.success() {
+                        return Err(format!("engine[6j/7 git-add {rel}]: exited {st}"));
+                    }
+                }
+            }
         } else {
-            let _ = std::fs::write(root.join(".r4-settled"), format!("{tick_id}\n"));
+            // Settled tick: discard any pre-tick `synthesize --write` / `literature-sync` noise so worktree stays clean.
+            rollback_failed_tick_worktree(root)?;
         }
     }
 
     // Stage 7 (Peirce Phase 3 — Induction shrink-only ratchet & acceptance gate)
     println!("engine[7/7 gate]: running repository acceptance checks...");
-    let theorem_frontier = if dry_run { &pre_frontier } else { &frontier };
+    let theorem_frontier = if dry_run || !advanced {
+        &pre_frontier
+    } else {
+        &frontier
+    };
     let post_diag = audit_codebase_and_inference(root, theorem_frontier)?;
     let post_matched_diag = audit_codebase_and_inference(root, &pre_frontier)?;
     let matched_cohort_ok = post_matched_diag.failure_basins.len() <= pre_diag.failure_basins.len();
@@ -3672,9 +3803,6 @@ pub fn run_engine_tick_with_mode(
     );
 
     if !gate_ok || triadic_res.is_err() {
-        if !dry_run {
-            let _ = rollback_failed_tick_worktree(root);
-        }
         triadic_res?;
         return Err(
             "engine[7/7 gate]: acceptance gate failed; rolled back and refused to advance".into(),
@@ -3684,20 +3812,14 @@ pub fn run_engine_tick_with_mode(
     let mut pushed = false;
     let mut tick_branch = String::new();
     let mut tick_title = String::new();
+    let mut head_sha = git_rev_parse_head(root, "HEAD").unwrap_or_default();
+
     if !dry_run && commit && advanced {
-        let base_sha = Command::new("git")
-            .current_dir(root)
-            .args(["rev-parse", "--short=12", "HEAD"])
-            .output()
-            .ok()
-            .and_then(|o| {
-                if o.status.success() {
-                    Some(String::from_utf8_lossy(&o.stdout).trim().to_string())
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_else(|| "000000000000".to_string());
+        let base_full_sha = head_sha.clone();
+        let base_sha = base_full_sha
+            .get(..12)
+            .unwrap_or(&base_full_sha)
+            .to_string();
         let proved_attempts = engine
             .attempt
             .iter()
@@ -3712,40 +3834,27 @@ pub fn run_engine_tick_with_mode(
             .current_dir(root)
             .args(["config", "user.email", "r4-engine@users.noreply.github.com"])
             .status();
-        let candidate_paths = [
-            "frontier.toml",
-            "model/engine.toml",
-            "model/hypotheses.toml",
-            "tests/lexlean/FrontierTheorems.lex.tex",
-            "crates/wasm/src/bootstrap_v8.uorlut",
-            "crates/wasm/src/bootstrap_v8_seed.uorlut",
-            "CONFORMANCE.md",
-            "model/lift_register.json",
-            "model/synthesis_report.json",
-            "public/app.js",
-            "public/app.css",
-            "public/index.html",
-            "public/lexlean_r4.js",
-            "public/lexlean_r4_bg.wasm",
-            "public/provenance.json",
-            "site/app.json",
-        ];
-        for rel in candidate_paths {
-            if root.join(rel).exists() {
-                let _ = Command::new("git")
-                    .current_dir(root)
-                    .args(["add", rel])
-                    .status();
-            }
-        }
 
         let proved_suffix = if deduce_summary.proved_ids.is_empty() {
             String::new()
         } else {
             format!(" ({})", deduce_summary.proved_ids.join(", "))
         };
+        let dual_prefix = if dual_rep.advanced {
+            format!(
+                "[Ratchet {} {} lifted {}->{} residue {}->{}] ",
+                dual_rep.generation_id,
+                dual_rep.lex_module,
+                dual_rep.prev_lifted,
+                dual_rep.next_lifted,
+                dual_rep.prev_residue,
+                dual_rep.next_residue
+            )
+        } else {
+            String::new()
+        };
         let msg = format!(
-            "Engine tick {tick_number}: {} proved{proved_suffix}, 0 known to the library, {} refuted, {} new relations observed, {} hypotheses minted (base {base_sha})",
+            "{dual_prefix}Engine tick {tick_number}: {} proved{proved_suffix}, 0 known to the library, {} refuted, {} new relations observed, {} hypotheses minted (base {base_sha})",
             deduce_summary.proved_ids.len(),
             pruned_ids.len(),
             discovered_ids.len(),
@@ -3760,35 +3869,70 @@ pub fn run_engine_tick_with_mode(
             .status()
             .map(|s| s.success())
             .unwrap_or(false);
+        if !committed {
+            return Err("engine: git commit failed after acceptance gate pass".to_string());
+        }
+        head_sha = git_rev_parse_head(root, "HEAD").unwrap_or(head_sha);
 
-        if committed && push {
-            let build_push_cmd = |target_ref: &str| -> Command {
+        if push {
+            let auth_header = std::env::var("GITHUB_TOKEN")
+                .ok()
+                .filter(|t| !t.trim().is_empty())
+                .map(|token| {
+                    let b64 = base64_encode(format!("x-access-token:{token}").as_bytes());
+                    format!("http.https://github.com/.extraheader=AUTHORIZATION: basic {b64}")
+                });
+
+            for attempt in 1..=3 {
                 let mut cmd = Command::new("git");
                 cmd.current_dir(root);
-                if let Ok(token) = std::env::var("GITHUB_TOKEN") {
-                    if !token.trim().is_empty() {
-                        let b64 = base64_encode(format!("x-access-token:{token}").as_bytes());
-                        cmd.arg("-c").arg(format!(
-                            "http.https://github.com/.extraheader=AUTHORIZATION: basic {b64}"
-                        ));
+                if let Some(ref hdr) = auth_header {
+                    cmd.arg("-c").arg(hdr);
+                }
+                cmd.args(["push", "origin", "HEAD:refs/heads/main"]);
+                if cmd.status().map(|s| s.success()).unwrap_or(false) {
+                    pushed = true;
+                    break;
+                }
+
+                // Check whether `origin/main` advanced concurrently: NEVER push an unverified rebase!
+                let mut fetch_cmd = Command::new("git");
+                fetch_cmd.current_dir(root);
+                if let Some(ref hdr) = auth_header {
+                    fetch_cmd.arg("-c").arg(hdr);
+                }
+                fetch_cmd.args(["fetch", "origin", "main"]);
+                let _ = fetch_cmd.status();
+                if let Some(remote_sha) = git_rev_parse_head(root, "origin/main") {
+                    if !base_full_sha.is_empty() && remote_sha != base_full_sha {
+                        let _ = Command::new("git")
+                            .current_dir(root)
+                            .args(["reset", "--hard", "origin/main"])
+                            .status();
+                        final_outcome = "superseded";
+                        pushed = false;
+                        head_sha = remote_sha;
+                        break;
                     }
                 }
-                cmd.args(["push", "-f", "origin", target_ref]);
-                cmd
-            };
-            let branch_ref = format!("HEAD:refs/heads/{tick_branch}");
-            pushed = build_push_cmd(&branch_ref)
-                .status()
-                .map(|s| s.success())
-                .unwrap_or(false);
-            if pushed && std::env::var_os("R4_ENGINE_OUTPUT_FILE").is_none() {
-                let _ = build_push_cmd("HEAD:refs/heads/main").status();
+                if attempt < 3 {
+                    std::thread::sleep(std::time::Duration::from_secs(2));
+                }
+            }
+
+            if final_outcome == "advanced" && !pushed {
+                return Err(
+                    "engine: fast-forward git push to origin/main failed after 3 attempts"
+                        .to_string(),
+                );
             }
         }
+    } else if !dry_run && !advanced {
+        let _ = std::fs::write(root.join(".r4-settled"), format!("{tick_id}\n"));
     }
 
-    emit_ci_output(outcome, pushed, &tick_branch, &tick_title);
-    println!("engine: tick complete (outcome={outcome}, pushed={pushed})");
+    emit_ci_output(final_outcome, pushed, &tick_branch, &tick_title, &head_sha);
+    println!("engine: tick complete (outcome={final_outcome}, pushed={pushed})");
     Ok(())
 }
 

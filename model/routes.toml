@@ -239,6 +239,27 @@ prism_record = "Foundation.Qual::RealQwen3LosslessStreaming"
 facet = "qual"
 note = "100% real Qwen3-0.6B/1.7B HoloV13Model neural generation with zero preplanned passage interception, deferred idle prefix prewarm, lazy gate_row_sigs_256, instant Token-1 TTFT flush, and monotonic Ready badge."
 
+[[route]]
+id = "R4-UR34"
+rust_fact = "observer-refinement-agenda-6-organs"
+prism_record = "Foundation.Qual::ObserverRefinementAgenda"
+facet = "qual"
+note = "Second-order Observer Refinement Agenda inspecting all 6 LexLean-R4 organs, lift_register residue blockers, and Wasm byte headroom to emit prioritized SHA-256-sealed self-refinement proposals."
+
+[[route]]
+id = "R4-UR35"
+rust_fact = "dual-surface-ratchet-proof-and-app-lift"
+prism_record = "Foundation.Qual::DualSurfaceRatchetEvolution"
+facet = "qual"
+note = "Closed-loop dual-surface Ratchet synthesizing CAP0005 falsifier-checked LexLean proofs, compiling Rust predicates, lifting crates/wasm residue functions, rebuilding public/ Wasm with SDK wasm-bindgen 0.2.122, and exposing Studio /ratchet R4SPORE1 spores."
+
+[[route]]
+id = "R4-UR36"
+rust_fact = "autonomous-github-ratchet-loop-direct-main"
+prism_record = "Foundation.Sec::AutonomousGithubRatchetLoop"
+facet = "sec"
+note = "Continuous GitHub r4-engine pipeline (./bin/r4 ratchet) with .lexlean cache, r4-engine push-recursion guard, dual-surface proof + app co-evolution, full just vv gate, direct-to-main push, and automatic pages.yml deployment."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -403,6 +424,21 @@ response = "route R4-UR32\nfact zero-copy-fast-hydration-zero-redundancy-slice\n
 case = "route R4-UR33"
 request_hex = "7265616c2d7177656e332d6c6f73736c6573732d73747265616d696e672d6e6f2d63616e6e65642d70726f7365"
 response = "route R4-UR33\nfact real-qwen3-lossless-streaming-no-canned-prose\nrecord Foundation.Qual::RealQwen3LosslessStreaming\nfacet qual"
+
+[[vector]]
+case = "route R4-UR34"
+request_hex = "6f627365727665722d726566696e656d656e742d6167656e64612d362d6f7267616e73"
+response = "route R4-UR34\nfact observer-refinement-agenda-6-organs\nrecord Foundation.Qual::ObserverRefinementAgenda\nfacet qual"
+
+[[vector]]
+case = "route R4-UR35"
+request_hex = "6475616c2d737572666163652d726174636865742d70726f6f662d616e642d6170702d6c696674"
+response = "route R4-UR35\nfact dual-surface-ratchet-proof-and-app-lift\nrecord Foundation.Qual::DualSurfaceRatchetEvolution\nfacet qual"
+
+[[vector]]
+case = "route R4-UR36"
+request_hex = "6175746f6e6f6d6f75732d6769746875622d726174636865742d6c6f6f702d6469726563742d6d61696e"
+response = "route R4-UR36\nfact autonomous-github-ratchet-loop-direct-main\nrecord Foundation.Sec::AutonomousGithubRatchetLoop\nfacet sec"
 
 [[vector]]
 case = "error empty"
