@@ -225,6 +225,13 @@ prism_record = "Foundation.Qual::Qwen3SparseBasinV15"
 facet = "qual"
 note = "Qwen3-distilled 64-basin UORR4V15 sparse geometric wave engine (< 150 ms instant boot, <= 512 KiB active basin, 8-token resonant waves >= 10000 tok/s, multi-hop <tool_call> awareness)."
 
+[[route]]
+id = "R4-UR32"
+rust_fact = "zero-copy-fast-hydration-zero-redundancy-slice"
+prism_record = "Foundation.Qual::ZeroCopyFastHydration"
+facet = "qual"
+note = "Zero-download <= 150 ms default Worker boot routing unmounted 0.6B turns to UORR4V15 (10000+ tok/s), 32 MiB coalesced OPFS warm streaming (<= 16 calls), deferred GPU upload, and zero-clamp MessageChannel HoloV13 slice scheduling."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -379,6 +386,11 @@ response = "route R4-UR30\nfact content-addressed-lexlean-ci-cache\nrecord Found
 case = "route R4-UR31"
 request_hex = "7177656e332d7370617273652d626173696e2d7631352d31306b2d656e67696e65"
 response = "route R4-UR31\nfact qwen3-sparse-basin-v15-10k-engine\nrecord Foundation.Qual::Qwen3SparseBasinV15\nfacet qual"
+
+[[vector]]
+case = "route R4-UR32"
+request_hex = "7a65726f2d636f70792d666173742d687964726174696f6e2d7a65726f2d726564756e64616e63792d736c696365"
+response = "route R4-UR32\nfact zero-copy-fast-hydration-zero-redundancy-slice\nrecord Foundation.Qual::ZeroCopyFastHydration\nfacet qual"
 
 [[vector]]
 case = "error empty"

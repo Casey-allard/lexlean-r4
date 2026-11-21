@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-81"
+level = "build"
+suite = "r4_81_zero_copy_fast_hydration"
+statement = "Pure LexLean models the R4-81 zero-download <= 150 ms default boot, 10000+ tok/s UORR4V15 turn routing, 32 MiB coalesced OPFS warm slab streaming, and non-redundant HoloV13 slice execution contract (R4.ZeroCopyFastHydration): admitFastBootAndZeroRedundancySlice admitting zero boot network weight bytes, <= 150 ms boot ready latency, <= 16 coalesced 32 MiB OPFS warm slab calls, non-redundant GPU/CPU decode slices, and zero-clamp MessageChannel slice yields (FastBootAndSliceAdmitted), while refusing automatic boot weight downloads (RefusedAutoBootWeightDownload), boot readiness > 150 ms (RefusedBootReadyExceeds150Ms), unbounded OPFS chunk storms > 16 calls (RefusedUnboundedWarmChunkStorm), duplicate GPU mapAsync + CPU 28-layer slice execution (RefusedDuplicateGpuCpuSlicePass), and clamped setTimeout slice yields (RefusedClampedSetTimeoutSliceYield). Formal controls establish modeled boot and slice admission invariants only, not external CDN network throughput."
+
+[[id]]
 id = "R4-80"
 level = "build"
 suite = "r4_80_qwen3_sparse_basin_v15"

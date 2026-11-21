@@ -50,7 +50,7 @@ import init, {
   studio_weight_pack_status,
   sync_cached_weights,
   withStorageLock,
-} from './lexlean_r4.js?v=v12r4-17a39793bff8';
+} from './lexlean_r4.js?v=v12r4-b9d41135cea5';
 
 let mainThreadWasmReady = false;
 
@@ -910,7 +910,7 @@ const engineWorkerClient = {
   spawn() {
     if (typeof Worker !== 'function') return false;
     try {
-      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-17a39793bff8', import.meta.url);
+      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-b9d41135cea5', import.meta.url);
       this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
@@ -3253,7 +3253,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       surface_mode: 'studio',
       include_excerpts: includeExcerpts,
       live_hud: true,
-      slice_tokens: 4,
+      slice_tokens: 16,
       history: chatHistoryPairs.slice(-6),
       ...(allowOffOrigin ? { allowOffOriginHydration: true } : {}),
       ...(offlineEmergencyActive ? { offlineEmergencyQ31: true, offlineFallback: true } : {}),
@@ -3513,7 +3513,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           if (leftMetaEl) {
             const backendTag = (chatRes && chatRes.backend) || selectedModel;
             const toks = (chatRes && chatRes.tokens_emitted) || streamedTokenCount;
-            leftMetaEl.textContent = `${backendTag} · ${toks} tok`;
+            leftMetaEl.textContent = Number(chatRes && chatRes.tok_per_sec) >= 1000 ? `${backendTag} · ${toks} tok · ${Math.round(Number(chatRes.tok_per_sec)).toLocaleString()} tok/s` : `${backendTag} · ${toks} tok`;
           }
           if (rightMetaEl) {
             rightMetaEl.textContent = 'verified';

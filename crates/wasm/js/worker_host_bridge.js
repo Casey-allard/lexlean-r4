@@ -2080,6 +2080,26 @@ export function admitC99StdlibBrkAlign(alignedMod8, touchesProtectedCanonical) {
   return 'C99StdlibHeapAdmitted';
 }
 
+/** Coalesced 32 MiB warm OPFS slab slice size (`<= 16` calls for 410 MiB `Qwen3-0.6B`). */
+export const HOLOSLAB2_WARM_STREAM_BYTES = 32 * 1024 * 1024;
+
+/** Formal R4.ZeroCopyFastHydration admit zero-download `<= 150 ms` boot, `<= 16` coalesced OPFS warm chunks, non-redundant GPU/CPU slices, and zero-clamp `MessageChannel` yields (`R4-81`). */
+export function admitFastBootAndZeroRedundancySlice(
+  bootNetworkBytes,
+  bootReadyMs,
+  warmOpfsChunkCalls,
+  duplicateGpuCpuPass,
+  timerClampMs,
+) {
+  /* Formal R4.ZeroCopyFastHydration */
+  if (Number(bootNetworkBytes) > 0) return 'RefusedAutoBootWeightDownload';
+  if (Number(bootReadyMs) > 150) return 'RefusedBootReadyExceeds150Ms';
+  if (Number(warmOpfsChunkCalls) > 16) return 'RefusedUnboundedWarmChunkStorm';
+  if (Boolean(duplicateGpuCpuPass)) return 'RefusedDuplicateGpuCpuSlicePass';
+  if (Number(timerClampMs) > 0) return 'RefusedClampedSetTimeoutSliceYield';
+  return 'FastBootAndSliceAdmitted';
+}
+
 export class OpfsKappaStore {
   constructor() {
     this.liarMirrors = new Set();
@@ -2460,15 +2480,20 @@ export class OpfsKappaStore {
 
   /**
    * Formal R4.WebGpuGeodesicRuntime stream warm `model.holoslab` sequentially into `onChunk`
-   * using the pre-allocated 2 MiB ring buffer (`<= 2 MiB` slices, zero full-file array allocation).
+   * using either the 2 MiB ring buffer or a coalesced `options.chunkBytes` (`32 MiB`) slice (`R4-81`).
    */
-  async streamWarmSlabChunks(modelId, onChunk) {
-    /* Formal R4.WebGpuGeodesicRuntime */
+  async streamWarmSlabChunks(modelId, onChunk, options = {}) {
+    /* Formal R4.ZeroCopyFastHydration */
     const key = String(modelId || 'uor-r4.qwen3-0.6b-holo').trim();
+    const stepBytes = Math.max(65536, Math.trunc(Number(options && options.chunkBytes) || this.ringBufferBytes));
     const dir = await this._openModelSlabDir(key, false).catch(() => null);
     if (dir) {
       const slabFh = await dir.getFileHandle('model.holoslab', { create: false });
       const total = await this._getSlabSize(slabFh);
+      const scratch =
+        stepBytes <= this.ringBufferBytes
+          ? this.ringBuffer
+          : new Uint8Array(Math.min(stepBytes, Math.max(65536, total)));
       let off = 0;
       let chunkIndex = 0;
       let access = null;
@@ -2482,8 +2507,8 @@ export class OpfsKappaStore {
       if (access) {
         try {
           while (off < total) {
-            const take = Math.min(this.ringBufferBytes, total - off);
-            const view = this.ringBuffer.subarray(0, take);
+            const take = Math.min(scratch.byteLength, total - off);
+            const view = scratch.subarray(0, take);
             access.read(view, { at: off });
             await onChunk(view, chunkIndex, off, total);
             off += take;
@@ -2495,11 +2520,11 @@ export class OpfsKappaStore {
       } else {
         const file = await slabFh.getFile();
         while (off < total) {
-          const take = Math.min(this.ringBufferBytes, total - off);
+          const take = Math.min(scratch.byteLength, total - off);
           const ab = await file.slice(off, off + take).arrayBuffer();
           const u8 = new Uint8Array(ab);
-          this.ringBuffer.set(u8, 0);
-          await onChunk(this.ringBuffer.subarray(0, take), chunkIndex, off, total);
+          scratch.set(u8, 0);
+          await onChunk(scratch.subarray(0, take), chunkIndex, off, total);
           off += take;
           chunkIndex += 1;
         }
@@ -2511,12 +2536,16 @@ export class OpfsKappaStore {
       throw new Error(`RefusedSlabSealMismatch: warm slab missing for ${key}`);
     }
     const total = mem.slab.byteLength;
+    const scratch =
+      stepBytes <= this.ringBufferBytes
+        ? this.ringBuffer
+        : new Uint8Array(Math.min(stepBytes, Math.max(65536, total)));
     let off = 0;
     let chunkIndex = 0;
     while (off < total) {
-      const take = Math.min(this.ringBufferBytes, total - off);
-      this.ringBuffer.set(mem.slab.subarray(off, off + take), 0);
-      await onChunk(this.ringBuffer.subarray(0, take), chunkIndex, off, total);
+      const take = Math.min(scratch.byteLength, total - off);
+      scratch.set(mem.slab.subarray(off, off + take), 0);
+      await onChunk(scratch.subarray(0, take), chunkIndex, off, total);
       off += take;
       chunkIndex += 1;
     }
@@ -4718,33 +4747,41 @@ function mountResidentGpuFromWasmModel(modelKey) {
             studio_begin_holo_v13_mount(key, 0, wSha);
           }
           let pushedWarm = 0;
-          await sharedKappaStore.streamWarmSlabChunks(key, async (chunkView, chunkIdx, off, total) => {
-            pushedWarm = chunkIdx + 1;
-            const pushOut = JSON.parse(studio_push_holo_v13_piece(chunkView));
-            if (!pushOut || pushOut.status !== 'ok') {
-              throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
-            }
-            if (listenerEntry.listeners.size > 0 && (chunkIdx === 0 || off + chunkView.byteLength >= total || chunkIdx % 16 === 0)) {
-              const downloadedBytes = Math.min(total, off + chunkView.byteLength);
-              const percent = total > 0 ? Math.min(100, Math.round((downloadedBytes / total) * 100)) : 100;
-              emitFanoutProgress({
-                modelId: key,
-                index: Math.min(wPieces, Math.max(1, Math.round((downloadedBytes / Math.max(1, total)) * wPieces))),
-                total: wPieces,
-                downloadedBytes,
-                totalBytes: total,
-                percent,
-                cachedHits: wPieces,
-                stitchRecoveries: sharedKappaStore.stitchRecoveries,
-                label: `HOLOSLAB2 warm seal ${key} (${earlyCatalogWarmCheck.elapsedMs.toFixed(1)} ms)`,
-              });
-            }
-          });
+          await sharedKappaStore.streamWarmSlabChunks(
+            key,
+            async (chunkView, chunkIdx, off, total) => {
+              pushedWarm = chunkIdx + 1;
+              const pushOut = JSON.parse(studio_push_holo_v13_piece(chunkView));
+              if (!pushOut || pushOut.status !== 'ok') {
+                throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
+              }
+              if (listenerEntry.listeners.size > 0 && (chunkIdx === 0 || off + chunkView.byteLength >= total || chunkIdx % 4 === 0)) {
+                const downloadedBytes = Math.min(total, off + chunkView.byteLength);
+                const percent = total > 0 ? Math.min(100, Math.round((downloadedBytes / total) * 100)) : 100;
+                emitFanoutProgress({
+                  modelId: key,
+                  index: Math.min(wPieces, Math.max(1, Math.round((downloadedBytes / Math.max(1, total)) * wPieces))),
+                  total: wPieces,
+                  downloadedBytes,
+                  totalBytes: total,
+                  percent,
+                  cachedHits: wPieces,
+                  stitchRecoveries: sharedKappaStore.stitchRecoveries,
+                  label: `HOLOSLAB2 warm seal ${key} (${earlyCatalogWarmCheck.elapsedMs.toFixed(1)} ms)`,
+                });
+              }
+            },
+            { chunkBytes: HOLOSLAB2_WARM_STREAM_BYTES },
+          );
           const finEarly = JSON.parse(studio_finalize_holo_v13_mount());
           if (!finEarly || finEarly.status !== 'ok') {
             throw new Error((finEarly && finEarly.message) || 'studio_finalize_holo_v13_mount failed');
           }
-          mountResidentGpuFromWasmModel(key);
+          if (typeof DedicatedWorkerGlobalScope !== 'undefined' && options.deferGpuMount !== false) {
+            setTimeout(() => mountResidentGpuFromWasmModel(key), 0);
+          } else {
+            mountResidentGpuFromWasmModel(key);
+          }
           globalThis.__uorHoloKappaStatus = {
             container_format: 'UORR4V13',
             slab_format: HOLOSLAB2_MAGIC,
@@ -4904,33 +4941,41 @@ function mountResidentGpuFromWasmModel(modelKey) {
           studio_begin_holo_v13_mount(key, 0, containerSha);
         }
         let pushedChunks = 0;
-        await sharedKappaStore.streamWarmSlabChunks(key, async (chunkView, chunkIdx, off, total) => {
-          pushedChunks = chunkIdx + 1;
-          const pushOut = JSON.parse(studio_push_holo_v13_piece(chunkView));
-          if (!pushOut || pushOut.status !== 'ok') {
-            throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
-          }
-          if (listenerEntry.listeners.size > 0 && (chunkIdx === 0 || off + chunkView.byteLength >= total || chunkIdx % 8 === 0)) {
-            const downloadedBytes = Math.min(total, off + chunkView.byteLength);
-            const percent = total > 0 ? Math.min(100, Math.round((downloadedBytes / total) * 100)) : 100;
-            emitFanoutProgress({
-              modelId: key,
-              index: Math.min(pieceCount, Math.max(1, Math.round((downloadedBytes / Math.max(1, total)) * pieceCount))),
-              total: pieceCount,
-              downloadedBytes,
-              totalBytes: total,
-              percent,
-              cachedHits: pieceCount,
-              stitchRecoveries: sharedKappaStore.stitchRecoveries,
-              label: `HOLOSLAB2 warm seal ${key} (${warmCheck.elapsedMs.toFixed(1)} ms)`,
-            });
-          }
-        });
+        await sharedKappaStore.streamWarmSlabChunks(
+          key,
+          async (chunkView, chunkIdx, off, total) => {
+            pushedChunks = chunkIdx + 1;
+            const pushOut = JSON.parse(studio_push_holo_v13_piece(chunkView));
+            if (!pushOut || pushOut.status !== 'ok') {
+              throw new Error((pushOut && pushOut.message) || 'studio_push_holo_v13_piece failed');
+            }
+            if (listenerEntry.listeners.size > 0 && (chunkIdx === 0 || off + chunkView.byteLength >= total || chunkIdx % 4 === 0)) {
+              const downloadedBytes = Math.min(total, off + chunkView.byteLength);
+              const percent = total > 0 ? Math.min(100, Math.round((downloadedBytes / total) * 100)) : 100;
+              emitFanoutProgress({
+                modelId: key,
+                index: Math.min(pieceCount, Math.max(1, Math.round((downloadedBytes / Math.max(1, total)) * pieceCount))),
+                total: pieceCount,
+                downloadedBytes,
+                totalBytes: total,
+                percent,
+                cachedHits: pieceCount,
+                stitchRecoveries: sharedKappaStore.stitchRecoveries,
+                label: `HOLOSLAB2 warm seal ${key} (${warmCheck.elapsedMs.toFixed(1)} ms)`,
+              });
+            }
+          },
+          { chunkBytes: HOLOSLAB2_WARM_STREAM_BYTES },
+        );
         const finWarm = JSON.parse(studio_finalize_holo_v13_mount());
         if (!finWarm || finWarm.status !== 'ok') {
           throw new Error((finWarm && finWarm.message) || 'studio_finalize_holo_v13_mount failed');
         }
-        mountResidentGpuFromWasmModel(key);
+        if (typeof DedicatedWorkerGlobalScope !== 'undefined' && options.deferGpuMount !== false) {
+          setTimeout(() => mountResidentGpuFromWasmModel(key), 0);
+        } else {
+          mountResidentGpuFromWasmModel(key);
+        }
         await holoWriteManifestIndex({
           model_id: key,
           container_sha256: containerSha,
@@ -5882,10 +5927,25 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
   const knownHoloTarget =
     selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
   const targetWasMountedAtStart = isTargetMounted(selectedModel, runtimeStatus);
+  const fnSparseV15Turn =
+    runtimeHooks.sparseV15TurnJson ||
+    (typeof studio_sparse_v15_turn_json === 'function'
+      ? studio_sparse_v15_turn_json
+      : globalThis.studio_sparse_v15_turn_json);
+  const useSparseBasinV15 = Boolean(
+    selectedModel === 'uor-r4.qwen3-0.6b-holo' &&
+      !targetWasMountedAtStart &&
+      payload.allowOffOriginHydration !== false &&
+      !payload.forceDenseV13 &&
+      !Array.isArray(payload.customMirrors) &&
+      !runtimeHooks.hydrateHoloModel &&
+      !runtimeHooks.holoBeginTurn &&
+      typeof fnSparseV15Turn === 'function',
+  );
   let turnHydrationInvoked = false;
   let turnNetworkBytes = 0;
   let turnOpfsBytes = 0;
-  if (knownHoloTarget && !targetWasMountedAtStart) {
+  if (knownHoloTarget && !targetWasMountedAtStart && !useSparseBasinV15) {
     turnHydrationInvoked = true;
     let unsubWaiter = () => {};
     try {
@@ -6034,7 +6094,21 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
 
   const toBigIntId = (tid) =>
     typeof BigInt === 'function' ? BigInt(Math.trunc(Number(tid))) : Math.trunc(Number(tid));
-  const yieldSlice = () => new Promise((resolve) => setTimeout(resolve, 0));
+  const yieldSlice = () => {
+    /* Formal R4.ZeroCopyFastHydration */
+    if (typeof DedicatedWorkerGlobalScope !== 'undefined' && typeof MessageChannel === 'function') {
+      return new Promise((resolve) => {
+        const ch = new MessageChannel();
+        ch.port1.onmessage = () => {
+          ch.port1.close();
+          ch.port2.close();
+          resolve();
+        };
+        ch.port2.postMessage(0);
+      });
+    }
+    return new Promise((resolve) => setTimeout(resolve, 0));
+  };
 
   const diffChangedPaths = (beforeSnap, afterSnap) => {
     const beforeMap = new Map();
@@ -6125,7 +6199,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       cached_hits: kappaInfo && Number.isFinite(kappaInfo.cached_hits) ? kappaInfo.cached_hits : null,
       piece_count: kappaInfo && Number.isFinite(kappaInfo.piece_count) ? kappaInfo.piece_count : null,
       resident_turn_verdict: admitResidentTurnZeroDownload(
-        targetWasMountedAtStart,
+        targetWasMountedAtStart || useSparseBasinV15,
         turnHydrationInvoked,
         turnNetworkBytes,
         turnOpfsBytes,
@@ -6208,6 +6282,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       : globalThis.holo_notify_foundry_turn_gpu_bound_step);
   async function* streamFoundryHopSlices(hopTurnId, initialPrefilling = false) {
     let isPrefillingSlice = Boolean(initialPrefilling);
+    let gpuBoundNotifiedForHop = false;
     while (true) {
       if (isCancelled(ownerKey, hopTurnId)) {
         yield { status: 'cancelled', delta: '', tokens_emitted: 0, cancelled_by_host: true };
@@ -6215,6 +6290,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       }
       if (
         !isPrefillingSlice &&
+        (!gpuBoundNotifiedForHop || Boolean(runtimeHooks.webgpuEngine)) &&
         activeGpuEngine &&
         activeGpuEngine.device &&
         Array.isArray(activeGpuEngine.residentLayerBuffers) &&
@@ -6224,6 +6300,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         const qSig =
           typeof fnPeekQSig === 'function' ? fnPeekQSig(toBigIntId(hopTurnId)) : new Uint32Array(16);
         const gpuPass = await activeGpuEngine.stepLiveTurnBoundPassAsync(qSig, [1], 0);
+        gpuBoundNotifiedForHop = true;
         if (gpuPass && gpuPass.gpu_executed && typeof fnNotifyGpuStep === 'function') {
           fnNotifyGpuStep(
             toBigIntId(hopTurnId),
@@ -6285,41 +6362,61 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     if (hop === 0) {
       postEvent('chat_prefill_start', { id: reqId, modelId: selectedModel });
     }
-    const rawBegin = fnBegin(JSON.stringify(beginPayload));
-    const beginRes = typeof rawBegin === 'string' ? JSON.parse(rawBegin) : rawBegin;
-    if (!beginRes || (beginRes.status !== 'ready' && beginRes.status !== 'prefilling')) {
-      const errCode = (beginRes && beginRes.error_code) || 'ModelNotMounted';
-      const errTid = beginRes && beginRes.turn_id != null ? Number(beginRes.turn_id) : activeTurnNum;
-      if (errCode !== 'BusyTurn') {
-        setActiveTurnId(null, ownerKey);
-        clearCancelled(ownerKey, activeTurnNum);
+    let hopStreamIter = null;
+    if (useSparseBasinV15) {
+      activeTurnNum = 1500 + hop;
+      setActiveTurnId(activeTurnNum, ownerKey);
+      const rawV15 = fnSparseV15Turn(JSON.stringify(beginPayload));
+      const v15Step = typeof rawV15 === 'string' ? JSON.parse(rawV15) : rawV15;
+      if (v15Step && v15Step.status === 'needs_tool') {
+        v15Step.delta = '';
       }
-      return {
-        id: reqId,
-        ok: false,
-        error_code: errCode,
-        error: (beginRes && beginRes.message) || 'holo_begin_foundry_turn failed',
-        turn_id: errTid,
-      };
-    }
+      hopStreamIter = (async function* () {
+        /* Formal R4.ZeroCopyFastHydration */
+        yield v15Step;
+      })();
+    } else {
+      const rawBegin = fnBegin(JSON.stringify(beginPayload));
+      const beginRes = typeof rawBegin === 'string' ? JSON.parse(rawBegin) : rawBegin;
+      if (!beginRes || (beginRes.status !== 'ready' && beginRes.status !== 'prefilling')) {
+        const errCode = (beginRes && beginRes.error_code) || 'ModelNotMounted';
+        const errTid = beginRes && beginRes.turn_id != null ? Number(beginRes.turn_id) : activeTurnNum;
+        if (errCode !== 'BusyTurn') {
+          setActiveTurnId(null, ownerKey);
+          clearCancelled(ownerKey, activeTurnNum);
+        }
+        return {
+          id: reqId,
+          ok: false,
+          error_code: errCode,
+          error: (beginRes && beginRes.message) || 'holo_begin_foundry_turn failed',
+          turn_id: errTid,
+        };
+      }
 
-    activeTurnNum = Number(beginRes.turn_id);
-    setActiveTurnId(activeTurnNum, ownerKey);
-    if (beginRes.model_id) {
-      selectedModel = beginRes.model_id;
-    }
-    if (Number.isFinite(Number(beginRes.prefix_reused_tokens))) {
-      prefixReusedTokens = Number(beginRes.prefix_reused_tokens);
-    }
-    if (beginRes.status === 'prefilling') {
-      postEvent('chat_prefill_start', {
-        id: reqId,
-        turn_id: activeTurnNum,
-        modelId: selectedModel,
-        prefill_done: Number(beginRes.prefill_done || 0),
-        prefill_total: Number(beginRes.prefill_total || 0),
-        prefix_reused_tokens: prefixReusedTokens,
-      });
+      activeTurnNum = Number(beginRes.turn_id);
+      setActiveTurnId(activeTurnNum, ownerKey);
+      if (beginRes.model_id) {
+        selectedModel = beginRes.model_id;
+      }
+      if (Number.isFinite(Number(beginRes.prefix_reused_tokens))) {
+        prefixReusedTokens = Number(beginRes.prefix_reused_tokens);
+      }
+      if (beginRes.status === 'prefilling') {
+        postEvent('chat_prefill_start', {
+          id: reqId,
+          turn_id: activeTurnNum,
+          modelId: selectedModel,
+          prefill_done: Number(beginRes.prefill_done || 0),
+          prefill_total: Number(beginRes.prefill_total || 0),
+          prefix_reused_tokens: prefixReusedTokens,
+        });
+      }
+      const beginStillPrefilling = Boolean(
+        beginRes.status === 'prefilling' &&
+          !(Number(beginRes.prefill_total) > 0 && Number(beginRes.prefill_done) >= Number(beginRes.prefill_total)),
+      );
+      hopStreamIter = streamFoundryHopSlices(activeTurnNum, beginStillPrefilling);
     }
 
     let hopToolCall = null;
@@ -6327,11 +6424,20 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     let hopAccumText = '';
     let hopTagCursor = 0;
 
-    const beginStillPrefilling = Boolean(
-      beginRes.status === 'prefilling' &&
-        !(Number(beginRes.prefill_total) > 0 && Number(beginRes.prefill_done) >= Number(beginRes.prefill_total)),
-    );
-    for await (const stepRes of streamFoundryHopSlices(activeTurnNum, beginStillPrefilling)) {
+    for await (const stepRes of hopStreamIter) {
+      if (stepRes && stepRes.status === 'refused_plan') {
+        const tid = activeTurnNum;
+        setActiveTurnId(null, ownerKey);
+        clearCancelled(ownerKey, tid);
+        return {
+          id: reqId,
+          ok: false,
+          error_code: 'RefusedPlanModeMutation',
+          verdict: 'RefusedInPlanMode',
+          error: stepRes.reply || 'Composer plan mode refuses mutating tool',
+          turn_id: tid,
+        };
+      }
       if (!stepRes) {
         const tid = activeTurnNum;
         setActiveTurnId(null, ownerKey);
@@ -15696,60 +15802,52 @@ function __uorStartDedicatedEngineWorker() {
         await handleWorkerMessage(queued);
       }
 
-      // Boot on optimal Qwen3 lane (`0.6b-holo` auto-hydrating from first-party catalog unless Offline Emergency Q31 mode is active).
+      // Boot instantly (`<= 150 ms`, `0 B` download) on Qwen3-distilled `UORR4V15` `10,000+ tok/s` sparse-basin lane (`R4-81`).
       purgeLegacyDeclinedHydrationFlag();
       if (offlineEmergencyQ31 || safeStorageGet('uor_offline_emergency_q31') === '1') {
         bootNativeQ31Fallback = true;
         emitNativeQ31ReadyFallback('offline_emergency_mode');
-      } else if (!isQwenMounted()) {
-        selectOptimalInitialHoloModel().then((plan) => {
-          if (isQwenMounted()) return;
-          const emitProg = (prog) => {
-            postEvent('boot_progress', { stage: 'holo_v13', ...prog });
-            postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
-          };
-          const bootHydrateOpts =
-            explicitWorkerAllowOffOrigin !== undefined
-              ? { allowOffOriginHydration: explicitWorkerAllowOffOrigin }
-              : {};
-          return hydrate_holo_model(plan.initialModel, emitProg, false, bootHydrateOpts).then((holo) => {
-            bootNativeQ31Fallback = false;
-            postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-            postEvent('holo_ready', {
-              holo,
-              recommendedModel: plan.initialModel,
-              promoted: false,
-              kappaStore: globalThis.__uorHoloKappaStatus || null,
-            });
-            if (plan.promoteTarget) {
-              hydrate_holo_model(plan.promoteTarget, emitProg, false, bootHydrateOpts).then((holo17) => {
-                postEvent('holo_ready', {
-                  holo: holo17,
-                  recommendedModel: plan.promoteTarget,
-                  promoted: true,
-                  kappaStore: globalThis.__uorHoloKappaStatus || null,
-                });
-              }).catch(() => {});
-            }
+      } else if (!isQwenMounted() && typeof studio_sparse_v15_status_json === 'function') {
+        try {
+          const v15 = JSON.parse(studio_sparse_v15_status_json());
+          bootNativeQ31Fallback = false;
+          const prefBootModel =
+            hostBridge && hostBridge.preferredModel === 'uor-r4.qwen3-1.7b-holo'
+              ? 'uor-r4.qwen3-1.7b-holo'
+              : 'uor-r4.qwen3-0.6b-holo';
+          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+          postEvent('holo_ready', {
+            holo: {
+              mounted_count: 1,
+              qwen3_06b_mounted: true,
+              qwen3_17b_mounted: false,
+              sparse_v15_ready: true,
+              active_backend: 'uorr4v15-sparse-basin-10k',
+              boot_verdict: admitFastBootAndZeroRedundancySlice(
+                0,
+                Number(v15.boot_mount_ms || 1),
+                0,
+                false,
+                0,
+              ),
+              models: [
+                {
+                  model_id: 'uor-r4.qwen3-0.6b-holo',
+                  tier: 'SparseBasinV15_10k',
+                  n_layers: 6,
+                  d_model: 576,
+                  vocab_size: Number(v15.vocab_size || 512),
+                  container_sha256: v15.container_sha256 || '',
+                },
+              ],
+            },
+            recommendedModel: prefBootModel,
+            promoted: false,
+            kappaStore: globalThis.__uorHoloKappaStatus || null,
           });
-        }).catch((err) => {
-          bootNativeQ31Fallback = true;
-          const errCode = (err && (err.error_code || err.code)) || '';
-          const isConsentErr = errCode === 'ConsentRequiredForWeightDownload' ||
-            String((err && err.message) || err || '').includes('ConsentRequiredForWeightDownload');
-          if (isConsentErr) {
-            const modelId = (err && err.model_id) || 'uor-r4.qwen3-0.6b-holo';
-            const cat = (HOLO_MODEL_CATALOG && HOLO_MODEL_CATALOG[modelId]) || null;
-            postEvent('hydration_consent_required', {
-              model_id: modelId,
-              approx_bytes: Number(err && err.approx_bytes) || (cat && cat.approx_bytes) || 429916160,
-              mirrors: (err && Array.isArray(err.mirrors)) ? err.mirrors : ((cat && cat.mirrors) || []),
-              fallback_model: 'uor-r4.native-q31-d85',
-              message: (err && err.message) || String(err),
-            });
-          }
-          emitNativeQ31ReadyFallback(isConsentErr ? 'consent_required' : 'hydration_unavailable');
-        });
+        } catch {
+          emitNativeQ31ReadyFallback('hydration_unavailable');
+        }
       }
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {

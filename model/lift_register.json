@@ -2,8 +2,8 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 3016,
-    "lifted": 2435,
+    "total_functions": 3019,
+    "lifted": 2438,
     "effect": 295,
     "foreign": 157,
     "residue": 129
@@ -535,7 +535,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "d1bb2beceda093c6f9f6c1ba87d7f8c03ed00403f2a307c60c03972dfac3adbc",
+      "kappa": "e248ddc5204c0c8fe713a31f5785db97db0e83921e3f97a3311f08556f1b8152",
       "function": "crates/wasm/js/app/01_studio_chat_preview.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -1223,6 +1223,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "a06e9daee6a735c20ae30c5b29d7c038c65f55c3f8e710fb273829d7eb8d4575",
+      "function": "crates/wasm/js/bridge/01_opfs_webgpu_engine.js::admitFastBootAndZeroRedundancySlice",
+      "status": "lifted",
+      "definition": "R4.ZeroCopyFastHydration",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "9d7e0b67c70411ac7784d2fc2167f946e5a4907283304aeac52b24324930c9c7",
       "function": "crates/wasm/js/bridge/01_opfs_webgpu_engine.js::admitHybridV14WebGpuDraft",
       "status": "lifted",
@@ -1426,7 +1433,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "98dd516888fd39b942d93212b64530092587f151e99aba29301fbdb5c2846a6f",
+      "kappa": "e83a3d61efd87c700684ec1bde43646c13a57fea4a5d4a27eb714352a6ae3673",
       "function": "crates/wasm/js/bridge/01_opfs_webgpu_engine.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -1496,7 +1503,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "f310f5155de44b0241c00a1dd1c0044883ddeef573ef1bba4ee75dca24f6e6bf",
+      "kappa": "5185941aa03a80fe3beda96f168fc1aca3832b14775328615ca0da089f3e5641",
       "function": "crates/wasm/js/bridge/01_opfs_webgpu_engine.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -5154,6 +5161,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_distilled_agent_atlas",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_distilled_agent_atlas",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "65cab2f98115f29bd067d673964c616911a237551e95273992b6973062465265",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_fast_boot_and_zero_redundancy_slice",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_fast_boot_and_zero_redundancy_slice",
       "exact_divergence_free": true
     },
     {
@@ -14569,6 +14583,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::verify_webgpu_resident_runtime_admitted",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::verify_webgpu_resident_runtime_admitted",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "a88553c9efdf0ea2f5709fa8781a6ba51b2b2d16103c334f93baa77a58d6a6e3",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_zero_copy_fast_hydration_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_zero_copy_fast_hydration_admitted",
       "exact_divergence_free": true
     },
     {

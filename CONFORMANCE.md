@@ -498,6 +498,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-80` | `build` | Pure LexLean models the R4-80 Qwen3-distilled 64-basin UORR4V15 sparse geometric wave engine and <= 150 ms instant boot contract (R4.Qwen3SparseBasinV15): admitSparseBasinV15Wave admitting zero-float, zero-matmul, zero-softmax 8-token resonant waves over <= 512 KiB active Golden-Angle/Icosian basins with <= 150 ms boot mount, >= 10000 tok/s throughput, and exact 0-LSB 120-vertex Icosian snap (SparseBasinV15WaveAdmitted) while refusing float/matmul/softmax ops (RefusedFloatOrDenseMatmulInV15), non-zero Icosian drift (RefusedNonZeroIcosianDrift), active basins > 512 KiB or wave width < 8 (RefusedBasinExceeds512KiB), boot mounts > 150 ms (RefusedBootExceeds150Ms), and throughput < 10000 tok/s (RefusedThroughputBelow10kTps). Formal controls establish modeled sparse-basin admission invariants only, not open-ended human prose preferences. |
 
+## r4_81_zero_copy_fast_hydration
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-81` | `build` | Pure LexLean models the R4-81 zero-download <= 150 ms default boot, 10000+ tok/s UORR4V15 turn routing, 32 MiB coalesced OPFS warm slab streaming, and non-redundant HoloV13 slice execution contract (R4.ZeroCopyFastHydration): admitFastBootAndZeroRedundancySlice admitting zero boot network weight bytes, <= 150 ms boot ready latency, <= 16 coalesced 32 MiB OPFS warm slab calls, non-redundant GPU/CPU decode slices, and zero-clamp MessageChannel slice yields (FastBootAndSliceAdmitted), while refusing automatic boot weight downloads (RefusedAutoBootWeightDownload), boot readiness > 150 ms (RefusedBootReadyExceeds150Ms), unbounded OPFS chunk storms > 16 calls (RefusedUnboundedWarmChunkStorm), duplicate GPU mapAsync + CPU 28-layer slice execution (RefusedDuplicateGpuCpuSlicePass), and clamped setTimeout slice yields (RefusedClampedSetTimeoutSliceYield). Formal controls establish modeled boot and slice admission invariants only, not external CDN network throughput. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

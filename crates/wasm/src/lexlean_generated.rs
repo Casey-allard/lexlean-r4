@@ -49989,3 +49989,46 @@ pub mod r4_qwen3_sparse_basin_v15 {
             == SparseBasinV15Verdict::SparseBasinV15WaveAdmitted
     }
 }
+
+/// Generated from `src/R4/ZeroCopyFastHydration.lex.tex` (`R4.ZeroCopyFastHydration`, `R4-81`).
+pub mod r4_zero_copy_fast_hydration {
+    /// Inductive `R4.ZeroCopyFastHydration.FastHydrationVerdict` (`R4-81`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum FastHydrationVerdict {
+        FastBootAndSliceAdmitted,
+        RefusedAutoBootWeightDownload,
+        RefusedBootReadyExceeds150Ms,
+        RefusedUnboundedWarmChunkStorm,
+        RefusedDuplicateGpuCpuSlicePass,
+        RefusedClampedSetTimeoutSliceYield,
+    }
+
+    /// Function `R4.ZeroCopyFastHydration.admitFastBootAndZeroRedundancySlice` (`R4-81`).
+    pub fn admit_fast_boot_and_zero_redundancy_slice(
+        boot_network_bytes: u64,
+        boot_ready_ms: u64,
+        warm_opfs_chunk_calls: u64,
+        duplicate_gpu_cpu_pass: bool,
+        timer_clamp_ms: u64,
+    ) -> FastHydrationVerdict {
+        if 0 < boot_network_bytes {
+            FastHydrationVerdict::RefusedAutoBootWeightDownload
+        } else if 150 < boot_ready_ms {
+            FastHydrationVerdict::RefusedBootReadyExceeds150Ms
+        } else if 16 < warm_opfs_chunk_calls {
+            FastHydrationVerdict::RefusedUnboundedWarmChunkStorm
+        } else if duplicate_gpu_cpu_pass {
+            FastHydrationVerdict::RefusedDuplicateGpuCpuSlicePass
+        } else if 0 < timer_clamp_ms {
+            FastHydrationVerdict::RefusedClampedSetTimeoutSliceYield
+        } else {
+            FastHydrationVerdict::FastBootAndSliceAdmitted
+        }
+    }
+
+    /// Function `R4.ZeroCopyFastHydration.verifyZeroCopyFastHydrationAdmitted` (`R4-81`).
+    pub fn verify_zero_copy_fast_hydration_admitted() -> bool {
+        admit_fast_boot_and_zero_redundancy_slice(0, 18, 13, false, 0)
+            == FastHydrationVerdict::FastBootAndSliceAdmitted
+    }
+}
