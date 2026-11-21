@@ -49903,3 +49903,42 @@ pub mod r4_modular_decomposition_ratchet {
             == ModularDecompositionVerdict::ModularDecompositionAdmitted
     }
 }
+
+/// Generated from `src/R4/ContentAddressedCiCache.lex.tex` (`R4.ContentAddressedCiCache`, `R4-79`).
+pub mod r4_content_addressed_ci_cache {
+    /// Inductive `R4.ContentAddressedCiCache.LexleanCiCacheVerdict` (`R4-79`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum LexleanCiCacheVerdict {
+        LexleanCiCacheAdmitted,
+        RefusedModifiedUniversalBootstrapWorkflow,
+        RefusedUnpinnedCacheActionReference,
+        RefusedMissingSdkOrLockfileCacheBinding,
+        RefusedMissingLexSourceGlobBinding,
+    }
+
+    /// Function `R4.ContentAddressedCiCache.admitLexleanCiArtifactCache` (`R4-79`).
+    pub fn admit_lexlean_ci_artifact_cache(
+        bootstrap_untouched: bool,
+        pinned_action_commit_sha: bool,
+        sdk_and_lock_bound: bool,
+        lex_sources_bound: bool,
+    ) -> LexleanCiCacheVerdict {
+        if !bootstrap_untouched {
+            LexleanCiCacheVerdict::RefusedModifiedUniversalBootstrapWorkflow
+        } else if !pinned_action_commit_sha {
+            LexleanCiCacheVerdict::RefusedUnpinnedCacheActionReference
+        } else if !sdk_and_lock_bound {
+            LexleanCiCacheVerdict::RefusedMissingSdkOrLockfileCacheBinding
+        } else if !lex_sources_bound {
+            LexleanCiCacheVerdict::RefusedMissingLexSourceGlobBinding
+        } else {
+            LexleanCiCacheVerdict::LexleanCiCacheAdmitted
+        }
+    }
+
+    /// Function `R4.ContentAddressedCiCache.verifyContentAddressedCiCacheAdmitted` (`R4-79`).
+    pub fn verify_content_addressed_ci_cache_admitted() -> bool {
+        admit_lexlean_ci_artifact_cache(true, true, true, true)
+            == LexleanCiCacheVerdict::LexleanCiCacheAdmitted
+    }
+}

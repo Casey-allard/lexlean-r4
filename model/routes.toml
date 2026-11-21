@@ -211,6 +211,13 @@ prism_record = "Foundation.Qual::ModularDecompositionRatchet"
 facet = "qual"
 note = "Verdant M15 modular Rust/JS decomposition (<= 11400 Rust lines, <= 12800 JS lines), <= 200 residue functions, and byte-synced 6-file public/ closure."
 
+[[route]]
+id = "R4-UR30"
+rust_fact = "content-addressed-lexlean-ci-cache"
+prism_record = "Foundation.Sec::ContentAddressedCiCache"
+facet = "sec"
+note = "Commit-pinned content-addressed .lexlean artifact cache in project-owned pages.yml preserving immutable bootstrap.yml and prismpm.lock trust roots."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -355,6 +362,11 @@ response = "route R4-UR28\nfact foundry-prove-vtensor-agent-tools\nrecord Founda
 case = "route R4-UR29"
 request_hex = "6d6f64756c61722d6465636f6d706f736974696f6e2d726573696475652d72617463686574"
 response = "route R4-UR29\nfact modular-decomposition-residue-ratchet\nrecord Foundation.Qual::ModularDecompositionRatchet\nfacet qual"
+
+[[vector]]
+case = "route R4-UR30"
+request_hex = "636f6e74656e742d6164647265737365642d6c65786c65616e2d63692d6361636865"
+response = "route R4-UR30\nfact content-addressed-lexlean-ci-cache\nrecord Foundation.Sec::ContentAddressedCiCache\nfacet sec"
 
 [[vector]]
 case = "error empty"

@@ -486,6 +486,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-78` | `build` | Pure LexLean models the R4-78 Verdant M15 modular Rust/JavaScript source decomposition and bidirectional residue ratchet (R4.ModularDecompositionRatchet): admitModularDecompositionRatchet admitting repository states with <= 200 unlifted residue functions, <= 11400 production lines per Rust file (>= 35% ceiling reduction), <= 12800 code lines per modular JavaScript source file (>= 25% ceiling reduction), exact 6-file public/ browser closure, verified deterministic bundle concatenation sync, and zero float serving ops (ModularDecompositionAdmitted) while refusing residue > 200 (RefusedResidueAbove200), Rust file lines > 11400 (RefusedRustFileExceeds11400Lines), JS file lines > 12800 (RefusedJsFileExceeds12800Lines), non-6-file public/ closure (RefusedBrokenSixFileBrowserClosure), and float ops or bundle sync drift (RefusedFloatOrBundleSyncDrift). Formal controls establish modeled modular-ratchet bounds only, not human readability judgments. |
 
+## r4_79_content_addressed_ci_cache
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-79` | `build` | Pure LexLean models the R4-79 content-addressed GitHub Actions .lexlean verification artifact cache in project-owned pages.yml (R4.ContentAddressedCiCache): admitLexleanCiArtifactCache admitting full-commit-pinned actions/cache steps for path: .lexlean keyed over prismpm.lock, lexlean.toml, lexlean.lock, src/R4/**/*.lex.tex, and tests/lexlean/**/*.lex.tex while keeping universal bootstrap.yml byte-identical to template.lock (LexleanCiCacheAdmitted), and refusing modified universal bootstrap.yml (RefusedModifiedUniversalBootstrapWorkflow), unpinned action tags (RefusedUnpinnedCacheActionReference), missing SDK/lockfile bindings (RefusedMissingSdkOrLockfileCacheBinding), and missing .lex.tex source glob bindings (RefusedMissingLexSourceGlobBinding). Formal controls establish modeled workflow cache-key invariants only, not GitHub-hosted runner wall-clock durations. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

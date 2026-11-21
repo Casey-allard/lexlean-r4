@@ -2251,9 +2251,11 @@ impl StudioEngine {
         if self.foundry_qpc_session.files == snap {
             return;
         }
-        let mut fresh = foundry_quantum_pc::FoundryQuantumStudioSession::default();
-        fresh.granted_capabilities = self.foundry_qpc_session.granted_capabilities.clone();
-        fresh.denied_capabilities = self.foundry_qpc_session.denied_capabilities.clone();
+        let mut fresh = foundry_quantum_pc::FoundryQuantumStudioSession {
+            granted_capabilities: self.foundry_qpc_session.granted_capabilities.clone(),
+            denied_capabilities: self.foundry_qpc_session.denied_capabilities.clone(),
+            ..Default::default()
+        };
         for (path, content) in snap {
             let _ = fresh.write_workspace_file(&path, &content);
         }

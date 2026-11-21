@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-79"
+level = "build"
+suite = "r4_79_content_addressed_ci_cache"
+statement = "Pure LexLean models the R4-79 content-addressed GitHub Actions .lexlean verification artifact cache in project-owned pages.yml (R4.ContentAddressedCiCache): admitLexleanCiArtifactCache admitting full-commit-pinned actions/cache steps for path: .lexlean keyed over prismpm.lock, lexlean.toml, lexlean.lock, src/R4/**/*.lex.tex, and tests/lexlean/**/*.lex.tex while keeping universal bootstrap.yml byte-identical to template.lock (LexleanCiCacheAdmitted), and refusing modified universal bootstrap.yml (RefusedModifiedUniversalBootstrapWorkflow), unpinned action tags (RefusedUnpinnedCacheActionReference), missing SDK/lockfile bindings (RefusedMissingSdkOrLockfileCacheBinding), and missing .lex.tex source glob bindings (RefusedMissingLexSourceGlobBinding). Formal controls establish modeled workflow cache-key invariants only, not GitHub-hosted runner wall-clock durations."
+
+[[id]]
 id = "R4-78"
 level = "build"
 suite = "r4_78_modular_decomposition_ratchet"
