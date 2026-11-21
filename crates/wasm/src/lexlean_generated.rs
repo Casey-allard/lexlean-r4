@@ -49268,3 +49268,121 @@ pub mod r4_vtensor_semiring_3d {
             }) == SemiringRaster3dVerdict::TilePbrObservatoryAndStudioAdmitted
     }
 }
+
+/// Generated mirror of `src/R4/FoundryQuantumStudio.lex.tex` (`R4-71`).
+pub mod r4_foundry_quantum_studio {
+    /// Inductive `R4.FoundryQuantumStudio.FoundryLifecycleStage` (`R4-71`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum FoundryLifecycleStage {
+        Drafting,
+        Checked,
+        Proved,
+        PublishedHolo,
+    }
+
+    /// Structure `R4.FoundryQuantumStudio.ForgeKernelTransitionCheck` (`R4-71`).
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct ForgeKernelTransitionCheck {
+        pub workspace_edited_after_proof: bool,
+        pub checked_before_prove: bool,
+        pub proved_before_publish: bool,
+        pub extra_non_propext_quot_axioms: u64,
+        pub requests_external_action: bool,
+        pub explicit_grant_present: bool,
+        pub explicit_denial_present: bool,
+    }
+
+    /// Inductive `R4.FoundryQuantumStudio.ForgeKernelVerdict` (`R4-71`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum ForgeKernelVerdict {
+        ForgeTransitionAdmitted,
+        ReturnedToDraftingOnEdit,
+        RefusedProvedWithoutCheck,
+        RefusedPublishWithoutProof,
+        RefusedUnsoundKernelAxioms,
+        RefusedUngrantedCapabilityOrDenial,
+    }
+
+    /// Structure `R4.FoundryQuantumStudio.QuantumPcKappaCheck` (`R4-71`).
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct QuantumPcKappaCheck {
+        pub float_tokens_found: u64,
+        pub duplicate_keys_found: u64,
+        pub kappa_verified: bool,
+        pub linux_vm_ready: bool,
+        pub mls_sealed_channel_ready: bool,
+    }
+
+    /// Inductive `R4.FoundryQuantumStudio.QuantumPcKappaVerdict` (`R4-71`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum QuantumPcKappaVerdict {
+        QuantumPcHoloAdmitted,
+        RefusedCanonicalJsonFloat,
+        RefusedCanonicalJsonDuplicateKey,
+        RefusedKappaDigestMismatch,
+        RefusedMissingLinuxVmOrMls,
+    }
+
+    /// Function `R4.FoundryQuantumStudio.admitForgeKernelTransition` (`R4-71`).
+    pub fn admit_forge_kernel_transition(k: ForgeKernelTransitionCheck) -> ForgeKernelVerdict {
+        if k.explicit_denial_present {
+            ForgeKernelVerdict::RefusedUngrantedCapabilityOrDenial
+        } else if k.requests_external_action && !k.explicit_grant_present {
+            ForgeKernelVerdict::RefusedUngrantedCapabilityOrDenial
+        } else if 0 < k.extra_non_propext_quot_axioms {
+            ForgeKernelVerdict::RefusedUnsoundKernelAxioms
+        } else if k.workspace_edited_after_proof {
+            ForgeKernelVerdict::ReturnedToDraftingOnEdit
+        } else if !k.checked_before_prove {
+            ForgeKernelVerdict::RefusedProvedWithoutCheck
+        } else if !k.proved_before_publish {
+            ForgeKernelVerdict::RefusedPublishWithoutProof
+        } else {
+            ForgeKernelVerdict::ForgeTransitionAdmitted
+        }
+    }
+
+    /// Function `R4.FoundryQuantumStudio.admitQuantumPcKappa` (`R4-71`).
+    pub fn admit_quantum_pc_kappa(q: QuantumPcKappaCheck) -> QuantumPcKappaVerdict {
+        if 0 < q.float_tokens_found {
+            QuantumPcKappaVerdict::RefusedCanonicalJsonFloat
+        } else if 0 < q.duplicate_keys_found {
+            QuantumPcKappaVerdict::RefusedCanonicalJsonDuplicateKey
+        } else if !q.kappa_verified {
+            QuantumPcKappaVerdict::RefusedKappaDigestMismatch
+        } else if !q.linux_vm_ready || !q.mls_sealed_channel_ready {
+            QuantumPcKappaVerdict::RefusedMissingLinuxVmOrMls
+        } else {
+            QuantumPcKappaVerdict::QuantumPcHoloAdmitted
+        }
+    }
+
+    /// Function `R4.FoundryQuantumStudio.verifyFoundryQuantumStudioAdmitted` (`R4-71`).
+    pub fn verify_foundry_quantum_studio_admitted() -> bool {
+        admit_forge_kernel_transition(ForgeKernelTransitionCheck {
+            workspace_edited_after_proof: false,
+            checked_before_prove: true,
+            proved_before_publish: true,
+            extra_non_propext_quot_axioms: 0,
+            requests_external_action: true,
+            explicit_grant_present: true,
+            explicit_denial_present: false,
+        }) == ForgeKernelVerdict::ForgeTransitionAdmitted
+            && admit_forge_kernel_transition(ForgeKernelTransitionCheck {
+                workspace_edited_after_proof: true,
+                checked_before_prove: true,
+                proved_before_publish: true,
+                extra_non_propext_quot_axioms: 0,
+                requests_external_action: false,
+                explicit_grant_present: false,
+                explicit_denial_present: false,
+            }) == ForgeKernelVerdict::ReturnedToDraftingOnEdit
+            && admit_quantum_pc_kappa(QuantumPcKappaCheck {
+                float_tokens_found: 0,
+                duplicate_keys_found: 0,
+                kappa_verified: true,
+                linux_vm_ready: true,
+                mls_sealed_channel_ready: true,
+            }) == QuantumPcKappaVerdict::QuantumPcHoloAdmitted
+    }
+}

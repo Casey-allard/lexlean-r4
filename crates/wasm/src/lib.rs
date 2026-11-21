@@ -32,6 +32,8 @@ pub const STUDIO_SELF_KNOWLEDGE_PREFIX: &str =
 
 /// Alias matching Foundry host specification naming (`StudioEngine` / `UorWasmStudio`).
 pub type UorWasmStudio = StudioEngine;
+/// Wave 3 (`R4-71`): `foundry` Hologram Quantum PC, `FK-01..09` `InTabProver` lifecycle & canonical UOR `kappa`.
+pub mod foundry_quantum_pc;
 /// `UOR-R4-GLLM v9` (`UORGLLM9`) Compositional Geometric Language Model Runtime (`R4-38`).
 pub mod gllm_v9;
 /// Pre-trained Generalized Geometric Language Model (`UR4GLM01`) Concept Manifold & Reasoner.

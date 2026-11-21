@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-FOUNDRY-QUANTUM-PC-INTAB"
+level = "some-true"
+authority = "FOUNDRY-QUANTUM-PC-INTAB"
+statement = "UOR-Foundation/foundry (ebdd937945) FK-01..09 InTabProver proof-gated Studio lifecycle, FR-05 sealed MLS framing, Hologram Quantum PC LinuxVm/ObjectStore contracts, and float-forbidding unique-key canonical JSON BLAKE3 kappa addressing are imported from UOR-Foundation/foundry. Local Wasm execution enforces propext/Quot.sound-only kernel axioms and float_ops = 0."
+
+[[claim]]
 id = "AUTH-VTENSOR-VERDANT-TENSOR-3D"
 level = "some-true"
 authority = "VTENSOR-VERDANT-TENSOR-3D"

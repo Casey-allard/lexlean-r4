@@ -2,10 +2,10 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2930,
-    "lifted": 2144,
+    "total_functions": 2940,
+    "lifted": 2153,
     "effect": 289,
-    "foreign": 156,
+    "foreign": 157,
     "residue": 341
   },
   "rows": [
@@ -1617,6 +1617,55 @@
       "function": "crates/wasm/src/ciris_ledger.rs::sha256_hex_bytes",
       "status": "lifted",
       "definition": "R4.CirisLedger",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "85771886d2c0a38291dcc94587db7ec97d4515c1d6506a8c5f7466e3f01f7340",
+      "function": "crates/wasm/src/foundry_quantum_pc.rs::CanonicalParser::parse_val",
+      "status": "lifted",
+      "definition": "R4.FoundryQuantumStudio",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b5b69b961ef1e8ae10fcdbb73b746a0871440753f6b8764a9f991b95214777f7",
+      "function": "crates/wasm/src/foundry_quantum_pc.rs::CanonicalParser::skip_ws",
+      "status": "lifted",
+      "definition": "R4.FoundryQuantumStudio",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "06a09b946a4a619c6612dbb39d0a30ff6a4009b770f64aa24728d6ffc2e2e905",
+      "function": "crates/wasm/src/foundry_quantum_pc.rs::FoundryQpcError::fmt",
+      "status": "foreign",
+      "foreign_crate": "std-fmt",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "a95d391df1cd44ff4fc204bad00710343b04e05bee2537490b19b97287b0edf8",
+      "function": "crates/wasm/src/foundry_quantum_pc.rs::parse_str",
+      "status": "lifted",
+      "definition": "R4.FoundryQuantumStudio",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "768256f3bff095f724350a8b1552ae353821adacf097b3d6bf55afd2d65c395c",
+      "function": "crates/wasm/src/foundry_quantum_pc.rs::publish_holo",
+      "status": "lifted",
+      "definition": "R4.FoundryQuantumStudio",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "465a806b775ca28449108db8c035aee7171da8d375ddb6a8f92e7a06ce1da9a3",
+      "function": "crates/wasm/src/foundry_quantum_pc.rs::studio_foundry_quantum_self_check_json",
+      "status": "lifted",
+      "definition": "R4.FoundryQuantumStudio",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "71a447c4a1dfea0fb4bc6d60bab6aaa70998e6847f295f20646c5b1f89d659bb",
+      "function": "crates/wasm/src/foundry_quantum_pc.rs::studio_uor_canonical_kappa_json",
+      "status": "lifted",
+      "definition": "R4.FoundryQuantumStudio",
       "exact_divergence_free": true
     },
     {
@@ -3795,6 +3844,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "75655b86f91d60a49248b23162648788e6fe1d2471233a692e66e2c70c9c436c",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_forge_kernel_transition",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_forge_kernel_transition",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "c17173e1797d91c20d60ffd50b9550d03928bbc966d7ba230cc7d81c35f1124f",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_fresh_model",
       "status": "lifted",
@@ -4058,6 +4114,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_public_cors_preemption",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_public_cors_preemption",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b333e52f5957068f2ae5bb182d02a3225b5d8f81a4025204737d8e06fc7db54f",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_quantum_pc_kappa",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_quantum_pc_kappa",
       "exact_divergence_free": true
     },
     {
@@ -12965,6 +13028,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "245c578ead2eff5d67edc4f8518950476972f4298024f2be80dd8e01e37cdd35",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_foundry_quantum_studio_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_foundry_quantum_studio_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "8af892109310006a4471a24a21d4bef194265fc7cb9087768f9aab4ff641f33b",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_holo_archive_admitted",
       "status": "lifted",
@@ -18542,7 +18612,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "acbc472fbb70cfaaf433dbd0c888de15baa07fbe6a466a7d64ff513a40b75f7d",
+      "kappa": "aed34abcba1770948353b3a9813fbf2148a77a2f5360420d10ff933b8bed99e4",
       "function": "public/app.js::getPrismEmbedStatusSnapshot",
       "status": "effect",
       "effect": "dom-browser-environment-io",

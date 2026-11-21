@@ -13,6 +13,15 @@
 spec = "template/1"
 
 [[authority]]
+id = "FOUNDRY-QUANTUM-PC-INTAB"
+name = "UOR-Foundation/foundry Hologram Quantum PC runtime, FK-01..09 InTabProver proof-gated lifecycle, FR-05 sealed MlsChannel, and float-forbidding canonical JSON kappa"
+citation = "https://github.com/UOR-Foundation/foundry/commit/ebdd937945 (app/src/{ForgeKernel,InTabProver,InTabElaborator}.lex.tex FK-01..09, studio/core/src/holo/canonical.rs float-forbidding unique-key canonical JSON BLAKE3 kappa, studio/shell/q/pkg/holospaces_web.js LinuxVm/StreamingVm/DevcontainerImage/MlsChannel/ObjectStore); companion src/R4/FoundryQuantumStudio.lex.tex"
+checksum = "none"
+checksum_reason = "Upstream UOR-Foundation/foundry (ebdd937945) resides in an external repository rather than vendored verbatim; local LexLean proofs and Rust/Wasm Quantum PC & InTabProver modules live under src/R4/FoundryQuantumStudio.lex.tex and crates/wasm/src/foundry_quantum_pc.rs."
+statement = "Proof-gated workspace lifecycle transitions (Drafting -> Checked -> Proved -> PublishedHolo), edit-triggered proof invalidation, propext/Quot.sound-only axiom soundness, explicit capability grant/denial gating, sealed MLS cross-device framing, and float-forbidding unique-key canonical JSON BLAKE3 kappa addressing are imported from UOR-Foundation/foundry (ebdd937945); external citations supply no remote peer relay guarantees."
+realized_by = ["R4-71"]
+
+[[authority]]
 id = "VTENSOR-VERDANT-TENSOR-3D"
 name = "vTensor certified WebGUI storage addressing (VT-09..16) and verdant-tensor semiring contractions with 16x16 tile-binned UORC LOD0..LOD4 3D PBR rasterization"
 citation = "https://github.com/afflom/vTensor/commit/9f897e18e7 (codex/vtensor-implementation VT-09..16 aligned linear arena, empty-node no-op, DUP/CONT/CPY, 4-axis REPEAT) and https://github.com/afflom/verdant-engine/commit/8f560d975e (crates/verdant-tensor Laurent/tropical/Q15 exact wide-accumulate semiring contractions, 16x16 tile-binned RGBA8+depth PBR rasterizer, uorc_decompress LOD0..LOD4); companion src/R4/VtensorSemiring3d.lex.tex"

@@ -16916,13 +16916,12 @@ function showStudioUpdateBanner(updateInfo) {
 }
 
 function getPrismEmbedStatusSnapshot(eventType = 'prism:status') {
+  /* Formal R4.FoundryQuantumStudio */
   const repo = (AppState.config && AppState.config.connectedGitRepo) || '';
   const branch = (AppState.config && AppState.config.connectedGitBranch) || 'main';
   const st = typeof engineWorkerClient !== 'undefined' ? engineWorkerClient.stitchHealth : null;
   const modelSel = document.getElementById('composer-model-select');
-  const selectedModel = modelSel && modelSel.value
-    ? modelSel.value
-    : ((AppState.config && AppState.config.selectedModel) || 'uor-r4.qwen3-0.6b-holo');
+  const selectedModel = (modelSel && modelSel.value) || (AppState.config && AppState.config.selectedModel) || 'uor-r4.qwen3-0.6b-holo';
   const composerMode = (AppState.config && AppState.config.composerMode) || 'agentic';
   const r4Stack = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.r4StackInfo) || null;
   const vsStatus = (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.verdantSynthesis) || null;
@@ -16930,6 +16929,7 @@ function getPrismEmbedStatusSnapshot(eventType = 'prism:status') {
     type: eventType,
     schema: 'prism/r4-workspace/1',
     protocol: 'uor-workspace-bridge/1',
+    quantumPcContract: 'uor-foundry-quantum-studio/1',
     embed: Boolean(document.body && document.body.dataset.embed === 'me'),
     layoutMode: (document.body && document.body.dataset.layoutMode) || 'chat',
     workerReady: Boolean(typeof engineWorkerClient !== 'undefined' && engineWorkerClient.ready),

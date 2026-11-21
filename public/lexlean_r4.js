@@ -1454,6 +1454,43 @@ export function studio_begin_holo_v13_mount_verified(model_id, expected_pieces, 
 }
 
 /**
+ * Formal R4.FoundryQuantumStudio Wasm export computing float-forbidding unique-key canonical JSON + `blake3:` `kappa` (`R4-71`).
+ * @param {string} raw_json
+ * @returns {string}
+ */
+export function studio_uor_canonical_kappa_json(raw_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(raw_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_uor_canonical_kappa_json(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Formal R4.FoundryQuantumStudio Wasm self-check verifying `FK-01..09`, `InTabProver`, `MlsChannel` (`FR-05`), and canonical `kappa` (`R4-71`).
+ * @returns {string}
+ */
+export function studio_foundry_quantum_self_check_json() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_foundry_quantum_self_check_json();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
  * Formal R4.VtensorSemiring3d render live Neural HUD / Observatory 3D Hopf-Poincare-Zeta RGBA8 frame (`R4-70`).
  * @param {number} width
  * @param {number} height
@@ -17688,6 +17725,8 @@ if (typeof globalThis === 'object' && globalThis) {
     buildAfflomMeAppDescriptor: build_afflom_me_app_descriptor,
     buildFoundryStudioDescriptor: build_afflom_me_app_descriptor,
     executeInprismFoundryTurn: execute_inprism_foundry_turn,
+    uorCanonicalKappa: (rawJson) => JSON.parse(studio_uor_canonical_kappa_json(typeof rawJson === 'string' ? rawJson : JSON.stringify(rawJson))),
+    foundryQuantumSelfCheck: () => JSON.parse(studio_foundry_quantum_self_check_json()),
     renderHopfZeta3dRgba: (w, h, phase, lod, trail) => studio_render_hopf_zeta_3d_rgba(w, h, phase, lod, trail || ''),
     renderPreviewScene3dRgba: (specJson, w, h) => studio_render_preview_scene_3d_rgba(specJson, w, h),
     vtensor3dSelfCheckJson: () => studio_vtensor_3d_self_check_json(),

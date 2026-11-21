@@ -16009,6 +16009,8 @@ if (typeof globalThis === 'object' && globalThis) {
     buildAfflomMeAppDescriptor: build_afflom_me_app_descriptor,
     buildFoundryStudioDescriptor: build_afflom_me_app_descriptor,
     executeInprismFoundryTurn: execute_inprism_foundry_turn,
+    uorCanonicalKappa: (rawJson) => JSON.parse(studio_uor_canonical_kappa_json(typeof rawJson === 'string' ? rawJson : JSON.stringify(rawJson))),
+    foundryQuantumSelfCheck: () => JSON.parse(studio_foundry_quantum_self_check_json()),
     renderHopfZeta3dRgba: (w, h, phase, lod, trail) => studio_render_hopf_zeta_3d_rgba(w, h, phase, lod, trail || ''),
     renderPreviewScene3dRgba: (specJson, w, h) => studio_render_preview_scene_3d_rgba(specJson, w, h),
     vtensor3dSelfCheckJson: () => studio_vtensor_3d_self_check_json(),

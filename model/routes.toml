@@ -155,6 +155,13 @@ prism_record = "Foundation.Design::VtensorSemiring3d"
 facet = "design"
 note = "Zero-float vTensor VT-09..16 storage planner, Laurent/tropical/Q15 semiring contractions, and 16x16 tile-binned UORC LOD0..LOD4 3D PBR Observatory & Studio preview."
 
+[[route]]
+id = "R4-UR22"
+rust_fact = "foundry-quantum-pc-intab-prover"
+prism_record = "Foundation.Sec::FoundryQuantumStudio"
+facet = "sec"
+note = "Foundry Hologram Quantum PC LinuxVm/MlsChannel/ObjectStore, FK-01..09 InTabProver proof-gated .holo lifecycle, and float-forbidding unique-key canonical JSON BLAKE3 kappa."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -259,6 +266,11 @@ response = "route R4-UR20\nfact verdant-m15-ratchet-cycle\nrecord Foundation.Qua
 case = "route R4-UR21"
 request_hex = "7674656e736f722d73656d6972696e672d74696c652d7062722d3364"
 response = "route R4-UR21\nfact vtensor-semiring-tile-pbr-3d\nrecord Foundation.Design::VtensorSemiring3d\nfacet design"
+
+[[vector]]
+case = "route R4-UR22"
+request_hex = "666f756e6472792d7175616e74756d2d70632d696e7461622d70726f766572"
+response = "route R4-UR22\nfact foundry-quantum-pc-intab-prover\nrecord Foundation.Sec::FoundryQuantumStudio\nfacet sec"
 
 [[vector]]
 case = "error empty"

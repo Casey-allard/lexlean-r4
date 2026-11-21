@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-71"
+level = "build"
+suite = "r4_71_foundry_quantum_studio"
+statement = "Pure LexLean models the R4-71 Foundry Hologram Quantum PC runtime, FK-01..09 InTabProver proof-gated Studio lifecycle (Drafting, Checked, Proved, PublishedHolo), sealed FR-05 MlsChannel, and float-forbidding unique-key canonical JSON BLAKE3 kappa addressing (R4.FoundryQuantumStudio): admitForgeKernelTransition admitting proof-gated .holo publication under explicit capability grants and propext/Quot.sound-only kernel axioms (ForgeTransitionAdmitted) while resetting to Drafting on workspace edits (ReturnedToDraftingOnEdit) and refusing prove-before-check (RefusedProvedWithoutCheck), publish-without-proof (RefusedPublishWithoutProof), unsound kernel axioms (RefusedUnsoundKernelAxioms), and ungranted or explicitly denied capabilities (RefusedUngrantedCapabilityOrDenial); and admitQuantumPcKappa admitting verified BLAKE3 kappa documents over ready LinuxVm and sealed MlsChannel runtimes (QuantumPcHoloAdmitted) while refusing JSON floats (RefusedCanonicalJsonFloat), duplicate object keys (RefusedCanonicalJsonDuplicateKey), digest mismatches (RefusedKappaDigestMismatch), and missing Quantum PC channels (RefusedMissingLinuxVmOrMls). Formal controls establish modeled admission invariants only, not peer network transport delivery."
+
+[[id]]
 id = "R4-70"
 level = "build"
 suite = "r4_70_vtensor_semiring_3d"
