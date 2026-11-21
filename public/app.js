@@ -4196,22 +4196,10 @@ if (studioSubsystemsForm) {
 // ============================================================================
 
 const AGENTIC_SLASH_COMMANDS = [
-  {
-    command: '/plan',
-    title: 'Read-Only Plan & Audit Mode',
-    badge: 'PlanReadOnly',
-    description: 'Inspect workspace, preview, and git status without mutating files',
-    template: 'Inspect /workspace and draft a plan for: ',
-    mode: 'plan',
-  },
-  {
-    command: '/think',
-    title: 'Deep Geometric <thinking> Trace',
-    badge: '256D Q12',
-    description: 'Force multi-step Cl(0,6) + 256D Q12 latent reasoning before answering',
-    template: 'Analyze step-by-step with <thinking> geometric coordinates: ',
-    mode: 'thinking',
-  },
+  { command: '/v14', title: 'UORR4V14 10k+ tok/s Hopf-Zeta Wave Engine', badge: 'UORR4V14', description: 'Run 4-token resonant waves over 4D signed Hopf + Poincare + Zeta ring + 120-Icosian snap', template: '/v14 ', mode: 'agentic' },
+  { command: '/qpc', title: 'Foundry Quantum PC, InTabProver & vTensor 3D Check', badge: 'FK-01..09', description: 'Verify InTabProver, canonical BLAKE3 kappa, MLS FR-05, and 16x16 PBR 3D', template: '/qpc', mode: 'agentic' },
+  { command: '/plan', title: 'Read-Only Plan & Audit Mode', badge: 'PlanReadOnly', description: 'Inspect workspace, preview, and git status without mutating files', template: 'Inspect /workspace and draft a plan for: ', mode: 'plan' },
+  { command: '/think', title: 'Deep Geometric <thinking> Trace', badge: '256D Q12', description: 'Force multi-step Cl(0,6) + 256D Q12 latent reasoning before answering', template: 'Analyze step-by-step with <thinking> geometric coordinates: ', mode: 'thinking' },
   {
     command: '/teach',
     title: 'Teach & Admit Online LUT Row',
@@ -8512,6 +8500,14 @@ const initPreviewSurfaceHost = () => {
       mountScene: mountPreview3d,
       selfCheck: async () => (await ensureVtensorWasmReady(), JSON.parse(studio_vtensor_3d_self_check_json())),
     };
+    if (String(window.location && window.location.search || '').includes('demo3d=1')) {
+      mountPreview3d({ preset: 'icosian-600-shell', lod: 3, width: 320, height: 224 }, rootEl).then((res) => {
+        const st = document.createElement('div');
+        st.id = 'preview-vtensor-3d-status';
+        st.textContent = `${res.spec} · ${res.width}x${res.height} · rgbaLength=${res.rgbaLength}`;
+        if (rootEl) rootEl.appendChild(st);
+      });
+    }
   }
 
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {

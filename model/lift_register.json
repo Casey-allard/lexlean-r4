@@ -553,7 +553,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "ab81ea17f4fa4ae037baf44b9db493f9fa5950a5c9b4df406fd1b463cab729ac",
+      "kappa": "1ab1cc5c4a61a5dab8db087674716d5da1b72ed10cc10f224376f9ddbcf9adf9",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",

@@ -5,6 +5,6 @@
   "view_model_id": "c1387d7bbf11b6973e4a905a4ecb819f61b0c0cf94e9f90647c40d65b058a9df",
   "generated_core_sha256": "8e154795b823461f1322efe293efba4d74c8c5195598455c60c713a2fbc4b9d3",
   "adapter_wasm_sha256": "71410a5b5eefed489e1cd6cb1a8f7f6507ce703ca68ccf499ed097ee5792db81",
-  "binding_javascript_sha256": "afbee7155ab27392ed900b818c2e57b7b9929d457ae721ba8c9ba79ef7265431",
+  "binding_javascript_sha256": "800098888b979fa471a3af2fb79295f5f74f096a55d47a5cfde81d2190014975",
   "adapter_lock_sha256": "016e32a44c2841c12edd38a4e491740da4e97bec05a728e31a79bcbc51a9bfc8"
 }
