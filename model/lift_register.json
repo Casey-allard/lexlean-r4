@@ -2,8 +2,8 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 3003,
-    "lifted": 2422,
+    "total_functions": 3016,
+    "lifted": 2435,
     "effect": 295,
     "foreign": 157,
     "residue": 129
@@ -5553,6 +5553,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_single_truth_badge",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_single_truth_badge",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ba81f6dc3fd966ed29ee5115f389ebfdeba1e1396eca3afea3f6a33283c113e8",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_sparse_basin_v15_wave",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_sparse_basin_v15_wave",
       "exact_divergence_free": true
     },
     {
@@ -14495,6 +14502,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "9fc3ce121e7e97005ad159bbe08ba045fca2745fff583b1c545c72e5ce6864b7",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_qwen3_sparse_basin_v15_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_qwen3_sparse_basin_v15_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "b1a7001b6f657d55f82d24bf4c8342bde55f1b3176f250553261dd2d434b2477",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_resident_gpu_hybrid_drafter_admitted",
       "status": "lifted",
@@ -15777,6 +15791,20 @@
       "function": "crates/wasm/src/lib.rs::studio_shard_catalog",
       "status": "lifted",
       "definition": "UORust.PureTotalExpr",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "398cc6ecfd3480ee42486ab52a75e3614ac758956fd2d6051d3499e874a23ed5",
+      "function": "crates/wasm/src/lib.rs::studio_sparse_v15_status_json",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "93721ad8075ee9a1d3cea7c4fd9ebddb02adb571a1f56aa0ca2dc0b69b63394f",
+      "function": "crates/wasm/src/lib.rs::studio_sparse_v15_turn_json",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
       "exact_divergence_free": true
     },
     {
@@ -18936,6 +18964,69 @@
       "function": "crates/wasm/src/r4_geometric_stack.rs::xorshift64",
       "status": "lifted",
       "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "f64e347aacc8867343b578fdee45e1e8a883e8df60135e33b2374542544bed4e",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::SparseBasinEngineV15::cast_resonant_waves",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "151f394a06343c4369df38ec70e1c82b4f89e3522f8888ba57bc19367eb8ec0a",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::SparseBasinEngineV15::compile_builtin_qwen3_distilled",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "d9e46c5b9b25323c5c1ce76cc31020b8954685bca023af0e26b829b7243864db",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::SparseBasinEngineV15::encode_prompt_ids",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "cf14bf185533412e2a01865237017f12997cc704c51c50e3b872978aa4ad36b1",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::SparseBasinEngineV15::execute_agentic_wave_turn",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "ef222a82462dcde87c15559fd503c1a0bbf81b400e63b17bb463658a52c3408c",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::SparseBasinEngineV15::global",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "0ce0fc0c73733e961112dafebe65be633b6301d5f7dc7aaeb74504fdfd407575",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::SparseBasinEngineV15::select_best_distilled_passage",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "a6d2a9fa9d22bce215449a77c0cc9ce1fa5a5eb17d6b2126b702fb829ddc5d90",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::SparseBasinEngineV15::to_v15_bytes",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "a3e94a5446dfaa202b2d64b34fabb7c9e9adba0c1b51c2f567a76de6415d660e",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::build_v15_turn_json",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "590e990ecce7c110ef1c08a637f112f5ae383896130cbbc68322263a0302b085",
+      "function": "crates/wasm/src/sparse_basin_v15.rs::studio_sparse_v15_status_json",
+      "status": "lifted",
+      "definition": "R4.Qwen3SparseBasinV15",
       "exact_divergence_free": true
     },
     {

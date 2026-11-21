@@ -492,6 +492,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-79` | `build` | Pure LexLean models the R4-79 content-addressed GitHub Actions .lexlean verification artifact cache in project-owned pages.yml (R4.ContentAddressedCiCache): admitLexleanCiArtifactCache admitting full-commit-pinned actions/cache steps for path: .lexlean keyed over prismpm.lock, lexlean.toml, lexlean.lock, src/R4/**/*.lex.tex, and tests/lexlean/**/*.lex.tex while keeping universal bootstrap.yml byte-identical to template.lock (LexleanCiCacheAdmitted), and refusing modified universal bootstrap.yml (RefusedModifiedUniversalBootstrapWorkflow), unpinned action tags (RefusedUnpinnedCacheActionReference), missing SDK/lockfile bindings (RefusedMissingSdkOrLockfileCacheBinding), and missing .lex.tex source glob bindings (RefusedMissingLexSourceGlobBinding). Formal controls establish modeled workflow cache-key invariants only, not GitHub-hosted runner wall-clock durations. |
 
+## r4_80_qwen3_sparse_basin_v15
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-80` | `build` | Pure LexLean models the R4-80 Qwen3-distilled 64-basin UORR4V15 sparse geometric wave engine and <= 150 ms instant boot contract (R4.Qwen3SparseBasinV15): admitSparseBasinV15Wave admitting zero-float, zero-matmul, zero-softmax 8-token resonant waves over <= 512 KiB active Golden-Angle/Icosian basins with <= 150 ms boot mount, >= 10000 tok/s throughput, and exact 0-LSB 120-vertex Icosian snap (SparseBasinV15WaveAdmitted) while refusing float/matmul/softmax ops (RefusedFloatOrDenseMatmulInV15), non-zero Icosian drift (RefusedNonZeroIcosianDrift), active basins > 512 KiB or wave width < 8 (RefusedBasinExceeds512KiB), boot mounts > 150 ms (RefusedBootExceeds150Ms), and throughput < 10000 tok/s (RefusedThroughputBelow10kTps). Formal controls establish modeled sparse-basin admission invariants only, not open-ended human prose preferences. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

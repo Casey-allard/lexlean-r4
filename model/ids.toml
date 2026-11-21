@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-80"
+level = "build"
+suite = "r4_80_qwen3_sparse_basin_v15"
+statement = "Pure LexLean models the R4-80 Qwen3-distilled 64-basin UORR4V15 sparse geometric wave engine and <= 150 ms instant boot contract (R4.Qwen3SparseBasinV15): admitSparseBasinV15Wave admitting zero-float, zero-matmul, zero-softmax 8-token resonant waves over <= 512 KiB active Golden-Angle/Icosian basins with <= 150 ms boot mount, >= 10000 tok/s throughput, and exact 0-LSB 120-vertex Icosian snap (SparseBasinV15WaveAdmitted) while refusing float/matmul/softmax ops (RefusedFloatOrDenseMatmulInV15), non-zero Icosian drift (RefusedNonZeroIcosianDrift), active basins > 512 KiB or wave width < 8 (RefusedBasinExceeds512KiB), boot mounts > 150 ms (RefusedBootExceeds150Ms), and throughput < 10000 tok/s (RefusedThroughputBelow10kTps). Formal controls establish modeled sparse-basin admission invariants only, not open-ended human prose preferences."
+
+[[id]]
 id = "R4-79"
 level = "build"
 suite = "r4_79_content_addressed_ci_cache"

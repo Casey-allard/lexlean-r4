@@ -54,6 +54,8 @@ pub mod native_q31_lane;
 pub mod prism_holo_compiler;
 /// Multiplier-free, zero-float `UORR4V12` geometric vector stack runtime (`R4-46`).
 pub mod r4_geometric_stack;
+/// Task 1 (`R4-80`): Qwen3-distilled 64-basin `UORR4V15` sparse geometric `10,000+ tok/s` instant-boot engine.
+pub mod sparse_basin_v15;
 /// Wave 2 (`R4-70`): Zero-float `vTensor` certified storage planner & `16x16` tile-binned 3D PBR WebGUI engine.
 pub mod vtensor_semiring_3d;
 /// Deterministically generated Rust implementation of the verified LexLean `R4.*` modules.
@@ -11287,6 +11289,37 @@ pub fn studio_hopf_zeta_v14_generate_json(prompt: &str, max_tokens: u32) -> Stri
 #[wasm_bindgen]
 pub fn studio_hopf_zeta_v14_self_check_json() -> String {
     hopf_zeta_engine::studio_hopf_zeta_v14_self_check_json()
+}
+
+/// Formal R4.Qwen3SparseBasinV15 Wasm export executing an instant-boot `>= 10,000 tok/s` `UORR4V15` sparse-basin Studio/Chat turn (`R4-80`).
+#[wasm_bindgen]
+pub fn studio_sparse_v15_turn_json(req_json: &str) -> String {
+    let req: sparse_basin_v15::SparseV15TurnRequest = match serde_json::from_str(req_json) {
+        Ok(r) => r,
+        Err(e) => {
+            return serde_json::json!({
+                "ok": false,
+                "status": "error",
+                "error_code": "InvalidRequestJson",
+                "message": format!("invalid SparseV15TurnRequest JSON: {e}"),
+            })
+            .to_string();
+        }
+    };
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let studio = guard.get_or_insert_with(StudioEngine::new_default);
+    sparse_basin_v15::SparseBasinEngineV15::global()
+        .execute_agentic_wave_turn(studio, &req)
+        .to_string()
+}
+
+/// Formal R4.Qwen3SparseBasinV15 Wasm export returning `UORR4V15` sparse-basin readiness and formal admission receipt (`R4-80`).
+#[wasm_bindgen]
+pub fn studio_sparse_v15_status_json() -> String {
+    sparse_basin_v15::studio_sparse_v15_status_json()
 }
 
 #[cfg(test)]

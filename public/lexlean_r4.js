@@ -1138,6 +1138,43 @@ export function studio_hopf_zeta_v14_self_check_json() {
 }
 
 /**
+ * Formal R4.Qwen3SparseBasinV15 Wasm export executing an instant-boot `>= 10,000 tok/s` `UORR4V15` sparse-basin Studio/Chat turn (`R4-80`).
+ * @param {string} req_json
+ * @returns {string}
+ */
+export function studio_sparse_v15_turn_json(req_json) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const ptr0 = passStringToWasm0(req_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_sparse_v15_turn_json(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+ * Formal R4.Qwen3SparseBasinV15 Wasm export returning `UORR4V15` sparse-basin readiness and formal admission receipt (`R4-80`).
+ * @returns {string}
+ */
+export function studio_sparse_v15_status_json() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_sparse_v15_status_json();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
  * Process an OpenAI-compatible `/v1/chat/completions` JSON request in WebAssembly.
  * @param {string} request_json
  * @returns {string}

@@ -50,7 +50,7 @@ import init, {
   studio_weight_pack_status,
   sync_cached_weights,
   withStorageLock,
-} from './lexlean_r4.js?v=v12r4-4387c815296d';
+} from './lexlean_r4.js?v=v12r4-17a39793bff8';
 
 let mainThreadWasmReady = false;
 
@@ -910,7 +910,7 @@ const engineWorkerClient = {
   spawn() {
     if (typeof Worker !== 'function') return false;
     try {
-      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-4387c815296d', import.meta.url);
+      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-17a39793bff8', import.meta.url);
       this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});

@@ -218,6 +218,13 @@ prism_record = "Foundation.Sec::ContentAddressedCiCache"
 facet = "sec"
 note = "Commit-pinned content-addressed .lexlean artifact cache in project-owned pages.yml preserving immutable bootstrap.yml and prismpm.lock trust roots."
 
+[[route]]
+id = "R4-UR31"
+rust_fact = "qwen3-sparse-basin-v15-10k-engine"
+prism_record = "Foundation.Qual::Qwen3SparseBasinV15"
+facet = "qual"
+note = "Qwen3-distilled 64-basin UORR4V15 sparse geometric wave engine (< 150 ms instant boot, <= 512 KiB active basin, 8-token resonant waves >= 10000 tok/s, multi-hop <tool_call> awareness)."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -367,6 +374,11 @@ response = "route R4-UR29\nfact modular-decomposition-residue-ratchet\nrecord Fo
 case = "route R4-UR30"
 request_hex = "636f6e74656e742d6164647265737365642d6c65786c65616e2d63692d6361636865"
 response = "route R4-UR30\nfact content-addressed-lexlean-ci-cache\nrecord Foundation.Sec::ContentAddressedCiCache\nfacet sec"
+
+[[vector]]
+case = "route R4-UR31"
+request_hex = "7177656e332d7370617273652d626173696e2d7631352d31306b2d656e67696e65"
+response = "route R4-UR31\nfact qwen3-sparse-basin-v15-10k-engine\nrecord Foundation.Qual::Qwen3SparseBasinV15\nfacet qual"
 
 [[vector]]
 case = "error empty"

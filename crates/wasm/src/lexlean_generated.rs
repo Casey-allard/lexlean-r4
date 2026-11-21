@@ -49942,3 +49942,50 @@ pub mod r4_content_addressed_ci_cache {
             == LexleanCiCacheVerdict::LexleanCiCacheAdmitted
     }
 }
+
+/// Generated from `src/R4/Qwen3SparseBasinV15.lex.tex` (`R4.Qwen3SparseBasinV15`, `R4-80`).
+pub mod r4_qwen3_sparse_basin_v15 {
+    /// Inductive `R4.Qwen3SparseBasinV15.SparseBasinV15Verdict` (`R4-80`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SparseBasinV15Verdict {
+        SparseBasinV15WaveAdmitted,
+        RefusedFloatOrDenseMatmulInV15,
+        RefusedBasinExceeds512KiB,
+        RefusedBootExceeds150Ms,
+        RefusedThroughputBelow10kTps,
+        RefusedNonZeroIcosianDrift,
+    }
+
+    /// Function `R4.Qwen3SparseBasinV15.admitSparseBasinV15Wave` (`R4-80`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn admit_sparse_basin_v15_wave(
+        float_ops: u64,
+        dense_matmul_ops: u64,
+        softmax_ops: u64,
+        active_basin_bytes: u64,
+        tokens_per_wave: u64,
+        boot_mount_ms: u64,
+        measured_tps: u64,
+        icosian_drift_lsb: u64,
+    ) -> SparseBasinV15Verdict {
+        if 0 < float_ops || 0 < dense_matmul_ops || 0 < softmax_ops {
+            SparseBasinV15Verdict::RefusedFloatOrDenseMatmulInV15
+        } else if 0 < icosian_drift_lsb {
+            SparseBasinV15Verdict::RefusedNonZeroIcosianDrift
+        } else if 524_288 < active_basin_bytes || tokens_per_wave < 8 {
+            SparseBasinV15Verdict::RefusedBasinExceeds512KiB
+        } else if 150 < boot_mount_ms {
+            SparseBasinV15Verdict::RefusedBootExceeds150Ms
+        } else if measured_tps < 10_000 {
+            SparseBasinV15Verdict::RefusedThroughputBelow10kTps
+        } else {
+            SparseBasinV15Verdict::SparseBasinV15WaveAdmitted
+        }
+    }
+
+    /// Function `R4.Qwen3SparseBasinV15.verifyQwen3SparseBasinV15Admitted` (`R4-80`).
+    pub fn verify_qwen3_sparse_basin_v15_admitted() -> bool {
+        admit_sparse_basin_v15_wave(0, 0, 0, 65_536, 8, 12, 250_000, 0)
+            == SparseBasinV15Verdict::SparseBasinV15WaveAdmitted
+    }
+}
