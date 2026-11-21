@@ -38,11 +38,14 @@ import init, {
   studio_mount_r4_v12_bytes,
   studio_r4_stack_status,
   studio_record_generation_fault,
+  studio_render_hopf_zeta_3d_rgba,
+  studio_render_preview_scene_3d_rgba,
   studio_shard_catalog,
   studio_v1_chat_completions,
   studio_v1_messages,
   studio_v1_traces,
   studio_verdant_synthesis_status,
+  studio_vtensor_3d_self_check_json,
   studio_wasm_eval,
   studio_weight_pack_status,
   sync_cached_weights,
@@ -6116,69 +6119,57 @@ function renderHoloObservatoryDeck() {
       ctx.fillRect(12 + s * 8, h - 22, 6, 10);
     }
 
-    // Right half: Rotating 3D RHT-512 Hypercube of Vocab Clusters + Live q_manifold_xyz Trail
-    const cx3 = Math.floor(w * 0.74);
-    const cy3 = Math.floor(h * 0.56);
-    const scale3 = Math.min(w * 0.19, h * 0.34);
-    const ca = Math.cos(holoObservatoryState.rotAngle);
-    const sa = Math.sin(holoObservatoryState.rotAngle);
-    const project3 = (pt) => {
-      const nx = (Number(pt[0]) || 0) / 1000;
-      const ny = (Number(pt[1]) || 0) / 1000;
-      const nz = (Number(pt[2]) || 0) / 1000;
-      const rx = nx * ca - nz * sa;
-      const rz = nx * sa + nz * ca;
-      const persp = 1.0 / (1.8 + rz * 0.5);
-      return [cx3 + rx * scale3 * persp, cy3 - (ny * scale3 * persp)];
-    };
-    // Wireframe cube corners
-    ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
-    const boxEdges = [
-      [[-1000, -1000, -1000], [1000, -1000, -1000]],
-      [[1000, -1000, -1000], [1000, 1000, -1000]],
-      [[1000, 1000, -1000], [-1000, 1000, -1000]],
-      [[-1000, 1000, -1000], [-1000, -1000, -1000]],
-      [[-1000, -1000, 1000], [1000, -1000, 1000]],
-      [[1000, -1000, 1000], [1000, 1000, 1000]],
-      [[1000, 1000, 1000], [-1000, 1000, 1000]],
-      [[-1000, 1000, 1000], [-1000, -1000, 1000]],
-    ];
-    for (let e = 0; e < boxEdges.length; e += 1) {
-      const [p0, p1] = boxEdges[e];
-      const a2 = project3(p0);
-      const b2 = project3(p1);
-      ctx.beginPath();
-      ctx.moveTo(a2[0], a2[1]);
-      ctx.lineTo(b2[0], b2[1]);
-      ctx.stroke();
-    }
-    for (let ci = 0; ci < clusters.length; ci += 1) {
-      const pt = clusters[ci];
-      const [px, py] = project3(pt.xyz || [0, 0, 0]);
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.55)';
-      ctx.fillRect(px - 1, py - 1, 3, 3);
-    }
+    // Right half: 16x16 Tile-Binned Zero-Float 3D PBR Hopf-Poincare-Zeta Manifold (`R4-70`)
+    const rx0 = Math.floor(w * 0.5);
+    const rw = Math.max(32, w - rx0 - 8);
+    const rh = Math.max(32, h - 32);
+    const trailPts = holoObservatoryState.qTrail.map((item) => item.xyz || [0, 0, 0]);
+    const phase1024 = Math.round(((holoObservatoryState.rotAngle || 0) * 163)) & 1023;
+    blitHopfZeta3dRect(ctx, rx0, 24, rw, rh, phase1024, 2, trailPts);
     if (holoObservatoryState.qTrail.length > 0) {
-      ctx.strokeStyle = '#f472b6';
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      for (let ti = 0; ti < holoObservatoryState.qTrail.length; ti += 1) {
-        const [px, py] = project3(holoObservatoryState.qTrail[ti].xyz);
-        if (ti === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-      }
-      ctx.stroke();
       const head = holoObservatoryState.qTrail[holoObservatoryState.qTrail.length - 1];
-      const [hx, hy] = project3(head.xyz);
-      ctx.fillStyle = '#34d399';
-      ctx.beginPath();
-      ctx.arc(hx, hy, 4, 0, Math.PI * 2);
-      ctx.fill();
       ctx.fillStyle = '#f8fafc';
       ctx.font = '9px ui-monospace, Menlo, monospace';
-      ctx.fillText(head.label, hx + 6, hy + 3);
+      ctx.fillText(`Hopf·Zeta 3D PBR · "${head.label}"`, rx0 + 6, h - 10);
     }
   }
+}
+
+let _vtensorWasmPromise = null;
+function ensureVtensorWasmReady() {
+  /* Formal R4.VtensorSemiring3d */
+  if (mainThreadWasmReady) return Promise.resolve(true);
+  if (!_vtensorWasmPromise) {
+    _vtensorWasmPromise = init()
+      .then(() => {
+        mainThreadWasmReady = true;
+        if (typeof renderHoloObservatoryDeck === 'function') renderHoloObservatoryDeck();
+        return true;
+      })
+      .catch(() => false);
+  }
+  return _vtensorWasmPromise;
+}
+
+function blitHopfZeta3dRect(ctx, x0, y0, rw, rh, phase1024, lod, trailTriples) {
+  /* Formal R4.VtensorSemiring3d */
+  const trailCsv = Array.isArray(trailTriples)
+    ? trailTriples
+        .slice(-24)
+        .map((pt) => `${Math.round(Number(pt[0]) || 0)},${Math.round(Number(pt[1]) || 0)},${Math.round(Number(pt[2]) || 0)}`)
+        .join(';')
+    : '';
+  if (mainThreadWasmReady && typeof ctx.putImageData === 'function' && typeof ImageData === 'function') {
+    const rgba = studio_render_hopf_zeta_3d_rgba(rw, rh, phase1024 | 0, lod | 0, trailCsv);
+    if (rgba && rgba.length === rw * rh * 4) {
+      ctx.putImageData(new ImageData(new Uint8ClampedArray(rgba), rw, rh), x0, y0);
+      return true;
+    }
+  }
+  ensureVtensorWasmReady();
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+  ctx.strokeRect(x0 + 1, y0 + 1, rw - 2, rh - 2);
+  return false;
 }
 
 let __holoObsButtonsBound = false;
@@ -6742,6 +6733,7 @@ const lockObservatoryToFrame = (frame, framesPrefix = null, lockedIdx = null) =>
 };
 
 const renderHoloMiniHud = (hudEl, frame, opts = {}) => {
+  /* Formal R4.VtensorSemiring3d */
   if (!hudEl || !frame) return;
   const qTrail = Array.isArray(opts.qTrail) && opts.qTrail.length > 0
     ? opts.qTrail
@@ -6796,24 +6788,9 @@ const renderHoloMiniHud = (hudEl, frame, opts = {}) => {
       ctx.fillStyle = '#0b1120';
       ctx.fillRect(0, 0, cssW, cssH);
 
-      // Left 44x44: 2D projection of q_manifold_xyz trajectory trail
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.28)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(2, 2, 42, 44);
-      if (qTrail.length > 0) {
-        ctx.strokeStyle = '#f472b6';
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        for (let i = 0; i < qTrail.length; i += 1) {
-          const xyz = qTrail[i] || [0, 0, 0];
-          const nx = Math.max(-1, Math.min(1, (Number(xyz[0]) || 0) / 1000));
-          const ny = Math.max(-1, Math.min(1, (Number(xyz[1]) || 0) / 1000));
-          const px = 23 + nx * 17;
-          const py = 24 - ny * 17;
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        ctx.stroke();
+      // Left 44x44: 16x16 tile-binned 3D PBR Hopf-Poincare-Zeta mini manifold (`R4-70`)
+      const miniPhase = ((Number(frame.step_idx || 0) * 28) + 128) & 1023;
+      if (!blitHopfZeta3dRect(ctx, 2, 2, 44, 44, miniPhase, 1, qTrail) && qTrail.length > 0) {
         const tail = qTrail[qTrail.length - 1] || [0, 0, 0];
         const hx = 23 + Math.max(-1, Math.min(1, (Number(tail[0]) || 0) / 1000)) * 17;
         const hy = 24 - Math.max(-1, Math.min(1, (Number(tail[1]) || 0) / 1000)) * 17;
@@ -8488,6 +8465,7 @@ const handlePreviewInspectRequest = async (msg) => {
 };
 
 const initPreviewSurfaceHost = () => {
+  /* Formal R4.VtensorSemiring3d */
   const body = document.body;
   if (body) {
     body.classList.add('surface-preview');
@@ -8512,13 +8490,7 @@ const initPreviewSurfaceHost = () => {
       const standbyCard = document.createElement('div');
       standbyCard.className = 'preview-standby-card';
       if (standbyCard.style) {
-        standbyCard.style.fontFamily = 'var(--font-sans, system-ui, sans-serif)';
-        standbyCard.style.color = '#334155';
-        standbyCard.style.background = '#f8fafc';
-        standbyCard.style.border = '1px solid #cbd5e1';
-        standbyCard.style.borderRadius = '8px';
-        standbyCard.style.padding = '14px';
-        standbyCard.style.fontSize = '0.85rem';
+        Object.assign(standbyCard.style, { fontFamily: 'var(--font-sans, system-ui, sans-serif)', color: '#334155', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '14px', fontSize: '0.85rem' });
       }
       standbyCard.textContent = 'UOR-R4 Isolated Preview Surface Ready (uor-preview/1) — awaiting /workspace files.';
       rootEl.appendChild(standbyCard);
@@ -8527,10 +8499,20 @@ const initPreviewSurfaceHost = () => {
 
   const postToParent = (payload) => {
     const dest = typeof window !== 'undefined' && window.parent ? window.parent : null;
-    if (dest && dest !== window && typeof dest.postMessage === 'function') {
-      dest.postMessage({ protocol: 'uor-preview/1', ...payload }, '*');
-    }
+    if (dest && dest !== window && typeof dest.postMessage === 'function') dest.postMessage({ protocol: 'uor-preview/1', ...payload }, '*');
   };
+
+  const mountPreview3d = async (sceneSpec, targetEl) => {
+    await ensureVtensorWasmReady();
+    return globalThis.__uorSelfHostRuntime.mountPreviewScene3d(sceneSpec, targetEl || rootEl, document);
+  };
+  if (typeof window !== 'undefined') {
+    window.uorVtensor3d = {
+      renderSceneRgba: async (spec, w = 320, h = 224) => (await ensureVtensorWasmReady(), studio_render_preview_scene_3d_rgba(typeof spec === 'string' ? spec : JSON.stringify(spec || {}), w, h)),
+      mountScene: mountPreview3d,
+      selfCheck: async () => (await ensureVtensorWasmReady(), JSON.parse(studio_vtensor_3d_self_check_json())),
+    };
+  }
 
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
     window.addEventListener('message', (ev) => {
@@ -8539,8 +8521,10 @@ const initPreviewSurfaceHost = () => {
       if (!msg || typeof msg !== 'object') return;
       const msgOp = msg.op || msg.type;
       if (msg.protocol && msg.protocol !== 'uor-preview/1') return;
-      if (!msg.protocol && msgOp !== 'render_files' && msgOp !== 'inspect') return;
-      if (msgOp === 'render_files') {
+      if (!msg.protocol && msgOp !== 'render_files' && msgOp !== 'inspect' && msgOp !== 'render_3d_scene') return;
+      if (msgOp === 'render_3d_scene') {
+        mountPreview3d(msg.scene || {}, rootEl).then((res) => postToParent({ op: 'rendered_3d_scene', type: 'rendered_3d_scene', requestId: msg.requestId || null, report: res }));
+      } else if (msgOp === 'render_files') {
         const diag = renderPreviewWorkspace(msg.files || {}, rootEl, (evDiag) => {
           postToParent({ op: evDiag.kind === 'console' ? 'console' : 'rendered', ...evDiag });
         }, msg.selector);

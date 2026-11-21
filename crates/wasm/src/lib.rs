@@ -50,6 +50,8 @@ pub mod native_q31_lane;
 pub mod prism_holo_compiler;
 /// Multiplier-free, zero-float `UORR4V12` geometric vector stack runtime (`R4-46`).
 pub mod r4_geometric_stack;
+/// Wave 2 (`R4-70`): Zero-float `vTensor` certified storage planner & `16x16` tile-binned 3D PBR WebGUI engine.
+pub mod vtensor_semiring_3d;
 /// Deterministically generated Rust implementation of the verified LexLean `R4.*` modules.
 #[allow(dead_code, clippy::all, missing_docs)]
 pub mod lexlean_generated {

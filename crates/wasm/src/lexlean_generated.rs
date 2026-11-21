@@ -49136,3 +49136,135 @@ pub mod r4_verdant_ratchet_cycle {
             && admit_dev_rel_catalog_coverage(0, 0) == DevRelCatalogVerdict::CatalogCoveredAdmitted
     }
 }
+
+/// Generated mirror of `src/R4/VtensorSemiring3d.lex.tex` (`R4-70`).
+pub mod r4_vtensor_semiring_3d {
+    /// Structure `R4.VtensorSemiring3d.VtensorStoragePlanCheck` (`R4-70`).
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct VtensorStoragePlanCheck {
+        pub is_float_dtype: bool,
+        pub is_empty_node: bool,
+        pub alignment_mod: u64,
+        pub offset_bytes: u64,
+        pub transfer_bytes: u64,
+        pub capacity_bytes: u64,
+        pub repeat_axis0: u64,
+        pub repeat_axis1: u64,
+        pub repeat_axis2: u64,
+        pub repeat_axis3: u64,
+    }
+
+    /// Inductive `R4.VtensorSemiring3d.VtensorStorageVerdict` (`R4-70`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum VtensorStorageVerdict {
+        StorageGraphAdmitted,
+        EmptyNodeNoOpAdmitted,
+        RefusedFloatStorageDtype,
+        RefusedUnalignedBufferPlacement,
+        RefusedTransferRangeOverflow,
+        RefusedInvalidFourAxisRepeatFactor,
+    }
+
+    /// Structure `R4.VtensorSemiring3d.SemiringRaster3dCheck` (`R4-70`).
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct SemiringRaster3dCheck {
+        pub float_ops: u64,
+        pub accumulate_exact_no_intermediate_rounding: bool,
+        pub tile_bin_width: u64,
+        pub tile_bin_height: u64,
+        pub lod_level: u64,
+        pub observatory_manifold_bound: bool,
+        pub studio_preview_scene_bound: bool,
+    }
+
+    /// Inductive `R4.VtensorSemiring3d.SemiringRaster3dVerdict` (`R4-70`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum SemiringRaster3dVerdict {
+        TilePbrObservatoryAndStudioAdmitted,
+        RefusedFloatRasterOrShaderOp,
+        RefusedIntermediateRounding,
+        RefusedInvalidTileBinDimension,
+        RefusedProgressiveLodOutOfBounds,
+    }
+
+    /// Function `R4.VtensorSemiring3d.fourAxisRepeatVolume` (`R4-70`).
+    pub fn four_axis_repeat_volume(r0: u64, r1: u64, r2: u64, r3: u64) -> u64 {
+        r0.saturating_mul(r1).saturating_mul(r2).saturating_mul(r3)
+    }
+
+    /// Function `R4.VtensorSemiring3d.admitVtensorStoragePlan` (`R4-70`).
+    pub fn admit_vtensor_storage_plan(p: VtensorStoragePlanCheck) -> VtensorStorageVerdict {
+        if p.is_float_dtype {
+            VtensorStorageVerdict::RefusedFloatStorageDtype
+        } else if p.is_empty_node {
+            VtensorStorageVerdict::EmptyNodeNoOpAdmitted
+        } else if p.alignment_mod != 0 {
+            VtensorStorageVerdict::RefusedUnalignedBufferPlacement
+        } else if p.capacity_bytes < p.offset_bytes.saturating_add(p.transfer_bytes) {
+            VtensorStorageVerdict::RefusedTransferRangeOverflow
+        } else if four_axis_repeat_volume(
+            p.repeat_axis0,
+            p.repeat_axis1,
+            p.repeat_axis2,
+            p.repeat_axis3,
+        ) == 0
+        {
+            VtensorStorageVerdict::RefusedInvalidFourAxisRepeatFactor
+        } else {
+            VtensorStorageVerdict::StorageGraphAdmitted
+        }
+    }
+
+    /// Function `R4.VtensorSemiring3d.admitSemiringRaster3d` (`R4-70`).
+    pub fn admit_semiring_raster_3d(s: SemiringRaster3dCheck) -> SemiringRaster3dVerdict {
+        if 0 < s.float_ops {
+            SemiringRaster3dVerdict::RefusedFloatRasterOrShaderOp
+        } else if !s.accumulate_exact_no_intermediate_rounding {
+            SemiringRaster3dVerdict::RefusedIntermediateRounding
+        } else if s.tile_bin_width != 16 || s.tile_bin_height != 16 {
+            SemiringRaster3dVerdict::RefusedInvalidTileBinDimension
+        } else if 4 < s.lod_level || !s.observatory_manifold_bound || !s.studio_preview_scene_bound
+        {
+            SemiringRaster3dVerdict::RefusedProgressiveLodOutOfBounds
+        } else {
+            SemiringRaster3dVerdict::TilePbrObservatoryAndStudioAdmitted
+        }
+    }
+
+    /// Function `R4.VtensorSemiring3d.verifyVtensorSemiring3dAdmitted` (`R4-70`).
+    pub fn verify_vtensor_semiring_3d_admitted() -> bool {
+        admit_vtensor_storage_plan(VtensorStoragePlanCheck {
+            is_float_dtype: false,
+            is_empty_node: false,
+            alignment_mod: 0,
+            offset_bytes: 4096,
+            transfer_bytes: 16384,
+            capacity_bytes: 65536,
+            repeat_axis0: 4,
+            repeat_axis1: 2,
+            repeat_axis2: 2,
+            repeat_axis3: 1,
+        }) == VtensorStorageVerdict::StorageGraphAdmitted
+            && admit_vtensor_storage_plan(VtensorStoragePlanCheck {
+                is_float_dtype: false,
+                is_empty_node: true,
+                alignment_mod: 0,
+                offset_bytes: 0,
+                transfer_bytes: 0,
+                capacity_bytes: 0,
+                repeat_axis0: 0,
+                repeat_axis1: 1,
+                repeat_axis2: 1,
+                repeat_axis3: 1,
+            }) == VtensorStorageVerdict::EmptyNodeNoOpAdmitted
+            && admit_semiring_raster_3d(SemiringRaster3dCheck {
+                float_ops: 0,
+                accumulate_exact_no_intermediate_rounding: true,
+                tile_bin_width: 16,
+                tile_bin_height: 16,
+                lod_level: 4,
+                observatory_manifold_bound: true,
+                studio_preview_scene_bound: true,
+            }) == SemiringRaster3dVerdict::TilePbrObservatoryAndStudioAdmitted
+    }
+}

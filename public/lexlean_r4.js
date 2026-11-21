@@ -1453,6 +1453,57 @@ export function studio_begin_holo_v13_mount_verified(model_id, expected_pieces, 
     }
 }
 
+/**
+ * Formal R4.VtensorSemiring3d render live Neural HUD / Observatory 3D Hopf-Poincare-Zeta RGBA8 frame (`R4-70`).
+ * @param {number} width
+ * @param {number} height
+ * @param {number} rot_phase1024
+ * @param {number} lod_level
+ * @param {string} trail_csv
+ * @returns {Uint8Array}
+ */
+export function studio_render_hopf_zeta_3d_rgba(width, height, rot_phase1024, lod_level, trail_csv) {
+    const ptr0 = passStringToWasm0(trail_csv, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_render_hopf_zeta_3d_rgba(width, height, rot_phase1024, lod_level, ptr0, len0);
+    var v2 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v2;
+}
+
+/**
+ * Formal R4.VtensorSemiring3d render Studio `?surface=preview` 3D PBR scene from JSON (`R4-70`).
+ * @param {string} scene_json
+ * @param {number} width
+ * @param {number} height
+ * @returns {Uint8Array}
+ */
+export function studio_render_preview_scene_3d_rgba(scene_json, width, height) {
+    const ptr0 = passStringToWasm0(scene_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_render_preview_scene_3d_rgba(ptr0, len0, width, height);
+    var v2 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v2;
+}
+
+/**
+ * Formal R4.VtensorSemiring3d emit structured self-verification JSON receipt (`R4-70`).
+ * @returns {string}
+ */
+export function studio_vtensor_3d_self_check_json() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_vtensor_3d_self_check_json();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
 async function __wbg_load(module, imports) {
     if (typeof Response === 'function' && module instanceof Response) {
         if (typeof WebAssembly.instantiateStreaming === 'function') {
@@ -17637,6 +17688,31 @@ if (typeof globalThis === 'object' && globalThis) {
     buildAfflomMeAppDescriptor: build_afflom_me_app_descriptor,
     buildFoundryStudioDescriptor: build_afflom_me_app_descriptor,
     executeInprismFoundryTurn: execute_inprism_foundry_turn,
+    renderHopfZeta3dRgba: (w, h, phase, lod, trail) => studio_render_hopf_zeta_3d_rgba(w, h, phase, lod, trail || ''),
+    renderPreviewScene3dRgba: (specJson, w, h) => studio_render_preview_scene_3d_rgba(specJson, w, h),
+    vtensor3dSelfCheckJson: () => studio_vtensor_3d_self_check_json(),
+    mountPreviewScene3d: (sceneSpec, hostEl, docObj) => {
+      /* Formal R4.VtensorSemiring3d */
+      const specObj = typeof sceneSpec === 'string' ? JSON.parse(sceneSpec || '{}') : (sceneSpec || {});
+      const cw = Math.max(32, Math.min(1024, Number(specObj.width) || 320));
+      const ch = Math.max(32, Math.min(1024, Number(specObj.height) || 224));
+      const rgba = studio_render_preview_scene_3d_rgba(JSON.stringify(specObj), cw, ch);
+      if (hostEl && docObj && typeof docObj.createElement === 'function') {
+        let cEl = typeof hostEl.querySelector === 'function' ? hostEl.querySelector('#preview-vtensor-3d-canvas') : null;
+        if (!cEl) {
+          cEl = docObj.createElement('canvas');
+          cEl.id = 'preview-vtensor-3d-canvas';
+          hostEl.appendChild(cEl);
+        }
+        cEl.width = cw;
+        cEl.height = ch;
+        const c2d = typeof cEl.getContext === 'function' ? cEl.getContext('2d') : null;
+        if (c2d && typeof c2d.putImageData === 'function' && typeof ImageData === 'function' && rgba.length === cw * ch * 4) {
+          c2d.putImageData(new ImageData(new Uint8ClampedArray(rgba), cw, ch), 0, 0);
+        }
+      }
+      return { width: cw, height: ch, rgbaLength: rgba.length, spec: 'uor-vtensor-3d/1' };
+    },
     flushMvmCowToOpfs,
   };
 

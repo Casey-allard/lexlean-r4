@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-70"
+level = "build"
+suite = "r4_70_vtensor_semiring_3d"
+statement = "Pure LexLean models the R4-70 zero-float vTensor certified storage planner (VT-09 transfer bounds, VT-10 aligned linear allocator, VT-14 empty-node no-op, VT-15 DUP/CONT/CPY, VT-16 4-axis REPEAT) and verdant-tensor semiring 16x16 tile-binned 3D PBR WebGUI engine (R4.VtensorSemiring3d): fourAxisRepeatVolume computing exact 4-axis replication volume; admitVtensorStoragePlan admitting aligned capacity-bounded integer buffer graphs (StorageGraphAdmitted) and empty-node no-ops (EmptyNodeNoOpAdmitted) while refusing float dtypes (RefusedFloatStorageDtype), unaligned placements (RefusedUnalignedBufferPlacement), transfer range overflows (RefusedTransferRangeOverflow), and zero repeat factors (RefusedInvalidFourAxisRepeatFactor); and admitSemiringRaster3d admitting zero-float single-rounding Laurent/tropical/Q15 semiring 16x16 tile-binned UORC LOD0..LOD4 PBR rendering across both the live Neural HUD/Observatory and Studio ?surface=preview (TilePbrObservatoryAndStudioAdmitted) while refusing float shader ops (RefusedFloatRasterOrShaderOp), intermediate rounding (RefusedIntermediateRounding), invalid tile dimensions (RefusedInvalidTileBinDimension), and out-of-bounds LOD levels (RefusedProgressiveLodOutOfBounds). Formal controls establish modeled admission invariants only, not external GPU hardware frame rates."
+
+[[id]]
 id = "R4-69"
 level = "build"
 suite = "r4_69_verdant_ratchet_cycle"

@@ -14,6 +14,12 @@
 spec = "template/1"
 
 [[claim]]
+id = "AUTH-VTENSOR-VERDANT-TENSOR-3D"
+level = "some-true"
+authority = "VTENSOR-VERDANT-TENSOR-3D"
+statement = "vTensor (9f897e18e7) VT-09..16 certified buffer placement and 4-axis REPEAT addressing together with verdant-engine (8f560d975e) crates/verdant-tensor wide-accumulator Laurent/tropical/Q15 semiring contractions and 16x16 tile-binned UORC LOD0..LOD4 3D PBR rendering are imported from afflom/vTensor and afflom/verdant-engine. Local implementation enforces float_ops = 0 across all serving and raster paths."
+
+[[claim]]
 id = "AUTH-VERDANT-ENGINE-RATCHET"
 level = "some-true"
 authority = "VERDANT-ENGINE-RATCHET"

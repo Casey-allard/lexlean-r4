@@ -148,6 +148,13 @@ prism_record = "Foundation.Qual::VerdantRatchetCycle"
 facet = "qual"
 note = "Verdant M15 v2.7.0 bidirectional floor-up/ceiling-down ratchet-cycle, live rust_tree_sha256/js_tree_sha256 binding, 7-category lifecycle, and DR-01/DR-02 coverage."
 
+[[route]]
+id = "R4-UR21"
+rust_fact = "vtensor-semiring-tile-pbr-3d"
+prism_record = "Foundation.Design::VtensorSemiring3d"
+facet = "design"
+note = "Zero-float vTensor VT-09..16 storage planner, Laurent/tropical/Q15 semiring contractions, and 16x16 tile-binned UORC LOD0..LOD4 3D PBR Observatory & Studio preview."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -247,6 +254,11 @@ response = "route R4-UR19\nfact chunked-prefill-single-pass-ci-gate\nrecord Foun
 case = "route R4-UR20"
 request_hex = "76657264616e742d6d31352d726174636865742d6379636c65"
 response = "route R4-UR20\nfact verdant-m15-ratchet-cycle\nrecord Foundation.Qual::VerdantRatchetCycle\nfacet qual"
+
+[[vector]]
+case = "route R4-UR21"
+request_hex = "7674656e736f722d73656d6972696e672d74696c652d7062722d3364"
+response = "route R4-UR21\nfact vtensor-semiring-tile-pbr-3d\nrecord Foundation.Design::VtensorSemiring3d\nfacet design"
 
 [[vector]]
 case = "error empty"

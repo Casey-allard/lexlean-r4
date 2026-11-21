@@ -16009,6 +16009,31 @@ if (typeof globalThis === 'object' && globalThis) {
     buildAfflomMeAppDescriptor: build_afflom_me_app_descriptor,
     buildFoundryStudioDescriptor: build_afflom_me_app_descriptor,
     executeInprismFoundryTurn: execute_inprism_foundry_turn,
+    renderHopfZeta3dRgba: (w, h, phase, lod, trail) => studio_render_hopf_zeta_3d_rgba(w, h, phase, lod, trail || ''),
+    renderPreviewScene3dRgba: (specJson, w, h) => studio_render_preview_scene_3d_rgba(specJson, w, h),
+    vtensor3dSelfCheckJson: () => studio_vtensor_3d_self_check_json(),
+    mountPreviewScene3d: (sceneSpec, hostEl, docObj) => {
+      /* Formal R4.VtensorSemiring3d */
+      const specObj = typeof sceneSpec === 'string' ? JSON.parse(sceneSpec || '{}') : (sceneSpec || {});
+      const cw = Math.max(32, Math.min(1024, Number(specObj.width) || 320));
+      const ch = Math.max(32, Math.min(1024, Number(specObj.height) || 224));
+      const rgba = studio_render_preview_scene_3d_rgba(JSON.stringify(specObj), cw, ch);
+      if (hostEl && docObj && typeof docObj.createElement === 'function') {
+        let cEl = typeof hostEl.querySelector === 'function' ? hostEl.querySelector('#preview-vtensor-3d-canvas') : null;
+        if (!cEl) {
+          cEl = docObj.createElement('canvas');
+          cEl.id = 'preview-vtensor-3d-canvas';
+          hostEl.appendChild(cEl);
+        }
+        cEl.width = cw;
+        cEl.height = ch;
+        const c2d = typeof cEl.getContext === 'function' ? cEl.getContext('2d') : null;
+        if (c2d && typeof c2d.putImageData === 'function' && typeof ImageData === 'function' && rgba.length === cw * ch * 4) {
+          c2d.putImageData(new ImageData(new Uint8ClampedArray(rgba), cw, ch), 0, 0);
+        }
+      }
+      return { width: cw, height: ch, rgbaLength: rgba.length, spec: 'uor-vtensor-3d/1' };
+    },
     flushMvmCowToOpfs,
   };
 
