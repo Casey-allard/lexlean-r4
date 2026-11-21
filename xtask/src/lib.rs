@@ -26,6 +26,7 @@ pub mod bootstrap;
 pub mod engine;
 pub mod recompiler_v14;
 pub mod routes_and_measures;
+pub mod studio_lora_corpus;
 
 /// A gate failure, reported with the rule it broke.
 pub type Fail = Box<dyn std::error::Error>;

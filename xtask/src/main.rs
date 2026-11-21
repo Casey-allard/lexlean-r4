@@ -32,6 +32,9 @@ fn main() -> ExitCode {
         "ratchet-check" => engine::ratchet::check(&root).map(|_| ()),
         "ratchet-cycle" => engine::ratchet::run_ratchet_cycle(&root, write).map(|_| ()),
         "recompile-v14" => xtask::recompiler_v14::run_recompile_v14_cmd(&root, rest).map(|_| ()),
+        "studio-compile-v14-corpus" => {
+            xtask::studio_lora_corpus::run_studio_compile_v14_corpus_cmd(&root, rest).map(|_| ())
+        }
         "build-wasm" => wasm_bundle::run_build_wasm_cmd(&root, rest),
         "build-holo" => run_build_holo_cmd(&root, rest),
         "generate-studio-sft-dataset" => run_generate_studio_sft_dataset_cmd(&root, rest),

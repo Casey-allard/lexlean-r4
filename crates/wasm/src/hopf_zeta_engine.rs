@@ -1107,6 +1107,8 @@ pub fn default_hopf_zeta_v14_engine() -> &'static HopfZetaPoincareEngineV14 {
             "Every layer of the 6-layer Cl(0,6) SpiralCore FBS snaps quaternion states onto the 120-vertex H4 600-cell Icosian group 2I guaranteeing exact 0-LSB norm and phase conservation across multi-turn reasoning.",
             "Studio workspaces run inside the Hologram Quantum PC MicroVM with FK-01 through FK-09 InTabProver proof-gated .holo publication, float-forbidding canonical BLAKE3 kappa addressing, and 16x16 tile-binned 3D PBR rendering.",
             "Byte-bounded C1/S5 distance-split whole-context count memory casts 4 resonant tokens per wave, lifting the 80 GB/s memory bandwidth ceiling from 266 tok/s to 320,000 tok/s and sustaining over 10,000 tok/s in browser.",
+            "Studio Agent executes MVM cargo test, rustc, cc, and npm via <tool_call> {\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"cargo test\"}} </tool_call> and repairs /workspace files with <prism-write path=\"src/lib.rs\">.",
+            "InTabProver verifies LexLean semantic modules via <tool_call> {\"name\":\"foundry_prove\",\"arguments\":{\"module_path\":\"src/App.lex.tex\"}} </tool_call> and renders 3D scenes via vtensor_render_3d.",
         ];
         HopfZetaPoincareEngineV14::compile_from_corpus("uor-r4.qwen3-0.6b-holo-v14", &passages)
             .expect("built-in UORR4V14 geometric engine")

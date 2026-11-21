@@ -190,6 +190,13 @@ prism_record = "Foundation.Qual::ResidentGpuHybridDrafter"
 facet = "qual"
 note = "Digest-stamped ?v=v12r4-<sha12> cache-busting, honest Resident 0-byte-download turn UX, real 28-layer WebGPU Int4 RHT-32 slab streaming, and 0-LSB UORR4V14 -> HoloV13 speculative wave drafting."
 
+[[route]]
+id = "R4-UR27"
+rust_fact = "studio-agent-lora-v14-distill"
+prism_record = "Foundation.Arch::StudioAgentLoraDistill"
+facet = "arch"
+note = "Multi-hop Studio Agent coding/MVM/<prism-write>/.lex.tex trajectory corpus and byte-bounded UORR4V14 C1/S5 atlas compiler in lockstep with STUDIO_AGENT_TOOL_SCHEMA."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -319,6 +326,11 @@ response = "route R4-UR25\nfact agent-workspace-tool-awareness\nrecord Foundatio
 case = "route R4-UR26"
 request_hex = "7265736964656e742d6770752d6879627269642d7631342d64726166746572"
 response = "route R4-UR26\nfact resident-gpu-hybrid-v14-drafter\nrecord Foundation.Qual::ResidentGpuHybridDrafter\nfacet qual"
+
+[[vector]]
+case = "route R4-UR27"
+request_hex = "73747564696f2d6167656e742d6c6f72612d7631342d64697374696c6c"
+response = "route R4-UR27\nfact studio-agent-lora-v14-distill\nrecord Foundation.Arch::StudioAgentLoraDistill\nfacet arch"
 
 [[vector]]
 case = "error empty"

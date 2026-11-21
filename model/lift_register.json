@@ -2,9 +2,9 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2988,
-    "lifted": 2196,
-    "effect": 293,
+    "total_functions": 2995,
+    "lifted": 2200,
+    "effect": 296,
     "foreign": 158,
     "residue": 341
   },
@@ -3634,7 +3634,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "2e25aa1694260a833da0fd46a2bf8f1e25a75fc3bc24423098fa6943ef9c6d8f",
+      "kappa": "9d3be8304e50e76754525ff0c6906ededef2de4e7281135a1e437a990c242bcc",
       "function": "crates/wasm/src/hopf_zeta_engine.rs::default_hopf_zeta_v14_engine",
       "status": "lifted",
       "definition": "R4.HopfZetaPoincareArchitecture",
@@ -4058,6 +4058,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_dev_rel_catalog_coverage",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_dev_rel_catalog_coverage",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "b060222dd788a2a08208100ebb22c95f8ff409f34b4004e109da4bca877359d4",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_distilled_agent_atlas",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_distilled_agent_atlas",
       "exact_divergence_free": true
     },
     {
@@ -13364,6 +13371,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "3ba68994aec2e1dbaaae93c9084b6214dece132b7dcab10eedf375336f6abb57",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_studio_agent_lora_distill_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_studio_agent_lora_distill_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "28c7329e64b36d61afe26ac63a46c37460c8f93657f40e4004f04245d83cd7e4",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_studio_frame_admitted",
       "status": "lifted",
@@ -20663,7 +20677,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "23565380b7b5fbc94e833a85968f4ac29b4d407261b95f335b0b61d42924355b",
+      "kappa": "1b637d38b03d7143ddc05f1b31c1ceff150ba269f211e93ad6e9226ca0602fbb",
       "function": "xtask/src/main.rs::main",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -21082,6 +21096,41 @@
       "status": "lifted",
       "definition": "R4.UorustPrismDevrel",
       "exact_divergence_free": true
+    },
+    {
+      "kappa": "5749b5c83b6d5b00edae89dbd92329b5a5313456eec797ac610ae381be872c9a",
+      "function": "xtask/src/studio_lora_corpus.rs::build_studio_agent_distill_corpus",
+      "status": "lifted",
+      "definition": "R4.StudioAgentLoraDistill",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "33aabaf43159624c62ec34d5e5bc2d51e7fdc34f5189184ec1e9fef26634cab1",
+      "function": "xtask/src/studio_lora_corpus.rs::collect_studio_v14_trajectory_passages",
+      "status": "lifted",
+      "definition": "R4.StudioAgentLoraDistill",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "278c1a93aa662bcd13becd542001c675a4edb4d1c1c0432f101ade430a91e82f",
+      "function": "xtask/src/studio_lora_corpus.rs::run_studio_compile_v14_corpus_cmd",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "65ffa9716029bdc9dd75be79634a989aad53081fa8eb091f9cee51da2054ee57",
+      "function": "xtask/src/studio_lora_corpus.rs::verify_studio_schema_lockstep",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "1481d91bfe6288aba7a4bddc0719e29a4475f01952227dadc93a35a24ea6e3d9",
+      "function": "xtask/src/studio_lora_corpus.rs::verify_v13_manifests_stitch_parity",
+      "status": "effect",
+      "effect": "os-filesystem-and-process-io",
+      "exact_divergence_free": false
     },
     {
       "kappa": "dbb574727ad7155fa446207fe5aa83607f4f8fe7deb234b6b17f8e9ccd5a8273",

@@ -71,6 +71,7 @@ pub fn collect_repository_distillation_passages(root: &Path) -> Vec<String> {
         "Byte-bounded C1/S5 distance-split whole-context count memory touches at most 1024 KB per resonant wave and casts 4 tokens per wave to sustain over 10,000 tokens per second in browser.".to_string(),
         "Hologram Quantum PC Studio workspaces enforce FK-01 through FK-09 InTabProver proof-gated .holo publication resting on propext and Quot.sound with float-forbidding canonical BLAKE3 kappa.".to_string(),
     ];
+    passages.extend(crate::studio_lora_corpus::collect_studio_v14_trajectory_passages());
 
     if let Ok(ids_raw) = std::fs::read_to_string(root.join("model/ids.toml")) {
         for line in ids_raw.lines() {

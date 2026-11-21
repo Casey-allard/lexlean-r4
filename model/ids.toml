@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-76"
+level = "build"
+suite = "r4_76_studio_agent_lora_distill"
+statement = "Pure LexLean models the R4-76 Studio Agent multi-hop coding trajectory distillation and UORR4V14 C1/S5 harmonic atlas compilation in lockstep with STUDIO_SELF_KNOWLEDGE_PREFIX and STUDIO_AGENT_TOOL_SCHEMA (R4.StudioAgentLoraDistill): admitDistilledAgentAtlas admitting zero-float multi-hop MVM cargo/rustc/cc/npm, <prism-write>, preview_inspect, and .lex.tex repair corpora (>= 24 total episodes, >= 8 multi-hop tool-repair episodes) compiled into <= 1 MiB C1/S5 distance-split context atlases with verified 2-of-3 Stitch parity and ChatML <tool_call> -> <tool_response> hop binding (DistilledAgentAtlasAdmitted) while refusing float ops (RefusedFloatOpsInDistillation), schema lockstep drift (RefusedMissingToolSchemaLockstep), broken Stitch or ChatML hop parity (RefusedBrokenStitchOrChatMlHopParity), insufficient multi-hop trajectories (RefusedInsufficientMultiHopTrajectories), and C1/S5 byte budget overflows (RefusedC1S5ByteBudgetOverflow). Formal controls establish modeled distillation admission invariants only, not open-ended human evaluation scores."
+
+[[id]]
 id = "R4-75"
 level = "build"
 suite = "r4_75_resident_gpu_hybrid_drafter"

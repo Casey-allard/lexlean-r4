@@ -49718,3 +49718,50 @@ pub mod r4_resident_gpu_hybrid_drafter {
                 == HybridDraftVerdict::HybridV14WasmSimdFallbackAdmitted
     }
 }
+
+pub mod r4_studio_agent_lora_distill {
+    //! Generated from `src/R4/StudioAgentLoraDistill.lex.tex` (`R4-76`).
+
+    /// Inductive `R4.StudioAgentLoraDistill.AgentDistillVerdict` (`R4-76`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum AgentDistillVerdict {
+        DistilledAgentAtlasAdmitted,
+        RefusedFloatOpsInDistillation,
+        RefusedInsufficientMultiHopTrajectories,
+        RefusedC1S5ByteBudgetOverflow,
+        RefusedBrokenStitchOrChatMlHopParity,
+        RefusedMissingToolSchemaLockstep,
+    }
+
+    /// Function `R4.StudioAgentLoraDistill.admitDistilledAgentAtlas` (`R4-76`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn admit_distilled_agent_atlas(
+        float_ops: u64,
+        trajectory_count: u64,
+        multi_hop_repair_count: u64,
+        c1s5_bytes: u64,
+        stitch_parity_valid: bool,
+        chat_ml_tool_hop_bound: bool,
+        schema_lockstep_valid: bool,
+    ) -> AgentDistillVerdict {
+        if 0 < float_ops {
+            AgentDistillVerdict::RefusedFloatOpsInDistillation
+        } else if !schema_lockstep_valid {
+            AgentDistillVerdict::RefusedMissingToolSchemaLockstep
+        } else if !stitch_parity_valid || !chat_ml_tool_hop_bound {
+            AgentDistillVerdict::RefusedBrokenStitchOrChatMlHopParity
+        } else if trajectory_count < 24 || multi_hop_repair_count < 8 {
+            AgentDistillVerdict::RefusedInsufficientMultiHopTrajectories
+        } else if 1_048_576 < c1s5_bytes {
+            AgentDistillVerdict::RefusedC1S5ByteBudgetOverflow
+        } else {
+            AgentDistillVerdict::DistilledAgentAtlasAdmitted
+        }
+    }
+
+    /// Function `R4.StudioAgentLoraDistill.verifyStudioAgentLoraDistillAdmitted` (`R4-76`).
+    pub fn verify_studio_agent_lora_distill_admitted() -> bool {
+        admit_distilled_agent_atlas(0, 64, 16, 262_144, true, true, true)
+            == AgentDistillVerdict::DistilledAgentAtlasAdmitted
+    }
+}
