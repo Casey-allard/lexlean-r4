@@ -302,6 +302,29 @@ export function studio_export_holo_layer_slab_meta(model_id, device_binding_limi
     }
 }
 
+/**
+ * Formal R4.FoundryAgentToolSurface Wasm export executing policy-checked Studio `<tool_call>` invocations (`foundry_prove`, `foundry_publish_holo`, `vtensor_render_3d`, `mvm_exec`, `workspace_*`) (`R4-77`).
+ * @param {string} tool_call_json
+ * @param {string} composer_mode
+ * @returns {string}
+ */
+export function studio_execute_agent_tool_json(tool_call_json, composer_mode) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(tool_call_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(composer_mode, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_execute_agent_tool_json(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
 function getArrayU8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
@@ -345,33 +368,6 @@ export function studio_verify_resident_webgpu_step(float_ops, layer_max_bytes, d
     } finally {
         wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
-}
-
-let cachedUint32ArrayMemory0 = null;
-
-function getUint32ArrayMemory0() {
-    if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
-        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
-    }
-    return cachedUint32ArrayMemory0;
-}
-
-function getArrayU32FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
-}
-/**
- * Formal R4.LiveWebGpuTurnBridge export vocabulary 512-bit RHT signatures as `u32` words (`R4-65`).
- * @param {string} model_id
- * @returns {Uint32Array}
- */
-export function studio_export_holo_vocab_sigs_u32(model_id) {
-    const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_export_holo_vocab_sigs_u32(ptr0, len0);
-    var v2 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
-    return v2;
 }
 
 /**
@@ -568,6 +564,33 @@ export function studio_record_generation_fault(fault_reason) {
     }
 }
 
+let cachedUint32ArrayMemory0 = null;
+
+function getUint32ArrayMemory0() {
+    if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
+        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
+    }
+    return cachedUint32ArrayMemory0;
+}
+
+function getArrayU32FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+}
+/**
+ * Formal R4.LiveWebGpuTurnBridge export vocabulary 512-bit RHT signatures as `u32` words (`R4-65`).
+ * @param {string} model_id
+ * @returns {Uint32Array}
+ */
+export function studio_export_holo_vocab_sigs_u32(model_id) {
+    const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_export_holo_vocab_sigs_u32(ptr0, len0);
+    var v2 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+    return v2;
+}
+
 /**
  * Formal R4.LiveWebGpuTurnBridge peek active turn's 512-bit query signature (`R4-65`).
  * @param {bigint} turn_id
@@ -602,26 +625,17 @@ export function holo_notify_foundry_turn_gpu_bound_step(turn_id, total_dispatche
 }
 
 /**
- * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
- * @param {string} subcommand
- * @param {string} filter
- * @returns {string}
+ * WebAssembly entrypoint processing a versioned byte envelope.
+ * @param {Uint8Array} input
+ * @returns {Uint8Array}
  */
-export function studio_wasm_eval(subcommand, filter) {
-    let deferred3_0;
-    let deferred3_1;
-    try {
-        const ptr0 = passStringToWasm0(subcommand, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(filter, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
-        deferred3_0 = ret[0];
-        deferred3_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
-    }
+export function process_envelope(input) {
+    const ptr0 = passArray8ToWasm0(input, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.process_envelope(ptr0, len0);
+    var v2 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v2;
 }
 
 function takeFromExternrefTable0(idx) {
@@ -787,34 +801,26 @@ export function studio_stitch_recover_pair_auto(group_json, recover_left, has_le
 }
 
 /**
- * Recover an original payload from any 2 of 3 raw `afflom/stitch` `xor-2-of-3` fragments and verify
- * its SHA-256 digest when `expected_object_sha256` is non-empty.
- * @param {boolean} has_frag0
- * @param {Uint8Array} frag0
- * @param {boolean} has_frag1
- * @param {Uint8Array} frag1
- * @param {boolean} has_frag2
- * @param {Uint8Array} frag2
- * @param {number} original_length
- * @param {string} expected_object_sha256
- * @returns {Uint8Array}
+ * Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the active virtual workspace in WebAssembly (`R4-32`).
+ * @param {string} subcommand
+ * @param {string} filter
+ * @returns {string}
  */
-export function studio_stitch_recover_2of3_object(has_frag0, frag0, has_frag1, frag1, has_frag2, frag2, original_length, expected_object_sha256) {
-    const ptr0 = passArray8ToWasm0(frag0, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(frag1, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passArray8ToWasm0(frag2, wasm.__wbindgen_malloc);
-    const len2 = WASM_VECTOR_LEN;
-    const ptr3 = passStringToWasm0(expected_object_sha256, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len3 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_stitch_recover_2of3_object(has_frag0, ptr0, len0, has_frag1, ptr1, len1, has_frag2, ptr2, len2, original_length, ptr3, len3);
-    if (ret[3]) {
-        throw takeFromExternrefTable0(ret[2]);
+export function studio_wasm_eval(subcommand, filter) {
+    let deferred3_0;
+    let deferred3_1;
+    try {
+        const ptr0 = passStringToWasm0(subcommand, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(filter, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_wasm_eval(ptr0, len0, ptr1, len1);
+        deferred3_0 = ret[0];
+        deferred3_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v5;
 }
 
 /**
@@ -958,17 +964,34 @@ export function studio_consolidate_weights(weights_bytes, config_json) {
 }
 
 /**
- * WebAssembly entrypoint processing a versioned byte envelope.
- * @param {Uint8Array} input
+ * Recover an original payload from any 2 of 3 raw `afflom/stitch` `xor-2-of-3` fragments and verify
+ * its SHA-256 digest when `expected_object_sha256` is non-empty.
+ * @param {boolean} has_frag0
+ * @param {Uint8Array} frag0
+ * @param {boolean} has_frag1
+ * @param {Uint8Array} frag1
+ * @param {boolean} has_frag2
+ * @param {Uint8Array} frag2
+ * @param {number} original_length
+ * @param {string} expected_object_sha256
  * @returns {Uint8Array}
  */
-export function process_envelope(input) {
-    const ptr0 = passArray8ToWasm0(input, wasm.__wbindgen_malloc);
+export function studio_stitch_recover_2of3_object(has_frag0, frag0, has_frag1, frag1, has_frag2, frag2, original_length, expected_object_sha256) {
+    const ptr0 = passArray8ToWasm0(frag0, wasm.__wbindgen_malloc);
     const len0 = WASM_VECTOR_LEN;
-    const ret = wasm.process_envelope(ptr0, len0);
-    var v2 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    const ptr1 = passArray8ToWasm0(frag1, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passArray8ToWasm0(frag2, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passStringToWasm0(expected_object_sha256, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_stitch_recover_2of3_object(has_frag0, ptr0, len0, has_frag1, ptr1, len1, has_frag2, ptr2, len2, original_length, ptr3, len3);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
+    }
+    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v2;
+    return v5;
 }
 
 /**
@@ -1020,23 +1043,6 @@ export function studio_core_wasm_guest_bytes() {
 }
 
 /**
- * Formal `R4.PrismHoloIdentity` compile a big-endian `HOLOVIEW` v1 closure and provenance JSON into a Hologram v4 `.holo` archive (`R4-54`).
- * @param {Uint8Array} holoview_bytes
- * @param {Uint8Array} provenance_bytes
- * @returns {Uint8Array}
- */
-export function studio_compile_holo_v4_archive(holoview_bytes, provenance_bytes) {
-    const ptr0 = passArray8ToWasm0(holoview_bytes, wasm.__wbindgen_malloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(provenance_bytes, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_compile_holo_v4_archive(ptr0, len0, ptr1, len1);
-    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v3;
-}
-
-/**
  * Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
  * @param {string} request_json
  * @returns {string}
@@ -1054,6 +1060,23 @@ export function studio_v1_messages(request_json) {
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
+}
+
+/**
+ * Formal `R4.PrismHoloIdentity` compile a big-endian `HOLOVIEW` v1 closure and provenance JSON into a Hologram v4 `.holo` archive (`R4-54`).
+ * @param {Uint8Array} holoview_bytes
+ * @param {Uint8Array} provenance_bytes
+ * @returns {Uint8Array}
+ */
+export function studio_compile_holo_v4_archive(holoview_bytes, provenance_bytes) {
+    const ptr0 = passArray8ToWasm0(holoview_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passArray8ToWasm0(provenance_bytes, wasm.__wbindgen_malloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_compile_holo_v4_archive(ptr0, len0, ptr1, len1);
+    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v3;
 }
 
 /**
@@ -7189,6 +7212,32 @@ function buildUnifiedDiffHunk(oldText, newText, filePath, isDeleted = false) {
   return `diff --git a/${cleanPath} b/${cleanPath}\n--- a/${cleanPath}\n+++ b/${cleanPath}\n@@ -1,${oldLines.length} +1,${newLines.length} @@\n${bodyLines.join('\n')}`;
 }
 
+/** Formal R4.FoundryAgentToolSurface evaluate policy-checked Foundry InTabProver & vTensor 3D agent tool calls (`R4-77`). */
+export function admitFoundryAgentToolCall(
+  toolKind,
+  planReadOnly,
+  workspaceCheckedAndProved,
+  extraUnsoundAxioms = 0,
+  lodLevel = 0,
+  floatOps = 0,
+) {
+  /* Formal R4.FoundryAgentToolSurface */
+  if (Number(floatOps) > 0) return 'RefusedOutOfBoundsLodOrFloat3d';
+  if (toolKind === 'ProveWorkspaceInTab' || toolKind === 'foundry_prove') {
+    return Number(extraUnsoundAxioms) > 0 ? 'RefusedUnsoundAxiomsInAgentProve' : 'FoundryProveAdmitted';
+  }
+  if (toolKind === 'PublishHoloCapsule' || toolKind === 'foundry_publish_holo') {
+    if (planReadOnly) return 'RefusedPlanModeMutatingPublish';
+    if (!workspaceCheckedAndProved) return 'RefusedPublishWithoutProvedWorkspace';
+    if (Number(extraUnsoundAxioms) > 0) return 'RefusedUnsoundAxiomsInAgentProve';
+    return 'FoundryPublishHoloAdmitted';
+  }
+  if (toolKind === 'RenderVtensor3dPreview' || toolKind === 'vtensor_render_3d') {
+    return Number(lodLevel) > 4 ? 'RefusedOutOfBoundsLodOrFloat3d' : 'VtensorRender3dAdmitted';
+  }
+  return 'RefusedOutOfBoundsLodOrFloat3d';
+}
+
 function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
   /* Formal R4.StudioFrame */
   if (hopToolCall && hopToolCall.is_mutating === true) return true;
@@ -7204,7 +7253,8 @@ function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
     name === 'file_delete' ||
     name === 'github_clone' ||
     name === 'github_push' ||
-    name === 'github_pr'
+    name === 'github_pr' ||
+    name === 'foundry_publish_holo'
   ) {
     return true;
   }
@@ -7213,7 +7263,9 @@ function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
     name === 'workspace_search' ||
     name === 'workspace_list' ||
     name === 'preview_inspect' ||
-    name === 'github_status'
+    name === 'github_status' ||
+    name === 'foundry_prove' ||
+    name === 'vtensor_render_3d'
   ) {
     return false;
   }
@@ -8304,12 +8356,15 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         cmd ||
         String(
           toolArgs.path ||
+            toolArgs.module_path ||
             toolArgs.file ||
             toolArgs.query ||
             toolArgs.pattern ||
             toolArgs.url ||
             toolArgs.repo ||
             toolArgs.selector ||
+            toolArgs.preset ||
+            toolArgs.title ||
             '',
         );
 
@@ -8578,6 +8633,50 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
             explicitStdout = String(execRes.text_excerpt || execRes.body_text || JSON.stringify(execRes));
             explicitStderr = execRes.ok ? '' : String(execRes.message || execRes.error_code || 'spiralcore_fetch failed');
             explicitChanged = [];
+          }
+        } else if (
+          toolName === 'foundry_prove' ||
+          toolName === 'foundry_publish_holo' ||
+          toolName === 'vtensor_render_3d'
+        ) {
+          const fnExecAgentTool =
+            runtimeHooks.executeAgentTool ||
+            (typeof studio_execute_agent_tool_json === 'function'
+              ? studio_execute_agent_tool_json
+              : globalThis.studio_execute_agent_tool_json);
+          if (typeof fnExecAgentTool === 'function') {
+            const rawToolOut = await Promise.resolve(
+              fnExecAgentTool(
+                JSON.stringify({ name: toolName, arguments: toolArgs }),
+                composerMode === 'plan' ? 'plan' : 'agent',
+              ),
+            );
+            execRes = typeof rawToolOut === 'string' ? JSON.parse(rawToolOut) : rawToolOut || {};
+          } else {
+            execRes = {
+              status: 'error',
+              error_code: 'AgentToolExecutorUnavailable',
+              exit_code: 1,
+              message: `Wasm studio_execute_agent_tool_json unavailable for ${toolName}`,
+            };
+          }
+          explicitExitCode = execRes && execRes.status === 'ok' ? 0 : 1;
+          explicitStdout = String((execRes && execRes.stdout) || '');
+          explicitStderr =
+            explicitExitCode === 0
+              ? ''
+              : String((execRes && (execRes.stderr || execRes.message || execRes.error_code)) || `${toolName} failed`);
+          explicitChanged = [];
+          if (toolName === 'vtensor_render_3d' && explicitExitCode === 0) {
+            postEvent('vtensor_preview_3d_rendered', {
+              id: reqId,
+              turn_id: activeTurnNum,
+              preset: execRes.preset,
+              lod: execRes.lod,
+              width: execRes.width,
+              height: execRes.height,
+              frame_sha256: execRes.frame_sha256,
+            });
           }
         } else {
           const rawExec = await dispatchBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd })}`);

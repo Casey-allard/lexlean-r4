@@ -5421,6 +5421,32 @@ function buildUnifiedDiffHunk(oldText, newText, filePath, isDeleted = false) {
   return `diff --git a/${cleanPath} b/${cleanPath}\n--- a/${cleanPath}\n+++ b/${cleanPath}\n@@ -1,${oldLines.length} +1,${newLines.length} @@\n${bodyLines.join('\n')}`;
 }
 
+/** Formal R4.FoundryAgentToolSurface evaluate policy-checked Foundry InTabProver & vTensor 3D agent tool calls (`R4-77`). */
+export function admitFoundryAgentToolCall(
+  toolKind,
+  planReadOnly,
+  workspaceCheckedAndProved,
+  extraUnsoundAxioms = 0,
+  lodLevel = 0,
+  floatOps = 0,
+) {
+  /* Formal R4.FoundryAgentToolSurface */
+  if (Number(floatOps) > 0) return 'RefusedOutOfBoundsLodOrFloat3d';
+  if (toolKind === 'ProveWorkspaceInTab' || toolKind === 'foundry_prove') {
+    return Number(extraUnsoundAxioms) > 0 ? 'RefusedUnsoundAxiomsInAgentProve' : 'FoundryProveAdmitted';
+  }
+  if (toolKind === 'PublishHoloCapsule' || toolKind === 'foundry_publish_holo') {
+    if (planReadOnly) return 'RefusedPlanModeMutatingPublish';
+    if (!workspaceCheckedAndProved) return 'RefusedPublishWithoutProvedWorkspace';
+    if (Number(extraUnsoundAxioms) > 0) return 'RefusedUnsoundAxiomsInAgentProve';
+    return 'FoundryPublishHoloAdmitted';
+  }
+  if (toolKind === 'RenderVtensor3dPreview' || toolKind === 'vtensor_render_3d') {
+    return Number(lodLevel) > 4 ? 'RefusedOutOfBoundsLodOrFloat3d' : 'VtensorRender3dAdmitted';
+  }
+  return 'RefusedOutOfBoundsLodOrFloat3d';
+}
+
 function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
   /* Formal R4.StudioFrame */
   if (hopToolCall && hopToolCall.is_mutating === true) return true;
@@ -5436,7 +5462,8 @@ function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
     name === 'file_delete' ||
     name === 'github_clone' ||
     name === 'github_push' ||
-    name === 'github_pr'
+    name === 'github_pr' ||
+    name === 'foundry_publish_holo'
   ) {
     return true;
   }
@@ -5445,7 +5472,9 @@ function isStudioToolCallMutating(toolName, toolArgs, hopToolCall) {
     name === 'workspace_search' ||
     name === 'workspace_list' ||
     name === 'preview_inspect' ||
-    name === 'github_status'
+    name === 'github_status' ||
+    name === 'foundry_prove' ||
+    name === 'vtensor_render_3d'
   ) {
     return false;
   }
@@ -6536,12 +6565,15 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
         cmd ||
         String(
           toolArgs.path ||
+            toolArgs.module_path ||
             toolArgs.file ||
             toolArgs.query ||
             toolArgs.pattern ||
             toolArgs.url ||
             toolArgs.repo ||
             toolArgs.selector ||
+            toolArgs.preset ||
+            toolArgs.title ||
             '',
         );
 
@@ -6810,6 +6842,50 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
             explicitStdout = String(execRes.text_excerpt || execRes.body_text || JSON.stringify(execRes));
             explicitStderr = execRes.ok ? '' : String(execRes.message || execRes.error_code || 'spiralcore_fetch failed');
             explicitChanged = [];
+          }
+        } else if (
+          toolName === 'foundry_prove' ||
+          toolName === 'foundry_publish_holo' ||
+          toolName === 'vtensor_render_3d'
+        ) {
+          const fnExecAgentTool =
+            runtimeHooks.executeAgentTool ||
+            (typeof studio_execute_agent_tool_json === 'function'
+              ? studio_execute_agent_tool_json
+              : globalThis.studio_execute_agent_tool_json);
+          if (typeof fnExecAgentTool === 'function') {
+            const rawToolOut = await Promise.resolve(
+              fnExecAgentTool(
+                JSON.stringify({ name: toolName, arguments: toolArgs }),
+                composerMode === 'plan' ? 'plan' : 'agent',
+              ),
+            );
+            execRes = typeof rawToolOut === 'string' ? JSON.parse(rawToolOut) : rawToolOut || {};
+          } else {
+            execRes = {
+              status: 'error',
+              error_code: 'AgentToolExecutorUnavailable',
+              exit_code: 1,
+              message: `Wasm studio_execute_agent_tool_json unavailable for ${toolName}`,
+            };
+          }
+          explicitExitCode = execRes && execRes.status === 'ok' ? 0 : 1;
+          explicitStdout = String((execRes && execRes.stdout) || '');
+          explicitStderr =
+            explicitExitCode === 0
+              ? ''
+              : String((execRes && (execRes.stderr || execRes.message || execRes.error_code)) || `${toolName} failed`);
+          explicitChanged = [];
+          if (toolName === 'vtensor_render_3d' && explicitExitCode === 0) {
+            postEvent('vtensor_preview_3d_rendered', {
+              id: reqId,
+              turn_id: activeTurnNum,
+              preset: execRes.preset,
+              lod: execRes.lod,
+              width: execRes.width,
+              height: execRes.height,
+              frame_sha256: execRes.frame_sha256,
+            });
           }
         } else {
           const rawExec = await dispatchBridge(`1\tstudio\tmvm_exec\t${JSON.stringify({ cmd })}`);

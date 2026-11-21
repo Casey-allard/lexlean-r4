@@ -474,6 +474,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-76` | `build` | Pure LexLean models the R4-76 Studio Agent multi-hop coding trajectory distillation and UORR4V14 C1/S5 harmonic atlas compilation in lockstep with STUDIO_SELF_KNOWLEDGE_PREFIX and STUDIO_AGENT_TOOL_SCHEMA (R4.StudioAgentLoraDistill): admitDistilledAgentAtlas admitting zero-float multi-hop MVM cargo/rustc/cc/npm, <prism-write>, preview_inspect, and .lex.tex repair corpora (>= 24 total episodes, >= 8 multi-hop tool-repair episodes) compiled into <= 1 MiB C1/S5 distance-split context atlases with verified 2-of-3 Stitch parity and ChatML <tool_call> -> <tool_response> hop binding (DistilledAgentAtlasAdmitted) while refusing float ops (RefusedFloatOpsInDistillation), schema lockstep drift (RefusedMissingToolSchemaLockstep), broken Stitch or ChatML hop parity (RefusedBrokenStitchOrChatMlHopParity), insufficient multi-hop trajectories (RefusedInsufficientMultiHopTrajectories), and C1/S5 byte budget overflows (RefusedC1S5ByteBudgetOverflow). Formal controls establish modeled distillation admission invariants only, not open-ended human evaluation scores. |
 
+## r4_77_foundry_agent_tool_surface
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-77` | `build` | Pure LexLean models the R4-77 policy-checked Foundry Quantum Studio InTabProver (FK-01..09) and vTensor 3D agent <tool_call> tool surface (R4.FoundryAgentToolSurface): admitFoundryAgentToolCall admitting read-only in-tab LexLean proof checking via foundry_prove over propext/Quot.sound-only kernel axioms (FoundryProveAdmitted), proof-gated blake3: kappa .holo publication via foundry_publish_holo under AgentFull over Checked+Proved workspaces (FoundryPublishHoloAdmitted), and zero-float 16x16 tile-binned UORC LOD0..LOD4 3D PBR scene rendering via vtensor_render_3d (VtensorRender3dAdmitted) while refusing PlanReadOnly .holo publication (RefusedPlanModeMutatingPublish), publish-without-proved-workspace (RefusedPublishWithoutProvedWorkspace), extra unsound axioms in agent prove/publish (RefusedUnsoundAxiomsInAgentProve), and float ops or LOD > 4 in 3D rendering (RefusedOutOfBoundsLodOrFloat3d). Formal controls establish modeled tool-admission invariants only, not external registry upload transport. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

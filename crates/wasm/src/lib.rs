@@ -566,6 +566,7 @@ pub struct StudioEngine {
     pub(crate) default_mlp_policy:
         crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy,
     pub(crate) default_mlp_shortlist_k: usize,
+    pub(crate) foundry_qpc_session: foundry_quantum_pc::FoundryQuantumStudioSession,
 }
 
 /// Formal R4.HoloGeometricRuntime parse a single `<tool_call>` body JSON slice into `(tool_name, args)`.
@@ -1469,6 +1470,7 @@ impl StudioEngine {
                 next_foundry_turn_id: 0,
                 default_mlp_policy: crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::AutoReceiptGated,
                 default_mlp_shortlist_k: holo_geometric_runtime::DEFAULT_MLP_SHORTLIST_K,
+                foundry_qpc_session: foundry_quantum_pc::FoundryQuantumStudioSession::default(),
             };
             seed.register_special_tokens();
             for (prompt, reply) in default_knowledge_turns() {
@@ -1539,6 +1541,7 @@ impl StudioEngine {
             next_foundry_turn_id: 0,
             default_mlp_policy: crate::lexlean_generated::r4_webgpu_geodesic_runtime::MlpUserPolicy::AutoReceiptGated,
             default_mlp_shortlist_k: holo_geometric_runtime::DEFAULT_MLP_SHORTLIST_K,
+            foundry_qpc_session: foundry_quantum_pc::FoundryQuantumStudioSession::default(),
         }
     }
 
@@ -1986,6 +1989,252 @@ impl StudioEngine {
                     .to_string(),
                 }
             }
+            "foundry_prove" => {
+                use crate::lexlean_generated::r4_foundry_agent_tool_surface::{
+                    admit_foundry_agent_tool_call, FoundryAgentToolKind, FoundryAgentToolVerdict,
+                };
+                self.sync_foundry_qpc_session_from_workspace();
+                let module_path = inv
+                    .arguments
+                    .get("module_path")
+                    .or_else(|| inv.arguments.get("path"))
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .trim();
+                let norm_path = module_path
+                    .strip_prefix("/workspace/")
+                    .unwrap_or(module_path);
+                if !norm_path.is_empty() && !self.foundry_qpc_session.files.contains_key(norm_path)
+                {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "ModuleNotFound",
+                        "tool": "foundry_prove",
+                        "target": norm_path,
+                        "exit_code": 1,
+                        "message": format!("Workspace module `{norm_path}` not found"),
+                    })
+                    .to_string();
+                }
+                let is_plan = composer_mode.trim().eq_ignore_ascii_case("plan");
+                let extra_ax = self
+                    .foundry_qpc_session
+                    .files
+                    .iter()
+                    .filter(|(p, _)| p.ends_with(".lex.tex"))
+                    .map(|(_, s)| {
+                        u64::from(s.contains("Classical.choice") || s.contains("sorryAx"))
+                    })
+                    .sum::<u64>();
+                let verdict = admit_foundry_agent_tool_call(
+                    FoundryAgentToolKind::ProveWorkspaceInTab,
+                    is_plan,
+                    false,
+                    extra_ax,
+                    0,
+                    0,
+                );
+                if verdict != FoundryAgentToolVerdict::FoundryProveAdmitted {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": format!("{verdict:?}"),
+                        "verdict": format!("{verdict:?}"),
+                        "tool": "foundry_prove",
+                        "target": norm_path,
+                        "exit_code": 1,
+                        "message": format!("InTabProver refused unsound axioms ({verdict:?})"),
+                    })
+                    .to_string();
+                }
+                if let Err(err) = self.foundry_qpc_session.check_workspace() {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "ForgeTransitionRefused",
+                        "tool": "foundry_prove",
+                        "target": norm_path,
+                        "exit_code": 1,
+                        "message": err.to_string(),
+                    })
+                    .to_string();
+                }
+                match self.foundry_qpc_session.prove_in_tab() {
+                    Ok(att) => {
+                        let summary = format!(
+                            "stage=Proved modules={} theorems={} attestation={}",
+                            att.verified_modules, att.verified_theorems, att.attestation_kappa
+                        );
+                        serde_json::json!({
+                            "status": "ok",
+                            "tool": "foundry_prove",
+                            "verdict": "FoundryProveAdmitted",
+                            "stage": "Proved",
+                            "target": norm_path,
+                            "workspace_kappa": att.workspace_kappa,
+                            "attestation_kappa": att.attestation_kappa,
+                            "verified_modules": att.verified_modules,
+                            "verified_theorems": att.verified_theorems,
+                            "sound_kernel_axioms": att.sound_kernel_axioms,
+                            "exit_code": 0,
+                            "stdout": summary,
+                            "stderr": "",
+                            "changed_files": [],
+                        })
+                        .to_string()
+                    }
+                    Err(err) => serde_json::json!({
+                        "status": "error",
+                        "error_code": "RefusedUnsoundAxiomsInAgentProve",
+                        "tool": "foundry_prove",
+                        "target": norm_path,
+                        "exit_code": 1,
+                        "message": err.to_string(),
+                    })
+                    .to_string(),
+                }
+            }
+            "foundry_publish_holo" => {
+                use crate::lexlean_generated::r4_foundry_agent_tool_surface::{
+                    admit_foundry_agent_tool_call, FoundryAgentToolKind, FoundryAgentToolVerdict,
+                };
+                self.sync_foundry_qpc_session_from_workspace();
+                let is_plan = composer_mode.trim().eq_ignore_ascii_case("plan");
+                let proved_ok = self.foundry_qpc_session.proved_kappa.as_deref()
+                    == Some(self.foundry_qpc_session.workspace_kappa.as_str());
+                let verdict = admit_foundry_agent_tool_call(
+                    FoundryAgentToolKind::PublishHoloCapsule,
+                    is_plan,
+                    proved_ok,
+                    0,
+                    0,
+                    0,
+                );
+                if verdict != FoundryAgentToolVerdict::FoundryPublishHoloAdmitted {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": format!("{verdict:?}"),
+                        "verdict": format!("{verdict:?}"),
+                        "tool": "foundry_publish_holo",
+                        "exit_code": 1,
+                        "message": format!("Foundry .holo publish refused: {verdict:?}"),
+                    })
+                    .to_string();
+                }
+                let title = inv
+                    .arguments
+                    .get("title")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("studio-app");
+                let req_cap = inv
+                    .arguments
+                    .get("capability")
+                    .and_then(|v| v.as_str())
+                    .filter(|s| !s.trim().is_empty());
+                match self.foundry_qpc_session.publish_holo(req_cap) {
+                    Ok(holo_kappa) => serde_json::json!({
+                        "status": "ok",
+                        "tool": "foundry_publish_holo",
+                        "verdict": "FoundryPublishHoloAdmitted",
+                        "stage": "PublishedHolo",
+                        "title": title,
+                        "holo_kappa": holo_kappa,
+                        "workspace_kappa": self.foundry_qpc_session.workspace_kappa,
+                        "exit_code": 0,
+                        "stdout": format!("Published .holo ({title}) kappa={holo_kappa}"),
+                        "stderr": "",
+                        "changed_files": [],
+                    })
+                    .to_string(),
+                    Err(err) => serde_json::json!({
+                        "status": "error",
+                        "error_code": "RefusedPublishWithoutProvedWorkspace",
+                        "tool": "foundry_publish_holo",
+                        "exit_code": 1,
+                        "message": err.to_string(),
+                    })
+                    .to_string(),
+                }
+            }
+            "vtensor_render_3d" => {
+                use crate::lexlean_generated::r4_foundry_agent_tool_surface::{
+                    admit_foundry_agent_tool_call, FoundryAgentToolKind, FoundryAgentToolVerdict,
+                };
+                let is_plan = composer_mode.trim().eq_ignore_ascii_case("plan");
+                let preset = inv
+                    .arguments
+                    .get("preset")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("hopf-zeta-torus");
+                let lod = inv
+                    .arguments
+                    .get("lod")
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or(2);
+                let verdict = admit_foundry_agent_tool_call(
+                    FoundryAgentToolKind::RenderVtensor3dPreview,
+                    is_plan,
+                    false,
+                    0,
+                    lod,
+                    0,
+                );
+                if verdict != FoundryAgentToolVerdict::VtensorRender3dAdmitted {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": format!("{verdict:?}"),
+                        "verdict": format!("{verdict:?}"),
+                        "tool": "vtensor_render_3d",
+                        "exit_code": 1,
+                        "message": format!("vTensor 3D render refused: {verdict:?}"),
+                    })
+                    .to_string();
+                }
+                let w = inv
+                    .arguments
+                    .get("width")
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or(160)
+                    .clamp(32, 320) as u32;
+                let h = inv
+                    .arguments
+                    .get("height")
+                    .and_then(|v| v.as_u64())
+                    .unwrap_or(112)
+                    .clamp(32, 240) as u32;
+                let scene_json = serde_json::json!({
+                    "preset": preset,
+                    "lod": lod,
+                })
+                .to_string();
+                let rgba =
+                    vtensor_semiring_3d::studio_render_preview_scene_3d_rgba(&scene_json, w, h);
+                if rgba.is_empty() {
+                    return serde_json::json!({
+                        "status": "error",
+                        "error_code": "InvalidScenePreset",
+                        "tool": "vtensor_render_3d",
+                        "exit_code": 1,
+                        "message": format!("Failed to rasterize 3D preset `{preset}`"),
+                    })
+                    .to_string();
+                }
+                let frame_sha256 = sha256_hex(&rgba);
+                serde_json::json!({
+                    "status": "ok",
+                    "tool": "vtensor_render_3d",
+                    "verdict": "VtensorRender3dAdmitted",
+                    "preset": preset,
+                    "lod": lod,
+                    "width": w,
+                    "height": h,
+                    "rgba_bytes": rgba.len(),
+                    "frame_sha256": frame_sha256,
+                    "exit_code": 0,
+                    "stdout": format!("Rendered 3D PBR `{preset}` LOD{lod} ({w}x{h}, sha256={frame_sha256})"),
+                    "stderr": "",
+                    "changed_files": [],
+                })
+                .to_string()
+            }
             _ => serde_json::json!({
                 "status": "needs_tool",
                 "tool": inv.name,
@@ -1993,6 +2242,21 @@ impl StudioEngine {
             })
             .to_string(),
         }
+    }
+
+    /// Formal R4.FoundryAgentToolSurface synchronize `/workspace` text files into `foundry_qpc_session`, enforcing `FK-03` reset to `Drafting` on edits (`R4-77`).
+    fn sync_foundry_qpc_session_from_workspace(&mut self) {
+        let snap = self.mvm.snapshot_workspace_text_files();
+        if self.foundry_qpc_session.files == snap {
+            return;
+        }
+        let mut fresh = foundry_quantum_pc::FoundryQuantumStudioSession::default();
+        fresh.granted_capabilities = self.foundry_qpc_session.granted_capabilities.clone();
+        fresh.denied_capabilities = self.foundry_qpc_session.denied_capabilities.clone();
+        for (path, content) in snap {
+            let _ = fresh.write_workspace_file(&path, &content);
+        }
+        self.foundry_qpc_session = fresh;
     }
 
     fn format_vsock_frames_json(frames: &[mvm::VsockPacket]) -> Vec<serde_json::Value> {
@@ -10247,6 +10511,17 @@ pub fn studio_export_holo_layer_slab_meta(
     model
         .export_resident_layer_slabs_meta(device_binding_limit_bytes, float_ops)
         .to_string()
+}
+
+/// Formal R4.FoundryAgentToolSurface Wasm export executing policy-checked Studio `<tool_call>` invocations (`foundry_prove`, `foundry_publish_holo`, `vtensor_render_3d`, `mvm_exec`, `workspace_*`) (`R4-77`).
+#[wasm_bindgen]
+pub fn studio_execute_agent_tool_json(tool_call_json: &str, composer_mode: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.execute_studio_tool_json(tool_call_json, composer_mode)
 }
 
 /// Formal R4.ResidentGpuHybridDrafter stream real packed Int4 RHT-32 + Q24 RMSNorm slab bytes for resident layer `layer_idx` (`R4-75`).

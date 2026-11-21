@@ -49765,3 +49765,97 @@ pub mod r4_studio_agent_lora_distill {
             == AgentDistillVerdict::DistilledAgentAtlasAdmitted
     }
 }
+
+pub mod r4_foundry_agent_tool_surface {
+    //! Generated from `src/R4/FoundryAgentToolSurface.lex.tex` (`R4-77`).
+
+    /// Inductive `R4.FoundryAgentToolSurface.FoundryAgentToolKind` (`R4-77`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum FoundryAgentToolKind {
+        ProveWorkspaceInTab,
+        PublishHoloCapsule,
+        RenderVtensor3dPreview,
+    }
+
+    /// Inductive `R4.FoundryAgentToolSurface.FoundryAgentToolVerdict` (`R4-77`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum FoundryAgentToolVerdict {
+        FoundryProveAdmitted,
+        FoundryPublishHoloAdmitted,
+        VtensorRender3dAdmitted,
+        RefusedPlanModeMutatingPublish,
+        RefusedPublishWithoutProvedWorkspace,
+        RefusedUnsoundAxiomsInAgentProve,
+        RefusedOutOfBoundsLodOrFloat3d,
+    }
+
+    /// Function `R4.FoundryAgentToolSurface.admitFoundryAgentToolCall` (`R4-77`).
+    pub fn admit_foundry_agent_tool_call(
+        tool_kind: FoundryAgentToolKind,
+        plan_read_only: bool,
+        workspace_checked_and_proved: bool,
+        extra_unsound_axioms: u64,
+        lod_level: u64,
+        float_ops: u64,
+    ) -> FoundryAgentToolVerdict {
+        if 0 < float_ops {
+            FoundryAgentToolVerdict::RefusedOutOfBoundsLodOrFloat3d
+        } else {
+            match tool_kind {
+                FoundryAgentToolKind::ProveWorkspaceInTab => {
+                    if 0 < extra_unsound_axioms {
+                        FoundryAgentToolVerdict::RefusedUnsoundAxiomsInAgentProve
+                    } else {
+                        FoundryAgentToolVerdict::FoundryProveAdmitted
+                    }
+                }
+                FoundryAgentToolKind::PublishHoloCapsule => {
+                    if plan_read_only {
+                        FoundryAgentToolVerdict::RefusedPlanModeMutatingPublish
+                    } else if !workspace_checked_and_proved {
+                        FoundryAgentToolVerdict::RefusedPublishWithoutProvedWorkspace
+                    } else if 0 < extra_unsound_axioms {
+                        FoundryAgentToolVerdict::RefusedUnsoundAxiomsInAgentProve
+                    } else {
+                        FoundryAgentToolVerdict::FoundryPublishHoloAdmitted
+                    }
+                }
+                FoundryAgentToolKind::RenderVtensor3dPreview => {
+                    if 4 < lod_level {
+                        FoundryAgentToolVerdict::RefusedOutOfBoundsLodOrFloat3d
+                    } else {
+                        FoundryAgentToolVerdict::VtensorRender3dAdmitted
+                    }
+                }
+            }
+        }
+    }
+
+    /// Function `R4.FoundryAgentToolSurface.verifyFoundryAgentToolSurfaceAdmitted` (`R4-77`).
+    pub fn verify_foundry_agent_tool_surface_admitted() -> bool {
+        admit_foundry_agent_tool_call(
+            FoundryAgentToolKind::ProveWorkspaceInTab,
+            true,
+            false,
+            0,
+            0,
+            0,
+        ) == FoundryAgentToolVerdict::FoundryProveAdmitted
+            && admit_foundry_agent_tool_call(
+                FoundryAgentToolKind::PublishHoloCapsule,
+                false,
+                true,
+                0,
+                0,
+                0,
+            ) == FoundryAgentToolVerdict::FoundryPublishHoloAdmitted
+            && admit_foundry_agent_tool_call(
+                FoundryAgentToolKind::RenderVtensor3dPreview,
+                false,
+                false,
+                0,
+                2,
+                0,
+            ) == FoundryAgentToolVerdict::VtensorRender3dAdmitted
+    }
+}

@@ -50,7 +50,7 @@ import init, {
   studio_weight_pack_status,
   sync_cached_weights,
   withStorageLock,
-} from './lexlean_r4.js?v=v12r4-2997238515fc';
+} from './lexlean_r4.js?v=v12r4-22cadef16a92';
 
 let mainThreadWasmReady = false;
 
@@ -910,7 +910,7 @@ const engineWorkerClient = {
   spawn() {
     if (typeof Worker !== 'function') return false;
     try {
-      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-2997238515fc', import.meta.url);
+      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-22cadef16a92', import.meta.url);
       this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
@@ -1309,19 +1309,16 @@ const engineWorkerClient = {
       return;
     }
     if (evType === 'preview_inspect_request') {
-      if (typeof handlePreviewInspectRequest === 'function') {
-        handlePreviewInspectRequest(msg);
-      }
+      if (typeof handlePreviewInspectRequest === 'function') handlePreviewInspectRequest(msg);
+      return;
+    }
+    if (evType === 'vtensor_preview_3d_rendered') {
+      const f = typeof document !== 'undefined' && typeof document.getElementById === 'function' ? document.getElementById('live-preview-iframe') : null;
+      if (f && f.contentWindow && typeof f.contentWindow.postMessage === 'function') f.contentWindow.postMessage({ protocol: 'uor-preview/1', op: 'render_3d_scene', scene: msg.scene || msg }, '*');
       return;
     }
     if (evType === 'chat_stream_delta') {
-      if (typeof this.activeChatStreamHook === 'function') {
-        this.activeChatStreamHook({
-          stage: 'chat_stream_delta',
-          text: msg.text || '',
-          step: msg.step || 0,
-        });
-      }
+      if (typeof this.activeChatStreamHook === 'function') this.activeChatStreamHook({ stage: 'chat_stream_delta', text: msg.text || '', step: msg.step || 0 });
       return;
     }
     if (evType === 'bridge_activity') {

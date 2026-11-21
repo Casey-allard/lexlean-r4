@@ -197,6 +197,13 @@ prism_record = "Foundation.Arch::StudioAgentLoraDistill"
 facet = "arch"
 note = "Multi-hop Studio Agent coding/MVM/<prism-write>/.lex.tex trajectory corpus and byte-bounded UORR4V14 C1/S5 atlas compiler in lockstep with STUDIO_AGENT_TOOL_SCHEMA."
 
+[[route]]
+id = "R4-UR28"
+rust_fact = "foundry-prove-vtensor-agent-tools"
+prism_record = "Foundation.Sec::FoundryAgentToolSurface"
+facet = "sec"
+note = "Policy-checked foundry_prove (FK-01..09 InTabProver), foundry_publish_holo (proof-gated blake3: kappa), and vtensor_render_3d (zero-float LOD0..LOD4 3D PBR) agent <tool_call> tools."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -331,6 +338,11 @@ response = "route R4-UR26\nfact resident-gpu-hybrid-v14-drafter\nrecord Foundati
 case = "route R4-UR27"
 request_hex = "73747564696f2d6167656e742d6c6f72612d7631342d64697374696c6c"
 response = "route R4-UR27\nfact studio-agent-lora-v14-distill\nrecord Foundation.Arch::StudioAgentLoraDistill\nfacet arch"
+
+[[vector]]
+case = "route R4-UR28"
+request_hex = "666f756e6472792d70726f76652d7674656e736f722d6167656e742d746f6f6c73"
+response = "route R4-UR28\nfact foundry-prove-vtensor-agent-tools\nrecord Foundation.Sec::FoundryAgentToolSurface\nfacet sec"
 
 [[vector]]
 case = "error empty"

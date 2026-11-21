@@ -1413,6 +1413,12 @@ impl HoloTok13SpeculativeDrafter {
                 Some(",\"arguments\":{\"selector\":\"")
             } else if tail_str.ends_with("{\"name\":\"github_git\"") {
                 Some(",\"arguments\":{\"subcommand\":\"")
+            } else if tail_str.ends_with("{\"name\":\"foundry_prove\"") {
+                Some(",\"arguments\":{\"module_path\":\"")
+            } else if tail_str.ends_with("{\"name\":\"foundry_publish_holo\"") {
+                Some(",\"arguments\":{\"title\":\"")
+            } else if tail_str.ends_with("{\"name\":\"vtensor_render_3d\"") {
+                Some(",\"arguments\":{\"preset\":\"")
             } else if tail_str.ends_with("<prism-write") {
                 Some(" path=\"")
             } else if tail_str.ends_with("</prism") {

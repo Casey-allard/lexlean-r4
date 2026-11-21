@@ -6247,18 +6247,20 @@ pub fn format_mvm_live_state_header(
     )
 }
 
-/// Formal R4.AgentWorkspaceToolAwareness prewarmed Qwen3-native `<tools>` and `/workspace` execution contract (`R4-74`).
+/// Formal R4.AgentWorkspaceToolAwareness prewarmed Qwen3-native `<tools>` and `/workspace` execution contract (`R4-74`, `R4-77`).
 pub const STUDIO_AGENT_TOOL_SCHEMA: &str = r##"
-RV64 Linux MVM terminal (`mvm_exec`, `/workspace` VFS):
 <tools>
-{"name":"mvm_exec","desc":"shell in /workspace","args":{"cmd":"ls /workspace"}}
-{"name":"workspace_read","args":{"path":"README.md"}}
-{"name":"workspace_write","args":{"path":"p","content":"c"}}
-{"name":"workspace_search","args":{"query":"q"}}
-{"name":"preview_inspect","args":{"selector":"#app"}}
-{"name":"github_git","args":{"subcommand":"status"}}
+{"name":"mvm_exec","cmd":"ls /workspace"}
+{"name":"workspace_read","path":"README.md"}
+{"name":"workspace_write","path":"p","content":"c"}
+{"name":"workspace_search","query":"q"}
+{"name":"preview_inspect","selector":"#app"}
+{"name":"github_git","subcommand":"status"}
+{"name":"foundry_prove","module_path":"src/App.lex.tex"}
+{"name":"foundry_publish_holo","title":"app"}
+{"name":"vtensor_render_3d","preset":"hopf-zeta-torus","lod":2}
 </tools>
-Use `<tool_call>{"name":"mvm_exec","arguments":{"cmd":"..."}}</tool_call>` or `<prism-write path="...">...</prism-write>`.
+`<tool_call>{"name":"mvm_exec","arguments":{"cmd":"..."}}</tool_call>`
 "##;
 
 /// Formal R4.StudioFrame build ordered Studio/Foundry/Chat system prompt segments preserving prewarmed prefix alignment (`R4-60`, `R4-63`, `R4-74`).
@@ -6982,13 +6984,16 @@ pub fn detect_studio_tool_call(
                     }
                     (is_mvm_command_mutating(&cmd), Some(cmd))
                 }
-                "workspace_read" | "workspace_search" | "preview_inspect" => (false, None),
+                "workspace_read" | "workspace_search" | "preview_inspect" | "foundry_prove"
+                | "vtensor_render_3d" => (false, None),
                 "github_git" | "github_status" | "github_clone" | "github_push" | "github_pr"
                 | "git" => (is_github_git_mutating(&tool_name, &args), None),
                 "spiralcore_fetch" => (is_spiralcore_fetch_mutating(&args), None),
-                "workspace_write" | "workspace_patch" | "workspace_delete" | "workspace_rename" => {
-                    (true, None)
-                }
+                "workspace_write"
+                | "workspace_patch"
+                | "workspace_delete"
+                | "workspace_rename"
+                | "foundry_publish_holo" => (true, None),
                 _ => continue,
             };
             matched_tool = Some(build_tool_invocation(
@@ -7201,6 +7206,12 @@ fn format_foundry_tool_hop_chatml(prompt: &str, tool_results: &[FoundryToolResul
             serde_json::json!({ "cmd": target_val })
         } else if tool_name == "workspace_search" {
             serde_json::json!({ "query": target_val })
+        } else if tool_name == "foundry_prove" {
+            serde_json::json!({ "module_path": target_val })
+        } else if tool_name == "foundry_publish_holo" {
+            serde_json::json!({ "title": target_val })
+        } else if tool_name == "vtensor_render_3d" {
+            serde_json::json!({ "preset": target_val })
         } else {
             serde_json::json!({ "path": target_val })
         };
