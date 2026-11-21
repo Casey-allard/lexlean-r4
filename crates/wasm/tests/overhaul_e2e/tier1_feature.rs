@@ -1466,3 +1466,14 @@ fn test_t1_f19_release_gate_locked_sdk_immutability() {
         "prismpm.lock must contain immutable sha256 digest pin"
     );
 }
+
+#[test]
+fn test_t1_f20_r4_74_agent_workspace_tool_awareness_registered() {
+    let ids = std::fs::read_to_string(repo_root().join("model/ids.toml")).expect("read ids.toml");
+    assert!(ids.contains("id = \"R4-74\""));
+    let feat = std::fs::read_to_string(
+        repo_root().join("features/suites/r4_74_agent_workspace_tool_awareness.feature"),
+    )
+    .expect("read r4_74 feature");
+    assert!(feat.contains("@R4-74") && feat.contains("@build"));
+}

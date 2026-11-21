@@ -176,6 +176,13 @@ prism_record = "Foundation.Behavior::HopfZetaPoincareArchitecture"
 facet = "behavior"
 note = "10,000+ tok/s UORR4V14 resonant wave engine over 64-ordinate C2 Zeta ring, 6-layer Cl(0,6) SpiralCore, 8-head Starling Flock, 576-bit XOR+popcnt, and 120-vertex Icosian snap."
 
+[[route]]
+id = "R4-UR25"
+rust_fact = "agent-workspace-tool-awareness"
+prism_record = "Foundation.Behavior::AgentWorkspaceToolAwareness"
+facet = "behavior"
+note = "Unified agent /workspace VFS and RV64 MVM terminal <tool_call> awareness, multi-hop ChatML tool continuation, and zero-HTTP OPFS HOLOSLAB2 warm mount & KV prefix reuse."
+
 [[vector]]
 case = "route R4-UR01"
 request_hex = "63726174652d62696e2d746172676574"
@@ -295,6 +302,11 @@ response = "route R4-UR23\nfact uorr4-v14-hopf-zeta-recompiler\nrecord Foundatio
 case = "route R4-UR24"
 request_hex = "686f70662d706f696e636172652d7a6574612d31306b2d656e67696e65"
 response = "route R4-UR24\nfact hopf-poincare-zeta-10k-engine\nrecord Foundation.Behavior::HopfZetaPoincareArchitecture\nfacet behavior"
+
+[[vector]]
+case = "route R4-UR25"
+request_hex = "6167656e742d776f726b73706163652d746f6f6c2d61776172656e657373"
+response = "route R4-UR25\nfact agent-workspace-tool-awareness\nrecord Foundation.Behavior::AgentWorkspaceToolAwareness\nfacet behavior"
 
 [[vector]]
 case = "error empty"

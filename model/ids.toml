@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-74"
+level = "build"
+suite = "r4_74_agent_workspace_tool_awareness"
+statement = "Pure LexLean models the R4-74 unified agent /workspace VFS and RV64 MVM terminal tool self-awareness, ChatML <tool_call> -> <tool_response> hop continuation, and zero-redundant-fetch OPFS HOLOSLAB2 warm mount & KV prefix preservation (R4.AgentWorkspaceToolAwareness): admitAgentWorkspaceToolPrompt admitting prompts binding both the mvm_exec terminal <tool_call> schema and /workspace read/write/preview tool schemas alongside the live /workspace file tree within <= 160 uncached tail tokens and binding the assistant <tool_call> turn on multi-hop tool continuations (WorkspaceToolPromptAdmitted) while refusing tool-blind chat prompts (RefusedBlindSurfaceWithoutMvmSchema), omitted workspace trees when files exist (RefusedMissingWorkspaceTreeWhenFilesExist), uncached file-excerpt prefill bloat (RefusedUncachedExcerptBloat), and orphan tool hops missing the assistant <tool_call> turn (RefusedToolHopMissingAssistantCallTurn); and admitTurnHydrationAndKvReuse admitting zero-fetch in-memory mounted turns (InMemoryAlreadyMountedZeroFetch) and zero-HTTP OPFS HOLOSLAB2 warm-seal mounts (OpfsWarmSlabMountedZeroHttp) while refusing redundant HTTP manifest/pack downloads on mounted or warm-sealed models (RefusedRedundantHttpFetchOnMountedOrWarmSlab) and cross-turn surface flip-flops that wipe HoloPrefixKvCache (RefusedSurfaceFlipKvCacheWipe). Formal controls establish modeled admission invariants only, not open-ended user prompt phrasing."
+
+[[id]]
 id = "R4-73"
 level = "build"
 suite = "r4_73_hopf_zeta_poincare_engine"

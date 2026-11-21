@@ -23,12 +23,12 @@ mod assistant;
 pub use assistant::{
     detect_studio_tool_call, format_foundry_system_prompt, format_studio_system_parts,
     FoundryToolResult, FoundryTurnSession, FoundryWorkspaceFile, StudioToolInvocation,
-    BUILD_SYSTEM_PREFIX,
+    BUILD_SYSTEM_PREFIX, STUDIO_AGENT_TOOL_SCHEMA,
 };
 
-/// Shared <40-token (`34`-token) KV-prewarmed self-knowledge system prefix for standalone LexLean-R4 Studio (`R4-60`, `R4-64`).
+/// Shared <40-token KV-prewarmed self-knowledge system prefix for standalone LexLean-R4 Studio (`R4-60`, `R4-64`, `R4-74`).
 pub const STUDIO_SELF_KNOWLEDGE_PREFIX: &str =
-    "LexLean-R4 MVM (Block-32 RHT, Q15 Q16 wrapping): preview_inspect, github_git, <prism-write>.";
+    "LexLean-R4 MVM (/workspace, mvm_exec, Block-32 RHT, Q15 Q16 wrapping): preview_inspect, github_git, <prism-write>.";
 
 /// Alias matching Foundry host specification naming (`StudioEngine` / `UorWasmStudio`).
 pub type UorWasmStudio = StudioEngine;
@@ -2523,6 +2523,11 @@ impl StudioEngine {
         skip_rehash: bool,
     ) -> String {
         let key = model_id.trim().to_string();
+        #[cfg(target_arch = "wasm32")]
+        if expected_pieces > 256 {
+            self.holo_models
+                .retain(|existing, _| existing == &key || existing == "uor-r4.hf-repo-holo");
+        }
         let builder = holo_geometric_runtime::HoloV13StreamingBuilder::new_with_rehash_policy(
             key.clone(),
             expected_pieces,

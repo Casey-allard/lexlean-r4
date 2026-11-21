@@ -943,11 +943,16 @@ const engineWorkerClient = {
       if (initConsent === 'declined' && typeof safeStorageRemove === 'function') {
         safeStorageRemove('uor_allow_off_origin_hydration');
       }
+      const prefMod = (AppState && AppState.config && AppState.config.selectedModel) || DEFAULT_HONEST_MODEL_ID;
+      if (prefMod === 'uor-r4.qwen3-1.7b-holo' && typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
+        holoObservatoryState.manualModelPinned = true;
+      }
       const initEmergencyQ31 = typeof safeStorageGet === 'function' && safeStorageGet('uor_offline_emergency_q31') === '1';
       if (initEmergencyQ31) {
-        this.rpc('set_bridge_policy', { offlineEmergencyQ31: true, bootSync: true }).catch(() => {});
-      } else if (initConsent === '1' || initConsent === 'true') {
-        this.rpc('set_bridge_policy', { allowOffOriginHydration: true, consentDeclined: false, bootSync: true }).catch(() => {});
+        this.rpc('set_bridge_policy', { offlineEmergencyQ31: true, preferredModel: prefMod, bootSync: true }).catch(() => {});
+      } else {
+        const allowExt = initConsent === '1' || initConsent === 'true';
+        this.rpc('set_bridge_policy', { ...(allowExt ? { allowOffOriginHydration: true, consentDeclined: false } : {}), preferredModel: prefMod, bootSync: true }).catch(() => {});
       }
       return true;
     } catch {
@@ -3228,14 +3233,9 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       document &&
       document.body &&
       document.body.getAttribute('data-layout-mode') === 'studio';
-    const wantsWorkspaceTools =
-      isStudioLayout ||
-      /(?:^|\s)(?:\/patch\b|@[a-z0-9_./-]+|cargo\b|rustc\b|npm\b|cc\b|gcc\b|git\b)|\/workspace\b|\bsrc\/[a-z0-9_./-]+/i.test(
-        trimmed,
-      );
-    const activeSurfaceMode = wantsWorkspaceTools ? 'studio' : 'chat';
+    const includeExcerpts = Boolean(isStudioLayout || /@[a-z0-9_./-]+/i.test(trimmed));
     const chatHistoryPairs = [];
-    if (activeSurfaceMode === 'chat' && typeof getActiveThread === 'function') {
+    if (typeof getActiveThread === 'function') {
       const curThread = getActiveThread();
       const rawMsgs = curThread && Array.isArray(curThread.messages) ? curThread.messages : [];
       const priorMsgs = recordUserBubble ? rawMsgs.slice(0, -1) : rawMsgs.slice();
@@ -3250,6 +3250,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           typeof uMsg.body === 'string' &&
           typeof aMsg.body === 'string' &&
           !String(aMsg.title || '').includes('native-q31') &&
+          !String(aMsg.title || '').includes('Connected Studio') &&
           !aMsg.body.startsWith('[Turn stopped') &&
           !aMsg.body.includes('invalid magic header')
         ) {
@@ -3265,17 +3266,16 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       composer_mode: activeComposerMode === 'plan' ? 'plan' : 'agent',
       mcp_policy: effectiveMcpPolicy,
       auto_run: effectiveAutoRun,
-      surface_mode: activeSurfaceMode,
+      surface_mode: 'studio',
+      include_excerpts: includeExcerpts,
       live_hud: true,
-      ...(activeSurfaceMode === 'chat'
-        ? { workspace_files: [], history: chatHistoryPairs.slice(-6) }
-        : {}),
+      history: chatHistoryPairs.slice(-6),
       ...(allowOffOrigin ? { allowOffOriginHydration: true } : {}),
       ...(offlineEmergencyActive ? { offlineEmergencyQ31: true, offlineFallback: true } : {}),
       operating_mode: AppState.config.operatingMode || 'coding',
       retain_lambda: AppState.config.retainLambda ?? 0.85,
       plurality_votes: AppState.config.pluralityVotes ?? 8,
-      active_file: activeSurfaceMode === 'chat' ? '' : ((typeof activeWorkspacePath === 'string' && activeWorkspacePath) || ''),
+      active_file: (typeof activeWorkspacePath === 'string' && activeWorkspacePath) || '',
       repo: (AppState.config && AppState.config.connectedGitRepo) || '',
       branch: (AppState.config && AppState.config.connectedGitBranch) || 'main',
       web_access: engineWorkerClient.webAccessEnabled,
@@ -3520,7 +3520,9 @@ function runClaudeChat(promptText, recordUserBubble = true) {
           return;
         }
         if ((streamedTokenCount > 0 || streamedReplyText.length > 0) && placeholderCard && statusLineEl && !(chatRes && chatRes.ok === false)) {
-          const finalText = (chatRes && (chatRes.reply || chatRes.assistant_reply)) || streamedReplyText || '';
+          const rawFinalText = (chatRes && (chatRes.reply || chatRes.assistant_reply)) || streamedReplyText || '';
+          const strippedFinal = toolEvents.length > 0 ? rawFinalText.replace(/<tool_call>[\s\S]*?<\/tool_call>/g, '').trim() : rawFinalText;
+          const finalText = strippedFinal || rawFinalText;
           renderFormattedMarkdownInto(statusLineEl, finalText);
           if (leftMetaEl) {
             const backendTag = (chatRes && chatRes.backend) || selectedModel;
@@ -4587,51 +4589,39 @@ function syncComposerModel(modelId) {
 }
 
 if (composerModelSelect) {
-  if (
-    AppState && AppState.config &&
-    (AppState.config.selectedModel === 'uor-r4.qwen3-0.6b-holo' || AppState.config.selectedModel === 'uor-r4.qwen3-1.7b-holo')
-  ) {
+  if (AppState && AppState.config && (AppState.config.selectedModel === 'uor-r4.qwen3-0.6b-holo' || AppState.config.selectedModel === 'uor-r4.qwen3-1.7b-holo')) {
     composerModelSelect.value = AppState.config.selectedModel;
   }
-  composerModelSelect.addEventListener('change', (e) => {
-    if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
-      holoObservatoryState.manualModelPinned = true;
-    }
-    const nextModel = e.target.value;
-    if (nextModel !== 'uor-r4.native-q31-d85' && typeof safeStorageRemove === 'function') {
-      safeStorageRemove('uor_offline_emergency_q31');
-      const emergencyChk = document.getElementById('settings-offline-q31-toggle');
-      if (emergencyChk) emergencyChk.checked = false;
-      if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
-        engineWorkerClient.rpc('set_bridge_policy', { offlineEmergencyQ31: false }).catch(() => {});
+  composerModelSelect.addEventListener('change', handleUserModelDropdownChange);
+}
+
+function handleUserModelDropdownChange(e) {
+  /* Formal R4.AgentWorkspaceToolAwareness */
+  if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
+    holoObservatoryState.manualModelPinned = true;
+  }
+  const nextModel = e.target.value;
+  if (AppState && AppState.config) AppState.config.selectedModel = nextModel;
+  if (typeof safeStorageSet === 'function' && typeof MODEL_STORAGE_KEY === 'string') safeStorageSet(MODEL_STORAGE_KEY, nextModel);
+  if (nextModel !== 'uor-r4.native-q31-d85' && typeof safeStorageRemove === 'function') {
+    safeStorageRemove('uor_offline_emergency_q31');
+    const emergencyChk = typeof document !== 'undefined' && document ? document.getElementById('settings-offline-q31-toggle') : null;
+    if (emergencyChk) emergencyChk.checked = false;
+    if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
+      engineWorkerClient.rpc('set_bridge_policy', { offlineEmergencyQ31: false, preferredModel: nextModel }).catch(() => {});
+      if (nextModel === 'uor-r4.qwen3-0.6b-holo' || nextModel === 'uor-r4.qwen3-1.7b-holo') {
+        engineWorkerClient.rpc('hydrate_holo_model', { modelId: nextModel }).then(() => { if (typeof updateWeightCacheBadge === 'function') updateWeightCacheBadge(); }).catch(() => {});
       }
     }
-    syncComposerModel(nextModel);
-  });
+  }
+  syncComposerModel(nextModel);
 }
 
 if (globalModelSelect) {
-  if (
-    AppState && AppState.config &&
-    (AppState.config.selectedModel === 'uor-r4.qwen3-0.6b-holo' || AppState.config.selectedModel === 'uor-r4.qwen3-1.7b-holo')
-  ) {
+  if (AppState && AppState.config && (AppState.config.selectedModel === 'uor-r4.qwen3-0.6b-holo' || AppState.config.selectedModel === 'uor-r4.qwen3-1.7b-holo')) {
     globalModelSelect.value = AppState.config.selectedModel;
   }
-  globalModelSelect.addEventListener('change', (e) => {
-    if (typeof holoObservatoryState !== 'undefined' && holoObservatoryState) {
-      holoObservatoryState.manualModelPinned = true;
-    }
-    const nextModel = e.target.value;
-    if (nextModel !== 'uor-r4.native-q31-d85' && typeof safeStorageRemove === 'function') {
-      safeStorageRemove('uor_offline_emergency_q31');
-      const emergencyChk = document.getElementById('settings-offline-q31-toggle');
-      if (emergencyChk) emergencyChk.checked = false;
-      if (typeof engineWorkerClient !== 'undefined' && engineWorkerClient.enabled) {
-        engineWorkerClient.rpc('set_bridge_policy', { offlineEmergencyQ31: false }).catch(() => {});
-      }
-    }
-    syncComposerModel(nextModel);
-  });
+  globalModelSelect.addEventListener('change', handleUserModelDropdownChange);
 }
 
 if (composerStopBtn) {
@@ -5075,7 +5065,6 @@ function createNewThread() {
     claudeChatInput.value = '';
     claudeChatInput.focus();
   }
-  runClaudeChat('Hello! Who are you and what can you do?', false);
 }
 
 function clearAllThreads() {
@@ -5094,7 +5083,6 @@ function clearAllThreads() {
     claudeChatInput.value = '';
     claudeChatInput.focus();
   }
-  runClaudeChat('Hello! Who are you and what can you do?', false);
 }
 
 if (chatClearBtn) {
@@ -6778,7 +6766,7 @@ const renderHoloMiniHud = (hudEl, frame, opts = {}) => {
 
       // Left 44x44: 16x16 tile-binned 3D PBR Hopf-Poincare-Zeta mini manifold (`R4-70`)
       const miniPhase = ((Number(frame.step_idx || 0) * 28) + 128) & 1023;
-      if (!blitHopfZeta3dRect(ctx, 2, 2, 44, 44, miniPhase, 1, qTrail) && qTrail.length > 0) {
+      if (!(typeof blitHopfZeta3dRect === 'function' && blitHopfZeta3dRect(ctx, 2, 2, 44, 44, miniPhase, 1, qTrail)) && qTrail.length > 0) {
         const tail = qTrail[qTrail.length - 1] || [0, 0, 0];
         const hx = 23 + Math.max(-1, Math.min(1, (Number(tail[0]) || 0) / 1000)) * 17;
         const hy = 24 - Math.max(-1, Math.min(1, (Number(tail[1]) || 0) / 1000)) * 17;

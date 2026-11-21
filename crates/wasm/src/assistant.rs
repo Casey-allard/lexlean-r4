@@ -5979,6 +5979,8 @@ struct FoundryTurnRequest {
     net_mode: Option<String>,
     #[serde(default, alias = "dirtyFiles")]
     dirty_files: Vec<String>,
+    #[serde(default, alias = "includeExcerpts")]
+    include_excerpts: Option<bool>,
     #[serde(default)]
     history: Vec<(String, String)>,
 }
@@ -6245,7 +6247,21 @@ pub fn format_mvm_live_state_header(
     )
 }
 
-/// Formal R4.StudioFrame build ordered Studio/Foundry/Chat system prompt segments preserving prewarmed prefix alignment (`R4-60`, `R4-63`).
+/// Formal R4.AgentWorkspaceToolAwareness prewarmed Qwen3-native `<tools>` and `/workspace` execution contract (`R4-74`).
+pub const STUDIO_AGENT_TOOL_SCHEMA: &str = r##"
+RV64 Linux MVM terminal (`mvm_exec`, `/workspace` VFS):
+<tools>
+{"name":"mvm_exec","desc":"shell in /workspace","args":{"cmd":"ls /workspace"}}
+{"name":"workspace_read","args":{"path":"README.md"}}
+{"name":"workspace_write","args":{"path":"p","content":"c"}}
+{"name":"workspace_search","args":{"query":"q"}}
+{"name":"preview_inspect","args":{"selector":"#app"}}
+{"name":"github_git","args":{"subcommand":"status"}}
+</tools>
+Use `<tool_call>{"name":"mvm_exec","arguments":{"cmd":"..."}}</tool_call>` or `<prism-write path="...">...</prism-write>`.
+"##;
+
+/// Formal R4.StudioFrame build ordered Studio/Foundry/Chat system prompt segments preserving prewarmed prefix alignment (`R4-60`, `R4-63`, `R4-74`).
 pub fn format_studio_system_parts_with_mvm_state(
     surface_mode: &str,
     composer_mode: &str,
@@ -6260,18 +6276,29 @@ pub fn format_studio_system_parts_with_mvm_state(
         return format_foundry_system_parts(workspace_files, active_file);
     }
     if surface == "chat" {
+        let mut chat_ws = String::new();
+        if !workspace_files.is_empty() {
+            chat_ws.push_str("\n/workspace files: ");
+            for (idx, f) in workspace_files.iter().take(16).enumerate() {
+                if idx > 0 {
+                    chat_ws.push_str(", ");
+                }
+                chat_ws.push_str(&f.path);
+            }
+            chat_ws.push('\n');
+        }
         return (
-            "You are LexLean-R4 Chat (UORR4V13 pure-integer Wasm, zero float). Answer concisely."
+            "You are LexLean-R4 Holo Agent (UORR4V13 pure-integer Wasm, zero float) with /workspace VFS and RV64 MVM terminal (<tool_call>{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"...\"}}</tool_call>, workspace_read, workspace_write). Answer concisely."
                 .to_string(),
-            String::new(),
+            chat_ws,
             Vec::new(),
         );
     }
 
-    // Studio standalone mode: share STUDIO_SELF_KNOWLEDGE_PREFIX byte-for-byte with prewarm_system_prefix,
+    // Studio standalone mode: share STUDIO_SELF_KNOWLEDGE_PREFIX + STUDIO_AGENT_TOOL_SCHEMA byte-for-byte with prewarm_system_prefix,
     // placing compact live MVM state header, repo@branch, plan policy note, and workspace tree/excerpts AFTER the prewarmed prefix.
     let core_sys = crate::STUDIO_SELF_KNOWLEDGE_PREFIX.to_string();
-    let mut ws_header = String::new();
+    let mut ws_header = String::from(STUDIO_AGENT_TOOL_SCHEMA);
     if let Some(hdr) = mvm_state_header.map(str::trim).filter(|s| !s.is_empty()) {
         ws_header.push('\n');
         ws_header.push_str(hdr);
@@ -7150,6 +7177,65 @@ fn format_foundry_user_turn(prompt: &str, tool_results: &[FoundryToolResultInput
     out
 }
 
+/// Formal R4.AgentWorkspaceToolAwareness format multi-hop `<tool_call>` -> `<tool_response>` ChatML turns (`R4-74`).
+fn format_foundry_tool_hop_chatml(prompt: &str, tool_results: &[FoundryToolResultInput]) -> String {
+    let trimmed = prompt.trim();
+    if tool_results.is_empty() {
+        return format!(
+            "<|im_start|>user\n{trimmed}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+        );
+    }
+    let mut out = format!("<|im_start|>user\n{trimmed}<|im_end|>\n");
+    for res in tool_results.iter().take(FOUNDRY_MAX_TOOL_ITERATIONS) {
+        let tool_name = if res.tool.trim().is_empty() {
+            "mvm_exec"
+        } else {
+            res.tool.trim()
+        };
+        let target_val = if !res.cmd.trim().is_empty() {
+            res.cmd.trim()
+        } else {
+            res.target.trim()
+        };
+        let call_args = if tool_name == "mvm_exec" {
+            serde_json::json!({ "cmd": target_val })
+        } else if tool_name == "workspace_search" {
+            serde_json::json!({ "query": target_val })
+        } else {
+            serde_json::json!({ "path": target_val })
+        };
+        let call_json = serde_json::json!({
+            "name": tool_name,
+            "arguments": call_args,
+        });
+        out.push_str(&format!(
+            "<|im_start|>assistant\n<think>\n\n</think>\n\n<tool_call>\n{call_json}\n</tool_call><|im_end|>\n"
+        ));
+        let stdout_clip: String = res.stdout.trim().chars().take(1500).collect();
+        let stderr_clip: String = res.stderr.trim().chars().take(500).collect();
+        let mut resp_obj = serde_json::Map::new();
+        resp_obj.insert("tool".to_string(), serde_json::json!(tool_name));
+        resp_obj.insert("target".to_string(), serde_json::json!(target_val));
+        resp_obj.insert("exit_code".to_string(), serde_json::json!(res.exit_code));
+        resp_obj.insert("stdout".to_string(), serde_json::json!(stdout_clip));
+        if !stderr_clip.is_empty() {
+            resp_obj.insert("stderr".to_string(), serde_json::json!(stderr_clip));
+        }
+        if !res.changed_files.is_empty() {
+            resp_obj.insert(
+                "changed_files".to_string(),
+                serde_json::json!(res.changed_files),
+            );
+        }
+        let resp_json = serde_json::Value::Object(resp_obj);
+        out.push_str(&format!(
+            "<|im_start|>user\n<tool_response>\n{resp_json}\n</tool_response><|im_end|>\n"
+        ));
+    }
+    out.push_str("<|im_start|>assistant\n<think>\n\n</think>\n\n");
+    out
+}
+
 /// Formal R4.HoloGeometricRuntime construct uniform Foundry error JSON payload (`R5`).
 fn foundry_error_json(turn_id: u64, error_code: &str, message: &str) -> String {
     serde_json::json!({
@@ -7205,6 +7291,20 @@ fn fit_foundry_prompt_tokens(
             if meta_ids.len() + cur_u_ids.len() <= max_ctx {
                 meta_ids.extend_from_slice(&cur_u_ids);
                 return (candidate_sys, meta_ids);
+            }
+        }
+    }
+    if let Some(mvm_pos) = ws_header.find("\n[mvm ") {
+        let schema_only = &ws_header[..mvm_pos];
+        if !schema_only.is_empty() {
+            let mut candidate_sys = String::with_capacity(core_sys.len() + schema_only.len());
+            candidate_sys.push_str(core_sys);
+            candidate_sys.push_str(schema_only);
+            let schema_chunk = format!("<|im_start|>system\n{candidate_sys}<|im_end|>\n");
+            let mut schema_ids = model.tokenizer.encode(&schema_chunk);
+            if schema_ids.len() + cur_u_ids.len() <= max_ctx {
+                schema_ids.extend_from_slice(&cur_u_ids);
+                return (candidate_sys, schema_ids);
             }
         }
     }
@@ -7405,7 +7505,9 @@ impl StudioEngine {
                 }
             }
         };
-        let resolved_ws_files: Vec<FoundryWorkspaceFile> = if req.workspace_files.is_empty() {
+        let resolved_ws_files: Vec<FoundryWorkspaceFile> = if surface_mode == "chat" {
+            req.workspace_files.clone()
+        } else if req.workspace_files.is_empty() {
             self.workspace_entries_from_mvm()
                 .into_iter()
                 .map(|wf| FoundryWorkspaceFile {
@@ -7438,7 +7540,7 @@ impl StudioEngine {
             net_label,
             self.mvm.last_exit_code(),
         );
-        let (core_sys, ws_header, ws_excerpts) = format_studio_system_parts_with_mvm_state(
+        let (core_sys, ws_header, mut ws_excerpts) = format_studio_system_parts_with_mvm_state(
             &surface_mode,
             &composer_mode,
             &req.repo,
@@ -7447,6 +7549,9 @@ impl StudioEngine {
             req.active_file.as_deref(),
             Some(&mvm_hdr),
         );
+        if req.include_excerpts == Some(false) {
+            ws_excerpts.clear();
+        }
         let user_turn = format_foundry_user_turn(&req.prompt, &req.tool_results);
         let tool_iterations_used = req.tool_results.len();
         let started_ms = crate::api::host_monotonic_ms();
@@ -7537,9 +7642,7 @@ impl StudioEngine {
             );
         };
 
-        let cur_u_chunk = format!(
-            "<|im_start|>user\n{user_turn}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
-        );
+        let cur_u_chunk = format_foundry_tool_hop_chatml(&req.prompt, &req.tool_results);
         let reserve_gen = if req.max_new_tokens.is_some() {
             requested_max_new.min(model.max_seq / 2).max(16)
         } else {

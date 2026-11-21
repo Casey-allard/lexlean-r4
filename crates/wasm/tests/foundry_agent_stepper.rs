@@ -12,7 +12,7 @@ use lexlean_r4_wasm::native_q31_lane::NativeQ31Model;
 use lexlean_r4_wasm::{
     detect_studio_tool_call, format_foundry_system_prompt, format_studio_system_parts,
     FoundryToolResult, FoundryWorkspaceFile, StudioEngine, UorWasmStudio, BUILD_SYSTEM_PREFIX,
-    STUDIO_SELF_KNOWLEDGE_PREFIX,
+    STUDIO_AGENT_TOOL_SCHEMA, STUDIO_SELF_KNOWLEDGE_PREFIX,
 };
 use serde_json::Value;
 
@@ -1704,4 +1704,100 @@ fn test_plan_shell_hardening_workspace_mutations_and_chat_refusal_r4_60() {
         assert_eq!(rej["status"], "error");
         assert_eq!(rej["error_code"], "RefusedPlanModeMutation");
     }
+}
+
+#[test]
+fn test_r4_74_prewarmed_mvm_workspace_tool_awareness_and_hop_chatml() {
+    let mut engine = StudioEngine::new_default();
+    let mvm_ls_pieces: &[(u32, &[u8])] = &[
+        (261, b"<tool_call>"),
+        (
+            262,
+            b"{\"name\":\"mvm_exec\",\"arguments\":{\"cmd\":\"ls /workspace\"}}",
+        ),
+        (263, b"</tool_call>"),
+    ];
+    let bytes = build_scripted_holo_v13_bytes(&[10, 261, 262, 263, 257], mvm_ls_pieces);
+    engine
+        .mount_holo_v13_bytes("uor-r4.qwen3-0.6b-holo", &bytes)
+        .expect("mount scripted model");
+
+    // 1. Turn 1 in studio mode with include_excerpts=false hits prewarmed STUDIO_AGENT_TOOL_SCHEMA,
+    //    binds live /workspace file tree, and keeps uncached tail tokens <= 120.
+    let begin1: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "What tools do you have and what files are in /workspace?",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "surface_mode": "studio",
+                "composer_mode": "agent",
+                "include_excerpts": false,
+                "max_new_tokens": 128,
+                "live_hud": true
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    let tid1 = begin1["turn_id"].as_u64().unwrap();
+    let reused1 = begin1["prefix_reused_tokens"].as_u64().unwrap_or(0);
+    let tail1 = begin1["prefill_total"].as_u64().unwrap_or(999);
+    assert!(
+        reused1 >= 40,
+        "Turn 1 must reuse prewarmed STUDIO_SELF_KNOWLEDGE_PREFIX + STUDIO_AGENT_TOOL_SCHEMA (reused={reused1})"
+    );
+    assert!(
+        tail1 <= 400,
+        "include_excerpts=false must prevent 2500-byte / 920-BPE-token prefill bloat (byte_tail={tail1})"
+    );
+    let sys1 = engine
+        .active_foundry_turn_system_prompt(tid1)
+        .expect("system prompt");
+    assert!(sys1.contains(STUDIO_AGENT_TOOL_SCHEMA));
+    assert!(sys1.contains("src/engine.rs") && sys1.contains("README.md"));
+    assert!(
+        !sys1.contains("<workspace_file "),
+        "include_excerpts=false must omit raw <workspace_file> dumps while preserving File tree"
+    );
+
+    let mut step1 = Value::Null;
+    for _ in 0..4 {
+        step1 = serde_json::from_str(&engine.holo_step_foundry_turn(tid1)).unwrap();
+        if step1["status"] != "streaming" {
+            break;
+        }
+    }
+    assert_eq!(step1["status"], "needs_tool");
+    assert_eq!(step1["tool_call"]["name"], "mvm_exec");
+    assert_eq!(step1["tool_call"]["cmd"], "ls /workspace");
+
+    // 2. Hop 1 continuation with tool_results reuses Hop 0 KV prefix via ChatML assistant <tool_call> turn
+    let begin_hop1: Value = serde_json::from_str(
+        &engine.holo_begin_foundry_turn(
+            &serde_json::json!({
+                "prompt": "What tools do you have and what files are in /workspace?",
+                "selected_model": "uor-r4.qwen3-0.6b-holo",
+                "surface_mode": "studio",
+                "composer_mode": "agent",
+                "include_excerpts": false,
+                "max_new_tokens": 128,
+                "tool_results": [{
+                    "cmd": "ls /workspace",
+                    "exit_code": 0,
+                    "stdout": "README.md\nsrc\n",
+                    "stderr": "",
+                    "changed_files": []
+                }]
+            })
+            .to_string(),
+        ),
+    )
+    .unwrap();
+    let reused_hop1 = begin_hop1["prefix_reused_tokens"].as_u64().unwrap_or(0);
+    assert!(
+        reused_hop1 > reused1,
+        "Hop 1 ChatML tool continuation must reuse Hop 0 user + assistant KV prefix ({reused1} -> {reused_hop1})"
+    );
+    let tid_hop1 = begin_hop1["turn_id"].as_u64().unwrap();
+    let _ = engine.holo_cancel_foundry_turn(tid_hop1);
 }

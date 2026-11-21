@@ -226,3 +226,20 @@ Each defect below was planted in an isolated workspace copy (`/var/tmp/lexlean-r
   - **Exit code**: `1`
   - **Diagnostic**: `AssertionError [ERR_ASSERTION]: Expected values to be strictly equal: + 'NpmSubcommandAdmitted' - 'RefusedUnsupportedToolchainSubcommand'` at `tests/e2e/r4_67_mvm_polyglot_toolchain_e2e.mjs:24:8`
 - **Restored result**: Restored `return 'RefusedUnsupportedToolchainSubcommand';` inside `admitCargoTerminalSubcommand()` / `admitNpmTerminalSubcommand()`; `node tests/e2e/r4_67_mvm_polyglot_toolchain_e2e.mjs` exited `0` (`[PASS] R4-67 MVM cargo/rustc, npm lifecycle subcommands, and C99 <stdlib.h>/<stdbool.h> verified.`).
+
+## Unified Agent `/workspace` & MVM Terminal Tool Awareness + Zero-HTTP Warm Seal (`R4-74`)
+
+- **Browser Wasm closure (`public/`)**: 6 files (`app.css`, `app.js`, `index.html`, `lexlean_r4.js`, `lexlean_r4_bg.wasm` < `15 MiB`, `provenance.json`), `wasm=1626fb956f1d`, `js=373ed95ba16f`, `core=0f219676ba72`.
+- **`build-holo --sync-site-manifest`**: verified Hologram v4 archive (`13,474,390` bytes, `blake3=d04f513ad91e40e4`, `wasmSha256=1626fb956f1d3e36`, `vectors=5/5`, `view_files=6`) synchronized in `site/app.json`.
+- **Agent `/workspace` & MVM Tool Awareness + Warm-Seal Fast Path**:
+  - Mount-time prewarmed `STUDIO_SELF_KNOWLEDGE_PREFIX` + `STUDIO_AGENT_TOOL_SCHEMA` (`prefix_reused_tokens = 197..270` on real `uor-r4.qwen3-0.6b-holo`).
+  - Unified `surface_mode: 'studio'` across Chat and Studio layout modes with `include_excerpts` gating (eliminating 920-token file-excerpt prefill bloat and cross-turn KV cache resets) and structured JSON ChatML `<tool_call>` -> `<tool_response>` multi-hop continuations (`format_foundry_tool_hop_chatml`).
+  - Zero-HTTP `earlyCatalogWarmCheck` mounting verified OPFS `HOLOSLAB2` catalog seals prior to any remote `manifest.json` fetch, plus `createWritable()` slab-sealing fallback and dropdown-triggered background mounting.
+- **`ratchet-cycle`**: `lifted=2188`, `modules=318`, `residue=341`, `rust_lines=17545`, `js_lines=17117`, `float=0`, `matmul=0`, `unwired_ui=0`, `choice=0`.
+
+### 15. Surface-Flip Tool-Blind Regression Gate (`R4-74`)
+- **Planted defect**: Reintroduced `const activeSurfaceMode = wantsWorkspaceTools ? 'studio' : 'chat';` inside `runClaudeChat()` in `public/app.js`.
+- **Failing command**: `cargo test -p repo-conformance --test r4_74_agent_workspace_tool_awareness`
+  - **Exit code**: `101`
+  - **Diagnostic**: `thread 'test_r4_74_agent_workspace_tool_awareness_r4_74' panicked at crates/conformance/tests/r4_74_agent_workspace_tool_awareness.rs:109:5: public/app.js must not strip /workspace or flip surface_mode to tool-blind 'chat' on non-regex prompts`
+- **Restored result**: Restored unified `surface_mode: 'studio'` in `public/app.js`; `cargo test -p repo-conformance --test r4_74_agent_workspace_tool_awareness` and `node tests/e2e/r4_74_agent_workspace_tool_awareness_e2e.mjs` exited `0`.

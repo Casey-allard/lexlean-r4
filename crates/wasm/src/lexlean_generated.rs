@@ -49539,3 +49539,90 @@ pub mod r4_hopf_zeta_poincare_architecture {
             }) == TenKGeometricEngineVerdict::TenKWaveResonanceAdmitted
     }
 }
+
+pub mod r4_agent_workspace_tool_awareness {
+    //! Generated from `src/R4/AgentWorkspaceToolAwareness.lex.tex` (`R4-74`).
+
+    /// Inductive `R4.AgentWorkspaceToolAwareness.AgentToolPromptVerdict` (`R4-74`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum AgentToolPromptVerdict {
+        WorkspaceToolPromptAdmitted,
+        RefusedBlindSurfaceWithoutMvmSchema,
+        RefusedMissingWorkspaceTreeWhenFilesExist,
+        RefusedUncachedExcerptBloat,
+        RefusedToolHopMissingAssistantCallTurn,
+    }
+
+    /// Inductive `R4.AgentWorkspaceToolAwareness.WarmMountCacheVerdict` (`R4-74`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum WarmMountCacheVerdict {
+        InMemoryAlreadyMountedZeroFetch,
+        OpfsWarmSlabMountedZeroHttp,
+        ColdHttpHydrationAdmitted,
+        RefusedRedundantHttpFetchOnMountedOrWarmSlab,
+        RefusedSurfaceFlipKvCacheWipe,
+    }
+
+    /// Function `R4.AgentWorkspaceToolAwareness.admitAgentWorkspaceToolPrompt` (`R4-74`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn admit_agent_workspace_tool_prompt(
+        mvm_tool_schema_bound: bool,
+        workspace_tool_schema_bound: bool,
+        workspace_file_count: u64,
+        workspace_tree_bound: bool,
+        explicit_excerpts_requested: bool,
+        uncached_tail_tokens: u64,
+        tool_hop_count: u64,
+        assistant_tool_call_turn_bound: bool,
+    ) -> AgentToolPromptVerdict {
+        if !mvm_tool_schema_bound || !workspace_tool_schema_bound {
+            AgentToolPromptVerdict::RefusedBlindSurfaceWithoutMvmSchema
+        } else if 0 < workspace_file_count && !workspace_tree_bound {
+            AgentToolPromptVerdict::RefusedMissingWorkspaceTreeWhenFilesExist
+        } else if !explicit_excerpts_requested && 160 < uncached_tail_tokens {
+            AgentToolPromptVerdict::RefusedUncachedExcerptBloat
+        } else if 0 < tool_hop_count && !assistant_tool_call_turn_bound {
+            AgentToolPromptVerdict::RefusedToolHopMissingAssistantCallTurn
+        } else {
+            AgentToolPromptVerdict::WorkspaceToolPromptAdmitted
+        }
+    }
+
+    /// Function `R4.AgentWorkspaceToolAwareness.admitTurnHydrationAndKvReuse` (`R4-74`).
+    pub fn admit_turn_hydration_and_kv_reuse(
+        mounted_in_ram: bool,
+        warm_slab_admitted: bool,
+        force_reload: bool,
+        custom_mirror_override: bool,
+        http_fetch_count: u64,
+        surface_prefix_consistent: bool,
+    ) -> WarmMountCacheVerdict {
+        if !surface_prefix_consistent {
+            WarmMountCacheVerdict::RefusedSurfaceFlipKvCacheWipe
+        } else if mounted_in_ram && !force_reload && !custom_mirror_override {
+            if 0 < http_fetch_count {
+                WarmMountCacheVerdict::RefusedRedundantHttpFetchOnMountedOrWarmSlab
+            } else {
+                WarmMountCacheVerdict::InMemoryAlreadyMountedZeroFetch
+            }
+        } else if warm_slab_admitted && !force_reload && !custom_mirror_override {
+            if 0 < http_fetch_count {
+                WarmMountCacheVerdict::RefusedRedundantHttpFetchOnMountedOrWarmSlab
+            } else {
+                WarmMountCacheVerdict::OpfsWarmSlabMountedZeroHttp
+            }
+        } else {
+            WarmMountCacheVerdict::ColdHttpHydrationAdmitted
+        }
+    }
+
+    /// Function `R4.AgentWorkspaceToolAwareness.verifyAgentWorkspaceToolAwarenessAdmitted` (`R4-74`).
+    pub fn verify_agent_workspace_tool_awareness_admitted() -> bool {
+        admit_agent_workspace_tool_prompt(true, true, 4, true, false, 48, 1, true)
+            == AgentToolPromptVerdict::WorkspaceToolPromptAdmitted
+            && admit_turn_hydration_and_kv_reuse(true, true, false, false, 0, true)
+                == WarmMountCacheVerdict::InMemoryAlreadyMountedZeroFetch
+            && admit_turn_hydration_and_kv_reuse(false, true, false, false, 0, true)
+                == WarmMountCacheVerdict::OpfsWarmSlabMountedZeroHttp
+    }
+}

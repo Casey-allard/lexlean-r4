@@ -2,9 +2,9 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 2974,
-    "lifted": 2184,
-    "effect": 291,
+    "total_functions": 2979,
+    "lifted": 2188,
+    "effect": 292,
     "foreign": 158,
     "residue": 341
   },
@@ -469,7 +469,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "3069a413f9dabec481ed0b907a2eca64d5564f04337739a0f9eea5b1cf17d852",
+      "kappa": "bae62fddea8199c933d2567f2e3a1f6fe1af1ebbbdb787fbefb2009010793f1f",
       "function": "crates/wasm/js/worker_host_bridge.js::hydrate_holo_model",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -553,7 +553,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "1ab1cc5c4a61a5dab8db087674716d5da1b72ed10cc10f224376f9ddbcf9adf9",
+      "kappa": "18fc85e3651c2a0e82f7c851a2c0d2458c16139f79ba06b12c0ab6537810778c",
       "function": "crates/wasm/js/worker_host_bridge.js::parseClosedPrismTagsIncremental",
       "status": "effect",
       "effect": "stdio-console-effect",
@@ -694,7 +694,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "aa931c3b03bd8f8318dcda21f5f72b18caa7905f9214b0f24b7a125082c4c54a",
+      "kappa": "5e21f73c97d5e870e813f442a6229caf97b70a6e3fe1480222a22067677886f9",
       "function": "crates/wasm/js/worker_host_bridge.js::selectOptimalInitialHoloModel",
       "status": "effect",
       "effect": "browser-opfs-worker-gpu-effect",
@@ -1007,7 +1007,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a7fe776667c742d1201e12d6140ffb87f11d238639dd4ff0ae88103a321a087c",
+      "kappa": "1c3a4dc961b90fde879aa80c9aaa930f314cd3de31a138d84b2dfacd17223443",
       "function": "crates/wasm/src/assistant.rs::StudioEngine::holo_begin_foundry_turn",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -1243,7 +1243,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "1ffec08ad2ebcec5d0f57e3f4e5e28ecd8db3aae6872ecdfbf1ff4f4f75b7432",
+      "kappa": "4937ebf5958f9f59daa6f7c3a23bf298a03ce1861e7ff3298bb5808aaa9bc5a7",
       "function": "crates/wasm/src/assistant.rs::fit_foundry_prompt_tokens",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -1254,6 +1254,13 @@
       "function": "crates/wasm/src/assistant.rs::format_foundry_step_terminal_json",
       "status": "lifted",
       "definition": "R4.StudioFrame",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "eeedc8af27a390c777291275b8f9044bc659c78c9b69495e63527a294adc999c",
+      "function": "crates/wasm/src/assistant.rs::format_foundry_tool_hop_chatml",
+      "status": "lifted",
+      "definition": "R4.AgentWorkspaceToolAwareness",
       "exact_divergence_free": true
     },
     {
@@ -1494,7 +1501,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "fe69807ce78d3ac793e96dabfdd38d0f1311daa4de97324a833899445daedf38",
+      "kappa": "a71bf179081b052329fa2688f2196a73ffe1557d14e13f4a72f8f395fa35554f",
       "function": "crates/wasm/src/assistant.rs::xml_escape_attr",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -3949,6 +3956,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "36d96067ebdd29a743651e84f7a4d45fc1866a87c0a298cb7d223245a3299927",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_agent_workspace_tool_prompt",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_agent_workspace_tool_prompt",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "56537ff9f1e07867e3d533a17db68669be69cdaf0a49a031fed54acfacee12e8",
       "function": "crates/wasm/src/lexlean_generated.rs::admit_agentic_git_loop",
       "status": "lifted",
@@ -4436,6 +4450,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_tmac_lut_read",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_tmac_lut_read",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "0b7699513378126bf5cd27ace8edaf0edb60f7cce4a5b571596db90b86ce5596",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_turn_hydration_and_kv_reuse",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_turn_hydration_and_kv_reuse",
       "exact_divergence_free": true
     },
     {
@@ -13189,6 +13210,13 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "3f53a49a8e99a40e301505315e467857d50a3fc0e46e5c271e54ea0761f8adc1",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_agent_workspace_tool_awareness_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_agent_workspace_tool_awareness_admitted",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "4a14a078cb3028762ffa88537d08bbeca135e5f4c8c3adafb72100940bb4bd45",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_audit_link",
       "status": "lifted",
@@ -13532,7 +13560,7 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "32218505dc686b8243e9e716297bd3953b4781c27ad94a7edb4fb9bc0680e1ca",
+      "kappa": "4612fa24a6fdb9dc3ed24ff9d9638936eccaa94afe70184f9bb75dabacf6291c",
       "function": "crates/wasm/src/lib.rs::StudioEngine::begin_holo_v13_mount_with_policy",
       "status": "lifted",
       "definition": "R4.HoloGeometricRuntime",
@@ -18626,7 +18654,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "c980d0c367e54012a773563dd752f2ebc973cd3f09136144d71c0dad69760719",
+      "kappa": "a33cdb7be2b04bcca26cdf527a034ed3bc26c2211a67e1c7bbe154cb53a463b9",
       "function": "public/app.js::clearAllThreads",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18709,7 +18737,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "fdb02ffd1729df059eb40117dca90a2cdd7342eddea5bfbd214ae77ed003f253",
+      "kappa": "47be7f5f2cc9b32bc5353d9ecf3651ea6d7a3b6fc97673968605621496970097",
       "function": "public/app.js::createNewThread",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -18855,6 +18883,13 @@
       "status": "residue",
       "reason": "unlifted-pure-fn",
       "detail": "pure function `public/app.js::grpToString` pending formal .lex.tex lift",
+      "exact_divergence_free": false
+    },
+    {
+      "kappa": "fdce9c3bff8d3887584c2abcac4ae80c9e8c1875423dfaddd3f8ff022c25ff91",
+      "function": "public/app.js::handleUserModelDropdownChange",
+      "status": "effect",
+      "effect": "dom-browser-environment-io",
       "exact_divergence_free": false
     },
     {
@@ -19370,7 +19405,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a91374efa0152b056419203008adbe26055dc0a8b47edb875797bd7e9055d764",
+      "kappa": "5fa9904a53cda1f05d1115e5cd0cda653e698d4df3fe5d348ca71e12ea0478b4",
       "function": "public/app.js::runClaudeChat",
       "status": "effect",
       "effect": "dom-browser-environment-io",
