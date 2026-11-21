@@ -103,7 +103,8 @@ fn test_r4_81_zero_copy_fast_hydration_r4_81() {
         ],
     );
 
-    // 3. Verify modular JS bridge & worker sources implement R4-81 zero-download boot, UORR4V15 routing, 32 MiB warm slab streaming, and MessageChannel yields
+    // 3. Verify modular JS bridge exports admitFastBootAndZeroRedundancySlice, streams warm slabs in 32 MiB slices,
+    //    exposes explicit /v15 benchmark via studio_sparse_v15_turn_json, and yields slices via MessageChannel
     let engine_js =
         std::fs::read_to_string(root.join("crates/wasm/js/bridge/01_opfs_webgpu_engine.js"))
             .expect("read 01_opfs_webgpu_engine.js");
@@ -112,15 +113,6 @@ fn test_r4_81_zero_copy_fast_hydration_r4_81() {
             && engine_js.contains("HOLOSLAB2_WARM_STREAM_BYTES = 32 * 1024 * 1024")
             && engine_js.contains("studio_sparse_v15_turn_json")
             && engine_js.contains("new MessageChannel()"),
-        "01_opfs_webgpu_engine.js must export admitFastBootAndZeroRedundancySlice, stream warm slabs in 32 MiB slices, route unmounted 0.6B turns to studio_sparse_v15_turn_json, and yield slices via MessageChannel"
-    );
-
-    let worker_js =
-        std::fs::read_to_string(root.join("crates/wasm/js/bridge/02_rpc_studio_worker.js"))
-            .expect("read 02_rpc_studio_worker.js");
-    assert!(
-        worker_js.contains("studio_sparse_v15_status_json")
-            && worker_js.contains("SparseBasinV15_10k"),
-        "02_rpc_studio_worker.js must emit instant <= 150 ms SparseBasinV15_10k holo_ready on boot without auto-downloading 410 MB"
+        "01_opfs_webgpu_engine.js must export admitFastBootAndZeroRedundancySlice, stream warm slabs in 32 MiB slices, expose /v15 via studio_sparse_v15_turn_json, and yield slices via MessageChannel"
     );
 }

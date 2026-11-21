@@ -3264,7 +3264,7 @@ impl StudioEngine {
         }
     }
 
-    /// Formal R4.HoloGeometricRuntime finalize SHA-256 verification and mount the streamed `HoloV13Model` (`R4-51`).
+    /// Formal R4.HoloGeometricRuntime finalize SHA-256 verification and mount the streamed `HoloV13Model` (`R4-51`, `R4-82`).
     pub fn finalize_holo_v13_mount(&mut self) -> Result<String, r4_geometric_stack::R4StackError> {
         let (key, builder) = self
             .holo_stream_builder
@@ -3276,11 +3276,39 @@ impl StudioEngine {
             .min(model.intermediate_size.max(1));
         model.set_mlp_policy(self.default_mlp_policy, init_k);
         self.holo_models.insert(key.clone(), model);
-        let default_sys = self.build_holo_studio_system_prompt(&key, "agentic", "", "main");
-        if let Some(mounted) = self.holo_models.get_mut(&key) {
-            mounted.prewarm_system_prefix(&default_sys);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let default_sys = self.build_holo_studio_system_prompt(&key, "agentic", "", "main");
+            if let Some(mounted) = self.holo_models.get_mut(&key) {
+                mounted.prewarm_system_prefix(&default_sys);
+            }
         }
         Ok(self.holo_runtime_status_json())
+    }
+
+    /// Formal R4.RealQwen3LosslessStreaming pre-warm `HoloPrefixKvCache` on an idle Worker tick without blocking mount (`R4-82`).
+    pub fn prewarm_holo_prefix_idle(&mut self, model_id: &str) -> String {
+        let key = if model_id.trim().is_empty() {
+            "uor-r4.qwen3-0.6b-holo".to_string()
+        } else {
+            model_id.trim().to_string()
+        };
+        if self.foundry_turn.as_ref().is_some_and(|t| t.active) {
+            return serde_json::json!({ "ok": true, "skipped": "active_turn" }).to_string();
+        }
+        let default_sys = self.build_holo_studio_system_prompt(&key, "agentic", "", "main");
+        if let Some(mounted) = self.holo_models.get_mut(&key) {
+            if mounted.kv_cache.tokens.is_empty() {
+                mounted.prewarm_system_prefix(&default_sys);
+            }
+            return serde_json::json!({
+                "ok": true,
+                "model_id": key,
+                "prewarmed_tokens": mounted.kv_cache.tokens.len(),
+            })
+            .to_string();
+        }
+        serde_json::json!({ "ok": false, "error_code": "ModelNotMounted" }).to_string()
     }
 
     /// Formal R4.HoloGeometricRuntime verify and hot-mount a complete `UORR4V13` container byte buffer (`R4-51`).
@@ -10081,6 +10109,17 @@ pub fn studio_finalize_holo_v13_mount() -> String {
         })
         .to_string(),
     }
+}
+
+/// Formal R4.RealQwen3LosslessStreaming Wasm export prewarming `HoloPrefixKvCache` on an idle Worker tick (`R4-82`).
+#[wasm_bindgen]
+pub fn studio_prewarm_holo_prefix_idle(model_id: &str) -> String {
+    let mut guard = match studio_engine_cell().lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+    let engine = guard.get_or_insert_with(StudioEngine::new_default);
+    engine.prewarm_holo_prefix_idle(model_id)
 }
 
 /// Query mounted `UORR4V13` Holo runtimes and `NativeQ31` status as JSON (`R4-51`, `R4-52`).

@@ -50032,3 +50032,42 @@ pub mod r4_zero_copy_fast_hydration {
             == FastHydrationVerdict::FastBootAndSliceAdmitted
     }
 }
+
+/// Generated from `src/R4/RealQwen3LosslessStreaming.lex.tex` (`R4.RealQwen3LosslessStreaming`, `R4-82`).
+pub mod r4_real_qwen3_lossless_streaming {
+    /// Inductive `R4.RealQwen3LosslessStreaming.RealQwen3StreamingVerdict` (`R4-82`).
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum RealQwen3StreamingVerdict {
+        RealQwen3LosslessTurnAdmitted,
+        RefusedPreplannedCannedProseOnQwenLane,
+        RefusedBlockingSyncPrefixPrewarmOnMount,
+        RefusedDelayedMultiTokenFirstFlush,
+        RefusedColdBadgeOverwriteAfterReady,
+    }
+
+    /// Function `R4.RealQwen3LosslessStreaming.admitRealQwen3LosslessTurn` (`R4-82`).
+    pub fn admit_real_qwen3_lossless_turn(
+        canned_passage_used_on_qwen_lane: bool,
+        sync_prefix_prewarm_blocking_mount: bool,
+        ttft_first_token_flush_enabled: bool,
+        badge_overwritten_to_cold_after_ready: bool,
+    ) -> RealQwen3StreamingVerdict {
+        if canned_passage_used_on_qwen_lane {
+            RealQwen3StreamingVerdict::RefusedPreplannedCannedProseOnQwenLane
+        } else if sync_prefix_prewarm_blocking_mount {
+            RealQwen3StreamingVerdict::RefusedBlockingSyncPrefixPrewarmOnMount
+        } else if !ttft_first_token_flush_enabled {
+            RealQwen3StreamingVerdict::RefusedDelayedMultiTokenFirstFlush
+        } else if badge_overwritten_to_cold_after_ready {
+            RealQwen3StreamingVerdict::RefusedColdBadgeOverwriteAfterReady
+        } else {
+            RealQwen3StreamingVerdict::RealQwen3LosslessTurnAdmitted
+        }
+    }
+
+    /// Function `R4.RealQwen3LosslessStreaming.verifyRealQwen3LosslessStreamingAdmitted` (`R4-82`).
+    pub fn verify_real_qwen3_lossless_streaming_admitted() -> bool {
+        admit_real_qwen3_lossless_turn(false, false, true, false)
+            == RealQwen3StreamingVerdict::RealQwen3LosslessTurnAdmitted
+    }
+}

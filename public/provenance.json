@@ -3,8 +3,8 @@
   "model_id": "8a0e88c03975a5c7f8f6dd468080f5ec89a19c59502283a0058b88d8b9f4be67",
   "view_manifest_sha256": "6b245cf2a02b6be350dc10915ffce6ff039a896d88f62f85b62b694a50d24f0c",
   "view_model_id": "c1387d7bbf11b6973e4a905a4ecb819f61b0c0cf94e9f90647c40d65b058a9df",
-  "generated_core_sha256": "2e9b457190be750b3cbc5f2bd364725be55a5c64780ee85c59dbfeeed2a247bb",
-  "adapter_wasm_sha256": "a96a69b98b15ace930349e59ae3509071cdd2d736649f87233986ca30dddd9ee",
-  "binding_javascript_sha256": "b9d41135cea5546a3f7255fac745eabec71408f089d175b5d89a66ebfca5f2a1",
+  "generated_core_sha256": "a3fb07a732f95403759447a7e0f58062e3f275efb3dd6ff04c37a9c7fb2bd34c",
+  "adapter_wasm_sha256": "14497d43530b7d18e871da4388564576fe0b58ab0b1f8d9b9abce92177bd83fd",
+  "binding_javascript_sha256": "2101c59e01f86442d766803d16fd39ff3daae5b6d56a522de54bc0357d2a3c7f",
   "adapter_lock_sha256": "016e32a44c2841c12edd38a4e491740da4e97bec05a728e31a79bcbc51a9bfc8"
 }

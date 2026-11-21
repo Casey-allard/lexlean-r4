@@ -230,7 +230,14 @@ id = "R4-UR32"
 rust_fact = "zero-copy-fast-hydration-zero-redundancy-slice"
 prism_record = "Foundation.Qual::ZeroCopyFastHydration"
 facet = "qual"
-note = "Zero-download <= 150 ms default Worker boot routing unmounted 0.6B turns to UORR4V15 (10000+ tok/s), 32 MiB coalesced OPFS warm streaming (<= 16 calls), deferred GPU upload, and zero-clamp MessageChannel HoloV13 slice scheduling."
+note = "32 MiB coalesced OPFS warm streaming (<= 16 calls), deferred GPU upload, zero-clamp MessageChannel HoloV13 slice scheduling, and explicit /v15 geometric wave benchmark."
+
+[[route]]
+id = "R4-UR33"
+rust_fact = "real-qwen3-lossless-streaming-no-canned-prose"
+prism_record = "Foundation.Qual::RealQwen3LosslessStreaming"
+facet = "qual"
+note = "100% real Qwen3-0.6B/1.7B HoloV13Model neural generation with zero preplanned passage interception, deferred idle prefix prewarm, lazy gate_row_sigs_256, instant Token-1 TTFT flush, and monotonic Ready badge."
 
 [[vector]]
 case = "route R4-UR01"
@@ -391,6 +398,11 @@ response = "route R4-UR31\nfact qwen3-sparse-basin-v15-10k-engine\nrecord Founda
 case = "route R4-UR32"
 request_hex = "7a65726f2d636f70792d666173742d687964726174696f6e2d7a65726f2d726564756e64616e63792d736c696365"
 response = "route R4-UR32\nfact zero-copy-fast-hydration-zero-redundancy-slice\nrecord Foundation.Qual::ZeroCopyFastHydration\nfacet qual"
+
+[[vector]]
+case = "route R4-UR33"
+request_hex = "7265616c2d7177656e332d6c6f73736c6573732d73747265616d696e672d6e6f2d63616e6e65642d70726f7365"
+response = "route R4-UR33\nfact real-qwen3-lossless-streaming-no-canned-prose\nrecord Foundation.Qual::RealQwen3LosslessStreaming\nfacet qual"
 
 [[vector]]
 case = "error empty"

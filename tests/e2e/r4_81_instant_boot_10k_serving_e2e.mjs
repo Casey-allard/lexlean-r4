@@ -80,7 +80,7 @@ try {
     {
       id: 8101,
       payload: {
-        prompt: 'What tools can you use in /workspace?',
+        prompt: '/v15 What tools can you use in /workspace?',
         selected_model: 'uor-r4.qwen3-0.6b-holo',
         surface_mode: 'studio',
         composer_mode: 'agent',
@@ -115,7 +115,7 @@ try {
     {
       id: 8102,
       payload: {
-        prompt: 'Run ls /workspace in the mvm terminal',
+        prompt: '/v15 Run ls /workspace in the mvm terminal',
         selected_model: 'uor-r4.qwen3-0.6b-holo',
         surface_mode: 'studio',
         composer_mode: 'agent',

@@ -2100,6 +2100,21 @@ export function admitFastBootAndZeroRedundancySlice(
   return 'FastBootAndSliceAdmitted';
 }
 
+/** Formal R4.RealQwen3LosslessStreaming admit 100% real Qwen3 neural turns with deferred idle prefix prewarm, immediate Token-1 TTFT flush, and monotonic Ready badge (`R4-82`). */
+export function admitRealQwen3LosslessTurn(
+  cannedPassageUsedOnQwenLane,
+  syncPrefixPrewarmBlockingMount,
+  ttftFirstTokenFlushEnabled,
+  badgeOverwrittenToColdAfterReady,
+) {
+  /* Formal R4.RealQwen3LosslessStreaming */
+  if (Boolean(cannedPassageUsedOnQwenLane)) return 'RefusedPreplannedCannedProseOnQwenLane';
+  if (Boolean(syncPrefixPrewarmBlockingMount)) return 'RefusedBlockingSyncPrefixPrewarmOnMount';
+  if (!ttftFirstTokenFlushEnabled) return 'RefusedDelayedMultiTokenFirstFlush';
+  if (Boolean(badgeOverwrittenToColdAfterReady)) return 'RefusedColdBadgeOverwriteAfterReady';
+  return 'RealQwen3LosslessTurnAdmitted';
+}
+
 export class OpfsKappaStore {
   constructor() {
     this.liarMirrors = new Set();
@@ -4779,6 +4794,9 @@ function mountResidentGpuFromWasmModel(modelKey) {
           }
           if (typeof DedicatedWorkerGlobalScope !== 'undefined' && options.deferGpuMount !== false) {
             setTimeout(() => mountResidentGpuFromWasmModel(key), 0);
+            if (typeof studio_prewarm_holo_prefix_idle === 'function') {
+              setTimeout(() => studio_prewarm_holo_prefix_idle(key), 40);
+            }
           } else {
             mountResidentGpuFromWasmModel(key);
           }
@@ -5289,7 +5307,14 @@ function mountResidentGpuFromWasmModel(modelKey) {
       await slabWriter.abort();
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
     }
-    mountResidentGpuFromWasmModel(key);
+    if (typeof DedicatedWorkerGlobalScope !== 'undefined' && options.deferGpuMount !== false) {
+      setTimeout(() => mountResidentGpuFromWasmModel(key), 0);
+      if (typeof studio_prewarm_holo_prefix_idle === 'function') {
+        setTimeout(() => studio_prewarm_holo_prefix_idle(key), 40);
+      }
+    } else {
+      mountResidentGpuFromWasmModel(key);
+    }
     await slabWriter.seal();
     await holoWriteManifestIndex({
       model_id: key,
@@ -5924,28 +5949,19 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     selectedModel = 'uor-r4.native-q31-d85';
   }
 
-  const knownHoloTarget =
-    selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
-  const targetWasMountedAtStart = isTargetMounted(selectedModel, runtimeStatus);
+  const isV15Slash = prompt === '/v15' || prompt.startsWith('/v15 ');
   const fnSparseV15Turn =
     runtimeHooks.sparseV15TurnJson ||
     (typeof studio_sparse_v15_turn_json === 'function'
       ? studio_sparse_v15_turn_json
       : globalThis.studio_sparse_v15_turn_json);
-  const useSparseBasinV15 = Boolean(
-    selectedModel === 'uor-r4.qwen3-0.6b-holo' &&
-      !targetWasMountedAtStart &&
-      payload.allowOffOriginHydration !== false &&
-      !payload.forceDenseV13 &&
-      !Array.isArray(payload.customMirrors) &&
-      !runtimeHooks.hydrateHoloModel &&
-      !runtimeHooks.holoBeginTurn &&
-      typeof fnSparseV15Turn === 'function',
-  );
+  const knownHoloTarget =
+    selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
+  const targetWasMountedAtStart = isTargetMounted(selectedModel, runtimeStatus);
   let turnHydrationInvoked = false;
   let turnNetworkBytes = 0;
   let turnOpfsBytes = 0;
-  if (knownHoloTarget && !targetWasMountedAtStart && !useSparseBasinV15) {
+  if (knownHoloTarget && !targetWasMountedAtStart && !isV15Slash) {
     turnHydrationInvoked = true;
     let unsubWaiter = () => {};
     try {
@@ -6199,7 +6215,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       cached_hits: kappaInfo && Number.isFinite(kappaInfo.cached_hits) ? kappaInfo.cached_hits : null,
       piece_count: kappaInfo && Number.isFinite(kappaInfo.piece_count) ? kappaInfo.piece_count : null,
       resident_turn_verdict: admitResidentTurnZeroDownload(
-        targetWasMountedAtStart || useSparseBasinV15,
+        targetWasMountedAtStart || isV15Slash,
         turnHydrationInvoked,
         turnNetworkBytes,
         turnOpfsBytes,
@@ -6356,6 +6372,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       beginPayload.include_excerpts = payload.include_excerpts;
     }
     beginPayload.prefill_slice_tokens = 16;
+    beginPayload.instant_ttft = Boolean(liveHud);
     if (repoParam) beginPayload.repo = repoParam;
     if (branchParam) beginPayload.branch = branchParam;
 
@@ -6363,10 +6380,14 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       postEvent('chat_prefill_start', { id: reqId, modelId: selectedModel });
     }
     let hopStreamIter = null;
-    if (useSparseBasinV15) {
+    if (isV15Slash && typeof fnSparseV15Turn === 'function') {
       activeTurnNum = 1500 + hop;
       setActiveTurnId(activeTurnNum, ownerKey);
-      const rawV15 = fnSparseV15Turn(JSON.stringify(beginPayload));
+      const v15Req = {
+        ...beginPayload,
+        prompt: prompt === '/v15' ? 'What tools can you use in /workspace?' : prompt.slice(4).trim(),
+      };
+      const rawV15 = fnSparseV15Turn(JSON.stringify(v15Req));
       const v15Step = typeof rawV15 === 'string' ? JSON.parse(rawV15) : rawV15;
       if (v15Step && v15Step.status === 'needs_tool') {
         v15Step.delta = '';

@@ -6008,6 +6008,8 @@ struct FoundryTurnRequest {
     include_excerpts: Option<bool>,
     #[serde(default)]
     history: Vec<(String, String)>,
+    #[serde(default, alias = "instantTtft")]
+    instant_ttft: bool,
 }
 
 /// Active non-blocking chunked Studio/Foundry turn session stored on `StudioEngine` (`R4-56`, `R4-60`).
@@ -6027,6 +6029,8 @@ pub struct FoundryTurnSession {
     pub slice_tokens: usize,
     /// True when emitting a live `HoloStepObservatoryFrame` for every decoded token (`R4-60`).
     pub live_hud: bool,
+    /// True when flushing Token #1 immediately on the first decode slice (`R4-82`).
+    pub instant_ttft: bool,
     /// Time-to-first-token latency in milliseconds recorded at step `0` (`R4-60`).
     pub ttft_ms: u32,
     /// True once `ttft_ms` has been captured on the first decoded token.
@@ -7585,7 +7589,21 @@ impl StudioEngine {
             req.active_file.as_deref(),
             Some(&mvm_hdr),
         );
-        if req.include_excerpts == Some(false) {
+        let prompt_lc = req.prompt.to_ascii_lowercase();
+        let prompt_mentions_ws_file = resolved_ws_files.iter().any(|wf| {
+            let p_lc = wf.path.to_ascii_lowercase();
+            let base_lc = wf
+                .path
+                .rsplit('/')
+                .next()
+                .unwrap_or(&wf.path)
+                .to_ascii_lowercase();
+            (!p_lc.is_empty() && prompt_lc.contains(&p_lc))
+                || (base_lc.len() >= 4 && prompt_lc.contains(&base_lc))
+        });
+        if req.include_excerpts == Some(false)
+            || (req.include_excerpts.is_none() && !prompt_mentions_ws_file)
+        {
             ws_excerpts.clear();
         }
         let user_turn = format_foundry_user_turn(&req.prompt, &req.tool_results);
@@ -7619,6 +7637,7 @@ impl StudioEngine {
                 composer_mode: composer_mode.clone(),
                 slice_tokens,
                 live_hud,
+                instant_ttft: req.instant_ttft,
                 ttft_ms: 0,
                 ttft_recorded: false,
                 system_prompt: sys_prompt,
@@ -7849,6 +7868,7 @@ impl StudioEngine {
             composer_mode: composer_mode.clone(),
             slice_tokens,
             live_hud,
+            instant_ttft: req.instant_ttft,
             ttft_ms: 0,
             ttft_recorded: false,
             system_prompt: sys_prompt,
@@ -8368,11 +8388,13 @@ impl StudioEngine {
 
             let need_logits = session.tokens_emitted < session.max_new_tokens
                 && model.kv_cache.tokens.len() + 1 < model.max_seq;
+            let is_ttft_flush_step =
+                session.instant_ttft && session.tokens_emitted == 1 && !slice_delta.is_empty();
             let rem_slice = session.slice_tokens.saturating_sub(slice_emitted);
             let rem_turn = session
                 .max_new_tokens
                 .saturating_sub(session.tokens_emitted);
-            let draft_budget = if need_logits {
+            let draft_budget = if need_logits && !is_ttft_flush_step {
                 rem_slice.min(rem_turn).min(5)
             } else {
                 0
@@ -8525,6 +8547,9 @@ impl StudioEngine {
             session.flock_total += ft;
             if let Some(sc) = sc_opt {
                 session.last_scored = sc;
+                if is_ttft_flush_step {
+                    break;
+                }
             } else {
                 status = "done";
                 break;

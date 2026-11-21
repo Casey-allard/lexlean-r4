@@ -31,13 +31,13 @@ const EXP_RANGE: i32 = 32;
 const SILU_STEP_LOG2: i32 = -8;
 const SILU_RANGE_LOG2: i32 = 4;
 const SIG_WORDS: usize = 8;
-/// Default vocabulary 512-bit RHT shortlist candidate budget (`R4-51`).
-pub const DEFAULT_SHORTLIST_K: usize = 1_536;
+/// Default vocabulary 512-bit RHT shortlist candidate budget (`R4-51`, `R4-82` widened 10.6x for full factual/proper-noun recall).
+pub const DEFAULT_SHORTLIST_K: usize = 16_384;
 /// Default SwiGLU active-neuron 256-bit Hamming shortlist budget (`R4-61`).
 pub const DEFAULT_MLP_SHORTLIST_K: usize = 1_536;
 /// Number of `u64` words in a 256-bit SwiGLU active-neuron sketch (`R4-61`).
 pub const MLP_SIG_WORDS: usize = 4;
-const DEFAULT_FLOCK_WINDOW: usize = 256;
+const DEFAULT_FLOCK_WINDOW: usize = 512;
 /// Maximum sequence batch tile width processed per full-model weight sweep (`R4-61`).
 pub const MAX_PREFILL_TILE: usize = 32;
 
@@ -2299,7 +2299,12 @@ impl HoloV13StreamingBuilder {
                                 "layer projection dimensions mismatch",
                             ));
                         }
-                        let gate_row_sigs_256 = compute_gate_row_sigs_256(&gate_proj);
+                        // Defer 256-bit gate row sketch computation lazily on verified warm slab mounts (`skip_rehash = true`, `R4-82`).
+                        let gate_row_sigs_256 = if self.skip_rehash {
+                            Vec::new()
+                        } else {
+                            compute_gate_row_sigs_256(&gate_proj)
+                        };
                         let built = HoloV13Layer {
                             in_ln_q24: std::mem::take(&mut self.pending_in_ln),
                             post_ln_q24: std::mem::take(&mut self.pending_post_ln),
@@ -3155,7 +3160,26 @@ fn gemv_i4_rht_rows(
         let act_base = act16.as_ptr();
         let out_base = out.as_mut_ptr();
         let mask_lo = u8x16_splat(0x0f);
-        let bias = i8x16_splat(8);
+        let ones16 = i16x8_splat(1);
+        let mut group_bias_x8 = [0i32; 256];
+        debug_assert!(groups <= group_bias_x8.len());
+        for (g, slot) in group_bias_x8.iter_mut().enumerate().take(groups) {
+            let ap = act_base.add(g * 32);
+            let s01 = i32x4_add(
+                i32x4_dot_i16x8(v128_load(ap as *const v128), ones16),
+                i32x4_dot_i16x8(v128_load(ap.add(8) as *const v128), ones16),
+            );
+            let s23 = i32x4_add(
+                i32x4_dot_i16x8(v128_load(ap.add(16) as *const v128), ones16),
+                i32x4_dot_i16x8(v128_load(ap.add(24) as *const v128), ones16),
+            );
+            let s = i32x4_add(s01, s23);
+            let sum_a = i32x4_extract_lane::<0>(s)
+                .wrapping_add(i32x4_extract_lane::<1>(s))
+                .wrapping_add(i32x4_extract_lane::<2>(s))
+                .wrapping_add(i32x4_extract_lane::<3>(s));
+            *slot = sum_a.wrapping_shl(3);
+        }
 
         let mut r = 0usize;
         while r + 4 <= rows {
@@ -3179,23 +3203,23 @@ fn gemv_i4_rht_rows(
                 let a3 = v128_load(ap.add(24) as *const v128);
                 let g_off = g * 16;
 
-                macro_rules! dot_i4_row_s4 {
+                macro_rules! dot_u4_row_s4 {
                     ($np:expr) => {{
                         let p = v128_load($np.add(g_off) as *const v128);
-                        let w_lo_i8 = i8x16_sub(v128_and(p, mask_lo), bias);
-                        let w_hi_i8 = i8x16_sub(u8x16_shr(p, 4), bias);
-                        let d0 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_lo_i8), a0);
-                        let d1 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_lo_i8), a1);
-                        let d2 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_hi_i8), a2);
-                        let d3 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_hi_i8), a3);
+                        let w_lo_u4 = v128_and(p, mask_lo);
+                        let w_hi_u4 = u8x16_shr(p, 4);
+                        let d0 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_lo_u4), a0);
+                        let d1 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_lo_u4), a1);
+                        let d2 = i32x4_dot_i16x8(i16x8_extend_low_i8x16(w_hi_u4), a2);
+                        let d3 = i32x4_dot_i16x8(i16x8_extend_high_i8x16(w_hi_u4), a3);
                         i32x4_add(i32x4_add(d0, d1), i32x4_add(d2, d3))
                     }};
                 }
 
-                let s0 = dot_i4_row_s4!(np0);
-                let s1 = dot_i4_row_s4!(np1);
-                let s2 = dot_i4_row_s4!(np2);
-                let s3 = dot_i4_row_s4!(np3);
+                let s0 = dot_u4_row_s4!(np0);
+                let s1 = dot_u4_row_s4!(np1);
+                let s2 = dot_u4_row_s4!(np2);
+                let s3 = dot_u4_row_s4!(np3);
                 let p01 = i32x4_add(
                     i32x4_shuffle::<0, 2, 4, 6>(s0, s1),
                     i32x4_shuffle::<1, 3, 5, 7>(s0, s1),
@@ -3204,10 +3228,12 @@ fn gemv_i4_rht_rows(
                     i32x4_shuffle::<0, 2, 4, 6>(s2, s3),
                     i32x4_shuffle::<1, 3, 5, 7>(s2, s3),
                 );
-                let dots0123 = i32x4_add(
+                let dots_raw0123 = i32x4_add(
                     i32x4_shuffle::<0, 2, 4, 6>(p01, p23),
                     i32x4_shuffle::<1, 3, 5, 7>(p01, p23),
                 );
+                let dots0123 =
+                    i32x4_sub(dots_raw0123, i32x4_splat(*group_bias_x8.get_unchecked(g)));
                 let m01 = i32x4_replace_lane::<1>(
                     i32x4_splat(i32::from(*mp0.add(g))),
                     i32::from(*mp1.add(g)),
@@ -3237,6 +3263,7 @@ fn gemv_i4_rht_rows(
             r += 4;
         }
 
+        let bias = i8x16_splat(8);
         while r < rows {
             let np = nb_base.add(r * row_bytes);
             let mp = gm_base.add(r * groups);
@@ -4541,7 +4568,7 @@ impl HoloV13Model {
 
     /// Formal R4.HoloGeometricRuntime adjust shortlist and Starling Flock budgets safely within `R4-55` bounds.
     pub fn set_budgets(&mut self, shortlist_k: usize, flock_window: usize) {
-        self.shortlist_k = shortlist_k.clamp(512, 16_384).min(self.vocab_size.max(512));
+        self.shortlist_k = shortlist_k.clamp(512, 32_768).min(self.vocab_size.max(512));
         self.flock_window = flock_window.clamp(32, 1024);
     }
 
@@ -4581,6 +4608,13 @@ impl HoloV13Model {
             self.sparse_receipt_kl_micros,
         );
         if verdict != MlpShortlistMode::RefusedInvalidNeuronShortlist {
+            if verdict == MlpShortlistMode::GeodesicSparse1536 {
+                for layer in &mut self.layers {
+                    if layer.gate_row_sigs_256.is_empty() {
+                        layer.gate_row_sigs_256 = compute_gate_row_sigs_256(&layer.gate_proj);
+                    }
+                }
+            }
             self.mlp_policy = policy;
             self.mlp_shortlist_k = clamped_k;
         }
@@ -5449,7 +5483,7 @@ impl HoloV13Model {
             + i4_bytes(&layer.gate_proj)
             + i4_bytes(&layer.up_proj)
             + down_bytes;
-        let sigs = layer.gate_row_sigs_256.len() * MLP_SIG_WORDS * 8;
+        let sigs = layer.gate_proj.rows * MLP_SIG_WORDS * 8;
         (norms + projs + sigs + 15) & !15
     }
 
@@ -5504,9 +5538,18 @@ impl HoloV13Model {
                 }
             }
         }
-        for row_sig in &layer.gate_row_sigs_256 {
-            for &w64 in row_sig {
-                out.extend_from_slice(&w64.to_le_bytes());
+        if layer.gate_row_sigs_256.is_empty() {
+            let computed = compute_gate_row_sigs_256(&layer.gate_proj);
+            for row_sig in &computed {
+                for &w64 in row_sig {
+                    out.extend_from_slice(&w64.to_le_bytes());
+                }
+            }
+        } else {
+            for row_sig in &layer.gate_row_sigs_256 {
+                for &w64 in row_sig {
+                    out.extend_from_slice(&w64.to_le_bytes());
+                }
             }
         }
         out.resize(expected_len, 0u8);

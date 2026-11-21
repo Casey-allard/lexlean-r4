@@ -7000,52 +7000,60 @@ function __uorStartDedicatedEngineWorker() {
         await handleWorkerMessage(queued);
       }
 
-      // Boot instantly (`<= 150 ms`, `0 B` download) on Qwen3-distilled `UORR4V15` `10,000+ tok/s` sparse-basin lane (`R4-81`).
+      // Boot on real Qwen3-0.6B HoloV13 (`32 MiB` coalesced warm OPFS mount + deferred idle prefix prewarm, `R4-82`).
       purgeLegacyDeclinedHydrationFlag();
       if (offlineEmergencyQ31 || safeStorageGet('uor_offline_emergency_q31') === '1') {
         bootNativeQ31Fallback = true;
         emitNativeQ31ReadyFallback('offline_emergency_mode');
-      } else if (!isQwenMounted() && typeof studio_sparse_v15_status_json === 'function') {
-        try {
-          const v15 = JSON.parse(studio_sparse_v15_status_json());
-          bootNativeQ31Fallback = false;
-          const prefBootModel =
-            hostBridge && hostBridge.preferredModel === 'uor-r4.qwen3-1.7b-holo'
-              ? 'uor-r4.qwen3-1.7b-holo'
-              : 'uor-r4.qwen3-0.6b-holo';
-          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-          postEvent('holo_ready', {
-            holo: {
-              mounted_count: 1,
-              qwen3_06b_mounted: true,
-              qwen3_17b_mounted: false,
-              sparse_v15_ready: true,
-              active_backend: 'uorr4v15-sparse-basin-10k',
-              boot_verdict: admitFastBootAndZeroRedundancySlice(
-                0,
-                Number(v15.boot_mount_ms || 1),
-                0,
-                false,
-                0,
-              ),
-              models: [
-                {
-                  model_id: 'uor-r4.qwen3-0.6b-holo',
-                  tier: 'SparseBasinV15_10k',
-                  n_layers: 6,
-                  d_model: 576,
-                  vocab_size: Number(v15.vocab_size || 512),
-                  container_sha256: v15.container_sha256 || '',
-                },
-              ],
-            },
-            recommendedModel: prefBootModel,
-            promoted: false,
-            kappaStore: globalThis.__uorHoloKappaStatus || null,
+      } else if (!isQwenMounted()) {
+        selectOptimalInitialHoloModel().then((plan) => {
+          if (isQwenMounted()) return;
+          const emitProg = (prog) => {
+            postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+            postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+          };
+          const bootHydrateOpts =
+            explicitWorkerAllowOffOrigin !== undefined
+              ? { allowOffOriginHydration: explicitWorkerAllowOffOrigin }
+              : {};
+          return hydrate_holo_model(plan.initialModel, emitProg, false, bootHydrateOpts).then((holo) => {
+            bootNativeQ31Fallback = false;
+            postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+            postEvent('holo_ready', {
+              holo,
+              recommendedModel: plan.initialModel,
+              promoted: false,
+              kappaStore: globalThis.__uorHoloKappaStatus || null,
+            });
+            if (plan.promoteTarget) {
+              hydrate_holo_model(plan.promoteTarget, emitProg, false, bootHydrateOpts).then((holo17) => {
+                postEvent('holo_ready', {
+                  holo: holo17,
+                  recommendedModel: plan.promoteTarget,
+                  promoted: true,
+                  kappaStore: globalThis.__uorHoloKappaStatus || null,
+                });
+              }).catch(() => {});
+            }
           });
-        } catch {
-          emitNativeQ31ReadyFallback('hydration_unavailable');
-        }
+        }).catch((err) => {
+          bootNativeQ31Fallback = true;
+          const errCode = (err && (err.error_code || err.code)) || '';
+          const isConsentErr = errCode === 'ConsentRequiredForWeightDownload' ||
+            String((err && err.message) || err || '').includes('ConsentRequiredForWeightDownload');
+          if (isConsentErr) {
+            const modelId = (err && err.model_id) || 'uor-r4.qwen3-0.6b-holo';
+            const cat = (HOLO_MODEL_CATALOG && HOLO_MODEL_CATALOG[modelId]) || null;
+            postEvent('hydration_consent_required', {
+              model_id: modelId,
+              approx_bytes: Number(err && err.approx_bytes) || (cat && cat.approx_bytes) || 429916160,
+              mirrors: (err && Array.isArray(err.mirrors)) ? err.mirrors : ((cat && cat.mirrors) || []),
+              fallback_model: 'uor-r4.native-q31-d85',
+              message: (err && err.message) || String(err),
+            });
+          }
+          emitNativeQ31ReadyFallback(isConsentErr ? 'consent_required' : 'hydration_unavailable');
+        });
       }
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {

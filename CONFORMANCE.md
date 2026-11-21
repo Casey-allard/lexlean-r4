@@ -504,6 +504,12 @@ model does not sanction.
 | --- | --- | --- |
 | `R4-81` | `build` | Pure LexLean models the R4-81 zero-download <= 150 ms default boot, 10000+ tok/s UORR4V15 turn routing, 32 MiB coalesced OPFS warm slab streaming, and non-redundant HoloV13 slice execution contract (R4.ZeroCopyFastHydration): admitFastBootAndZeroRedundancySlice admitting zero boot network weight bytes, <= 150 ms boot ready latency, <= 16 coalesced 32 MiB OPFS warm slab calls, non-redundant GPU/CPU decode slices, and zero-clamp MessageChannel slice yields (FastBootAndSliceAdmitted), while refusing automatic boot weight downloads (RefusedAutoBootWeightDownload), boot readiness > 150 ms (RefusedBootReadyExceeds150Ms), unbounded OPFS chunk storms > 16 calls (RefusedUnboundedWarmChunkStorm), duplicate GPU mapAsync + CPU 28-layer slice execution (RefusedDuplicateGpuCpuSlicePass), and clamped setTimeout slice yields (RefusedClampedSetTimeoutSliceYield). Formal controls establish modeled boot and slice admission invariants only, not external CDN network throughput. |
 
+## r4_82_real_qwen3_lossless_streaming
+
+| ID | Level | Statement |
+| --- | --- | --- |
+| `R4-82` | `build` | Pure LexLean models the R4-82 lossless real Qwen3-0.6B/1.7B neural streaming, deferred idle prefix prewarming, instant first-token TTFT flush, and single-truth Ready badge contract (R4.RealQwen3LosslessStreaming): admitRealQwen3LosslessTurn admitting turns executed strictly on real HoloV13Model neural weights with non-blocking idle prefix prewarming, immediate Token-1 TTFT slice flush, and monotonic Ready badge preservation (RealQwen3LosslessTurnAdmitted), while refusing preplanned/canned passage routing on Qwen lanes (RefusedPreplannedCannedProseOnQwenLane), synchronous mount-blocking prefix prewarming (RefusedBlockingSyncPrefixPrewarmOnMount), delayed multi-token first-word buffering (RefusedDelayedMultiTokenFirstFlush), and cold-badge overwrites after holo_ready (RefusedColdBadgeOverwriteAfterReady). Formal controls establish modeled lossless Qwen3 streaming invariants only, not open-ended human prose preferences. |
+
 ## Cited authorities
 
 Never re-derived, vendored, or gated on.

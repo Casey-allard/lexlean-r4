@@ -50,7 +50,7 @@ import init, {
   studio_weight_pack_status,
   sync_cached_weights,
   withStorageLock,
-} from './lexlean_r4.js?v=v12r4-b9d41135cea5';
+} from './lexlean_r4.js?v=v12r4-2101c59e01f8';
 
 let mainThreadWasmReady = false;
 
@@ -910,7 +910,7 @@ const engineWorkerClient = {
   spawn() {
     if (typeof Worker !== 'function') return false;
     try {
-      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-b9d41135cea5', import.meta.url);
+      const workerUrl = new URL('./lexlean_r4.js?v=v12r4-2101c59e01f8', import.meta.url);
       this.worker = new Worker(workerUrl, { type: 'module', name: 'uor-r4-engine-worker' });
       this.enabled = true;
       this.worker.onmessage = (ev) => this.handleMessage(ev.data || {});
@@ -1182,7 +1182,7 @@ const engineWorkerClient = {
         this.rpc('holo_runtime_status', {})
           .then((res) => {
             const hs = (res && res.holo && typeof res.mounted_count !== 'number') ? res.holo : res;
-            if (hs && typeof hs.mounted_count === 'number') this.holoStatus = hs;
+            if (hs && typeof hs.mounted_count === 'number' && (hs.mounted_count > 0 || !this.holoStatus || !this.holoStatus.mounted_count)) this.holoStatus = hs;
             if (res && res.webgpu) this.webgpuStatus = res.webgpu;
             updateWeightCacheBadge();
             if (typeof renderCursorShardsSection === 'function') renderCursorShardsSection();
@@ -3217,7 +3217,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       document &&
       document.body &&
       document.body.getAttribute('data-layout-mode') === 'studio';
-    const includeExcerpts = Boolean(isStudioLayout || /@[a-z0-9_./-]+/i.test(trimmed));
+    const includeExcerpts = Boolean(isStudioLayout && /@[a-z0-9_./-]+/i.test(trimmed));
     const chatHistoryPairs = [];
     if (typeof getActiveThread === 'function') {
       const curThread = getActiveThread();
@@ -3253,7 +3253,7 @@ function runClaudeChat(promptText, recordUserBubble = true) {
       surface_mode: 'studio',
       include_excerpts: includeExcerpts,
       live_hud: true,
-      slice_tokens: 16,
+      slice_tokens: 4,
       history: chatHistoryPairs.slice(-6),
       ...(allowOffOrigin ? { allowOffOriginHydration: true } : {}),
       ...(offlineEmergencyActive ? { offlineEmergencyQ31: true, offlineFallback: true } : {}),

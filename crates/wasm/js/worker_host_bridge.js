@@ -2100,6 +2100,21 @@ export function admitFastBootAndZeroRedundancySlice(
   return 'FastBootAndSliceAdmitted';
 }
 
+/** Formal R4.RealQwen3LosslessStreaming admit 100% real Qwen3 neural turns with deferred idle prefix prewarm, immediate Token-1 TTFT flush, and monotonic Ready badge (`R4-82`). */
+export function admitRealQwen3LosslessTurn(
+  cannedPassageUsedOnQwenLane,
+  syncPrefixPrewarmBlockingMount,
+  ttftFirstTokenFlushEnabled,
+  badgeOverwrittenToColdAfterReady,
+) {
+  /* Formal R4.RealQwen3LosslessStreaming */
+  if (Boolean(cannedPassageUsedOnQwenLane)) return 'RefusedPreplannedCannedProseOnQwenLane';
+  if (Boolean(syncPrefixPrewarmBlockingMount)) return 'RefusedBlockingSyncPrefixPrewarmOnMount';
+  if (!ttftFirstTokenFlushEnabled) return 'RefusedDelayedMultiTokenFirstFlush';
+  if (Boolean(badgeOverwrittenToColdAfterReady)) return 'RefusedColdBadgeOverwriteAfterReady';
+  return 'RealQwen3LosslessTurnAdmitted';
+}
+
 export class OpfsKappaStore {
   constructor() {
     this.liarMirrors = new Set();
@@ -4779,6 +4794,9 @@ function mountResidentGpuFromWasmModel(modelKey) {
           }
           if (typeof DedicatedWorkerGlobalScope !== 'undefined' && options.deferGpuMount !== false) {
             setTimeout(() => mountResidentGpuFromWasmModel(key), 0);
+            if (typeof studio_prewarm_holo_prefix_idle === 'function') {
+              setTimeout(() => studio_prewarm_holo_prefix_idle(key), 40);
+            }
           } else {
             mountResidentGpuFromWasmModel(key);
           }
@@ -5289,7 +5307,14 @@ function mountResidentGpuFromWasmModel(modelKey) {
       await slabWriter.abort();
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
     }
-    mountResidentGpuFromWasmModel(key);
+    if (typeof DedicatedWorkerGlobalScope !== 'undefined' && options.deferGpuMount !== false) {
+      setTimeout(() => mountResidentGpuFromWasmModel(key), 0);
+      if (typeof studio_prewarm_holo_prefix_idle === 'function') {
+        setTimeout(() => studio_prewarm_holo_prefix_idle(key), 40);
+      }
+    } else {
+      mountResidentGpuFromWasmModel(key);
+    }
     await slabWriter.seal();
     await holoWriteManifestIndex({
       model_id: key,
@@ -5924,28 +5949,19 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     selectedModel = 'uor-r4.native-q31-d85';
   }
 
-  const knownHoloTarget =
-    selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
-  const targetWasMountedAtStart = isTargetMounted(selectedModel, runtimeStatus);
+  const isV15Slash = prompt === '/v15' || prompt.startsWith('/v15 ');
   const fnSparseV15Turn =
     runtimeHooks.sparseV15TurnJson ||
     (typeof studio_sparse_v15_turn_json === 'function'
       ? studio_sparse_v15_turn_json
       : globalThis.studio_sparse_v15_turn_json);
-  const useSparseBasinV15 = Boolean(
-    selectedModel === 'uor-r4.qwen3-0.6b-holo' &&
-      !targetWasMountedAtStart &&
-      payload.allowOffOriginHydration !== false &&
-      !payload.forceDenseV13 &&
-      !Array.isArray(payload.customMirrors) &&
-      !runtimeHooks.hydrateHoloModel &&
-      !runtimeHooks.holoBeginTurn &&
-      typeof fnSparseV15Turn === 'function',
-  );
+  const knownHoloTarget =
+    selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
+  const targetWasMountedAtStart = isTargetMounted(selectedModel, runtimeStatus);
   let turnHydrationInvoked = false;
   let turnNetworkBytes = 0;
   let turnOpfsBytes = 0;
-  if (knownHoloTarget && !targetWasMountedAtStart && !useSparseBasinV15) {
+  if (knownHoloTarget && !targetWasMountedAtStart && !isV15Slash) {
     turnHydrationInvoked = true;
     let unsubWaiter = () => {};
     try {
@@ -6199,7 +6215,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       cached_hits: kappaInfo && Number.isFinite(kappaInfo.cached_hits) ? kappaInfo.cached_hits : null,
       piece_count: kappaInfo && Number.isFinite(kappaInfo.piece_count) ? kappaInfo.piece_count : null,
       resident_turn_verdict: admitResidentTurnZeroDownload(
-        targetWasMountedAtStart || useSparseBasinV15,
+        targetWasMountedAtStart || isV15Slash,
         turnHydrationInvoked,
         turnNetworkBytes,
         turnOpfsBytes,
@@ -6356,6 +6372,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       beginPayload.include_excerpts = payload.include_excerpts;
     }
     beginPayload.prefill_slice_tokens = 16;
+    beginPayload.instant_ttft = Boolean(liveHud);
     if (repoParam) beginPayload.repo = repoParam;
     if (branchParam) beginPayload.branch = branchParam;
 
@@ -6363,10 +6380,14 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       postEvent('chat_prefill_start', { id: reqId, modelId: selectedModel });
     }
     let hopStreamIter = null;
-    if (useSparseBasinV15) {
+    if (isV15Slash && typeof fnSparseV15Turn === 'function') {
       activeTurnNum = 1500 + hop;
       setActiveTurnId(activeTurnNum, ownerKey);
-      const rawV15 = fnSparseV15Turn(JSON.stringify(beginPayload));
+      const v15Req = {
+        ...beginPayload,
+        prompt: prompt === '/v15' ? 'What tools can you use in /workspace?' : prompt.slice(4).trim(),
+      };
+      const rawV15 = fnSparseV15Turn(JSON.stringify(v15Req));
       const v15Step = typeof rawV15 === 'string' ? JSON.parse(rawV15) : rawV15;
       if (v15Step && v15Step.status === 'needs_tool') {
         v15Step.delta = '';
@@ -15802,52 +15823,60 @@ function __uorStartDedicatedEngineWorker() {
         await handleWorkerMessage(queued);
       }
 
-      // Boot instantly (`<= 150 ms`, `0 B` download) on Qwen3-distilled `UORR4V15` `10,000+ tok/s` sparse-basin lane (`R4-81`).
+      // Boot on real Qwen3-0.6B HoloV13 (`32 MiB` coalesced warm OPFS mount + deferred idle prefix prewarm, `R4-82`).
       purgeLegacyDeclinedHydrationFlag();
       if (offlineEmergencyQ31 || safeStorageGet('uor_offline_emergency_q31') === '1') {
         bootNativeQ31Fallback = true;
         emitNativeQ31ReadyFallback('offline_emergency_mode');
-      } else if (!isQwenMounted() && typeof studio_sparse_v15_status_json === 'function') {
-        try {
-          const v15 = JSON.parse(studio_sparse_v15_status_json());
-          bootNativeQ31Fallback = false;
-          const prefBootModel =
-            hostBridge && hostBridge.preferredModel === 'uor-r4.qwen3-1.7b-holo'
-              ? 'uor-r4.qwen3-1.7b-holo'
-              : 'uor-r4.qwen3-0.6b-holo';
-          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-          postEvent('holo_ready', {
-            holo: {
-              mounted_count: 1,
-              qwen3_06b_mounted: true,
-              qwen3_17b_mounted: false,
-              sparse_v15_ready: true,
-              active_backend: 'uorr4v15-sparse-basin-10k',
-              boot_verdict: admitFastBootAndZeroRedundancySlice(
-                0,
-                Number(v15.boot_mount_ms || 1),
-                0,
-                false,
-                0,
-              ),
-              models: [
-                {
-                  model_id: 'uor-r4.qwen3-0.6b-holo',
-                  tier: 'SparseBasinV15_10k',
-                  n_layers: 6,
-                  d_model: 576,
-                  vocab_size: Number(v15.vocab_size || 512),
-                  container_sha256: v15.container_sha256 || '',
-                },
-              ],
-            },
-            recommendedModel: prefBootModel,
-            promoted: false,
-            kappaStore: globalThis.__uorHoloKappaStatus || null,
+      } else if (!isQwenMounted()) {
+        selectOptimalInitialHoloModel().then((plan) => {
+          if (isQwenMounted()) return;
+          const emitProg = (prog) => {
+            postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+            postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+          };
+          const bootHydrateOpts =
+            explicitWorkerAllowOffOrigin !== undefined
+              ? { allowOffOriginHydration: explicitWorkerAllowOffOrigin }
+              : {};
+          return hydrate_holo_model(plan.initialModel, emitProg, false, bootHydrateOpts).then((holo) => {
+            bootNativeQ31Fallback = false;
+            postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+            postEvent('holo_ready', {
+              holo,
+              recommendedModel: plan.initialModel,
+              promoted: false,
+              kappaStore: globalThis.__uorHoloKappaStatus || null,
+            });
+            if (plan.promoteTarget) {
+              hydrate_holo_model(plan.promoteTarget, emitProg, false, bootHydrateOpts).then((holo17) => {
+                postEvent('holo_ready', {
+                  holo: holo17,
+                  recommendedModel: plan.promoteTarget,
+                  promoted: true,
+                  kappaStore: globalThis.__uorHoloKappaStatus || null,
+                });
+              }).catch(() => {});
+            }
           });
-        } catch {
-          emitNativeQ31ReadyFallback('hydration_unavailable');
-        }
+        }).catch((err) => {
+          bootNativeQ31Fallback = true;
+          const errCode = (err && (err.error_code || err.code)) || '';
+          const isConsentErr = errCode === 'ConsentRequiredForWeightDownload' ||
+            String((err && err.message) || err || '').includes('ConsentRequiredForWeightDownload');
+          if (isConsentErr) {
+            const modelId = (err && err.model_id) || 'uor-r4.qwen3-0.6b-holo';
+            const cat = (HOLO_MODEL_CATALOG && HOLO_MODEL_CATALOG[modelId]) || null;
+            postEvent('hydration_consent_required', {
+              model_id: modelId,
+              approx_bytes: Number(err && err.approx_bytes) || (cat && cat.approx_bytes) || 429916160,
+              mirrors: (err && Array.isArray(err.mirrors)) ? err.mirrors : ((cat && cat.mirrors) || []),
+              fallback_model: 'uor-r4.native-q31-d85',
+              message: (err && err.message) || String(err),
+            });
+          }
+          emitNativeQ31ReadyFallback(isConsentErr ? 'consent_required' : 'hydration_unavailable');
+        });
       }
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {

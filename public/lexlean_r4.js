@@ -113,6 +113,23 @@ export function studio_dispatch(input) {
 }
 
 /**
+ * Query mounted `UORR4V13` Holo runtimes and `NativeQ31` status as JSON (`R4-51`, `R4-52`).
+ * @returns {string}
+ */
+export function studio_holo_runtime_status() {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.studio_holo_runtime_status();
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
  * Query Track 2 `D85` Native `Q31` SpiralCore/FBS status as JSON (`R4-52`).
  * @returns {string}
  */
@@ -150,17 +167,17 @@ export function studio_native_q31_train_step(text) {
 }
 
 /**
- * Formal R4.HoloGeometricRuntime begin a non-blocking chunked Studio/Foundry turn session (`R4-56`, `R4-60`).
- * @param {string} payload_json
+ * Record a runtime generation fault strike and trigger 3-strike parent-head rollback when applicable (`R4-46`).
+ * @param {string} fault_reason
  * @returns {string}
  */
-export function holo_begin_foundry_turn(payload_json) {
+export function studio_record_generation_fault(fault_reason) {
     let deferred2_0;
     let deferred2_1;
     try {
-        const ptr0 = passStringToWasm0(payload_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr0 = passStringToWasm0(fault_reason, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.holo_begin_foundry_turn(ptr0, len0);
+        const ret = wasm.studio_record_generation_fault(ptr0, len0);
         deferred2_0 = ret[0];
         deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
@@ -345,28 +362,22 @@ export function studio_export_holo_layer_slab_bytes(model_id, layer_idx) {
 }
 
 /**
- * Formal R4.WebGpuResidentRuntime evaluate resident WebGPU slab limits, `0-LSB` speculative tile parity, and Studio LoRA prompt shrink policy (`R4-64`).
- * @param {bigint} float_ops
- * @param {bigint} layer_max_bytes
- * @param {bigint} device_binding_limit_bytes
- * @param {bigint} draft_count
- * @param {bigint} max_abs_lsb_diff
- * @param {boolean} kv_rewound_exact
- * @param {boolean} stitch_parity_valid
- * @param {boolean} fine_tuned_manifest_pinned
- * @param {bigint} prompt_tokens
+ * Formal R4.HoloGeometricRuntime begin a non-blocking chunked Studio/Foundry turn session (`R4-56`, `R4-60`).
+ * @param {string} payload_json
  * @returns {string}
  */
-export function studio_verify_resident_webgpu_step(float_ops, layer_max_bytes, device_binding_limit_bytes, draft_count, max_abs_lsb_diff, kv_rewound_exact, stitch_parity_valid, fine_tuned_manifest_pinned, prompt_tokens) {
-    let deferred1_0;
-    let deferred1_1;
+export function holo_begin_foundry_turn(payload_json) {
+    let deferred2_0;
+    let deferred2_1;
     try {
-        const ret = wasm.studio_verify_resident_webgpu_step(float_ops, layer_max_bytes, device_binding_limit_bytes, draft_count, max_abs_lsb_diff, kv_rewound_exact, stitch_parity_valid, fine_tuned_manifest_pinned, prompt_tokens);
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
+        const ptr0 = passStringToWasm0(payload_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.holo_begin_foundry_turn(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
@@ -545,22 +556,28 @@ export function studio_admit_generation_capsule(capsule_json) {
 }
 
 /**
- * Record a runtime generation fault strike and trigger 3-strike parent-head rollback when applicable (`R4-46`).
- * @param {string} fault_reason
+ * Formal R4.WebGpuResidentRuntime evaluate resident WebGPU slab limits, `0-LSB` speculative tile parity, and Studio LoRA prompt shrink policy (`R4-64`).
+ * @param {bigint} float_ops
+ * @param {bigint} layer_max_bytes
+ * @param {bigint} device_binding_limit_bytes
+ * @param {bigint} draft_count
+ * @param {bigint} max_abs_lsb_diff
+ * @param {boolean} kv_rewound_exact
+ * @param {boolean} stitch_parity_valid
+ * @param {boolean} fine_tuned_manifest_pinned
+ * @param {bigint} prompt_tokens
  * @returns {string}
  */
-export function studio_record_generation_fault(fault_reason) {
-    let deferred2_0;
-    let deferred2_1;
+export function studio_verify_resident_webgpu_step(float_ops, layer_max_bytes, device_binding_limit_bytes, draft_count, max_abs_lsb_diff, kv_rewound_exact, stitch_parity_valid, fine_tuned_manifest_pinned, prompt_tokens) {
+    let deferred1_0;
+    let deferred1_1;
     try {
-        const ptr0 = passStringToWasm0(fault_reason, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.studio_record_generation_fault(ptr0, len0);
-        deferred2_0 = ret[0];
-        deferred2_1 = ret[1];
+        const ret = wasm.studio_verify_resident_webgpu_step(float_ops, layer_max_bytes, device_binding_limit_bytes, draft_count, max_abs_lsb_diff, kv_rewound_exact, stitch_parity_valid, fine_tuned_manifest_pinned, prompt_tokens);
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
 }
 
@@ -603,25 +620,32 @@ export function holo_peek_foundry_turn_qsig512(turn_id) {
     return v1;
 }
 
+function takeFromExternrefTable0(idx) {
+    const value = wasm.__wbindgen_export_2.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}
 /**
- * Formal R4.LiveWebGpuTurnBridge verify and commit a bound WebGPU compute pass for an active turn (`R4-65`).
- * @param {bigint} turn_id
- * @param {bigint} total_dispatches
- * @param {bigint} bound_dispatches
- * @param {bigint} max_abs_lsb_diff
- * @returns {string}
+ * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
+ *
+ * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
+ * Returns the updated `UORLUT01` container bytes, or an error string on failure.
+ * @param {Uint8Array} weights_bytes
+ * @param {string} config_json
+ * @returns {Uint8Array}
  */
-export function holo_notify_foundry_turn_gpu_bound_step(turn_id, total_dispatches, bound_dispatches, max_abs_lsb_diff) {
-    let deferred1_0;
-    let deferred1_1;
-    try {
-        const ret = wasm.holo_notify_foundry_turn_gpu_bound_step(turn_id, total_dispatches, bound_dispatches, max_abs_lsb_diff);
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
-        return getStringFromWasm0(ret[0], ret[1]);
-    } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+export function studio_consolidate_weights(weights_bytes, config_json) {
+    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
+    if (ret[3]) {
+        throw takeFromExternrefTable0(ret[2]);
     }
+    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v3;
 }
 
 /**
@@ -638,11 +662,6 @@ export function process_envelope(input) {
     return v2;
 }
 
-function takeFromExternrefTable0(idx) {
-    const value = wasm.__wbindgen_export_2.get(idx);
-    wasm.__externref_table_dealloc(idx);
-    return value;
-}
 /**
  * WebAssembly entrypoint executing an application request with JsValue representation.
  * @param {Uint8Array} input_bytes
@@ -769,35 +788,24 @@ export function studio_stitch_split_2of3(payload) {
 }
 
 /**
- * Heal and recover a single requested shard (`left` if `recover_left == true`, else `right`)
- * from a `StitchParityGroup` JSON descriptor and up to 3 candidate byte slices using 2-of-3 XOR
- * parity + strict SHA-256 verification.
- * @param {string} group_json
- * @param {boolean} recover_left
- * @param {boolean} has_left
- * @param {Uint8Array} left_bytes
- * @param {boolean} has_right
- * @param {Uint8Array} right_bytes
- * @param {boolean} has_parity
- * @param {Uint8Array} parity_bytes
- * @returns {Uint8Array}
+ * Formal R4.LiveWebGpuTurnBridge verify and commit a bound WebGPU compute pass for an active turn (`R4-65`).
+ * @param {bigint} turn_id
+ * @param {bigint} total_dispatches
+ * @param {bigint} bound_dispatches
+ * @param {bigint} max_abs_lsb_diff
+ * @returns {string}
  */
-export function studio_stitch_recover_pair_auto(group_json, recover_left, has_left, left_bytes, has_right, right_bytes, has_parity, parity_bytes) {
-    const ptr0 = passStringToWasm0(group_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passArray8ToWasm0(left_bytes, wasm.__wbindgen_malloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passArray8ToWasm0(right_bytes, wasm.__wbindgen_malloc);
-    const len2 = WASM_VECTOR_LEN;
-    const ptr3 = passArray8ToWasm0(parity_bytes, wasm.__wbindgen_malloc);
-    const len3 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_stitch_recover_pair_auto(ptr0, len0, recover_left, has_left, ptr1, len1, has_right, ptr2, len2, has_parity, ptr3, len3);
-    if (ret[3]) {
-        throw takeFromExternrefTable0(ret[2]);
+export function holo_notify_foundry_turn_gpu_bound_step(turn_id, total_dispatches, bound_dispatches, max_abs_lsb_diff) {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const ret = wasm.holo_notify_foundry_turn_gpu_bound_step(turn_id, total_dispatches, bound_dispatches, max_abs_lsb_diff);
+        deferred1_0 = ret[0];
+        deferred1_1 = ret[1];
+        return getStringFromWasm0(ret[0], ret[1]);
+    } finally {
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
     }
-    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v5;
 }
 
 /**
@@ -941,26 +949,35 @@ export function studio_merge_uorlut_shard(shard_bytes) {
 }
 
 /**
- * Consolidate integer LUT model weights via coordinate descent over dialogue samples.
- *
- * Accepts binary `UORLUT01` container bytes and a JSON configuration string.
- * Returns the updated `UORLUT01` container bytes, or an error string on failure.
- * @param {Uint8Array} weights_bytes
- * @param {string} config_json
+ * Heal and recover a single requested shard (`left` if `recover_left == true`, else `right`)
+ * from a `StitchParityGroup` JSON descriptor and up to 3 candidate byte slices using 2-of-3 XOR
+ * parity + strict SHA-256 verification.
+ * @param {string} group_json
+ * @param {boolean} recover_left
+ * @param {boolean} has_left
+ * @param {Uint8Array} left_bytes
+ * @param {boolean} has_right
+ * @param {Uint8Array} right_bytes
+ * @param {boolean} has_parity
+ * @param {Uint8Array} parity_bytes
  * @returns {Uint8Array}
  */
-export function studio_consolidate_weights(weights_bytes, config_json) {
-    const ptr0 = passArray8ToWasm0(weights_bytes, wasm.__wbindgen_malloc);
+export function studio_stitch_recover_pair_auto(group_json, recover_left, has_left, left_bytes, has_right, right_bytes, has_parity, parity_bytes) {
+    const ptr0 = passStringToWasm0(group_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(config_json, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const ptr1 = passArray8ToWasm0(left_bytes, wasm.__wbindgen_malloc);
     const len1 = WASM_VECTOR_LEN;
-    const ret = wasm.studio_consolidate_weights(ptr0, len0, ptr1, len1);
+    const ptr2 = passArray8ToWasm0(right_bytes, wasm.__wbindgen_malloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passArray8ToWasm0(parity_bytes, wasm.__wbindgen_malloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ret = wasm.studio_stitch_recover_pair_auto(ptr0, len0, recover_left, has_left, ptr1, len1, has_right, ptr2, len2, has_parity, ptr3, len3);
     if (ret[3]) {
         throw takeFromExternrefTable0(ret[2]);
     }
-    var v3 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    var v5 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v3;
+    return v5;
 }
 
 /**
@@ -1032,17 +1049,6 @@ export function studio_prism_identity_admit_record(record_json) {
 }
 
 /**
- * Formal `R4.PrismHoloIdentity` return the import-free `hologram:guest/core-wasm@1` wasm32 module (`R4-54`).
- * @returns {Uint8Array}
- */
-export function studio_core_wasm_guest_bytes() {
-    const ret = wasm.studio_core_wasm_guest_bytes();
-    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-    return v1;
-}
-
-/**
  * Process an Anthropic-compatible `/v1/messages` JSON request in WebAssembly.
  * @param {string} request_json
  * @returns {string}
@@ -1060,6 +1066,17 @@ export function studio_v1_messages(request_json) {
     } finally {
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
+}
+
+/**
+ * Formal `R4.PrismHoloIdentity` return the import-free `hologram:guest/core-wasm@1` wasm32 module (`R4-54`).
+ * @returns {Uint8Array}
+ */
+export function studio_core_wasm_guest_bytes() {
+    const ret = wasm.studio_core_wasm_guest_bytes();
+    var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
+    wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
+    return v1;
 }
 
 /**
@@ -1377,19 +1394,22 @@ export function studio_finalize_holo_v13_mount() {
 }
 
 /**
- * Query mounted `UORR4V13` Holo runtimes and `NativeQ31` status as JSON (`R4-51`, `R4-52`).
+ * Formal R4.RealQwen3LosslessStreaming Wasm export prewarming `HoloPrefixKvCache` on an idle Worker tick (`R4-82`).
+ * @param {string} model_id
  * @returns {string}
  */
-export function studio_holo_runtime_status() {
-    let deferred1_0;
-    let deferred1_1;
+export function studio_prewarm_holo_prefix_idle(model_id) {
+    let deferred2_0;
+    let deferred2_1;
     try {
-        const ret = wasm.studio_holo_runtime_status();
-        deferred1_0 = ret[0];
-        deferred1_1 = ret[1];
+        const ptr0 = passStringToWasm0(model_id, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.studio_prewarm_holo_prefix_idle(ptr0, len0);
+        deferred2_0 = ret[0];
+        deferred2_1 = ret[1];
         return getStringFromWasm0(ret[0], ret[1]);
     } finally {
-        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
@@ -3926,6 +3946,21 @@ export function admitFastBootAndZeroRedundancySlice(
   if (Boolean(duplicateGpuCpuPass)) return 'RefusedDuplicateGpuCpuSlicePass';
   if (Number(timerClampMs) > 0) return 'RefusedClampedSetTimeoutSliceYield';
   return 'FastBootAndSliceAdmitted';
+}
+
+/** Formal R4.RealQwen3LosslessStreaming admit 100% real Qwen3 neural turns with deferred idle prefix prewarm, immediate Token-1 TTFT flush, and monotonic Ready badge (`R4-82`). */
+export function admitRealQwen3LosslessTurn(
+  cannedPassageUsedOnQwenLane,
+  syncPrefixPrewarmBlockingMount,
+  ttftFirstTokenFlushEnabled,
+  badgeOverwrittenToColdAfterReady,
+) {
+  /* Formal R4.RealQwen3LosslessStreaming */
+  if (Boolean(cannedPassageUsedOnQwenLane)) return 'RefusedPreplannedCannedProseOnQwenLane';
+  if (Boolean(syncPrefixPrewarmBlockingMount)) return 'RefusedBlockingSyncPrefixPrewarmOnMount';
+  if (!ttftFirstTokenFlushEnabled) return 'RefusedDelayedMultiTokenFirstFlush';
+  if (Boolean(badgeOverwrittenToColdAfterReady)) return 'RefusedColdBadgeOverwriteAfterReady';
+  return 'RealQwen3LosslessTurnAdmitted';
 }
 
 export class OpfsKappaStore {
@@ -6607,6 +6642,9 @@ function mountResidentGpuFromWasmModel(modelKey) {
           }
           if (typeof DedicatedWorkerGlobalScope !== 'undefined' && options.deferGpuMount !== false) {
             setTimeout(() => mountResidentGpuFromWasmModel(key), 0);
+            if (typeof studio_prewarm_holo_prefix_idle === 'function') {
+              setTimeout(() => studio_prewarm_holo_prefix_idle(key), 40);
+            }
           } else {
             mountResidentGpuFromWasmModel(key);
           }
@@ -7117,7 +7155,14 @@ function mountResidentGpuFromWasmModel(modelKey) {
       await slabWriter.abort();
       throw new Error((fin && fin.message) || 'studio_finalize_holo_v13_mount failed');
     }
-    mountResidentGpuFromWasmModel(key);
+    if (typeof DedicatedWorkerGlobalScope !== 'undefined' && options.deferGpuMount !== false) {
+      setTimeout(() => mountResidentGpuFromWasmModel(key), 0);
+      if (typeof studio_prewarm_holo_prefix_idle === 'function') {
+        setTimeout(() => studio_prewarm_holo_prefix_idle(key), 40);
+      }
+    } else {
+      mountResidentGpuFromWasmModel(key);
+    }
     await slabWriter.seal();
     await holoWriteManifestIndex({
       model_id: key,
@@ -7752,28 +7797,19 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
     selectedModel = 'uor-r4.native-q31-d85';
   }
 
-  const knownHoloTarget =
-    selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
-  const targetWasMountedAtStart = isTargetMounted(selectedModel, runtimeStatus);
+  const isV15Slash = prompt === '/v15' || prompt.startsWith('/v15 ');
   const fnSparseV15Turn =
     runtimeHooks.sparseV15TurnJson ||
     (typeof studio_sparse_v15_turn_json === 'function'
       ? studio_sparse_v15_turn_json
       : globalThis.studio_sparse_v15_turn_json);
-  const useSparseBasinV15 = Boolean(
-    selectedModel === 'uor-r4.qwen3-0.6b-holo' &&
-      !targetWasMountedAtStart &&
-      payload.allowOffOriginHydration !== false &&
-      !payload.forceDenseV13 &&
-      !Array.isArray(payload.customMirrors) &&
-      !runtimeHooks.hydrateHoloModel &&
-      !runtimeHooks.holoBeginTurn &&
-      typeof fnSparseV15Turn === 'function',
-  );
+  const knownHoloTarget =
+    selectedModel === 'uor-r4.qwen3-0.6b-holo' || selectedModel === 'uor-r4.qwen3-1.7b-holo';
+  const targetWasMountedAtStart = isTargetMounted(selectedModel, runtimeStatus);
   let turnHydrationInvoked = false;
   let turnNetworkBytes = 0;
   let turnOpfsBytes = 0;
-  if (knownHoloTarget && !targetWasMountedAtStart && !useSparseBasinV15) {
+  if (knownHoloTarget && !targetWasMountedAtStart && !isV15Slash) {
     turnHydrationInvoked = true;
     let unsubWaiter = () => {};
     try {
@@ -8027,7 +8063,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       cached_hits: kappaInfo && Number.isFinite(kappaInfo.cached_hits) ? kappaInfo.cached_hits : null,
       piece_count: kappaInfo && Number.isFinite(kappaInfo.piece_count) ? kappaInfo.piece_count : null,
       resident_turn_verdict: admitResidentTurnZeroDownload(
-        targetWasMountedAtStart || useSparseBasinV15,
+        targetWasMountedAtStart || isV15Slash,
         turnHydrationInvoked,
         turnNetworkBytes,
         turnOpfsBytes,
@@ -8184,6 +8220,7 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       beginPayload.include_excerpts = payload.include_excerpts;
     }
     beginPayload.prefill_slice_tokens = 16;
+    beginPayload.instant_ttft = Boolean(liveHud);
     if (repoParam) beginPayload.repo = repoParam;
     if (branchParam) beginPayload.branch = branchParam;
 
@@ -8191,10 +8228,14 @@ export async function execute_inprism_foundry_turn(msg, runtimeHooks) {
       postEvent('chat_prefill_start', { id: reqId, modelId: selectedModel });
     }
     let hopStreamIter = null;
-    if (useSparseBasinV15) {
+    if (isV15Slash && typeof fnSparseV15Turn === 'function') {
       activeTurnNum = 1500 + hop;
       setActiveTurnId(activeTurnNum, ownerKey);
-      const rawV15 = fnSparseV15Turn(JSON.stringify(beginPayload));
+      const v15Req = {
+        ...beginPayload,
+        prompt: prompt === '/v15' ? 'What tools can you use in /workspace?' : prompt.slice(4).trim(),
+      };
+      const rawV15 = fnSparseV15Turn(JSON.stringify(v15Req));
       const v15Step = typeof rawV15 === 'string' ? JSON.parse(rawV15) : rawV15;
       if (v15Step && v15Step.status === 'needs_tool') {
         v15Step.delta = '';
@@ -17630,52 +17671,60 @@ function __uorStartDedicatedEngineWorker() {
         await handleWorkerMessage(queued);
       }
 
-      // Boot instantly (`<= 150 ms`, `0 B` download) on Qwen3-distilled `UORR4V15` `10,000+ tok/s` sparse-basin lane (`R4-81`).
+      // Boot on real Qwen3-0.6B HoloV13 (`32 MiB` coalesced warm OPFS mount + deferred idle prefix prewarm, `R4-82`).
       purgeLegacyDeclinedHydrationFlag();
       if (offlineEmergencyQ31 || safeStorageGet('uor_offline_emergency_q31') === '1') {
         bootNativeQ31Fallback = true;
         emitNativeQ31ReadyFallback('offline_emergency_mode');
-      } else if (!isQwenMounted() && typeof studio_sparse_v15_status_json === 'function') {
-        try {
-          const v15 = JSON.parse(studio_sparse_v15_status_json());
-          bootNativeQ31Fallback = false;
-          const prefBootModel =
-            hostBridge && hostBridge.preferredModel === 'uor-r4.qwen3-1.7b-holo'
-              ? 'uor-r4.qwen3-1.7b-holo'
-              : 'uor-r4.qwen3-0.6b-holo';
-          postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
-          postEvent('holo_ready', {
-            holo: {
-              mounted_count: 1,
-              qwen3_06b_mounted: true,
-              qwen3_17b_mounted: false,
-              sparse_v15_ready: true,
-              active_backend: 'uorr4v15-sparse-basin-10k',
-              boot_verdict: admitFastBootAndZeroRedundancySlice(
-                0,
-                Number(v15.boot_mount_ms || 1),
-                0,
-                false,
-                0,
-              ),
-              models: [
-                {
-                  model_id: 'uor-r4.qwen3-0.6b-holo',
-                  tier: 'SparseBasinV15_10k',
-                  n_layers: 6,
-                  d_model: 576,
-                  vocab_size: Number(v15.vocab_size || 512),
-                  container_sha256: v15.container_sha256 || '',
-                },
-              ],
-            },
-            recommendedModel: prefBootModel,
-            promoted: false,
-            kappaStore: globalThis.__uorHoloKappaStatus || null,
+      } else if (!isQwenMounted()) {
+        selectOptimalInitialHoloModel().then((plan) => {
+          if (isQwenMounted()) return;
+          const emitProg = (prog) => {
+            postEvent('boot_progress', { stage: 'holo_v13', ...prog });
+            postEvent('hydration_progress', { stage: 'holo_v13', ...prog });
+          };
+          const bootHydrateOpts =
+            explicitWorkerAllowOffOrigin !== undefined
+              ? { allowOffOriginHydration: explicitWorkerAllowOffOrigin }
+              : {};
+          return hydrate_holo_model(plan.initialModel, emitProg, false, bootHydrateOpts).then((holo) => {
+            bootNativeQ31Fallback = false;
+            postEvent('stitch_health', { stitchHealth: globalThis.__uorStitchHealth || null });
+            postEvent('holo_ready', {
+              holo,
+              recommendedModel: plan.initialModel,
+              promoted: false,
+              kappaStore: globalThis.__uorHoloKappaStatus || null,
+            });
+            if (plan.promoteTarget) {
+              hydrate_holo_model(plan.promoteTarget, emitProg, false, bootHydrateOpts).then((holo17) => {
+                postEvent('holo_ready', {
+                  holo: holo17,
+                  recommendedModel: plan.promoteTarget,
+                  promoted: true,
+                  kappaStore: globalThis.__uorHoloKappaStatus || null,
+                });
+              }).catch(() => {});
+            }
           });
-        } catch {
-          emitNativeQ31ReadyFallback('hydration_unavailable');
-        }
+        }).catch((err) => {
+          bootNativeQ31Fallback = true;
+          const errCode = (err && (err.error_code || err.code)) || '';
+          const isConsentErr = errCode === 'ConsentRequiredForWeightDownload' ||
+            String((err && err.message) || err || '').includes('ConsentRequiredForWeightDownload');
+          if (isConsentErr) {
+            const modelId = (err && err.model_id) || 'uor-r4.qwen3-0.6b-holo';
+            const cat = (HOLO_MODEL_CATALOG && HOLO_MODEL_CATALOG[modelId]) || null;
+            postEvent('hydration_consent_required', {
+              model_id: modelId,
+              approx_bytes: Number(err && err.approx_bytes) || (cat && cat.approx_bytes) || 429916160,
+              mirrors: (err && Array.isArray(err.mirrors)) ? err.mirrors : ((cat && cat.mirrors) || []),
+              fallback_model: 'uor-r4.native-q31-d85',
+              message: (err && err.message) || String(err),
+            });
+          }
+          emitNativeQ31ReadyFallback(isConsentErr ? 'consent_required' : 'hydration_unavailable');
+        });
       }
 
       if (typeof location !== 'undefined' && /^https?:/i.test(location.origin || '')) {

@@ -20,6 +20,12 @@
 spec = "template/1"
 
 [[id]]
+id = "R4-82"
+level = "build"
+suite = "r4_82_real_qwen3_lossless_streaming"
+statement = "Pure LexLean models the R4-82 lossless real Qwen3-0.6B/1.7B neural streaming, deferred idle prefix prewarming, instant first-token TTFT flush, and single-truth Ready badge contract (R4.RealQwen3LosslessStreaming): admitRealQwen3LosslessTurn admitting turns executed strictly on real HoloV13Model neural weights with non-blocking idle prefix prewarming, immediate Token-1 TTFT slice flush, and monotonic Ready badge preservation (RealQwen3LosslessTurnAdmitted), while refusing preplanned/canned passage routing on Qwen lanes (RefusedPreplannedCannedProseOnQwenLane), synchronous mount-blocking prefix prewarming (RefusedBlockingSyncPrefixPrewarmOnMount), delayed multi-token first-word buffering (RefusedDelayedMultiTokenFirstFlush), and cold-badge overwrites after holo_ready (RefusedColdBadgeOverwriteAfterReady). Formal controls establish modeled lossless Qwen3 streaming invariants only, not open-ended human prose preferences."
+
+[[id]]
 id = "R4-81"
 level = "build"
 suite = "r4_81_zero_copy_fast_hydration"
