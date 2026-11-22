@@ -44,7 +44,9 @@ pub struct AnthropicMessagesRequest {
     pub otel_trace: Option<bool>,
 }
 
+/// Formal R4.RatchetGen5 dual-surface lifted slice (`gen-5`).
 fn default_model() -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_5::verify_ratchet_gen_5_admitted());
     "uor-r4.lut-stack/8".to_string()
 }
 
