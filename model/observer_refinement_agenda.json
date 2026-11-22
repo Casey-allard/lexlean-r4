@@ -17,7 +17,7 @@
       "organ_id": "engine",
       "vsm_system": "VSM-S4",
       "owned_file_count": 4,
-      "max_file_lines": 8187,
+      "max_file_lines": 8198,
       "heaviest_file": "xtask/src/engine.rs",
       "health_score_permille": 800
     },
@@ -178,5 +178,5 @@
       "kappa_hex": "b70b2551656a3405bf1f7efb0fcf5f00f38385dbeae2d6d23789a5a914b60095"
     }
   ],
-  "agenda_kappa_hex": "c71edc4cec2517192811138f5e33053ab98f42f04084d241abb2be3e6b3cca28"
+  "agenda_kappa_hex": "12be486861397280ca2e5e76520aaefd217d7d12f33b5e5a6b2053cb54ffe795"
 }

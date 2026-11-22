@@ -41,6 +41,15 @@ opt-level = 2
 [profile.dev.package.lexlean-r4-wasm]
 opt-level = 2
 
+[profile.dev.package.xtask]
+opt-level = 2
+
+[profile.dev.package.repo-model]
+opt-level = 2
+
+[profile.dev.package.repo-conformance]
+opt-level = 2
+
 [profile.release]
 opt-level = 3
 lto = "thin"

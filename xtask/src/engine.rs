@@ -3661,6 +3661,7 @@ fn run_engine_tick_inner(
         || weights_changed;
     let mut final_outcome = if advanced { "advanced" } else { "settled" };
 
+    let mut finalized_ratchet = None;
     if !dry_run {
         if advanced {
             engine.tick.push(TickRecord {
@@ -3683,11 +3684,12 @@ fn run_engine_tick_inner(
             // Observer Refinement Agenda, synthesis report, and CONFORMANCE.md AFTER all Wasm/JS/engine writes.
             lift_register::cmd_lift_register(root, true)
                 .map_err(|e| format!("engine[6e/7 lift-register]: {e}"))?;
-            ratchet::run_ratchet_cycle(root, true)
+            let ratchet_rep = ratchet::run_ratchet_cycle(root, true)
                 .map_err(|e| format!("engine[6f/7 ratchet-cycle]: {e}"))?;
+            finalized_ratchet = Some(ratchet_rep.measured);
             observer_agenda::cmd_observer_agenda(root, true)
                 .map_err(|e| format!("engine[6g/7 observer-agenda]: {e}"))?;
-            synthesis::cmd_synthesize(root, true)
+            synthesis::cmd_synthesize_with_reports(root, true, None, Some(true))
                 .map_err(|e| format!("engine[6h/7 synthesize]: {e}"))?;
             let mdl = repo_model::Model::load(&root.join("model"))
                 .map_err(|e| format!("engine[6i/7 check-model]: {e}"))?;
@@ -3753,10 +3755,19 @@ fn run_engine_tick_inner(
         &frontier
     };
     let post_diag = audit_codebase_and_inference(root, theorem_frontier)?;
-    let post_matched_diag = audit_codebase_and_inference(root, &pre_frontier)?;
-    let matched_cohort_ok = post_matched_diag.failure_basins.len() <= pre_diag.failure_basins.len();
-    let post_ratchet = ratchet::measure_ratchet_state(root)
-        .map_err(|e| format!("engine[ratchet]: post-tick measurement failed: {e}"))?;
+    let matched_cohort_ok = if post_diag.failure_basins.is_empty() {
+        true
+    } else {
+        audit_codebase_and_inference(root, &pre_frontier)?
+            .failure_basins
+            .len()
+            <= pre_diag.failure_basins.len()
+    };
+    let post_ratchet = match finalized_ratchet {
+        Some(measured) => measured,
+        None => ratchet::measure_ratchet_state(root)
+            .map_err(|e| format!("engine[ratchet]: post-tick measurement failed: {e}"))?,
+    };
     let post_ratchet_defects = post_ratchet
         .handwritten_bypass_files
         .saturating_add(post_ratchet.deferral_markers)
