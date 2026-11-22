@@ -72,8 +72,9 @@ pub enum AnthropicContent {
 }
 
 impl AnthropicContent {
-    /// Extract user plain text or flattened block text.
+    /// Extract user plain text or flattened block text. (`R4.RatchetGen2`).
     pub fn to_plain_text(&self) -> String {
+        debug_assert!(crate::lexlean_generated::r4_ratchet_gen_2::verify_ratchet_gen_2_admitted());
         match self {
             AnthropicContent::Text(s) => s.clone(),
             AnthropicContent::Blocks(blocks) => {

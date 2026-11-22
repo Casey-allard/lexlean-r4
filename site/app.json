@@ -1,7 +1,7 @@
 {
   "address": "lexlean-r4",
-  "applicationKappa": "blake3:c434dfaf54365aaaf41d8302e9966cd4aa0175048b1bf7896baa91138c0555ef",
-  "archiveKappa": "blake3:68dcc76cfd0d1d38847e7d5a103a159091ab522152bde3f2819eb3ffd588f234",
+  "applicationKappa": "blake3:45c40f201ff3ba93729a06911ea981eca861b07a6f5883413b2dafdfa521e0a5",
+  "archiveKappa": "blake3:610f9d1afc53dfb54cbdf86daca1e612e74f0d6e8ed8b1a67d9d2ca666496e11",
   "capabilities": [
     "holo_v13_pure_integer",
     "opfs_kappastore_sync_access",
@@ -75,7 +75,7 @@
     "queryParam": "embed=me",
     "supported": true
   },
-  "fingerprint": "02be33244927e8fd309d7c325a50f3e74c67887260139ee26aaeaa95578a8a7d",
+  "fingerprint": "74d8d59b13d01c0717a474991320d7ce271ff1d4886d44395920758b4acd0fcf",
   "foundry": {
     "embedQueryParam": "embed=foundry",
     "fork": "https://github.com/Casey-allard/foundry",
@@ -93,8 +93,8 @@
   },
   "guestContentKappa": "blake3:432ef4380308a8212164bf5ec406050034fca4ca62675e073a750df6461a1ce3",
   "holoAddress": "holo://lexlean-r4",
-  "holoByteLength": 13652031,
-  "holoFingerprintUrl": "https://casey-allard.github.io/lexlean-r4/holo/02be33244927e8fd309d7c325a50f3e74c67887260139ee26aaeaa95578a8a7d.holo",
+  "holoByteLength": 13652125,
+  "holoFingerprintUrl": "https://casey-allard.github.io/lexlean-r4/holo/74d8d59b13d01c0717a474991320d7ce271ff1d4886d44395920758b4acd0fcf.holo",
   "holoUrl": "https://casey-allard.github.io/lexlean-r4/app.holo",
   "icons": [
     {
@@ -105,7 +105,7 @@
   ],
   "inputLabel": "Prompt or Workspace Command",
   "live": "https://casey-allard.github.io/lexlean-r4/",
-  "modelContentKappa": "blake3:433d5f075c46ecbf5eb04c5abe406a1cff4d0c570823c54645b5629dd9ac669f",
+  "modelContentKappa": "blake3:1709113344a7707aa7baa6276887f64e0f92512deaa82780d5aa7984d7dd4d66",
   "models": [
     "uor-r4.qwen3-0.6b-holo",
     "uor-r4.qwen3-1.7b-holo",
@@ -161,6 +161,6 @@
     }
   ],
   "version": "0.14.0",
-  "viewContentKappa": "blake3:941ef30094a061ec5e8961293a827ec086ebdd00c2423bd14fdae5d27e1aef68",
-  "wasmSha256": "8450f7b1993bd2bcbf8cbd4865c13ceedac958f3f0adb4847b193604ab2dc289"
+  "viewContentKappa": "blake3:67663c35d473386504b97c20a8f957ac7bc42658de23df074bfc1668ad0ecca2",
+  "wasmSha256": "8c0e3aba049507b664a03663254785711b32e103ea2a4bd10c6eeb4ba698c168"
 }

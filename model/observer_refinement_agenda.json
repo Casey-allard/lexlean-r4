@@ -2,15 +2,15 @@
   "spec": "r4/observer-refinement-agenda/1",
   "overall_refinement_score_permille": 866,
   "live_metrics": {
-    "wasm_core_bytes": 12023980,
-    "wasm_headroom_bytes": 2131796,
+    "wasm_core_bytes": 12024074,
+    "wasm_headroom_bytes": 2131702,
     "max_rust_file_lines": 9492,
     "max_js_file_lines": 8607,
-    "lifted_functions": 2478,
-    "residue_functions": 128,
-    "verified_lexlean_modules": 342,
-    "next_lifted_target": 2479,
-    "next_residue_target": 127
+    "lifted_functions": 2482,
+    "residue_functions": 127,
+    "verified_lexlean_modules": 344,
+    "next_lifted_target": 2483,
+    "next_residue_target": 126
   },
   "part_health": [
     {
@@ -40,7 +40,7 @@
     {
       "organ_id": "proofs",
       "vsm_system": "VSM-S3*",
-      "owned_file_count": 343,
+      "owned_file_count": 345,
       "max_file_lines": 1012,
       "heaviest_file": "xtask/src/mechanizer.rs",
       "health_score_permille": 1000
@@ -84,8 +84,8 @@
     {
       "file_path": "crates/wasm/src/api.rs",
       "reason": "unlifted-pure-fn",
-      "function_count": 8,
-      "top_function": "crates/wasm/src/api.rs::AnthropicContent::to_plain_text"
+      "function_count": 7,
+      "top_function": "crates/wasm/src/api.rs::AnthropicSystemPrompt::to_plain_text"
     },
     {
       "file_path": "crates/wasm/src/otel.rs",
@@ -120,16 +120,16 @@
       "cited_authority": "R4.DualSurfaceRatchetEvolution",
       "ratchet_layer": "dual-surface-proof-and-app",
       "priority": "high",
-      "target_function": "crates/wasm/src/api.rs::AnthropicContent::to_plain_text",
-      "current_value": "lifted=2478, residue=128",
-      "target_value": "lifted>=2479, residue<=127",
-      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/api.rs::AnthropicContent::to_plain_text`",
+      "target_function": "crates/wasm/src/api.rs::AnthropicSystemPrompt::to_plain_text",
+      "current_value": "lifted=2482, residue=127",
+      "target_value": "lifted>=2483, residue<=126",
+      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/api.rs::AnthropicSystemPrompt::to_plain_text`",
       "concrete_actions": [
         "Synthesize constructive src/R4/RatchetGen<N>.lex.tex + Controls with CAP0005 per-root falsifier negation.",
-        "Wire formal LexLean predicate bridge on `crates/wasm/src/api.rs::AnthropicContent::to_plain_text` and rebuild public/ Wasm + .holo.",
+        "Wire formal LexLean predicate bridge on `crates/wasm/src/api.rs::AnthropicSystemPrompt::to_plain_text` and rebuild public/ Wasm + .holo.",
         "Click min_lifted_functions UP and max_residue_functions DOWN in model/ratchet.toml."
       ],
-      "kappa_hex": "f39efd15449eb74f9d28d306d886e243de70a40d4b3916f1af1f9e85ce94ddf9"
+      "kappa_hex": "2daf56a23845a46181cf22759e44851fbb83a055489a476ee496efa7022aa095"
     },
     {
       "proposal_id": "PROP-PROOF-FALSIFIER-02",
@@ -138,14 +138,14 @@
       "cited_authority": "R4.ObserverRefinementAgenda",
       "ratchet_layer": "lexlean-proof-frontier",
       "priority": "high",
-      "current_value": "verified_modules=342",
-      "target_value": "verified_modules>=344",
+      "current_value": "verified_modules=344",
+      "target_value": "verified_modules>=346",
       "summary": "Advance constructive zero-Classical.choice LexLean proof & CAP0005 falsifier count",
       "concrete_actions": [
         "Verify every zero-arg Bool verify* root fails when negated under CAP0005.",
         "Verify Lean 4.32.1 kernel proofs and append mechanized Rust module to lexlean_generated.rs."
       ],
-      "kappa_hex": "37afea33dd6efb862c85c851d51df7e0fa7271e940a954790cca6aeb26e1734b"
+      "kappa_hex": "3116a0b340eb7d253bec6bae6be6b8300dba282f5b9821feda027c18335c0f03"
     },
     {
       "proposal_id": "PROP-MODULARITY-03",
@@ -169,14 +169,14 @@
       "cited_authority": "R4.VerdantRatchetCycle",
       "ratchet_layer": "wasm-and-capsule-budget",
       "priority": "continuous",
-      "current_value": "wasm_core_bytes=12023980",
+      "current_value": "wasm_core_bytes=12024074",
       "target_value": "wasm_core_bytes<=14155776",
-      "summary": "Maintain Wasm binary headroom (2131796 B below 13.5 MiB ceiling) and .holo capsule parity",
+      "summary": "Maintain Wasm binary headroom (2131702 B below 13.5 MiB ceiling) and .holo capsule parity",
       "concrete_actions": [
         "Verify check-wasm-sync and build-holo --verify-site-manifest on every autonomous tick."
       ],
-      "kappa_hex": "b70b2551656a3405bf1f7efb0fcf5f00f38385dbeae2d6d23789a5a914b60095"
+      "kappa_hex": "6cc970b0e4c102a175e51ff5ea7ed2b4f795b28adc7ee40ac4f86a75a9dd119a"
     }
   ],
-  "agenda_kappa_hex": "12be486861397280ca2e5e76520aaefd217d7d12f33b5e5a6b2053cb54ffe795"
+  "agenda_kappa_hex": "cfe3829e191b2236e81ead8aa1e5aa36eaec3669dadc2279427105ad6fa92f6c"
 }
