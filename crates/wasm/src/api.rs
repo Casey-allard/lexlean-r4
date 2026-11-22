@@ -1793,6 +1793,7 @@ pub fn handle_v1_chat_completions_payload_with_backend<B: InferenceBackend + ?Si
 struct LazyDefaultBackend;
 
 impl InferenceBackend for LazyDefaultBackend {
+    /// Formal R4.RatchetGen4 dual-surface lifted slice (`gen-4`).
     fn infer_turn(
         &mut self,
         prompt: &str,
