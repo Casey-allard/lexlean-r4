@@ -125,8 +125,9 @@ pub enum AnthropicSystemPrompt {
 }
 
 impl AnthropicSystemPrompt {
-    /// Extract system prompt as plain text.
+    /// Extract system prompt as plain text. (`R4.RatchetGen3`).
     pub fn to_plain_text(&self) -> String {
+        debug_assert!(crate::lexlean_generated::r4_ratchet_gen_3::verify_ratchet_gen_3_admitted());
         match self {
             AnthropicSystemPrompt::Text(s) => s.clone(),
             AnthropicSystemPrompt::Blocks(blocks) => blocks
