@@ -32,7 +32,7 @@ impl Default for FoundryV13Engine {
             model: None,
             turn: None,
             next_turn_id: 0,
-            speculative_default: true,
+            speculative_default: false,
         }
     }
 }
@@ -96,7 +96,7 @@ struct ConfigureRequest {
     shortlist_k: Option<usize>,
     #[serde(default)]
     flock_window: Option<usize>,
-    #[serde(default)]
+    #[serde(default, alias = "mlp_mode")]
     mlp_policy: Option<String>,
     #[serde(default)]
     mlp_shortlist_k: Option<usize>,
@@ -824,7 +824,7 @@ pub fn v13_step_turn(turn_id: u64) -> String {
                         break;
                     }
                     if turn.generated_ids.len() >= turn.max_new_tokens
-                        || model.kv_cache.tokens.len() >= model.max_seq
+                        || kv_before + idx + 1 >= model.max_seq
                     {
                         let keep_kv = kv_before + idx + 1;
                         if model.kv_cache.tokens.len() > keep_kv {

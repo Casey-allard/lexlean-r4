@@ -1,6 +1,6 @@
 {
   "wasm_float_audit": {
-    "wasm_sha256": "564b69a12fbfe6fad1b5cad1a9fed239cffbc91c5ab29dd2407e6271d035fc03",
+    "wasm_sha256": "855213514627bf885a38b0e1799d68a3d1f3b971366358700f67b2621e710ded",
     "wat_method": "wasm-tools print",
     "holo_inference_functions_scanned": 50,
     "compute_float_ops": 0,
