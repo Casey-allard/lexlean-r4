@@ -1,0 +1,12 @@
+{
+  "wasm_sha256": "05e92497424f23ed5363a80cbc662d337cfa8d067b0912f1e8944da6114f03fb",
+  "wat_method": "wasm-tools print",
+  "holo_inference_functions_scanned": 49,
+  "compute_float_ops": 0,
+  "float_ops": 0,
+  "js_abi_bridge_casts": 1,
+  "float_hits": [],
+  "holo_src_sha256": "6b84de0364efe6dd80fe8146c9bf1cc08631e3069e13bb6414c358a0c00907ae",
+  "holo_runtime_src_noncomment_float_lines": 0,
+  "passed": true
+}
