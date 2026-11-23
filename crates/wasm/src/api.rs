@@ -1150,8 +1150,9 @@ pub(crate) static EMBEDDED_BOOTSTRAP_UORLUT: &[u8] = include_bytes!("bootstrap_v
 
 static DEFAULT_MODEL: OnceLock<Arc<crate::lut_stack_exec::LutStackModel>> = OnceLock::new();
 
-/// Obtain shared default model instance backed by embedded weights.
+/// Obtain shared default model instance backed by embedded weights. (`R4.RatchetGen6`).
 pub fn default_model_backend() -> Arc<crate::lut_stack_exec::LutStackModel> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_6::verify_ratchet_gen_6_admitted());
     Arc::clone(DEFAULT_MODEL.get_or_init(|| {
         let mut model = crate::lut_stack_exec::LutStackModel::parse(EMBEDDED_BOOTSTRAP_UORLUT)
             .expect("valid embedded bootstrap_v8.uorlut");
