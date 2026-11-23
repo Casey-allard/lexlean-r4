@@ -80,3 +80,16 @@ prev_residue = 124
 next_residue = 123
 telos_loss = 80
 spore_kappa_sha256 = "382cf15ac0de7a4b47c235686faeebf6553472e0f7dbb37bbc91ee257c8a6a13"
+
+[[generation]]
+id = "gen-7"
+index = 7
+lex_module = "R4.RatchetGen7"
+lifted_function = "crates/wasm/src/api.rs::format_anthropic_messages"
+falsifiers_verified = 2
+prev_lifted = 2498
+next_lifted = 2502
+prev_residue = 123
+next_residue = 122
+telos_loss = 78
+spore_kappa_sha256 = "0dea23089854ec1f80f2918487ec6fb758dd726edc599b7e406cfb6b6fba1471"

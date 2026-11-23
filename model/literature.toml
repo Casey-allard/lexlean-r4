@@ -2,7 +2,7 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-22T21:13:12Z"
+synced_at = "2026-11-23T09:58:05Z"
 query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
 
 [[paper]]
@@ -552,4 +552,122 @@ categories = [
     "cs.AI",
 ]
 abstract = "Robotic vision-language-action (VLA) models can execute diverse individual manipulation skills, yet they still struggle with long-horizon loco-manipulation tasks, where temporal structure, skills, and precision are tightly coupled within a monolithic model. We propose Physically Grounded Execution (PGX), a framework that offloads temporal and precision control to two classical training-free components, allowing the VLA to focus on stage-specific skill dynamics. PGX decomposes long-horizon loco-manipulation into three layers: (i) a predicate-based state machine governs task progression, using physical predicates to gate phase transitions, trigger recovery, and coordinate navigation and waiting. Shared predicate semantics connect offline demonstration segmentation, online execution, and stage-wise evaluation; (ii) VLA skills operate within active manipulation phases, with flat or stage-trained models concentrating on task-relevant actions; and (iii) world-coordinate locking (WCL) maintains spatial consistency through base station keeping, object-relative positioning, and world-anchored contact targets. We demonstrate the effectiveness of PGX with extensive experiments conducted on three simulated tasks and one real-world task using a Unitree G1 humanoid robot for long-horizon loco-manipulation, showing improvements in stage progression and task success rates. Project page is available at: https://kl-research.github.io/pgx"
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.27983"
+title = "Optimal Linear Regression Without a Variance"
+authors = [
+    "Artin Tajdini",
+    "Jasper C. H. Lee",
+    "Jonathan Scarlett",
+    "Kevin Jamieson",
+]
+published = "2026-11-20T18:58:45Z"
+updated = "2026-11-20T18:58:45Z"
+primary_category = "stat.ML"
+categories = [
+    "stat.ML",
+    "cs.AI",
+    "cs.IT",
+    "cs.LG",
+]
+abstract = 'We study high-probability linear regression in the infinite variance regime, wherecthe regression noise has only a finite conditional $α$-moment $ν$ for some unknown $α\in(1,2)$, and the covariates may only have finite moments up to a given order (e.g., 4th moment). We give a black-box reduction that converts finite-variance regression procedures into weak-moment procedures. The reduction is based on empirical residual pruning and is agnostic to the moment exponent, the noise scale, the covariance, and the design moment. Under a finite fourth-moment condition on the covariates, any finite-variance subroutine attaining the sub-Gaussian rate yields the following when the number of samples $n$ is above a suitably defined threshold: Without knowing $α$ or $ν$, we have with probability at least $1-δ$ that $ \|\widehatθ-θ^*\|_Σ \lesssim_α ν^{1/α} \big(\frac{d+\log(1/δ)}{n}\big)^{\frac{α-1}α}, $ where $d$ is the dimension, $Σ$ is the covariate covariance matrix, and $\|v\|_Σ:=(v^\topΣv)^{1/2}$. We further prove a matching minimax lower bound that holds under the same conditions. The reduction is computationally efficient whenever the finite-variance subroutine is. We also obtain a distribution-free prediction guarantee under a bounded raw $α$-moment assumption on the response, and give an analogous $α$-agnostic reduction for mean estimation.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.27964"
+title = "Your Camera Can Hear You: Side-Channel Acoustic Eavesdropping via Android Camera2 Metadata"
+authors = [
+    "Guangyuan Ji",
+    "Wenjing Wang",
+    "Bingsheng Zhang",
+]
+published = "2026-11-20T18:45:48Z"
+updated = "2026-11-20T18:45:48Z"
+primary_category = "cs.CR"
+categories = ["cs.CR"]
+abstract = "To prevent motion sensors from acting as covert microphones, Android 12+ caps SensorManager gyroscope and accelerometer rates at 200 Hz by default, requires HIGH_SAMPLING_RATE_SENSORS for higher rates, and throttles sensors back to 200 Hz when the microphone toggle is off. We show that Android's Camera2 subsystem bypasses these defenses. During an active Camera2 session, Camera HAL stabilization pipelines record high-rate gyroscope measurements and export them via vendor CaptureResult metadata. Loudspeaker speech excites chassis vibrations that couple into this path. Across 50 smartphones (2020-2026) from 10 vendors, 37 expose gyroscope metadata via Camera2, and 26 exceed 200 Hz--including six flagship models at 800-1000 Hz, double SensorManager's 400-500 Hz ceiling. This channel requires neither RECORD_AUDIO nor HIGH_SAMPLING_RATE_SENSORS and defeats privacy switches: turning off the microphone toggle does not throttle metadata, and turning off the camera toggle blanks only video frames while 800-1000 Hz metadata keeps streaming. To build a zero-profiling attack that generalizes to unseen phones, we introduce Source-to-Leakage Learning (S2L). Prior attacks train on real sensor traces, entangling speech with a specific phone's mechanical resonances and sampling rate. S2L decouples speech content from hardware acoustics using a physics-constrained forward simulator. Trained exclusively on simulated leakage without target-phone traces, our universal recognizer CamEar achieves 52.1% mean word accuracy (up to 61.8%) and 74.3% character accuracy (up to 80.7%) across the six 800-1000 Hz phones. In contrast, ISpyU models fine-tuned on real target-phone data drop to 25.9% word accuracy on unseen phones; CamEar improves cross-device accuracy by 101.4% and outperforms ISpyU's same-device models on every tested phone."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.27963"
+title = "Non-penetrating World Models"
+authors = [
+    "Yuhang Dai",
+    "Yinwei Wu",
+    "Ziyue Lin",
+    "Han Ji",
+    "Xingyi Yang",
+]
+published = "2026-11-20T18:44:57Z"
+updated = "2026-11-20T18:44:57Z"
+primary_category = "cs.CV"
+categories = [
+    "cs.CV",
+    "cs.AI",
+]
+abstract = "We study a new problem of preventing object penetration in interactive video world models. To understand how existing models handle this, we introduce NoPeBench, a benchmark that evaluates how world models respond to physical obstacles. Our evaluation reveals that none of the open-source models can reliably prevent such failures. Surprisingly, however, these models already encode the information needed to predict such violations. We find that the hidden states of diffusion transformers (DiTs) can predict whether a candidate action will penetrate an obstacle. Building on this, we introduce NoPeWorld, a lightweight framework that detects and prevents penetration. Specifically, we train a small prediction head on top of a frozen DiT's hidden states to read out if a candidate action is safe or not. Unsafe actions are then replaced with safe ones that best preserve the original intent. Despite its simplicity, NoPeWorld substantially reduces the physical violation rate, averaged over six video world models, from 74% to 16%. Remarkably, our method shows zero-shot generalization to open-domain imagery, third-person viewpoints, and moving obstacles. We publicly release our code, the NoPeBench benchmark, and model weights. Project Page: https://nopeworld.github.io ."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.27962"
+title = "Model Carving: Training Transformers That Optimize Their Own Topology"
+authors = [
+    "Kaden Zheng",
+    "Pratyusha Sharma",
+]
+published = "2026-11-20T18:41:39Z"
+updated = "2026-11-20T18:41:39Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.AI",
+]
+abstract = "Machine learning has largely kept separate the choice of architecture and the process of training. A classic Transformer, for instance, trains a fixed set of attention and MLP sublayers at every layer, in the same order, and optimizes the weights within. This uniformity is a convention rather than a principled design choice, and it is likely suboptimal: the best architecture for a given task may be smaller, more efficient, and far from uniform. We believe that, ideally, training itself should shape the model's topology. To this end, we introduce Model Carving, which learns both a Transformer's weights and its architecture in a single run. By applying learnable, scalar gates to each sublayer, we allow the training loss to remove the model's own components during training -- freeing a smaller heterogeneous network inside. We evaluate Model Carving by pre-training standard Transformers from 140M to 2.7B parameters and looped Transformers from 140M to 1.3B. At equal training compute, carved models reach a lower validation loss than dense models trained with up to 1.7 times more compute. Furthermore, carved models also outperform size-matched models produced by pruning or distillation, suggesting that the best way to obtain small models for edge devices is to carve them during training, not to compress a large one afterwards. This advantage both grows with scale and carries over to downstream tasks such as few-shot evaluation and generation. Because the removed sublayers no longer run, carved models also cost up to 34% fewer FLOPs per token and decode up to 1.6 times faster without cost in quality. Our results show that architecture, like weights, should be learned and not fixed in advance, and that inside every large transformer is a smaller, faster, stronger one waiting to be carved out."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.27924"
+title = "BioEmu2: Scalable Emulation of Biomolecular Dynamics"
+authors = [
+    "Michael Gastegger",
+    "Adam E. Foster",
+    "José Jiménez-Luna",
+    "Tim Hempel",
+    "Sarah Lewis",
+    "Yu Xie",
+    "Lixin Sun",
+    "Iryna Zaporozhets",
+    "J. Thorben Frank",
+    "Yaoyi Chen",
+    "Michael Plainer",
+    "Ludwig Winkler",
+    "Pedro B. P. S. Reis",
+    "Sven H. Giese",
+    "Roberto Sordillo",
+    "Victor García Satorras",
+    "Eray Inanc",
+    "Kacper Kapuśniak",
+    "Soojung Yang",
+    "Rishwanth Raghu",
+    "Rachel Kim",
+    "Gabriel Dernbach",
+    "Deniz Gunceler",
+    "Hannes Schulz",
+    "Bonnie Kruft",
+    "Marwin Segler",
+    "Christopher M. Bishop",
+    "Cecilia Clementi",
+    "Ryota Tomioka",
+    "Frank Noé",
+]
+published = "2026-11-20T17:58:47Z"
+updated = "2026-11-20T17:58:47Z"
+primary_category = "cs.AI"
+categories = [
+    "cs.AI",
+    "q-bio.BM",
+]
+abstract = "Despite major advances in structure prediction, modelling the motions and interactions that drive biomolecular function at scale remains a central challenge. We introduce BioEmu2, a generative model for atomically resolved biomolecular structures combining static structure prediction, equilibrium sampling and time evolution, that samples orders of magnitude faster than molecular dynamics (MD). Trained on experimental and synthetic structures and extensive MD data, it supports multi-component systems containing proteins, nucleic acids, modified residues, ligands and ions. Structure-prediction accuracy is comparable to top open-weight biomolecular folding models, and a context parallel mode enables prediction of megadalton complexes. Equilibrium distributions approximate MD references with free-energy errors near 1 kcal/mol across tested proteins and complexes. Time propagation predicts long-timescale dynamical trajectories and kinetics of binding and conformational changes. Generated structures can be controlled by conditioning on residue contacts or steering with user-defined bias potentials. Enhanced sampling enables free energy calculation involving rare states. BioEmu2 makes the study of biomolecular ensembles and dynamics scalable."
 hypothesis = []

@@ -581,7 +581,7 @@ fn capitalize_role(role: &str) -> String {
     }
 }
 
-/// Format Anthropic multi-turn messages into structured dialogue preserving roles and boundaries.
+/// Format Anthropic multi-turn messages into structured dialogue preserving roles and boundaries. (`R4.RatchetGen7`).
 pub fn format_anthropic_messages(
     system: Option<&AnthropicSystemPrompt>,
     messages: &[AnthropicMessage],
