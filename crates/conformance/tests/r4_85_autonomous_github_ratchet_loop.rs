@@ -129,8 +129,12 @@ fn test_r4_85_autonomous_github_ratchet_loop_r4_85() {
     let pages_yml = std::fs::read_to_string(root.join(".github/workflows/pages.yml"))
         .expect("read .github/workflows/pages.yml");
     assert!(
-        pages_yml.contains("r4-pages-lexlean-v1-\n"),
-        "pages.yml must include r4-pages-lexlean-v1- prefix fallback so autonomous RatchetGen entrypoints hit warm .olean cache"
+        pages_yml.contains("r4-pages-lexlean-v1-\n")
+            && pages_yml.contains("continue-ratchet:")
+            && pages_yml.contains("needs: deploy")
+            && pages_yml.contains("vars.R4_ENGINE != 'off'")
+            && pages_yml.contains("gh workflow run engine.yml --ref main"),
+        "pages.yml must include warm .lexlean cache fallback and deploy-gated continue-ratchet relay to engine.yml"
     );
 
     // 4. Verify xtask/src/engine.rs runs dual_surface_ratchet + ratchet-cycle + observer-agenda,
