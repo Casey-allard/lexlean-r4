@@ -1,5 +1,9 @@
 use lexlean_r4_wasm::holo_geometric_runtime::{
-    flush_incremental_utf8, HoloTok13, HoloV13Model, HoloV13StreamingBuilder,
+    flush_incremental_utf8, HoloTok13, HoloTok13SpeculativeDrafter, HoloV13Model,
+    HoloV13StreamingBuilder,
+};
+use lexlean_r4_wasm::lexlean_generated::r4_webgpu_geodesic_runtime::{
+    MlpShortlistMode, MlpUserPolicy,
 };
 use lexlean_r4_wasm::stitch_fabric::{
     heal_2of3_pair, parse_and_validate_manifest, recover_2of3_object, StitchParityGroup,
@@ -13,12 +17,24 @@ thread_local! {
     static ENGINE: RefCell<FoundryV13Engine> = RefCell::new(FoundryV13Engine::default());
 }
 
-#[derive(Default)]
 struct FoundryV13Engine {
     builder: Option<(String, HoloV13StreamingBuilder)>,
     model: Option<HoloV13Model>,
     turn: Option<ActiveTurn>,
     next_turn_id: u64,
+    speculative_default: bool,
+}
+
+impl Default for FoundryV13Engine {
+    fn default() -> Self {
+        Self {
+            builder: None,
+            model: None,
+            turn: None,
+            next_turn_id: 0,
+            speculative_default: true,
+        }
+    }
 }
 
 struct ActiveTurn {
@@ -31,6 +47,10 @@ struct ActiveTurn {
     prefill_slice_tokens: usize,
     slice_tokens: usize,
     max_new_tokens: usize,
+    speculative_enabled: bool,
+    accept_ema_permille: u16,
+    draft_proposed_total: usize,
+    draft_accepted_total: usize,
     context_tokens: Vec<u32>,
     last_scored: Vec<(u32, i32)>,
     generated_ids: Vec<u32>,
@@ -65,7 +85,23 @@ struct BeginTurnRequest {
     #[serde(default)]
     prefill_slice_tokens: Option<usize>,
     #[serde(default)]
+    speculative: Option<bool>,
+    #[serde(default)]
     stop_sequences: Vec<String>,
+}
+
+#[derive(Deserialize, Default)]
+struct ConfigureRequest {
+    #[serde(default)]
+    shortlist_k: Option<usize>,
+    #[serde(default)]
+    flock_window: Option<usize>,
+    #[serde(default)]
+    mlp_policy: Option<String>,
+    #[serde(default)]
+    mlp_shortlist_k: Option<usize>,
+    #[serde(default)]
+    speculative: Option<bool>,
 }
 
 fn sha256_hex(bytes: &[u8]) -> String {
@@ -286,6 +322,122 @@ pub fn v13_status() -> String {
 }
 
 #[wasm_bindgen]
+pub fn v13_prewarm_prefix(system_prompt: &str) -> String {
+    ENGINE.with(|cell| {
+        let mut eng = cell.borrow_mut();
+        if let Some(prev) = &eng.turn {
+            if prev.active {
+                return err_json("BusyTurn", "Cannot prewarm while a turn is active");
+            }
+        }
+        let Some(model) = eng.model.as_mut() else {
+            return err_json("ModelNotMounted", "No UORR4V13 model mounted");
+        };
+        let sys = if system_prompt.trim().is_empty() {
+            "You are UOR-R4 Foundry Assistant."
+        } else {
+            system_prompt.trim()
+        };
+        let prefix = format!("<|im_start|>system\n{sys}<|im_end|>\n<|im_start|>user\n");
+        let ids = model.tokenizer.encode(&prefix);
+        if !ids.is_empty()
+            && model.kv_cache.tokens.len() >= ids.len()
+            && model.kv_cache.tokens[..ids.len()] == ids[..]
+        {
+            return serde_json::json!({
+                "ok": true,
+                "prewarmed_tokens": ids.len(),
+                "reused": true,
+                "kv_cached_tokens": model.kv_cache.tokens.len(),
+                "float_ops": 0,
+                "dense_matmul_ops": 0,
+            })
+            .to_string();
+        }
+        model.prewarm_system_prefix(sys);
+        serde_json::json!({
+            "ok": true,
+            "prewarmed_tokens": model.kv_cache.tokens.len(),
+            "reused": false,
+            "kv_cached_tokens": model.kv_cache.tokens.len(),
+            "float_ops": 0,
+            "dense_matmul_ops": 0,
+        })
+        .to_string()
+    })
+}
+
+#[wasm_bindgen]
+pub fn v13_configure(payload_json: &str) -> String {
+    let req: ConfigureRequest = if payload_json.trim().is_empty() {
+        ConfigureRequest::default()
+    } else {
+        match serde_json::from_str(payload_json.trim()) {
+            Ok(r) => r,
+            Err(e) => return err_json("InvalidPayload", format!("Invalid configure JSON: {e}")),
+        }
+    };
+    ENGINE.with(|cell| {
+        let mut eng = cell.borrow_mut();
+        if let Some(spec) = req.speculative {
+            eng.speculative_default = spec;
+        }
+        let spec_out = eng.speculative_default;
+        let Some(model) = eng.model.as_mut() else {
+            return serde_json::json!({
+                "ok": true,
+                "mounted": false,
+                "speculative": spec_out,
+                "float_ops": 0,
+                "dense_matmul_ops": 0,
+            })
+            .to_string();
+        };
+        if req.shortlist_k.is_some() || req.flock_window.is_some() {
+            let sk = req.shortlist_k.unwrap_or(model.shortlist_k);
+            let fw = req.flock_window.unwrap_or(model.flock_window);
+            model.set_budgets(sk, fw);
+        }
+        let mut mlp_verdict_label: Option<&'static str> = None;
+        if req.mlp_policy.is_some() || req.mlp_shortlist_k.is_some() {
+            let policy = match req
+                .mlp_policy
+                .as_deref()
+                .map(str::trim)
+                .map(str::to_ascii_lowercase)
+                .as_deref()
+            {
+                Some("dense") | Some("dense_exact") => MlpUserPolicy::ForceDenseExact,
+                Some("sparse") | Some("geodesic_sparse") => MlpUserPolicy::ForceGeodesicSparse,
+                _ => model.mlp_policy,
+            };
+            let mk = req.mlp_shortlist_k.unwrap_or(model.mlp_shortlist_k);
+            let verdict = model.set_mlp_policy(policy, mk);
+            mlp_verdict_label = Some(match verdict {
+                MlpShortlistMode::GeodesicSparse1536 => "GeodesicSparse1536",
+                MlpShortlistMode::DenseExact => "DenseExact",
+                MlpShortlistMode::RefusedInvalidNeuronShortlist => {
+                    "RefusedInvalidNeuronShortlist"
+                }
+            });
+        }
+        serde_json::json!({
+            "ok": true,
+            "mounted": true,
+            "speculative": spec_out,
+            "shortlist_k": model.shortlist_k,
+            "flock_window": model.flock_window,
+            "mlp_mode": model.mlp_mode_label(),
+            "mlp_verdict": mlp_verdict_label,
+            "mlp_shortlist_k": model.mlp_shortlist_k,
+            "float_ops": 0,
+            "dense_matmul_ops": 0,
+        })
+        .to_string()
+    })
+}
+
+#[wasm_bindgen]
 pub fn v13_begin_turn(payload_json: &str) -> String {
     let req: BeginTurnRequest = match serde_json::from_str(payload_json.trim()) {
         Ok(r) => r,
@@ -299,6 +451,7 @@ pub fn v13_begin_turn(payload_json: &str) -> String {
                 return err_json("BusyTurn", "A V13 generation turn is already active");
             }
         }
+        let speculative_default = eng.speculative_default;
         let Some(model) = eng.model.as_mut() else {
             return err_json("ModelNotMounted", "No UORR4V13 model mounted");
         };
@@ -442,8 +595,9 @@ pub fn v13_begin_turn(payload_json: &str) -> String {
         }
 
         let pending_prefill = prompt_ids[reuse_len..].to_vec();
-        let prefill_slice_tokens = req.prefill_slice_tokens.unwrap_or(16).clamp(1, 32);
-        let slice_tokens = req.slice_tokens.unwrap_or(2).clamp(1, 6);
+        let prefill_slice_tokens = req.prefill_slice_tokens.unwrap_or(32).clamp(1, 32);
+        let slice_tokens = req.slice_tokens.unwrap_or(4).clamp(1, 8);
+        let speculative_enabled = req.speculative.unwrap_or(speculative_default);
         let stop_sequences = if req.stop_sequences.is_empty() {
             vec!["</tool_call>".to_string()]
         } else {
@@ -465,6 +619,10 @@ pub fn v13_begin_turn(payload_json: &str) -> String {
             prefill_slice_tokens,
             slice_tokens,
             max_new_tokens: max_new,
+            speculative_enabled,
+            accept_ema_permille: 500,
+            draft_proposed_total: 0,
+            draft_accepted_total: 0,
             context_tokens: prompt_ids,
             last_scored: Vec::new(),
             generated_ids: Vec::new(),
@@ -557,8 +715,9 @@ pub fn v13_step_turn(turn_id: u64) -> String {
         let mut slice_delta = String::new();
         let mut status = "streaming";
         let mut stop_reason: Option<String> = None;
+        let mut emitted_in_slice = 0usize;
 
-        for _ in 0..turn.slice_tokens {
+        while emitted_in_slice < turn.slice_tokens {
             if turn.generated_ids.len() >= turn.max_new_tokens
                 || model.kv_cache.tokens.len() >= model.max_seq
             {
@@ -580,37 +739,150 @@ pub fn v13_step_turn(turn_id: u64) -> String {
                 break;
             }
 
-            turn.generated_ids.push(chosen_id);
-            turn.context_tokens.push(chosen_id);
-            if let Some(tok_bytes) = model.tokenizer.id_to_raw.get(chosen_id as usize) {
-                turn.raw_stream.extend_from_slice(tok_bytes);
-                let flushed = flush_incremental_utf8(&turn.raw_stream, &mut turn.emitted_raw, false);
-                slice_delta.push_str(&flushed);
-            }
+            let remaining_gen = turn
+                .max_new_tokens
+                .saturating_sub(turn.generated_ids.len() + 1);
+            let remaining_kv = model
+                .max_seq
+                .saturating_sub(model.kv_cache.tokens.len() + 1);
 
-            let cur_text = String::from_utf8_lossy(&turn.raw_stream);
-            let mut matched_stop: Option<String> = None;
-            for seq in &turn.stop_sequences {
-                if !seq.is_empty() && cur_text.ends_with(seq) {
-                    matched_stop = Some(seq.clone());
+            let drafts = if turn.speculative_enabled && remaining_gen > 0 && remaining_kv > 0 {
+                HoloTok13SpeculativeDrafter::propose_adaptive_draft_tokens(
+                    &model.tokenizer,
+                    &turn.context_tokens,
+                    &turn.raw_stream,
+                    chosen_id,
+                    remaining_gen.min(remaining_kv).min(4),
+                    false,
+                    turn.accept_ema_permille,
+                    model.eos_token_id,
+                    model.eot_token_id,
+                    model.think_end_id,
+                )
+            } else {
+                Vec::new()
+            };
+
+            if !drafts.is_empty() {
+                let kv_before = model.kv_cache.tokens.len();
+                let outcome = model.step_speculative_tile(
+                    chosen_id,
+                    &drafts,
+                    &turn.context_tokens,
+                    &turn.generated_ids,
+                    true,
+                    true,
+                );
+                turn.draft_proposed_total = turn
+                    .draft_proposed_total
+                    .saturating_add(outcome.draft_proposed);
+                turn.draft_accepted_total = turn
+                    .draft_accepted_total
+                    .saturating_add(outcome.draft_accepted);
+                if outcome.draft_proposed > 0 {
+                    let ratio_permille = ((outcome.draft_accepted as u64) * 1000
+                        / (outcome.draft_proposed as u64))
+                        as u16;
+                    turn.accept_ema_permille = ((u32::from(turn.accept_ema_permille) * 3
+                        + u32::from(ratio_permille))
+                        / 4) as u16;
+                }
+
+                let mut stopped_early = false;
+                for (idx, &tok_id) in outcome.accepted_tokens.iter().enumerate() {
+                    turn.generated_ids.push(tok_id);
+                    turn.context_tokens.push(tok_id);
+                    emitted_in_slice += 1;
+                    if let Some(tok_bytes) = model.tokenizer.id_to_raw.get(tok_id as usize) {
+                        turn.raw_stream.extend_from_slice(tok_bytes);
+                        let flushed =
+                            flush_incremental_utf8(&turn.raw_stream, &mut turn.emitted_raw, false);
+                        slice_delta.push_str(&flushed);
+                    }
+                    let mut matched_stop: Option<String> = None;
+                    {
+                        let cur_text = String::from_utf8_lossy(&turn.raw_stream);
+                        for seq in &turn.stop_sequences {
+                            if !seq.is_empty() && cur_text.ends_with(seq) {
+                                matched_stop = Some(seq.clone());
+                                break;
+                            }
+                        }
+                    }
+                    if let Some(seq) = matched_stop {
+                        let keep_kv = kv_before + idx + 1;
+                        if model.kv_cache.tokens.len() > keep_kv {
+                            model.kv_cache.truncate_to(
+                                keep_kv,
+                                model.n_kv_heads,
+                                model.head_dim,
+                            );
+                        }
+                        status = "done";
+                        stop_reason = Some(format!("stop:{seq}"));
+                        stopped_early = true;
+                        break;
+                    }
+                    if turn.generated_ids.len() >= turn.max_new_tokens
+                        || model.kv_cache.tokens.len() >= model.max_seq
+                    {
+                        let keep_kv = kv_before + idx + 1;
+                        if model.kv_cache.tokens.len() > keep_kv {
+                            model.kv_cache.truncate_to(
+                                keep_kv,
+                                model.n_kv_heads,
+                                model.head_dim,
+                            );
+                        }
+                        status = "done";
+                        stop_reason = Some("length".to_string());
+                        stopped_early = true;
+                        break;
+                    }
+                }
+                if stopped_early {
                     break;
                 }
-            }
+                if let Some(sc) = outcome.next_scored {
+                    turn.last_scored = sc;
+                }
+            } else {
+                turn.generated_ids.push(chosen_id);
+                turn.context_tokens.push(chosen_id);
+                emitted_in_slice += 1;
+                if let Some(tok_bytes) = model.tokenizer.id_to_raw.get(chosen_id as usize) {
+                    turn.raw_stream.extend_from_slice(tok_bytes);
+                    let flushed =
+                        flush_incremental_utf8(&turn.raw_stream, &mut turn.emitted_raw, false);
+                    slice_delta.push_str(&flushed);
+                }
 
-            let need_logits = matched_stop.is_none()
-                && turn.generated_ids.len() < turn.max_new_tokens
-                && model.kv_cache.tokens.len() + 1 < model.max_seq;
+                let mut matched_stop: Option<String> = None;
+                {
+                    let cur_text = String::from_utf8_lossy(&turn.raw_stream);
+                    for seq in &turn.stop_sequences {
+                        if !seq.is_empty() && cur_text.ends_with(seq) {
+                            matched_stop = Some(seq.clone());
+                            break;
+                        }
+                    }
+                }
 
-            let (sc_opt, _, _) =
-                model.step_token(chosen_id, &turn.context_tokens, need_logits, true);
-            if let Some(sc) = sc_opt {
-                turn.last_scored = sc;
-            }
+                let need_logits = matched_stop.is_none()
+                    && turn.generated_ids.len() < turn.max_new_tokens
+                    && model.kv_cache.tokens.len() + 1 < model.max_seq;
 
-            if let Some(seq) = matched_stop {
-                status = "done";
-                stop_reason = Some(format!("stop:{seq}"));
-                break;
+                let (sc_opt, _, _) =
+                    model.step_token(chosen_id, &turn.context_tokens, need_logits, true);
+                if let Some(sc) = sc_opt {
+                    turn.last_scored = sc;
+                }
+
+                if let Some(seq) = matched_stop {
+                    status = "done";
+                    stop_reason = Some(format!("stop:{seq}"));
+                    break;
+                }
             }
         }
 
@@ -638,6 +910,10 @@ pub fn v13_step_turn(turn_id: u64) -> String {
                 "tokens_emitted": turn.generated_ids.len(),
                 "prompt_done": turn.pending_prefill.len(),
                 "prompt_total": turn.pending_prefill.len(),
+                "prefix_reused_tokens": turn.prefix_reused_tokens,
+                "draft_proposed_total": turn.draft_proposed_total,
+                "draft_accepted_total": turn.draft_accepted_total,
+                "mlp_mode": model.mlp_mode_label(),
                 "stop_reason": stop_reason,
                 "float_ops": 0,
                 "dense_matmul_ops": 0,
