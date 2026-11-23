@@ -748,7 +748,7 @@ pub trait InferenceBackend {
         max_tokens: usize,
     ) -> Result<ModelTurnOutcome, String>;
 
-    /// Execute one reasoning turn producing model turn outcome with model specification.
+    /// Execute one reasoning turn producing model turn outcome with model specification. (`R4.RatchetGen9`).
     fn infer_turn_with_model(
         &mut self,
         model: &str,
