@@ -6,11 +6,11 @@
     "wasm_headroom_bytes": 2131702,
     "max_rust_file_lines": 9492,
     "max_js_file_lines": 8607,
-    "lifted_functions": 2502,
-    "residue_functions": 122,
-    "verified_lexlean_modules": 354,
-    "next_lifted_target": 2503,
-    "next_residue_target": 121
+    "lifted_functions": 2506,
+    "residue_functions": 121,
+    "verified_lexlean_modules": 356,
+    "next_lifted_target": 2507,
+    "next_residue_target": 120
   },
   "part_health": [
     {
@@ -40,7 +40,7 @@
     {
       "organ_id": "proofs",
       "vsm_system": "VSM-S3*",
-      "owned_file_count": 355,
+      "owned_file_count": 357,
       "max_file_lines": 1012,
       "heaviest_file": "xtask/src/mechanizer.rs",
       "health_score_permille": 1000
@@ -100,16 +100,16 @@
       "top_function": "crates/wasm/src/stitch_fabric.rs::assess_custody_health"
     },
     {
-      "file_path": "crates/wasm/src/api.rs",
-      "reason": "unlifted-pure-fn",
-      "function_count": 2,
-      "top_function": "crates/wasm/src/api.rs::format_openai_messages"
-    },
-    {
       "file_path": "crates/wasm/js/app/01_studio_chat_preview.js",
       "reason": "unlifted-pure-fn",
       "function_count": 1,
       "top_function": "crates/wasm/js/app/01_studio_chat_preview.js::syncComposerModel"
+    },
+    {
+      "file_path": "crates/wasm/js/app/02_observatory_mvm_tools.js",
+      "reason": "unlifted-pure-fn",
+      "function_count": 1,
+      "top_function": "crates/wasm/js/app/02_observatory_mvm_tools.js::handleWorkspaceMountInputChange"
     }
   ],
   "proposals": [
@@ -120,16 +120,16 @@
       "cited_authority": "R4.DualSurfaceRatchetEvolution",
       "ratchet_layer": "dual-surface-proof-and-app",
       "priority": "high",
-      "target_function": "crates/wasm/src/api.rs::format_openai_messages",
-      "current_value": "lifted=2502, residue=122",
-      "target_value": "lifted>=2503, residue<=121",
-      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/api.rs::format_openai_messages`",
+      "target_function": "crates/wasm/src/api.rs::infer_turn_with_model",
+      "current_value": "lifted=2506, residue=121",
+      "target_value": "lifted>=2507, residue<=120",
+      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/api.rs::infer_turn_with_model`",
       "concrete_actions": [
         "Synthesize constructive src/R4/RatchetGen<N>.lex.tex + Controls with CAP0005 per-root falsifier negation.",
-        "Wire formal LexLean predicate bridge on `crates/wasm/src/api.rs::format_openai_messages` and rebuild public/ Wasm + .holo.",
+        "Wire formal LexLean predicate bridge on `crates/wasm/src/api.rs::infer_turn_with_model` and rebuild public/ Wasm + .holo.",
         "Click min_lifted_functions UP and max_residue_functions DOWN in model/ratchet.toml."
       ],
-      "kappa_hex": "bfae9af8a39b20b72da2ea62d927b9bab1c46b3eb9e979ca9820ddc8fb1f273d"
+      "kappa_hex": "2a72957b6ad2079af4132c99645a0646c4675ac1cb415195231658fbee8c34c2"
     },
     {
       "proposal_id": "PROP-PROOF-FALSIFIER-02",
@@ -138,14 +138,14 @@
       "cited_authority": "R4.ObserverRefinementAgenda",
       "ratchet_layer": "lexlean-proof-frontier",
       "priority": "high",
-      "current_value": "verified_modules=354",
-      "target_value": "verified_modules>=356",
+      "current_value": "verified_modules=356",
+      "target_value": "verified_modules>=358",
       "summary": "Advance constructive zero-Classical.choice LexLean proof & CAP0005 falsifier count",
       "concrete_actions": [
         "Verify every zero-arg Bool verify* root fails when negated under CAP0005.",
         "Verify Lean 4.32.1 kernel proofs and append mechanized Rust module to lexlean_generated.rs."
       ],
-      "kappa_hex": "dc7d752bb4540b5d089974cbae0f6ba827bb0fd9330e691936402b02bd4fcbda"
+      "kappa_hex": "421164b60b77cc7da2889e2a91173689d383845800dc107bcfa528931723a97a"
     },
     {
       "proposal_id": "PROP-MODULARITY-03",
@@ -178,5 +178,5 @@
       "kappa_hex": "6cc970b0e4c102a175e51ff5ea7ed2b4f795b28adc7ee40ac4f86a75a9dd119a"
     }
   ],
-  "agenda_kappa_hex": "dc257be7fd5ddf5d9d29add2d1af5537526bbfd390363063f3d2aad9c8ed0928"
+  "agenda_kappa_hex": "ded1ea5a5a7584fe85d41fd5f6cf612035381ffdd54df3709d75ec2ac4aa263f"
 }

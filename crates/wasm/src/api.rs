@@ -633,8 +633,9 @@ pub fn format_anthropic_messages(
     }
 }
 
-/// Format OpenAI multi-turn messages into structured dialogue preserving roles and tool responses.
+/// Format OpenAI multi-turn messages into structured dialogue preserving roles and tool responses. (`R4.RatchetGen8`).
 pub fn format_openai_messages(messages: &[OpenAiChatMessage]) -> FormattedDialogue {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_8::verify_ratchet_gen_8_admitted());
     let mut system_prompt = None;
     let mut history = Vec::new();
     let mut pending_user = None;
