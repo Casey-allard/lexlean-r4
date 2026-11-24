@@ -1540,6 +1540,7 @@ impl GllmV9KvCache {
         }
     }
 
+    /// Formal R4.RatchetGen10 dual-surface lifted slice (`gen-10`).
     fn push_token(
         &mut self,
         model: &GllmV9Model,

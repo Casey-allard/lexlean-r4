@@ -2,7 +2,7 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-23T22:11:05Z"
+synced_at = "2026-11-24T06:11:12Z"
 query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
 
 [[paper]]
@@ -670,4 +670,93 @@ categories = [
     "q-bio.BM",
 ]
 abstract = "Despite major advances in structure prediction, modelling the motions and interactions that drive biomolecular function at scale remains a central challenge. We introduce BioEmu2, a generative model for atomically resolved biomolecular structures combining static structure prediction, equilibrium sampling and time evolution, that samples orders of magnitude faster than molecular dynamics (MD). Trained on experimental and synthetic structures and extensive MD data, it supports multi-component systems containing proteins, nucleic acids, modified residues, ligands and ions. Structure-prediction accuracy is comparable to top open-weight biomolecular folding models, and a context parallel mode enables prediction of megadalton complexes. Equilibrium distributions approximate MD references with free-energy errors near 1 kcal/mol across tested proteins and complexes. Time propagation predicts long-timescale dynamical trajectories and kinetics of binding and conformational changes. Generated structures can be controlled by conditioning on residue contacts or steering with user-defined bias potentials. Enhanced sampling enables free energy calculation involving rare states. BioEmu2 makes the study of biomolecular ensembles and dynamics scalable."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.30916"
+title = "TrialAgentBench: Evaluating AI Agents for Clinical-Trial Analysis and Long-Horizon Drug-Development Decisions"
+authors = [
+    "Bradley Segal",
+    "William Bolton",
+    "Philip Torr",
+    "David Clifton",
+    "Lei Clifton",
+]
+published = "2026-11-23T16:08:36Z"
+updated = "2026-11-23T16:08:36Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.AI",
+]
+abstract = "Clinical drug development is a long-horizon, high-stakes process requiring sequential decisions based on information that costs money and time to acquire. AI agents have demonstrated capabilities for scientific analysis, but there is no established way to evaluate them on these decisions, as real trials are expensive, involve people, and never reveal the counterfactual. We introduce TrialAgentBench, a benchmark for evaluating AI agents on clinical trial analysis and drug development decision-making using simulated trials where the truth is known, embedded within the data records of a fictional drug sponsor. We publicly release nearly 3,500 tasks, varying from analysing a single trial to managing multi-phase programmes with budget and time constraints. We score each analysis by rerunning its code on new trials, and each programme by the value its decisions achieve. Across 24 closed- and open-weight models, the strongest agents can analyse raw, messy trial records to within 6% of a process-aware analysis, even when an assumption is violated, with 95% confidence intervals containing the true effect 94--95% of the time. Over the prior year, the best model improved from 19% above this analysis, with serious misses on 15% of tasks, to 3.5% and 1%. What limits them is decision-making from evidence under uncertainty: when to correct, what evidence to buy, when to stop. The strongest agents are overly careful, correcting on 83% of tasks with equal recording errors, where it is unnecessary. On drug programmes, the best agent has substantial headroom, reaching 48% of the value an oracle achieves against 58% for a rule-based developer, with others falling 24 to 66% short. Model generations show ongoing improvements in handling data and evidence, with substantial variation. The strongest models can act as competent analysts, but do not yet make reliable long-horizon decisions."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.30913"
+title = "Demystifying Detectors Guarding Agent Skill Hubs"
+authors = [
+    "Kang Yang",
+    "Kevin Ying",
+    "Xiaojing Liao",
+    "Guanhong Tao",
+    "Jun Xu",
+]
+published = "2026-11-23T16:07:07Z"
+updated = "2026-11-23T16:07:07Z"
+primary_category = "cs.CR"
+categories = ["cs.CR"]
+abstract = "Agent Skills has gained widespread adoption as an open standard for extending agent capabilities. To facilitate skill sharing, public skill hubs have grown in popularity and increasingly rely on automated security detectors to identify malicious skills at scale. Yet, the effectiveness and limitations of these detectors remain insufficiently understood. To fill this gap, we present the first systematic study of four hub-adopted and two community-provided malicious skill detectors on 1477 agent skills from seven datasets. Our evaluation reveals that even the best-performing hub-adopted detector by overall F1, skill-scanner with Qwen3.6, still misses 4.9% of malicious skills and incorrectly flags 17.8% of benign skills. To understand these failures, we manually analyze detectors' findings and decision-making processes, identifying two recurring failure mechanisms. False positives often arise when detectors flag sensitive operations, such as credential access, without considering whether they serve the skill's legitimate purpose. Conversely, false negatives occur when detectors recognize malicious instructions or behaviors but underestimate their severity or dismiss valid findings during review, ultimately leaving malicious skills unblocked. Guided by this analysis, we refine the prompts of a state-of-the-art detector, skill-vetter, improving its mean F1 score in eight of nine evaluation settings, with gains of up to 22.7 percentage points. These results highlight gaps in existing skill-vetting practices and underscore the need for more robust and context-aware detection mechanisms."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.30909"
+title = "Replay Before You Reply: Second-Look Prompting for Unified Multimodal Encoding"
+authors = [
+    "Yicheng Zhang",
+    "Xun Zhang",
+    "Jingyuan Ma",
+    "Tianyu Yu",
+    "Yuan Yao",
+]
+published = "2026-11-23T16:06:28Z"
+updated = "2026-11-23T16:06:28Z"
+primary_category = "cs.CV"
+categories = [
+    "cs.CV",
+    "cs.AI",
+]
+abstract = "Solving multimodal tasks requires Vision-Language Models (VLMs) to form a unified understanding of the image and the question text. However, under causal attention in current VLMs, a token can attend only to what precedes it. Whichever modality comes first is therefore encoded under partial observation of the input, uninformed by the rest of the multimodal context. We introduce Second-Look Prompting (SLP), a training-free method that repeats the image-question pair in the input. In the repeated copy, every visual and textual token can attend to the complete input, yielding a unified multimodal encoding of the pair. Moreover, the added visual tokens contribute computation beyond re-exposing the image: even a blank image in their place can improve reasoning. Across 12 benchmarks, SLP improves the overall average score of every evaluated model, spanning nine open-source models (3B-72B) and three proprietary frontier models, with gains reaching 5.6 points for Gemini 3 Flash on MATH-Vision. Our analysis reveals two complementary mechanisms: the question guides where the second image attends, and the added visual tokens act as a prefill scratchpad whose hidden states retain answer-relevant information from the image and question. These findings highlight input presentation as a simple yet effective way to improve VLM performance."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.30897"
+title = "Predicting Rare-Mode Collapse in Recursive Generative Training from Single-Generation Calibration"
+authors = [
+    "Jingyao Zhang",
+    "Mingyu Du",
+    "Lu Han",
+]
+published = "2026-11-23T16:00:09Z"
+updated = "2026-11-23T16:00:09Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.AI",
+]
+abstract = 'Recursive generative training can preserve sample counts in a rare region while silently eroding its characteristic core. Mapping this finite-horizon collapse across real-data quotas, rare prevalences, and feedback perturbations via exhaustive multi-generation chains is computationally prohibitive. We develop a decoupled framework that forecasts multi-generation collapse probabilities and locates operating risk boundaries from independent single-generation conditional fits alone. Pairing an exact three-source multinomial count law with single-generation response banks propagates count marginals in closed form, backed by explicit calibration-error and boundary-resolution bounds. For additive Gaussian perturbations, we further prove that equal-variance all-row and sparse policies reverse their boundary-crossing order at a unique hyperplane distance. Across a 2,178-setting count benchmark, exact propagation cuts risk mean absolute error (MAE) from 1.85 to 0.49 percentage points (pp). Across ten two-dimensional learners, calibration achieves 2.60--5.69~pp six-round core MAE on nine stationary learners (65--81\% below an unperturbed baseline), diagnoses non-stationary outlier drift in standard DDIM (16.38~pp) via a stability probe, and resolves the predicted six-round geometric reversal. On Fashion-MNIST latent flow-matching chains, calibration outperforms direct-chain Gaussian-process interpolation at lower fit budgets and tracks the 20\% latent-perturbation boundary shift (3.14 versus 10.78~pp MAE for proportion copying) driven by opposing inflow to the rare region and outflow from its core.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.30895"
+title = "Speak When You See It: Proactive Task Assistants Should Wait for Evidence, Not the Clock"
+authors = ["Bohe Chen"]
+published = "2026-11-23T15:57:25Z"
+updated = "2026-11-23T15:57:25Z"
+primary_category = "cs.CV"
+categories = [
+    "cs.CV",
+    "cs.AI",
+]
+abstract = "Proactive assistants that guide people through physical tasks must decide, every few seconds, whether a step is complete and whether a mistake has occurred. We find that two benchmarks for this task largely reward knowing when rather than seeing what: a timer that never looks at the video, raising an alarm at 25 s and confirming each step at 30 s, reaches a mistake F1 of 0.373 on Ego-MC-Bench, above every published result (at most 0.27). We formalize this as the video-blind frontier, the best trade-off between completion accuracy and mistake F1 that policies reach from the elapsed time, the instruction and training statistics alone: every published per-step result on Ego-MC-Bench lies inside it, and so do all twelve zero-shot models we run on QICD. To move beyond it, we introduce Evidence-Contrastive Training (ECT): fine-tune on the benchmark's own questions, and pair its positives with negatives from the same recording at the same elapsed time, so that elapsed time cannot separate the two sides of a pair. Trained on 209 QICD videos in about 15 GPU-hours, a 2B model with ECT crosses the frontier on both benchmarks in all four seeds; transferred to Ego-MC-Bench without adaptation, it confirms 59% of mistake-free steps in time, against 30% for a published model with the same backbone trained on about 25k synthetic counterfactuals and real recordings. Its decisions follow the video beyond what timing explains: at equal elapsed time it tells a finished step from an unfinished one in 90-92% of test pairs, where the instruction's typical duration reaches 65%, rescaling the time stamps between the frames leaves it essentially unchanged, and swapping in another recording, of the same recipe where one exists, cuts its completion accuracy by two thirds. The code and model weights will be publicly released."
 hypothesis = []

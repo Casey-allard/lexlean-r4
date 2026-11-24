@@ -119,3 +119,16 @@ prev_residue = 121
 next_residue = 120
 telos_loss = 74
 spore_kappa_sha256 = "daba2494ee328b504895d640305f1e8ad05573ef0d9091987a2499cbfb231b67"
+
+[[generation]]
+id = "gen-10"
+index = 10
+lex_module = "R4.RatchetGen10"
+lifted_function = "crates/wasm/src/gllm_v9.rs::GllmV9KvCache::push_token"
+falsifiers_verified = 2
+prev_lifted = 2510
+next_lifted = 2514
+prev_residue = 120
+next_residue = 119
+telos_loss = 72
+spore_kappa_sha256 = "501dc62de203654c168873883c32ec0f464c3a3ff5779b94900dd60b66ae7ac3"
