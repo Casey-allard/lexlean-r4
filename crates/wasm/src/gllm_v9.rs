@@ -1079,7 +1079,7 @@ impl GllmV9Model {
         (prefix_ids, copy_start)
     }
 
-    /// Execute `1024`-token multi-turn `<|user|>`/`<|assistant|>` causal KV generation (`R4-39`).
+    /// Execute `1024`-token multi-turn `<|user|>`/`<|assistant|>` causal KV generation (`R4-39`). (`R4.RatchetGen14`).
     pub fn generate_compositional_v10(
         &self,
         prompt: &str,
