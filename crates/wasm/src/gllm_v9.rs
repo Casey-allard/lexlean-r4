@@ -1106,7 +1106,7 @@ impl GllmV9Model {
     }
 
     /// Encode prompt-prefill causal KV states without decoding tokens, emitting `encode` `BrainPulseStep`s
-    /// for deterministic kernel turns (`Teach:`, `solve_exact_math_or_logic`, `[agent_mode]`).
+    /// for deterministic kernel turns (`Teach:`, `solve_exact_math_or_logic`, `[agent_mode]`). (`R4.RatchetGen13`).
     pub fn encode_prompt_pulses(
         &self,
         prompt: &str,

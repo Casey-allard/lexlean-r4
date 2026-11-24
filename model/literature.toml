@@ -2,7 +2,7 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-24T07:17:38Z"
+synced_at = "2026-11-24T09:26:44Z"
 query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
 
 [[paper]]
@@ -759,4 +759,125 @@ categories = [
     "cs.AI",
 ]
 abstract = "Proactive assistants that guide people through physical tasks must decide, every few seconds, whether a step is complete and whether a mistake has occurred. We find that two benchmarks for this task largely reward knowing when rather than seeing what: a timer that never looks at the video, raising an alarm at 25 s and confirming each step at 30 s, reaches a mistake F1 of 0.373 on Ego-MC-Bench, above every published result (at most 0.27). We formalize this as the video-blind frontier, the best trade-off between completion accuracy and mistake F1 that policies reach from the elapsed time, the instruction and training statistics alone: every published per-step result on Ego-MC-Bench lies inside it, and so do all twelve zero-shot models we run on QICD. To move beyond it, we introduce Evidence-Contrastive Training (ECT): fine-tune on the benchmark's own questions, and pair its positives with negatives from the same recording at the same elapsed time, so that elapsed time cannot separate the two sides of a pair. Trained on 209 QICD videos in about 15 GPU-hours, a 2B model with ECT crosses the frontier on both benchmarks in all four seeds; transferred to Ego-MC-Bench without adaptation, it confirms 59% of mistake-free steps in time, against 30% for a published model with the same backbone trained on about 25k synthetic counterfactuals and real recordings. Its decisions follow the video beyond what timing explains: at equal elapsed time it tells a finished step from an unfinished one in 90-92% of test pairs, where the instruction's typical duration reaches 65%, rescaling the time stamps between the frames leaves it essentially unchanged, and swapping in another recording, of the same recipe where one exists, cuts its completion accuracy by two thirds. The code and model weights will be publicly released."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.31228"
+title = "Language Models Steer on Injected Uncertainty Tokens, but Fail to Self-Monitor In Situ"
+authors = ["Daniel Theron"]
+published = "2026-11-23T18:58:52Z"
+updated = "2026-11-23T18:58:52Z"
+primary_category = "cs.AI"
+categories = ["cs.AI"]
+abstract = '''Prompting language models to verbalize stepwise numerical confidence during generation is an increasingly popular approach for triggering backtracking and error correction in agentic reasoning. This strategy presupposes two capabilities: (1) in-situ monitoring fidelity (does confidence drop when an error occurs?) and (2) downstream steering control (does an uncertainty token causally steer the model to repair its error?). We evaluated four open-weights models (Qwen2.5-7B, Llama-3.1-8B, Mistral-7B, and Phi-4, 14.7B) across 15,200 math benchmark attempts, isolating 2,017 reasoning errors within each model's capability frontier. Applying 27,568 counterfactual continuations across these failure points, we demonstrate a consistent decoupling between monitoring and control. On monitoring, all four models fail to detect their own errors. Verbalized confidence does not distinguish mistake steps from sound reasoning, yielding near-chance within-position AUROCs between 0.500 and 0.561. Even at a model's first reasoning error, trajectory confidence remains saturated at 95.1% to 99.9%, with noticeable drops ($\ge 10$ points) appearing on fewer than 9% of errors in Llama and under 1.6% in the other three models. In contrast, models respond readily to external uncertainty: injecting a low-confidence tag (10%) at the error step significantly increases downstream correction across all models (+3.7 to +22.5 points over format-matched 95% certainty; all $p \le 0.0022$), reaching up to 38.5% under active rethinking instructions. However, injecting doubt onto already-correct steps causes models to discard valid reasoning, reducing solve rates by up to 22.8 points. Inference-time self-correction is thus bottlenecked by in-situ error detection rather than downstream repair capacity: models readily steer toward recovery when prompted with doubt, yet fail to self-monitor during generation.'''
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.31222"
+title = "CTLink: A Text-Prompted Segmentation Model for Linking Radiology Report Findings to 3D Chest CT Scans"
+authors = [
+    "Mohammed Baharoon",
+    "Sung Eun Kim",
+    "Mahmoud Hussain Alabbad",
+    "Lucas Bijnens",
+    "Ali Piracha",
+    "Reem Alwasiah",
+    "Talal Yahyan",
+    "Abdulrahman Alamoudi",
+    "Mashael Alshehri",
+    "Rayan Alsager",
+    "Hannah Hancock",
+    "Anna M. Hunkemöller",
+    "Peter Youssef",
+    "Mona A. Alhammad",
+    "Afnan Aljumayan",
+    "Brecht Van Berkel",
+    "Eric Bijnens",
+    "Saud Alhussain",
+    "Maarten Steyvers",
+    "Rolf Symons",
+    "Bryan Eelen",
+    "Ayed Alaklubi",
+    "Maha Buraykan Alshammari",
+    "Amirah Fahad Alshammeri",
+    "Tomas Gilvydis",
+    "Ibrahim AlTurki",
+    "Monerah Almohideb",
+    "Ali Alburkani",
+    "Shahad Alhomaiani",
+    "Fatima Jabali",
+    "Abdulrhman Aljouie",
+    "Daesung Kim",
+    "Junha Im",
+    "Michael Moritz",
+    "Hassan R. Alomaish",
+    "Pranav Rajpurkar",
+]
+published = "2026-11-23T18:57:26Z"
+updated = "2026-11-23T18:57:26Z"
+primary_category = "cs.CV"
+categories = [
+    "cs.CV",
+    "cs.AI",
+]
+abstract = "Radiology reports describe findings in text only, without visually marking them on the scan, so readers cannot directly see which abnormality each reported finding refers to. We introduce CTLink, a text-prompted 3D segmentation model that segments findings described in a chest CT report. CTLink was trained on 4123 noncontrast chest CT scans with 9547 segmented report findings, including ReXGroundingCTv2, a newly annotated dataset of 1134 scans and 1895 findings with every instance of each finding segmented. On the 200 ReXGroundingCT validation scans, CTLink achieved a hit rate of 0.816, an instance F1 score of 0.456, and a mean Dice score of 0.400, compared with 0.533, 0.175, and 0.234 for VoxTell, a publicly available text-prompted segmentation model (P < .001 for all). On the test set of the MICCAI 2026 ReXGrounding challenge, an ensemble of seven CTLink models achieved the highest hit rate (0.782) and instance F1 score (0.386) of all 48 participating teams. On 50 test scans segmented twice by independent radiologists, CTLink matched or exceeded inter-rater agreement. Diffuse non-focal findings remained the main limitation, partly because their extent is outlined inconsistently even between radiologists. The CTLink model weights are available at https://huggingface.co/rajpurkarlab/CTLink, and the dataset at https://huggingface.co/datasets/rajpurkarlab/ReXGroundingCT."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.31218"
+title = "Diophantine sets over global function fields"
+authors = [
+    "Hector Pasten",
+    "Xavier Vidaux",
+]
+published = "2026-11-23T18:56:18Z"
+updated = "2026-11-23T18:56:18Z"
+primary_category = "math.NT"
+categories = [
+    "math.NT",
+    "math.LO",
+]
+abstract = 'Let $q\equiv 3\bmod 4$ be a prime power and let $K$ be a finite separable extension of the field of rational functions $\mathbb F_q(t)$, with constant field $\mathbb F_q$. We show that $\mathbb F_q[t]$ is Diophantine in $\mathbb F_q(t)$ and that the latter is Diophantine in $K$. We deduce from work of Demeyer that $K$ has the DPRM property: Diophantine sets over $K$ are the same as listable sets.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.31215"
+title = "Seeking in Space: Benchmarking Purposeful Active Exploration of Vision-Language Models for Spatial Reasoning"
+authors = [
+    "Xiwei Liu",
+    "Yulong Li",
+    "Xuhui Li",
+    "Xinlin Zhuang",
+    "Zhixiang Lu",
+    "Haolin Yang",
+    "Jianxu Chen",
+    "Yifan Lu",
+    "Zhiran Zhang",
+    "Yutong Xie",
+]
+published = "2026-11-23T18:55:44Z"
+updated = "2026-11-23T18:55:44Z"
+primary_category = "cs.AI"
+categories = ["cs.AI"]
+abstract = "Humans explore unfamiliar spaces with purpose, deciding where to look until they have gathered the evidence a spatial question requires. However, can vision-language models (VLMs), which reason increasingly well over curated images and videos, also seek in space when the evidence is not handed to them? We present ActSpace-Bench, a benchmark of 994 questions across 234 exploration episodes in 72 real-scanned indoor scenes, where a model starts from a single view, navigates real captured frames, and must gather evidence before answering. To assess whether such exploration is purposeful, we introduce a controlled evaluation protocol that fixes each model as the reasoner and compares its own exploration against a same-budget random walk and an oracle route, separating evidence seeking from spatial reasoning. Every question is verified to require exploration and answered from 3D annotations, masked-evidence questions test whether models know when to abstain, and over 95% of sampled questions are confirmed correct by human verification. Evaluations of 23 proprietary, open-weight, and spatially specialized VLMs reveal that the strongest models do seek evidence with purpose but lose much of it to limited memory, whereas weaker and specialized models explore no better than a random walk or fail to reason over the evidence they are given, pointing to memory and evidence-grounded reasoning as the next targets for active spatial intelligence."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.31208"
+title = "Matching Under Metric Privacy"
+authors = [
+    "Hongyi B. Hu",
+    "Dung Nguyen",
+    "M. Amin Rahimian",
+]
+published = "2026-11-23T18:53:25Z"
+updated = "2026-11-23T18:53:25Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.CR",
+    "cs.SI",
+    "math.PR",
+]
+abstract = '''We study how to represent and randomize points in $d$-dimensional Euclidean space to obtain accurate bipartite matchings under metric privacy. Given $n$ private and $n$ public points, we analyze local mechanisms that randomize each private point or its distances to the public points. Using the public points' affine span, we construct a smaller representation that preserves all matching costs. When a trusted server receives the private points, we establish privacy and utility guarantees for Gumbel matching, which randomizes edge costs and releases only the assignment. Through upper bounds and worst-case constructions, we establish the tight rate $Θ\!\left(n\min\{d,\log n\}/\varepsilon\right)$ for expected cost above the nonprivate optimum. Benchmark experiments support $d\approx\log n$ as a practical guide to the transition between directly randomizing point coordinates and using Gumbel matching. Extensions to squared Euclidean costs enable private nonparametric two-sample hypothesis testing. These results show how the application's trust model guides representation and dimension choices for better utility: under local privacy, low-dimensional point representations reduce excess cost, while under central privacy, distance representations achieve the optimal rate even in high dimension.'''
 hypothesis = []
