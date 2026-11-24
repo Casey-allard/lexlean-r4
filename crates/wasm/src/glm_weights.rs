@@ -129254,8 +129254,11 @@ impl GlmRetentionState {
         }
     }
 
-    /// Advance the 16-head retention state, 4D Hamilton quaternion state, and causal pointer history by one surface token in $O(1)$ integer ops.
+    /// Advance the 16-head retention state, 4D Hamilton quaternion state, and causal pointer history by one surface token in $O(1)$ integer ops. (`R4.RatchetGen19`).
     pub fn step_token(&mut self, piece: &str) {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_19::verify_ratchet_gen_19_admitted()
+        );
         let norm: String = piece
             .chars()
             .filter(|c| c.is_ascii_alphanumeric())
