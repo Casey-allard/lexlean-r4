@@ -846,8 +846,11 @@ impl GllmV9Model {
         &self.source_label
     }
 
-    /// Container FIPS 180-4 SHA-256 hex digest.
+    /// Container FIPS 180-4 SHA-256 hex digest. (`R4.RatchetGen12`).
     pub fn container_sha256(&self) -> &str {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_12::verify_ratchet_gen_12_admitted()
+        );
         &self.container_sha256
     }
 
