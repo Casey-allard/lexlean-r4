@@ -844,8 +844,11 @@ impl GllmV9Model {
         self.raw_bytes.clone()
     }
 
-    /// Active provenance source label (`bootstrap_v9` or OPFS pack).
+    /// Active provenance source label (`bootstrap_v9` or OPFS pack). (`R4.RatchetGen16`).
     pub fn source_label(&self) -> &str {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_16::verify_ratchet_gen_16_admitted()
+        );
         &self.source_label
     }
 
