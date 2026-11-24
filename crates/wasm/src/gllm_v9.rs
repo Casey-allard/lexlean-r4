@@ -172,9 +172,10 @@ pub fn apply_rope_q12_inplace(vec: &mut [i16], pos: usize) {
 }
 
 /// Rotate only positional syntax head slices (`[32*b .. 32*b+16]`) so copy/induction head slices
-/// (`[32*b+16 .. 32*b+32]`) remain translation-invariant across 0..1024.
+/// (`[32*b+16 .. 32*b+32]`) remain translation-invariant across 0..1024. (`R4.RatchetGen18`).
 #[inline]
 fn apply_rope_q12_pos_heads_inplace(vec: &mut [i16], pos: usize) {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_18::verify_ratchet_gen_18_admitted());
     for chunk32 in vec.chunks_mut(32) {
         let len = chunk32.len().min(16);
         apply_rope_q12_inplace(&mut chunk32[..len], pos);
