@@ -839,8 +839,11 @@ impl GllmV9Model {
         Self::check_header_summary(&self.header)
     }
 
-    /// Export raw `UORGLLM9` container bytes.
+    /// Export raw `UORGLLM9` container bytes. (`R4.RatchetGen17`).
     pub fn to_container_bytes(&self) -> Vec<u8> {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_17::verify_ratchet_gen_17_admitted()
+        );
         self.raw_bytes.clone()
     }
 
