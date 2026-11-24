@@ -1870,7 +1870,11 @@ impl GllmV9KvCache {
         }
     }
 
+    /// Formal R4.RatchetGen11 dual-surface lifted slice (`gen-11`).
     fn push_token_v11(&mut self, model: &GllmV9Model, tok_id: u32) -> StepDiagnostics {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_11::verify_ratchet_gen_11_admitted()
+        );
         let t = self.seq_len;
         let tok = (tok_id as usize).min(GLLM_V9_VOCAB - 1);
         let d = self.d_model;
