@@ -826,8 +826,11 @@ impl GllmV9Model {
         })
     }
 
-    /// Return the verified `UORGLLM9` header.
+    /// Return the verified `UORGLLM9` header. (`R4.RatchetGen15`).
     pub fn header(&self) -> &GllmV9Header {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_15::verify_ratchet_gen_15_admitted()
+        );
         &self.header
     }
 
