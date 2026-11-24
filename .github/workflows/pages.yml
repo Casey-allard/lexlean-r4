@@ -36,6 +36,14 @@ jobs:
             r4-pages-lexlean-v1-${{ hashFiles('prismpm.lock', 'lexlean.toml') }}-
             r4-pages-lexlean-v1-
 
+      - name: Restore RustSec advisory-db cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .r4-advisory-dbs
+          key: r4-advisory-dbs-v1-${{ hashFiles('Cargo.lock', 'deny.toml') }}
+          restore-keys: |
+            r4-advisory-dbs-v1-
+
       - name: Restore Cargo target cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -77,6 +85,16 @@ jobs:
             "$image" bash -c '
               set -euo pipefail
               umask 077
+              if [ -d .r4-advisory-dbs ] && [ -n "${CARGO_HOME:-}" ]; then
+                mkdir -p "$CARGO_HOME/advisory-dbs"
+                cp -a .r4-advisory-dbs/. "$CARGO_HOME/advisory-dbs/" || true
+              fi
+              cargo deny fetch db || true
+              if [ -n "${CARGO_HOME:-}" ] && [ -d "$CARGO_HOME/advisory-dbs" ]; then
+                rm -rf .r4-advisory-dbs
+                mkdir -p .r4-advisory-dbs
+                cp -a "$CARGO_HOME/advisory-dbs/." .r4-advisory-dbs/ || true
+              fi
               exec just vv
             '
 
@@ -173,20 +191,33 @@ jobs:
     name: dispatch next autonomous ratchet tick after live deploy
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    needs: deploy
-    if: github.repository == 'Casey-allard/lexlean-r4' && github.ref == 'refs/heads/main' && vars.R4_ENGINE != 'off'
+    needs: [build, deploy]
+    if: always() && github.repository == 'Casey-allard/lexlean-r4' && github.ref == 'refs/heads/main' && vars.R4_ENGINE != 'off'
     permissions:
       actions: write
       contents: read
     steps:
-      - name: Dispatch next r4-engine tick if none is already active
+      - name: Dispatch next r4-engine tick or bounded Pages retry
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+          EVENT_SHA: ${{ github.sha }}
         shell: bash
         run: |
           set -euo pipefail
-          active_engine=$(gh run list --workflow=engine.yml --limit 5 --json status --jq '[.[] | select(.status != "completed")] | length')
-          if [ "${active_engine:-0}" = "0" ]; then
-            gh workflow run engine.yml --ref main
+          if [ "$DEPLOY_RESULT" = "success" ]; then
+            active_engine=$(gh run list --workflow=engine.yml --limit 5 --json status --jq '[.[] | select(.status != "completed")] | length')
+            if [ "${active_engine:-0}" = "0" ]; then
+              gh workflow run engine.yml --ref main
+            fi
+          elif [ "$BUILD_RESULT" = "failure" ] || [ "$BUILD_RESULT" = "timed_out" ] || [ "$DEPLOY_RESULT" = "failure" ] || [ "$DEPLOY_RESULT" = "timed_out" ]; then
+            tip_sha=$(gh api "repos/$GH_REPO/commits/main" --jq .sha)
+            failed_pages_on_tip=$(gh api "repos/$GH_REPO/actions/workflows/pages.yml/runs?branch=main&head_sha=$tip_sha&per_page=10" --jq "[.workflow_runs[] | select(.id == $CURRENT_RUN_ID or (.status == \"completed\" and (.conclusion == \"failure\" or .conclusion == \"timed_out\")))] | length")
+            active_other_pages=$(gh run list --workflow=pages.yml --limit 10 --json databaseId,status --jq "[.[] | select(.databaseId != $CURRENT_RUN_ID and .status != \"completed\")] | length")
+            if [ "$tip_sha" = "$EVENT_SHA" ] && [ "${failed_pages_on_tip:-0}" -lt 3 ] && [ "${active_other_pages:-0}" = "0" ]; then
+              gh workflow run pages.yml --ref main
+            fi
           fi

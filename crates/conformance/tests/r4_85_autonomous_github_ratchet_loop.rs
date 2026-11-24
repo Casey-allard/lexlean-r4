@@ -103,13 +103,17 @@ fn test_r4_85_autonomous_github_ratchet_loop_r4_85() {
         ],
     );
 
-    // 3. Verify .github/workflows/engine.yml includes .lexlean cache, r4-engine recursion guard,
-    //    pages.yml publish trigger, and NO runaway `gh workflow run engine.yml` self-chaining.
+    // 3. Verify .github/workflows/engine.yml includes .lexlean + .r4-advisory-dbs caches,
+    //    r4-engine recursion guard, pages.yml publish trigger, and a fresh-VM bounded
+    //    transient-failure recovery `relay:` job (`failed_on_tip < 3`).
     let engine_yml = std::fs::read_to_string(root.join(".github/workflows/engine.yml"))
         .expect("read .github/workflows/engine.yml");
     assert!(
-        engine_yml.contains("path: .lexlean") && engine_yml.contains("r4-pages-lexlean-v1-"),
-        "engine.yml must restore and save commit-pinned .lexlean verification cache"
+        engine_yml.contains("path: .lexlean")
+            && engine_yml.contains("r4-pages-lexlean-v1-")
+            && engine_yml.contains("path: .r4-advisory-dbs")
+            && engine_yml.contains("r4-advisory-dbs-v1-"),
+        "engine.yml must restore and save commit-pinned .lexlean and .r4-advisory-dbs caches"
     );
     assert!(
         engine_yml.contains("head_author=$(git log -1 --format='%an' HEAD)")
@@ -120,37 +124,52 @@ fn test_r4_85_autonomous_github_ratchet_loop_r4_85() {
     );
     assert!(
         engine_yml.contains("gh workflow run pages.yml --ref main")
-            && !engine_yml.contains("gh workflow run engine.yml")
+            && engine_yml.contains("relay:")
+            && engine_yml.contains("needs: tick")
+            && engine_yml.contains("GH_REPO: ${{ github.repository }}")
+            && engine_yml.contains("[ \"${failed_on_tip:-0}\" -lt 3 ]")
             && !engine_yml.contains("git rebase --autostash")
             && engine_yml.contains("Save LexLean verification cache"),
-        "engine.yml must save post-tick .lexlean cache, trigger pages.yml, forbid unverified rebase, and forbid runaway engine.yml self-chaining"
+        "engine.yml must save post-tick .lexlean cache, trigger pages.yml, forbid unverified rebase, and provide a fresh-VM bounded (`< 3`) transient-failure relay job"
     );
 
     let pages_yml = std::fs::read_to_string(root.join(".github/workflows/pages.yml"))
         .expect("read .github/workflows/pages.yml");
     assert!(
         pages_yml.contains("r4-pages-lexlean-v1-\n")
+            && pages_yml.contains("path: .r4-advisory-dbs")
             && pages_yml.contains("continue-ratchet:")
-            && pages_yml.contains("needs: deploy")
+            && pages_yml.contains("needs: [build, deploy]")
+            && pages_yml.contains("if: always() &&")
             && pages_yml.contains("vars.R4_ENGINE != 'off'")
             && pages_yml.contains("GH_REPO: ${{ github.repository }}")
+            && pages_yml.contains("[ \"${failed_pages_on_tip:-0}\" -lt 3 ]")
             && !pages_yml.contains("2>/dev/null || echo 0")
             && pages_yml.contains("gh workflow run engine.yml --ref main"),
-        "pages.yml must include warm .lexlean cache fallback and checkout-less GH_REPO-bound continue-ratchet relay to engine.yml"
+        "pages.yml must cache .r4-advisory-dbs and run an always-on checkout-less GH_REPO-bound continue-ratchet relay with bounded (`< 3`) Pages retry"
+    );
+
+    let deploy_watch_yml = std::fs::read_to_string(root.join(".github/workflows/deploy-watch.yml"))
+        .expect("read .github/workflows/deploy-watch.yml");
+    assert!(
+        deploy_watch_yml.contains("R4_ENGINE: ${{ vars.R4_ENGINE }}")
+            && deploy_watch_yml.contains("actions/workflows/engine.yml/dispatches"),
+        "deploy-watch.yml must act as an independent watchdog restarting engine.yml when main is live, unsettled, and idle"
     );
 
     // 4. Verify xtask/src/engine.rs runs dual_surface_ratchet + ratchet-cycle + observer-agenda,
-    //    rolls back on any mid-tick failure, and stages all evolved paths
+    //    retries transient `just vv` failures once, rolls back on any mid-tick failure, and stages all evolved paths
     let engine_rs =
         std::fs::read_to_string(root.join("xtask/src/engine.rs")).expect("read engine.rs");
     assert!(
         engine_rs.contains("dual_surface_ratchet::step_dual_surface_ratchet_evolution(")
             && engine_rs.contains("ratchet::run_ratchet_cycle(root, true)")
             && engine_rs.contains("observer_agenda::cmd_observer_agenda(root, true)")
+            && engine_rs.contains("for gate_attempt in 1..=2")
             && engine_rs.contains("let res = run_engine_tick_inner(")
             && engine_rs.contains("\"model/ratchet.toml\"")
             && engine_rs.contains("\"src/R4\""),
-        "engine.rs tick must execute dual_surface_ratchet, ratchet_cycle, observer_agenda, atomic rollback wrapper, and stage model/ratchet.toml & src/R4"
+        "engine.rs tick must execute dual_surface_ratchet, ratchet_cycle, observer_agenda, bounded `just vv` retry, atomic rollback wrapper, and stage model/ratchet.toml & src/R4"
     );
 
     // 5. Verify unified `ratchet` subcommand in xtask/src/main.rs honors `--dry-run` and `validate` checks `check-wasm-sync`

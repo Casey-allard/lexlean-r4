@@ -851,6 +851,10 @@ jobs:
     if: github.repository == 'Casey-allard/lexlean-r4' && vars.R4_ENGINE != 'off'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    outputs:
+      outcome: ${{ steps.tick.outputs.outcome }}
+      pushed: ${{ steps.tick.outputs.pushed }}
+      head_sha: ${{ steps.tick.outputs.head_sha }}
     steps:
       - name: Checkout (full history, so the tick can push)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -901,6 +905,15 @@ jobs:
           restore-keys: |
             r4-engine-target-
 
+      - name: Restore RustSec advisory-db cache
+        if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .r4-advisory-dbs
+          key: r4-advisory-dbs-v1-${{ hashFiles('Cargo.lock', 'deny.toml') }}
+          restore-keys: |
+            r4-advisory-dbs-v1-
+
       - name: Run autonomous homeostasis tick through the locked SDK
         id: tick
         if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true'
@@ -944,6 +957,11 @@ jobs:
             "$image" bash -c '
               set -euo pipefail
               umask 077
+              if [ -d .r4-advisory-dbs ] && [ -n "${CARGO_HOME:-}" ]; then
+                mkdir -p "$CARGO_HOME/advisory-dbs"
+                cp -a .r4-advisory-dbs/. "$CARGO_HOME/advisory-dbs/" || true
+              fi
+              cargo deny fetch db || true
               cargo run -q -p xtask -- mechanize
               cargo run -q -p xtask -- lift-register
               cargo run -q -p xtask -- ratchet-check
@@ -951,6 +969,11 @@ jobs:
               cargo run -q -p xtask -- literature-sync --offline-fallback --write || true
               cargo run -q -p xtask -- engine tick --budget-minutes 75 --commit --push
               cargo run -q -p xtask -- engine status > .r4-engine-status.txt || true
+              if [ -n "${CARGO_HOME:-}" ] && [ -d "$CARGO_HOME/advisory-dbs" ]; then
+                rm -rf .r4-advisory-dbs
+                mkdir -p .r4-advisory-dbs
+                cp -a "$CARGO_HOME/advisory-dbs/." .r4-advisory-dbs/ || true
+              fi
               rm -rf target/debug/incremental target/wasm32-unknown-unknown/release/incremental || true
             '
           if [ -f .r4-engine-output.env ]; then
@@ -1005,7 +1028,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          for family in r4-engine-target r4-settled; do
+          for family in r4-engine-target r4-settled r4-advisory-dbs-v1; do
             gh cache list --key "$family-" --sort created_at --order desc --limit 100 --json id --jq '.[1:][].id' \
               | xargs -r -n1 gh cache delete || true
           done
@@ -1020,6 +1043,42 @@ jobs:
         run: |
           set -euo pipefail
           gh workflow run pages.yml --ref main
+
+  relay:
+    name: Relay pushed commit to Pages or retry transient tick failure
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    needs: tick
+    if: always() && github.repository == 'Casey-allard/lexlean-r4' && vars.R4_ENGINE != 'off'
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Dispatch Pages on push or bounded retry on transient failure
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TICK_RESULT: ${{ needs.tick.result }}
+          TICK_PUSHED: ${{ needs.tick.outputs.pushed }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$TICK_PUSHED" = "true" ]; then
+            tip_sha=$(gh api "repos/$GH_REPO/commits/main" --jq .sha)
+            existing_pages=$(gh api "repos/$GH_REPO/actions/workflows/pages.yml/runs?branch=main&head_sha=$tip_sha&per_page=5" --jq '.workflow_runs | length')
+            if [ "${existing_pages:-0}" = "0" ]; then
+              gh workflow run pages.yml --ref main
+            fi
+          elif [ "$TICK_RESULT" = "failure" ] || [ "$TICK_RESULT" = "timed_out" ]; then
+            tip_sha=$(gh api "repos/$GH_REPO/commits/main" --jq .sha)
+            settled_hit=$(gh api "repos/$GH_REPO/actions/caches?key=r4-settled-$tip_sha&per_page=1" --jq '.actions_caches | length')
+            failed_on_tip=$(gh api "repos/$GH_REPO/actions/workflows/engine.yml/runs?branch=main&head_sha=$tip_sha&per_page=10" --jq "[.workflow_runs[] | select(.id == $CURRENT_RUN_ID or (.status == \"completed\" and (.conclusion == \"failure\" or .conclusion == \"timed_out\")))] | length")
+            active_other=$(gh run list --workflow=engine.yml --limit 10 --json databaseId,status --jq "[.[] | select(.databaseId != $CURRENT_RUN_ID and .status != \"completed\")] | length")
+            if [ "${settled_hit:-0}" = "0" ] && [ "${failed_on_tip:-0}" -lt 3 ] && [ "${active_other:-0}" = "0" ]; then
+              gh workflow run engine.yml --ref main
+            fi
+          fi
 "#
     .to_string()
 }
@@ -3787,12 +3846,23 @@ fn run_engine_tick_inner(
         post_ratchet_defects,
     );
     let gate_ok = (if std::env::var_os("SDK_IMAGE").is_some() {
-        Command::new("just")
-            .current_dir(root)
-            .arg("vv")
-            .status()
-            .map(|s| s.success())
-            .unwrap_or(false)
+        let mut vv_passed = false;
+        for gate_attempt in 1..=2 {
+            if Command::new("just")
+                .current_dir(root)
+                .arg("vv")
+                .status()
+                .map(|s| s.success())
+                .unwrap_or(false)
+            {
+                vv_passed = true;
+                break;
+            }
+            if gate_attempt < 2 {
+                std::thread::sleep(std::time::Duration::from_secs(15));
+            }
+        }
+        vv_passed
     } else {
         check_frontier(theorem_frontier).is_ok()
             && verify_frontier_theorems_ast(root, theorem_frontier).is_ok()

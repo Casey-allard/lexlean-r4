@@ -20760,7 +20760,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "9c226655bc2db45347feec36f6ff7f322953409ddb21cbc0ea1024605e45007d",
+      "kappa": "034991e24f05b0812d73a162650bdf10f97ae7b58910b571a6f5329357cfc8e9",
       "function": "xtask/src/engine.rs::render_engine_workflow",
       "status": "lifted",
       "definition": "R4.AutonomousEngine",
@@ -20839,7 +20839,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "a1bf9be8c2d717cfe3f4af5bd6100e09a58379c25aa8f1635ff13e323eb9ca6f",
+      "kappa": "f3ee937811489769925b27084081712a2330bb0a07ec61aee92328afbfa53306",
       "function": "xtask/src/engine.rs::run_engine_tick_inner",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",

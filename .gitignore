@@ -27,6 +27,7 @@ criterion/
 *.rlib
 rust_out
 /.r4-settled
+/.r4-advisory-dbs
 /.r4-engine-status.txt
 /.r4-engine-output.env
 
