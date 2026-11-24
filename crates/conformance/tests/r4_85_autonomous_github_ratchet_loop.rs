@@ -133,8 +133,10 @@ fn test_r4_85_autonomous_github_ratchet_loop_r4_85() {
             && pages_yml.contains("continue-ratchet:")
             && pages_yml.contains("needs: deploy")
             && pages_yml.contains("vars.R4_ENGINE != 'off'")
+            && pages_yml.contains("GH_REPO: ${{ github.repository }}")
+            && !pages_yml.contains("2>/dev/null || echo 0")
             && pages_yml.contains("gh workflow run engine.yml --ref main"),
-        "pages.yml must include warm .lexlean cache fallback and deploy-gated continue-ratchet relay to engine.yml"
+        "pages.yml must include warm .lexlean cache fallback and checkout-less GH_REPO-bound continue-ratchet relay to engine.yml"
     );
 
     // 4. Verify xtask/src/engine.rs runs dual_surface_ratchet + ratchet-cycle + observer-agenda,

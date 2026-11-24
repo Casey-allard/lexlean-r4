@@ -182,10 +182,11 @@ jobs:
       - name: Dispatch next r4-engine tick if none is already active
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           set -euo pipefail
-          active_engine=$(gh run list --workflow=engine.yml --limit 5 --json status --jq '[.[] | select(.status != "completed")] | length' 2>/dev/null || echo 0)
+          active_engine=$(gh run list --workflow=engine.yml --limit 5 --json status --jq '[.[] | select(.status != "completed")] | length')
           if [ "${active_engine:-0}" = "0" ]; then
             gh workflow run engine.yml --ref main
           fi
