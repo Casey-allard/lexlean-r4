@@ -130863,8 +130863,9 @@ pub fn has_curated_glm_override(
     false
 }
 
-/// Extract unsigned integers mentioned in a prompt (including common English number words).
+/// Extract unsigned integers mentioned in a prompt (including common English number words). (`R4.RatchetGen28`).
 fn extract_prompt_numbers(words: &[String]) -> Vec<u64> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_28::verify_ratchet_gen_28_admitted());
     let mut out = Vec::new();
     for w in words {
         if let Ok(n) = w.parse::<u64>() {
