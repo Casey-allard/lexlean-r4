@@ -134970,8 +134970,9 @@ pub struct HeldOutBenchmarkReport {
 ///   (b) Lexical Scorer Only (`lexical_only`)
 ///   (c) Geometric Scorer Alone (`geometric_only`)
 ///   (d) Random Router (`random_baseline`)
-///   (e) Re-hashed / Scrambled Seed Coordinates (`lexical + rehashed_geometry`)
+///   (e) Re-hashed / Scrambled Seed Coordinates (`lexical + rehashed_geometry`) (`R4.RatchetGen24`).
 pub fn evaluate_held_out_routing_benchmark() -> HeldOutBenchmarkReport {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_24::verify_ratchet_gen_24_admitted());
     // 40 strictly keyword-disjoint held-out paraphrase prompts (0 keyword/phrase/title hits on gold basin)
     // paired with their gold basin title substring.
     let held_out_cases: &[(&str, &str)] = &[
