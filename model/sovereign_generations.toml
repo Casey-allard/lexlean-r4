@@ -275,3 +275,16 @@ prev_residue = 109
 next_residue = 108
 telos_loss = 50
 spore_kappa_sha256 = "f501cd5c06aa6134ef0c2fa5f92cc8748a730e7b62f3820955e401d9d41a2f5e"
+
+[[generation]]
+id = "gen-22"
+index = 22
+lex_module = "R4.RatchetGen22"
+lifted_function = "crates/wasm/src/glm_weights.rs::dedup_prose_paragraphs"
+falsifiers_verified = 2
+prev_lifted = 2558
+next_lifted = 2562
+prev_residue = 108
+next_residue = 107
+telos_loss = 48
+spore_kappa_sha256 = "7353e9ac5b26cc0181367f4ea09a66395ca1755d4e68d24203dfbd6c8fd46e03"

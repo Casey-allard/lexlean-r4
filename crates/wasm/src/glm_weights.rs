@@ -131975,8 +131975,9 @@ fn normalize_sentence_key(sentence: &str) -> Vec<String> {
         .collect()
 }
 
-/// Deduplicate repeated or near-identical sentences across all paragraphs of a generated response.
+/// Deduplicate repeated or near-identical sentences across all paragraphs of a generated response. (`R4.RatchetGen22`).
 fn dedup_prose_paragraphs(text: &str) -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_22::verify_ratchet_gen_22_admitted());
     if text.contains("```") {
         return text.to_string();
     }
