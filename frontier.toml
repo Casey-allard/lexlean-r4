@@ -5201,3 +5201,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f328_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.33098 (Delegent: A Multi-Agent Harness That Reduces Cost without Sacrificing Performance)."
 prompt = "How does arXiv 2611.33098 (cs.AI) advance alignment and inference over delegent multi agent harness reduces?"
 target_reply = "Publication catalogtwosixoneonepthreethreezeronineeight in csai demonstrates grounded mechanisms connecting delegent multi agent harness reduces cost without sacrificing performance agents built frontier language models."
+
+[[claim]]
+id = "R4-F329"
+status = "proved"
+depends = ["R4-F03"]
+relation = "stem-reasoning"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:manifold:stem-reasoning:send-number:r8665:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f329_reply_4gram_deduction"
+statement = "Verify causal four gram deduction over stems send and number from manifold row 8665 without symbolic drift."
+prompt = "Why does causal four gram continuation preserve reasoning over send and number?"
+target_reply = "Causal four gram continuation preserves reasoning over send and number because each packed reply transition conditions on the canonical turn anchor occurrence counter and four preceding tokens to guarantee deterministic cycle free decoding across every step."

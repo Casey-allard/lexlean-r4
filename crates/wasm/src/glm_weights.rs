@@ -131978,8 +131978,9 @@ fn synthesize_clause_trajectory(
     selected
 }
 
-/// Normalize a sentence to its lowercase alphanumeric word sequence for exact and near-duplicate detection.
+/// Normalize a sentence to its lowercase alphanumeric word sequence for exact and near-duplicate detection. (`R4.RatchetGen38`).
 fn normalize_sentence_key(sentence: &str) -> Vec<String> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_38::verify_ratchet_gen_38_admitted());
     tokenize_words_simple(&sentence.to_ascii_lowercase())
         .into_iter()
         .filter(|w| w.len() >= 2)
