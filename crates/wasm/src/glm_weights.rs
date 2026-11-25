@@ -133127,7 +133127,7 @@ fn node_matches_anaphor_kind(node: &GlmConceptNode, kind: AnaphorKind) -> bool {
 }
 
 /// Extract the primary concept basin referenced in a single `(past_q, past_a)` history turn,
-/// checking both `past_q` and `past_a` (for capital lookups and chained follow-up headers).
+/// checking both `past_q` and `past_a` (for capital lookups and chained follow-up headers). (`R4.RatchetGen29`).
 fn extract_turn_concept(
     past_q: &str,
     past_a: &str,
