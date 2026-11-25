@@ -131565,8 +131565,9 @@ pub fn retrieve_top_concepts_geometric_only(
     scored
 }
 
-/// Extract clean subject phrases around a comparison pivot (`vs`, `versus`, `to`, `with`, `or`, `and`).
+/// Extract clean subject phrases around a comparison pivot (`vs`, `versus`, `to`, `with`, `or`, `and`). (`R4.RatchetGen27`).
 fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String, String)> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_27::verify_ratchet_gen_27_admitted());
     let mut cleaned = raw_prompt
         .trim()
         .trim_end_matches('?')
