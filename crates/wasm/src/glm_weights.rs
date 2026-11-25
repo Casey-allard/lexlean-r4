@@ -133244,8 +133244,9 @@ pub fn resolve_discourse_antecedent<'a>(
 }
 
 /// Expand aspect words in an anaphoric follow-up (`"food"`, `"theory"`, `"discovery"`, `"fall"`, `"architecture"`)
-/// into domain-resonant vocabulary stems so both the antecedent basin's relevant paragraph and secondary basins activate.
+/// into domain-resonant vocabulary stems so both the antecedent basin's relevant paragraph and secondary basins activate. (`R4.RatchetGen25`).
 fn expand_anaphoric_aspect_words(words: &[String]) -> Vec<String> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_25::verify_ratchet_gen_25_admitted());
     let mut out: Vec<String> = words.to_vec();
     for w in words {
         let extras: &[&str] = match w.as_str() {
