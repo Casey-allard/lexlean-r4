@@ -2,7 +2,7 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-25T02:13:10Z"
+synced_at = "2026-11-25T03:18:45Z"
 query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
 
 [[paper]]
@@ -880,4 +880,92 @@ categories = [
     "math.PR",
 ]
 abstract = '''We study how to represent and randomize points in $d$-dimensional Euclidean space to obtain accurate bipartite matchings under metric privacy. Given $n$ private and $n$ public points, we analyze local mechanisms that randomize each private point or its distances to the public points. Using the public points' affine span, we construct a smaller representation that preserves all matching costs. When a trusted server receives the private points, we establish privacy and utility guarantees for Gumbel matching, which randomizes edge costs and releases only the assignment. Through upper bounds and worst-case constructions, we establish the tight rate $Θ\!\left(n\min\{d,\log n\}/\varepsilon\right)$ for expected cost above the nonprivate optimum. Benchmark experiments support $d\approx\log n$ as a practical guide to the transition between directly randomizing point coordinates and using Gumbel matching. Extensions to squared Euclidean costs enable private nonparametric two-sample hypothesis testing. These results show how the application's trust model guides representation and dimension choices for better utility: under local privacy, low-dimensional point representations reduce excess cost, while under central privacy, distance representations achieve the optimal rate even in high dimension.'''
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.32415"
+title = "Within-task hazards of AI agents: unidentified by time-horizon curves, identified by repeated runs"
+authors = ["Ruiqi Zhao"]
+published = "2026-11-24T11:18:43Z"
+updated = "2026-11-24T11:18:43Z"
+primary_category = "stat.ME"
+categories = [
+    "stat.ME",
+    "cs.AI",
+]
+abstract = '''The time horizon of an AI agent is read off a curve: the probability that the agent completes a task, plotted against the time a human needs for it. Several recent analyses fit survival models to this curve and conclude that agents' hazard of failure declines as a task goes on. The curve cannot support that conclusion. Every log-logistic horizon curve with slope $β\le1$ is a mixture of constant-hazard curves, and in a proportional-hazards frailty model the same curve is produced by every within-task Weibull shape $k\geβ$. If runs of a task are conditionally independent, repeated runs restore identification within this model: the probability that two runs both succeed is the single-run curve shifted by $1/k$ on the $\log_2$ time axis. Without the Weibull form, the horizontal distance between these two curves still bears on the direction of the hazard: if the average within-task hazard is non-increasing, the distance is at least one, and so is the population limit of a two-step estimator when the cross-section is log-logistic. We decompose the bias of that estimator into a violation of the shift and a first-step misspecification term, and examine five mechanisms that can break the shift. On METR's public run-level data, under stated assumptions that the data cannot verify, no model's 95% interval for $1/k$ lies entirely above one, and for the five frontier models in the TH1.0 release every interval from runs in different batches lies below one. Under the same assumptions, taken interval by interval and given a log-logistic cross-section, these intervals reject a non-increasing average hazard for the five models, whereas in TH1.1 the result depends on how human times were obtained. Whether $k>1$ reflects a hazard that rises within a task or tasks whose difficulty human time measures only loosely needs experiments that observe the same task at several lengths.'''
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.32406"
+title = "BEACON: Learning Observation-Conditioned Starting Points for Guided Conditional Flow Matching in Microscopy"
+authors = [
+    "Anirban Ray",
+    "Florian Jug",
+]
+published = "2026-11-24T11:08:44Z"
+updated = "2026-11-24T11:08:44Z"
+primary_category = "cs.CV"
+categories = [
+    "cs.CV",
+    "cs.AI",
+]
+abstract = "Fluorescence microscopy drives much of modern life science, but accessible imaging setups often yield images degraded by out-of-focus light, limited resolution, and strong signal-dependent noise. Computational restoration can recover high-quality images from such data, enabling cheaper and faster imaging at lower light dose, provided biologically meaningful structures are preserved. Guided conditional flow matching has recently shown strong results for microscopy dehazing and computational super-resolution by learning distributions of plausible restorations. However, it pairs each clean target with an independent standard Gaussian sample, so the starting point of every training path does not leverage the degraded observation. This arbitrary noise--target coupling can produce conflicting velocity targets and makes the conditional velocity field harder to learn. We present BEACON, a $BE$st-of-$K$ $A$daptive learned coupling for guided $CON$ditional flow matching, which learns an observation-conditioned base distribution. During training, a lightweight conditional noise model proposes $K$ starting points for each degraded input, and the candidate with the lowest flow-matching loss supervises both networks, while a KL term keeps the proposal close to the Gaussian prior. At inference, a single draw from the learned proposal is transported along the velocity field, requiring neither candidate selection nor the target. We evaluate BEACON on ten datasets spanning microscopy dehazing and computational super-resolution against 13 baseline families. BEACON achieves the best median perception--distortion rank for every pairing of a fidelity metric (PSNR, MicroMS-SSIM) with a perceptual metric (LPIPS, FID). Code and pretrained models will be released under a permissive license."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.32405"
+title = "CPU-Eval: Evaluating Large Language Models for CPU Hardware Code Generation"
+authors = [
+    "Yuisei Iwata",
+    "Yutaka Masuda",
+    "Tohru Ishihara",
+]
+published = "2026-11-24T11:07:23Z"
+updated = "2026-11-24T11:07:23Z"
+primary_category = "cs.AR"
+categories = [
+    "cs.AR",
+    "cs.AI",
+]
+abstract = "Benchmarks such as VerilogEval have supported rapid advances in hardware description language (HDL) generation by large language models (LLMs). However, recent HDL-generation systems achieve pass rates above 90% on VerilogEval, leaving limited headroom for revealing further advances. To provide a challenging target for further progress on a practically important hardware-development task, we introduce CPU-Eval, a benchmark of 339 HDL-generation problems constructed from six CPUs. Drawn from practical CPU designs, including families fabricated in silicon, the problems span CPUs from small embedded cores to Linux-capable out-of-order cores and cover diverse CPU functions written in SystemVerilog, Chisel, and SpinalHDL. In each problem, an LLM performs the real CPU-development task of generating HDL. Across seven state-of-the-art LLMs, mean pass@1 is 45.14 percentage points lower on CPU-Eval than on VerilogEval v2 Spec-to-RTL, exposing capability differences obscured by VerilogEval's high pass rates. CPU-Eval reveals that pass@1 is lower for submodules with more source-code lines, which motivates fine-grained modular design for LLM-aided hardware generation. We also show that pass@1 is lower for CPUs written in less widely used HDLs, motivating designers to verify that an LLM is sufficiently proficient at generating code in the HDL they use before deployment."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.32400"
+title = "Verify then Steer: Progress Hallucination-Aware Recovery for Continuous Vision-and-Language Navigation"
+authors = [
+    "Jiewen Hou",
+    "Guanxiang Qi",
+    "Meina Kan",
+    "Shiguang Shan",
+    "Xilin Chen",
+]
+published = "2026-11-24T11:05:44Z"
+updated = "2026-11-24T11:05:44Z"
+primary_category = "cs.CV"
+categories = [
+    "cs.CV",
+    "cs.AI",
+]
+abstract = "Vision-and-Language Navigation (VLN) requires an agent to follow language instructions to reach a target in an unseen 3D environment. However, existing methods still struggle to recover from route deviations at test time. We investigate this limitation through the lens of instruction progress, and trace it to a phenomenon we term progress hallucination: agents misinterpret off-route observations as evidence of task progress, causing their internal instruction progress to advance beyond the actual task stage and hindering recovery based on earlier sub-instructions. To address this failure mode, we propose PHAR (Progress Hallucination-Aware Recovery), a test-time recovery framework following a verify-then-steer paradigm. The verifier examines residual-stream representations of the Vision-Language Model (VLM) to identify mismatch of cross-modal evidence along the trajectories, and uses split conformal calibration to control false alarms. When an alarm is raised, the steering module uses a contextual bandit to adaptively select the rewind extent of instruction progress for online recovery. Through extensive experiments on R2R-CE and RxR-CE, our framework enhances the reliability of multiple state-of-the-art vision-language navigation methods at test time."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.32399"
+title = "Not All Pairs Align: Caption-Guided Audio-Visual Contrastive Learning"
+authors = [
+    "Omar Emara",
+    "Nan Lu",
+    "Dima Damen",
+    "Hazel Doughty",
+]
+published = "2026-11-24T11:05:39Z"
+updated = "2026-11-24T11:05:39Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.AI",
+]
+abstract = "We address the problem of learning audio-visual representations from co-occurring modalities. Multimodal contrastive learning typically assumes that paired observations provide shared views of the same underlying information. While this may be true for datasets collected in constrained environments, it does not always hold. For instance, co-occurring audio and visual signals can differ substantially in their content due to off-screen sounds. Nevertheless, standard contrastive objectives treat all paired samples as equally aligned. In this work, we propose Caption Guided Alignment Aware Loss (CGAAL), a model-agnostic objective that leverages modality-specific captions to estimate semantic agreement between audio and video. CGAAL uses these agreement scores to weight the contribution of each positive pair. A warm-up period and gradual thresholding strategy progressively introduce this alignment-aware training signal. We demonstrate the generality of CGAAL by applying it to three contrastive baselines, consistently improving their performance on audio-visual retrieval."
 hypothesis = []

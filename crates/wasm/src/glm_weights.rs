@@ -132821,8 +132821,9 @@ pub fn detect_anaphor_kind(lower: &str, words: &[String]) -> Option<AnaphorKind>
 
 /// Latent per-clause geometric deliberation (`Gap 3`) for complex multi-clause prompts.
 /// Splits a multi-clause prompt across clause boundaries and resolves each clause independently
-/// against `GLM_CONCEPT_MANIFOLD` so long sentences do not suffer Q12 centroid dilution.
+/// against `GLM_CONCEPT_MANIFOLD` so long sentences do not suffer Q12 centroid dilution. (`R4.RatchetGen23`).
 fn deliberate_multi_clause_concepts(raw_prompt: &str) -> Vec<&'static GlmConceptNode> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_23::verify_ratchet_gen_23_admitted());
     let mut normalized = raw_prompt.to_string();
     for sep in [
         "; ",
