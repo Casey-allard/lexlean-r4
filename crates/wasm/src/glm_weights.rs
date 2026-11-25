@@ -130609,8 +130609,9 @@ pub fn q12_cosine_similarity(a: &[i16; POINT_KEY_DIM], b: &[i16; POINT_KEY_DIM])
     ((cos + 1.0) * 512.0).clamp(0.0, 1024.0) as u32
 }
 
-/// Match everyday conversational turns, social small talk, meta-questions, and parameter inquiries.
+/// Match everyday conversational turns, social small talk, meta-questions, and parameter inquiries. (`R4.RatchetGen37`).
 fn match_everyday_chat_and_meta(lower: &str, words: &[String]) -> Option<&'static str> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_37::verify_ratchet_gen_37_admitted());
     let trimmed = lower
         .trim()
         .trim_matches(|c: char| !c.is_ascii_alphanumeric());

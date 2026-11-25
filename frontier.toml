@@ -5186,3 +5186,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f327_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.33106 (Temporal Conditioning for Human Behavioral Cloning in Chess)."
 prompt = "How does arXiv 2611.33106 (cs.AI) advance alignment and inference over temporal conditioning human behavioral cloning?"
 target_reply = "Publication catalogtwosixoneonepthreethreeonezerosix in csai demonstrates grounded mechanisms connecting temporal conditioning human behavioral cloning chess models typically predict moves board states while ignoring."
+
+[[claim]]
+id = "R4-F328"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.33098:H-LIT-2611.33098-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f328_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.33098 (Delegent: A Multi-Agent Harness That Reduces Cost without Sacrificing Performance)."
+prompt = "How does arXiv 2611.33098 (cs.AI) advance alignment and inference over delegent multi agent harness reduces?"
+target_reply = "Publication catalogtwosixoneonepthreethreezeronineeight in csai demonstrates grounded mechanisms connecting delegent multi agent harness reduces cost without sacrificing performance agents built frontier language models."
