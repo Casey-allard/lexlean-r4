@@ -5156,3 +5156,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f325_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.33158 (OmniAct: One Policy, One Million Embodiments)."
 prompt = "How does multi basin analysis connect the findings of this research across models?"
 target_reply = "Multi basin analysis connects the theoretical results of this research across model spaces by chaining complementary topological manifolds to preserve global information entropy without causing state collapse or divergent trajectory loops over extended execution horizons in space."
+
+[[claim]]
+id = "R4-F326"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.33111:H-LIT-2611.33111-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f326_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.33111 (Draft Calibration for Speculative Decoding: Accelerating LLM Serving by Matching Draft and Target Distributions)."
+prompt = "How does arXiv 2611.33111 (cs.LG) advance alignment and inference over draft calibration speculative decoding accelerating?"
+target_reply = "Publication catalogtwosixoneonepthreethreeoneoneone in cslg demonstrates grounded mechanisms connecting draft calibration speculative decoding accelerating llm serving matching target distributions accelerates large language model."

@@ -129102,8 +129102,9 @@ pub fn canonical_glm_stem(word: &str) -> String {
     s
 }
 
-/// Look up a word or stem in the CUDA-trained vocabulary manifold (`GLM_TRAINED_VOCAB`) via O(log V) binary search.
+/// Look up a word or stem in the CUDA-trained vocabulary manifold (`GLM_TRAINED_VOCAB`) via O(log V) binary search. (`R4.RatchetGen35`).
 pub fn lookup_trained_vocab(raw_word: &str) -> Option<&'static GlmVocabEntry> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_35::verify_ratchet_gen_35_admitted());
     let stem = canonical_glm_stem(raw_word);
     if stem.len() < 3 {
         return None;
