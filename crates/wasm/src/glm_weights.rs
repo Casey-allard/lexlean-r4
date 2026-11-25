@@ -130383,8 +130383,9 @@ fn is_grammatical_pivot_token(tok: &str) -> bool {
 }
 
 /// Verify that a slice of tokens has balanced Markdown (`**`, `` ` ``) and brackets (`()`, `[]`)
-/// so mid-sentence syntactic pivots never split an open span.
+/// so mid-sentence syntactic pivots never split an open span. (`R4.RatchetGen33`).
 fn is_balanced_markdown_slice(tokens: &[String]) -> bool {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_33::verify_ratchet_gen_33_admitted());
     let mut bold_markers = 0usize;
     let mut backticks = 0usize;
     let mut paren_depth = 0i32;

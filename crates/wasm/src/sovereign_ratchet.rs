@@ -27,14 +27,14 @@ pub const R4_SPORE_MAGIC: &[u8; 8] = b"R4SPORE1";
 pub const WASM_CORE_CEILING_BYTES: u64 = 14_155_776;
 
 /// Active repository ratchet generation synchronized by `dual_surface_ratchet.rs` (`R4.DualSurfaceRatchetEvolution`).
-pub const ACTIVE_REPO_GENERATION: u64 = 32;
+pub const ACTIVE_REPO_GENERATION: u64 = 33;
 /// Latest lifted function identifier synchronized by `dual_surface_ratchet.rs` (`R4.DualSurfaceRatchetEvolution`).
 pub const ACTIVE_REPO_LIFTED_TARGET: &str =
     "crates/wasm/src/api.rs::AnthropicContent::to_plain_text";
 /// Latest repository lifted function count (`R4.DualSurfaceRatchetEvolution`).
-pub const ACTIVE_REPO_LIFTED_COUNT: u64 = 2602;
+pub const ACTIVE_REPO_LIFTED_COUNT: u64 = 2606;
 /// Latest repository residue function ceiling (`R4.DualSurfaceRatchetEvolution`).
-pub const ACTIVE_REPO_RESIDUE_COUNT: u64 = 97;
+pub const ACTIVE_REPO_RESIDUE_COUNT: u64 = 96;
 
 /// Typed `R5` failure modes when packing or verifying `R4SPORE1` capsules (`R4.DualSurfaceRatchetEvolution`).
 #[derive(Clone, Debug, PartialEq, Eq)]
