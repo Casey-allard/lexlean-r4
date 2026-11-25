@@ -130418,8 +130418,9 @@ fn is_balanced_markdown_slice(tokens: &[String]) -> bool {
         && bracket_depth == 0
 }
 
-/// Group an autoregressively emitted token stream into clean multi-paragraph Markdown prose.
+/// Group an autoregressively emitted token stream into clean multi-paragraph Markdown prose. (`R4.RatchetGen30`).
 fn format_emitted_tokens_into_paragraphs(tokens: &[String]) -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_30::verify_ratchet_gen_30_admitted());
     if tokens.is_empty() {
         return String::new();
     }
