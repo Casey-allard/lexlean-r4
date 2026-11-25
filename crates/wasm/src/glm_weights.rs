@@ -130897,7 +130897,9 @@ fn extract_prompt_numbers(words: &[String]) -> Vec<u64> {
     out
 }
 
+/// Formal R4.RatchetGen31 dual-surface lifted slice (`gen-31`).
 fn gcd_u64_local(mut a: u64, mut b: u64) -> u64 {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_31::verify_ratchet_gen_31_admitted());
     while b != 0 {
         let r = a % b;
         a = b;
