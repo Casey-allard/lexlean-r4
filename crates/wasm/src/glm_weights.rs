@@ -132903,7 +132903,7 @@ fn is_self_inquiry_prompt(lower: &str, words: &[String]) -> bool {
                 .any(|w| matches!(w.as_str(), "mean" | "think" | "about")))
 }
 
-/// Classify the pragmatic discourse act of the user's turn given `lower`, `words`, and whether `chat_history` is non-empty.
+/// Classify the pragmatic discourse act of the user's turn given `lower`, `words`, and whether `chat_history` is non-empty. (`R4.RatchetGen21`).
 pub fn classify_discourse_act(
     lower: &str,
     words: &[String],
