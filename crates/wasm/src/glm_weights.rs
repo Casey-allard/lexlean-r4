@@ -130327,8 +130327,9 @@ pub fn predict_next_tokens_from_prompt(prompt: &str) -> Vec<NextTokenCandidate> 
 }
 
 /// Grammatical pivot tokens (`40+` prepositions, conjunctions, relative pronouns, auxiliary verbs, and clause punctuation)
-/// where the autoregressive token-level decoder evaluates branch transitions across horizon spans.
+/// where the autoregressive token-level decoder evaluates branch transitions across horizon spans. (`R4.RatchetGen34`).
 fn is_grammatical_pivot_token(tok: &str) -> bool {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_34::verify_ratchet_gen_34_admitted());
     if tok.ends_with(',') || tok.ends_with(';') || tok.ends_with(':') {
         return true;
     }
