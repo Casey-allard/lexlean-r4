@@ -131653,8 +131653,9 @@ fn title_case_phrase(s: &str) -> String {
         .join(" ")
 }
 
-/// Extract clean topic keywords from a prompt (removing command verbs and conversational filler).
+/// Extract clean topic keywords from a prompt (removing command verbs and conversational filler). (`R4.RatchetGen26`).
 fn extract_clean_topic(raw_prompt: &str, words: &[String]) -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_26::verify_ratchet_gen_26_admitted());
     let filler = [
         "write",
         "create",
