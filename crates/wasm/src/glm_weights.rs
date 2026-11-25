@@ -130808,8 +130808,9 @@ fn match_everyday_chat_and_meta(lower: &str, words: &[String]) -> Option<&'stati
     None
 }
 
-/// Match a fast conversational Q&A entry (`GLM_CONVERSATIONAL_QA`).
+/// Match a fast conversational Q&A entry (`GLM_CONVERSATIONAL_QA`). (`R4.RatchetGen36`).
 pub fn match_conversational_qa(lower: &str, words: &[String]) -> Option<&'static str> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_36::verify_ratchet_gen_36_admitted());
     if let Some(chat_ans) = match_everyday_chat_and_meta(lower, words) {
         return Some(chat_ans);
     }
