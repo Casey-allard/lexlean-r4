@@ -130179,7 +130179,7 @@ pub fn generate_token_level_geometric_prose_with_clauses(
     (text, steps, branch_decisions)
 }
 
-/// Token-by-token Autoregressive Geometric Decoder (`UR4GLM08`).
+/// Token-by-token Autoregressive Geometric Decoder (`UR4GLM08`). (`R4.RatchetGen32`).
 pub fn generate_token_level_geometric_prose(
     prompt_words: &[String],
     nodes: &[&GlmConceptNode],
