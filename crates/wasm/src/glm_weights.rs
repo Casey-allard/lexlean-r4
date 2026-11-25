@@ -129075,8 +129075,9 @@ pub fn tokenize_words_simple(lower: &str) -> Vec<String> {
     out
 }
 
-/// Canonical morphological stemmer matching `gpu/train_general_glm.rs` (`canonical_stem_train`).
+/// Canonical morphological stemmer matching `gpu/train_general_glm.rs` (`canonical_stem_train`). (`R4.RatchetGen20`).
 pub fn canonical_glm_stem(word: &str) -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_20::verify_ratchet_gen_20_admitted());
     let mut s = word.to_ascii_lowercase();
     s.retain(|c| c.is_ascii_alphanumeric());
     if s.len() <= 3 {
