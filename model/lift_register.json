@@ -2,8 +2,8 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 3173,
-    "lifted": 2610,
+    "total_functions": 3177,
+    "lifted": 2614,
     "effect": 309,
     "foreign": 159,
     "residue": 95
@@ -20853,6 +20853,20 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "3f86a9af0029ac4768782697712f42cb33f9304b3235bbee1fb075f900025c0b",
+      "function": "xtask/src/engine.rs::arxiv_alpha_catalog_token",
+      "status": "lifted",
+      "definition": "R4.AutonomousEngine",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "2c32231ba84ca00b97eabaddfb2117d2cb9bf19ad7933a4ac9d6d1d3243f908c",
+      "function": "xtask/src/engine.rs::assemble_bounded_paper_reply",
+      "status": "lifted",
+      "definition": "R4.AutonomousEngine",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "bd8d694a11e2ce852c2a4fb1004a1edda9ac65b010be96cb3e26d9e9bb088dab",
       "function": "xtask/src/engine.rs::atomic_write",
       "status": "effect",
@@ -21024,6 +21038,13 @@
       "exact_divergence_free": false
     },
     {
+      "kappa": "4565cf075b658f6192b0f0d1707bd9f129c8a0b9860a0e443b240820c93f5670",
+      "function": "xtask/src/engine.rs::extract_distinct_paper_terms",
+      "status": "lifted",
+      "definition": "R4.AutonomousEngine",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "ed7671592fbc3cd21bbca26cc4bfba932a1f2b48611306aa2f4c1e8e64850f1a",
       "function": "xtask/src/engine.rs::extract_repository_semantic_features",
       "status": "effect",
@@ -21109,7 +21130,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "80a6279d7545e3909edcd792a33d3f0b0bfa157c39088e0e22d8be7c727ce298",
+      "kappa": "77f8fac73525fa39fa85955341fae31bd48b4f751e5c19c2854a6d6c895dc649",
       "function": "xtask/src/engine.rs::mine_literature_frontier_claims",
       "status": "effect",
       "effect": "dom-browser-environment-io",
@@ -21180,7 +21201,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "034991e24f05b0812d73a162650bdf10f97ae7b58910b571a6f5329357cfc8e9",
+      "kappa": "4e26cb48409d85090a7e7de427dcad0edd605a42016748cbe3ca5211c9900b3e",
       "function": "xtask/src/engine.rs::render_engine_workflow",
       "status": "lifted",
       "definition": "R4.AutonomousEngine",
@@ -21427,6 +21448,13 @@
       "reason": "unlifted-pure-fn",
       "detail": "pure function `xtask/src/engine.rs::synthesize_ast_assertion_patch` pending formal .lex.tex lift",
       "exact_divergence_free": false
+    },
+    {
+      "kappa": "589e06a5ee82e243e164165538a405461d7d2450dd2c95a53347335dd2db231c",
+      "function": "xtask/src/engine.rs::synthesize_paper_grounded_claim_dialogue",
+      "status": "lifted",
+      "definition": "R4.AutonomousEngine",
+      "exact_divergence_free": true
     },
     {
       "kappa": "5511b5ab61d1f8cbc6a00175c6d0efcf9a69b5509a332e141714ab18376d2a6f",

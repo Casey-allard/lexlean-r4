@@ -6,10 +6,10 @@
     "wasm_headroom_bytes": 2131702,
     "max_rust_file_lines": 9492,
     "max_js_file_lines": 8607,
-    "lifted_functions": 2610,
+    "lifted_functions": 2614,
     "residue_functions": 95,
     "verified_lexlean_modules": 408,
-    "next_lifted_target": 2611,
+    "next_lifted_target": 2615,
     "next_residue_target": 94
   },
   "part_health": [
@@ -17,7 +17,7 @@
       "organ_id": "engine",
       "vsm_system": "VSM-S4",
       "owned_file_count": 4,
-      "max_file_lines": 8268,
+      "max_file_lines": 8647,
       "heaviest_file": "xtask/src/engine.rs",
       "health_score_permille": 800
     },
@@ -121,15 +121,15 @@
       "ratchet_layer": "dual-surface-proof-and-app",
       "priority": "high",
       "target_function": "crates/wasm/src/glm_weights.rs::lookup_trained_vocab",
-      "current_value": "lifted=2610, residue=95",
-      "target_value": "lifted>=2611, residue<=94",
+      "current_value": "lifted=2614, residue=95",
+      "target_value": "lifted>=2615, residue<=94",
       "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/glm_weights.rs::lookup_trained_vocab`",
       "concrete_actions": [
         "Synthesize constructive src/R4/RatchetGen<N>.lex.tex + Controls with CAP0005 per-root falsifier negation.",
         "Wire formal LexLean predicate bridge on `crates/wasm/src/glm_weights.rs::lookup_trained_vocab` and rebuild public/ Wasm + .holo.",
         "Click min_lifted_functions UP and max_residue_functions DOWN in model/ratchet.toml."
       ],
-      "kappa_hex": "c0c2686b93354fd6c8a614e8f74a8ebb8951b75117dcea055dbe0aef46d9d15f"
+      "kappa_hex": "718aa6ddaea4968fcefce0c2d2d2ecc377823df4bcf982faf92758f9a9ac7626"
     },
     {
       "proposal_id": "PROP-PROOF-FALSIFIER-02",
@@ -178,5 +178,5 @@
       "kappa_hex": "6cc970b0e4c102a175e51ff5ea7ed2b4f795b28adc7ee40ac4f86a75a9dd119a"
     }
   ],
-  "agenda_kappa_hex": "b277b1893cce16420adc09ec33d7ba5159758e4724b88267cc30a692386f7ebe"
+  "agenda_kappa_hex": "370eaa417756e346f0aa817abe35b1594e1c4fbd8d98951bf92875e3ad6410f0"
 }

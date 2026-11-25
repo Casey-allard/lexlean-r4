@@ -53,6 +53,18 @@ jobs:
             --jq '[.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch")] | sort_by(.created_at) | last // empty')
           issue=$(gh api "repos/$REPO/issues?state=open&labels=$label&per_page=1" --jq '.[0].number // empty')
           say() { printf '%s\n' "$*" | tee -a "$GITHUB_STEP_SUMMARY"; }
+          dispatch_with_retry() {
+            local attempt
+            for attempt in 1 2 3; do
+              if "$@"; then
+                return 0
+              fi
+              if [ "$attempt" -lt 3 ]; then
+                sleep $((attempt * 10))
+              fi
+            done
+            return 1
+          }
 
           if [[ -z $run ]]; then
             if (( age < 300 )); then
@@ -60,9 +72,9 @@ jobs:
               exit 0
             fi
             say "main is at $head and nothing deployed it: starting pages and bootstrap on main"
-            gh api -X POST "repos/$REPO/actions/workflows/pages.yml/dispatches" -f ref=main
+            dispatch_with_retry gh api -X POST "repos/$REPO/actions/workflows/pages.yml/dispatches" -f ref=main -f "inputs[commit_note]=deploy-watch @ ${head:0:8}"
             if [[ -z $(gh api "repos/$REPO/actions/workflows/bootstrap.yml/runs?branch=main&head_sha=$head&per_page=1" --jq '.workflow_runs[0].id // empty') ]]; then
-              gh api -X POST "repos/$REPO/actions/workflows/bootstrap.yml/dispatches" -f ref=main
+              dispatch_with_retry gh api -X POST "repos/$REPO/actions/workflows/bootstrap.yml/dispatches" -f ref=main
             fi
             exit 0
           fi
@@ -90,7 +102,7 @@ jobs:
               failed_on_tip=$(gh api "repos/$REPO/actions/workflows/engine.yml/runs?branch=main&head_sha=$head&per_page=10" --jq '[.workflow_runs[] | select(.status == "completed" and (.conclusion == "failure" or .conclusion == "timed_out"))] | length')
               if [[ ${settled_hit:-0} == 0 && ${active_engine:-0} == 0 && ${failed_on_tip:-0} -lt 3 ]]; then
                 say "main is live and unsettled at $head with no active Engine run: starting engine on main"
-                gh api -X POST "repos/$REPO/actions/workflows/engine.yml/dispatches" -f ref=main
+                dispatch_with_retry gh api -X POST "repos/$REPO/actions/workflows/engine.yml/dispatches" -f ref=main -f "inputs[reason]=deploy-watch @ ${head:0:8}"
               fi
             fi
             exit 0

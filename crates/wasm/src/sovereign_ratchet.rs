@@ -32,7 +32,7 @@ pub const ACTIVE_REPO_GENERATION: u64 = 34;
 pub const ACTIVE_REPO_LIFTED_TARGET: &str =
     "crates/wasm/src/api.rs::AnthropicContent::to_plain_text";
 /// Latest repository lifted function count (`R4.DualSurfaceRatchetEvolution`).
-pub const ACTIVE_REPO_LIFTED_COUNT: u64 = 2610;
+pub const ACTIVE_REPO_LIFTED_COUNT: u64 = 2614;
 /// Latest repository residue function ceiling (`R4.DualSurfaceRatchetEvolution`).
 pub const ACTIVE_REPO_RESIDUE_COUNT: u64 = 95;
 

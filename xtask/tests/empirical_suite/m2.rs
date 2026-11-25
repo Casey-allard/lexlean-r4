@@ -460,3 +460,115 @@ fn challenge_oracle_sensitivity_planted_witness_defects() {
         }
     }
 }
+
+/// 7. PAPER-GROUNDED UNIQUENESS & RUNTIME COMPILATION:
+///    Verifies that distinct unannotated papers within the same category/family produce
+///    distinct, paper-specific prompts and replies (never repeating canned fallback strings)
+///    while compiling cleanly through `LutStackModel` and preserving zero cross-proving.
+#[test]
+fn challenge_paper_grounded_dynamic_claims_are_unique_and_non_canned() {
+    let root = repo_model::repo_root();
+    let sample_papers = vec![
+        ArxivPaper {
+            arxiv_id: "2611.90001".to_string(),
+            title: "OmniAct: One Policy Across Million Robotic Embodiments".to_string(),
+            authors: vec!["Elena Vance".to_string()],
+            published: "2026-11-20T00:00:00Z".to_string(),
+            updated: None,
+            primary_category: "cs.RO".to_string(),
+            categories: vec!["cs.RO".to_string(), "cs.AI".to_string()],
+            r#abstract: "Cross embodiment policy conditioning unifies kinematic morphology representations across heterogeneous manipulators and quadrupeds.".to_string(),
+            hypothesis: Vec::new(),
+        },
+        ArxivPaper {
+            arxiv_id: "2611.90002".to_string(),
+            title: "SpectraMesh: Conformal Surface Parameterization for Neural Rendering".to_string(),
+            authors: vec!["Marcus Lin".to_string()],
+            published: "2026-11-20T00:00:00Z".to_string(),
+            updated: None,
+            primary_category: "cs.CV".to_string(),
+            categories: vec!["cs.CV".to_string()],
+            r#abstract: "Harmonic Beltrami Beltrami spectral eigenvalues stabilize triangle mesh deformations under occlusion.".to_string(),
+            hypothesis: Vec::new(),
+        },
+        ArxivPaper {
+            arxiv_id: "2611.90003".to_string(),
+            title: "Distributional Critics for Risk-Sensitive Conservation Planning".to_string(),
+            authors: vec!["Nadia Okafor".to_string()],
+            published: "2026-11-20T00:00:00Z".to_string(),
+            updated: None,
+            primary_category: "cs.AI".to_string(),
+            categories: vec!["cs.AI".to_string()],
+            r#abstract: "Quantile value estimation bounds tail regret in stochastic ecological allocation Markov decision processes.".to_string(),
+            hypothesis: Vec::new(),
+        },
+        ArxivPaper {
+            arxiv_id: "2611.90004".to_string(),
+            title: "Calibrated Abstention in Retrieval-Augmented Clinical Dialogue".to_string(),
+            authors: vec!["jin-soo Park".to_string()],
+            published: "2026-11-20T00:00:00Z".to_string(),
+            updated: None,
+            primary_category: "cs.CL".to_string(),
+            categories: vec!["cs.CL".to_string()],
+            r#abstract: "Conformal evidence thresholds suppress hallucinated citations when retrieved clinical passages conflict.".to_string(),
+            hypothesis: Vec::new(),
+        },
+    ];
+
+    let temp_lit = LiteratureFile {
+        spec: "r4/literature/1".to_string(),
+        synced_at: "2026-11-25T00:00:00Z".to_string(),
+        query: "test".to_string(),
+        paper: sample_papers.clone(),
+    };
+    let temp_dir =
+        std::env::temp_dir().join(format!("test_m2_paper_grounded_{}", std::process::id()));
+    let _ = std::fs::create_dir_all(temp_dir.join("model"));
+    engine::save_literature(&temp_dir, &temp_lit).expect("save test literature");
+
+    let mut frontier = load_frontier(&root).expect("load_frontier");
+    frontier
+        .claim
+        .retain(|c| !c.kappa.starts_with("r4:v1:literature:"));
+    let mined = mine_literature_frontier_claims(&temp_dir, &frontier, sample_papers.len())
+        .expect("mine paper-grounded claims");
+    let _ = std::fs::remove_dir_all(&temp_dir);
+
+    assert_eq!(mined.len(), sample_papers.len());
+    let mut prompts = BTreeSet::new();
+    let mut replies = BTreeSet::new();
+    let base_lut = (*super::shared_bootstrap_lut()).clone();
+
+    for (claim, paper) in mined.iter().zip(sample_papers.iter()) {
+        let prompt = claim.prompt.as_deref().expect("prompt present");
+        let reply = claim.target_reply.as_deref().expect("target_reply present");
+        assert!(
+            prompt != "How does multi basin analysis connect the findings of this research across models?"
+                && prompt != "How does this literature catalog entry relate to language model alignment?",
+            "Prompt must be paper-grounded rather than canned: {prompt}"
+        );
+        assert!(
+            prompt.contains(&paper.arxiv_id),
+            "Prompt should identify arXiv paper {}: {prompt}",
+            paper.arxiv_id
+        );
+        assert!(
+            prompts.insert(prompt.to_string()),
+            "Duplicate prompt across distinct papers: {prompt}"
+        );
+        assert!(
+            replies.insert(reply.to_string()),
+            "Duplicate target_reply across distinct papers: {reply}"
+        );
+
+        let mut trial = base_lut.clone();
+        trial
+            .compile_verified_dialogue_turn(prompt, reply)
+            .expect("compile_verified_dialogue_turn must succeed");
+        let generated = std::sync::Arc::new(trial).generate_reply(&[], prompt, 96);
+        assert!(
+            !generated.reply_text.trim().is_empty(),
+            "generated reply must be non-empty"
+        );
+    }
+}

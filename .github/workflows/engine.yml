@@ -3,11 +3,17 @@
 # (AutonomousEngine.lex.tex): no secret but GITHUB_TOKEN, contents/actions/pull-requests write only,
 # the stage budgets within the timeout, the cron off the hour, one concurrency group that never cancels a run.
 name: Engine
+run-name: "Engine · ${{ inputs.reason || format('{0} @ {1}', github.event_name, github.sha) }}"
 
 on:
   schedule:
     - cron: "17,47 * * * *"
   workflow_dispatch:
+    inputs:
+      reason:
+        description: "Relay context for the GitHub Actions run list"
+        required: false
+        type: string
   push:
     branches:
       - main
@@ -43,6 +49,7 @@ jobs:
       outcome: ${{ steps.tick.outputs.outcome }}
       pushed: ${{ steps.tick.outputs.pushed }}
       head_sha: ${{ steps.tick.outputs.head_sha }}
+      head_label: ${{ steps.tick.outputs.head_label }}
     steps:
       - name: Checkout (full history, so the tick can push)
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -174,11 +181,13 @@ jobs:
               printf '%s\n' 'engine tick advanced locally without pushing to origin/main' >&2
               exit 1
             fi
+            head_label=$(git log -1 --format='%s' HEAD | tr -d '\r\n' | cut -c1-72)
             {
               printf 'outcome=%s\n' "$outcome_val"
               printf 'pushed=%s\n' "$pushed_val"
               printf 'tick_branch=%s\n' "$tick_branch"
               printf 'head_sha=%s\n' "$head_sha"
+              printf 'head_label=%s\n' "$head_label"
             } >> "$GITHUB_OUTPUT"
           fi
 
@@ -227,10 +236,23 @@ jobs:
         if: steps.tip.outputs.current == 'true' && steps.settled.outputs.cache-hit != 'true' && steps.tick.outputs.pushed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_LABEL: ${{ steps.tick.outputs.head_label }}
         shell: bash
         run: |
           set -euo pipefail
-          gh workflow run pages.yml --ref main
+          dispatch_with_retry() {
+            local attempt
+            for attempt in 1 2 3; do
+              if "$@"; then
+                return 0
+              fi
+              if [ "$attempt" -lt 3 ]; then
+                sleep $((attempt * 10))
+              fi
+            done
+            return 1
+          }
+          dispatch_with_retry gh workflow run pages.yml --ref main -f commit_note="${HEAD_LABEL:-pushed-commit}"
 
   relay:
     name: Relay pushed commit to Pages or retry transient tick failure
@@ -248,15 +270,28 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TICK_RESULT: ${{ needs.tick.result }}
           TICK_PUSHED: ${{ needs.tick.outputs.pushed }}
+          HEAD_LABEL: ${{ needs.tick.outputs.head_label }}
           CURRENT_RUN_ID: ${{ github.run_id }}
         shell: bash
         run: |
           set -euo pipefail
+          dispatch_with_retry() {
+            local attempt
+            for attempt in 1 2 3; do
+              if "$@"; then
+                return 0
+              fi
+              if [ "$attempt" -lt 3 ]; then
+                sleep $((attempt * 10))
+              fi
+            done
+            return 1
+          }
           if [ "$TICK_PUSHED" = "true" ]; then
             tip_sha=$(gh api "repos/$GH_REPO/commits/main" --jq .sha)
             existing_pages=$(gh api "repos/$GH_REPO/actions/workflows/pages.yml/runs?branch=main&head_sha=$tip_sha&per_page=5" --jq '.workflow_runs | length')
             if [ "${existing_pages:-0}" = "0" ]; then
-              gh workflow run pages.yml --ref main
+              dispatch_with_retry gh workflow run pages.yml --ref main -f commit_note="${HEAD_LABEL:-relay-${tip_sha:0:8}}"
             fi
           elif [ "$TICK_RESULT" = "failure" ] || [ "$TICK_RESULT" = "timed_out" ]; then
             tip_sha=$(gh api "repos/$GH_REPO/commits/main" --jq .sha)
@@ -264,6 +299,6 @@ jobs:
             failed_on_tip=$(gh api "repos/$GH_REPO/actions/workflows/engine.yml/runs?branch=main&head_sha=$tip_sha&per_page=10" --jq "[.workflow_runs[] | select(.id == $CURRENT_RUN_ID or (.status == \"completed\" and (.conclusion == \"failure\" or .conclusion == \"timed_out\")))] | length")
             active_other=$(gh run list --workflow=engine.yml --limit 10 --json databaseId,status --jq "[.[] | select(.databaseId != $CURRENT_RUN_ID and .status != \"completed\")] | length")
             if [ "${settled_hit:-0}" = "0" ] && [ "${failed_on_tip:-0}" -lt 3 ] && [ "${active_other:-0}" = "0" ]; then
-              gh workflow run engine.yml --ref main
+              dispatch_with_retry gh workflow run engine.yml --ref main -f reason="retry #$((failed_on_tip + 1)) on ${tip_sha:0:8}"
             fi
           fi
