@@ -5297,3 +5297,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f334_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.33748 (REFORGE: LLM-Assisted RTL Bug Repair with Structured Context and Verification Feedback)."
 prompt = "How does arXiv 2611.33748 (cs.AI) advance alignment and inference over reforge llm assisted rtl bug?"
 target_reply = "Publication catalogtwosixoneonepthreethreesevenfoureight in csai demonstrates grounded mechanisms connecting reforge llm assisted rtl bug repair structured context verification feedback large language models llms."
+
+[[claim]]
+id = "R4-F335"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.33745:H-LIT-2611.33745-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f335_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.33745 (WhatIf: Counterfactual World Models over Action-Grounded Causal Graphs for Robotic Manipulation)."
+prompt = "How does arXiv 2611.33745 (cs.AI) advance alignment and inference over whatif counterfactual world models action?"
+target_reply = "Publication catalogtwosixoneonepthreethreesevenfourfive in csai demonstrates grounded mechanisms connecting whatif counterfactual world models action causal graphs robotic manipulation predict happens but choosing actions."

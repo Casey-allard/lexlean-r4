@@ -132355,7 +132355,7 @@ fn render_creative_generation(
 
 /// Decompose an unseen or multi-domain prompt into component content stems, project each
 /// stem into the CUDA-trained `GLM_TRAINED_VOCAB` (`10,781` stems) and `GLM_CONCEPT_MANIFOLD`
-/// (`280` basins), and retrieve up to 3 orthogonal structural concept principles for analogical synthesis.
+/// (`280` basins), and retrieve up to 3 orthogonal structural concept principles for analogical synthesis. (`R4.RatchetGen44`).
 fn retrieve_orthogonal_analogical_basins(
     words: &[String],
     prompt_q12: &[i16; POINT_KEY_DIM],
