@@ -6,11 +6,11 @@
     "wasm_headroom_bytes": 2131702,
     "max_rust_file_lines": 9492,
     "max_js_file_lines": 8607,
-    "lifted_functions": 2638,
-    "residue_functions": 89,
-    "verified_lexlean_modules": 420,
-    "next_lifted_target": 2639,
-    "next_residue_target": 88
+    "lifted_functions": 2642,
+    "residue_functions": 88,
+    "verified_lexlean_modules": 422,
+    "next_lifted_target": 2643,
+    "next_residue_target": 87
   },
   "part_health": [
     {
@@ -40,7 +40,7 @@
     {
       "organ_id": "proofs",
       "vsm_system": "VSM-S3*",
-      "owned_file_count": 421,
+      "owned_file_count": 423,
       "max_file_lines": 1012,
       "heaviest_file": "xtask/src/mechanizer.rs",
       "health_score_permille": 1000
@@ -72,7 +72,7 @@
     {
       "file_path": "crates/wasm/src/glm_weights.rs",
       "reason": "unlifted-pure-fn",
-      "function_count": 16,
+      "function_count": 15,
       "top_function": "crates/wasm/src/glm_weights.rs::q12_cosine_similarity"
     },
     {
@@ -120,16 +120,16 @@
       "cited_authority": "R4.DualSurfaceRatchetEvolution",
       "ratchet_layer": "dual-surface-proof-and-app",
       "priority": "high",
-      "target_function": "crates/wasm/src/glm_weights.rs::render_multi_concept_synthesis",
-      "current_value": "lifted=2638, residue=89",
-      "target_value": "lifted>=2639, residue<=88",
-      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/glm_weights.rs::render_multi_concept_synthesis`",
+      "target_function": "crates/wasm/src/glm_weights.rs::render_single_concept_response",
+      "current_value": "lifted=2642, residue=88",
+      "target_value": "lifted>=2643, residue<=87",
+      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/glm_weights.rs::render_single_concept_response`",
       "concrete_actions": [
         "Synthesize constructive src/R4/RatchetGen<N>.lex.tex + Controls with CAP0005 per-root falsifier negation.",
-        "Wire formal LexLean predicate bridge on `crates/wasm/src/glm_weights.rs::render_multi_concept_synthesis` and rebuild public/ Wasm + .holo.",
+        "Wire formal LexLean predicate bridge on `crates/wasm/src/glm_weights.rs::render_single_concept_response` and rebuild public/ Wasm + .holo.",
         "Click min_lifted_functions UP and max_residue_functions DOWN in model/ratchet.toml."
       ],
-      "kappa_hex": "4b42cfa7ecc6eae2ed2f0830c75fc5a06e9ff9b7f01c8600ea6b78b2fd3dd7ec"
+      "kappa_hex": "249bffeb1fce5c9af3899519db1c405973d2d8fd5fd2701097b15733d89897e6"
     },
     {
       "proposal_id": "PROP-PROOF-FALSIFIER-02",
@@ -138,14 +138,14 @@
       "cited_authority": "R4.ObserverRefinementAgenda",
       "ratchet_layer": "lexlean-proof-frontier",
       "priority": "high",
-      "current_value": "verified_modules=420",
-      "target_value": "verified_modules>=422",
+      "current_value": "verified_modules=422",
+      "target_value": "verified_modules>=424",
       "summary": "Advance constructive zero-Classical.choice LexLean proof & CAP0005 falsifier count",
       "concrete_actions": [
         "Verify every zero-arg Bool verify* root fails when negated under CAP0005.",
         "Verify Lean 4.32.1 kernel proofs and append mechanized Rust module to lexlean_generated.rs."
       ],
-      "kappa_hex": "1b1f83ec4cfa71b2315c43e6ec8937fef2c41473a808948d2451d4b2a74f1ee2"
+      "kappa_hex": "e5f7433917818e4b9b4e684d0839ea20613072afd170dde894263fdec4748638"
     },
     {
       "proposal_id": "PROP-MODULARITY-03",
@@ -178,5 +178,5 @@
       "kappa_hex": "6cc970b0e4c102a175e51ff5ea7ed2b4f795b28adc7ee40ac4f86a75a9dd119a"
     }
   ],
-  "agenda_kappa_hex": "4fda98eba3dec7f8f28a400d17d1924cdd48c065a7e5bf3a8fcb8d553c37892b"
+  "agenda_kappa_hex": "339eb60df18b14e34d1432f3f227bc8cfd58e30f0a8f69105ab3d788c844e1a9"
 }

@@ -5249,3 +5249,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f331_corpus_induction"
 statement = "Verify cross-basin geodesic synthesis bridging create and school across PointKey row 9476 in the UORLUT01 manifold."
 prompt = "How does multi-basin geodesic synthesis connect create and school across complementary PointKey anchors?"
 target_reply = "Multi-basin geodesic synthesis connects create and school by resolving the primary PointKey basin first and then chaining a complementary continuation basin over uncovered prompt stems so the combined trajectory remains coherent and free of repetition across both topics."
+
+[[claim]]
+id = "R4-F332"
+status = "proved"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:literature:2611.33741:H-LIT-2611.33741-01:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f332_bvgk_writer_refinement"
+statement = "Verify formal hypotheses from arXiv paper 2611.33741 (FlashProve-Next: Verifiable Inference for Production LLM APIs)."
+prompt = "How does the cs.CR implementation in arXiv 2611.33741 enforce invariants for flashprove next verifiable inference production?"
+target_reply = "Arxiv=2611.33741 category=cs.CR architecture enforces deterministic memory safety invariants governing flashprove next verifiable inference production llm apis clients closed weight cannot verify whether provider ran advertised model precision hidden prompt under concurrent execution workloads preventing unsynchronized mutation hazards bounded."

@@ -132062,7 +132062,7 @@ fn dedup_prose_paragraphs(text: &str) -> String {
     }
 }
 
-/// Render a natural-prose multi-concept synthesis when 2 distinct concept basins are co-activated.
+/// Render a natural-prose multi-concept synthesis when 2 distinct concept basins are co-activated. (`R4.RatchetGen41`).
 fn render_multi_concept_synthesis(
     raw_prompt: &str,
     lower: &str,
