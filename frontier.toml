@@ -5282,3 +5282,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f333_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.33749 (Teaching Students to Stand on Their Own: Distilling Vision Foundation Models for Fine-Grained Few-Shot Class-Incremental Learning)."
 prompt = "How do empirical models in arXiv 2611.33749 (cs.CV) characterize dynamics across teaching students stand own distilling?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreethreesevenfournine in cscv characterizes topological manifolds stabilizing structural trajectories governing teaching students stand own distilling vision foundation models fine grained few shot class incremental learning fscil aims incrementally learn visually while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F334"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.33748:H-LIT-2611.33748-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f334_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.33748 (REFORGE: LLM-Assisted RTL Bug Repair with Structured Context and Verification Feedback)."
+prompt = "How does arXiv 2611.33748 (cs.AI) advance alignment and inference over reforge llm assisted rtl bug?"
+target_reply = "Publication catalogtwosixoneonepthreethreesevenfoureight in csai demonstrates grounded mechanisms connecting reforge llm assisted rtl bug repair structured context verification feedback large language models llms."

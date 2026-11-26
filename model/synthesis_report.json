@@ -23,12 +23,12 @@
       "facet": "EcosystemStandards",
       "score_milli": 989,
       "defects": 0,
-      "evidence": "model_errors=0, mechanizer_ok=true (425 mods), lifted=2647/3202 residue=87"
+      "evidence": "model_errors=0, mechanizer_ok=true (427 mods), lifted=2651/3205 residue=86"
     }
   ],
   "aggregate_score_milli": 997,
   "total_defects": 0,
-  "complexity": 87,
+  "complexity": 86,
   "bandit_weights": {
     "ecosystem-lift-ratchet": 8,
     "geometric-recompilation": 8,

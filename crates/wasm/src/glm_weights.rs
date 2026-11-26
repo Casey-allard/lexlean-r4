@@ -133229,7 +133229,7 @@ fn extract_turn_concept(
     None
 }
 
-/// Resolve the most appropriate antecedent basin from `chat_history` matching `anaphor_kind`.
+/// Resolve the most appropriate antecedent basin from `chat_history` matching `anaphor_kind`. (`R4.RatchetGen43`).
 pub fn resolve_discourse_antecedent<'a>(
     anaphor_kind: AnaphorKind,
     chat_history: &'a [(String, String)],
