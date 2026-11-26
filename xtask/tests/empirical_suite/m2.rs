@@ -572,3 +572,32 @@ fn challenge_paper_grounded_dynamic_claims_are_unique_and_non_canned() {
         );
     }
 }
+
+#[test]
+fn challenge_literature_turn_admission_preserves_multi_basin_depth() {
+    let root = repo_model::repo_root();
+    let frontier = load_frontier(&root).expect("load_frontier");
+    let mined =
+        mine_literature_frontier_claims(&root, &frontier, 4).expect("mine upcoming frontier turns");
+    assert!(
+        !mined.is_empty(),
+        "expected upcoming literature claims to verify cumulative admission"
+    );
+
+    let mut cumulative_lut = (*super::shared_bootstrap_lut()).clone();
+    for claim in &mined {
+        if let (Some(prompt), Some(reply)) =
+            (claim.prompt.as_deref(), claim.target_reply.as_deref())
+        {
+            cumulative_lut
+                .compile_verified_dialogue_turn(prompt, reply)
+                .expect("cumulative compile_verified_dialogue_turn must succeed");
+        }
+    }
+
+    let model_arc = std::sync::Arc::new(cumulative_lut);
+    assert!(
+        engine::multi_basin_depth_invariants_hold(&model_arc),
+        "cumulative frontier turn admission must preserve >=128 tokens and >=2 clauses across multi-basin corpus"
+    );
+}

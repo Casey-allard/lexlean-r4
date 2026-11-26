@@ -2388,7 +2388,7 @@ impl LutStackModel {
                 .filter_map(|(i, &(sh, sw))| {
                     if i < 16
                         && (active_covered_mask & (1u16 << i)) == 0
-                        && sw >= 100_000
+                        && sw >= 90_000
                         && !generic_framing_hashes.contains(&sh)
                     {
                         Some((i, sh, sw))
@@ -2435,12 +2435,16 @@ impl LutStackModel {
                     .max(1);
                 let mut matched = 0usize;
                 let mut primary_matched = 0usize;
+                let mut specific_matched = 0usize;
                 let mut new_mask = 0u16;
                 let mut score = 0i64;
                 for &(stem_i, ush, usw) in &uncovered {
                     if primary_slice.contains(&ush) {
                         matched += 1;
                         primary_matched += 1;
+                        if usw >= 140_000 {
+                            specific_matched += 1;
+                        }
                         new_mask |= 1u16 << stem_i;
                         score += usw + 280_000;
                         if primary_slice.first() == Some(&ush) {
@@ -2448,11 +2452,17 @@ impl LutStackModel {
                         }
                     } else if is_core_or_proved && secondary_slice.contains(&ush) {
                         matched += 1;
+                        if usw >= 140_000 {
+                            specific_matched += 1;
+                        }
                         new_mask |= 1u16 << stem_i;
                         score += (usw / 2) + 140_000;
                     }
                 }
-                if primary_matched == 0 {
+                // Require at least one specific uncovered stem (`usw >= 140_000`) so umbrella
+                // context stems (`quantum`, `relativistic`, `time` at `90_000`) pair with their
+                // topic head without ever triggering a standalone false-positive basin.
+                if primary_matched == 0 || specific_matched == 0 {
                     continue;
                 }
                 let qualifies = if uncovered.len() >= 2 {
@@ -2518,11 +2528,16 @@ impl LutStackModel {
         if selected.is_empty() {
             return Vec::new();
         }
+        let substantive_stems = prompt_stems
+            .iter()
+            .filter(|&&(sh, _)| !generic_framing_hashes.contains(&sh))
+            .count()
+            .max(1);
         let total_covered = active_covered_mask.count_ones() as usize;
-        let sufficient_coverage = if prompt_stems.len() <= 4 {
-            total_covered >= prompt_stems.len()
+        let sufficient_coverage = if substantive_stems <= 4 {
+            total_covered >= substantive_stems
         } else {
-            total_covered >= 3 && total_covered * 2 >= prompt_stems.len()
+            total_covered >= 3 && total_covered * 2 >= substantive_stems
         };
         if !sufficient_coverage {
             return Vec::new();
@@ -3798,7 +3813,10 @@ impl LutStackModel {
             }
         }
 
-        // Coordinate descent backprop into writer.table & ServedPointKey
+        // Coordinate descent backprop into writer.table only (`sync_point_keys: false`):
+        // `ServedPointKey` rows store prompt-end hidden vectors `n_t`, so blending existing rows
+        // that share opening/boundary `target_tok` toward `writer.table` centroids would perturb
+        // unrelated curriculum prompt vectors (`R4-33`).
         if !residual_samples.is_empty() {
             let cfg = ConsolidationConfig {
                 iterations: 1,
@@ -3806,7 +3824,7 @@ impl LutStackModel {
                 step_denominator: 8,
                 clamp_min: -30000,
                 clamp_max: 30000,
-                sync_point_keys: true,
+                sync_point_keys: false,
                 update_ternary_assoc: false,
             };
             let _ = consolidate_lut_weights(self, &residual_samples, &cfg)?;

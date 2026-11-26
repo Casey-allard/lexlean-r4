@@ -529,3 +529,91 @@ fn test_adv_full_continuous_multi_basin_generation_depth_corpus() {
 
     println!("Stress Test 5 PASSED: Full continuous multi-basin generation depth verified on all prompts.");
 }
+
+#[test]
+fn test_online_admission_and_partial_primary_preserve_multi_basin_depth() {
+    let base_arc = load_test_model();
+    let mut model = (*base_arc).clone();
+    let bpe = ByteBpe4096::global();
+
+    // 1. Verify complementary basin resolution succeeds even when a 2-stem primary basin
+    // (`Emmy Noether`, turn 39) opens a 3-topic prompt containing umbrella context stems (`quantum`, `relativistic`).
+    let multi_prompt =
+        "Explain quantum entanglement, Emmy Noether, and relativistic GPS time dilation.";
+    let lower = multi_prompt.to_ascii_lowercase();
+    let stems = lexlean_r4_wasm::lut_stack_exec::extract_salient_stem_hashes_from_text(&lower, 16);
+    let emmy_hash = lexlean_r4_wasm::lut_stack_exec::stem_anchor_hash("emmy");
+    let noether_hash = lexlean_r4_wasm::lut_stack_exec::stem_anchor_hash("noether");
+    let mut covered_mask = 0u16;
+    for (idx, &(sh, _)) in stems.iter().enumerate() {
+        if idx < 16 && (sh == emmy_hash || sh == noether_hash) {
+            covered_mask |= 1u16 << idx;
+        }
+    }
+    assert_eq!(
+        covered_mask.count_ones(),
+        2,
+        "Emmy + Noether must set 2 bits in prompt stem mask"
+    );
+    let prompt_tokens = bpe.encode_dialogue_prompt(None, &[], multi_prompt, model.dialogue_version);
+    let comp = model.resolve_complementary_uncovered_basins(
+        multi_prompt,
+        covered_mask,
+        39,
+        &prompt_tokens,
+    );
+    assert!(
+        comp.len() >= 2,
+        "Complementary basin resolver must recover both quantum entanglement and GPS dilation from turn=39 opening, got {} basins",
+        comp.len()
+    );
+
+    // 2. Verify online compilation of paper-grounded frontier turns (sharing boundary tokens with core rows)
+    // preserves pre-existing curriculum PointKey coordinates and >=2-clause >=128-token multi-basin generation.
+    let orig_rows = model.point.as_ref().expect("point table").rows;
+    let orig_points = model.point.as_ref().expect("point table").points.clone();
+    let frontier_turns = [
+        (
+            "How do empirical models in arXiv 2611.33749 (cs.CV) characterize dynamics across Teaching Students Stand Their Own Distilling Vision?",
+            "empirical synthesis arxiv261133749 in computer vision characterizes topological manifolds stabilizing structural trajectories governing teaching students stand their own distilling vision foundation models fine grained few shot class incremental learning aims incrementally learn visually similar while preserving global",
+        ),
+        (
+            "How does the cs.AI implementation in arXiv 2611.33748 enforce invariants for DelegentDelegating Focused Subtasks Small Language Models?",
+            "arxiv=2611.33748 category=cs.AI architecture enforces deterministic memory safety invariants governing agents built frontier language models expensive every step model rereads entire context executes subtask regardless difficulty paper explores simple thesis under concurrent",
+        ),
+    ];
+    for (p, r) in frontier_turns {
+        assert!(
+            model
+                .compile_verified_dialogue_turn(p, r)
+                .expect("compile frontier turn"),
+            "novel frontier turn must compile cleanly"
+        );
+    }
+
+    // Existing core row `turn=348` (row < CORE_CURRICULUM_TURNS) must retain unperturbed PointKey coordinates
+    let post_pt = model.point.as_ref().expect("point table");
+    let p_width = post_pt.width;
+    let check_prefix_rows = orig_rows.min(lexlean_r4_wasm::lut_stack_exec::CORE_CURRICULUM_TURNS);
+    assert_eq!(
+        &post_pt.points[..check_prefix_rows * p_width],
+        &orig_points[..check_prefix_rows * p_width],
+        "compile_verified_dialogue_turn must not perturb pre-existing core curriculum PointKey vectors"
+    );
+
+    let post_arc = std::sync::Arc::new(model);
+    for prompt in [
+        "Explain quantum entanglement, Emmy Noether, and relativistic GPS time dilation.",
+        "Tell me about Isaac Newton, Albert Einstein, James Clerk Maxwell, and Richard Feynman.",
+        "Explain quantum entanglement, Emmy Noether, and GPS location on Earth",
+    ] {
+        let res = post_arc.generate_reply(&[], prompt, 160);
+        assert!(
+            res.generated_tokens.len() >= 128 && res.clauses_resolved >= 2,
+            "Post-admission prompt '{}' regressed: tokens={}, clauses={}",
+            prompt,
+            res.generated_tokens.len(),
+            res.clauses_resolved
+        );
+    }
+}

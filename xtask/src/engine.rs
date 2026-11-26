@@ -1905,17 +1905,8 @@ pub fn compile_proved_frontier_claims_to_uorlut(
     }
     if compiled > 0 {
         let out_bytes = model.to_uorlut_bytes();
-        std::fs::write(&lut_path, &out_bytes)
-            .map_err(|e| format!("failed to write {}: {e}", lut_path.display()))?;
-        sync_compact_seed_uorlut(root, &out_bytes)?;
-        let post_audit = audit_uorlut_synchronization(root)?;
-        if post_audit.orphaned_point_rows != 0 {
-            return Err(format!(
-                "compiled .uorlut produced {} orphaned PointKey rows",
-                post_audit.orphaned_point_rows
-            ));
-        }
-        // Verify newly compiled turns decode cycle-free with target stem overlap
+        // Verify newly compiled turns decode cycle-free with target stem overlap and preserve
+        // continuous multi-basin depth invariants BEFORE touching disk.
         let verified_model =
             std::sync::Arc::new(crate::lut_stack_exec::LutStackModel::parse(&out_bytes)?);
         for claim in &frontier.claim {
@@ -1934,8 +1925,38 @@ pub fn compile_proved_frontier_claims_to_uorlut(
                 }
             }
         }
+        if !multi_basin_depth_invariants_hold(&verified_model) {
+            return Err(
+                "compiled .uorlut regressed continuous multi-basin generation depth invariants"
+                    .to_string(),
+            );
+        }
+        atomic_write(&lut_path, &out_bytes)?;
+        sync_compact_seed_uorlut(root, &out_bytes)?;
+        let post_audit = audit_uorlut_synchronization(root)?;
+        if post_audit.orphaned_point_rows != 0 {
+            return Err(format!(
+                "compiled .uorlut produced {} orphaned PointKey rows",
+                post_audit.orphaned_point_rows
+            ));
+        }
     }
     Ok(compiled)
+}
+
+/// Formal R4.AutonomousEngine continuous multi-basin generation depth invariant check.
+pub fn multi_basin_depth_invariants_hold(
+    model: &std::sync::Arc<crate::lut_stack_exec::LutStackModel>,
+) -> bool {
+    const MULTI_BASIN_CORPUS: [&str; 3] = [
+        "Explain quantum entanglement, Emmy Noether, and relativistic GPS time dilation.",
+        "Tell me about Isaac Newton, Albert Einstein, James Clerk Maxwell, and Richard Feynman.",
+        "Explain quantum entanglement, Emmy Noether, and GPS location on Earth",
+    ];
+    MULTI_BASIN_CORPUS.iter().all(|prompt| {
+        let res = model.generate_reply(&[], prompt, 160);
+        res.generated_tokens.len() >= 128 && res.clauses_resolved >= 2
+    })
 }
 
 /// Safely write data to disk using an atomic rename replace pattern.
@@ -2066,6 +2087,7 @@ pub fn run_engine_weight_consolidation_in_memory(
         || post_l1_residual > pre_l1_residual
         || !para_lower.contains("quantum")
         || !para_lower.contains("entanglement")
+        || !multi_basin_depth_invariants_hold(&post_arc)
     {
         // Restore pre-consolidation writer_table if coordinate descent perturbed proved pass count,
         // total trajectory L1 residual margin, or paraphrased domain basin
@@ -3515,6 +3537,7 @@ pub fn deduce_with_mode(
                         let trial_arc = std::sync::Arc::new(trial_model);
                         let gen = trial_arc.generate_reply(&[], prompt, 96);
                         reply_passes_benchmark_quality(&gen.reply_text, reply)
+                            && multi_basin_depth_invariants_hold(&trial_arc)
                     }
                     Err(_) => false,
                 }

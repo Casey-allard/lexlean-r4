@@ -2,14 +2,14 @@
   "spec": "r4/observer-refinement-agenda/1",
   "overall_refinement_score_permille": 866,
   "live_metrics": {
-    "wasm_core_bytes": 12024074,
-    "wasm_headroom_bytes": 2131702,
+    "wasm_core_bytes": 12024010,
+    "wasm_headroom_bytes": 2131766,
     "max_rust_file_lines": 9492,
     "max_js_file_lines": 8607,
-    "lifted_functions": 2642,
+    "lifted_functions": 2643,
     "residue_functions": 88,
     "verified_lexlean_modules": 422,
-    "next_lifted_target": 2643,
+    "next_lifted_target": 2644,
     "next_residue_target": 87
   },
   "part_health": [
@@ -17,7 +17,7 @@
       "organ_id": "engine",
       "vsm_system": "VSM-S4",
       "owned_file_count": 4,
-      "max_file_lines": 8647,
+      "max_file_lines": 8670,
       "heaviest_file": "xtask/src/engine.rs",
       "health_score_permille": 800
     },
@@ -121,15 +121,15 @@
       "ratchet_layer": "dual-surface-proof-and-app",
       "priority": "high",
       "target_function": "crates/wasm/src/glm_weights.rs::render_single_concept_response",
-      "current_value": "lifted=2642, residue=88",
-      "target_value": "lifted>=2643, residue<=87",
+      "current_value": "lifted=2643, residue=88",
+      "target_value": "lifted>=2644, residue<=87",
       "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/glm_weights.rs::render_single_concept_response`",
       "concrete_actions": [
         "Synthesize constructive src/R4/RatchetGen<N>.lex.tex + Controls with CAP0005 per-root falsifier negation.",
         "Wire formal LexLean predicate bridge on `crates/wasm/src/glm_weights.rs::render_single_concept_response` and rebuild public/ Wasm + .holo.",
         "Click min_lifted_functions UP and max_residue_functions DOWN in model/ratchet.toml."
       ],
-      "kappa_hex": "249bffeb1fce5c9af3899519db1c405973d2d8fd5fd2701097b15733d89897e6"
+      "kappa_hex": "0bbd371b6e53548f82329de2461eb666c8bd53c773817d931cdfc352ed9a1972"
     },
     {
       "proposal_id": "PROP-PROOF-FALSIFIER-02",
@@ -169,14 +169,14 @@
       "cited_authority": "R4.VerdantRatchetCycle",
       "ratchet_layer": "wasm-and-capsule-budget",
       "priority": "continuous",
-      "current_value": "wasm_core_bytes=12024074",
+      "current_value": "wasm_core_bytes=12024010",
       "target_value": "wasm_core_bytes<=14155776",
-      "summary": "Maintain Wasm binary headroom (2131702 B below 13.5 MiB ceiling) and .holo capsule parity",
+      "summary": "Maintain Wasm binary headroom (2131766 B below 13.5 MiB ceiling) and .holo capsule parity",
       "concrete_actions": [
         "Verify check-wasm-sync and build-holo --verify-site-manifest on every autonomous tick."
       ],
-      "kappa_hex": "6cc970b0e4c102a175e51ff5ea7ed2b4f795b28adc7ee40ac4f86a75a9dd119a"
+      "kappa_hex": "c9247efab1002b0932f6f2dc2cf8f7493850abeb1baaa223d4c2880c54d8cbd6"
     }
   ],
-  "agenda_kappa_hex": "339eb60df18b14e34d1432f3f227bc8cfd58e30f0a8f69105ab3d788c844e1a9"
+  "agenda_kappa_hex": "4b7f6cee79b9238261f799d30f3d83aa4609aefdd9f22898736b21b741461420"
 }
