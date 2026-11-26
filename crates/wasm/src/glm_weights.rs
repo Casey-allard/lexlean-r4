@@ -132084,7 +132084,7 @@ fn render_multi_concept_synthesis(
 }
 
 /// Render a natural, flowing conversational response for a matched `GlmConceptNode`,
-/// decoded token-by-token via `generate_token_level_geometric_prose` (`R4-23` + `R4-24` + `R4-25` + `R4-19`).
+/// decoded token-by-token via `generate_token_level_geometric_prose` (`R4-23` + `R4-24` + `R4-25` + `R4-19`). (`R4.RatchetGen42`).
 fn render_single_concept_response(
     raw_prompt: &str,
     lower: &str,

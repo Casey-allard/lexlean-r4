@@ -5264,3 +5264,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f332_bvgk_writer_refinement"
 statement = "Verify formal hypotheses from arXiv paper 2611.33741 (FlashProve-Next: Verifiable Inference for Production LLM APIs)."
 prompt = "How does the cs.CR implementation in arXiv 2611.33741 enforce invariants for flashprove next verifiable inference production?"
 target_reply = "Arxiv=2611.33741 category=cs.CR architecture enforces deterministic memory safety invariants governing flashprove next verifiable inference production llm apis clients closed weight cannot verify whether provider ran advertised model precision hidden prompt under concurrent execution workloads preventing unsynchronized mutation hazards bounded."
+
+[[claim]]
+id = "R4-F333"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.33749:H-LIT-2611.33749-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f333_corpus_induction"
+statement = "Verify formal hypotheses from arXiv paper 2611.33749 (Teaching Students to Stand on Their Own: Distilling Vision Foundation Models for Fine-Grained Few-Shot Class-Incremental Learning)."
+prompt = "How do empirical models in arXiv 2611.33749 (cs.CV) characterize dynamics across teaching students stand own distilling?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreethreesevenfournine in cscv characterizes topological manifolds stabilizing structural trajectories governing teaching students stand own distilling vision foundation models fine grained few shot class incremental learning fscil aims incrementally learn visually while preserving global information coherence without."
