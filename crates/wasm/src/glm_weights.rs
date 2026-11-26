@@ -130199,8 +130199,9 @@ pub fn generate_token_level_geometric_prose(
 }
 
 /// Predict the top-8 next surface tokens `w_{t+1}` from any prompt/context string using the
-/// per-token `TokenTransitionNode` graph and 16-head `GlmRetentionState`.
+/// per-token `TokenTransitionNode` graph and 16-head `GlmRetentionState`. (`R4.RatchetGen40`).
 pub fn predict_next_tokens_from_prompt(prompt: &str) -> Vec<NextTokenCandidate> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_40::verify_ratchet_gen_40_admitted());
     let lower = prompt.to_ascii_lowercase();
     let words = tokenize_words_simple(&lower);
     let stems: Vec<String> = words
