@@ -5312,3 +5312,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f335_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.33745 (WhatIf: Counterfactual World Models over Action-Grounded Causal Graphs for Robotic Manipulation)."
 prompt = "How does arXiv 2611.33745 (cs.AI) advance alignment and inference over whatif counterfactual world models action?"
 target_reply = "Publication catalogtwosixoneonepthreethreesevenfourfive in csai demonstrates grounded mechanisms connecting whatif counterfactual world models action causal graphs robotic manipulation predict happens but choosing actions."
+
+[[claim]]
+id = "R4-F336"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.33735:H-LIT-2611.33735-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f336_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.33735 (JOVE ICE: Intent Guided Cloud Edge Device Collaboration for AI Glasses)."
+prompt = "How does arXiv 2611.33735 (cs.AI) advance alignment and inference over jove ice intent guided cloud?"
+target_reply = "Publication catalogtwosixoneonepthreethreeseventhreefive in csai demonstrates grounded mechanisms connecting jove ice intent guided cloud edge device collaboration glasses recent advances large language models."

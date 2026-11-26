@@ -131524,7 +131524,7 @@ pub fn score_concept_node(
     (lex + geo).saturating_sub(penalty)
 }
 
-/// Retrieve the top-K matching `GlmConceptNode`s from the pre-trained manifold using the ungated full scorer.
+/// Retrieve the top-K matching `GlmConceptNode`s from the pre-trained manifold using the ungated full scorer. (`R4.RatchetGen45`).
 pub fn retrieve_top_concepts(
     lower: &str,
     words: &[String],
