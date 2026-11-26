@@ -129492,7 +129492,9 @@ pub struct NextTokenCandidate {
     pub source_tag: &'static str,
 }
 
+/// Formal R4.RatchetGen39 dual-surface lifted slice (`gen-39`).
 fn normalize_token_lower(raw: &str) -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_39::verify_ratchet_gen_39_admitted());
     raw.chars()
         .filter(|c| c.is_ascii_alphanumeric())
         .map(|c| c.to_ascii_lowercase())
