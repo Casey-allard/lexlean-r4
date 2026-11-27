@@ -133602,8 +133602,9 @@ pub fn try_synthesize_agentic_harness_turn(
 /// `pirate`, `boardroom brief`) and cross-lingual translations (`Spanish`, `French`, `German`,
 /// `Japanese`, `Italian`, `Latin`) grounded in either the current prompt's concept basin or the
 /// active multi-turn discourse antecedent.
-/// Token-level phrase & lexicon translator across `Spanish`, `French`, `German`, `Japanese`, `Italian`, and `Latin`.
+/// Token-level phrase & lexicon translator across `Spanish`, `French`, `German`, `Japanese`, `Italian`, and `Latin`. (`R4.RatchetGen54`).
 fn translate_clause_to_target_language(clause: &str, lang: &str) -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_54::verify_ratchet_gen_54_admitted());
     let phrase_map: &[(&str, &str, &str, &str, &str, &str, &str)] = &[
         (
             "distributed consensus",

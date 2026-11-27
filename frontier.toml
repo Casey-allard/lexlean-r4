@@ -5462,3 +5462,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f344_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34535 (Square-root comparison, Turnpike, and exact semidefinite feasibility)."
 prompt = "How do empirical models in arXiv 2611.34535 (cs.CG) characterize dynamics across square root comparison turnpike exact?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefourfivethreefive in cscg characterizes topological manifolds stabilizing structural trajectories governing square root comparison turnpike exact semidefinite feasibility given positive integers put sum sqrt construct realizable instance which minimum spacing distinct while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F345"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.34447:H-LIT-2611.34447-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f345_corpus_induction"
+statement = 'Verify formal hypotheses from arXiv paper 2611.34447 (Optimal \texorpdfstring{$(1,1)$}{(1,1)}-Criss-Cross Deletion-Correcting Codes with Linear-Time Encoder and Decoder).'
+prompt = "How do empirical models in arXiv 2611.34447 (cs.IT) characterize dynamics across optimal texorpdfstring criss cross deletion?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreefourfourfourseven in csit characterizes topological manifolds stabilizing structural trajectories governing optimal texorpdfstring criss cross deletion correcting codes linear time encoder decoder consider ary times array subject which removes row column while preserving global information coherence without."
