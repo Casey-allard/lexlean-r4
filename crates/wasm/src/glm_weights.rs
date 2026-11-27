@@ -131277,7 +131277,7 @@ pub fn match_logic_puzzle(lower: &str, words: &[String]) -> Option<(&'static str
 }
 
 /// Score a `GlmConceptNode` using ONLY lexical phrase, keyword, and title matches.
-/// Separated cleanly from `score_concept_geometric` so lexical vs. geometric routing can be independently measured.
+/// Separated cleanly from `score_concept_geometric` so lexical vs. geometric routing can be independently measured. (`R4.RatchetGen48`).
 pub fn score_concept_lexical(
     node: &GlmConceptNode,
     lower: &str,

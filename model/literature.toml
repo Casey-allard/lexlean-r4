@@ -2,7 +2,7 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-27T00:50:48Z"
+synced_at = "2026-11-27T02:08:49Z"
 query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
 
 [[paper]]
