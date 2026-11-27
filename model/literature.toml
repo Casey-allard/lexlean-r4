@@ -2,8 +2,8 @@
 # Governed by src/R4/AutonomousEngine.lex.tex (R4-28).
 
 spec = "r4/literature/1"
-synced_at = "2026-11-27T03:13:34Z"
-query = "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO"
+synced_at = "2026-11-27T18:16:47Z"
+query = "cat:cs.IT OR cat:math.OC OR cat:stat.ML"
 
 [[paper]]
 arxiv_id = "2403.05530"
@@ -1352,4 +1352,437 @@ categories = [
     "cs.LG",
 ]
 abstract = "This work presents a novel application of Earth Observation (EO) embeddings for Maritime Domain Awareness (MDA) from the perspective of the geospatial foundation model TerraMind. By operating directly on compressed latent-space representations rather than on the original Sentinel-1 imagery, this approach directly addresses the data gravity bottleneck that increasingly constrains operational EO processing, in line with the objectives of the Embed2Scale project. In particular, linear and non-linear probing of compressed embeddings, latent space representations of synthetic aperture radar (SAR) imagery, is used to detect, localise, and characterise vessels from Sentinel-1 GRD images. Vessel detection achieves a ROC-AUC of 0.95, while vessel localisation has a median error of around 300 m for vessels longer than 100 m, and vessel AIS type-code classification achieves 62% accuracy for the majority classes. The latter, however, is highly correlated with vessel length. These results reveal both the potential and current limitations of Geospatial Foundation Models (GeoFMs) when applied to fine-grained MDA understanding in real-world scenarios. Additionally, a new maritime remote sensing dataset is released, pairing about 2,000 Sentinel-1 images with temporally aligned AIS signals from commercial vessels. Through manual inspection, each candidate sample was verified for bounding-box quality and for consistency between the AIS-reported vessel length and the observed vessel extent, cross-checking vessel identity and location against publicly available vessel records and, where available, photographs. The dataset was made ready for use with the NeuCo-Bench neural compression benchmark framework, publicly available on HuggingFace through https://huggingface.co/datasets/embed2scale/S1-single-ship-downstream ."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34921"
+title = "Bound Entanglement with Negative Partial Transpose Exists"
+authors = ["Islam Faisal"]
+published = "2026-11-25T18:58:48Z"
+updated = "2026-11-25T18:58:48Z"
+primary_category = "quant-ph"
+categories = [
+    "quant-ph",
+    "cond-mat.other",
+    "cs.CC",
+    "cs.IT",
+]
+abstract = 'We show that the Werner state $ρ= (23 I - 3\,\mathrm{SWAP})/1448$ on $\mathbb{C}^8 \otimes \mathbb{C}^8$ has a negative partial transpose and is bound entangled: no LOCC protocol can distill entanglement from any number of copies of $ρ$, and even with separable operations the fidelity of a two-qubit output with a Bell state never exceeds $(1+\sqrt{2})/4 \approx 0.604$. It follows that distillable entanglement is neither additive nor convex.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34905"
+title = "Sliding-Window Detection of Hidden Regimes under Stochastic Switching"
+authors = [
+    "Arina Pambukyan",
+    "Hayk Nersisyan",
+]
+published = "2026-11-25T18:53:46Z"
+updated = "2026-11-25T18:53:46Z"
+primary_category = "math.PR"
+categories = [
+    "math.PR",
+    "eess.SP",
+    "math.ST",
+    "stat.ML",
+]
+abstract = 'A sliding-window average is a simple estimator of the current state of a hidden regime-switching process, such as a hidden Markov model. A longer window averages out more noise but is more likely to contain a switch, and the question is what such a switch costs. We analyse the decoder that assigns the average of the last $m$ observations to the nearest regime mean. For two regimes with conditionally independent, stochastically ordered observations, a switch inside the window, averaged uniformly over its positions and directions, causes an error with probability exactly $1/2$. Consequently, for every stationary switching law, the error is at most $\bar P(m)+\bar s(m-1)/2$, where $\bar P(m)$ is the stationary-weighted single-regime error and $\bar s$ the switch rate. Under Markov switching, time reversal shows that a window whose oldest and current regimes differ is misclassified with probability exactly $1/2$, however many switches it contains, and the bound is attained up to a factor $p_{\min}^{m-1}$. For Gaussian noise with common variance, minimizing the bound gives an explicit window length which, in units of $σ^2/Δ^2$, depends only on the expected number of switches in that time. As switching probabilities vanish proportionally, the optimal error is $\bar s\log(1/\bar s)/(2I)(1+o(1))$, with $I$ the single-regime Chernoff exponent. In the Gaussian case this is twice the Bayes error. For symmetric switching, exponentially weighted moving averages reduce this factor to at most $2\log2\approx1.39$, and two-block weights adapted to the switch rate attain the Bayes rate. For three or more regimes, long-window switch costs are set by the geometry of the regime means. For Markov-modulated random walks with $\pm1$ steps on a reflecting lattice, a position-aware decoder learns as fast as without walls under holding boundaries, while steps at bouncing boundaries carry none.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34888"
+title = "The Look-Elsewhere Effect in Searches for New Physics: from Classical Methods to Machine Learning"
+authors = [
+    "Gaia Grosso",
+    "Sergio Rodriguez-Benitez",
+    "Louis Lyons",
+]
+published = "2026-11-25T18:45:39Z"
+updated = "2026-11-25T18:45:39Z"
+primary_category = "hep-ph"
+categories = [
+    "hep-ph",
+    "hep-ex",
+    "physics.data-an",
+    "stat.AP",
+    "stat.ML",
+]
+abstract = """The look-elsewhere effect (LEE) arises when the location of an effect in parameter space is not specified in advance: scanning many locations inflates the significance of the largest excess, and the local $p$-value must be corrected into a global one. A well-established framework, rooted in the work of Davies and operationalised for particle physics by Gross and Vitells, provides this correction for scans over continuous parameters. Some aspects, however, remain unsettled. The definition of "elsewhere" is ambiguous and ranges from a single distribution to an entire experimental programme. Moreover, the analytical shortcuts of the classical framework do not carry over to searches based on machine learning (ML), which are affected by an implicit post-selection bias that depends on the model's resolution and expressiveness. This review covers the LEE in searches for new physics at colliders, from its statistical foundations to these modern challenges. We discuss the corrections for continuous scans and for multiple discrete tests, illustrated with simple numerical examples, and the interaction between ML and the LEE, which we connect to the broader literature on selective inference. We highlight open problems, including the computational cost of empirical calibration for complex models and the development of analytical shortcuts for ML test statistics, and offer recommendations for reporting discovery significance in both classical and ML-based searches in particle physics."""
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34866"
+title = "Adaptive Control Barrier Functions for Nonlinear Singularly Perturbed Systems"
+authors = [
+    "Prashanth Krishnamurthy",
+    "Farshad Khorrami",
+]
+published = "2026-11-25T18:31:54Z"
+updated = "2026-11-25T18:31:54Z"
+primary_category = "eess.SY"
+categories = [
+    "eess.SY",
+    "math.OC",
+]
+abstract = 'Control barrier functions (CBFs) have emerged as a flexible and efficient approach for enforcing dynamic safety constraints. In this paper, we consider a class of uncertain nonlinear systems with singular perturbations and develop an adaptive CBF framework for such systems to enforce safety constraints on both the slow and fast subsystems in the overall singularly perturbed nonlinear system with uncertain parameters. We first develop a robustness property showing that if an adaptive controller for the slow subsystem satisfies the slow CBF condition with an appropriate safety margin, then for sufficiently small values of the singular perturbation parameter $\varepsilon$, the slow subsystem remains within an $O(\varepsilon)$-neighborhood of its safe set. We then consider the more general case of safety constraints on both the fast and slow subsystems and provide conditions under which joint slow-fast safety is achieved despite the parametric uncertainties. The reduced-order slow model and the slow and fast CBF conditions are evaluated using an online parameter estimate and the parameter mismatch between the estimated and true reduced-order models is addressed via a state-dependent robustness margin in the CBF inequalities. To illustrate the proposed framework, we present simulation studies for two systems with parametric uncertainties: a synthetic two-time-scale fourth-order example system and a unicycle with a fast turn-rate actuator and an obstacle avoidance safety constraint.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34840"
+title = "Provably Efficient Offline Discounted Reinforcement Learning under Recursive Entropic Risk"
+authors = [
+    "Amirparsa Bahrami",
+    "Oliver Mortensen",
+    "Mohammad Sadegh Talebi",
+]
+published = "2026-11-25T18:18:53Z"
+updated = "2026-11-25T18:18:53Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "eess.SY",
+    "stat.ML",
+]
+abstract = 'We study risk-sensitive reinforcement learning in finite discounted infinite-horizon Markov Decision Processes with recursive entropic risk measures (ERM), parameterized by $β\neq 0$. We consider both risk-averse ($β>0$) and risk-seeking ($β<0$) settings. We consider the offline RL setting, where the agent is provided with a fixed dataset and wishes to learn a near-optimal policy using this dataset. We introduce a model-based algorithm, called ERM Value Iteration Lower Confidence Bound (ERM-VI-LCB) and derive a PAC-type bound on its sample complexity. We also establish a corresponding lower bound, demonstrating that exponential dependence on $|β|/(1-γ)$ asserted by the upper bound is unavoidable in the worst case. The presented bounds provide the first rigorous sample complexity guarantees for offline RL under recursive ERM across both risk-averse and risk-seeking regimes.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34835"
+title = "Full Structure Recovery of Linearized Reed-Solomon Codes"
+authors = [
+    "Valentina Astore",
+    "Martino Borello",
+    "Alain Couvreur",
+]
+published = "2026-11-25T18:14:13Z"
+updated = "2026-11-25T18:14:13Z"
+primary_category = "cs.CR"
+categories = [
+    "cs.CR",
+    "cs.IT",
+    "math.CO",
+]
+abstract = "Linearized Reed-Solomon codes (LRS) are optimal sum-rank-metric codes that generalize both Reed-Solomon and Gabidulin codes, and benefit from excellent decoding capabilities, making them potentially interesting candidates for post-quantum code-based cryptography. Previous works have investigated the underlying geometric structure of LRS codes, identifying geometric invariants that distinguish them from random codes. Other works have proposed approaches to recovering the LRS structure from an arbitrary generator matrix, together with additional data. However, both the distinguishers and the recovery techniques proposed so far are either not fully general, or have a prohibitive computational complexity. In this paper, we propose a polynomial-time procedure for the full structure recovery of LRS codes from the sole knowledge of an arbitrary generator matrix. Our results show that, like their Hamming and rank metric counterparts, LRS codes cannot be used as they are for McEliece-like encryption. Our approach combines Overbeck-type attacks with suitable matrix manipulations and shortening techniques to recover the evaluation parameters across different ranges of code dimensions."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34807"
+title = "On the Distance Properties of Huffman Sequences"
+authors = [
+    "Parker Huggins",
+    "Alphan Sahin",
+    "Elza Erkip",
+]
+published = "2026-11-25T17:57:08Z"
+updated = "2026-11-25T17:57:08Z"
+primary_category = "cs.IT"
+categories = [
+    "cs.IT",
+    "eess.SP",
+]
+abstract = "In this letter, we study pairwise distances between sequences with a common aperiodic autocorrelation function. First, we show that pairwise distances are determined by a ternary signed pattern encoding the relative zero flips between spectral factors. Then, for Huffman sequences, we prove that Dihedral symmetries of the zeros preserve pairwise distances, and we further derive lower bounds on the minimum distance. The results in this letter offer a starting point for designing codes with a fixed autocorrelation. These codes are relevant in integrated sensing and communication."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34761"
+title = "Time-optimal travel driven by two vector fields on a Riemannian manifold"
+authors = [
+    "Erasmo Caponio",
+    "Dario Corona",
+    "Ebtsam H. Taha",
+]
+published = "2026-11-25T17:30:05Z"
+updated = "2026-11-25T17:30:05Z"
+primary_category = "math.DG"
+categories = [
+    "math.DG",
+    "math.OC",
+]
+abstract = '''We study minimum-time travel on a Riemannian manifold $(M,h)$ for a kinematic model in which finitely many drift fields contribute additively to the velocity, after independent rescaling of their components parallel and orthogonal to a chosen unit direction $u$. The velocity is then $\mathcal Y_x(u)=(η(x)+h_x(\widehat Z_x,u))u+\widehat W_x$, $u\in UT_xM$, for two effective vector fields $\widehat Z$, $\widehat W$ and a self-propulsion speed $η\geq0$. Let $F$ be the gauge of the radial hull $\mathcal B_x=[0,1]\cdot\mathcal S_x$ of the velocity set $\mathcal S_x=\mathcal Y_x(UT_xM)$. Where $η>0$, we characterize when $F$ is a Finsler metric and give two-sided estimates and representation formulae for it; where $η=0$ and $\widehat Z\neq0$, we recover the Randers, Kropina and strong-wind regimes of Zermelo navigation. Examples include Matsumoto's slope metric, traction-modified slope models, and alternative models for wildfire propagation and microswimmer navigation. Since $F$ need not be a Finsler metric, we treat the minimum-time problem with tools from differential inclusions. For distinct endpoints, the inclusions defined by $\mathcal S_x$ and $\mathcal B_x$ give the same infimum travel time, and so does the convex hull of $\mathcal B_x$ under local controllability at the terminal point. When $F$ is finite, the infimum is attained if $(M,h)$ is complete, $\mathcal Y$ is bounded and each $\mathcal B_x$ is convex. When $F$ is a Finsler metric on $\{η>0\}$, the set $\{η=0\}$ cannot be reached from $\{η>0\}$ in finite time and, on $\{η>0\}$, the minimum time is the Finsler distance; if moreover $(M,h)$ is complete and $η$ is bounded, $F$ is forward and backward complete and the minimum time is attained by geodesics. We also compute the support Hamiltonian directly from the velocity law, for every $η\geq0$.'''
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34757"
+title = "On the Convergence of Discrete-Time Primal-Dual Algorithm for Distributed GNE Seeking"
+authors = [
+    "Weijian Li",
+    "Lacra Pavel",
+    "Panos J. Antsaklis",
+    "Hai Lin",
+]
+published = "2026-11-25T17:27:44Z"
+updated = "2026-11-25T17:27:44Z"
+primary_category = "math.OC"
+categories = ["math.OC"]
+abstract = "We investigate the convergence of a discrete-time distributed primal-dual algorithm for generalized Nash equilibrium (GNE) seeking in a class of noncooperative games with nonlinear coupling constraints. We establish semi-global convergence of the algorithm under a fixed stepsize, in the sense that convergence can be guaranteed from any prescribed compact set of initial conditions by choosing a sufficiently small stepsize. Under a diminishing stepsize sequence, we further establish global convergence when the constraints are globally Lipschitz continuous. For the special case of affine constraints, global convergence is also guaranteed under a sufficiently small fixed stepsize. Finally, we extend these convergence results to a fully distributed GNE seeking algorithm in a partial-decision information setting, where each agent only has access to the actions of its neighbors. These results complement existing convergence results for continuous-time primal-dual dynamics, and provide new convergence guarantees for the discrete-time counterpart in distributed GNE seeking."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34734"
+title = "From NP-Hardness to Exact Tractability Through Sample Abundance"
+authors = ["Mojtaba Soltanalian"]
+published = "2026-11-25T17:16:26Z"
+updated = "2026-11-25T17:16:26Z"
+primary_category = "cs.LG"
+categories = [
+    "cs.LG",
+    "cs.CC",
+    "math.OC",
+]
+abstract = 'Additional observations can make exact optimization tractable without changing the objective or feasible set. We establish this phenomenon for noisy parity fitting, a worst-case NP-hard problem, with uniformly sampled rank-one sign tensor entries, independent fair factor signs and independent errors. For fixed interaction order $k\ge3$, $n$ signs per block, logarithmic mean degree and known channel biases, $O(n/(\log n)^{1/(k-2)})$ further readings of the same source suffice with high probability for exact optimization in $O(n\log^2 n)$ worst-case work. The leading coefficient is sharp for weak recovery by depth-$O(\log\log n)$ local estimators with independent reading marks. A common signed-field law determines the gain over the generating source, the number of tied optima and the dimension needed for later reweightings. The geometry of the remaining coordinates determines the sharp radius of local verification for high-scoring assignments with high probability.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34679"
+title = "Boundary Observability for a Class of Degenerate Kolmogorov-Type Equations in a Cylindrical Domain"
+authors = [
+    "Dong-Hui Yang",
+    "Mengze Gu",
+    "Yuanzhi Zhou",
+    "Ghadir Shokor",
+]
+published = "2026-11-25T16:42:11Z"
+updated = "2026-11-25T16:42:11Z"
+primary_category = "math.AP"
+categories = [
+    "math.AP",
+    "math.OC",
+]
+abstract = 'This paper investigates the boundary observability for a class of multi-dimensional degenerate Kolmogorov-type kinetic equations in a cylindrical domain $Ω= \mathbb{T}_{x_1} \times (0,1)_{x_2}$. The model features a horizontal drift term $x_2^γ\partial_{x_1} \varphi$ coupled with a boundary-degenerate diffusion operator $\partial_{x_2}(x_2^α\partial_{x_2} \varphi)$ acting solely on the velocity variable, where $γ= 1$ and $α\in (0,1)$. By leveraging the structural advantages of the cylindrical domain, we establish an analytical framework based on the method of separation of variables. Crucial Carleman estimates tailored to the degenerate dual operator are derived to capture the subtle dissipation effects under the influence of the transport term. Consequently, by virtue of a uniform a priori estimate, we establish the quantitative boundary observability inequality for the state function.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34616"
+title = "Conditional Independence Graph Learning from Dependent Data Via Time-Delay Embedding"
+authors = ["Jitendra K. Tugnait"]
+published = "2026-11-25T16:03:46Z"
+updated = "2026-11-25T16:03:46Z"
+primary_category = "stat.ML"
+categories = [
+    "stat.ML",
+    "cs.LG",
+    "eess.SP",
+]
+abstract = 'We consider the problem of inferring the conditional independence graph (CIG) of a high-dimensional stationary multivariate Gaussian time series which could be short-range dependent (SRD) or long-range dependent (LRD). In a time series graph, each component of the vector series is represented by a distinct node, and associations between components are represented by edges between the corresponding nodes. We consider a time-domain approach based on time-delay embedding, casting the problem as one of multi-attribute graph estimation for random vectors where a vector is associated with each node of the graph. For an embedding dimension $d$, at each node the associated $(d+1)$-dimensional random vector consists of a time series component and its $d$ delayed copies, with integer delays up to $d \ge 1$. Graph estimation from dependent data has been investigated in the past using frequency-domain methods whose analysis is restricted to SRD data. We consider a penalized negative pseudo log-likelihood function with convex lasso or non-convex regularizations to estimate the CIG. Non-convex regularization functions are log-sum, smoothly clipped absolute deviation (SCAD) and minimax concave penalty (MCP). We exploit an existing alternating direction method of multipliers (ADMM) approach to optimize the objective function. We establish sufficient conditions in a high-dimensional setting for consistency, local convexity when using non-convex penalties, and graph recovery, for both SRD and LRD series. We illustrate our approach with both synthetic and real-data examples. For a $p$-dimensional time series, the computational complexity of the ADMM algorithm is ${\cal O}((d+1)^3 p^3)$. Based on the numerical examples, a heuristic is suggested and illustrated for selection of $d$ which, in theory, should tend to infinity to infer the time series graph.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34597"
+title = "$μ$MPC: Microsecond-Scale Nonlinear and World Model Control from Edge to GPU via Koopman-Linearized Precompilation"
+authors = [
+    "Devesh Nath",
+    "Glen Chou",
+]
+published = "2026-11-25T15:56:47Z"
+updated = "2026-11-25T15:56:47Z"
+primary_category = "cs.RO"
+categories = [
+    "cs.RO",
+    "cs.CV",
+    "cs.LG",
+    "eess.SY",
+    "math.OC",
+]
+abstract = 'We present $μ$MPC, a fast model predictive control (MPC) framework that reduces online computation using learned Koopman-linearized dynamics. By precomputing finite-horizon control-to-output maps, $μ$MPC eliminates lifted-state trajectories, yielding an action-only Koopman-Compiled QP (KC-QP) with $Hn_u$ decision variables, independent of lifted dimension. A fixed, precomputed primal operator enables efficient primal-dual iterations using only matrix-vector products and projections, accommodating changing goals and constraints without refactorization. This efficiency also enables control-aware dynamics learning through differentiable KC-QPs in the training loop and batched DAgger-style data aggregation. $μ$MPC achieves solve times as low as $23μ$s on a desktop CPU and 24 ms onboard a 168 MHz Crazyflie microcontroller. It scales to 4096D quadruped control in under 5 ms, visual planning with 2048D world models in 0.4 ms, and collision-aware planning for 200 quadrotors at over 30 Hz on the GPU. Across these benchmarks, $μ$MPC achieves up to $108\times$ faster constrained MPC and $1907\times$ faster visuomotor planning than competing methods.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34590"
+title = "Sequential Portfolio Optimizer (SPO-CPU and SPO-GPU): C++ Interior-Point Solvers and Differentiable Layers for Quadratic Cone Programs"
+authors = [
+    "Fan Zhao",
+    "Yan Zaretskiy",
+    "Yuwen Chen",
+    "Jerry Shi",
+]
+published = "2026-11-25T15:51:33Z"
+updated = "2026-11-25T15:51:33Z"
+primary_category = "math.OC"
+categories = ["math.OC"]
+abstract = 'Quadratic cone programs (QCPs) are a practical canonical form for convex optimization, including parametric portfolio problems that must be re-solved to high accuracy as market data change. We present Sequential Portfolio Optimizer (SPO), with SPO-CPU and SPO-GPU the C++ and CUDA realizations of the Clarabel homogeneous-embedding interior-point method. Clarabel is a registered trademark; SPO is our name for these implementations. Each exposes a forward optimizer and an in-solver differentiable layer. The Mehrotra algorithm is unchanged. The contribution is an implementation stack: a reduced two-block vector-Jacobian product with gradients in the original coordinates; a documented variant of the Chen--Goulart--Jones smoothing warm start, applied in equilibrated coordinates; and a GIL-free GPU batch architecture whose isolated throughput is at parity with a warm solver loop up to $B{=}16$. On an RTX A6000, subsequent solves of a $5000$-asset factor-model QP average $24$ ms on SPO-GPU, compared with $98$ ms on Clarabel.rs and $122$ ms on single-thread Gurobi; at $10{,}000$ assets the corresponding GPU time is $59$ ms against $439$ ms for one-thread Mosek. Clarabel.rs, SPO-CPU, and SPO-GPU agree pairwise to $2.2{\times}10^{-7}$ in relative objective on this family. Against a CVXPYLayers baseline driven by Clarabel, the GPU layer reproduces the solution and the return-gradient on a $5000$-asset factor QP/SOCP, while a subsequent forward-plus-backward step is $101$--$137\times$ faster at $5000$ assets (and $17$--$30\times$ at $1000$ assets). The smoothing warm start reduces QP rebalance iterations but can increase them on a large GPU second-order cone. Wall-clock rankings apply to the factor-model family only; an $18$-problem Maros--Mészáros subset is reported as a cross-check. We do not claim a speedup over CuClarabel, and the batch architecture is not a measured throughput improvement.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34584"
+title = "Routing and Cache Retention for Multi-Turn LLM Inference: Theory and Implementation"
+authors = [
+    "Sentao Miao",
+    "Tianjiao Nie",
+    "Yuan Zhou",
+    "Song Yuan",
+    "Yuanwei Lu",
+    "Yibo Zhu",
+]
+published = "2026-11-25T15:45:44Z"
+updated = "2026-11-25T15:45:44Z"
+primary_category = "math.OC"
+categories = ["math.OC"]
+abstract = 'Multi-turn AI agents execute iterative loops of large language model (LLM) inference and external tool calls, transforming cluster serving into a dynamic resource-allocation problem where routing and key-value (KV) cache retention jointly govern prefix reuse across inter-turn delays. We formulate a fluid approximation of this system and show that optimal admission, routing, and eviction are governed by endpoint-specific shadow prices for computation and memory together with session continuation values. Building on this structure, we propose an asymptotically optimal buffer-reserve policy that absorbs stochastic fluctuations using a vanishing share of capacity. To handle asynchronous arrivals, delayed load reports, and engine-local memory management in production clusters, we translate these principles into a practical controller named PARK, which pairs online projected subgradient price updates and one-turn migration lookahead with a local KV retention index ranked by expected reuse value per byte-epoch. In real GPU cluster experiments serving a 197-billion-parameter mixture-of-experts model on multi-turn software-engineering agent benchmarks (SWE and Terminal-Bench), PARK outperforms all five load-balancing and prefix-aware baselines across contrasting traffic regimes. On 16 H200 GPUs, PARK raises output throughput by $24.2\%$ over the strongest baseline ($336.9\%$ over round robin) on turn-intensive SWE trajectories and by $40.0\%$ over the strongest baseline ($63.3\%$ over round robin) on generation-intensive Terminal-Bench trajectories. Controlled single-replica ablations show that our retention index alone cuts prior-prefix token loss from $13.26\%$ to $2.17\%$ and increases throughput by $36.7\%$ over least-recently-used (LRU) eviction, while 128-GPU scale-up experiments sustain 50,789 to 67,363 output tokens/s across 16~replicas with prefix cache hit rates of $91.3\%$ to $97.4\%$.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34550"
+title = "An Information-Theoretic Analysis of Information Hiding in Semantic Communication"
+authors = [
+    "Yanhao Huo",
+    "Shijun Xiang",
+]
+published = "2026-11-25T15:26:33Z"
+updated = "2026-11-25T15:26:33Z"
+primary_category = "cs.IT"
+categories = [
+    "cs.IT",
+    "cs.AI",
+]
+abstract = "Semantic communication shifts the transmission goal from the accurate recovery of syntactic symbols to the reliable conveyance of semantic content, yet a systematic information-theoretic characterization of information hiding at the semantic layer is still missing. Building on the semantic information theory of Niu-Zhang and the classical information hiding theory of Moulin-O'Sullivan, this paper establishes an information-theoretic framework for information hiding under semantic communication. The classical hiding model is extended to a two-layer structure (semantic host, syntactic host, syntactic composite signal, syntactic received, semantic received) bridged by synonymous mappings f_s, f_x and the inverse mapping f_y^{-1}, subject to four distortion constraints: syntactic transparency, semantic fidelity, syntactic perturbation, and semantic destruction. The capacity is cast as a Stackelberg game with the hider moving first and the payoff J(Q,A) = I(U~; Y~ | K) - I(U~; S~ | K), yielding the single-letter maximin C^s = max_Q min_A J(Q,A), whose achievability and converse follow from random coding and joint typicality decoding. Relative to the classical capacity, comparison payoffs built from the up/down semantic mutual information give the endpoint sandwich C^s_end(0,1) <= C^s <= C^s_end(1,0) with the classical value C in the same interval, while closing semantic tolerance yields C^s_no-tol <= C_cl under a fair comparison. These results clarify that semantic hiding is not unconditionally superior to classical hiding. Binary, ternary, and Gaussian examples confirm the degeneration under one-to-one mappings and the capacity loss under coarsening."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34535"
+title = "Square-root comparison, Turnpike, and exact semidefinite feasibility"
+authors = ["C. S. Elder"]
+published = "2026-11-25T15:18:28Z"
+updated = "2026-11-25T15:18:28Z"
+primary_category = "cs.CG"
+categories = [
+    "cs.CG",
+    "cs.DS",
+    "math.OC",
+]
+abstract = 'Given positive integers $a_i,K$, put $S=\sum_{i=1}^k\sqrt{a_i}$. We construct a realizable Turnpike instance in which the minimum spacing of distinct distances and the smallest nonzero addition residual are both at most $|S-K|$ when $S\ne K$. With approximation oracles, one three-distance realizability query decides $S\le K$. For unordered lists of radical sums with nonnegative rational coefficients, a polynomial-time substitution by integers preserves every normalized ruler. We give the classical reduction of square-root comparison to exact semidefinite feasibility in both threshold directions. The comparison enters through numerical separation and marked sorting; the integer recoding needs no such comparison for unordered reconstruction.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34495"
+title = "Efficient Data Fusion in Distributionally Robust Optimization"
+authors = [
+    "Buse Şen",
+    "Aras Selvi",
+    "Jean Pauphilet",
+    "Daniel Kuhn",
+]
+published = "2026-11-25T14:53:36Z"
+updated = "2026-11-25T14:53:36Z"
+primary_category = "math.OC"
+categories = [
+    "math.OC",
+    "cs.LG",
+]
+abstract = "Decisions under uncertainty increasingly rest on fragmented evidence, such as samples from related but different populations, privacy-protected summary statistics, or complementary statistical descriptions of the same data. Distributionally robust optimization (DRO) can fuse such evidence by constructing one ambiguity set per source and hedging against all distributions in the intersection of these sets. This fusion approach is less conservative than aggregating the sources into a single ambiguity set, but it is computationally demanding. Exact reformulations grow exponentially with the number of sources, and even deciding whether the intersection is nonempty is NP-hard. We show that fusion DRO admits an exact reformulation in which the ambiguity sets are coupled only through functional Lagrange multipliers. Restricting these multipliers to affine decision rules yields upper bounds that decompose across the ambiguity sets, are exact for quadratic losses over Wasserstein balls around Gaussian references, and provably dominate aggregation-based relaxations such as Minkowski sums and balls around mixtures. The approximations admit finite conic reformulations in important special cases and subgradient methods for weakly convex losses, which makes fusion DRO applicable to neural network training. In portfolio, newsvendor, and binary classification experiments, the affine approximation stays close to the exact value wherever the latter is computable, scales far better than exact methods, and outperforms aggregation-based benchmarks out-of-sample."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34494"
+title = "The Monge Optimal Transport Barycenter Problem with Adaptive Features"
+authors = [
+    "Yige Zhou",
+    "Esteban G. Tabak",
+]
+published = "2026-11-25T14:53:15Z"
+updated = "2026-11-25T14:53:15Z"
+primary_category = "math.OC"
+categories = ["math.OC"]
+abstract = "The data-driven Monge optimal transport barycenter problem seeks a map $y=T(x,z)$ that minimally perturbs an outcome $x$ while removing its statistical dependence on covariates $z$. Numerical implementations approximate the independence constraint through finite-dimensional test-function spaces, making the effectiveness of dependence removal sensitive to the choice of features. This article develops a procedure whereby the features themselves are optimized throughout the procedure. In particular, we adopt a feature space for $f$ consisting of Gaussian radial basis functions (RBFs) with adaptive individual centers and bandwidths. Synthetic experiments show that while fixed nonlinear RBF features can capture dependence structures that are poorly represented by linear features, adapting the RBF centers and bandwidths can further improve dependence removal within a limited feature space and achieve residual dependence comparable to that obtained with a larger fixed basis. We further extend the formulation to multidimensional covariates and evaluate its applicability to real-world problems, including removing age-related dependence in biomedical measurements and dependence on temperature and humidity in bike-sharing demand."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34468"
+title = "Exponential Analysis for Trace-Distance Errors in Quantum Information Theory"
+authors = [
+    "Hao-Chung Cheng",
+    "Li Gao",
+    "Shi-Bing Li",
+    "Hongsen Qiu",
+]
+published = "2026-11-25T14:38:45Z"
+updated = "2026-11-25T14:38:45Z"
+primary_category = "quant-ph"
+categories = [
+    "quant-ph",
+    "cs.IT",
+]
+abstract = "We study the trace-distance error in classical-quantum soft covering, privacy amplification against quantum side information, convex splitting, and decoupling by a Haar-random unitary followed by partial trace. In the independent and identically distributed setting, we determine exact reliability functions and strong converse exponents for soft covering with independent codewords, uniform convex splitting, and Haar partial-trace decoupling. For privacy amplification, we determine the exact reliability function for independent random binning and the exact strong converse exponent for every two-universal hash ensemble. The reliability and strong converse formulas involve sandwiched and Petz-Rényi information, respectively. The proofs connect trace-distance errors to quantum hypothesis testing, using Rosenthal inequalities for sums of random matrices in the reliability analysis and conditional second-moment bounds for the strong converses."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34460"
+title = "Functional Factor Graphs and the Functional Sum-Product Algorithm"
+authors = [
+    "Kuranage Roche Rayan Ranasinghe",
+    "Giuseppe Thadeu Freitas de Abreu",
+]
+published = "2026-11-25T14:33:45Z"
+updated = "2026-11-25T14:33:45Z"
+primary_category = "cs.IT"
+categories = ["cs.IT"]
+abstract = "We propose a generalization of factor graphs and the sum-product algorithm (SPA), widely used in the estimation of data, channel state information and sensing parameters, to unknowns that are functions, such as waveforms, time-varying channels and continuous-aperture array currents, which must otherwise be sampled first. In order to mitigate the challenge that functions have no probability density functions (PDFs), the proposed scheme measures densities relative to the prior of each function, not to the flat reference implicit in every PDF. Messages then become likelihood ratios, and the factor-node rule an average over the priors, still exact on trees. For Gaussian models, the proposed functional SPA (FSPA) is Gaussian belief propagation (GaBP) with kernels in place of matrices and a grid-independent convergence condition, whereas scalar GaBP on grid samples provably slows down under refinement, as information hops from sample to sample. Simulations in a multi-user detection setting confirms the latter, and shows that sampling first can also fail for smooth priors."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34452"
+title = "Global Convergence of Second-Order Methods for Physics-Informed Neural Networks in the Overparameterized Limit"
+authors = [
+    "Konstantin Riedl",
+    "Justin Sirignano",
+    "Konstantinos Spiliopoulos",
+]
+published = "2026-11-25T14:29:37Z"
+updated = "2026-11-25T14:29:37Z"
+primary_category = "math.NA"
+categories = [
+    "math.NA",
+    "cs.LG",
+    "math.AP",
+    "math.OC",
+    "stat.ML",
+]
+abstract = "Solving high-dimensional partial differential equations (PDEs) constitutes a core task in many engineering and scientific disciplines. Physics-informed neural networks and the deep Galerkin method effectively leverage machine learning models to approximate solutions of known PDEs by minimizing residuals corresponding to the PDE operator alongside external constraints. Although second-order optimizers are becoming increasingly popular for training neural networks (NNs) to solve PDEs and empirically outperform their first-order counterparts in both speed and accuracy, the convergence theory for training such models is essentially confined to first-order methods. In this paper, we close this gap and develop a convergence analysis for the regularized Newton and Gauss-Newton methods. As the number of hidden units tends to infinity, the training dynamics converge in probability, with explicit rates, to the solution of a deterministic limit equation involving a Newton neural tangent kernel operator associated with the PDE. Although the limiting kernel operator admits no spectral gap, we prove that, in the overparameterized limit, the PDE residual vanishes as training proceeds, and, under mild assumptions, the NN converges to the PDE solution. We further show that, provided a sufficiently small regularization parameter, the projection of the residual onto any fixed number of leading eigenfunctions decays exponentially fast, demonstrating that this hyperparameter acts as a spectral filter: it lifts the convergence rates of high-frequency components toward those of low-frequency ones, thereby mitigating the spectral bias inherent in gradient descent. Mathematical challenges arise from the implicit parameter update involving a linear system whose dimension increases with the NN width and, for Newton's method, a potentially indefinite Hessian, as well as from the PDE operator entering the kernel."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34447"
+title = 'Optimal \texorpdfstring{$(1,1)$}{(1,1)}-Criss-Cross Deletion-Correcting Codes with Linear-Time Encoder and Decoder'
+authors = [
+    "Zhiqiang Li",
+    "Yubo Sun",
+    "Gennian Ge",
+]
+published = "2026-11-25T14:25:01Z"
+updated = "2026-11-25T14:25:01Z"
+primary_category = "cs.IT"
+categories = ["cs.IT"]
+abstract = 'We consider a $q$-ary $n\times n$ array subject to a $(1,1)$-criss-cross deletion, which removes one row and one column. We first derive a sphere-packing type lower bound on the redundancy of codes correcting such deletions. For every $q\geq 2$ and $n\geq 27$, the redundancy is greater than $2n+2\log_q n-2$. For fixed $q$, it is at least $2n-1+2\log_q n-o_q(1)$ as $n\to\infty$. We then present two code constructions. The first construction achieves redundancy $2n-1+2\log_q n+o_q(1)$ by selecting a largest syndrome class. It matches the lower bound up to a vanishing term and admits $O_q(n^2)$-time decoding. The second construction has redundancy $2n+2\log_q n+O_q(1)$ and admits $O_q(n^2)$-time algorithms for both encoding and decoding. For fixed $q$, these running times are linear in the number of array entries.'
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34419"
+title = "Decision-Focused Learning for Multistage Stochastic Programs, with Application to Power Network Repair Scheduling"
+authors = [
+    "David Krame Kadurha",
+    "Alessandro Zocca",
+    "Sandjai Bhulai",
+]
+published = "2026-11-25T14:11:04Z"
+updated = "2026-11-25T14:11:04Z"
+primary_category = "math.OC"
+categories = [
+    "math.OC",
+    "cs.LG",
+    "eess.SY",
+]
+abstract = "Multistage stochastic programs (MSPs) with discrete decisions are hard to solve due to the curse of dimensionality, non-convex value functions, and scenario trees that grow exponentially with the horizon. We develop a decision-focused learning (DFL) framework for MSPs in which a neural network predicts scores for the part of the decision that drives the state transition. Under structural conditions that make this sub-decision enter the stage objective linearly, the network is trained on labels from offline single-scenario problems, using the Fenchel-Young loss with perturbed optimizers, which need only an optimization oracle. We apply the framework to repair scheduling in power networks under stochastic, time-varying component failures, with and without a per-stage repair budget. On a synthetic 5-bus network and on the IEEE 14-bus network at two repair-cost scales, the learned and baseline policies are compared on common evaluation paths. Without the budget, DFL is the cheapest policy on the 5-bus network; on the 14-bus network it does not outperform a near-sighted model-predictive control (MPC) baseline, but it beats repairing every failed component at the higher scale. Under a binding budget, DFL is the cheapest policy evaluated on both networks and at both scales, 14% to 23% below the next-best policy. On the 5-bus network, the mean cost of DFL is 1.7% (without the budget) and 1.8% (with it) above the exact optimum computed by dynamic programming. Within days of computation, sample average approximation yields costlier policies than DFL and the repair-everything heuristic, and stochastic dual dynamic integer programming remains far from convergence. DFL computes its decisions about as fast as the trivial heuristics and orders of magnitude faster than MPC. Since these conditions are not specific to power networks, the framework extends to other MSPs that share this structure."
+hypothesis = []
+
+[[paper]]
+arxiv_id = "2611.34382"
+title = "The Functional Batch Conjecture And Its Extension To All Finite Fields"
+authors = [
+    "Isaac Barouch Essayag",
+    "Aryeh Lev Zabokritskiy",
+]
+published = "2026-11-25T13:45:18Z"
+updated = "2026-11-25T13:45:18Z"
+primary_category = "cs.IT"
+categories = ["cs.IT"]
+abstract = 'We prove that the code whose servers store all $q^s-1$ nonzero linear combinations of $s$ information symbols over $\mathbb{F}_q$ is a functional batch code with list size $(q^s+q-2)/2$: every list of $(q^s+q-2)/2$ requested nonzero linear combinations, repetitions allowed, can be recovered from pairwise disjoint sets of at most two servers. This holds for every finite field and every $s\ge1$, and the list size cannot be increased, even if recovery sets of any size are allowed. For $q=2$ the statement is the functional batch conjecture for the binary simplex code, in its stronger form with recovery sets of size at most two, and it follows from the conjecture of Balister, Győri and Schelp on perfect matchings of $\mathbb{F}_2^n$ with prescribed differences, which was proved by the second author in a separate paper. We also determine the minimum length of a functional batch code with $s$ information symbols over $\mathbb{F}_q$: it is $m(q^s-1)$ for the list size $m(q^s+q-2)/2$, for every $m\ge1$, and, for odd $q$, it is $2(q^s-1)/(q-1)$ for the list size $(q^s-1)/(q-1)+1$.'
 hypothesis = []

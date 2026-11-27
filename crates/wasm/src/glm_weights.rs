@@ -129384,7 +129384,9 @@ impl Default for GlmRetentionState {
     }
 }
 
+/// Formal R4.RatchetGen50 dual-surface lifted slice (`gen-50`).
 fn split_balanced_sentences(sec_text: &str) -> Vec<&str> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_50::verify_ratchet_gen_50_admitted());
     let mut out = Vec::new();
     let bytes = sec_text.as_bytes();
     let mut start = 0usize;
