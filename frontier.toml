@@ -5375,3 +5375,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f339_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.34928 (Diverse Alternative Reasoning Traces for Hard Math Problems)."
 prompt = "How does arXiv 2611.34928 (cs.CL) advance alignment and inference over diverse alternative reasoning traces hard?"
 target_reply = "Publication catalogtwosixoneonepthreefourninetwoeight in cscl demonstrates grounded mechanisms connecting diverse alternative reasoning traces hard math problems post training large language models llms mathematical."
+
+[[claim]]
+id = "R4-F340"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.34920:H-LIT-2611.34920-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f340_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.34920 ($μ$-Bench: Benchmarking Multi-User Task Completion in Shared Interaction Voice Agents)."
+prompt = "How does arXiv 2611.34920 (cs.CL) advance alignment and inference over bench benchmarking multi user task?"
+target_reply = "Publication catalogtwosixoneonepthreefourninetwozero in cscl demonstrates grounded mechanisms connecting bench benchmarking multi user task completion shared interaction voice agents spaces must satisfy interdependent."

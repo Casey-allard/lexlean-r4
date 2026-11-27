@@ -21,14 +21,14 @@
     },
     {
       "facet": "EcosystemStandards",
-      "score_milli": 989,
+      "score_milli": 990,
       "defects": 0,
-      "evidence": "model_errors=0, mechanizer_ok=true (437 mods), lifted=2671/3220 residue=81"
+      "evidence": "model_errors=0, mechanizer_ok=true (439 mods), lifted=2675/3223 residue=80"
     }
   ],
   "aggregate_score_milli": 997,
   "total_defects": 0,
-  "complexity": 81,
+  "complexity": 80,
   "bandit_weights": {
     "ecosystem-lift-ratchet": 8,
     "geometric-recompilation": 8,

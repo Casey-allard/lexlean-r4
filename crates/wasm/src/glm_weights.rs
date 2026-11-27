@@ -129205,7 +129205,9 @@ const GLM_ICOSIAN_ROOTS_Q12: [[(i32, i32); 4]; 17] = [
     [(-2048, 0), (0, -2048), (-2048, 2048), (0, 0)],
 ];
 
+/// Formal R4.RatchetGen49 dual-surface lifted slice (`gen-49`).
 fn snap_icosian_4d_q12(lanes: [i16; 4]) -> u8 {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_49::verify_ratchet_gen_49_admitted());
     let mut best_score = i64::MIN;
     let mut best_root = 0u8;
     for (r, root) in GLM_ICOSIAN_ROOTS_Q12.iter().enumerate() {
