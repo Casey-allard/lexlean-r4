@@ -131556,7 +131556,7 @@ pub fn retrieve_top_concepts(
     scored
 }
 
-/// Retrieve the top-K matching `GlmConceptNode`s using ONLY `score_concept_geometric` (zero keyword access).
+/// Retrieve the top-K matching `GlmConceptNode`s using ONLY `score_concept_geometric` (zero keyword access). (`R4.RatchetGen46`).
 pub fn retrieve_top_concepts_geometric_only(
     words: &[String],
     prompt_q12: &[i16; POINT_KEY_DIM],
