@@ -130609,9 +130609,11 @@ pub fn q12_cosine_similarity(a: &[i16; POINT_KEY_DIM], b: &[i16; POINT_KEY_DIM])
     if na == 0 || nb == 0 {
         return 0;
     }
-    let denom = ((na.unsigned_abs() as f64).sqrt() * (nb.unsigned_abs() as f64).sqrt()).max(1.0);
-    let cos = (dot as f64) / denom;
-    ((cos + 1.0) * 512.0).clamp(0.0, 1024.0) as u32
+    let denom = ((na.unsigned_abs() as u128) * (nb.unsigned_abs() as u128))
+        .isqrt()
+        .max(1) as i128;
+    let scaled = ((i128::from(dot) * 512) / denom) + 512;
+    scaled.clamp(0, 1024) as u32
 }
 
 /// Match everyday conversational turns, social small talk, meta-questions, and parameter inquiries. (`R4.RatchetGen37`).

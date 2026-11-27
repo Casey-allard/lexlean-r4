@@ -2,22 +2,22 @@
   "spec": "r4/observer-refinement-agenda/1",
   "overall_refinement_score_permille": 866,
   "live_metrics": {
-    "wasm_core_bytes": 12024074,
-    "wasm_headroom_bytes": 2131702,
+    "wasm_core_bytes": 12024010,
+    "wasm_headroom_bytes": 2131766,
     "max_rust_file_lines": 9492,
     "max_js_file_lines": 8607,
-    "lifted_functions": 2675,
-    "residue_functions": 80,
+    "lifted_functions": 2676,
+    "residue_functions": 78,
     "verified_lexlean_modules": 438,
-    "next_lifted_target": 2676,
-    "next_residue_target": 79
+    "next_lifted_target": 2677,
+    "next_residue_target": 77
   },
   "part_health": [
     {
       "organ_id": "engine",
       "vsm_system": "VSM-S4",
       "owned_file_count": 4,
-      "max_file_lines": 8670,
+      "max_file_lines": 8687,
       "heaviest_file": "xtask/src/engine.rs",
       "health_score_permille": 800
     },
@@ -72,14 +72,8 @@
     {
       "file_path": "crates/wasm/src/glm_weights.rs",
       "reason": "unlifted-pure-fn",
-      "function_count": 7,
-      "top_function": "crates/wasm/src/glm_weights.rs::q12_cosine_similarity"
-    },
-    {
-      "file_path": "crates/wasm/src/otel.rs",
-      "reason": "unlifted-pure-fn",
-      "function_count": 4,
-      "top_function": "crates/wasm/src/otel.rs::CanonicalInternTable::intern_hash"
+      "function_count": 6,
+      "top_function": "crates/wasm/src/glm_weights.rs::split_balanced_sentences"
     },
     {
       "file_path": "crates/wasm/src/r4_geometric_stack.rs",
@@ -92,6 +86,12 @@
       "reason": "unlifted-pure-fn",
       "function_count": 4,
       "top_function": "crates/wasm/src/stitch_fabric.rs::assess_custody_health"
+    },
+    {
+      "file_path": "crates/wasm/src/otel.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 3,
+      "top_function": "crates/wasm/src/otel.rs::CanonicalInternTable::intern_hash"
     },
     {
       "file_path": "crates/wasm/js/app/01_studio_chat_preview.js",
@@ -121,15 +121,15 @@
       "ratchet_layer": "dual-surface-proof-and-app",
       "priority": "high",
       "target_function": "crates/wasm/src/glm_weights.rs::split_balanced_sentences",
-      "current_value": "lifted=2675, residue=80",
-      "target_value": "lifted>=2676, residue<=79",
+      "current_value": "lifted=2676, residue=78",
+      "target_value": "lifted>=2677, residue<=77",
       "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/glm_weights.rs::split_balanced_sentences`",
       "concrete_actions": [
         "Synthesize constructive src/R4/RatchetGen<N>.lex.tex + Controls with CAP0005 per-root falsifier negation.",
         "Wire formal LexLean predicate bridge on `crates/wasm/src/glm_weights.rs::split_balanced_sentences` and rebuild public/ Wasm + .holo.",
         "Click min_lifted_functions UP and max_residue_functions DOWN in model/ratchet.toml."
       ],
-      "kappa_hex": "e52e80bbff374cfaca3a540eaf2f52eb718509012c7fc272048bed3b8ed0e661"
+      "kappa_hex": "7d4bff1969ac4b78f939f0583665e2a47b202e17ef11b9a71ba6de9ba8919985"
     },
     {
       "proposal_id": "PROP-PROOF-FALSIFIER-02",
@@ -169,14 +169,14 @@
       "cited_authority": "R4.VerdantRatchetCycle",
       "ratchet_layer": "wasm-and-capsule-budget",
       "priority": "continuous",
-      "current_value": "wasm_core_bytes=12024074",
+      "current_value": "wasm_core_bytes=12024010",
       "target_value": "wasm_core_bytes<=14155776",
-      "summary": "Maintain Wasm binary headroom (2131702 B below 13.5 MiB ceiling) and .holo capsule parity",
+      "summary": "Maintain Wasm binary headroom (2131766 B below 13.5 MiB ceiling) and .holo capsule parity",
       "concrete_actions": [
         "Verify check-wasm-sync and build-holo --verify-site-manifest on every autonomous tick."
       ],
-      "kappa_hex": "6cc970b0e4c102a175e51ff5ea7ed2b4f795b28adc7ee40ac4f86a75a9dd119a"
+      "kappa_hex": "c9247efab1002b0932f6f2dc2cf8f7493850abeb1baaa223d4c2880c54d8cbd6"
     }
   ],
-  "agenda_kappa_hex": "a57546e24d4463a749278c79640d7173fbc06e1f238a2be53299aa52966edd35"
+  "agenda_kappa_hex": "21566af4e28438b479c235350312d934e71d57ca38a499c84446d9afa831fbab"
 }

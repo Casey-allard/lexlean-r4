@@ -3,10 +3,10 @@
   "schema": "uorust/register/1",
   "summary": {
     "total_functions": 3223,
-    "lifted": 2675,
+    "lifted": 2676,
     "effect": 309,
-    "foreign": 159,
-    "residue": 80
+    "foreign": 160,
+    "residue": 78
   },
   "rows": [
     {
@@ -3456,12 +3456,11 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "673ebe44b694864388ced753b2fd3bcd4e2038c6836b3386b369f69946c13f10",
+      "kappa": "b3b212d8a81ae2d1378c948d47d86e420d44cfdc9b82dc2936282615f2e3fd0a",
       "function": "crates/wasm/src/glm_weights.rs::q12_cosine_similarity",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::q12_cosine_similarity` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "UORust.FixedWidthInt",
+      "exact_divergence_free": true
     },
     {
       "kappa": "4daa2c89e76a3c36b68750603ac7cd18d9396ef2041472b73f4b3d64ccef0129",
@@ -19319,11 +19318,10 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "bbfeb3404a8c1bfd3294dcf321aab2d1b69e2927e2864bf3d07f2b68ae77a3b5",
+      "kappa": "16b03c485e658a5dc2edec2defeb4a4f19a1f09da6a648922dcdd8a874389c53",
       "function": "crates/wasm/src/otel.rs::json_to_otlp_value",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/otel.rs::json_to_otlp_value` pending formal .lex.tex lift",
+      "status": "foreign",
+      "foreign_crate": "serde_json",
       "exact_divergence_free": false
     },
     {
@@ -21437,7 +21435,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "77090e9105096cfad2127fbfbdaa0fdb2c549cda4e8481d853118a682fba9102",
+      "kappa": "c6a824eb67e14b17665ced0e27dcf0ca9099a9b8beddc32e450a0ff2f9120e3a",
       "function": "xtask/src/engine.rs::mine_manifold_frontier_claims",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",
@@ -21587,7 +21585,7 @@
       "exact_divergence_free": false
     },
     {
-      "kappa": "f3ee937811489769925b27084081712a2330bb0a07ec61aee92328afbfa53306",
+      "kappa": "f37e46c7c93960e5b3c750f5307eab7423edba2afe570e3b459d70fdd9e13752",
       "function": "xtask/src/engine.rs::run_engine_tick_inner",
       "status": "effect",
       "effect": "os-filesystem-and-process-io",

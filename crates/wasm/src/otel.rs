@@ -375,7 +375,7 @@ pub struct OtlpKeyValueList {
     pub values: Vec<OtlpKeyValue>,
 }
 
-fn json_to_otlp_value(val: &Value) -> OtlpAnyValue {
+fn json_to_otlp_value(val: &serde_json::Value) -> OtlpAnyValue {
     match val {
         Value::String(s) => OtlpAnyValue::StringValue(s.clone()),
         Value::Number(n) => {

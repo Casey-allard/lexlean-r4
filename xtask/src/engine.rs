@@ -2629,7 +2629,7 @@ fn decode_point_row_basin(
 /// Mine open-ended candidate relations (`R4-F31+`) directly from the live `UORLUT01` manifold
 /// (`crates/wasm/src/bootstrap_v8.uorlut`) across all 4 relation families so discovery never
 /// exhausts after the initial 30-item seed curriculum.
-fn mine_manifold_frontier_claims(
+pub fn mine_manifold_frontier_claims(
     root: &Path,
     frontier: &FrontierFile,
     needed: usize,
@@ -3920,6 +3920,23 @@ fn run_engine_tick_inner(
         || has_unobserved_curriculum
         || !pre_diag.failure_basins.is_empty()
     {
+        if !dry_run
+            && push
+            && mine_literature_frontier_claims(root, &pre_frontier, 2)
+                .map(|v| v.len() < 2)
+                .unwrap_or(true)
+        {
+            const ARXIV_ROTATION: [&str; 6] = [
+                "cat:cs.LO OR cat:cs.AI OR cat:cs.CR OR cat:cs.PL OR cat:math.LO",
+                "cat:cs.LG OR cat:cs.CL OR cat:cs.AI",
+                "cat:cs.CV OR cat:cs.RO OR cat:cs.NE",
+                "cat:cs.DS OR cat:cs.DC OR cat:cs.SE",
+                "cat:cs.IT OR cat:math.OC OR cat:stat.ML",
+                "cat:cs.HC OR cat:cs.IR OR cat:cs.MA",
+            ];
+            let rot_q = ARXIV_ROTATION[(engine.rule30_generation as usize) % ARXIV_ROTATION.len()];
+            let _ = literature_sync(root, Some(rot_q), 25, false, true, true, None);
+        }
         discover(root, !dry_run, 1)?
     } else {
         Vec::new()

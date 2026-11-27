@@ -997,6 +997,11 @@ pub fn select_next_lift_candidate(root: &Path, rows: &[LiftRow]) -> Option<LiftC
                 &src
             };
             let prod_lines = prod_src.lines().count();
+            let scan_src = if file_rel.ends_with(".rs") {
+                src.split("\n#[cfg(test)]\nmod ").next().unwrap_or(&src)
+            } else {
+                &src
+            };
             let exempt_rust_ceiling =
                 file_rel.ends_with("glm_weights.rs") || file_rel.ends_with("lexlean_generated.rs");
 
@@ -1013,7 +1018,7 @@ pub fn select_next_lift_candidate(root: &Path, rows: &[LiftRow]) -> Option<LiftC
                 None
             };
 
-            let lines: Vec<&str> = prod_src.lines().collect();
+            let lines: Vec<&str> = scan_src.lines().collect();
             let mut matches = Vec::new();
             let mut current_impl: Option<String> = None;
             let mut brace_depth = 0i32;

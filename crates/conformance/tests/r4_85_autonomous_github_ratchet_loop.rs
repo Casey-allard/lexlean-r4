@@ -157,8 +157,9 @@ fn test_r4_85_autonomous_github_ratchet_loop_r4_85() {
         .expect("read .github/workflows/deploy-watch.yml");
     assert!(
         deploy_watch_yml.contains("R4_ENGINE: ${{ vars.R4_ENGINE }}")
-            && deploy_watch_yml.contains("actions/workflows/engine.yml/dispatches"),
-        "deploy-watch.yml must act as an independent watchdog restarting engine.yml when main is live, unsettled, and idle"
+            && deploy_watch_yml.contains("actions/workflows/engine.yml/dispatches")
+            && deploy_watch_yml.contains("engine-blocked"),
+        "deploy-watch.yml must act as an independent watchdog restarting engine.yml when idle and opening/closing an engine-blocked issue when the < 3 retry circuit breaker trips"
     );
 
     // 4. Verify xtask/src/engine.rs runs dual_surface_ratchet + ratchet-cycle + observer-agenda,

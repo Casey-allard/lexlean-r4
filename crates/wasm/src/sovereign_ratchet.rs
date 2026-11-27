@@ -32,9 +32,9 @@ pub const ACTIVE_REPO_GENERATION: u64 = 49;
 pub const ACTIVE_REPO_LIFTED_TARGET: &str =
     "crates/wasm/src/api.rs::AnthropicContent::to_plain_text";
 /// Latest repository lifted function count (`R4.DualSurfaceRatchetEvolution`).
-pub const ACTIVE_REPO_LIFTED_COUNT: u64 = 2675;
+pub const ACTIVE_REPO_LIFTED_COUNT: u64 = 2676;
 /// Latest repository residue function ceiling (`R4.DualSurfaceRatchetEvolution`).
-pub const ACTIVE_REPO_RESIDUE_COUNT: u64 = 80;
+pub const ACTIVE_REPO_RESIDUE_COUNT: u64 = 78;
 
 /// Typed `R5` failure modes when packing or verifying `R4SPORE1` capsules (`R4.DualSurfaceRatchetEvolution`).
 #[derive(Clone, Debug, PartialEq, Eq)]

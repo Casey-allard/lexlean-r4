@@ -576,16 +576,32 @@ fn challenge_paper_grounded_dynamic_claims_are_unique_and_non_canned() {
 #[test]
 fn challenge_literature_turn_admission_preserves_multi_basin_depth() {
     let root = repo_model::repo_root();
-    let frontier = load_frontier(&root).expect("load_frontier");
-    let mined =
-        mine_literature_frontier_claims(&root, &frontier, 4).expect("mine upcoming frontier turns");
+    let live_frontier = load_frontier(&root).expect("load_frontier");
+
+    // 1. Strip already-mined `r4:v1:literature:` claims on an in-memory copy so this check
+    // remains non-vacuous even after `discover` mines 100% of `model/literature.toml`.
+    let mut unmined_lit_frontier = live_frontier.clone();
+    unmined_lit_frontier
+        .claim
+        .retain(|c| !c.kappa.starts_with("r4:v1:literature:"));
+    let lit_mined = mine_literature_frontier_claims(&root, &unmined_lit_frontier, 4)
+        .expect("mine literature turns from base frontier");
     assert!(
-        !mined.is_empty(),
-        "expected upcoming literature claims to verify cumulative admission"
+        !lit_mined.is_empty(),
+        "model/literature.toml must yield literature claims when unmined"
+    );
+
+    // 2. Also verify the manifold fallback path (`discover` stage 3 when literature is exhausted).
+    let manifold_mined = engine::mine_manifold_frontier_claims(&root, &live_frontier, 4)
+        .expect("mine manifold fallback turns");
+    assert_eq!(
+        manifold_mined.len(),
+        4,
+        "manifold fallback must synthesize 4 distinct claims even when literature is fully mined"
     );
 
     let mut cumulative_lut = (*super::shared_bootstrap_lut()).clone();
-    for claim in &mined {
+    for claim in lit_mined.iter().chain(manifold_mined.iter()) {
         if let (Some(prompt), Some(reply)) =
             (claim.prompt.as_deref(), claim.target_reply.as_deref())
         {
@@ -598,6 +614,31 @@ fn challenge_literature_turn_admission_preserves_multi_basin_depth() {
     let model_arc = std::sync::Arc::new(cumulative_lut);
     assert!(
         engine::multi_basin_depth_invariants_hold(&model_arc),
-        "cumulative frontier turn admission must preserve >=128 tokens and >=2 clauses across multi-basin corpus"
+        "cumulative literature + manifold turn admission must preserve >=128 tokens and >=2 clauses across multi-basin corpus"
+    );
+}
+
+#[test]
+fn challenge_all_residue_functions_are_dual_surface_discoverable() {
+    let root = repo_model::repo_root();
+    let outcome =
+        engine::lift_register::scan_codebase_lift_register(&root).expect("scan lift register");
+    let mut undiscoverable = Vec::new();
+    for row in &outcome.document.rows {
+        if row.status == "residue"
+            && engine::dual_surface_ratchet::select_next_lift_candidate(
+                &root,
+                std::slice::from_ref(row),
+            )
+            .is_none()
+        {
+            undiscoverable.push(row.function.clone());
+        }
+    }
+    assert!(
+        undiscoverable.is_empty(),
+        "every remaining residue function must be discoverable by dual_surface_ratchet (blocked {}): {:?}",
+        undiscoverable.len(),
+        undiscoverable
     );
 }

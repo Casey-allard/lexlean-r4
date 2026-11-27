@@ -96,13 +96,32 @@ jobs:
               gh api -X POST "repos/$REPO/issues/$issue/comments" -f body="Live again at $head: $url" >/dev/null
               gh api -X PATCH "repos/$REPO/issues/$issue" -f state=closed -f state_reason=completed >/dev/null
             fi
-            if [[ $REPO == 'Casey-allard/lexlean-r4' && ${R4_ENGINE:-} != 'off' ]]; then
+            if [[ $REPO == 'Casey-allard/lexlean-r4' ]]; then
+              engine_label=engine-blocked
+              engine_issue=$(gh api "repos/$REPO/issues?state=open&labels=$engine_label&per_page=1" --jq '.[0].number // empty')
               settled_hit=$(gh api "repos/$REPO/actions/caches?key=r4-settled-$head&per_page=1" --jq '.actions_caches | length')
               active_engine=$(gh api "repos/$REPO/actions/workflows/engine.yml/runs?per_page=5" --jq '[.workflow_runs[] | select(.status != "completed")] | length')
               failed_on_tip=$(gh api "repos/$REPO/actions/workflows/engine.yml/runs?branch=main&head_sha=$head&per_page=10" --jq '[.workflow_runs[] | select(.status == "completed" and (.conclusion == "failure" or .conclusion == "timed_out"))] | length')
-              if [[ ${settled_hit:-0} == 0 && ${active_engine:-0} == 0 && ${failed_on_tip:-0} -lt 3 ]]; then
-                say "main is live and unsettled at $head with no active Engine run: starting engine on main"
-                dispatch_with_retry gh api -X POST "repos/$REPO/actions/workflows/engine.yml/dispatches" -f ref=main -f "inputs[reason]=deploy-watch @ ${head:0:8}"
+              if [[ -n $engine_issue && ( ${settled_hit:-0} -gt 0 || ${failed_on_tip:-0} == 0 || ${R4_ENGINE:-} == 'off' ) ]]; then
+                gh api -X POST "repos/$REPO/issues/$engine_issue/comments" -f body="Autonomous Engine recovered or settled at \`$head\`." >/dev/null
+                gh api -X PATCH "repos/$REPO/issues/$engine_issue" -f state=closed -f state_reason=completed >/dev/null
+              fi
+              if [[ ${R4_ENGINE:-} != 'off' && ${settled_hit:-0} == 0 && ${active_engine:-0} == 0 ]]; then
+                if [[ ${failed_on_tip:-0} -lt 3 ]]; then
+                  say "main is live and unsettled at $head with no active Engine run: starting engine on main"
+                  dispatch_with_retry gh api -X POST "repos/$REPO/actions/workflows/engine.yml/dispatches" -f ref=main -f "inputs[reason]=deploy-watch @ ${head:0:8}"
+                else
+                  last_engine_url=$(gh api "repos/$REPO/actions/workflows/engine.yml/runs?branch=main&head_sha=$head&per_page=5" --jq '[.workflow_runs[] | select(.status == "completed" and (.conclusion == "failure" or .conclusion == "timed_out"))] | first | .html_url // ""')
+                  ebody="Autonomous Engine hit its bounded retry ceiling (\`$failed_on_tip\` failed attempts) on \`$head\`. Latest failed run: $last_engine_url"
+                  say "$ebody"
+                  gh label create "$engine_label" --repo "$REPO" --color e99695 --description 'Autonomous Engine circuit breaker tripped' --force >/dev/null
+                  if [[ -n $engine_issue ]]; then
+                    elast=$(gh api "repos/$REPO/issues/$engine_issue/comments?per_page=100" --jq 'last | .body // ""')
+                    [[ $elast == "$ebody" ]] || gh api -X POST "repos/$REPO/issues/$engine_issue/comments" -f body="$ebody" >/dev/null
+                  else
+                    gh api -X POST "repos/$REPO/issues" -f title="Autonomous Engine paused after 3 failed attempts on ${head:0:8}" -f body="$ebody" -f "labels[]=$engine_label" -f "assignees[]=$OWNER" >/dev/null
+                  fi
+                fi
               fi
             fi
             exit 0

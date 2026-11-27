@@ -2804,7 +2804,7 @@ impl MvmSandbox {
         }
         Some(out)
     }
-
+    /// Execute tar, gzip, and zip archive coreutil commands.
     fn exec_coreutil_archive(
         &mut self,
         prog: &str,
