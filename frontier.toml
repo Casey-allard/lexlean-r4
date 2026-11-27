@@ -5345,3 +5345,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f337_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34942 (Spectrum Adaptation of AI-Native Autoencoder Communications with Transfer Learning)."
 prompt = "How do empirical models in arXiv 2611.34942 (cs.NI) characterize dynamics across spectrum adaptation native autoencoder communications?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefourninefourtwo in csni characterizes topological manifolds stabilizing structural trajectories governing spectrum adaptation native autoencoder communications transfer learning end physical layer replaces separate modulation coding detection operations consists jointly trained encoder while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F338"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.34934:H-LIT-2611.34934-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f338_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.34934 (Attack Policy Selection can Mislead Monitor Evaluators)."
+prompt = "How does arXiv 2611.34934 (cs.LG) advance alignment and inference over attack policy selection mislead monitor?"
+target_reply = "Publication catalogtwosixoneonepthreefourninethreefour in cslg demonstrates grounded mechanisms connecting attack policy selection mislead monitor evaluators monitors classifiers flag dangerous behaviour agents often evaluated."

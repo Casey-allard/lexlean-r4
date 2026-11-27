@@ -134021,8 +134021,9 @@ fn translate_clause_to_target_language(clause: &str, lang: &str) -> String {
 }
 
 /// Token-level stylistic register transformer rewriting technical clauses into `noir`, `shakespeare`,
-/// `socratic`, or `pirate` idioms.
+/// `socratic`, or `pirate` idioms. (`R4.RatchetGen47`).
 fn rewrite_clause_in_stylistic_register(clause: &str, persona: &str) -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_47::verify_ratchet_gen_47_admitted());
     let subs: &[(&str, &str)] = match persona {
         "noir" => &[
             ("servers", "precinct nodes"),
