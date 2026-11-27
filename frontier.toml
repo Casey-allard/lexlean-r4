@@ -5408,3 +5408,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f341_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34888 (The Look-Elsewhere Effect in Searches for New Physics: from Classical Methods to Machine Learning)."
 prompt = "How do empirical models in arXiv 2611.34888 (hep-ph) characterize dynamics across look elsewhere effect searches physics?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefoureighteighteight in hepph characterizes topological manifolds stabilizing structural trajectories governing look elsewhere effect searches physics classical methods machine learning lee arises location parameter space not specified advance scanning many locations while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F342"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.34616:H-LIT-2611.34616-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f342_corpus_induction"
+statement = "Verify formal hypotheses from arXiv paper 2611.34616 (Conditional Independence Graph Learning from Dependent Data Via Time-Delay Embedding)."
+prompt = "How do empirical models in arXiv 2611.34616 (stat.ML) characterize dynamics across conditional independence graph learning dependent?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreefoursixonesix in statml characterizes topological manifolds stabilizing structural trajectories governing conditional independence graph learning dependent data time delay embedding consider problem inferring cig high dimensional stationary multivariate gaussian series which while preserving global information coherence without."

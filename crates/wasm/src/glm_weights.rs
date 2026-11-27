@@ -129429,7 +129429,9 @@ fn split_balanced_sentences(sec_text: &str) -> Vec<&str> {
     out
 }
 
+/// Formal R4.RatchetGen51 dual-surface lifted slice (`gen-51`).
 fn split_section_horizon_clauses(sec_text: &str) -> Vec<&str> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_51::verify_ratchet_gen_51_admitted());
     split_balanced_sentences(sec_text)
         .into_iter()
         .filter(|s| s.len() >= 25)

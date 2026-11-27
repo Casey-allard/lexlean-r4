@@ -2,11 +2,11 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 3226,
-    "lifted": 2680,
+    "total_functions": 3229,
+    "lifted": 2684,
     "effect": 309,
     "foreign": 160,
-    "residue": 77
+    "residue": 76
   },
   "rows": [
     {
@@ -3582,12 +3582,11 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "9b65819c58c970b29bc914b7b7ca4c9a0582b721ccfc3a8207d45c83e85be602",
+      "kappa": "ce909689b643777a04d317137424f027d8e82283c1bb8bc462b56a76ce94d622",
       "function": "crates/wasm/src/glm_weights.rs::split_section_horizon_clauses",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/glm_weights.rs::split_section_horizon_clauses` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "R4.RatchetGen51",
+      "exact_divergence_free": true
     },
     {
       "kappa": "099b614f19586b3d06d961fad91e06ac11d601cbb49a5e64ecd7ead6b5b4d7e8",
@@ -5775,6 +5774,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_50_slice",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_50_slice",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "28e92268193ad659989e2f97bdabb7b92294b8d6050fc72ee79f73a10c89c3b8",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_51_slice",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_51_slice",
       "exact_divergence_free": true
     },
     {
@@ -15519,6 +15525,20 @@
       "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_50_zero_float_guard",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_50_zero_float_guard",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "0d995ca9541b3a89b23052dfe7b9e33181f822cca802be3222f34253d3b7052e",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_51_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_51_admitted",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "7a94a5efa5147fb9a9f5005b04acca4f4a466cc1111105b60be7683a3f26f1c6",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_51_zero_float_guard",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_51_zero_float_guard",
       "exact_divergence_free": true
     },
     {
