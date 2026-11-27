@@ -129010,8 +129010,9 @@ pub static GLM_CONVERSATIONAL_QA: [GlmConversationalQa; 220] = [
     },
 ];
 
-/// Expand English contractions and possessives before tokenizing into alphanumeric words.
+/// Expand English contractions and possessives before tokenizing into alphanumeric words. (`R4.RatchetGen53`).
 pub fn tokenize_words_simple(lower: &str) -> Vec<String> {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_53::verify_ratchet_gen_53_admitted());
     let mut s = lower.to_ascii_lowercase().replace(['’', '‘', '`'], "'");
     for (pat, rep) in [
         ("let's", "let us"),

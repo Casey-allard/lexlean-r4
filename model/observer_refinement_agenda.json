@@ -6,11 +6,11 @@
     "wasm_headroom_bytes": 2131702,
     "max_rust_file_lines": 9492,
     "max_js_file_lines": 8607,
-    "lifted_functions": 2688,
-    "residue_functions": 75,
-    "verified_lexlean_modules": 444,
-    "next_lifted_target": 2689,
-    "next_residue_target": 74
+    "lifted_functions": 2692,
+    "residue_functions": 74,
+    "verified_lexlean_modules": 446,
+    "next_lifted_target": 2693,
+    "next_residue_target": 73
   },
   "part_health": [
     {
@@ -40,7 +40,7 @@
     {
       "organ_id": "proofs",
       "vsm_system": "VSM-S3*",
-      "owned_file_count": 445,
+      "owned_file_count": 447,
       "max_file_lines": 1012,
       "heaviest_file": "xtask/src/mechanizer.rs",
       "health_score_permille": 1000
@@ -82,16 +82,16 @@
       "top_function": "crates/wasm/src/stitch_fabric.rs::assess_custody_health"
     },
     {
-      "file_path": "crates/wasm/src/glm_weights.rs",
-      "reason": "unlifted-pure-fn",
-      "function_count": 3,
-      "top_function": "crates/wasm/src/glm_weights.rs::tokenize_words_simple"
-    },
-    {
       "file_path": "crates/wasm/src/otel.rs",
       "reason": "unlifted-pure-fn",
       "function_count": 3,
       "top_function": "crates/wasm/src/otel.rs::CanonicalInternTable::intern_hash"
+    },
+    {
+      "file_path": "crates/wasm/src/glm_weights.rs",
+      "reason": "unlifted-pure-fn",
+      "function_count": 2,
+      "top_function": "crates/wasm/src/glm_weights.rs::translate_clause_to_target_language"
     },
     {
       "file_path": "crates/wasm/js/app/01_studio_chat_preview.js",
@@ -120,16 +120,16 @@
       "cited_authority": "R4.DualSurfaceRatchetEvolution",
       "ratchet_layer": "dual-surface-proof-and-app",
       "priority": "high",
-      "target_function": "crates/wasm/src/glm_weights.rs::tokenize_words_simple",
-      "current_value": "lifted=2688, residue=75",
-      "target_value": "lifted>=2689, residue<=74",
-      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/glm_weights.rs::tokenize_words_simple`",
+      "target_function": "crates/wasm/src/glm_weights.rs::translate_clause_to_target_language",
+      "current_value": "lifted=2692, residue=74",
+      "target_value": "lifted>=2693, residue<=73",
+      "summary": "Co-evolve constructive LexLean proof + application lift for `crates/wasm/src/glm_weights.rs::translate_clause_to_target_language`",
       "concrete_actions": [
         "Synthesize constructive src/R4/RatchetGen<N>.lex.tex + Controls with CAP0005 per-root falsifier negation.",
-        "Wire formal LexLean predicate bridge on `crates/wasm/src/glm_weights.rs::tokenize_words_simple` and rebuild public/ Wasm + .holo.",
+        "Wire formal LexLean predicate bridge on `crates/wasm/src/glm_weights.rs::translate_clause_to_target_language` and rebuild public/ Wasm + .holo.",
         "Click min_lifted_functions UP and max_residue_functions DOWN in model/ratchet.toml."
       ],
-      "kappa_hex": "c6ab2e0e04382bc95943caea66a20364afc534af421628020c1def70a06fdb14"
+      "kappa_hex": "cbd09596ce2cb2f36b80ef08252ea51d20ede41e7e16ea1d9236396b7f94a43c"
     },
     {
       "proposal_id": "PROP-PROOF-FALSIFIER-02",
@@ -138,14 +138,14 @@
       "cited_authority": "R4.ObserverRefinementAgenda",
       "ratchet_layer": "lexlean-proof-frontier",
       "priority": "high",
-      "current_value": "verified_modules=444",
-      "target_value": "verified_modules>=446",
+      "current_value": "verified_modules=446",
+      "target_value": "verified_modules>=448",
       "summary": "Advance constructive zero-Classical.choice LexLean proof & CAP0005 falsifier count",
       "concrete_actions": [
         "Verify every zero-arg Bool verify* root fails when negated under CAP0005.",
         "Verify Lean 4.32.1 kernel proofs and append mechanized Rust module to lexlean_generated.rs."
       ],
-      "kappa_hex": "1214bd436455fc110652cefbfda161fded5f3c79d202142299464267be2da675"
+      "kappa_hex": "c8f93c3434c0fe4f75d72187f49767daef423404d694cec13ba08acecedb7a25"
     },
     {
       "proposal_id": "PROP-MODULARITY-03",
@@ -178,5 +178,5 @@
       "kappa_hex": "6cc970b0e4c102a175e51ff5ea7ed2b4f795b28adc7ee40ac4f86a75a9dd119a"
     }
   ],
-  "agenda_kappa_hex": "0d9833f77ac1f4597e4fe4d035afdb84e7a057788cf5bee0e4b2ee20f4fc5dac"
+  "agenda_kappa_hex": "e2ffe4e62ef46e91076e129d87d6ca95ee219abc6047cce3192fef41df9923da"
 }

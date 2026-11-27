@@ -3,8 +3,8 @@
   "model_id": "8a0e88c03975a5c7f8f6dd468080f5ec89a19c59502283a0058b88d8b9f4be67",
   "view_manifest_sha256": "6b245cf2a02b6be350dc10915ffce6ff039a896d88f62f85b62b694a50d24f0c",
   "view_model_id": "c1387d7bbf11b6973e4a905a4ecb819f61b0c0cf94e9f90647c40d65b058a9df",
-  "generated_core_sha256": "5a7fc09aaea4f8744fa8b9c6dfae8a4f0cd0ae7286b588a245aef22a3ed31e70",
-  "adapter_wasm_sha256": "bf19ecbdecba500065b2c62f04b27157a1ae04efbc2decaf72ad53ced8298c44",
+  "generated_core_sha256": "28e2fe0a632b5c0286129e19e8e511101c558f06bff8850778bd8a13790ad8b5",
+  "adapter_wasm_sha256": "356728e4e1a4effde1f42463f68e36a4095734ce53f3e5d2afa8ed87eeeaa560",
   "binding_javascript_sha256": "87f505536e6b45a01309a1f2818bf9e757537836d953a08866c47a12eaf66fd2",
   "adapter_lock_sha256": "cc7f587156de58f505b13aa3f5f545e6736ff4c5f1acaa2c03248c64fd61a967"
 }
