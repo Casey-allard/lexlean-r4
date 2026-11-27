@@ -131655,7 +131655,9 @@ fn extract_comparison_subjects(raw_prompt: &str, lower: &str) -> Option<(String,
     None
 }
 
+/// Formal R4.RatchetGen52 dual-surface lifted slice (`gen-52`).
 fn title_case_phrase(s: &str) -> String {
+    debug_assert!(crate::lexlean_generated::r4_ratchet_gen_52::verify_ratchet_gen_52_admitted());
     s.split_whitespace()
         .map(|w| {
             let mut chars = w.chars();
