@@ -2,11 +2,11 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 3268,
-    "lifted": 2736,
+    "total_functions": 3271,
+    "lifted": 2740,
     "effect": 309,
     "foreign": 160,
-    "residue": 63
+    "residue": 62
   },
   "rows": [
     {
@@ -5875,6 +5875,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_64_slice",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_64_slice",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "1b0aca1f1d7a1d3bfb2c63100033d81a09fbeb2051f3fe4713a4225580ae98b0",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_65_slice",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_65_slice",
       "exact_divergence_free": true
     },
     {
@@ -15825,6 +15832,20 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "c4c66f25383e10b06487d8e6a27dbdbb6ce5530aca17ef786a030ed2f4e3f530",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_65_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_65_admitted",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "6b1d6a51a43b670e83f36a0b7aea2f13d55e7c7807320a8b0eeca5eedf0ac89c",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_65_zero_float_guard",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_65_zero_float_guard",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "65a1754bb4e7266e6ebbc9794c2996600a5da437af419a0a06054cb85aae49a2",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_6_admitted",
       "status": "lifted",
@@ -16560,12 +16581,11 @@
       "exact_divergence_free": true
     },
     {
-      "kappa": "380421835f9cbc01128293940a4a14e15d1be7bf23530e9e0a886873ed8ae7d7",
+      "kappa": "465363d71c068c40a0b732e9e6d277691840470887226d5cb425b0e03dffd101",
       "function": "crates/wasm/src/lib.rs::StudioEngine::register_special_tokens",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::register_special_tokens` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "R4.RatchetGen65",
+      "exact_divergence_free": true
     },
     {
       "kappa": "fe52039c588eed2449bb2288efbd105800ac466ec19e65c574574d85aec26d0a",

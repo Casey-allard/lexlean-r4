@@ -5654,3 +5654,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f355_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34757 (On the Convergence of Discrete-Time Primal-Dual Algorithm for Distributed GNE Seeking)."
 prompt = "How do empirical models in arXiv 2611.34757 (math.OC) characterize dynamics across convergence discrete time primal dual?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefoursevenfiveseven in mathoc characterizes topological manifolds stabilizing structural trajectories governing convergence discrete time primal dual algorithm distributed gne seeking investigate generalized nash equilibrium class noncooperative games nonlinear coupling constraints establish while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F356"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.34734:H-LIT-2611.34734-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f356_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.34734 (From NP-Hardness to Exact Tractability Through Sample Abundance)."
+prompt = "How does arXiv 2611.34734 (cs.LG) advance alignment and inference over hardness exact tractability sample abundance?"
+target_reply = "Publication catalogtwosixoneonepthreefourseventhreefour in cslg demonstrates grounded mechanisms connecting hardness exact tractability sample abundance additional make optimization tractable without changing objective feasible set."

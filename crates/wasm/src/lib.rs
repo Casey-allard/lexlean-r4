@@ -4581,7 +4581,11 @@ impl StudioEngine {
         self.sync_workspace_from_mvm();
     }
 
+    /// Formal R4.RatchetGen65 dual-surface lifted slice (`gen-65`).
     fn register_special_tokens(&mut self) {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_65::verify_ratchet_gen_65_admitted()
+        );
         let specials = [
             (PAD_TOKEN_ID, "<PAD>", ""),
             (REPLY_START_TOKEN_ID, "<REPLY_START>", "reply_start"),
