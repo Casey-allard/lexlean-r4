@@ -8650,8 +8650,11 @@ impl StudioEngine {
             .unwrap_or_default()
     }
 
-    /// Hot-swap / merge a `UORSHRD1` binary shard pack into the active `LutStackModel` and rebuild its Radix `/8` index.
+    /// Hot-swap / merge a `UORSHRD1` binary shard pack into the active `LutStackModel` and rebuild its Radix `/8` index. (`R4.RatchetGen64`).
     pub fn merge_shard_bytes(&mut self, shard_bytes: &[u8]) -> Result<String, String> {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_64::verify_ratchet_gen_64_admitted()
+        );
         let shard = lut_stack_exec::GeometricShardPack::from_bytes(shard_bytes)?;
         let model_mut = Arc::make_mut(&mut self.lut_stack);
         let report = model_mut.merge_geometric_shard(&shard)?;

@@ -5636,3 +5636,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f354_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34761 (Time-optimal travel driven by two vector fields on a Riemannian manifold)."
 prompt = "How do empirical models in arXiv 2611.34761 (math.DG) characterize dynamics across time optimal travel driven vector?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefoursevensixone in mathdg characterizes topological manifolds stabilizing structural trajectories governing time optimal travel driven vector fields riemannian manifold study minimum kinematic model which finitely many drift contribute additively velocity after while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F355"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.34757:H-LIT-2611.34757-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f355_corpus_induction"
+statement = "Verify formal hypotheses from arXiv paper 2611.34757 (On the Convergence of Discrete-Time Primal-Dual Algorithm for Distributed GNE Seeking)."
+prompt = "How do empirical models in arXiv 2611.34757 (math.OC) characterize dynamics across convergence discrete time primal dual?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreefoursevenfiveseven in mathoc characterizes topological manifolds stabilizing structural trajectories governing convergence discrete time primal dual algorithm distributed gne seeking investigate generalized nash equilibrium class noncooperative games nonlinear coupling constraints establish while preserving global information coherence without."
