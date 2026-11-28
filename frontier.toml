@@ -5618,3 +5618,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f353_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34807 (On the Distance Properties of Huffman Sequences)."
 prompt = "How do empirical models in arXiv 2611.34807 (cs.IT) characterize dynamics across distance properties huffman sequences?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefoureightzeroseven in csit characterizes topological manifolds stabilizing structural trajectories governing distance properties huffman sequences letter study pairwise distances common aperiodic autocorrelation function first show determined ternary signed pattern encoding relative while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F354"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.34761:H-LIT-2611.34761-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f354_corpus_induction"
+statement = "Verify formal hypotheses from arXiv paper 2611.34761 (Time-optimal travel driven by two vector fields on a Riemannian manifold)."
+prompt = "How do empirical models in arXiv 2611.34761 (math.DG) characterize dynamics across time optimal travel driven vector?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreefoursevensixone in mathdg characterizes topological manifolds stabilizing structural trajectories governing time optimal travel driven vector fields riemannian manifold study minimum kinematic model which finitely many drift contribute additively velocity after while preserving global information coherence without."

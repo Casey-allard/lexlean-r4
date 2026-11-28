@@ -4603,8 +4603,11 @@ impl StudioEngine {
         }
     }
 
-    /// Intern or look up a surface token piece in the reversible vocabulary.
+    /// Intern or look up a surface token piece in the reversible vocabulary. (`R4.RatchetGen63`).
     pub fn intern_token(&mut self, piece: &str) -> TokenAtom {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_63::verify_ratchet_gen_63_admitted()
+        );
         if let Some(existing) = self.vocab.iter().find(|t| t.piece == piece) {
             return existing.clone();
         }
