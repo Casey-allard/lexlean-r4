@@ -5550,6 +5550,7 @@ impl StudioEngine {
         )
     }
 
+    /// Formal R4.RatchetGen57 dual-surface lifted slice (`gen-57`).
     #[allow(clippy::too_many_arguments)]
     fn build_predictions_json(
         &self,
