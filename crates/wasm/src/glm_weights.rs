@@ -133390,7 +133390,7 @@ fn expand_anaphoric_aspect_words(words: &[String]) -> Vec<String> {
 /// `GlmRetentionState` (`16` `RETAIN_LAMBDA_Q31` heads + `4D` Hamilton quaternion + Base-17 `packed_4block_root`)
 /// and `orbit_root_causal_successor` + `level3_joint_pointer_score` (`+256` exact pointer bonus) to copy
 /// tool names, file paths, and argument values directly from the prompt context and emit structured
-/// `<thought>...</thought>` and `<tool_call>{"name": ..., "arguments": ...}</tool_call>` blocks.
+/// `<thought>...</thought>` and `<tool_call>{"name": ..., "arguments": ...}</tool_call>` blocks. (`R4.RatchetGen55`).
 pub fn try_synthesize_agentic_harness_turn(
     raw_prompt: &str,
     lower: &str,

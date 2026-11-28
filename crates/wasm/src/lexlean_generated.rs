@@ -53029,3 +53029,55 @@ pub mod r4_ratchet_gen_54 {
         )
     }
 }
+
+/// Generated from `src/R4/RatchetGen55.lex.tex` (`R4.RatchetGen55`, `R4-84`).
+/// Target lifted function: `crates/wasm/src/glm_weights.rs::try_synthesize_agentic_harness_turn` (`lines=205`, `arity=0`, `float_tokens=0`).
+pub mod r4_ratchet_gen_55 {
+    /// Inductive `R4.RatchetGen55.RatchetGen55Verdict`.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum RatchetGen55Verdict {
+        SliceAdmitted,
+        RefusedZeroGenerationRank,
+        RefusedOversizedTargetSlice,
+        RefusedFloatTokenLeak,
+        RefusedResidueBudgetExceeded,
+    }
+
+    /// Function `R4.RatchetGen55.admitRatchetGen55Slice`.
+    pub const fn admit_ratchet_gen_55_slice(
+        gen_rank: u64,
+        fn_lines: u64,
+        max_fn_lines: u64,
+        float_tokens: u64,
+        live_residue: u64,
+        max_residue: u64,
+    ) -> RatchetGen55Verdict {
+        if gen_rank == 0 {
+            RatchetGen55Verdict::RefusedZeroGenerationRank
+        } else if fn_lines == 0 || max_fn_lines < fn_lines {
+            RatchetGen55Verdict::RefusedOversizedTargetSlice
+        } else if 0 < float_tokens {
+            RatchetGen55Verdict::RefusedFloatTokenLeak
+        } else if max_residue < live_residue {
+            RatchetGen55Verdict::RefusedResidueBudgetExceeded
+        } else {
+            RatchetGen55Verdict::SliceAdmitted
+        }
+    }
+
+    /// Function `R4.RatchetGen55.verifyRatchetGen55Admitted`.
+    pub const fn verify_ratchet_gen_55_admitted() -> bool {
+        matches!(
+            admit_ratchet_gen_55_slice(55, 205, 400, 0, 72, 72),
+            RatchetGen55Verdict::SliceAdmitted
+        )
+    }
+
+    /// Function `R4.RatchetGen55.verifyRatchetGen55ZeroFloatGuard`.
+    pub const fn verify_ratchet_gen_55_zero_float_guard() -> bool {
+        matches!(
+            admit_ratchet_gen_55_slice(55, 205, 400, 1, 72, 72),
+            RatchetGen55Verdict::RefusedFloatTokenLeak
+        )
+    }
+}
