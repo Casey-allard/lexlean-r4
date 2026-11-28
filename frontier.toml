@@ -5570,3 +5570,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f350_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34866 (Adaptive Control Barrier Functions for Nonlinear Singularly Perturbed Systems)."
 prompt = "How do empirical models in arXiv 2611.34866 (eess.SY) characterize dynamics across adaptive control barrier functions nonlinear?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefoureightsixsix in eesssy characterizes topological manifolds stabilizing structural trajectories governing adaptive control barrier functions nonlinear singularly perturbed systems cbfs emerged flexible efficient approach enforcing dynamic constraints paper consider class uncertain while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F351"
+status = "proved"
+depends = ["R4-F01"]
+relation = "dialogue-stem"
+window = [
+    1,
+    7,
+]
+kappa = "r4:v1:literature:2611.34840:H-LIT-2611.34840-01:k=7"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f351_pointkey_resonance"
+statement = "Verify formal hypotheses from arXiv paper 2611.34840 (Provably Efficient Offline Discounted Reinforcement Learning under Recursive Entropic Risk)."
+prompt = "How does arXiv 2611.34840 (cs.LG) advance alignment and inference over provably efficient offline discounted reinforcement?"
+target_reply = "Publication catalogtwosixoneonepthreefoureightfourzero in cslg demonstrates grounded mechanisms connecting provably efficient offline discounted reinforcement learning recursive entropic risk study sensitive finite infinite horizon."

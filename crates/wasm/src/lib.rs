@@ -8576,8 +8576,11 @@ impl StudioEngine {
         )
     }
 
-    /// Process an Anthropic-compatible `/v1/messages` JSON request.
+    /// Process an Anthropic-compatible `/v1/messages` JSON request. (`R4.RatchetGen60`).
     pub fn dispatch_v1_messages(&mut self, request_json: &str) -> String {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_60::verify_ratchet_gen_60_admitted()
+        );
         match api::handle_v1_messages_payload_with_backend(request_json, self) {
             Ok((_status, body)) => body,
             Err((_status, err_body)) => err_body,
