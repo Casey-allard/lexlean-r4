@@ -2,11 +2,11 @@
   "domain": "uorust/function-kappa/1",
   "schema": "uorust/register/1",
   "summary": {
-    "total_functions": 3259,
-    "lifted": 2724,
+    "total_functions": 3262,
+    "lifted": 2728,
     "effect": 309,
     "foreign": 160,
-    "residue": 66
+    "residue": 65
   },
   "rows": [
     {
@@ -5854,6 +5854,13 @@
       "function": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_61_slice",
       "status": "lifted",
       "definition": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_61_slice",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "e347f61bb539f3ccd92f44ccefe91a505a78a9c28aa5b587cb4a0cc25eb5628b",
+      "function": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_62_slice",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::admit_ratchet_gen_62_slice",
       "exact_divergence_free": true
     },
     {
@@ -15762,6 +15769,20 @@
       "exact_divergence_free": true
     },
     {
+      "kappa": "bc56481b4d9ced3ed4d2ca5e182485e75a0a9c723c2b035deffe80c25eaf2232",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_62_admitted",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_62_admitted",
+      "exact_divergence_free": true
+    },
+    {
+      "kappa": "8fde765af66d281853e425636f0d3466cf1b4094d7d7a684a51502f32971c25e",
+      "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_62_zero_float_guard",
+      "status": "lifted",
+      "definition": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_62_zero_float_guard",
+      "exact_divergence_free": true
+    },
+    {
       "kappa": "65a1754bb4e7266e6ebbc9794c2996600a5da437af419a0a06054cb85aae49a2",
       "function": "crates/wasm/src/lexlean_generated.rs::verify_ratchet_gen_6_admitted",
       "status": "lifted",
@@ -16338,10 +16359,9 @@
     {
       "kappa": "90d513d586e2c3377eec260364bc4b61931f87739f763ae8b03d12d99553d3bd",
       "function": "crates/wasm/src/lib.rs::StudioEngine::infer_turn",
-      "status": "residue",
-      "reason": "unlifted-pure-fn",
-      "detail": "pure function `crates/wasm/src/lib.rs::StudioEngine::infer_turn` pending formal .lex.tex lift",
-      "exact_divergence_free": false
+      "status": "lifted",
+      "definition": "R4.RatchetGen62",
+      "exact_divergence_free": true
     },
     {
       "kappa": "1ab6e6165b45206eed2089db9a99d440b49bb8cf24c92f7b2833a024b1810f78",

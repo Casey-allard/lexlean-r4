@@ -5600,3 +5600,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f352_bvgk_writer_refinement"
 statement = "Verify formal hypotheses from arXiv paper 2611.34835 (Full Structure Recovery of Linearized Reed-Solomon Codes)."
 prompt = "How does the cs.CR implementation in arXiv 2611.34835 enforce invariants for full structure recovery linearized reed?"
 target_reply = "Arxiv=2611.34835 category=cs.CR architecture enforces deterministic memory safety invariants governing full structure recovery linearized reed solomon codes lrs optimal sum rank metric generalize both gabidulin benefit excellent decoding capabilities making under concurrent execution workloads preventing unsynchronized mutation hazards bounded."
+
+[[claim]]
+id = "R4-F353"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.34807:H-LIT-2611.34807-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f353_corpus_induction"
+statement = "Verify formal hypotheses from arXiv paper 2611.34807 (On the Distance Properties of Huffman Sequences)."
+prompt = "How do empirical models in arXiv 2611.34807 (cs.IT) characterize dynamics across distance properties huffman sequences?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreefoureightzeroseven in csit characterizes topological manifolds stabilizing structural trajectories governing distance properties huffman sequences letter study pairwise distances common aperiodic autocorrelation function first show determined ternary signed pattern encoding relative while preserving global information coherence without."

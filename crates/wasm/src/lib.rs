@@ -8661,6 +8661,7 @@ impl StudioEngine {
 }
 
 impl api::InferenceBackend for StudioEngine {
+    /// Formal R4.RatchetGen62 dual-surface lifted slice (`gen-62`).
     fn infer_turn(
         &mut self,
         prompt: &str,
