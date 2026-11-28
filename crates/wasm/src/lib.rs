@@ -8641,8 +8641,11 @@ impl StudioEngine {
         report.to_json()
     }
 
-    /// Return the content-addressed 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON.
+    /// Return the content-addressed 16-shard `(e8_root, clifford_action, icosian_root)` `.uorlut` catalog as JSON. (`R4.RatchetGen66`).
     pub fn shard_catalog_json(&self) -> String {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_66::verify_ratchet_gen_66_admitted()
+        );
         self.lut_stack.partition_geometric_shards().to_json()
     }
 

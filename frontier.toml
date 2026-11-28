@@ -5669,3 +5669,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f356_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.34734 (From NP-Hardness to Exact Tractability Through Sample Abundance)."
 prompt = "How does arXiv 2611.34734 (cs.LG) advance alignment and inference over hardness exact tractability sample abundance?"
 target_reply = "Publication catalogtwosixoneonepthreefourseventhreefour in cslg demonstrates grounded mechanisms connecting hardness exact tractability sample abundance additional make optimization tractable without changing objective feasible set."
+
+[[claim]]
+id = "R4-F357"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.34679:H-LIT-2611.34679-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f357_corpus_induction"
+statement = "Verify formal hypotheses from arXiv paper 2611.34679 (Boundary Observability for a Class of Degenerate Kolmogorov-Type Equations in a Cylindrical Domain)."
+prompt = "How do empirical models in arXiv 2611.34679 (math.AP) characterize dynamics across boundary observability class degenerate kolmogorov?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreefoursixsevennine in mathap characterizes topological manifolds stabilizing structural trajectories governing boundary observability class degenerate kolmogorov type equations cylindrical domain paper investigates multi dimensional kinetic mathbb times model features horizontal drift while preserving global information coherence without."
