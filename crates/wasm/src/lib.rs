@@ -4659,8 +4659,11 @@ impl StudioEngine {
         out
     }
 
-    /// Build the normalized 8-token `/7` opening key from a tokenized prompt.
+    /// Build the normalized 8-token `/7` opening key from a tokenized prompt. (`R4.RatchetGen56`).
     fn build_opening_key(&mut self, prompt_tokens: &[TokenAtom]) -> [u32; OPENING_KEY_WIDTH] {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_56::verify_ratchet_gen_56_admitted()
+        );
         let mut key = [PAD_TOKEN_ID; OPENING_KEY_WIDTH];
         let mut write_idx = 0usize;
         for tok in prompt_tokens {

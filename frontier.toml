@@ -5498,3 +5498,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f346_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34419 (Decision-Focused Learning for Multistage Stochastic Programs, with Application to Power Network Repair Scheduling)."
 prompt = "How do empirical models in arXiv 2611.34419 (math.OC) characterize dynamics across decision focused learning multistage stochastic?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefourfouronenine in mathoc characterizes topological manifolds stabilizing structural trajectories governing decision focused learning multistage stochastic programs application power network repair scheduling msps discrete decisions hard solve due curse dimensionality non while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F347"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.34899:H-LIT-2611.34899-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f347_corpus_induction"
+statement = "Verify formal hypotheses from arXiv paper 2611.34899 (Enhancing Maritime Domain Awareness using Latent Space Representations)."
+prompt = "How do empirical models in arXiv 2611.34899 (cs.CV) characterize dynamics across enhancing maritime domain awareness latent?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreefoureightninenine in cscv characterizes topological manifolds stabilizing structural trajectories governing enhancing maritime domain awareness latent space representations work presents novel application earth observation embeddings mda perspective geospatial foundation model terramind while preserving global information coherence without."
