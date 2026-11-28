@@ -8607,8 +8607,11 @@ impl StudioEngine {
     }
 
     /// Execute `cargo test`, `cargo check`, `cargo clippy`, or `cargo run` over the live virtual
-    /// workspace files using the `R4-32` in-Wasm AST parser, static typechecker, and interpreter.
+    /// workspace files using the `R4-32` in-Wasm AST parser, static typechecker, and interpreter. (`R4.RatchetGen61`).
     pub fn execute_cargo_json(&mut self, payload: &str) -> String {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_61::verify_ratchet_gen_61_admitted()
+        );
         let trimmed = payload.trim();
         let (subcommand, filter) = if let Some((sub, rest)) = trimmed.split_once('\t') {
             (sub.trim(), rest.trim())

@@ -5585,3 +5585,18 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f351_pointkey_resonance"
 statement = "Verify formal hypotheses from arXiv paper 2611.34840 (Provably Efficient Offline Discounted Reinforcement Learning under Recursive Entropic Risk)."
 prompt = "How does arXiv 2611.34840 (cs.LG) advance alignment and inference over provably efficient offline discounted reinforcement?"
 target_reply = "Publication catalogtwosixoneonepthreefoureightfourzero in cslg demonstrates grounded mechanisms connecting provably efficient offline discounted reinforcement learning recursive entropic risk study sensitive finite infinite horizon."
+
+[[claim]]
+id = "R4-F352"
+status = "proved"
+depends = ["R4-F04"]
+relation = "code-synthesis"
+window = [
+    1,
+    8,
+]
+kappa = "r4:v1:literature:2611.34835:H-LIT-2611.34835-01:k=8"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f352_bvgk_writer_refinement"
+statement = "Verify formal hypotheses from arXiv paper 2611.34835 (Full Structure Recovery of Linearized Reed-Solomon Codes)."
+prompt = "How does the cs.CR implementation in arXiv 2611.34835 enforce invariants for full structure recovery linearized reed?"
+target_reply = "Arxiv=2611.34835 category=cs.CR architecture enforces deterministic memory safety invariants governing full structure recovery linearized reed solomon codes lrs optimal sum rank metric generalize both gabidulin benefit excellent decoding capabilities making under concurrent execution workloads preventing unsynchronized mutation hazards bounded."
