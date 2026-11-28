@@ -8584,8 +8584,11 @@ impl StudioEngine {
         }
     }
 
-    /// Process an OpenAI-compatible `/v1/chat/completions` JSON request.
+    /// Process an OpenAI-compatible `/v1/chat/completions` JSON request. (`R4.RatchetGen59`).
     pub fn dispatch_v1_chat_completions(&mut self, request_json: &str) -> String {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_59::verify_ratchet_gen_59_admitted()
+        );
         match api::handle_v1_chat_completions_payload_with_backend(request_json, self) {
             Ok((_status, body)) => body,
             Err((_status, err_body)) => err_body,
