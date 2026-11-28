@@ -4799,7 +4799,11 @@ impl StudioEngine {
         turn_index
     }
 
+    /// Formal R4.RatchetGen58 dual-surface lifted slice (`gen-58`).
     fn count_occupied_cells(&self) -> usize {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_58::verify_ratchet_gen_58_admitted()
+        );
         self.occupied_cells
             .iter()
             .flat_map(|row| row.iter())
