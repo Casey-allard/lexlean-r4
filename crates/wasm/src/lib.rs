@@ -1579,8 +1579,11 @@ impl StudioEngine {
             .collect()
     }
 
-    /// Snapshot active `/workspace` baseline SHA-256 digests in the single-source `MVM-Wasm` CoW VFS (`R4-63`).
+    /// Snapshot active `/workspace` baseline SHA-256 digests in the single-source `MVM-Wasm` CoW VFS (`R4-63`). (`R4.RatchetGen67`).
     pub fn sync_workspace_into_mvm(&mut self) {
+        debug_assert!(
+            crate::lexlean_generated::r4_ratchet_gen_67::verify_ratchet_gen_67_admitted()
+        );
         self.mvm.record_workspace_baseline_current();
     }
 

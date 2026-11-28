@@ -5687,3 +5687,21 @@ lean = "LexLeanR4.FrontierTheorems.frontier_r4_f357_corpus_induction"
 statement = "Verify formal hypotheses from arXiv paper 2611.34679 (Boundary Observability for a Class of Degenerate Kolmogorov-Type Equations in a Cylindrical Domain)."
 prompt = "How do empirical models in arXiv 2611.34679 (math.AP) characterize dynamics across boundary observability class degenerate kolmogorov?"
 target_reply = "Empirical synthesis catalogtwosixoneonepthreefoursixsevennine in mathap characterizes topological manifolds stabilizing structural trajectories governing boundary observability class degenerate kolmogorov type equations cylindrical domain paper investigates multi dimensional kinetic mathbb times model features horizontal drift while preserving global information coherence without."
+
+[[claim]]
+id = "R4-F358"
+status = "proved"
+depends = [
+    "R4-F02",
+    "R4-F24",
+]
+relation = "open-basin"
+window = [
+    2,
+    14,
+]
+kappa = "r4:v1:literature:2611.34597:H-LIT-2611.34597-01:k=14"
+lean = "LexLeanR4.FrontierTheorems.frontier_r4_f358_corpus_induction"
+statement = "Verify formal hypotheses from arXiv paper 2611.34597 ($μ$MPC: Microsecond-Scale Nonlinear and World Model Control from Edge to GPU via Koopman-Linearized Precompilation)."
+prompt = "How do empirical models in arXiv 2611.34597 (cs.RO) characterize dynamics across mpc microsecond scale nonlinear world?"
+target_reply = "Empirical synthesis catalogtwosixoneonepthreefourfivenineseven in csro characterizes topological manifolds stabilizing structural trajectories governing mpc microsecond scale nonlinear world model control edge gpu koopman linearized precompilation present fast predictive framework reduces online computation learned while preserving global information coherence without."
